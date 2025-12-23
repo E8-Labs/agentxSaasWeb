@@ -10,6 +10,7 @@ import {
   Fade,
   FormControl,
   InputLabel,
+  Menu,
   MenuItem,
   Modal,
   Popover,
@@ -186,6 +187,9 @@ const LeadDetails = ({
   })
 
   const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
+
+  // Send action dropdown state
+  const [sendActionAnchor, setSendActionAnchor] = useState(null)
 
   // Stripe configuration for upgrade modal
   const stripePromise = getStripe()
@@ -956,11 +960,14 @@ const LeadDetails = ({
 
   const getCommunicationTypeIcon = (item) => {
     console.log('item.communication', item.communicationType)
+    // Check if it's a dialer call (callOrigin === 'Dialer' or isWebCall === false for calls)
+    const isDialerCall = item.callOrigin === 'Dialer' || (item.communicationType === 'call' && item.isWebCall === false)
+    
     if (item.communicationType == 'sms') {
       return '/otherAssets/smsIcon.png'
     } else if (item.communicationType == 'email') {
       return '/otherAssets/email.png'
-    } else if (item.communicationType == 'call') {
+    } else if (item.communicationType == 'call' || isDialerCall) {
       return '/otherAssets/callIcon.png'
     } else if (item.communicationType == 'web') {
       return '/otherAssets/webhook2.svg'
@@ -1422,6 +1429,146 @@ const LeadDetails = ({
                               {selectedLeadsDetails?.lastName}
                             </div>
 
+                            {/* Send Action Dropdown Button */}
+                            <div className="relative">
+                              <button
+                                className="flex flex-row items-center gap-1 px-2 py-1 border border-brand-primary text-brand-primary rounded-lg"
+                                onClick={(e) => setSendActionAnchor(e.currentTarget)}
+                              >
+                                <span className="text-[12px] font-[400]">Send</span>
+                                <CaretDown size={12} weight="bold" />
+                              </button>
+                              <Menu
+                                anchorEl={sendActionAnchor}
+                                open={Boolean(sendActionAnchor)}
+                                onClose={() => setSendActionAnchor(null)}
+                                anchorOrigin={{
+                                  vertical: 'bottom',
+                                  horizontal: 'left',
+                                }}
+                                transformOrigin={{
+                                  vertical: 'top',
+                                  horizontal: 'left',
+                                }}
+                                PaperProps={{
+                                  style: {
+                                    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                                    borderRadius: '12px',
+                                    minWidth: '150px',
+                                  },
+                                }}
+                              >
+                                {/* Email Option */}
+                                {(selectedLeadsDetails?.email ||
+                                  selectedLeadsDetails?.emails?.length > 0) && (
+                                  <MenuItem
+                                    onClick={() => {
+                                      setSendActionAnchor(null)
+                                      if (googleAccounts.length === 0) {
+                                        setShowAuthSelectionPopup(true)
+                                      } else {
+                                        setShowEmailModal(true)
+                                      }
+                                    }}
+                                    disabled={sendEmailLoader}
+                                  >
+                                    <div className="flex flex-row items-center gap-2 w-full">
+                                      <div
+                                        style={{
+                                          width: 20,
+                                          height: 20,
+                                          backgroundColor: '#000000',
+                                          WebkitMaskImage: 'url(/otherAssets/@Icon.png)',
+                                          maskImage: 'url(/otherAssets/@Icon.png)',
+                                          WebkitMaskSize: 'contain',
+                                          maskSize: 'contain',
+                                          WebkitMaskRepeat: 'no-repeat',
+                                          maskRepeat: 'no-repeat',
+                                          WebkitMaskPosition: 'center',
+                                          maskPosition: 'center',
+                                        }}
+                                      />
+                                      <span>Email</span>
+                                    </div>
+                                  </MenuItem>
+                                )}
+                                {/* Text Option */}
+                                {selectedLeadsDetails?.phone && (
+                                  <MenuItem
+                                    onClick={() => {
+                                      setSendActionAnchor(null)
+                                      setShowSMSModal(true)
+                                    }}
+                                    disabled={
+                                      sendSMSLoader ||
+                                      !userLocalData?.planCapabilities
+                                        ?.allowTextMessages ||
+                                      phoneNumbers.length == 0
+                                    }
+                                  >
+                                    <div className="flex flex-row items-center gap-2 w-full">
+                                      <div
+                                        style={{
+                                          width: 20,
+                                          height: 20,
+                                          backgroundColor: '#000000',
+                                          WebkitMaskImage: 'url(/otherAssets/smsIcon.png)',
+                                          maskImage: 'url(/otherAssets/smsIcon.png)',
+                                          WebkitMaskSize: 'contain',
+                                          maskSize: 'contain',
+                                          WebkitMaskRepeat: 'no-repeat',
+                                          maskRepeat: 'no-repeat',
+                                          WebkitMaskPosition: 'center',
+                                          maskPosition: 'center',
+                                        }}
+                                      />
+                                      <span>Text</span>
+                                      {(!userLocalData?.planCapabilities
+                                        ?.allowTextMessages ||
+                                        phoneNumbers.length == 0) && (
+                                        <Image
+                                          src="/otherAssets/starsIcon2.png"
+                                          height={16}
+                                          width={16}
+                                          alt="upgrade"
+                                          className="ml-auto"
+                                        />
+                                      )}
+                                    </div>
+                                  </MenuItem>
+                                )}
+                                {/* Call Option */}
+                                {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' &&
+                                  selectedLeadsDetails?.phone && (
+                                    <MenuItem
+                                      onClick={() => {
+                                        setSendActionAnchor(null)
+                                        startDialerFlow()
+                                      }}
+                                    >
+                                      <div className="flex flex-row items-center gap-2 w-full">
+                                        <div
+                                          style={{
+                                            width: 20,
+                                            height: 20,
+                                            backgroundColor: '#000000',
+                                            WebkitMaskImage: 'url(/otherAssets/callIcon.png)',
+                                            maskImage: 'url(/otherAssets/callIcon.png)',
+                                            WebkitMaskSize: 'contain',
+                                            maskSize: 'contain',
+                                            WebkitMaskRepeat: 'no-repeat',
+                                            maskRepeat: 'no-repeat',
+                                            WebkitMaskPosition: 'center',
+                                            maskPosition: 'center',
+                                          }}
+                                        />
+                                        <span>Call</span>
+                                      </div>
+                                    </MenuItem>
+                                  )}
+                              </Menu>
+                            </div>
+
                             {selectedLeadsDetails?.scoringDetails &&
                               selectedLeadsDetails?.scoringDetails?.questions
                                 ?.length > 0 && (
@@ -1450,11 +1597,20 @@ const LeadDetails = ({
                           {(selectedLeadsDetails?.email ||
                             selectedLeadsDetails?.emails?.length > 0) && (
                             <div className="flex flex-row items-center gap-2">
-                              <Image
-                                src="/otherAssets/email.png"
-                                height={16}
-                                width={16}
-                                alt="email"
+                              <div
+                                style={{
+                                  width: 16,
+                                  height: 16,
+                                  backgroundColor: '#000000',
+                                  WebkitMaskImage: 'url(/otherAssets/email.png)',
+                                  maskImage: 'url(/otherAssets/email.png)',
+                                  WebkitMaskSize: 'contain',
+                                  maskSize: 'contain',
+                                  WebkitMaskRepeat: 'no-repeat',
+                                  maskRepeat: 'no-repeat',
+                                  WebkitMaskPosition: 'center',
+                                  maskPosition: 'center',
+                                }}
                               />
                               <div style={styles.heading2}>
                                 {selectedLeadsDetails?.email ? (
@@ -1506,37 +1662,6 @@ const LeadDetails = ({
                                   </div>
                                 )}
                               </div>
-                              {/* Send Email Button */}
-                              <button
-                                className="flex flex-row items-center gap-1 px-1 py-1 border border-brand-primary text-brand-primary rounded-lg  ml-4"
-                                onClick={() => {
-                                  if (googleAccounts.length === 0) {
-                                    setShowAuthSelectionPopup(true)
-                                  } else {
-                                    setShowEmailModal(true)
-                                  }
-                                }}
-                                disabled={sendEmailLoader}
-                              >
-                                <div
-                                  style={{
-                                    width: 18,
-                                    height: 18,
-                                    backgroundColor: 'hsl(var(--brand-primary))',
-                                    WebkitMaskImage: 'url(/otherAssets/sendEmailIcon.png)',
-                                    maskImage: 'url(/otherAssets/sendEmailIcon.png)',
-                                    WebkitMaskSize: 'contain',
-                                    maskSize: 'contain',
-                                    WebkitMaskRepeat: 'no-repeat',
-                                    maskRepeat: 'no-repeat',
-                                    WebkitMaskPosition: 'center',
-                                    maskPosition: 'center',
-                                  }}
-                                />
-                                <span className="text-brand-primary text-[12px] font-[400]">
-                                  Send Email
-                                </span>
-                              </button>
                             </div>
                           )}
                           <div>
@@ -1589,15 +1714,21 @@ const LeadDetails = ({
                           </div>
                           {selectedLeadsDetails?.phone && (
                             <div className="flex flex-row gap-2 justify-center items-center -mt-2">
-                              {/* <div className="w-4 h-4 filter invert brightness-0"> */}
-                              <Image
-                                src="/otherAssets/phone.png"
-                                width={16}
-                                height={20}
-                                alt="call"
+                              <div
+                                style={{
+                                  width: 16,
+                                  height: 20,
+                                  backgroundColor: '#000000',
+                                  WebkitMaskImage: 'url(/otherAssets/phone.png)',
+                                  maskImage: 'url(/otherAssets/phone.png)',
+                                  WebkitMaskSize: 'contain',
+                                  maskSize: 'contain',
+                                  WebkitMaskRepeat: 'no-repeat',
+                                  maskRepeat: 'no-repeat',
+                                  WebkitMaskPosition: 'center',
+                                  maskPosition: 'center',
+                                }}
                               />
-                              {/* </div> */}
-                              {/* <Phone className="w-4 h-4 text-black" /> */}
                               <div style={styles.heading2}>
                                 {formatPhoneNumber(
                                   selectedLeadsDetails?.phone,
@@ -1611,147 +1742,25 @@ const LeadDetails = ({
                                   {selectedLeadsDetails?.cell}
                                 </div>
                               )}
-                              {/* Send SMS Button for Phone */}
-                              <div className="flex flex-row items-center gap-2 ml-4">
-                                <div className="relative">
-                                  {/* Stars icon overlapping top-left corner of button */}
-                                  {userLocalData?.planCapabilities
-                                    ?.allowTextMessages === false && (
-                                    <Image
-                                      className="absolute -top-3 -left-2 z-10"
-                                      src="/otherAssets/starsIcon2.png"
-                                      height={20}
-                                      width={20}
-                                      alt="Upgrade"
-                                    />
-                                  )}
-
-                                  <Tooltip
-                                    title={
-                                      userLocalData?.planCapabilities
-                                        ?.allowTextMessages === false ? (
-                                        <div className="flex flex-col items-start gap-1">
-                                          <span>
-                                            <button
-                                              className="text-brand-primary underline hover:text-brand-primary/80 transition-colors text-left p-0 bg-transparent border-none ml-1"
-                                              onClick={() => {
-                                                console.log(
-                                                  'Upgrade clicked from SMS tooltip',
-                                                )
-                                                setShowUpgradeModal(true)
-                                              }}
-                                            >
-                                              {`Upgrade `}
-                                            </button>
-                                            {' account to send text'}
-                                          </span>
-                                        </div>
-                                      ) : phoneNumbers.length == 0 ? (
-                                        'You need to complete A2P to text'
-                                      ) : (
-                                        ''
-                                      )
-                                    }
-                                    arrow
-                                    disableHoverListener={
-                                      userLocalData?.planCapabilities
-                                        ?.allowTextMessages &&
-                                      phoneNumbers.length > 0
-                                    }
-                                    disableFocusListener={
-                                      userLocalData?.planCapabilities
-                                        ?.allowTextMessages &&
-                                      phoneNumbers.length > 0
-                                    }
-                                    disableTouchListener={
-                                      userLocalData?.planCapabilities
-                                        ?.allowTextMessages &&
-                                      phoneNumbers.length > 0
-                                    }
-                                    componentsProps={{
-                                      tooltip: {
-                                        sx: {
-                                          backgroundColor: '#ffffff',
-                                          color: '#333',
-                                          fontSize: '14px',
-                                          fontWeight: '500',
-                                          padding: '12px 15px',
-                                          borderRadius: '8px',
-                                          boxShadow:
-                                            '0px 4px 20px rgba(0, 0, 0, 0.15)',
-                                          border: '1px solid #e5e7eb',
-                                          maxWidth: '250px',
-                                        },
-                                      },
-                                      arrow: {
-                                        sx: {
-                                          color: '#ffffff',
-                                        },
-                                      },
-                                    }}
-                                  >
-                                    {sendSMSLoader ? (
-                                      <CircularProgress size={20} />
-                                    ) : (
-                                      <button
-                                        className={`flex flex-row border border-brand-primary items-center gap-1 px-1 py-1 text-brand-primary rounded-lg`}
-                                        onClick={() => setShowSMSModal(true)}
-                                        disabled={
-                                          sendSMSLoader ||
-                                          !userLocalData?.planCapabilities
-                                            ?.allowTextMessages ||
-                                          phoneNumbers.length == 0
-                                        }
-                                      >
-                                        <div
-                                          style={{
-                                            width: 18,
-                                            height: 18,
-                                            backgroundColor: 'hsl(var(--brand-primary))',
-                                            WebkitMaskImage: 'url(/otherAssets/sendSmsIcon.png)',
-                                            maskImage: 'url(/otherAssets/sendSmsIcon.png)',
-                                            WebkitMaskSize: 'contain',
-                                            maskSize: 'contain',
-                                            WebkitMaskRepeat: 'no-repeat',
-                                            maskRepeat: 'no-repeat',
-                                            WebkitMaskPosition: 'center',
-                                            maskPosition: 'center',
-                                          }}
-                                        />
-                                        <span className="text-[12px] font-[400]">
-                                          Send Text
-                                        </span>
-                                      </button>
-                                    )}
-                                  </Tooltip>
-                                </div>
-
-                                {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && (
-                                  <button
-                                    className="flex flex-row border border-brand-primary items-center gap-2 px-2 py-1 text-brand-primary rounded-lg"
-                                    onClick={startDialerFlow}
-                                  >
-                                    <Phone
-                                      className="w-4 h-4 text-brand-primary"
-                                      strokeWidth={2}
-                                    />
-                                    <span className="text-[12px] font-[400]">
-                                      Dialer
-                                    </span>
-                                  </button>
-                                )}
-                              </div>
                             </div>
                           )}
 
                           {selectedLeadsDetails?.address && (
                             <div className="flex flex-row items-center gap-2">
-                              {/* <EnvelopeSimple size={20} color='#00000060' /> */}
-                              <Image
-                                src={'/otherAssets/location.png'}
-                                height={16}
-                                width={16}
-                                alt="man"
+                              <div
+                                style={{
+                                  width: 16,
+                                  height: 16,
+                                  backgroundColor: '#000000',
+                                  WebkitMaskImage: 'url(/otherAssets/location.png)',
+                                  maskImage: 'url(/otherAssets/location.png)',
+                                  WebkitMaskSize: 'contain',
+                                  maskSize: 'contain',
+                                  WebkitMaskRepeat: 'no-repeat',
+                                  maskRepeat: 'no-repeat',
+                                  WebkitMaskPosition: 'center',
+                                  maskPosition: 'center',
+                                }}
                               />
                               <div style={styles.heading2}>
                                 {selectedLeadsDetails?.address || '-'}
@@ -1760,11 +1769,20 @@ const LeadDetails = ({
                           )}
                           {selectedLeadsDetails?.tags.length > 0 && (
                             <div className="flex flex-row items-center gap-2">
-                              <Image
-                                src={'/otherAssets/tag.png'}
-                                height={16}
-                                width={16}
-                                alt="man"
+                              <div
+                                style={{
+                                  width: 16,
+                                  height: 16,
+                                  backgroundColor: '#000000',
+                                  WebkitMaskImage: 'url(/otherAssets/tag.png)',
+                                  maskImage: 'url(/otherAssets/tag.png)',
+                                  WebkitMaskSize: 'contain',
+                                  maskSize: 'contain',
+                                  WebkitMaskRepeat: 'no-repeat',
+                                  maskRepeat: 'no-repeat',
+                                  WebkitMaskPosition: 'center',
+                                  maskPosition: 'center',
+                                }}
                               />
                               <div>
                                 {selectedLeadsDetails?.tags.length > 0 ? (
@@ -1846,14 +1864,19 @@ const LeadDetails = ({
                           )}
                           {selectedLeadsDetails?.pipeline && (
                             <div className="flex flex-row items-center gap-2">
-                              <Image
-                                src="/otherAssets/pipeline2.png"
-                                height={20}
-                                width={20}
-                                alt="*"
+                              <div
                                 style={{
-                                  filter:
-                                    'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%)',
+                                  width: 20,
+                                  height: 20,
+                                  backgroundColor: '#000000',
+                                  WebkitMaskImage: 'url(/otherAssets/pipeline2.png)',
+                                  maskImage: 'url(/otherAssets/pipeline2.png)',
+                                  WebkitMaskSize: 'contain',
+                                  maskSize: 'contain',
+                                  WebkitMaskRepeat: 'no-repeat',
+                                  maskRepeat: 'no-repeat',
+                                  WebkitMaskPosition: 'center',
+                                  maskPosition: 'center',
                                 }}
                               />
                               <div style={styles.heading2}>
@@ -1867,11 +1890,20 @@ const LeadDetails = ({
                           <div>
                             {selectedLeadsDetails?.booking && (
                               <div className="flex flex-row items-center gap-2">
-                                <Image
-                                  src="/otherAssets/Calendar.png"
-                                  height={16}
-                                  width={16}
-                                  alt="*"
+                                <div
+                                  style={{
+                                    width: 16,
+                                    height: 16,
+                                    backgroundColor: '#000000',
+                                    WebkitMaskImage: 'url(/otherAssets/Calendar.png)',
+                                    maskImage: 'url(/otherAssets/Calendar.png)',
+                                    WebkitMaskSize: 'contain',
+                                    maskSize: 'contain',
+                                    WebkitMaskRepeat: 'no-repeat',
+                                    maskRepeat: 'no-repeat',
+                                    WebkitMaskPosition: 'center',
+                                    maskPosition: 'center',
+                                  }}
                                 />
                                 <div style={styles.heading2}>
                                   {GetFormattedDateString(
@@ -1944,11 +1976,20 @@ const LeadDetails = ({
                                   handleShowPopup(event)
                                 }}
                               >
-                                <Image
-                                  src={'/otherAssets/assignTeamIcon.png'}
-                                  alt="*"
-                                  height={16}
-                                  width={16}
+                                <div
+                                  style={{
+                                    width: 16,
+                                    height: 16,
+                                    backgroundColor: '#000000',
+                                    WebkitMaskImage: 'url(/otherAssets/assignTeamIcon.png)',
+                                    maskImage: 'url(/otherAssets/assignTeamIcon.png)',
+                                    WebkitMaskSize: 'contain',
+                                    maskSize: 'contain',
+                                    WebkitMaskRepeat: 'no-repeat',
+                                    maskRepeat: 'no-repeat',
+                                    WebkitMaskPosition: 'center',
+                                    maskPosition: 'center',
+                                  }}
                                 />
                                 <div
                                   style={{
@@ -1986,59 +2027,75 @@ const LeadDetails = ({
                         </div>
                       </div>
 
-                      <div className="flex w-full">
-                        {getExtraColumsCount(columnsLength) >= 1 && (
-                          <div className="flex flex-col mt-2 rounded-xl p-2 w-full max-w-full overflow-hidden">
-                            <button
-                              onClick={() => {
-                                setShowCustomVariables(!showCustomVariables)
-                              }}
-                              className="flex flex-row items-center w-full justify-between outline-none"
-                            >
-                              <div className="flex flex-row items-center gap-3">
-                                <Image
-                                  src={'/assets/customsIcon.svg'}
-                                  alt="*"
-                                  height={16}
-                                  width={16}
-                                />
-                                <div
-                                  style={{
-                                    fontWeight: '500',
-                                    fontsize: 15,
-                                    color: '#000000100',
-                                  }}
-                                >
-                                  Custom fields
-                                </div>
-                                {showCustomVariables ? (
-                                  <CaretUp
-                                    size={16}
-                                    weight="bold"
-                                    color="#15151570"
-                                  />
-                                ) : (
-                                  <CaretDown
-                                    size={16}
-                                    weight="bold"
-                                    color="#15151570"
-                                  />
-                                )}
-                              </div>
-                              <div>
-                                {getExtraColumsCount(columnsLength) > 0 ? (
-                                  <div
-                                    className="text-brand-primary underline"
-                                    style={{ fontsize: 15, fontWeight: '500' }}
-                                  >
-                                    +{getExtraColumsCount(columnsLength)}
-                                  </div>
-                                ) : (
-                                  ''
-                                )}
-                              </div>
-                            </button>
-                            <div className="flex w-full ">
+                    <div
+                      className="w-full flex flex-row items-center justify-between mt-2"
+                      style={{
+                        ...styles.paragraph,
+                        paddingInline: 20,
+                      }}
+                    >
+                      {getExtraColumsCount(columnsLength) >= 1 && (
+                        <button
+                          onClick={() => {
+                            setShowCustomVariables(!showCustomVariables)
+                          }}
+                          className="outline-none p-2 flex flex-row gap-2"
+                          style={{
+                            borderBottom: showCustomVariables
+                              ? '2px solid hsl(var(--brand-primary))'
+                              : '',
+                            backgroundColor: showCustomVariables
+                              ? 'hsl(var(--brand-primary) / 0.05)'
+                              : '',
+                          }}
+                        >
+                          <div
+                            style={{
+                              width: 16,
+                              height: 16,
+                              backgroundColor: showCustomVariables
+                                ? 'hsl(var(--brand-primary))'
+                                : '#000000',
+                              WebkitMaskImage: 'url(/assets/customsIcon.svg)',
+                              maskImage: 'url(/assets/customsIcon.svg)',
+                              WebkitMaskSize: 'contain',
+                              maskSize: 'contain',
+                              WebkitMaskRepeat: 'no-repeat',
+                              maskRepeat: 'no-repeat',
+                              WebkitMaskPosition: 'center',
+                              maskPosition: 'center',
+                            }}
+                          />
+                          <div
+                            style={{
+                              color: showCustomVariables
+                                ? 'hsl(var(--brand-primary))'
+                                : 'black',
+                            }}
+                          >
+                            Custom fields
+                          </div>
+                          {showCustomVariables ? (
+                            <CaretUp
+                              size={16}
+                              weight="bold"
+                              color={showCustomVariables ? 'hsl(var(--brand-primary))' : '#000000'}
+                            />
+                          ) : (
+                            <CaretDown
+                              size={16}
+                              weight="bold"
+                              color="#000000"
+                            />
+                          )}
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="flex w-full">
+                      {getExtraColumsCount(columnsLength) >= 1 && (
+                        <div className="flex flex-col mt-2 rounded-xl p-2 w-full max-w-full overflow-hidden">
+                          <div className="flex w-full ">
                               {showCustomVariables && (
                                 <div className="flex flex-col mt-4 gap-1 w-full max-w-full overflow-hidden">
                                   {leadColumns.map((column, index) => {
@@ -2427,6 +2484,7 @@ const LeadDetails = ({
                           setShowKycDetails(false)
                           setShowNotesDetails(false)
                           setShowAcitivityDetails(false)
+                          setShowCustomVariables(false)
                         }}
                       >
                         <div
@@ -2476,6 +2534,7 @@ const LeadDetails = ({
                           setShowKycDetails(true)
                           setShowNotesDetails(false)
                           setShowAcitivityDetails(false)
+                          setShowCustomVariables(false)
                         }}
                       >
                         <div
@@ -2527,6 +2586,7 @@ const LeadDetails = ({
                           setShowKycDetails(false)
                           setShowNotesDetails(false)
                           setShowAcitivityDetails(true)
+                          setShowCustomVariables(false)
                         }}
                       >
                         <div
@@ -2576,6 +2636,7 @@ const LeadDetails = ({
                           setShowKycDetails(false)
                           setShowNotesDetails(true)
                           setShowAcitivityDetails(false)
+                          setShowCustomVariables(false)
                         }}
                       >
                         <div
@@ -2614,7 +2675,7 @@ const LeadDetails = ({
                     </div>
                     <div
                       className="w-full"
-                      style={{ height: '1px', backgroundColor: '#15151530' }}
+                      style={{ height: '1px', backgroundColor: '#15151510' }}
                     />
 
                     <div style={{ paddingInline: 0 }}>
@@ -2881,13 +2942,20 @@ const LeadDetails = ({
                                             <div className="h-full w-full">
                                               <div className="flex flex-row items-center justify-between">
                                                 <div className="flex flex-row items-center gap-1">
-                                                  <Image
-                                                    src={getCommunicationTypeIcon(
-                                                      item,
-                                                    )}
-                                                    height={15}
-                                                    width={15}
-                                                    alt="*"
+                                                  <div
+                                                    style={{
+                                                      width: 15,
+                                                      height: 15,
+                                                      backgroundColor: '#000000',
+                                                      WebkitMaskImage: `url(${getCommunicationTypeIcon(item)})`,
+                                                      maskImage: `url(${getCommunicationTypeIcon(item)})`,
+                                                      WebkitMaskSize: 'contain',
+                                                      maskSize: 'contain',
+                                                      WebkitMaskRepeat: 'no-repeat',
+                                                      maskRepeat: 'no-repeat',
+                                                      WebkitMaskPosition: 'center',
+                                                      maskPosition: 'center',
+                                                    }}
                                                   />
                                                   <div
                                                     style={{

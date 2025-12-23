@@ -33,35 +33,40 @@ const AgencyChecklist = ({ userDetails }) => {
     const D = localStorage.getItem('User')
     if (D) {
       const LocalData = JSON.parse(D)
-      const LD = LocalData?.user
+      const User = LocalData?.user
       const T = LocalData?.user?.checkList?.checkList
-      const canAcceptPaymentsAgencyccount = LD?.canAcceptPaymentsAgencyccount
+      const canAcceptPaymentsAgencyccount = User?.canAcceptPaymentsAgencyccount
       console.log('Agency checklist is', T)
       // const T = userDetails?.checkList?.checkList;
       console.log('Check list on main check list screen is', T)
       let percentage = 0
 
+      const totalSteps = 6
+      const stepPercentage = 100 / totalSteps
       if (canAcceptPaymentsAgencyccount) {
-        percentage = 20
+        percentage = stepPercentage 
       }
 
       for (let key in T) {
         if (T[key]) {
-          percentage += 20 //16.67;
+          percentage += stepPercentage //16.67;
         }
       }
+      // if(User?.agencyGlobalNumber?.phoneNumber) {
+      //   percentage += stepPercentage
+      // }
 
       // setProgressValue(percentage.toFixed(2));
       //safe for number value
       setProgressValue(parseFloat(percentage.toFixed(2)))
 
-      console.log('percentage of check list is', percentage) // Output: 60
+      console.log('percentage of check list is', T?.globalNumberClaimed) // Output: 60
 
       setCheckList([
         {
           id: 1,
           label: 'Add Stripe',
-          status: LD?.canAcceptPaymentsAgencyccount,
+          status: User?.canAcceptPaymentsAgencyccount,
           route: '/agency/dashboard/integration',
         },
         {
@@ -72,18 +77,24 @@ const AgencyChecklist = ({ userDetails }) => {
         },
         {
           id: 3,
+          label: 'Get Global Number',
+          status: T?.globalNumberClaimed,//User?.agencyGlobalNumber?.phoneNumber ? true : false,
+          route: '/agency/dashboard/myAccount?tab=4',
+        },
+        {
+          id: 4,
           label: 'Add Subscriptions',
           status: T?.plansAdded,
           route: '/agency/dashboard/plans',
         },
         {
-          id: 4,
+          id: 5,
           label: 'Add XBar Options',
           status: T?.plansXbarAdded,
           route: '/agency/dashboard/plans?tab=xbar',
         },
         {
-          id: 5,
+          id: 6,
           label: 'Add Subaccount',
           status: T?.subaccountAdded,
           route: '/agency/dashboard/subAccounts',

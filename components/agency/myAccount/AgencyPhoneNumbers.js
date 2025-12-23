@@ -1,6 +1,6 @@
 'use client'
 
-import { Alert, Button, CircularProgress, Fade, Snackbar } from '@mui/material'
+import { Alert, Button, CircularProgress, Fade, Snackbar, Tooltip } from '@mui/material'
 import axios from 'axios'
 import moment from 'moment'
 import Image from 'next/image'
@@ -210,6 +210,29 @@ function AgencyPhoneNumbers({ selectedAgency }) {
     setShowClaimPopup(false)
   }
 
+  // Get user data - either from selectedAgency or localStorage
+  const getUserData = () => {
+    if (selectedAgency) {
+      return selectedAgency
+    }
+    try {
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        const u = JSON.parse(localData)
+        return u?.user || null
+      }
+    } catch (error) {
+      console.error('Error reading user data from localStorage:', error)
+    }
+    return null
+  }
+
+  const userData = getUserData()
+
+  // Check if Twilio is connected
+  // If user is an Agency, check if twilio exists on the user object
+  const isTwilioConnected = userData?.userRole === 'Agency' && userData?.twilio ? true : false
+
   return (
     <div
       className="flex  flex-col w-full p-8  overflow-y-hidden"
@@ -229,18 +252,33 @@ function AgencyPhoneNumbers({ selectedAgency }) {
             visible to all subaccounts.
           </div>
         </div>
-        <Button
-          variant="contained"
-          onClick={() => setShowClaimPopup(true)}
-          style={{
-            backgroundColor: 'hsl(var(--brand-primary))',
-            color: '#fff',
-            textTransform: 'none',
-            minWidth: '150px',
-          }}
+        <Tooltip
+          title={
+            !isTwilioConnected
+              ? 'Please connect your Twilio account first to get a global number'
+              : ''
+          }
+          arrow
         >
-          Get Global Number
-        </Button>
+          <span>
+            <Button
+              variant="contained"
+              onClick={() => setShowClaimPopup(true)}
+              disabled={!isTwilioConnected}
+              style={{
+                backgroundColor: isTwilioConnected
+                  ? 'hsl(var(--brand-primary))'
+                  : '#d0d0d0',
+                color: '#fff',
+                textTransform: 'none',
+                minWidth: '150px',
+                cursor: isTwilioConnected ? 'pointer' : 'not-allowed',
+              }}
+            >
+              Get Global Number
+            </Button>
+          </span>
+        </Tooltip>
       </div>
 
       {/* Global Number Info Banner */}
@@ -439,7 +477,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
             await fetchPhoneNumbers()
             setShowClaimPopup(false)
           }}
-          selectedUSer={selectedAgency}
+          selectedUSer={userData}
         />
       )}
     </div>
