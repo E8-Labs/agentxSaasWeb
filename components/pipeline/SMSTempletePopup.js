@@ -10,7 +10,7 @@ import {
   Tooltip,
 } from '@mui/material'
 import { ArrowDropDownIcon } from '@mui/x-date-pickers'
-import { Plus } from '@phosphor-icons/react'
+import { Plus, PaperPlaneTilt } from '@phosphor-icons/react'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
@@ -247,7 +247,7 @@ function SMSTempletePopup({
         className="w-full h-full py-4 flex items-center justify-center"
         sx={{ ...styles.modalsStyle }}
       >
-        <div className="flex flex-col w-4/12  px-8 py-6 bg-white max-h-[70vh] rounded-2xl justify-between">
+        <div className="flex flex-col w-full max-w-2xl px-8 py-6 bg-white max-h-[85vh] rounded-2xl justify-between">
           <div
             className="flex flex-col w-full h-[80%] overflow-auto"
             style={{ scrollbarWidth: 'none' }}
@@ -276,7 +276,7 @@ function SMSTempletePopup({
               <CloseBtn onClick={onClose} />
             </div>
 
-            <div className="w-full flex flex-col items-ceter  p-2 rounded-lg mb-2"
+            <div className="w-full flex flex-col items-ceter  p-2 rounded-lg mb-4"
               style={{
                 backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
               }}
@@ -328,45 +328,47 @@ function SMSTempletePopup({
                 )}
               </div>
             </div>
-            {phoneLoading ? (
-              <CircularProgress size={30} />
-            ) : (
-              <div className="flex flex-row gap-3 w-full mt-3 items-center">
+
+            {/* From field */}
+            <div className="w-full mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                From:
+              </label>
+              {phoneLoading ? (
+                <div className="flex items-center justify-center h-[50px]">
+                  <CircularProgress size={30} />
+                </div>
+              ) : (
                 <FormControl sx={{ height: '50px', width: '100%' }}>
                   <Select
                     value={selectedPhone || ''}
                     onChange={(event) => handleSelect(event.target.value)}
-                    displayEmpty // Enables placeholder
+                    displayEmpty
                     renderValue={(selected) =>
-                      selected.phone || (
-                        <div style={{ color: '#aaa' }}>Select Number</div>
+                      selected?.phone || (
+                        <div style={{ color: '#aaa' }}>Select phone number</div>
                       )
                     }
                     sx={{
                       ...styles.dropdownMenu,
                       backgroundColor: '#FFFFFF',
                       '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'transparent', // Hide focused border color
+                        borderColor: 'transparent',
                       },
                     }}
                     MenuProps={{
                       PaperProps: {
                         style: {
-                          maxHeight: '30vh', // Limit dropdown height
-                          overflow: 'auto', // Enable scrolling in dropdown
+                          maxHeight: '30vh',
+                          overflow: 'auto',
                           scrollbarWidth: 'none',
-                          // borderRadius: "10px"
                         },
                       },
                     }}
                   >
                     {phoneNumbers?.length > 0 ? (
                       phoneNumbers?.map((item, index) => (
-                        <MenuItem
-                          key={index}
-                          // className="hover:bg-[#402FFF10]"
-                          value={item}
-                        >
+                        <MenuItem key={index} value={item}>
                           <div className="flex flex-row items-center gap-2">
                             <div className="text-[15] font-[500] w-48">
                               {item.phone}
@@ -379,78 +381,69 @@ function SMSTempletePopup({
                     )}
                   </Select>
                 </FormControl>
-              </div>
-            )}
-
-            <div className=" mt-4">
-              <PromptTagInput
-                promptTag={body}
-                // kycsList={kycsData}
-                uniqueColumns={uniqueColumns}
-                tagValue={setBody}
-                showSaveChangesBtn={body}
-                from={'sms'}
-                isEdit={isEditing}
-                editTitle={
-                  isEditing && !IsDefaultCadence ? 'Edit Text' : 'Create Text'
-                }
-                saveUpdates={async () => { }}
-                limit={160}
-              />
+              )}
             </div>
 
-            <div
-              className="text-[10px] font-[500] w-full mt-2"
-              style={{
-                textAlign: 'end',
-              }}
-            >
-              {body.length}/160
-              <br />
-            </div>
-
-            <div className="flex flex-row items-center w-full justify-end gap-1"
-              style={{
-                textAlign: 'end',
-              }}
-            >
-              <div className="flex flex-row items-center text-black gap-1 text-[10px] font-[500]">Balance
-                <Tooltip title="10 text messages equal 1 credit"
-                  arrow
-                  componentsProps={{
-                    tooltip: {
-                      sx: {
-                        backgroundColor: '#ffffff',
-                        color: '#333',
-                      },
-                    },
-                  }}
-                >
-                  <Image src="/agencyIcons/InfoIcon.jpg" alt="jpg" width={10} height={10} />
-                </Tooltip>
-              </div>
-              <div className="text-brand-primary text-[10px] font-[500]">
-                <span className="text-black text-[10px] font-[500]">:{"  "}</span>
-                {(user?.totalSecondsAvailable / 60).toFixed(2)}
+            {/* Message field */}
+            <div className="w-full mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Message:
+              </label>
+              <div className="relative">
+                <PromptTagInput
+                  promptTag={body}
+                  uniqueColumns={uniqueColumns}
+                  tagValue={setBody}
+                  showSaveChangesBtn={body}
+                  from={'sms'}
+                  isEdit={isEditing}
+                  editTitle={
+                    isEditing && !IsDefaultCadence ? 'Edit Text' : 'Create Text'
+                  }
+                  saveUpdates={async () => { }}
+                  limit={160}
+                  placeholder="Type your message..."
+                />
+                
+                {/* Character count and balance at bottom of message area */}
+                <div className="flex flex-row items-center justify-between w-full mt-2 pt-2 border-t border-gray-200">
+                  <div className="text-sm text-gray-600">
+                    {body.length}/160 char
+                  </div>
+                  <div className="flex flex-row items-center gap-2 text-sm text-gray-600">
+                    <span>|</span>
+                    <div className="flex flex-row items-center gap-1">
+                      <span>{((user?.totalSecondsAvailable || 0) / 60).toFixed(2)} credits left</span>
+                      <Tooltip 
+                        title="10 text messages equal 1 credit"
+                        arrow
+                        componentsProps={{
+                          tooltip: {
+                            sx: {
+                              backgroundColor: '#ffffff',
+                              color: '#333',
+                            },
+                          },
+                        }}
+                      >
+                        <Image src="/agencyIcons/InfoIcon.jpg" alt="info" width={10} height={10} />
+                      </Tooltip>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <div className="w-full flex  flex-row items-center w-full gap-6 mt-4">
-            <button
-              className="w-1/2 text-gray-600 hover:text-gray-800"
-              onClick={onClose}
-            >
-              Cancel
-            </button>
-
+          <div className="w-full flex flex-row items-center justify-end mt-4">
             {saveSmsLoader ? (
               <CircularProgress size={30} />
             ) : (
               <button
-                className={`w-1/2 h-[53px] text-[15px] font-[700] rounded-lg text-white  ${isSaveDisabled
-                  ? 'bg-[#00000050]'
-                  : 'bg-brand-primary hover:bg-brand-primary/90'
-                  }`}
+                className={`flex flex-row items-center gap-2 px-6 py-3 h-[48px] text-[15px] font-[600] rounded-lg text-white transition-colors ${
+                  isSaveDisabled
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-brand-primary hover:bg-brand-primary/90'
+                }`}
                 disabled={isSaveDisabled}
                 onClick={handleSave}
               >
@@ -460,6 +453,7 @@ function SMSTempletePopup({
                     ? 'Update'
                     : 'Create'}{' '}
                 Text
+                <PaperPlaneTilt size={18} weight="regular" />
               </button>
             )}
           </div>

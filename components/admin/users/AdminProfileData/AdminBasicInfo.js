@@ -8,6 +8,7 @@ import React, { useEffect, useState } from 'react'
 
 import Apis from '@/components/apis/Apis'
 import { UpdateProfile } from '@/components/apis/UpdateProfile'
+import { Checkbox } from '@/components/ui/checkbox'
 import { UserTypes } from '@/constants/UserTypes'
 import { getAreaOfFocusTitle } from '@/utilities/getAreaOfFocusTitle'
 
@@ -1325,17 +1326,12 @@ function AdminBasicInfo({ selectedUser }) {
                   <div style={{ fontSize: 14, fontWeight: '500' }}>
                     {item.description}
                   </div>
-                  <Image
-                    src={
-                      serviceId.includes(item.id)
-                        ? '/otherAssets/selectedTickBtn.png'
-                        : '/otherAssets/unselectedTickBtn.png'
-                    }
-                    height={24}
-                    width={24}
-                    alt="icon"
-                    style={{ alignSelf: 'flex-end' }}
-                  />
+                  <div className="mt-auto self-end flex-shrink-0">
+                    <Checkbox
+                      checked={serviceId.includes(item.id)}
+                      className="h-6 w-6 !rounded-full border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                    />
+                  </div>
                 </div>
               )
             })}
@@ -1381,17 +1377,12 @@ function AdminBasicInfo({ selectedUser }) {
                   <div style={{ fontSize: 14, fontWeight: '500' }}>
                     {item.description}
                   </div>
-                  <Image
-                    src={
-                      selectedArea.includes(item.id)
-                        ? '/otherAssets/selectedTickBtn.png'
-                        : '/otherAssets/unselectedTickBtn.png'
-                    }
-                    height={24}
-                    width={24}
-                    alt="icon"
-                    style={{ alignSelf: 'flex-end' }}
-                  />
+                  <div className="mt-auto self-end flex-shrink-0">
+                    <Checkbox
+                      checked={selectedArea.includes(item.id)}
+                      className="h-6 w-6 !rounded-full border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                    />
+                  </div>
                 </div>
               ))}
             </div>
@@ -1420,17 +1411,12 @@ function AdminBasicInfo({ selectedUser }) {
                   <div style={{ fontSize: 14, fontWeight: '500' }}>
                     {item.description}
                   </div>
-                  <Image
-                    src={
-                      selectedIndustries.includes(item.id)
-                        ? '/otherAssets/selectedTickBtn.png'
-                        : '/otherAssets/unselectedTickBtn.png'
-                    }
-                    height={24}
-                    width={24}
-                    alt="icon"
-                    style={{ alignSelf: 'flex-end' }}
-                  />
+                  <div className="mt-auto self-end flex-shrink-0">
+                    <Checkbox
+                      checked={selectedIndustries.includes(item.id)}
+                      className="h-6 w-6 !rounded-full border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                    />
+                  </div>
                 </div>
               ))}
             </div>

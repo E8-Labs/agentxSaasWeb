@@ -960,7 +960,7 @@ function CalendarModal(props) {
                   style={{
                     fontWeight: '600',
                     fontSize: 16,
-                    backgroundColor: !isEnabled() ? '#00000020' : '#7902DF',
+                    backgroundColor: !isEnabled() ? '#00000020' : 'hsl(var(--brand-primary))',
                     color: !isEnabled() ? '#000000' : '',
                   }}
                   onClick={() => {
@@ -1227,7 +1227,7 @@ function CalendarModal(props) {
                   style={{
                     fontWeight: '600',
                     fontSize: 16,
-                    backgroundColor: !isEnabled() ? '#00000020' : '#7902DF',
+                    backgroundColor: !isEnabled() ? '#00000020' : 'hsl(var(--brand-primary))',
                     color: !isEnabled() ? '#000000' : '',
                   }}
                   onClick={() => {
@@ -1446,7 +1446,7 @@ function CalendarModal(props) {
                   style={{
                     fontWeight: '600',
                     fontSize: 16,
-                    backgroundColor: !isEnabled(true) ? '#00000020' : '#7902DF',
+                    backgroundColor: !isEnabled(true) ? '#00000020' : 'hsl(var(--brand-primary))',
                     color: !isEnabled(true) ? '#000000' : '',
                   }}
                   onClick={() => {

@@ -101,21 +101,28 @@ const GuardianSetting = ({
       // }
 
       let mainAgentId = null
+      let agentId = null
 
       if (selectedAgentId) {
         mainAgentId = selectedAgentId.mainAgentId //selectedAgentId.id
+        agentId = selectedAgentId.id || null // Get agentId if available
       } else {
         const localAgent = localStorage.getItem('agentDetails')
         if (localAgent) {
           const agentDetails = JSON.parse(localAgent)
           // //console.log;
           mainAgentId = agentDetails.id
+          agentId = agentDetails.agentId || null // Get agentId if available
         }
       }
 
       // //console.log;
 
-      const ApiPath = `${Apis.getObjectionGuardrial}?mainAgentId=${mainAgentId}`
+      // Build API path with mainAgentId and optional agentId
+      let ApiPath = `${Apis.getObjectionGuardrial}?mainAgentId=${mainAgentId}`
+      if (agentId) {
+        ApiPath += `&agentId=${agentId}`
+      }
       // //console.log;
 
       const response = await axios.get(ApiPath, {

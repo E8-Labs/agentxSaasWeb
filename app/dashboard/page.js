@@ -471,22 +471,12 @@ const Page = () => {
                     <div
                       className="w-full h-40vh flex flex-row justify-between items-center px-8 py-4 relative overflow-hidden"
                       style={{
-                        backgroundImage: "url('/agencyIcons/plansBannerBg.png')",
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
+                        backgroundColor: 'hsl(var(--brand-primary))',
                         width: '40vw',
                         minHeight: '13vh',
                         borderRadius: 10,
                       }}
                     >
-                      {/* Brand Color Overlay */}
-                      <div
-                        className="absolute inset-0 rounded-lg"
-                        style={{
-                          backgroundColor: 'hsl(var(--brand-primary) / 0.8)',
-                          mixBlendMode: 'multiply',
-                        }}
-                      />
                       {/* Content */}
                       <div className="flex flex-row gap-3 items-start relative z-10">
                         <Image
