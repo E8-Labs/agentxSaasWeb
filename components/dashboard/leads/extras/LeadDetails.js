@@ -1726,18 +1726,20 @@ const LeadDetails = ({
                                   </Tooltip>
                                 </div>
 
-                                <button
-                                  className="flex flex-row border border-brand-primary items-center gap-2 px-2 py-1 text-brand-primary rounded-lg"
-                                  onClick={startDialerFlow}
-                                >
-                                  <Phone
-                                    className="w-4 h-4 text-brand-primary"
-                                    strokeWidth={2}
-                                  />
-                                  <span className="text-[12px] font-[400]">
-                                    Dialer
-                                  </span>
-                                </button>
+                                {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && (
+                                  <button
+                                    className="flex flex-row border border-brand-primary items-center gap-2 px-2 py-1 text-brand-primary rounded-lg"
+                                    onClick={startDialerFlow}
+                                  >
+                                    <Phone
+                                      className="w-4 h-4 text-brand-primary"
+                                      strokeWidth={2}
+                                    />
+                                    <span className="text-[12px] font-[400]">
+                                      Dialer
+                                    </span>
+                                  </button>
+                                )}
                               </div>
                             </div>
                           )}
