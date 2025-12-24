@@ -551,43 +551,138 @@ function UserPlans({
 
   // Check if a plan is the current user's plan
   const isCurrentPlan = (plan) => {
-    if (!reduxUser?.plan || !plan) return false
+    if (!reduxUser?.plan || !plan) {
+      console.log('🔍 [isCurrentPlan] Early return:', {
+        hasReduxPlan: !!reduxUser?.plan,
+        hasPlan: !!plan,
+      })
+      return false
+    }
     const userPlan = reduxUser.plan
 
-    // First, try to match by ID or planId (most reliable)
-    const userPlanId = userPlan.id ?? userPlan.planId
+    // Log user's current plan details
+    console.log('🔍 [isCurrentPlan] User Plan Details:', {
+      userPlanId: userPlan.id,
+      userPlanPlanId: userPlan.planId,
+      userName: userPlan.name,
+      userTitle: userPlan.title,
+      userBillingCycle: userPlan.billingCycle,
+      userDuration: userPlan.duration,
+      userStatus: userPlan.status,
+    })
+
+    // Log plan being checked
+    console.log('🔍 [isCurrentPlan] Checking Plan:', {
+      planId: plan.id,
+      planPlanId: plan.planId,
+      planName: plan.name,
+      planTitle: plan.title,
+      planBillingCycle: plan.billingCycle,
+      planDuration: plan.duration,
+    })
+
+    // First, try to match by planId (most reliable)
+    // Prioritize planId over id because id might be a subscription/user_plan ID, not the actual plan ID
+    // Compare userPlan.planId with plan.id (the plan's database ID)
+    const userPlanPlanId = userPlan.planId ?? userPlan.id
     const planId = plan.id ?? plan.planId
 
     // Only match by ID if both IDs exist and are truthy
-    if (userPlanId != null && planId != null) {
+    if (userPlanPlanId != null && planId != null) {
       // Convert to strings for consistent comparison (handles number vs string)
-      if (String(userPlanId) === String(planId)) {
+      const userPlanPlanIdStr = String(userPlanPlanId)
+      const planIdStr = String(planId)
+      
+      console.log('🔍 [isCurrentPlan] ID Comparison:', {
+        userPlanId: userPlan.id,
+        userPlanPlanId,
+        planId,
+        userPlanPlanIdStr,
+        planIdStr,
+        match: userPlanPlanIdStr === planIdStr,
+      })
+
+      if (userPlanPlanIdStr === planIdStr) {
+        console.log('✅ [isCurrentPlan] MATCHED BY PLAN ID:', {
+          planId: plan.id,
+          planPlanId: plan.planId,
+          planTitle: plan.title || plan.name,
+          userPlanPlanId,
+          planId,
+        })
         return true
       }
+    } else {
+      console.log('⚠️ [isCurrentPlan] ID comparison skipped:', {
+        userPlanPlanId,
+        planId,
+        reason: userPlanPlanId == null ? 'userPlanPlanId is null/undefined' : 'planId is null/undefined',
+      })
     }
 
-    // Fallback: Match by name and billing cycle (for cases where IDs might differ)
-    // Only match if both name and billing cycle match exactly
-    const userPlanName = userPlan.name || userPlan.title
-    const planName = plan.name || plan.title
-    const userBillingCycle = (userPlan.billingCycle || userPlan.duration || '')
-      .toLowerCase()
-      .trim()
-    const planBillingCycle = (plan.billingCycle || plan.duration || '')
-      .toLowerCase()
-      .trim()
+    // Fallback: Match by name and billing cycle ONLY if both plan IDs are missing
+    // This is a last resort - we should always prefer ID matching
+    // Only use this if we truly can't match by ID (both IDs are null/undefined)
+    if (userPlanPlanId == null && planId == null) {
+      const userPlanName = userPlan.name || userPlan.title
+      const planName = plan.name || plan.title
+      const userBillingCycle = (userPlan.billingCycle || userPlan.duration || '')
+        .toLowerCase()
+        .trim()
+      const planBillingCycle = (plan.billingCycle || plan.duration || '')
+        .toLowerCase()
+        .trim()
 
-    // Both name and billing cycle must exist and match
-    if (userPlanName && planName && userPlanName === planName) {
-      if (
-        userBillingCycle &&
-        planBillingCycle &&
-        userBillingCycle === planBillingCycle
-      ) {
-        return true
+      console.log('🔍 [isCurrentPlan] Name & Billing Cycle Comparison (fallback - no IDs available):', {
+        userPlanName,
+        planName,
+        userBillingCycle,
+        planBillingCycle,
+        nameMatch: userPlanName && planName && userPlanName === planName,
+        billingCycleMatch: userBillingCycle && planBillingCycle && userBillingCycle === planBillingCycle,
+      })
+
+      // Both name and billing cycle must exist and match
+      if (userPlanName && planName && userPlanName === planName) {
+        if (
+          userBillingCycle &&
+          planBillingCycle &&
+          userBillingCycle === planBillingCycle
+        ) {
+          console.log('✅ [isCurrentPlan] MATCHED BY NAME + BILLING CYCLE (fallback):', {
+            planId: plan.id,
+            planPlanId: plan.planId,
+            planTitle: plan.title || plan.name,
+            planName,
+            planBillingCycle,
+            userPlanName,
+            userBillingCycle,
+          })
+          return true
+        } else {
+          console.log('⚠️ [isCurrentPlan] Name matched but billing cycle did not:', {
+            planId: plan.id,
+            planTitle: plan.title || plan.name,
+            planName,
+            planBillingCycle,
+            userPlanName,
+            userBillingCycle,
+          })
+        }
       }
+    } else {
+      console.log('⚠️ [isCurrentPlan] Skipping name fallback - IDs are available but did not match:', {
+        userPlanPlanId,
+        planId,
+        reason: 'Should match by ID, not by name',
+      })
     }
 
+    console.log('❌ [isCurrentPlan] NO MATCH:', {
+      planId: plan.id,
+      planPlanId: plan.planId,
+      planTitle: plan.title || plan.name,
+    })
     return false
   }
 
@@ -819,11 +914,66 @@ function UserPlans({
                 : 'center',
           }}
         >
-          {getCurrentPlans()?.length > 0 &&
+          {(() => {
+            // Log summary before rendering plans
+            const allPlans = getCurrentPlans()
+            if (allPlans?.length > 0) {
+              const matchedPlans = []
+              const unmatchedPlans = []
+              
+              allPlans.forEach((plan) => {
+                const isCurrent = isCurrentPlan(plan)
+                if (isCurrent) {
+                  matchedPlans.push({
+                    id: plan.id,
+                    planId: plan.planId,
+                    title: plan.title || plan.name,
+                    name: plan.name,
+                    billingCycle: plan.billingCycle || plan.duration,
+                  })
+                } else {
+                  unmatchedPlans.push({
+                    id: plan.id,
+                    planId: plan.planId,
+                    title: plan.title || plan.name,
+                    name: plan.name,
+                    billingCycle: plan.billingCycle || plan.duration,
+                  })
+                }
+              })
+              
+              console.log('📊 [UserPlans] PLAN MATCHING SUMMARY:', {
+                totalPlans: allPlans.length,
+                matchedPlansCount: matchedPlans.length,
+                unmatchedPlansCount: unmatchedPlans.length,
+                matchedPlans: matchedPlans,
+                unmatchedPlans: unmatchedPlans,
+                userPlan: reduxUser?.plan ? {
+                  id: reduxUser.plan.id,
+                  planId: reduxUser.plan.planId,
+                  name: reduxUser.plan.name,
+                  title: reduxUser.plan.title,
+                  billingCycle: reduxUser.plan.billingCycle,
+                  duration: reduxUser.plan.duration,
+                  status: reduxUser.plan.status,
+                } : null,
+              })
+            }
+            return allPlans
+          })().length > 0 &&
             getCurrentPlans()?.map((item, index) => {
               const isCurrentUserPlan = isCurrentPlan(item)
               const currentPlanStatus = reduxUser?.plan?.status
               const isDisabled = disAblePlans || (isCurrentUserPlan && currentPlanStatus !== 'cancelled')
+              
+              console.log(`🔍 [UserPlans] Rendering Plan ${index + 1}:`, {
+                planId: item.id,
+                planPlanId: item.planId,
+                title: item.title || item.name,
+                isCurrentUserPlan,
+                currentPlanStatus,
+                isDisabled,
+              })
 
               return (
                 <button

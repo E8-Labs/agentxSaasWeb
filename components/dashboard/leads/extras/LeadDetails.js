@@ -1597,24 +1597,18 @@ const LeadDetails = ({
                           {(selectedLeadsDetails?.email ||
                             selectedLeadsDetails?.emails?.length > 0) && (
                             <div className="flex flex-row items-center gap-2">
-                              <div
+                              <Image
+                                src="/otherAssets/email.png"
+                                width={16}
+                                height={16}
+                                alt="email"
                                 style={{
-                                  width: 16,
-                                  height: 16,
-                                  backgroundColor: '#000000',
-                                  WebkitMaskImage: 'url(/otherAssets/email.png)',
-                                  maskImage: 'url(/otherAssets/email.png)',
-                                  WebkitMaskSize: 'contain',
-                                  maskSize: 'contain',
-                                  WebkitMaskRepeat: 'no-repeat',
-                                  maskRepeat: 'no-repeat',
-                                  WebkitMaskPosition: 'center',
-                                  maskPosition: 'center',
+                                  filter: 'brightness(0)',
                                 }}
                               />
                               <div style={styles.heading2}>
                                 {selectedLeadsDetails?.email ? (
-                                  truncateEmail(selectedLeadsDetails?.email)
+                                  selectedLeadsDetails?.email
                                 ) : (
                                   <div>
                                     {selectedLeadsDetails?.emails
@@ -1639,7 +1633,7 @@ const LeadDetails = ({
                                                 <span className="text-brand-primary">
                                                   New
                                                 </span>{' '}
-                                                {truncateEmail(email.email)}
+                                                {email.email}
                                               </div>
                                             </div>
                                             <button
@@ -1689,7 +1683,7 @@ const LeadDetails = ({
                                             <span className="text-brand-primary text-[15px] font-[400]">
                                               New
                                             </span>{' '}
-                                            {truncateEmail(email.email)}
+                                            {email.email}
                                           </div>
                                         </div>
                                         <button
@@ -1713,20 +1707,14 @@ const LeadDetails = ({
                             )}
                           </div>
                           {selectedLeadsDetails?.phone && (
-                            <div className="flex flex-row gap-2 justify-center items-center -mt-2">
-                              <div
+                            <div className="flex flex-row items-center gap-2">
+                              <Image
+                                src="/otherAssets/phone.png"
+                                width={16}
+                                height={16}
+                                alt="phone"
                                 style={{
-                                  width: 16,
-                                  height: 20,
-                                  backgroundColor: '#000000',
-                                  WebkitMaskImage: 'url(/otherAssets/phone.png)',
-                                  maskImage: 'url(/otherAssets/phone.png)',
-                                  WebkitMaskSize: 'contain',
-                                  maskSize: 'contain',
-                                  WebkitMaskRepeat: 'no-repeat',
-                                  maskRepeat: 'no-repeat',
-                                  WebkitMaskPosition: 'center',
-                                  maskPosition: 'center',
+                                  filter: 'brightness(0)',
                                 }}
                               />
                               <div style={styles.heading2}>
@@ -1747,19 +1735,13 @@ const LeadDetails = ({
 
                           {selectedLeadsDetails?.address && (
                             <div className="flex flex-row items-center gap-2">
-                              <div
+                              <Image
+                                src="/otherAssets/location.png"
+                                width={16}
+                                height={16}
+                                alt="location"
                                 style={{
-                                  width: 16,
-                                  height: 16,
-                                  backgroundColor: '#000000',
-                                  WebkitMaskImage: 'url(/otherAssets/location.png)',
-                                  maskImage: 'url(/otherAssets/location.png)',
-                                  WebkitMaskSize: 'contain',
-                                  maskSize: 'contain',
-                                  WebkitMaskRepeat: 'no-repeat',
-                                  maskRepeat: 'no-repeat',
-                                  WebkitMaskPosition: 'center',
-                                  maskPosition: 'center',
+                                  filter: 'brightness(0)',
                                 }}
                               />
                               <div style={styles.heading2}>
@@ -1769,19 +1751,13 @@ const LeadDetails = ({
                           )}
                           {selectedLeadsDetails?.tags.length > 0 && (
                             <div className="flex flex-row items-center gap-2">
-                              <div
+                              <Image
+                                src="/otherAssets/tag.png"
+                                width={16}
+                                height={16}
+                                alt="tag"
                                 style={{
-                                  width: 16,
-                                  height: 16,
-                                  backgroundColor: '#000000',
-                                  WebkitMaskImage: 'url(/otherAssets/tag.png)',
-                                  maskImage: 'url(/otherAssets/tag.png)',
-                                  WebkitMaskSize: 'contain',
-                                  maskSize: 'contain',
-                                  WebkitMaskRepeat: 'no-repeat',
-                                  maskRepeat: 'no-repeat',
-                                  WebkitMaskPosition: 'center',
-                                  maskPosition: 'center',
+                                  filter: 'brightness(0)',
                                 }}
                               />
                               <div>
@@ -1864,19 +1840,13 @@ const LeadDetails = ({
                           )}
                           {selectedLeadsDetails?.pipeline && (
                             <div className="flex flex-row items-center gap-2">
-                              <div
+                              <Image
+                                src="/otherAssets/pipeline2.png"
+                                width={20}
+                                height={20}
+                                alt="pipeline"
                                 style={{
-                                  width: 20,
-                                  height: 20,
-                                  backgroundColor: '#000000',
-                                  WebkitMaskImage: 'url(/otherAssets/pipeline2.png)',
-                                  maskImage: 'url(/otherAssets/pipeline2.png)',
-                                  WebkitMaskSize: 'contain',
-                                  maskSize: 'contain',
-                                  WebkitMaskRepeat: 'no-repeat',
-                                  maskRepeat: 'no-repeat',
-                                  WebkitMaskPosition: 'center',
-                                  maskPosition: 'center',
+                                  filter: 'brightness(0)',
                                 }}
                               />
                               <div style={styles.heading2}>
@@ -1890,19 +1860,13 @@ const LeadDetails = ({
                           <div>
                             {selectedLeadsDetails?.booking && (
                               <div className="flex flex-row items-center gap-2">
-                                <div
+                                <Image
+                                  src="/otherAssets/Calendar.png"
+                                  width={16}
+                                  height={16}
+                                  alt="calendar"
                                   style={{
-                                    width: 16,
-                                    height: 16,
-                                    backgroundColor: '#000000',
-                                    WebkitMaskImage: 'url(/otherAssets/Calendar.png)',
-                                    maskImage: 'url(/otherAssets/Calendar.png)',
-                                    WebkitMaskSize: 'contain',
-                                    maskSize: 'contain',
-                                    WebkitMaskRepeat: 'no-repeat',
-                                    maskRepeat: 'no-repeat',
-                                    WebkitMaskPosition: 'center',
-                                    maskPosition: 'center',
+                                    filter: 'brightness(0)',
                                   }}
                                 />
                                 <div style={styles.heading2}>
@@ -1970,37 +1934,27 @@ const LeadDetails = ({
                             <CircularProgress size={25} />
                           ) : (
                             <div className="flex flex-col w-full max-w-full overflow-hidden">
-                              <button
-                                className="flex flex-row items-center gap-3"
-                                onClick={(event) => {
-                                  handleShowPopup(event)
-                                }}
-                              >
-                                <div
+                              <div className="flex flex-row items-center gap-2">
+                                <Image
+                                  src="/otherAssets/assignTeamIcon.png"
+                                  width={16}
+                                  height={16}
+                                  alt="assign team"
                                   style={{
-                                    width: 16,
-                                    height: 16,
-                                    backgroundColor: '#000000',
-                                    WebkitMaskImage: 'url(/otherAssets/assignTeamIcon.png)',
-                                    maskImage: 'url(/otherAssets/assignTeamIcon.png)',
-                                    WebkitMaskSize: 'contain',
-                                    maskSize: 'contain',
-                                    WebkitMaskRepeat: 'no-repeat',
-                                    maskRepeat: 'no-repeat',
-                                    WebkitMaskPosition: 'center',
-                                    maskPosition: 'center',
+                                    filter: 'brightness(0)',
                                   }}
                                 />
-                                <div
-                                  style={{
-                                    fontWeight: '500',
-                                    fontsize: 15,
-                                    color: '#000000100',
+                                <button
+                                  className="outline-none flex flex-row items-center gap-1"
+                                  onClick={(event) => {
+                                    handleShowPopup(event)
                                   }}
                                 >
-                                  Assign Team
-                                </div>
-                              </button>
+                                  <div style={styles.heading2}>
+                                    Assign Team
+                                  </div>
+                                </button>
+                              </div>
                               <div className="flex w-full">
                                 {showTeams && (
                                   <div className="flex flex-col mt-4 gap-1 w-full max-w-full overflow-hidden">
@@ -2027,70 +1981,42 @@ const LeadDetails = ({
                         </div>
                       </div>
 
-                    <div
-                      className="w-full flex flex-row items-center justify-between mt-2"
-                      style={{
-                        ...styles.paragraph,
-                        paddingInline: 20,
-                      }}
-                    >
                       {getExtraColumsCount(columnsLength) >= 1 && (
-                        <button
-                          onClick={() => {
-                            setShowCustomVariables(!showCustomVariables)
-                          }}
-                          className="outline-none p-2 flex flex-row gap-2"
-                          style={{
-                            borderBottom: showCustomVariables
-                              ? '2px solid hsl(var(--brand-primary))'
-                              : '',
-                            backgroundColor: showCustomVariables
-                              ? 'hsl(var(--brand-primary) / 0.05)'
-                              : '',
-                          }}
-                        >
-                          <div
+                        <div className="flex flex-row items-center gap-2 mt-3">
+                          <Image
+                            src="/assets/customsIcon.svg"
+                            width={16}
+                            height={16}
+                            alt="custom fields"
                             style={{
-                              width: 16,
-                              height: 16,
-                              backgroundColor: showCustomVariables
-                                ? 'hsl(var(--brand-primary))'
-                                : '#000000',
-                              WebkitMaskImage: 'url(/assets/customsIcon.svg)',
-                              maskImage: 'url(/assets/customsIcon.svg)',
-                              WebkitMaskSize: 'contain',
-                              maskSize: 'contain',
-                              WebkitMaskRepeat: 'no-repeat',
-                              maskRepeat: 'no-repeat',
-                              WebkitMaskPosition: 'center',
-                              maskPosition: 'center',
+                              filter: 'brightness(0)',
                             }}
                           />
-                          <div
-                            style={{
-                              color: showCustomVariables
-                                ? 'hsl(var(--brand-primary))'
-                                : 'black',
+                          <button
+                            onClick={() => {
+                              setShowCustomVariables(!showCustomVariables)
                             }}
+                            className="outline-none flex flex-row items-center gap-1"
                           >
-                            Custom fields
-                          </div>
-                          {showCustomVariables ? (
-                            <CaretUp
-                              size={16}
-                              weight="bold"
-                              color={showCustomVariables ? 'hsl(var(--brand-primary))' : '#000000'}
-                            />
-                          ) : (
-                            <CaretDown
-                              size={16}
-                              weight="bold"
-                              color="#000000"
-                            />
-                          )}
-                        </button>
+                            <div style={styles.heading2}>
+                              Custom fields
+                            </div>
+                            {showCustomVariables ? (
+                              <CaretUp
+                                size={16}
+                                weight="bold"
+                                color="#000000"
+                              />
+                            ) : (
+                              <CaretDown
+                                size={16}
+                                weight="bold"
+                                color="#000000"
+                              />
+                            )}
+                          </button>
+                        </div>
                       )}
-                    </div>
 
                     <div className="flex w-full">
                       {getExtraColumsCount(columnsLength) >= 1 && (
@@ -2240,7 +2166,7 @@ const LeadDetails = ({
                                             <span className="text-brand-primary">
                                               New
                                             </span>{' '}
-                                            {truncateEmail(email?.email)}
+                                            {email?.email}
                                           </div>
                                         </div>
                                       </div>

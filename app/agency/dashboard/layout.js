@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import AgencyNavBar from '@/components/dashboard/Navbar/AgencyNavBar'
 import ProfileNav from '@/components/dashboard/Navbar/ProfileNav'
+import AgencySupportWidget from '@/components/agency/AgencySupportWidget'
 
 const shouldShowServiceBanner =
   process.env.NEXT_PUBLIC_REACT_APP_DOWN_TIME === 'Yes'
@@ -64,6 +65,9 @@ export default function DashboardLayout({ children }) {
             {children}
           </div>
         </div>
+        
+        {/* Agency Support Widget */}
+        <AgencySupportWidget needHelp={false} />
       </div>
     </ErrorBoundary>
   )

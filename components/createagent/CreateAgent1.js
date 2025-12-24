@@ -92,6 +92,7 @@ const CreateAgent1 = ({
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
   const [pendingAgentSelection, setPendingAgentSelection] = useState(null) // Track what selection was attempted
   const [hasAgreedToExtraCost, setHasAgreedToExtraCost] = useState(false) // Track if user agreed to pay extra
+  const [userInitiallyHadPlan, setUserInitiallyHadPlan] = useState(false) // Track if user initially had a plan
 
   // Redux state
   const { user: reduxUser, setUser: setReduxUser } = useUser()
@@ -105,6 +106,21 @@ const CreateAgent1 = ({
     localStorage.removeItem('AddCadenceDetails')
     refreshUserData()
     getSelectedUser()
+    
+    // Track if user initially had a plan (to prevent redirect after upgrade)
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          const hasPlan = parsedUser?.user?.plan !== null && parsedUser?.user?.plan?.price !== 0
+          setUserInitiallyHadPlan(hasPlan)
+          console.log('🔍 [CREATE-AGENT] User initially had plan:', hasPlan)
+        }
+      } catch (error) {
+        console.log('Error checking initial plan status:', error)
+      }
+    }
     
     // Check if custom domain
     if (typeof window !== 'undefined') {
@@ -480,6 +496,48 @@ const CreateAgent1 = ({
     return false
   }
 
+  // Helper function to check if user has payment methods
+  const hasPaymentMethod = () => {
+    try {
+      // First check localStorage (primary source)
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        const userData = JSON.parse(localData)
+        const cards = userData?.user?.cards || userData?.data?.user?.cards
+        if (Array.isArray(cards) && cards.length > 0) {
+          return true
+        }
+      }
+      // Fallback to Redux user data (check both reduxUser.cards and reduxUser.user.cards)
+      if (
+        reduxUser?.cards &&
+        Array.isArray(reduxUser.cards) &&
+        reduxUser.cards.length > 0
+      ) {
+        return true
+      }
+      if (
+        reduxUser?.user?.cards &&
+        Array.isArray(reduxUser.user.cards) &&
+        reduxUser.user.cards.length > 0
+      ) {
+        return true
+      }
+      // Also check user state
+      if (
+        user?.user?.cards &&
+        Array.isArray(user.user.cards) &&
+        user.user.cards.length > 0
+      ) {
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error('Error checking payment methods:', error)
+      return false
+    }
+  }
+
   function canContinue() {
     // If agency/admin is creating agent for another user (subaccount), check that user's type
     const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
@@ -516,6 +574,37 @@ const CreateAgent1 = ({
     
     if (!userTypeToCheck) {
       return false
+    }
+    
+    // Check if user has a paid plan (not free) and if they have a payment method
+    // For subaccounts (when agency/admin creates for another user), check the subaccount's data
+    let currentUserData = null
+    if (selectedUser?.subAccountData) {
+      // Use subaccount data when creating agent for subaccount
+      currentUserData = { user: selectedUser.subAccountData }
+    } else {
+      // Use logged-in user data
+      currentUserData = reduxUser || user
+    }
+    
+    const hasPlan = currentUserData?.user?.plan !== null && currentUserData?.user?.plan?.price !== 0
+    const isFreePlan = !hasPlan || currentUserData?.user?.plan?.price === 0
+    
+    // If user has a paid plan, they must have a payment method to continue
+    if (hasPlan && !isFreePlan) {
+      // For subaccounts, check their payment methods
+      let hasPM = false
+      if (selectedUser?.subAccountData) {
+        const subaccountCards = selectedUser.subAccountData?.cards || selectedUser.subAccountData?.user?.cards
+        hasPM = Array.isArray(subaccountCards) && subaccountCards.length > 0
+      } else {
+        hasPM = hasPaymentMethod()
+      }
+      
+      if (!hasPM) {
+        console.log('🚫 [CREATE-AGENT] User has paid plan but no payment method - cannot continue')
+        return false
+      }
     }
     
     // Check requirements based on user type
@@ -907,7 +996,133 @@ const CreateAgent1 = ({
           window.dispatchEvent(
             new CustomEvent('UpdateCheckList', { detail: { update: true } }),
           )
-          handleContinue()
+          
+          // Check if user has a plan - if they just subscribed (initially had no plan),
+          // skip the UserPlans step to prevent redirect to plans screen
+          // Check from multiple sources to ensure we have the latest data
+          let hasPlan = false
+          try {
+            // First check localStorage (most up-to-date after subscription)
+            const localUserData = localStorage.getItem('User')
+            if (localUserData) {
+              const parsedUser = JSON.parse(localUserData)
+              const plan = parsedUser?.user?.plan
+              // Consider user has plan if plan exists and is not null
+              // Check both plan existence and planId to be more robust
+              hasPlan = plan !== null && plan !== undefined && (plan.planId !== null || plan.id !== null)
+              console.log('🔍 [CREATE-AGENT] Plan check from localStorage:', {
+                plan,
+                planId: plan?.planId,
+                id: plan?.id,
+                price: plan?.price,
+                hasPlan
+              })
+            }
+            
+            // Check selectedUser.subAccountData for subaccounts (if from admin/agency flow)
+            if (!hasPlan && selectedUser?.subAccountData) {
+              const subAccountPlan = selectedUser.subAccountData?.plan
+              hasPlan = subAccountPlan !== null && 
+                       subAccountPlan !== undefined && 
+                       (subAccountPlan.planId !== null || subAccountPlan.id !== null)
+              console.log('🔍 [CREATE-AGENT] Plan check from selectedUser.subAccountData:', {
+                plan: subAccountPlan,
+                planId: subAccountPlan?.planId,
+                id: subAccountPlan?.id,
+                price: subAccountPlan?.price,
+                hasPlan
+              })
+            }
+            
+            // Fallback to Redux or local state if localStorage doesn't have plan info
+            if (!hasPlan) {
+              const currentUserData = selectedUser?.subAccountData || reduxUser || user
+              const plan = currentUserData?.user?.plan || currentUserData?.plan
+              hasPlan = plan !== null && 
+                       plan !== undefined && 
+                       (plan.planId !== null || plan.id !== null)
+              console.log('🔍 [CREATE-AGENT] Plan check from Redux/state:', {
+                plan,
+                planId: plan?.planId,
+                id: plan?.id,
+                price: plan?.price,
+                hasPlan
+              })
+            }
+          } catch (error) {
+            console.error('Error checking plan status:', error)
+            // On error, default to normal flow
+            hasPlan = false
+          }
+          
+          // Check if we should skip UserPlans step
+          // This prevents redirect to plans screen after subscribing and creating agent
+          // Check localStorage flag FIRST (most reliable indicator that user just subscribed)
+          let skipFlag = null
+          try {
+            skipFlag = localStorage.getItem('skipUserPlansAfterSubscription')
+          } catch (error) {
+            console.error('Error reading skipUserPlansAfterSubscription from localStorage:', error)
+          }
+          
+          // Also check all localStorage keys to debug
+          console.log('🔍 [CREATE-AGENT] localStorage check:', {
+            skipFlag,
+            skipFlagType: typeof skipFlag,
+            skipFlagStrict: skipFlag === 'true',
+            allKeys: Object.keys(localStorage).filter(key => key.includes('skip') || key.includes('plan') || key.includes('User'))
+          })
+          
+          // Priority order:
+          // 1. localStorage flag (most reliable - set immediately after subscription)
+          // 2. User has a plan (if they have any plan, they shouldn't see UserPlans)
+          // 3. User has plan AND initially didn't have one (just subscribed)
+          const shouldSkipUserPlans = 
+            String(skipFlag) === 'true' ||  // Convert to string for strict comparison
+            hasPlan ||              // If user has any plan, skip UserPlans
+            (hasPlan && !userInitiallyHadPlan) // Backup check
+          
+          console.log('🔍 [CREATE-AGENT] Checking if should skip UserPlans:', {
+            hasPlan,
+            userInitiallyHadPlan,
+            skipFlag,
+            skipFlagString: String(skipFlag),
+            skipFlagCheck: String(skipFlag) === 'true',
+            shouldSkipUserPlans,
+            condition1: String(skipFlag) === 'true',
+            condition2: hasPlan,
+            condition3: hasPlan && !userInitiallyHadPlan,
+            finalDecision: shouldSkipUserPlans ? 'SKIP' : 'SHOW'
+          })
+          
+          if (shouldSkipUserPlans) {
+            console.log('✅ [CREATE-AGENT] Skipping UserPlans step to avoid redirect')
+            // Clear the flag after using it
+            try {
+              localStorage.removeItem('skipUserPlansAfterSubscription')
+            } catch (error) {
+              console.error('Error removing skipUserPlansAfterSubscription from localStorage:', error)
+            }
+            // Use handleSkipAddPayment to skip UserPlans step (increments by 2 instead of 1)
+            // This ensures we skip UserPlans even if the parent's components array wasn't updated
+            handleSkipAddPayment()
+          } else {
+            console.log('ℹ️ [CREATE-AGENT] Proceeding normally - will show UserPlans')
+            console.log('⚠️ [CREATE-AGENT] DEBUG - Why not skipping:', {
+              skipFlag,
+              skipFlagString: String(skipFlag),
+              skipFlagCheck: String(skipFlag) === 'true',
+              hasPlan,
+              userInitiallyHadPlan,
+              allConditions: {
+                flag: String(skipFlag) === 'true',
+                hasPlanCheck: hasPlan,
+                backup: hasPlan && !userInitiallyHadPlan
+              }
+            })
+            // User doesn't have plan, so they need to see UserPlans
+            handleContinue()
+          }
           // }
         } else if (response.data.status === false) {
           setSnackMessage('Agent creation failed!')
@@ -1393,6 +1608,15 @@ const CreateAgent1 = ({
                         console.log(
                           'User data refreshed successfully after upgrade',
                         )
+                        
+                        // IMPORTANT: If user initially didn't have a plan, don't redirect them anywhere
+                        // They should stay on the create agent page after upgrading
+                        if (!userInitiallyHadPlan) {
+                          console.log('✅ [CREATE-AGENT] User initially had no plan - staying on create agent page after upgrade')
+                          // Update the flag since they now have a plan
+                          setUserInitiallyHadPlan(true)
+                        }
+                        
                         // If there was a pending selection, apply it now with the new plan limits
                         if (pendingAgentSelection) {
                           console.log(
@@ -1506,6 +1730,45 @@ const CreateAgent1 = ({
                           console.log(
                             'User data refreshed successfully after upgrade',
                           )
+                          
+                          // IMPORTANT: If user initially didn't have a plan, don't redirect them anywhere
+                          // They should stay on the create agent page after upgrading
+                          if (!userInitiallyHadPlan) {
+                            console.log('✅ [CREATE-AGENT] User initially had no plan - staying on create agent page after upgrade')
+                            // Store a flag in localStorage to skip UserPlans step after agent creation
+                            // This ensures we skip UserPlans even if parent page's components array wasn't updated
+                            // IMPORTANT: Set this BEFORE updating userInitiallyHadPlan state
+                            try {
+                              localStorage.setItem('skipUserPlansAfterSubscription', 'true')
+                              const flagCheck = localStorage.getItem('skipUserPlansAfterSubscription')
+                              console.log('✅ [CREATE-AGENT] Set skipUserPlansAfterSubscription flag in localStorage:', {
+                                set: 'true',
+                                retrieved: flagCheck,
+                                match: flagCheck === 'true'
+                              })
+                              // Verify it was set correctly
+                              if (flagCheck !== 'true') {
+                                console.error('❌ [CREATE-AGENT] Flag was not set correctly!')
+                                // Try setting it again
+                                localStorage.setItem('skipUserPlansAfterSubscription', 'true')
+                              }
+                            } catch (error) {
+                              console.error('❌ [CREATE-AGENT] Error setting localStorage flag:', error)
+                            }
+                            
+                            // Update the flag since they now have a plan (do this AFTER setting localStorage)
+                            setUserInitiallyHadPlan(true)
+                            
+                            // Dispatch custom event to notify parent page that plan was subscribed
+                            // This allows parent to potentially re-evaluate components array
+                            window.dispatchEvent(
+                              new CustomEvent('planSubscribed', {
+                                detail: { hasPlan: true }
+                              })
+                            )
+                            console.log('✅ [CREATE-AGENT] Dispatched planSubscribed event')
+                          }
+                          
                           // If there was a pending selection, apply it now with the new plan limits
                           if (pendingAgentSelection) {
                             console.log(

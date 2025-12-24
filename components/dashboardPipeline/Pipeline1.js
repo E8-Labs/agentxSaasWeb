@@ -2664,25 +2664,21 @@ const Pipeline1 = () => {
                                                   className="flex flex-row items-center gap-2 px-2 py-1 rounded-lg"
                                                   style={{
                                                     backgroundColor: 'hsl(var(--brand-primary) / 0.15)',
+                                                    maxWidth: 'fit-content',
                                                   }}
                                                 >
                                                   <div
-                                                    className="text-brand-primary" //1C55FF10
+                                                    className="text-brand-primary"
+                                                    style={{
+                                                      fontSize: 13,
+                                                      maxWidth: '12ch',
+                                                      wordBreak: 'break-word',
+                                                      overflowWrap: 'break-word',
+                                                      whiteSpace: 'normal',
+                                                      lineHeight: '1.2',
+                                                    }}
                                                   >
-                                                    {tagVal.length > 4 ? (
-                                                      <div
-                                                        style={{ fontSize: 13 }}
-                                                      >
-                                                        {tagVal.slice(0, 4)}
-                                                        {'...'}
-                                                      </div>
-                                                    ) : (
-                                                      <div
-                                                        style={{ fontSize: 13 }}
-                                                      >
-                                                        {tagVal}
-                                                      </div>
-                                                    )}
+                                                    {tagVal}
                                                   </div>
                                                   {DelTagLoader &&
                                                   lead.lead.id ===

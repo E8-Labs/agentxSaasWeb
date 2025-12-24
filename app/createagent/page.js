@@ -150,20 +150,16 @@ const Page = () => {
     }
   }, [])
 
-  useEffect(() => {
-    console.log('windowSize', windowSize)
-    // Wait for windowSize to be set before determining components
+  // Function to update components array based on user plan status
+  const updateComponentsArray = () => {
     if (windowSize === null) {
       return
     }
     
-    // //console.log;
     const localData = localStorage.getItem('User')
 
     if (localData) {
       const Data = JSON.parse(localData)
-      // //console.log;
-      // //console.log;
 
       let d = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
       let fromAdmin = ''
@@ -250,6 +246,27 @@ const Page = () => {
     } else {
       // If no user data, still mark as ready to show EmptyPage
       setComponentsReady(true)
+    }
+  }
+
+  useEffect(() => {
+    console.log('windowSize', windowSize)
+    // Wait for windowSize to be set before determining components
+    updateComponentsArray()
+  }, [windowSize, subAccount])
+
+  // Listen for plan subscription event to re-evaluate components array
+  useEffect(() => {
+    const handlePlanSubscribed = () => {
+      console.log('🔄 [CREATE-AGENT-PAGE] Plan subscribed event received, re-evaluating components array')
+      // Re-evaluate components array after plan subscription
+      updateComponentsArray()
+    }
+
+    window.addEventListener('planSubscribed', handlePlanSubscribed)
+
+    return () => {
+      window.removeEventListener('planSubscribed', handlePlanSubscribed)
     }
   }, [windowSize, subAccount])
 

@@ -37,6 +37,7 @@ import PhoneInput from 'react-phone-input-2'
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import DuplicateButton from '@/components/animation/DuplicateButton'
 import DashboardSlider from '@/components/animations/DashboardSlider'
+import AgencySupportWidget from '@/components/agency/AgencySupportWidget'
 import LoaderAnimation from '@/components/animations/LoaderAnimation'
 import Apis from '@/components/apis/Apis'
 import { DEFAULT_ASSISTANT_ID } from '@/components/askSky/constants'
@@ -3218,7 +3219,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           bottom: 0,
         }}
       >
-        <DashboardSlider needHelp={false} selectedUser={selectedUser} />
+        {/* Show Agency Support Widget for Agency users, regular DashboardSlider for others */}
+        {selectedUser?.userRole === 'Agency' || agencyUser ? (
+          <AgencySupportWidget needHelp={false} selectedUser={selectedUser} />
+        ) : (
+          <DashboardSlider needHelp={false} selectedUser={selectedUser} />
+        )}
       </div>
       {/* Code for popover */}
       <Popover
@@ -5331,6 +5337,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     UserPipeline={UserPipeline}
                     mainAgent={calendarDetails}
                     selectedUser={selectedUser}
+                    from={from}
                   />
                 </div>
               ) : activeTab === 'Knowledge' ? (

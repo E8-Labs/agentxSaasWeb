@@ -48,6 +48,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
           'Content-Type': 'application/json',
         },
       })
+      console.log('Agency phone number s response ', response)
 
       if (response?.data?.status === true) {
         const data = response.data.data
@@ -346,6 +347,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
             const isSubaccountNumber = number.subaccountNumber
             const isDisabled = number.disabled === true
             const isLoading = actionLoading === `set-${number.id}`
+            const isA2PVerified = number.isA2PVerified === true || number.a2pVerificationStatus === 'verified'
 
             return (
               <div
@@ -365,6 +367,14 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                         className="-ml-1 px-2 py-0.5 rounded-full text-[10px] leading-4 font-semibold whitespace-nowrap bg-brand-primary text-white"
                       >
                         Global Number
+                      </div>
+                    )}
+                    {isA2PVerified && (
+                      <div
+                        className="-ml-1 px-2 py-0.5 rounded-full text-[10px] leading-4 font-semibold whitespace-nowrap"
+                        style={{ backgroundColor: '#10b981', color: '#fff' }}
+                      >
+                        A2P
                       </div>
                     )}
                     {isDisabled && (

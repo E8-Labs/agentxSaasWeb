@@ -1,0 +1,378 @@
+'use client'
+
+import { Box, CircularProgress, Modal } from '@mui/material'
+import { AnimatePresence, motion } from 'framer-motion'
+import Image from 'next/image'
+import React, { useEffect, useState } from 'react'
+
+import CloseBtn from '@/components/globalExtras/CloseBtn'
+import { PersistanceKeys } from '@/constants/Constants'
+import { SupportWidget } from '@/components/askSky/support-widget'
+import { toast } from 'sonner'
+
+const AgencySupportWidget = ({
+  onTop = false,
+  needHelp = true,
+  closeHelp,
+  autoFocus = true,
+  selectedUser = null,
+}) => {
+  const [visible, setVisible] = useState(false)
+  const [showIcon, setShowIcon] = useState(false)
+  const [userDetails, setUserDetails] = useState(null)
+  const [hoverIndex, setHoverIndex] = useState(null)
+  const [showAskSkyModal, setShowAskSkyModal] = useState(false)
+  const [shouldStartCall, setShouldStartCall] = useState(false)
+
+  // Agency-specific support options
+  const [buttons, setButtons] = useState([
+    {
+      id: 1,
+      label: 'Skool (Resource)',
+      image: '/svgIcons/resourceHubBlack.svg',
+      image2: '/svgIcons/resourceHubBlue.svg',
+      url: PersistanceKeys.AgencySkoolUrl,
+      height: 18,
+      width: 18,
+    },
+    {
+      id: 2,
+      label: 'Agency Partner',
+      image: '/svgIcons/supportBlack.svg',
+      image2: '/svgIcons/supportBlue.svg',
+      url: PersistanceKeys.AgencyPartnerUrl,
+    },
+    {
+      id: 3,
+      label: 'Billing Support',
+      image: '/otherAssets/billingIcon.png',
+      image2: '/otherAssets/billingIconBlue.png',
+      url: PersistanceKeys.AgencyBillingSupportUrl,
+    },
+    {
+      id: 4,
+      label: 'Support Ticket',
+      image: '/svgIcons/feedbackIcon.svg',
+      image2: '/svgIcons/feedBackIconBlue.svg',
+      url: PersistanceKeys.AgencySupportTicketUrl,
+    },
+    {
+      id: 5,
+      label: 'Speak to a Geek',
+      image: '/svgIcons/askSkyBlack.svg',
+      image2: '/svgIcons/askSkyBlue.svg',
+      url: null, // Will trigger AI support
+    },
+  ])
+
+  useEffect(() => {
+    if (needHelp) {
+      setShowIcon(false)
+      setVisible(true)
+    } else {
+      setVisible(false)
+      setShowIcon(true)
+    }
+  }, [needHelp])
+
+  useEffect(() => {
+    fetchLocalDetails()
+  }, [selectedUser])
+
+  const fetchLocalDetails = () => {
+    if (selectedUser) {
+      setUserDetails(selectedUser)
+    } else {
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        const UserDetailsLD = JSON.parse(localData)
+        setUserDetails(UserDetailsLD.user)
+      }
+    }
+  }
+
+  const handleClose = () => {
+    setVisible(false)
+    setTimeout(() => {
+      if (onTop) {
+        closeHelp?.()
+      }
+    }, 300)
+    setTimeout(() => {
+      if (!onTop) {
+        setShowIcon(true)
+      }
+    }, 1000)
+  }
+
+  const handleReopen = () => {
+    setShowIcon(false)
+    setVisible(true)
+    fetchLocalDetails()
+  }
+
+  const snackbarVariants = {
+    hidden: { x: '100%', opacity: 0 },
+    visible: { x: 0, opacity: 1 },
+    exit: { x: '100%', opacity: 0 },
+  }
+
+  const getPosition = () => {
+    if (onTop) {
+      return { position: 'fixed', top: 50, right: 8, zIndex: 1000 }
+    } else {
+      return { position: 'fixed', bottom: 20, right: 8, zIndex: 1000 }
+    }
+  }
+
+  // Function to render icon with branding using mask-image
+  const renderBrandedIcon = (iconPath, width, height) => {
+    if (typeof window === 'undefined') {
+      return <Image src={iconPath} width={width} height={height} alt="*" />
+    }
+
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')
+
+    if (!brandColor || !brandColor.trim()) {
+      return <Image src={iconPath} width={width} height={height} alt="*" />
+    }
+
+    return (
+      <div
+        style={{
+          width: width,
+          height: height,
+          minWidth: width,
+          minHeight: height,
+          backgroundColor: `hsl(${brandColor.trim()})`,
+          WebkitMaskImage: `url(${iconPath})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(${iconPath})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          transition: 'background-color 0.2s ease-in-out',
+          flexShrink: 0,
+        }}
+      />
+    )
+  }
+
+  const handleOnClick = (item) => {
+    if (item.id === 5 || item.label === 'Speak to a Geek') {
+      // Open AI support widget
+      //Show Toast Message
+      toast.success('AI support is not available yet. Please try again later.')
+    //   setShowAskSkyModal(true)
+    //   setShouldStartCall(true)
+    } else if (item.url) {
+      if (typeof window !== 'undefined') {
+        window.open(item.url, '_blank')
+      }
+    }
+  }
+
+  const renderViews = () => {
+    if (showAskSkyModal) {
+      return (
+        <SupportWidget
+          user={selectedUser || userDetails}
+          shouldStart={shouldStartCall}
+          setShowAskSkyModal={setShowAskSkyModal}
+          setShouldStartCall={setShouldStartCall}
+          loadingChanged={(loading) => {
+            console.log(`Loading state changed`, loading)
+          }}
+        />
+      )
+    } else {
+      return (
+        <div className="flex flex-col items-end justify-end w-full gap-3">
+          <div
+            className="w-full mt-5 bg-white shadow-lg text-black w-full"
+            style={{
+              borderRadius: '8px',
+              padding: '16px 24px',
+            }}
+          >
+            <div className="w-full flex flex-col items-start gap-4">
+              {buttons.map((item, index) => (
+                <div
+                  key={index}
+                  style={{ cursor: 'pointer' }}
+                  onMouseEnter={() => setHoverIndex(index)}
+                  onMouseLeave={() => setHoverIndex(null)}
+                >
+                  <button
+                    className="w-full flex flex-row items-center gap-2"
+                    onClick={() => handleOnClick(item, index)}
+                  >
+                    {renderBrandedIcon(
+                      index === hoverIndex ? item.image2 : item.image,
+                      item.width || 24,
+                      item.height || 24,
+                    )}
+                    <div
+                      className="text-black hover:text-brand-primary whitespace-nowrap"
+                      style={{ fontSize: 15, fontWeight: '500' }}
+                    >
+                      {item.label}
+                    </div>
+                    {(item.id === 5 || item.label === 'Speak to a Geek') && (
+                      <div className="px-3 py-1 rounded-lg bg-brand-primary text-white text-[12px] font-[300] ml-5">
+                        AI
+                      </div>
+                    )}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+          <CloseBtn onClick={handleClose} showWhiteCross={false} />
+        </div>
+      )
+    }
+  }
+
+  return (
+    <div>
+      <div style={getPosition()}>
+        <AnimatePresence>
+          {visible && (
+            <motion.div
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              variants={snackbarVariants}
+              transition={{ type: 'tween', duration: 0.4 }}
+              drag="x"
+              dragConstraints={{ left: 0, right: 100 }}
+              onDragEnd={(event, info) => {
+                if (info.offset.x > 100) {
+                  handleClose()
+                }
+              }}
+              className="flex"
+              style={{
+                width: '300px',
+                touchAction: 'pan-y',
+              }}
+            >
+              <div
+                className="flex flex-col items-end justify-end w-full gap-3"
+                style={{ flex: 1 }}
+              >
+                {renderViews()}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Icon Button (bottom-right) */}
+      <AnimatePresence>
+        {showIcon && !showAskSkyModal && !visible && (
+          <motion.div
+            initial={{ opacity: 0, x: '100%' }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: '100%' }}
+            transition={{ duration: 0.4 }}
+            style={{
+              position: 'fixed',
+              bottom: 30,
+              right: 10,
+              zIndex: 998,
+              border: 'none',
+              fontSize: '16px',
+              cursor: 'pointer',
+              outline: 'none',
+            }}
+          >
+            <GetHelpBtn handleReopen={handleReopen} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <Modal
+        open={showAskSkyModal}
+        onClose={() => {
+          setShowAskSkyModal(false)
+          setShouldStartCall(false)
+        }}
+        hideBackdrop
+        sx={{ pointerEvents: 'none', backgroundColor: 'transparent' }}
+      >
+        <div
+          style={{
+            pointerEvents: 'auto',
+            backgroundColor: 'transparent',
+            height: '100%',
+            width: '100%',
+          }}
+        >
+          <SupportWidget
+            isEmbed={false}
+            user={selectedUser || userDetails}
+            shouldStart={shouldStartCall}
+            setShowAskSkyModal={setShowAskSkyModal}
+            setShouldStartCall={setShouldStartCall}
+            loadingChanged={(loading) => {
+              console.log(`Loading state changed`, loading)
+            }}
+          />
+        </div>
+      </Modal>
+    </div>
+  )
+}
+
+export default AgencySupportWidget
+
+// Get Help Button Component
+export const GetHelpBtn = ({
+  text = 'Get Help',
+  avatar = null,
+  handleReopen,
+  customLogo = null,
+  customTitle = null,
+}) => {
+  const logoUrl = customLogo || avatar || '/agentXOrb.gif'
+  const displayText = customTitle || text
+
+  return (
+    <button
+      className="flex flex-row bg-white items-center pe-4 ps-4 py-2 rounded-full shadow-md relative overflow-hidden"
+      onClick={handleReopen}
+    >
+      {/* Stars */}
+      <Image
+        src="/otherAssets/getHelpStars.png"
+        height={20}
+        width={20}
+        alt="Stars"
+        className="absolute top-0 left-12 z-10 bg-transparent"
+      />
+
+      {/* Orb */}
+      <div className="relative z-0 bg-white shadow-lg rounded-full w-[46px] h-[46px] overflow-hidden flex-shrink-0">
+        <Image
+          src={logoUrl}
+          fill
+          alt="Orb"
+          className="object-cover"
+        />
+      </div>
+
+      {/* Text */}
+      <p className="text-[16px] font-bold text-brand-primary cursor-pointer ms-2">
+        {displayText}
+      </p>
+    </button>
+  )
+}
+

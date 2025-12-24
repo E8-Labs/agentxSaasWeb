@@ -20,6 +20,7 @@ const PipelineAndStage = ({
   UserPipeline,
   mainAgent,
   selectedUser,
+  from,
 }) => {
   const [message, setMessage] = useState(null)
   const router = useRouter()
@@ -203,6 +204,10 @@ const PipelineAndStage = ({
                     ...(call.templateName && { templateName: call.templateName }),
                     ...(call.subject && { subject: call.subject }),
                     ...(call.content && { content: call.content }),
+                    // Include smsPhoneNumberId for SMS cadence calls
+                    ...(call.smsPhoneNumberId && { smsPhoneNumberId: call.smsPhoneNumberId }),
+                    // Include emailAccountId for email cadence calls (for consistency)
+                    ...(call.emailAccountId && { emailAccountId: call.emailAccountId }),
                   })),
                   moveToStage: stage.cadence.moveToStage?.id || null,
                 }))
@@ -268,6 +273,10 @@ const PipelineAndStage = ({
                   ...(call.templateName && { templateName: call.templateName }),
                   ...(call.subject && { subject: call.subject }),
                   ...(call.content && { content: call.content }),
+                  // Include smsPhoneNumberId for SMS cadence calls
+                  ...(call.smsPhoneNumberId && { smsPhoneNumberId: call.smsPhoneNumberId }),
+                  // Include emailAccountId for email cadence calls (for consistency)
+                  ...(call.emailAccountId && { emailAccountId: call.emailAccountId }),
                 })),
                 moveToStage: stage.cadence.moveToStage?.id || null,
               }))

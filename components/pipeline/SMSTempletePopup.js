@@ -79,6 +79,16 @@ function SMSTempletePopup({
   // Auto-fill form when editing
   useEffect(() => {
     if (isEditing && editingRow && open) {
+      // Set phone from editingRow.smsPhoneNumberId if available
+      if (editingRow.smsPhoneNumberId && phoneNumbers.length > 0) {
+        const matchedPhone = phoneNumbers.find(
+          (p) => p.id === editingRow.smsPhoneNumberId
+        )
+        if (matchedPhone) {
+          setSelectedPhone(matchedPhone)
+        }
+      }
+      
       // Load template details if templateId exists
       if (editingRow.templateId) {
         loadTemplateDetails(editingRow)
@@ -88,16 +98,30 @@ function SMSTempletePopup({
       setBody('')
       setSelectedPhone(null)
     }
-  }, [isEditing, editingRow, open])
+  }, [isEditing, editingRow, open, phoneNumbers])
 
   const loadTemplateDetails = async (template) => {
     try {
-      // setDetailsLoader(template.id);
+      // First, try to get phone from editingRow.smsPhoneNumberId (cadence row data)
+      if (editingRow?.smsPhoneNumberId && phoneNumbers.length > 0) {
+        // Find the phone object that matches the smsPhoneNumberId
+        const matchedPhone = phoneNumbers.find(
+          (p) => p.id === editingRow.smsPhoneNumberId
+        )
+        if (matchedPhone) {
+          setSelectedPhone(matchedPhone)
+          console.log('Found phone from smsPhoneNumberId:', matchedPhone)
+        } else {
+          console.warn('Phone number not found in phoneNumbers array for smsPhoneNumberId:', editingRow.smsPhoneNumberId)
+        }
+      }
+      
+      // Load template details for content (phone is not stored in template)
       const details = await getTempleteDetails(template)
-      console.log('details', details)
+      console.log('Template details:', details)
       if (details) {
         setBody(details.content || '')
-        setSelectedPhone(details.phone)
+        // Don't set phone from details - it doesn't exist there
       }
     } catch (error) {
       console.error('Error loading template details:', error)
@@ -176,12 +200,14 @@ function SMSTempletePopup({
             templateId: createdTemplate.id,
             content: body,
             communicationType: 'sms',
+            smsPhoneNumberId: selectedPhone?.id,
           })
         } else {
           addRow({
             templateId: createdTemplate.id,
             communicationType: 'sms',
             phone: selectedPhone,
+            smsPhoneNumberId: selectedPhone?.id,
           })
         }
 

@@ -382,7 +382,29 @@ function UpgradePlanContent({
       return canProceed
     }
 
-    // If no cards and not adding new, still allow if plan is selected (they might add card during subscription)
+    // Check if the selected plan is free
+    const planPrice =
+      currentSelectedPlan?.discountPrice ||
+      currentSelectedPlan?.discountedPrice ||
+      currentSelectedPlan?.price ||
+      currentSelectedPlan?.originalPrice ||
+      0
+    const isFreePlan = planPrice === 0 || planPrice === null
+
+    // If no cards and not adding new payment method
+    if (!haveCards && !isAddingNewPaymentMethod) {
+      // If it's a free plan, allow subscription without payment method
+      if (isFreePlan) {
+        console.log('Button enabled: free plan, no payment method required')
+        return true
+      }
+      // If it's a paid plan and user hasn't started entering card details, hide the button
+      // (isAddingNewPaymentMethod is false means they haven't started entering card details)
+      console.log('Button hidden: paid plan requires payment method, no card details entered')
+      return false
+    }
+
+    // Fallback case (shouldn't reach here, but just in case)
     console.log('Button enabled: fallback case')
     return true
   }

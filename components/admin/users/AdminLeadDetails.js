@@ -7,6 +7,7 @@ import {
   Fade,
   FormControl,
   InputLabel,
+  Menu,
   MenuItem,
   Modal,
   Popover,
@@ -166,6 +167,9 @@ const AdminLeadDetails = ({
 
   const [googleAccounts, setGoogleAccounts] = useState([])
   const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
+  
+  // Send action dropdown anchor
+  const [sendActionAnchor, setSendActionAnchor] = useState(null)
 
   // Stripe configuration for upgrade modal
   const stripePromise = getStripe()
@@ -194,17 +198,21 @@ const AdminLeadDetails = ({
 
   useEffect(() => {
     const getData = async () => {
-      let user = await AdminGetProfileDetails(selectedUser?.id)
+      if (!selectedUser?.id) return
+      
+      let user = await AdminGetProfileDetails(selectedUser.id)
       if (user) {
         setUserLocalData(user)
       }
     }
 
-    getNumbers()
-    getData()
-    getCreditCost()
-    getGoogleAccounts()
-  }, [])
+    if (selectedUser?.id) {
+      getNumbers()
+      getData()
+      getCreditCost()
+      getGoogleAccounts()
+    }
+  }, [selectedUser])
 
   useEffect(() => {
     if (!selectedLead) return
@@ -229,24 +237,20 @@ const AdminLeadDetails = ({
   }
 
   const getNumbers = async () => {
-    let data = localStorage.getItem('selectedUser')
-    let selectedUser = null
-
-    if (data && data !== 'undefined' && data !== 'null') {
-      try {
-        selectedUser = JSON.parse(data)
-      } catch (error) {
-        console.error('Error parsing selectedUser from localStorage:', error)
-        selectedUser = null
-      }
+    if (!selectedUser?.id) {
+      setPhoneNumbers([])
+      setPhoneLoading(false)
+      return
     }
 
     setPhoneLoading(true)
-    let id = selectedUser?.id
+    let id = selectedUser.id
     let num = await getA2PNumbers(id)
     
     if (num) {
       setPhoneNumbers(num)
+    } else {
+      setPhoneNumbers([])
     }
     setPhoneLoading(false)
   }
@@ -259,7 +263,12 @@ const AdminLeadDetails = ({
 
   //code for getting teammebers
   const getMyteam = async () => {
-    //console.log;
+    if (!selectedUser?.id) {
+      setMyTeam([])
+      setGetTeamLoader(false)
+      return
+    }
+
     try {
       setGetTeamLoader(true)
       const data = localStorage.getItem('User')
@@ -268,6 +277,9 @@ const AdminLeadDetails = ({
         let u = JSON.parse(data)
 
         let path = Apis.getTeam
+        // Add userId parameter to fetch team members for the selected user
+        path = path + `?userId=${selectedUser.id}`
+        console.log('Api path for getting team members for selected user:', path)
 
         const response = await axios.get(path, {
           headers: {
@@ -280,17 +292,33 @@ const AdminLeadDetails = ({
 
           if (response.data.status === true) {
             //console.log;
-            setMyTeam(response.data.data)
+            // Include admin in the team list
+            let admin = response.data.admin
+            let adminMember = {
+              invitingUser: admin,
+              invitedUser: admin,
+              id: -1,
+              status: 'Admin',
+              name: admin.name,
+              email: admin.email,
+              phone: admin.phone,
+            }
+            let array = [adminMember, ...response.data.data]
+            if (response.data.data.length == 0) {
+              array = []
+            }
+            setMyTeam(array)
             setMyTeamAdmin(response.data.admin)
           } else {
             // //console.log;
+            setMyTeam([])
           }
         }
       }
     } catch (e) {
       setGetTeamLoader(false)
-
-      // //console.log;
+      console.error('Error getting team members:', e)
+      setMyTeam([])
     }
   }
 
@@ -300,12 +328,22 @@ const AdminLeadDetails = ({
       //console.log;
       handleClosePopup()
       setGlobalLoader(true)
-      let response = await AssignTeamMember(
-        selectedLeadsDetails.id,
-        item.invitingUserId,
-        selectedUser
-      )
-      if (response.data.status === true) {
+      console.log('Item passed is', item)
+      let ApiData = null
+      if (item.invitedUserId) {
+        ApiData = {
+          leadId: selectedLeadsDetails.id,
+          teamMemberUserId: item.invitedUserId,
+        }
+      } else {
+        ApiData = {
+          leadId: selectedLeadsDetails.id,
+          teamMemberUserId: item.id,
+        }
+      }
+      console.log('Api data to send in api is', ApiData)
+      let response = await AssignTeamMember(ApiData, selectedUser)
+      if (response && response.data && response.data.status === true) {
         setSelectedLeadsDetails((prevData) => {
           return {
             ...prevData,
@@ -316,7 +354,7 @@ const AdminLeadDetails = ({
       }
       //console.log;
     } catch (error) {
-      // console.error("Error occured is", error);
+      console.error("Error occurred in assign lead to team member:", error);
     } finally {
       setGlobalLoader(false)
       handleClosePopup()
@@ -1211,8 +1249,8 @@ const AdminLeadDetails = ({
             position: 'fixed',
             top: 14,
             right: 25,
-            width: '50vw', // Adjust width as needed
-            maxWidth: '600px',
+            width: '60vw', // Increased width
+            maxWidth: '800px', // Increased max width
             height: '96vh',
             bgcolor: 'white',
             boxShadow: 3,
@@ -1270,16 +1308,158 @@ const AdminLeadDetails = ({
                         <div className="flex flex-row items-start justify-between mt-4  w-full">
                           <div className="flex flex-col items-start gap-[5px] ">
                             <div className="flex flex-row items-center gap-4">
+                              {selectedLeadsDetails?.agent ? (
+                                <div className="h-[32px] w-[32px]">
+                                  {getAgentsListImage(
+                                    selectedLeadsDetails?.agent?.agents?.[0]?.agentType === 'outbound'
+                                      ? selectedLeadsDetails?.agent?.agents?.[0]
+                                      : selectedLeadsDetails?.agent?.agents?.[1],
+                                    32,
+                                    32,
+                                  )}
+                                </div>
+                              ) : (
+                                <div
+                                  className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                                >
+                                  {selectedLeadsDetails?.firstName?.slice(0, 1) ||
+                                    '-'}
+                                </div>
+                              )}
                               <div
-                                className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                                className="truncate"
                               >
-                                {selectedLeadsDetails?.firstName?.slice(0, 1) ||
-                                  '-'}
-                              </div>
-                              <div className="truncate">
                                 {selectedLeadsDetails?.firstName}{' '}
                                 {selectedLeadsDetails?.lastName}
                               </div>
+
+                              {/* Send Action Dropdown Button */}
+                              <div className="relative">
+                                <button
+                                  className="flex flex-row items-center gap-1 px-2 py-1 border border-brand-primary text-brand-primary rounded-lg"
+                                  onClick={(e) => setSendActionAnchor(e.currentTarget)}
+                                >
+                                  <span className="text-[12px] font-[400]">Send</span>
+                                  <CaretDown size={12} weight="bold" />
+                                </button>
+                                <Menu
+                                  anchorEl={sendActionAnchor}
+                                  open={Boolean(sendActionAnchor)}
+                                  onClose={() => setSendActionAnchor(null)}
+                                  anchorOrigin={{
+                                    vertical: 'bottom',
+                                    horizontal: 'left',
+                                  }}
+                                  transformOrigin={{
+                                    vertical: 'top',
+                                    horizontal: 'left',
+                                  }}
+                                  PaperProps={{
+                                    style: {
+                                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                                      borderRadius: '12px',
+                                      minWidth: '150px',
+                                    },
+                                  }}
+                                >
+                                  {/* Email Option */}
+                                  {(selectedLeadsDetails?.email ||
+                                    selectedLeadsDetails?.emails?.length > 0) && (
+                                    <MenuItem
+                                      onClick={() => {
+                                        setSendActionAnchor(null)
+                                        if (googleAccounts.length === 0) {
+                                          setShowAuthSelectionPopup(true)
+                                        } else {
+                                          setShowEmailModal(true)
+                                        }
+                                      }}
+                                      disabled={sendEmailLoader}
+                                    >
+                                      <div className="flex flex-row items-center gap-2 w-full">
+                                        <Image
+                                          src="/otherAssets/sendEmailIcon.png"
+                                          width={20}
+                                          height={20}
+                                          alt="email"
+                                          style={{
+                                            filter: 'brightness(0)',
+                                          }}
+                                        />
+                                        <span>Email</span>
+                                      </div>
+                                    </MenuItem>
+                                  )}
+                                  {/* Text Option */}
+                                  {selectedLeadsDetails?.phone && (
+                                    <MenuItem
+                                      onClick={() => {
+                                        setSendActionAnchor(null)
+                                        setShowSMSModal(true)
+                                      }}
+                                      disabled={
+                                        sendSMSLoader ||
+                                        !userLocalData?.planCapabilities
+                                          ?.allowTextMessages ||
+                                        phoneNumbers.length == 0
+                                      }
+                                      sx={{
+                                        opacity: (!userLocalData?.planCapabilities
+                                          ?.allowTextMessages ||
+                                          phoneNumbers.length == 0) ? 0.6 : 1,
+                                      }}
+                                    >
+                                      <div className="flex flex-row items-center gap-2 w-full">
+                                        <Image
+                                          src="/otherAssets/sendSmsIcon.png"
+                                          width={20}
+                                          height={20}
+                                          alt="text"
+                                          style={{
+                                            filter: 'brightness(0)',
+                                          }}
+                                        />
+                                        <span>Text</span>
+                                        {(!userLocalData?.planCapabilities
+                                          ?.allowTextMessages ||
+                                          phoneNumbers.length == 0) && (
+                                          <Image
+                                            src="/otherAssets/starsIcon2.png"
+                                            height={16}
+                                            width={16}
+                                            alt="upgrade"
+                                            className="ml-auto"
+                                          />
+                                        )}
+                                      </div>
+                                    </MenuItem>
+                                  )}
+                                  {/* Call Option */}
+                                  {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' &&
+                                    selectedLeadsDetails?.phone && (
+                                      <MenuItem
+                                        onClick={() => {
+                                          setSendActionAnchor(null)
+                                          // Dialer functionality can be added here if needed for admin view
+                                        }}
+                                      >
+                                        <div className="flex flex-row items-center gap-2 w-full">
+                                          <Image
+                                            src="/otherAssets/callIcon.png"
+                                            width={20}
+                                            height={20}
+                                            alt="call"
+                                            style={{
+                                              filter: 'brightness(0)',
+                                            }}
+                                          />
+                                          <span>Call</span>
+                                        </div>
+                                      </MenuItem>
+                                    )}
+                                </Menu>
+                              </div>
+
                               {selectedLeadsDetails?.scoringDetails &&
                                 selectedLeadsDetails?.scoringDetails?.questions
                                   ?.length > 0 && (
@@ -1297,25 +1477,29 @@ const AdminLeadDetails = ({
                                     tooltipTitle="Results"
                                   />
                                 )}
+
                               {selectedLeadsDetails?.isOnDncList && (
                                 <div className="rounded-full bg-red justify-center items-center  color-black p-1 px-2">
                                   DNC
                                 </div>
                               )}
                             </div>
-                            {/* Email Field */}
-                            {(selectedLeadsDetails?.email ||
-                              selectedLeadsDetails?.emails?.length > 0) && (
+                          {/* Email Field */}
+                          {(selectedLeadsDetails?.email ||
+                            selectedLeadsDetails?.emails?.length > 0) && (
                             <div className="flex flex-row items-center gap-2">
-                                  <Image
-                                    src="/otherAssets/email.png"
-                                    height={16}
-                                    width={16}
-                                    alt="email"
-                                  />
+                              <Image
+                                src="/otherAssets/email.png"
+                                width={16}
+                                height={16}
+                                alt="email"
+                                style={{
+                                  filter: 'brightness(0)',
+                                }}
+                              />
                               <div style={styles.heading2}>
                                 {selectedLeadsDetails?.email ? (
-                                  truncateEmail(selectedLeadsDetails?.email)
+                                  selectedLeadsDetails?.email
                                 ) : (
                                   <div>
                                     {selectedLeadsDetails?.emails
@@ -1340,7 +1524,7 @@ const AdminLeadDetails = ({
                                                 <span className="text-brand-primary">
                                                   New
                                                 </span>{' '}
-                                                {truncateEmail(email.email)}
+                                                {email.email}
                                               </div>
                                             </div>
                                             <button
@@ -1351,7 +1535,8 @@ const AdminLeadDetails = ({
                                             >
                                               {selectedLeadsDetails?.emails
                                                 ?.length > 1
-                                                    ? `+${selectedLeadsDetails?.emails
+                                                ? `+${
+                                                    selectedLeadsDetails?.emails
                                                       ?.length - 1
                                                   }`
                                                 : ''}
@@ -1362,46 +1547,18 @@ const AdminLeadDetails = ({
                                   </div>
                                 )}
                               </div>
-                                  {/* Send Email Button */}
-                                          <button
-                                    className="flex flex-row items-center gap-1 px-1 py-1 border border-brand-primary/30 text-brand-primary rounded-lg  ml-4"
-                                            onClick={() => {
-                                      if (googleAccounts.length === 0) {
-                                        setShowAuthSelectionPopup(true)
-                                      } else {
-                                        setShowEmailModal(true)
-                                      }
-                                    }}
-                                    disabled={sendEmailLoader}
-                                  >
-                                    <div
-                                      style={{
-                                        width: 18,
-                                        height: 18,
-                                        backgroundColor: 'hsl(var(--brand-primary))',
-                                        maskImage: 'url(/otherAssets/sendEmailIcon.png)',
-                                        maskSize: 'contain',
-                                        maskRepeat: 'no-repeat',
-                                        maskPosition: 'center',
-                                        WebkitMaskImage: 'url(/otherAssets/sendEmailIcon.png)',
-                                        WebkitMaskSize: 'contain',
-                                        WebkitMaskRepeat: 'no-repeat',
-                                        WebkitMaskPosition: 'center',
-                                      }}
-                                    />
-                                    <span className="text-brand-primary text-[12px] font-[400]">
-                                      Send Email
-                                    </span>
-                                          </button>
-                                </div>
-                              )}
-                            {selectedLeadsDetails?.phone && (
-                              <div className="flex flex-row gap-2 justify-center items-center -mt-2">
+                            </div>
+                          )}
+                          {selectedLeadsDetails?.phone && (
+                            <div className="flex flex-row items-center gap-2">
                               <Image
-                                  src="/otherAssets/phone.png"
+                                src="/otherAssets/phone.png"
                                 width={16}
-                                  height={20}
-                                alt="call"
+                                height={16}
+                                alt="phone"
+                                style={{
+                                  filter: 'brightness(0)',
+                                }}
                               />
                               <div style={styles.heading2}>
                                 {formatPhoneNumber(
@@ -1410,150 +1567,49 @@ const AdminLeadDetails = ({
                               </div>
                               {selectedLeadsDetails?.cell != null && (
                                 <div
-                                    className="rounded-full font-medium justify-center items-center color-[#ffffff] p-0.2 px-2 bg-[#15151580]"
+                                  className="rounded-full font-medium justify-center items-center color-[#ffffff] p-0.2 px-2 bg-[#15151580]"
                                   style={{ color: 'white' }}
                                 >
                                   {selectedLeadsDetails?.cell}
                                 </div>
                               )}
-                                {/* Send SMS Button for Phone */}
-                                <div className="relative ml-4">
-                                  {userLocalData?.planCapabilities
-                                    ?.allowTextMessages === false && (
-                                      <Image
-                                        className="absolute -top-3 -left-2 z-10"
-                                        src="/otherAssets/starsIcon2.png"
-                                        height={20}
-                                        width={20}
-                                        alt="Upgrade"
-                                      />
-                                    )}
-
-                                  <Tooltip
-                                    title={
-                                      userLocalData?.planCapabilities
-                                        ?.allowTextMessages === false ? (
-                                        <div className="flex flex-col items-start gap-1">
-                                          <span>
-                                            <button
-                                              className="text-brand-primary underline hover:text-brand-primary-700 transition-colors text-left p-0 bg-transparent border-none ml-1"
-                                              onClick={() => {
-                                                setShowUpgradeModal(true)
-                                              }}
-                                            >
-                                              {`Upgrade `}
-                                            </button>
-                                            {' account to send text'}
-                                          </span>
                             </div>
-                                      ) : phoneNumbers.length == 0 ? (
-                                        'You need to complete A2P to text'
-                                      ) : (
-                                        ''
-                                      )
-                                    }
-                                    arrow
-                                    disableHoverListener={
-                                      userLocalData?.planCapabilities
-                                        ?.allowTextMessages &&
-                                      phoneNumbers.length > 0
-                                    }
-                                    disableFocusListener={
-                                      userLocalData?.planCapabilities
-                                        ?.allowTextMessages &&
-                                      phoneNumbers.length > 0
-                                    }
-                                    disableTouchListener={
-                                      userLocalData?.planCapabilities
-                                        ?.allowTextMessages &&
-                                      phoneNumbers.length > 0
-                                    }
-                                    componentsProps={{
-                                      tooltip: {
-                                        sx: {
-                                          backgroundColor: '#ffffff',
-                                          color: '#333',
-                                          fontSize: '14px',
-                                          fontWeight: '500',
-                                          padding: '12px 15px',
-                                          borderRadius: '8px',
-                                          boxShadow:
-                                            '0px 4px 20px rgba(0, 0, 0, 0.15)',
-                                          border: '1px solid #e5e7eb',
-                                          maxWidth: '250px',
-                                        },
-                                      },
-                                      arrow: {
-                                        sx: {
-                                          color: '#ffffff',
-                                        },
-                                      },
-                                    }}
-                                  >
-                                    {sendSMSLoader ? (
-                                      <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                                    ) : (
-                                      <button
-                                        className={`flex flex-row border border-brand-primary/30 items-center gap-1 px-1 py-1 text-brand-primary rounded-lg`}
-                                        onClick={() => setShowSMSModal(true)}
-                                        disabled={
-                                          sendSMSLoader ||
-                                          !userLocalData?.planCapabilities
-                                            ?.allowTextMessages ||
-                                          phoneNumbers.length == 0
-                                        }
-                                      >
-                                        <div
-                                          style={{
-                                            width: 18,
-                                            height: 18,
-                                            backgroundColor: 'hsl(var(--brand-primary))',
-                                            maskImage: 'url(/otherAssets/sendSmsIcon.png)',
-                                            maskSize: 'contain',
-                                            maskRepeat: 'no-repeat',
-                                            maskPosition: 'center',
-                                            WebkitMaskImage: 'url(/otherAssets/sendSmsIcon.png)',
-                                            WebkitMaskSize: 'contain',
-                                            WebkitMaskRepeat: 'no-repeat',
-                                            WebkitMaskPosition: 'center',
-                                          }}
-                                        />
-                                        <span className="text-brand-primary text-[12px] font-[400]">
-                                          Send Text
-                                        </span>
-                                      </button>
-                                    )}
-                                  </Tooltip>
-                                </div>
-                              </div>
-                            )}
+                          )}
 
-                            {selectedLeadsDetails?.address && (
+                          {selectedLeadsDetails?.address && (
                             <div className="flex flex-row items-center gap-2">
                               <Image
-                                  src={'/otherAssets/location.png'}
-                                height={16}
+                                src="/otherAssets/location.png"
                                 width={16}
-                                alt="man"
+                                height={16}
+                                alt="location"
+                                style={{
+                                  filter: 'brightness(0)',
+                                }}
                               />
                               <div style={styles.heading2}>
                                 {selectedLeadsDetails?.address || '-'}
                               </div>
                             </div>
-                            )}
-                            {selectedLeadsDetails?.tags?.length > 0 && (
+                          )}
+                          {selectedLeadsDetails?.tags.length > 0 && (
                             <div className="flex flex-row items-center gap-2">
                               <Image
-                                  src={'/otherAssets/tag.png'}
-                                height={16}
+                                src="/otherAssets/tag.png"
                                 width={16}
-                                alt="man"
+                                height={16}
+                                alt="tag"
+                                style={{
+                                  filter: 'brightness(0)',
+                                }}
                               />
                               <div>
+                                {selectedLeadsDetails?.tags.length > 0 ? (
                                   <div
                                     className="text-end flex flex-row items-center gap-2 "
                                   >
-                                    {selectedLeadsDetails?.tags
+                                    {
+                                      selectedLeadsDetails?.tags
                                         .slice(0, 2)
                                         .map((tag, index) => {
                                           return (
@@ -1561,14 +1617,23 @@ const AdminLeadDetails = ({
                                               key={index}
                                               className="flex flex-row items-center gap-2"
                                             >
-                                              <div className="flex flex-row items-center gap-2 bg-brand-primary/10 px-2 py-1 rounded-lg">
-                                              <div className="text-brand-primary">
+                                              <div 
+                                                className="flex flex-row items-center gap-2 px-2 py-1 rounded-lg"
+                                                style={{
+                                                  backgroundColor: 'hsl(var(--brand-primary) / 0.1)'
+                                                }}
+                                              >
+                                                <div
+                                                  className="text-brand-primary"
+                                                >
                                                   {tag}
                                                 </div>
                                                 {DelTagLoader &&
                                                 tag.includes(DelTagLoader) ? (
                                                   <div>
-                                                  <CircularProgress size={15} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                                                    <CircularProgress
+                                                      size={15}
+                                                    />
                                                   </div>
                                                 ) : (
                                                   <button
@@ -1586,35 +1651,40 @@ const AdminLeadDetails = ({
                                               </div>
                                             </div>
                                           )
-                                      })}
+                                        })
+                                    }
                                     <button
                                       className="outline-none"
                                       onClick={() => {
                                         setExtraTagsModal(true)
                                       }}
                                     >
-                                      {selectedLeadsDetails?.tags.length > 2 && (
+                                      {selectedLeadsDetails?.tags.length >
+                                        2 && (
                                         <div className="text-brand-primary underline">
                                           +
-                                          {selectedLeadsDetails?.tags.length - 2}
+                                          {selectedLeadsDetails?.tags.length -
+                                            2}
                                         </div>
                                       )}
                                     </button>
                                   </div>
+                                ) : (
+                                  '-'
+                                )}
                               </div>
                             </div>
-                            )}
+                          )}
 
-                            {selectedLeadsDetails?.pipeline && (
+                          {selectedLeadsDetails?.pipeline && (
                             <div className="flex flex-row items-center gap-2">
                               <Image
-                                  src="/otherAssets/pipeline2.png"
-                                height={20}
+                                src="/otherAssets/pipeline2.png"
                                 width={20}
-                                alt="*"
+                                height={20}
+                                alt="pipeline"
                                 style={{
-                                  filter:
-                                    'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%)',
+                                  filter: 'brightness(0)',
                                 }}
                               />
                               <div style={styles.heading2}>
@@ -1623,26 +1693,29 @@ const AdminLeadDetails = ({
                                   : '-'}
                               </div>
                             </div>
-                            )}
+                          )}
 
-                            <div>
-                              {selectedLeadsDetails?.booking && (
-                                <div className="flex flex-row items-center gap-2">
-                                  <Image
-                                    src="/otherAssets/Calendar.png"
-                                    height={16}
-                                    width={16}
-                                    alt="*"
-                                  />
-                                  <div style={styles.heading2}>
-                                    {GetFormattedDateString(
-                                      selectedLeadsDetails.booking.datetime,
-                                      true,
-                                    )}
-                                  </div>
+                          <div>
+                            {selectedLeadsDetails?.booking && (
+                              <div className="flex flex-row items-center gap-2">
+                                <Image
+                                  src="/otherAssets/Calendar.png"
+                                  width={16}
+                                  height={16}
+                                  alt="calendar"
+                                  style={{
+                                    filter: 'brightness(0)',
+                                  }}
+                                />
+                                <div style={styles.heading2}>
+                                  {GetFormattedDateString(
+                                    selectedLeadsDetails.booking.datetime,
+                                    true,
+                                  )}
                                 </div>
-                              )}
-                            </div>
+                              </div>
+                            )}
+                          </div>
                           </div>
 
                           <div className="flex flex-col items-end gap-[5px]">
@@ -1699,28 +1772,27 @@ const AdminLeadDetails = ({
                                 <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
                               ) : (
                               <div className="flex flex-col w-full max-w-full overflow-hidden">
-                                <button
-                                  className="flex flex-row items-center gap-3"
-                                  onClick={(event) => {
-                                    handleShowPopup(event)
-                                  }}
-                                >
+                                <div className="flex flex-row items-center gap-2">
                                   <Image
-                                    src={'/otherAssets/assignTeamIcon.png'}
-                                    alt="*"
-                                    height={16}
+                                    src="/otherAssets/assignTeamIcon.png"
                                     width={16}
-                                  />
-                                  <div
+                                    height={16}
+                                    alt="assign team"
                                     style={{
-                                      fontWeight: '500',
-                                      fontsize: 15,
-                                      color: '#000000100',
+                                      filter: 'brightness(0)',
+                                    }}
+                                  />
+                                  <button
+                                    className="outline-none flex flex-row items-center gap-1"
+                                    onClick={(event) => {
+                                      handleShowPopup(event)
                                     }}
                                   >
-                                    Assign Team
-                                  </div>
-                                </button>
+                                    <div style={styles.heading2}>
+                                      Assign Team
+                                    </div>
+                                  </button>
+                                </div>
                                 <div className="flex w-full">
                                   {showTeams && (
                                     <div className="flex flex-col mt-4 gap-1 w-full max-w-full overflow-hidden">
@@ -1730,7 +1802,7 @@ const AdminLeadDetails = ({
                                           className="flex space-x-3 overflow-x-auto items-center"
                                         >
                                           <div className="flex items-center space-x-1">
-                                            <div className="w-6 h-6 bg-purple rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                            <div className="w-6 h-6 bg-brand-primary rounded-full flex items-center justify-center text-white font-bold text-sm">
                                               {user?.name?.charAt(0)}
                                             </div>
                                             <span className="text-gray-700 text-sm">
@@ -1748,142 +1820,127 @@ const AdminLeadDetails = ({
                         </div>
 
 
-                        <div className=" flex w-full">
-                          {getExtraColumsCount(columnsLength) >= 1 && (
-                            <div className="flex flex-col mt-2 rounded-xl p-2 w-full max-w-full overflow-hidden">
-                              <button
-                                onClick={() => {
-                                  setShowCustomVariables(!showCustomVariables)
-                                }}
-                                className="flex flex-row items-center w-full justify-between outline-none"
-                              >
-                                <div className="flex flex-row items-center gap-3">
-                                  <Image
-                                    src={'/assets/customsIcon.svg'}
-                                    alt="*"
-                                    height={16}
-                                    width={16}
-                                  />
-                                  <div
-                                    style={{
-                                      fontWeight: '600',
-                                      fontsize: 15,
-                                      color: '#000000100',
-                                    }}
-                                  >
-                                    Custom fields
-                                  </div>
-                                  {showCustomVariables ? (
-                                    <CaretUp
-                                      size={16}
-                                      weight="bold"
-                                      color="#15151570"
-                                    />
-                                  ) : (
-                                    <CaretDown
-                                      size={16}
-                                      weight="bold"
-                                      color="#15151570"
-                                    />
-                                  )}
-                                </div>
-                                <div>
-                                  {getExtraColumsCount(columnsLength) > 0 ? (
-                                    <div
-                                      className="text-brand-primary underline"
-                                      style={{
-                                        fontsize: 15,
-                                        fontWeight: '500',
-                                      }}
-                                    >
-                                      +{getExtraColumsCount(columnsLength)}
-                                    </div>
-                                  ) : (
-                                    ''
-                                  )}
-                                </div>
-                              </button>
-                              <div className="flex w-full ">
-                                {showCustomVariables && (
-                                  <div className="flex flex-col gap-4 mt-4 w-full max-w-full overflow-hidden">
-                                    {leadColumns.map((column, index) => {
-                                      if (
-                                        [
-                                          'Name',
-                                          'Phone',
-                                          'address',
-                                          'More',
-                                          0,
-                                          'Stage',
-                                          'status',
-                                        ].includes(column?.title)
-                                      ) {
-                                        return null
-                                      }
-                                      return (
-                                        <div
-                                          key={index}
-                                          className="flex flex-row items-start gap-1 justify-between w-full flex-wrap"
-                                        >
-                                          <div className="flex flex-row items-center gap-4">
-                                            <div style={styles.subHeading}>
-                                              {capitalize(column?.title || '')}
-                                            </div>
-                                          </div>
-                                          <div className="flex flex-row whitespace-normal break-words overflow-hidden items-end flex-wrap">
-                                            <div className="flex flex-col items-end flex-grow w-full">
-                                              {getDetailsColumnData(
-                                                column,
-                                                selectedLeadsDetails,
-                                              )}
-                                            </div>
-                                            {ShowReadMoreButton(
-                                              column,
-                                              selectedLeadsDetails,
-                                            ) && (
-                                              <div className="flex items-end justify-end min-w-[120px]">
-                                                <button
-                                                  style={{
-                                                    fontWeight: '600',
-                                                    fontSize: 15,
-                                                  }}
-                                                  onClick={() => {
-                                                    setExpandedCustomFields(
-                                                      (prevFields) =>
-                                                        prevFields.includes(
-                                                          column?.title,
-                                                        )
-                                                          ? prevFields.filter(
-                                                              (field) =>
-                                                                field !==
-                                                                column?.title,
-                                                            )
-                                                          : [
-                                                              ...prevFields,
-                                                              column?.title,
-                                                            ],
-                                                    )
-                                                  }}
-                                                  className="text-black underline w-[120px]"
-                                                >
-                                                  {expandedCustomFields.includes(
-                                                    column?.title,
-                                                  )
-                                                    ? 'Read Less'
-                                                    : 'Read Transcript'}
-                                                </button>
-                                              </div>
-                                            )}
+                      {getExtraColumsCount(columnsLength) >= 1 && (
+                        <div className="flex flex-row items-center gap-2 mt-3">
+                          <Image
+                            src="/assets/customsIcon.svg"
+                            width={16}
+                            height={16}
+                            alt="custom fields"
+                            style={{
+                              filter: 'brightness(0)',
+                            }}
+                          />
+                          <button
+                            onClick={() => {
+                              setShowCustomVariables(!showCustomVariables)
+                            }}
+                            className="outline-none flex flex-row items-center gap-1"
+                          >
+                            <div style={styles.heading2}>
+                              Custom fields
+                            </div>
+                            {showCustomVariables ? (
+                              <CaretUp
+                                size={16}
+                                weight="bold"
+                                color="#000000"
+                              />
+                            ) : (
+                              <CaretDown
+                                size={16}
+                                weight="bold"
+                                color="#000000"
+                              />
+                            )}
+                          </button>
+                        </div>
+                      )}
+
+                    <div className="flex w-full">
+                      {getExtraColumsCount(columnsLength) >= 1 && (
+                        <div className="flex flex-col mt-2 rounded-xl p-2 w-full max-w-full overflow-hidden">
+                          <div className="flex w-full ">
+                              {showCustomVariables && (
+                                <div className="flex flex-col mt-4 gap-1 w-full max-w-full overflow-hidden">
+                                  {leadColumns.map((column, index) => {
+                                    if (
+                                      [
+                                        'Name',
+                                        'Phone',
+                                        'address',
+                                        'More',
+                                        0,
+                                        'Stage',
+                                        'status',
+                                      ].includes(column?.title)
+                                    ) {
+                                      return null
+                                    }
+                                    return (
+                                      <div
+                                        key={index}
+                                        className="flex flex-row items-start gap-1 justify-between w-full flex-wrap"
+                                      >
+                                        <div className="flex flex-row items-center gap-4">
+                                          <div style={styles.subHeading}>
+                                            {capitalize(column?.title || '')}
                                           </div>
                                         </div>
-                                      )
-                                    })}
-                                  </div>
-                                )}
-                              </div>
+                                        <div className="flex flex-row whitespace-normal break-words overflow-hidden items-end flex-wrap">
+                                          <div className="flex flex-col items-end flex-grow w-full">
+                                            {getDetailsColumnData(
+                                              column,
+                                              selectedLeadsDetails,
+                                            )}
+                                          </div>
+                                          {ShowReadMoreButton(
+                                            column,
+                                            selectedLeadsDetails,
+                                          ) && (
+                                            <div className="flex items-end justify-end min-w-[120px]">
+                                              <button
+                                                style={{
+                                                  fontWeight: '600',
+                                                  fontSize: 15,
+                                                }}
+                                                onClick={() => {
+                                                  setExpandedCustomFields(
+                                                    (prevFields) =>
+                                                      prevFields.includes(
+                                                        column?.title,
+                                                      )
+                                                        ? prevFields.filter(
+                                                            (field) =>
+                                                              field !==
+                                                              column?.title,
+                                                          )
+                                                        : [
+                                                            ...prevFields,
+                                                            column?.title,
+                                                          ],
+                                                  )
+                                                }}
+                                                className="text-black underline w-[120px]"
+                                              >
+                                                {expandedCustomFields.includes(
+                                                  column?.title,
+                                                )
+                                                  ? 'Read Less'
+                                                  : 'Read More'}
+                                              </button>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
+                          </div>
+                        )}
+                      </div>
 
                         {/* Show Transcript UI Modal*/}
 
@@ -1977,7 +2034,7 @@ const AdminLeadDetails = ({
                                               <span className="text-brand-primary">
                                                 New
                                               </span>{' '}
-                                              {truncateEmail(email?.email)}
+                                              {email?.email}
                                             </div>
                                           </div>
                                         </div>
@@ -2399,7 +2456,7 @@ const AdminLeadDetails = ({
                       </div>
                       <div
                         className="w-full"
-                        style={{ height: '1px', backgroundColor: '#15151530' }}
+                        style={{ height: '1px', backgroundColor: '#15151510' }}
                       />
 
                       <div style={{ paddingInline: 0 }}>
