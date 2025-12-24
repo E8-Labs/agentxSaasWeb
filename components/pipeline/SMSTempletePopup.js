@@ -302,13 +302,14 @@ function SMSTempletePopup({
               <CloseBtn onClick={onClose} />
             </div>
 
-            <div className="w-full flex flex-col items-ceter  p-2 rounded-lg mb-4"
+            <div 
+              className="w-full flex flex-col items-ceter p-3 rounded-lg mb-4 sms-note-container"
               style={{
-                backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                backgroundColor: '#F5F5F5',
               }}
             >
-              <div className="flex flex-row items-center justify-between w-full">
-                <div className="text-brand-primary text-[14] font-[700]">Note</div>
+              <div className="flex flex-row items-center justify-between w-full mb-1">
+                <div className="text-[14px] font-[700]" style={{ color: '#000' }}>Note</div>
               </div>
 
               <div className="text-[13px] font-[400] text-black flex flex-row flex-wrap">
@@ -361,7 +362,7 @@ function SMSTempletePopup({
                 From:
               </label>
               {phoneLoading ? (
-                <div className="flex items-center justify-center h-[50px]">
+                <div className="flex items-center justify-center h-[44px]">
                   <CircularProgress size={30} />
                 </div>
               ) : (

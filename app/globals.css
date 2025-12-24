@@ -132,7 +132,7 @@ input[type="date"]::-moz-datetime-edit-year-field {
   }
 
   /* Ensure all layout wrappers have white background */
-  .flex.flex-col.w-full {
+  .flex.flex-col.w-full:not(.sms-note-container) {
     background-color: #ffffff !important;
     background: #ffffff !important;
   }

@@ -23,6 +23,7 @@ const RichTextEditor = forwardRef(
       placeholder = 'Enter text...',
       availableVariables = [],
       toolbarPosition = 'top',
+      customToolbarElement = null, // Custom element to render on the right side of toolbar
     },
     ref,
   ) => {
@@ -201,6 +202,12 @@ const RichTextEditor = forwardRef(
             formats={formats}
             placeholder={placeholder}
           />
+          {/* Custom toolbar element on the right side */}
+          {customToolbarElement && (
+            <div className="custom-toolbar-element">
+              {customToolbarElement}
+            </div>
+          )}
         </div>
 
         {/* Custom Link Modal */}
@@ -225,11 +232,11 @@ const RichTextEditor = forwardRef(
                   autoFocus
                 />
               </div>
-              <div className="flex justify-center">
+              <div className="flex justify-center ">
                 <button
                   onClick={handleLinkSave}
-                  className="px-4 py-1.5 bg-brand-primary text-white rounded hover:bg-brand-primary/90 transition-colors"
-                  style={{ fontSize: '10px' }}
+                  className="px-4 py-1.5 bg-brand-primary text-white rounded hover:bg-brand-primary/90 transition-colors w-[60%]"
+                  style={{ fontSize: '12px' }}
                 >
                   Save
                 </button>
@@ -275,6 +282,28 @@ const RichTextEditor = forwardRef(
             border: none !important;
             border-top: none !important;
             border-bottom: none !important;
+            position: relative;
+          }
+
+          .quill-editor-wrapper {
+            position: relative;
+          }
+
+          .quill-editor-wrapper .custom-toolbar-element {
+            position: absolute;
+            right: 8px;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            height: 42px;
+          }
+
+          .quill-editor-wrapper.toolbar-top .custom-toolbar-element {
+            top: 3px;
+          }
+
+          .quill-editor-wrapper.toolbar-bottom .custom-toolbar-element {
+            bottom: 3px;
           }
 
           .quill-editor-wrapper.toolbar-top .ql-toolbar {

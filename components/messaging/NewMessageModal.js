@@ -89,6 +89,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
   const [emailDropdownOpen, setEmailDropdownOpen] = useState(false)
   const [uniqueColumns, setUniqueColumns] = useState([])
   const [selectedVariable, setSelectedVariable] = useState('')
+  const [selectedSubjectVariable, setSelectedSubjectVariable] = useState('')
   const [attachments, setAttachments] = useState([])
   const richTextEditorRef = useRef(null)
   const searchTimeoutRef = useRef(null)
@@ -1010,94 +1011,65 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                   onChange={(e) => setEmailSubject(e.target.value)}
                   placeholder="Email subject"
                   className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
-                  style={{ height: '42px' }}
+                  style={{ height: '42px', maxWidth: 'calc(100% - 200px)' }}
                 />
+                {/* Variables dropdown for subject */}
+                {uniqueColumns && uniqueColumns.length > 0 && (
+                  <FormControl size="small" sx={{ minWidth: 150 }}>
+                    <Select
+                      value={selectedSubjectVariable}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        setSelectedSubjectVariable('')
+                        if (value) {
+                          const variableText = value.startsWith('{') && value.endsWith('}')
+                            ? value
+                            : `{${value}}`
+                          setEmailSubject((prev) => prev + variableText)
+                        }
+                      }}
+                      displayEmpty
+                      sx={{
+                        fontSize: '0.875rem',
+                        height: '42px',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#d1d5db',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--brand-primary))',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--brand-primary))',
+                        },
+                      }}
+                    >
+                      <MenuItem value="" disabled>
+                        <em>Variables</em>
+                      </MenuItem>
+                      {uniqueColumns.map((variable, index) => {
+                        const displayText = variable.startsWith('{') && variable.endsWith('}')
+                          ? variable
+                          : `{${variable}}`
+                        return (
+                          <MenuItem key={index} value={variable}>
+                            {displayText}
+                          </MenuItem>
+                        )
+                      })}
+                    </Select>
+                  </FormControl>
+                )}
               </div>
             </>
           )}
 
           {/* Message Body */}
           <div>
-            <label className="text-sm font-medium mb-2 block">Message:</label>
-            {selectedMode === 'email' ? (
-              <RichTextEditor
-                ref={richTextEditorRef}
-                value={messageBody}
-                onChange={setMessageBody}
-                placeholder="Type your message..."
-                availableVariables={[]}
-                toolbarPosition="bottom"
-              />
-            ) : (
-              <textarea
-                value={messageBody}
-                onChange={(e) => {
-                  // Enforce max 160 characters for SMS
-                  if (e.target.value.length <= SMS_CHAR_LIMIT) {
-                    setMessageBody(e.target.value)
-                  }
-                }}
-                placeholder="Type your message..."
-                maxLength={SMS_CHAR_LIMIT}
-                className="w-full px-3 py-2 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[120px]"
-              />
-            )}
-          </div>
-            </>
-          )}
-        </div>
-
-        {/* Footer with char count, credits, and send button */}
-        {!shouldShowUpgradeView && (
-          <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50">
-            <div className="flex items-center gap-2">
-              {/* Insert Variable dropdown - only for email mode */}
-              {selectedMode === 'email' && uniqueColumns && uniqueColumns.length > 0 && (
-                <FormControl size="small" sx={{ minWidth: 180 }}>
-                  <Select
-                    value={selectedVariable}
-                    onChange={(e) => {
-                      const value = e.target.value
-                      setSelectedVariable('')
-                      if (value && richTextEditorRef.current) {
-                        richTextEditorRef.current.insertVariable(value)
-                      }
-                    }}
-                    displayEmpty
-                    sx={{
-                      fontSize: '0.875rem',
-                      height: '36px',
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#d1d5db',
-                      },
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'hsl(var(--brand-primary))',
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'hsl(var(--brand-primary))',
-                      },
-                    }}
-                  >
-                    <MenuItem value="" disabled>
-                      <em>Insert Variable...</em>
-                    </MenuItem>
-                    {uniqueColumns.map((variable, index) => {
-                      const displayText = variable.startsWith('{') && variable.endsWith('}')
-                        ? variable
-                        : `{${variable}}`
-                      return (
-                        <MenuItem key={index} value={variable}>
-                          {displayText}
-                        </MenuItem>
-                      )
-                    })}
-                  </Select>
-                </FormControl>
-              )}
-              
-              {/* Attachment button - only for email mode */}
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium block">Message:</label>
+              {/* Attachment button - moved from footer to main content area */}
               {selectedMode === 'email' && (
-                <>
+                <div className="flex items-center gap-2">
                   <label className="cursor-pointer">
                     <button
                       type="button"
@@ -1122,8 +1094,87 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                       {attachments.length} file{attachments.length > 1 ? 's' : ''}
                     </span>
                   )}
-                </>
+                </div>
               )}
+            </div>
+            {selectedMode === 'email' ? (
+              <RichTextEditor
+                ref={richTextEditorRef}
+                value={messageBody}
+                onChange={setMessageBody}
+                placeholder="Type your message..."
+                availableVariables={[]}
+                toolbarPosition="bottom"
+                customToolbarElement={
+                  uniqueColumns && uniqueColumns.length > 0 ? (
+                    <FormControl size="small" sx={{ minWidth: 150 }}>
+                      <Select
+                        value={selectedVariable}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          setSelectedVariable('')
+                          if (value && richTextEditorRef.current) {
+                            richTextEditorRef.current.insertVariable(value)
+                          }
+                        }}
+                        displayEmpty
+                        sx={{
+                          fontSize: '0.875rem',
+                          height: '32px',
+                          backgroundColor: 'white',
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#d1d5db',
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'hsl(var(--brand-primary))',
+                          },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'hsl(var(--brand-primary))',
+                          },
+                        }}
+                      >
+                        <MenuItem value="" disabled>
+                          <em>Variables</em>
+                        </MenuItem>
+                        {uniqueColumns.map((variable, index) => {
+                          const displayText = variable.startsWith('{') && variable.endsWith('}')
+                            ? variable
+                            : `{${variable}}`
+                          return (
+                            <MenuItem key={index} value={variable}>
+                              {displayText}
+                            </MenuItem>
+                          )
+                        })}
+                      </Select>
+                    </FormControl>
+                  ) : null
+                }
+              />
+            ) : (
+              <textarea
+                value={messageBody}
+                onChange={(e) => {
+                  // Enforce max 160 characters for SMS
+                  if (e.target.value.length <= SMS_CHAR_LIMIT) {
+                    setMessageBody(e.target.value)
+                  }
+                }}
+                placeholder="Type your message..."
+                maxLength={SMS_CHAR_LIMIT}
+                className="w-full px-3 py-2 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[120px]"
+              />
+            )}
+          </div>
+            </>
+          )}
+        </div>
+
+        {/* Footer with char count, credits, and send button */}
+        {!shouldShowUpgradeView && (
+          <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50">
+            <div className="flex items-center gap-2">
+              {/* Left side of footer is now empty - Variables and Attachment moved */}
             </div>
             
             <div className="flex items-center gap-4">

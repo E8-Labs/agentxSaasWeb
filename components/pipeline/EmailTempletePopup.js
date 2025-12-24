@@ -67,6 +67,8 @@ function EmailTempletePopup({
   const [body, setBody] = useState('')
   const [ccEmails, setccEmails] = useState([])
   const [bccEmails, setBccEmails] = useState([])
+  const [ccEmailInput, setCcEmailInput] = useState('')
+  const [bccEmailInput, setBccEmailInput] = useState('')
   const [attachments, setAttachments] = useState([])
   const [subjectChanged, setSubjectChanged] = useState(false)
   const [bodyChanged, setBodyChanged] = useState(false)
@@ -172,6 +174,8 @@ function EmailTempletePopup({
       setBody('')
       setccEmails([])
       setBccEmails([])
+      setCcEmailInput('')
+      setBccEmailInput('')
       setAttachments([])
       setSelectedTemp(null)
       setShowCC(false)
@@ -213,6 +217,104 @@ function EmailTempletePopup({
     ...ccEmails.filter((e) => !emailRegex.test(String(e).trim())),
     ...bccEmails.filter((e) => !emailRegex.test(String(e).trim())),
   ]
+
+  // Helper function to add email to CC array
+  const addCcEmail = (email) => {
+    const trimmedEmail = email.trim()
+    if (trimmedEmail && emailRegex.test(trimmedEmail)) {
+      if (!ccEmails.includes(trimmedEmail)) {
+        setccEmails([...ccEmails, trimmedEmail])
+        setccEmailsChanged(true)
+      }
+      setCcEmailInput('')
+    }
+  }
+
+  // Helper function to add email to BCC array
+  const addBccEmail = (email) => {
+    const trimmedEmail = email.trim()
+    if (trimmedEmail && emailRegex.test(trimmedEmail)) {
+      if (!bccEmails.includes(trimmedEmail)) {
+        setBccEmails([...bccEmails, trimmedEmail])
+        setBccEmailsChanged(true)
+      }
+      setBccEmailInput('')
+    }
+  }
+
+  // Helper function to remove email from CC array
+  const removeCcEmail = (emailToRemove) => {
+    setccEmails(ccEmails.filter((email) => email !== emailToRemove))
+    setccEmailsChanged(true)
+  }
+
+  // Helper function to remove email from BCC array
+  const removeBccEmail = (emailToRemove) => {
+    setBccEmails(bccEmails.filter((email) => email !== emailToRemove))
+    setBccEmailsChanged(true)
+  }
+
+  // Handle CC input change - support pasting multiple emails
+  const handleCcInputChange = (e) => {
+    const value = e.target.value
+    // Check if input contains comma (likely pasted multiple emails)
+    if (value.includes(',')) {
+      const emails = value.split(',').map(email => email.trim()).filter(email => email)
+      emails.forEach(email => {
+        if (emailRegex.test(email) && !ccEmails.includes(email)) {
+          setccEmails(prev => [...prev, email])
+          setccEmailsChanged(true)
+        }
+      })
+      setCcEmailInput('')
+    } else {
+      setCcEmailInput(value)
+    }
+  }
+
+  // Handle BCC input change - support pasting multiple emails
+  const handleBccInputChange = (e) => {
+    const value = e.target.value
+    // Check if input contains comma (likely pasted multiple emails)
+    if (value.includes(',')) {
+      const emails = value.split(',').map(email => email.trim()).filter(email => email)
+      emails.forEach(email => {
+        if (emailRegex.test(email) && !bccEmails.includes(email)) {
+          setBccEmails(prev => [...prev, email])
+          setBccEmailsChanged(true)
+        }
+      })
+      setBccEmailInput('')
+    } else {
+      setBccEmailInput(value)
+    }
+  }
+
+  // Handle CC input key events
+  const handleCcInputKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault()
+      if (ccEmailInput.trim()) {
+        addCcEmail(ccEmailInput)
+      }
+    } else if (e.key === 'Backspace' && !ccEmailInput && ccEmails.length > 0) {
+      // Remove last email on backspace when input is empty
+      removeCcEmail(ccEmails[ccEmails.length - 1])
+    }
+  }
+
+  // Handle BCC input key events
+  const handleBccInputKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault()
+      if (bccEmailInput.trim()) {
+        addBccEmail(bccEmailInput)
+      }
+    } else if (e.key === 'Backspace' && !bccEmailInput && bccEmails.length > 0) {
+      // Remove last email on backspace when input is empty
+      removeBccEmail(bccEmails[bccEmails.length - 1])
+    }
+  }
 
   // console.log("template",templetes)
 
@@ -896,49 +998,103 @@ function EmailTempletePopup({
               )}
             </div>
 
-            {/* CC and BCC fields - shown when toggled - Unified design */}
+            {/* CC and BCC fields - shown when toggled - Tag-based design */}
             {(showCC || showBCC) && (
-              <div className="flex items-center gap-4">
+              <div className="flex items-start gap-4">
                 {showCC && (
-                  <div className="flex items-center gap-2 flex-1 w-full">
-                    <label className="text-sm font-medium whitespace-nowrap">Cc:</label>
-                    <Input
-                      value={Array.isArray(ccEmails) ? ccEmails.join(', ') : (ccEmails || '')}
-                      onChange={(e) => {
-                        const emailString = e.target.value
-                        if (!emailString.trim()) {
-                          setccEmails([])
-                        } else {
-                          const emails = emailString.split(',').map(email => email.trim()).filter(email => email)
-                          setccEmails(emails)
-                        }
-                        setccEmailsChanged(true)
-                      }}
-                      placeholder="Add CC recipients"
-                      className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
-                      style={{ height: '42px', minHeight: '42px' }}
-                    />
+                  <div className="flex items-start gap-2 flex-1 w-full">
+                    <label className="text-sm font-medium whitespace-nowrap pt-2">Cc:</label>
+                    <div className="relative flex-1 min-w-0">
+                      {/* Tag Input Container */}
+                      <div 
+                        className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary"
+                        style={{ minHeight: '42px' }}
+                      >
+                        {/* CC Email Tags */}
+                        {ccEmails.map((email, index) => (
+                          <div
+                            key={`cc-${index}-${email}`}
+                            className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
+                          >
+                            <span className="text-gray-700">{email}</span>
+                            <button
+                              type="button"
+                              onClick={() => removeCcEmail(email)}
+                              className="text-gray-500 hover:text-gray-700 ml-1"
+                            >
+                              <X size={14} weight="bold" />
+                            </button>
+                          </div>
+                        ))}
+                        {/* CC Input */}
+                        <input
+                          type="text"
+                          value={ccEmailInput}
+                          onChange={handleCcInputChange}
+                          onKeyDown={handleCcInputKeyDown}
+                          onBlur={() => {
+                            if (ccEmailInput.trim()) {
+                              addCcEmail(ccEmailInput)
+                            }
+                          }}
+                          placeholder={ccEmails.length === 0 ? "Add CC recipients" : ""}
+                          className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                          style={{ 
+                            height: '100%',
+                            minHeight: '24px',
+                            padding: 0,
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 )}
                 {showBCC && (
-                  <div className="flex items-center gap-2 flex-1 w-full">
-                    <label className="text-sm font-medium whitespace-nowrap">Bcc:</label>
-                    <Input
-                      value={Array.isArray(bccEmails) ? bccEmails.join(', ') : (bccEmails || '')}
-                      onChange={(e) => {
-                        const emailString = e.target.value
-                        if (!emailString.trim()) {
-                          setBccEmails([])
-                        } else {
-                          const emails = emailString.split(',').map(email => email.trim()).filter(email => email)
-                          setBccEmails(emails)
-                        }
-                        setBccEmailsChanged(true)
-                      }}
-                      placeholder="Add BCC recipients"
-                      className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
-                      style={{ height: '42px', minHeight: '42px' }}
-                    />
+                  <div className="flex items-start gap-2 flex-1 w-full">
+                    <label className="text-sm font-medium whitespace-nowrap pt-2">Bcc:</label>
+                    <div className="relative flex-1 min-w-0">
+                      {/* Tag Input Container */}
+                      <div 
+                        className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary"
+                        style={{ minHeight: '42px' }}
+                      >
+                        {/* BCC Email Tags */}
+                        {bccEmails.map((email, index) => (
+                          <div
+                            key={`bcc-${index}-${email}`}
+                            className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
+                          >
+                            <span className="text-gray-700">{email}</span>
+                            <button
+                              type="button"
+                              onClick={() => removeBccEmail(email)}
+                              className="text-gray-500 hover:text-gray-700 ml-1"
+                            >
+                              <X size={14} weight="bold" />
+                            </button>
+                          </div>
+                        ))}
+                        {/* BCC Input */}
+                        <input
+                          type="text"
+                          value={bccEmailInput}
+                          onChange={handleBccInputChange}
+                          onKeyDown={handleBccInputKeyDown}
+                          onBlur={() => {
+                            if (bccEmailInput.trim()) {
+                              addBccEmail(bccEmailInput)
+                            }
+                          }}
+                          placeholder={bccEmails.length === 0 ? "Add BCC recipients" : ""}
+                          className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                          style={{ 
+                            height: '100%',
+                            minHeight: '24px',
+                            padding: 0,
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
