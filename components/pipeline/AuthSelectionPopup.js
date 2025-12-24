@@ -194,7 +194,7 @@ function AuthSelectionPopup({
           />
           <div className="flex flex-row items-center justify-between w-full">
             <div className="text-[18px] font-[700] ">
-              Login to Email Account
+              Login
             </div>
             <CloseBtn onClick={onClose} />
           </div>
