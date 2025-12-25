@@ -1069,7 +1069,7 @@ const AdminLeadDetails = ({
           <button
             onClick={() => {
               if (item?.recordingUrl) {
-                setShowAudioPlay(item?.recordingUrl)
+                setShowAudioPlay({ recordingUrl: item.recordingUrl, callId: item.callId })
               } else {
                 setShowNoAudioPlay(true)
               }
@@ -3084,7 +3084,7 @@ const AdminLeadDetails = ({
               }}
             >
               <audio controls>
-                <source src={showAudioPlay} type="audio/mpeg" />
+                <source src={showAudioPlay?.recordingUrl} type="audio/mpeg" />
                 Your browser does not support the audio element.
               </audio>
               <button
@@ -3184,11 +3184,10 @@ const AdminLeadDetails = ({
                 className="mb-3"
                 style={{ fontWeight: '600', fontSize: 15 }}
                 onClick={() => {
-                  navigator.clipboard.writeText(showAudioPlay).then(() => {
-                  setShowAudioPlay(null)
-                    setShowSuccessSnack('Audio URL copied')
-                    setShowSuccessSnack2(true)
-                  })
+                  if (showAudioPlay?.callId) {
+                    window.open(`/recordings/${showAudioPlay.callId}`, '_blank')
+                    setShowAudioPlay(null)
+                  }
                 }}
               >
                 <Image
@@ -3203,7 +3202,7 @@ const AdminLeadDetails = ({
                 id="custom-audio"
                 controls
                 style={{ width: '100%' }}
-                src={showAudioPlay}
+                src={showAudioPlay?.recordingUrl}
               />
 
               <button
