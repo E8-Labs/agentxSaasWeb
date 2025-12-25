@@ -15,12 +15,81 @@ const ThreadsList = ({
   onDeleteThread,
   searchValue,
   onSearchChange,
+  onFilterClick,
+  selectedTeamMemberIdsCount,
 }) => {
   const [openMenuId, setOpenMenuId] = useState(null)
   return (
     <div className="w-80 border-r border-gray-200 flex flex-col h-screen bg-white">
-      <div className="px-6 pt-8 pb-6">
+      <div className="px-6 pt-8 pb-6 flex flex-row items-center justify-between">
         <h1 className="text-3xl font-bold text-black">Messages</h1>
+        {onFilterClick && (
+          <button
+            onClick={onFilterClick}
+            className={`flex flex-row items-center justify-center border h-10 px-3 gap-2 rounded-full ${
+              selectedTeamMemberIdsCount > 0
+                ? 'bg-purple-100 border-purple-500'
+                : 'border-gray-300'
+            }`}
+            title="Filter by team member"
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M22 6.5H16"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M6 6.5H2"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M10 10C11.933 10 13.5 8.433 13.5 6.5C13.5 4.567 11.933 3 10 3C8.067 3 6.5 4.567 6.5 6.5C6.5 8.433 8.067 10 10 10Z"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M22 17.5H18"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M8 17.5H2"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+              <path
+                d="M14 21C15.933 21 17.5 19.433 17.5 17.5C17.5 15.567 15.933 14 14 14C12.067 14 10.5 15.567 10.5 17.5C10.5 19.433 12.067 21 14 21Z"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            {selectedTeamMemberIdsCount > 0 && (
+              <span className="text-purple-600 text-sm font-medium">
+                {selectedTeamMemberIdsCount}
+              </span>
+            )}
+          </button>
+        )}
       </div>
 
       <div className="px-6 pb-4">

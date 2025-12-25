@@ -41,6 +41,14 @@ import {
   Sun,
   Snowflake,
   CheckCircle2,
+  Mail,
+  MapPin,
+  Tag,
+  Workflow,
+  Calendar,
+  Users,
+  FileText,
+  MessageSquare,
 } from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
@@ -1560,20 +1568,9 @@ const LeadDetails = ({
                                     disabled={sendEmailLoader}
                                   >
                                     <div className="flex flex-row items-center gap-2 w-full">
-                                      <div
-                                        style={{
-                                          width: 20,
-                                          height: 20,
-                                          backgroundColor: '#000000',
-                                          WebkitMaskImage: 'url(/otherAssets/@Icon.png)',
-                                          maskImage: 'url(/otherAssets/@Icon.png)',
-                                          WebkitMaskSize: 'contain',
-                                          maskSize: 'contain',
-                                          WebkitMaskRepeat: 'no-repeat',
-                                          maskRepeat: 'no-repeat',
-                                          WebkitMaskPosition: 'center',
-                                          maskPosition: 'center',
-                                        }}
+                                      <Mail
+                                        size={20}
+                                        color="#000000"
                                       />
                                       <span>Email</span>
                                     </div>
@@ -1594,20 +1591,9 @@ const LeadDetails = ({
                                     }
                                   >
                                     <div className="flex flex-row items-center gap-2 w-full">
-                                      <div
-                                        style={{
-                                          width: 20,
-                                          height: 20,
-                                          backgroundColor: '#000000',
-                                          WebkitMaskImage: 'url(/otherAssets/smsIcon.png)',
-                                          maskImage: 'url(/otherAssets/smsIcon.png)',
-                                          WebkitMaskSize: 'contain',
-                                          maskSize: 'contain',
-                                          WebkitMaskRepeat: 'no-repeat',
-                                          maskRepeat: 'no-repeat',
-                                          WebkitMaskPosition: 'center',
-                                          maskPosition: 'center',
-                                        }}
+                                      <MessageSquare
+                                        size={20}
+                                        color="#000000"
                                       />
                                       <span>Text</span>
                                       {(!userLocalData?.planCapabilities
@@ -1634,20 +1620,9 @@ const LeadDetails = ({
                                       }}
                                     >
                                       <div className="flex flex-row items-center gap-2 w-full">
-                                        <div
-                                          style={{
-                                            width: 20,
-                                            height: 20,
-                                            backgroundColor: '#000000',
-                                            WebkitMaskImage: 'url(/otherAssets/callIcon.png)',
-                                            maskImage: 'url(/otherAssets/callIcon.png)',
-                                            WebkitMaskSize: 'contain',
-                                            maskSize: 'contain',
-                                            WebkitMaskRepeat: 'no-repeat',
-                                            maskRepeat: 'no-repeat',
-                                            WebkitMaskPosition: 'center',
-                                            maskPosition: 'center',
-                                          }}
+                                        <Phone
+                                          size={20}
+                                          color="#000000"
                                         />
                                         <span>Call</span>
                                       </div>
@@ -1684,14 +1659,9 @@ const LeadDetails = ({
                           {(selectedLeadsDetails?.email ||
                             selectedLeadsDetails?.emails?.length > 0) && (
                             <div className="flex flex-row items-center gap-2">
-                              <Image
-                                src="/otherAssets/email.png"
-                                width={16}
-                                height={16}
-                                alt="email"
-                                style={{
-                                  filter: 'brightness(0)',
-                                }}
+                              <Mail
+                                size={16}
+                                color="#000000"
                               />
                               <div style={styles.heading2}>
                                 {selectedLeadsDetails?.email ? (
@@ -1795,14 +1765,9 @@ const LeadDetails = ({
                           </div>
                           {selectedLeadsDetails?.phone && (
                             <div className="flex flex-row items-center gap-2">
-                              <Image
-                                src="/otherAssets/phone.png"
-                                width={16}
-                                height={16}
-                                alt="phone"
-                                style={{
-                                  filter: 'brightness(0)',
-                                }}
+                              <Phone
+                                size={16}
+                                color="#000000"
                               />
                               <div style={styles.heading2}>
                                 {formatPhoneNumber(
@@ -1822,14 +1787,9 @@ const LeadDetails = ({
 
                           {selectedLeadsDetails?.address && (
                             <div className="flex flex-row items-center gap-2">
-                              <Image
-                                src="/otherAssets/location.png"
-                                width={16}
-                                height={16}
-                                alt="location"
-                                style={{
-                                  filter: 'brightness(0)',
-                                }}
+                              <MapPin
+                                size={16}
+                                color="#000000"
                               />
                               <div style={styles.heading2}>
                                 {selectedLeadsDetails?.address || '-'}
@@ -1838,14 +1798,9 @@ const LeadDetails = ({
                           )}
                           {selectedLeadsDetails?.tags.length > 0 && (
                             <div className="flex flex-row items-center gap-2">
-                              <Image
-                                src="/otherAssets/tag.png"
-                                width={16}
-                                height={16}
-                                alt="tag"
-                                style={{
-                                  filter: 'brightness(0)',
-                                }}
+                              <Tag
+                                size={16}
+                                color="#000000"
                               />
                               <div>
                                 {selectedLeadsDetails?.tags.length > 0 ? (
@@ -1927,14 +1882,9 @@ const LeadDetails = ({
                           )}
                           {selectedLeadsDetails?.pipeline && (
                             <div className="flex flex-row items-center gap-2">
-                              <Image
-                                src="/otherAssets/pipeline2.png"
-                                width={20}
-                                height={20}
-                                alt="pipeline"
-                                style={{
-                                  filter: 'brightness(0)',
-                                }}
+                              <Workflow
+                                size={20}
+                                color="#000000"
                               />
                               <div style={styles.heading2}>
                                 {selectedLeadsDetails?.pipeline
@@ -1947,14 +1897,9 @@ const LeadDetails = ({
                           <div>
                             {selectedLeadsDetails?.booking && (
                               <div className="flex flex-row items-center gap-2">
-                                <Image
-                                  src="/otherAssets/Calendar.png"
-                                  width={16}
-                                  height={16}
-                                  alt="calendar"
-                                  style={{
-                                    filter: 'brightness(0)',
-                                  }}
+                                <Calendar
+                                  size={16}
+                                  color="#000000"
                                 />
                                 <div style={styles.heading2}>
                                   {GetFormattedDateString(
@@ -2022,14 +1967,9 @@ const LeadDetails = ({
                           ) : (
                             <div className="flex flex-col w-full max-w-full overflow-hidden">
                               <div className="flex flex-row items-center gap-2">
-                                <Image
-                                  src="/otherAssets/assignTeamIcon.png"
-                                  width={16}
-                                  height={16}
-                                  alt="assign team"
-                                  style={{
-                                    filter: 'brightness(0)',
-                                  }}
+                                <Users
+                                  size={16}
+                                  color="#000000"
                                 />
                                 <button
                                   className="outline-none flex flex-row items-center gap-1"
@@ -2070,14 +2010,9 @@ const LeadDetails = ({
 
                       {getExtraColumsCount(columnsLength) >= 1 && (
                         <div className="flex flex-row items-center gap-2 mt-3">
-                          <Image
-                            src="/assets/customsIcon.svg"
-                            width={16}
-                            height={16}
-                            alt="custom fields"
-                            style={{
-                              filter: 'brightness(0)',
-                            }}
+                          <FileText
+                            size={16}
+                            color="#000000"
                           />
                           <button
                             onClick={() => {

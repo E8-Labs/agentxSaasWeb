@@ -21,6 +21,8 @@ import { toast } from 'sonner'
 import voicesList from '@/components/createagent/Voices'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
+import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
+import { Modal, Box } from '@mui/material'
 
 const Messages = () => {
   const [threads, setThreads] = useState([])
@@ -70,6 +72,12 @@ const Messages = () => {
   const [replyToMessage, setReplyToMessage] = useState(null)
   const [searchValue, setSearchValue] = useState('')
   const threadsRequestIdRef = useRef(0)
+  
+  // Filter state
+  const [showFilterModal, setShowFilterModal] = useState(false)
+  const [selectedTeamMemberIds, setSelectedTeamMemberIds] = useState([]) // Temporary selection in modal
+  const [appliedTeamMemberIds, setAppliedTeamMemberIds] = useState([]) // Actually applied filter
+  const [filterTeamMembers, setFilterTeamMembers] = useState([])
 
   // Close email detail popover when clicking outside
   useEffect(() => {
@@ -345,7 +353,7 @@ const Messages = () => {
   }
 
   // Fetch threads
-  const fetchThreads = useCallback(async (searchQuery = '') => {
+  const fetchThreads = useCallback(async (searchQuery = '', teamMemberIdsFilter = []) => {
     console.log('fetchThreads is called')
     const requestId = ++threadsRequestIdRef.current
     try {
@@ -368,6 +376,10 @@ const Messages = () => {
       const params = {}
       if (searchQuery && searchQuery.trim()) {
         params.search = searchQuery.trim()
+      }
+      // Add teamMemberIds to query if filter is active
+      if (teamMemberIdsFilter && teamMemberIdsFilter.length > 0) {
+        params.teamMemberIds = teamMemberIdsFilter.join(',')
       }
 
       const response = await axios.get(Apis.getMessageThreads, {
@@ -1152,7 +1164,7 @@ const Messages = () => {
           // Refresh messages and threads
           setTimeout(() => {
             fetchMessages(selectedThread.id, null, false)
-            fetchThreads(searchValue || "")
+            fetchThreads(searchValue || "", appliedTeamMemberIds)
           }, 500)
         } else {
           toast.error('Failed to send message')
@@ -1316,7 +1328,7 @@ const Messages = () => {
           // Refresh messages and threads
           setTimeout(() => {
             fetchMessages(selectedThread.id, null, false)
-            fetchThreads(searchValue || "")
+            fetchThreads(searchValue || "", appliedTeamMemberIds)
           }, 500)
         } else {
           toast.error('Failed to send email')
@@ -1603,12 +1615,81 @@ const Messages = () => {
     }
     
     const timeoutId = setTimeout(() => {
-      // Fetch threads with search query (empty string for all threads)
-      fetchThreads(searchValue || '')
+      // Fetch threads with search query and team member filter (only use applied filter)
+      fetchThreads(searchValue || '', appliedTeamMemberIds)
     }, 300) // 300ms debounce
 
     return () => clearTimeout(timeoutId)
-  }, [searchValue, fetchThreads])
+  }, [searchValue, appliedTeamMemberIds, fetchThreads])
+  
+  // Fetch team members on mount
+  useEffect(() => {
+    const getMyTeam = async () => {
+      try {
+        let response = await getTeamsList()
+        if (response) {
+          const filterMembers = []
+          if (response.admin) {
+            filterMembers.push({
+              id: response.admin.id,
+              name: response.admin.name,
+              email: response.admin.email,
+            })
+          }
+          if (response.data && response.data.length > 0) {
+            for (const t of response.data) {
+              if (t.status == 'Accepted' && t.invitedUser) {
+                filterMembers.push({
+                  id: t.invitedUser.id,
+                  name: t.invitedUser.name,
+                  email: t.invitedUser.email,
+                })
+              }
+            }
+          }
+          setFilterTeamMembers(filterMembers)
+        }
+      } catch (error) {
+        console.error('Error fetching team members:', error)
+      }
+    }
+    getMyTeam()
+  }, [])
+  
+  // Handler for team member filter selection
+  const handleTeamMemberFilterToggle = (memberId) => {
+    setSelectedTeamMemberIds((prev) => {
+      if (prev.includes(memberId)) {
+        return prev.filter((id) => id !== memberId)
+      } else {
+        return [...prev, memberId]
+      }
+    })
+  }
+  
+  // Handler to apply filter
+  const handleApplyFilter = () => {
+    const newAppliedIds = [...selectedTeamMemberIds]
+    setAppliedTeamMemberIds(newAppliedIds) // Apply the selected filters
+    setShowFilterModal(false)
+    // Pass the IDs directly instead of relying on state
+    fetchThreads(searchValue || '', newAppliedIds)
+  }
+  
+  // Handler to clear filter
+  const handleClearFilter = () => {
+    setSelectedTeamMemberIds([])
+    setAppliedTeamMemberIds([])
+    setShowFilterModal(false)
+    // Pass empty array directly instead of relying on state
+    fetchThreads(searchValue || '', [])
+  }
+  
+  // When opening the filter modal, sync selectedTeamMemberIds with appliedTeamMemberIds
+  const handleOpenFilterModal = () => {
+    setSelectedTeamMemberIds([...appliedTeamMemberIds])
+    setShowFilterModal(true)
+  }
 
   // Delete thread handler
   const handleDeleteThread = useCallback(async (leadId, threadId) => {
@@ -1639,7 +1720,7 @@ const Messages = () => {
           },
         })
         // Refresh threads
-        fetchThreads(searchValue)
+        fetchThreads(searchValue, appliedTeamMemberIds)
         // Clear selected thread if it was deleted
         if (selectedThread?.id === threadId) {
           setSelectedThread(null)
@@ -1695,6 +1776,8 @@ const Messages = () => {
           onDeleteThread={handleDeleteThread}
           searchValue={searchValue}
           onSearchChange={setSearchValue}
+          onFilterClick={handleOpenFilterModal}
+          selectedTeamMemberIdsCount={appliedTeamMemberIds.length}
         />
 
         {/* Right Side - Messages View */}
@@ -1808,7 +1891,7 @@ const Messages = () => {
           // Refresh threads after sending (even if partial success)
           if (result.sent > 0) {
             setTimeout(() => {
-              fetchThreads(searchValue || "")
+              fetchThreads(searchValue || "", appliedTeamMemberIds)
             }, 1000)
           }
         }}
@@ -1971,6 +2054,124 @@ const Messages = () => {
         showEmailTempPopup={false}
         setSelectedGoogleAccount={() => {}}
       />
+
+      {/* Filter Modal for Team Members */}
+      <Modal
+        open={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: '#00000020',
+          },
+        }}
+      >
+        <Box
+          className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh]"
+          sx={{
+            height: 'auto',
+            bgcolor: 'transparent',
+            p: 2,
+            mx: 'auto',
+            my: '50vh',
+            transform: 'translateY(-55%)',
+            borderRadius: 2,
+            border: 'none',
+            outline: 'none',
+          }}
+        >
+          <div className="flex flex-col w-full">
+            <div
+              className="w-full"
+              style={{
+                backgroundColor: '#ffffff',
+                padding: 20,
+                paddingInline: 30,
+                borderRadius: '13px',
+              }}
+            >
+              <div className="flex flex-row items-center justify-between mb-4">
+                <div style={{ fontWeight: '700', fontSize: 22 }}>
+                  Filter by Team Member
+                </div>
+                <button
+                  onClick={() => setShowFilterModal(false)}
+                  className="outline-none"
+                >
+                  <X size={24} />
+                </button>
+              </div>
+              
+              <div
+                className="mt-4"
+                style={{
+                  maxHeight: '400px',
+                  overflowY: 'auto',
+                  border: '1px solid #00000020',
+                  borderRadius: '13px',
+                  padding: '10px',
+                }}
+              >
+                {filterTeamMembers.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    No team members available
+                  </div>
+                ) : (
+                  filterTeamMembers.map((member) => (
+                    <div
+                      key={member.id}
+                      className="flex flex-row items-center gap-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer"
+                      onClick={() => handleTeamMemberFilterToggle(member.id)}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedTeamMemberIds.includes(member.id)}
+                        onChange={() => handleTeamMemberFilterToggle(member.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                      />
+                      <div className="flex flex-col flex-1">
+                        <span className="font-medium text-gray-900">
+                          {member.name}
+                        </span>
+                        {member.email && (
+                          <span className="text-sm text-gray-500">
+                            {member.email}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+              
+              <div className="w-full mt-4 flex flex-row justify-between gap-3">
+                <button
+                  onClick={handleClearFilter}
+                  className="bg-gray-200 h-[50px] rounded-xl text-gray-700 w-6/12"
+                  style={{
+                    fontWeight: '600',
+                    fontSize: 16,
+                  }}
+                >
+                  Clear
+                </button>
+                <button
+                  onClick={handleApplyFilter}
+                  className="bg-purple h-[50px] rounded-xl text-white w-6/12"
+                  style={{
+                    fontWeight: '600',
+                    fontSize: 16,
+                  }}
+                >
+                  Apply Filter
+                </button>
+              </div>
+            </div>
+          </div>
+        </Box>
+      </Modal>
     </div>
     </>
   )
