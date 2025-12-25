@@ -7,14 +7,21 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { useUser } from '@/hooks/redux-hooks'
 
 function AgencyIntegrations({ selectedAgency, initialTab = 1 }) {
-  const [currentTab, setCurrentTab] = useState(initialTab)
+  // Convert initialTab (1 or 2) to tab value ('twilio' or 'stripe')
+  const getInitialTabValue = () => {
+    return initialTab === 2 ? 'stripe' : 'twilio'
+  }
+
+  const [activeTab, setActiveTab] = useState(getInitialTabValue())
 
   // Sync tab state when initialTab prop changes
   useEffect(() => {
-    setCurrentTab(initialTab)
+    const tabValue = initialTab === 2 ? 'stripe' : 'twilio'
+    setActiveTab(tabValue)
   }, [initialTab])
 
   const { user: reduxUser, setUser: setReduxUser } = useUser()
@@ -53,92 +60,60 @@ function AgencyIntegrations({ selectedAgency, initialTab = 1 }) {
     }
   }
 
-  const tabs = [
-    {
-      id: 1,
-      tab: 'Twilio',
-    },
-    {
-      id: 2,
-      tab: 'Stripe',
-    },
-  ]
-
-  //handle switch tab
-  const handleTabSelection = (tab) => {
-    setCurrentTab(tab)
+  // Handle tab change
+  const handleTabChange = (value) => {
+    setActiveTab(value)
   }
 
   return (
-    <div
-      className="flex flex-col items-center w-full h-[100svh] overflow-hidden"
-      // style={{
-      //     backgroundImage: "url('/agencyIcons/DreamySilkWaves.png')",
-      //     backgroundSize: "cover",
-      //     backgroundPosition: "center",
-      //     height: "100svh",
-      //     width: "100%"
-      // }}
-    >
-      <div className="flex w-full flex-row items-center justify-between px-5 py-5 border-b">
+    <div className="flex w-full items-center flex-row justify-start">
+      <div className="py-6 w-full">
         <div
-          style={{
-            fontSize: 22,
-            fontWeight: '700',
-          }}
+          className="px-10 flex flex-row items-cetner justify-between w-full"
+          style={{ fontSize: 24, fontWeight: '600' }}
         >
           Integrations
-        </div>
-
-        <div className="flex flex-row items-center gap-2">
-          <NotficationsDrawer />
-        </div>
-      </div>
-
-      <div className="w-full flex flex-row justify-center items-center">
-        <div className="w-full flex flex-col items-center justify-between pt-6">
-          
-          <div className="flex flex-row items-center justify-center gap-2 w-full">
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                className={`${currentTab === tab.id ? 'text-brand-primary border-b-2 border-brand-primary' : 'text-black'} outline-none px-4`}
-                onClick={() => {
-                  handleTabSelection(tab.id)
-                }}
-              >
-                {tab.tab}
-              </button>
-            ))}
+          <div className="flex flex-row items-center gap-2">
+            <NotficationsDrawer />
           </div>
-          <div className="flex flex-row items-center justify-center gap-2 w-full h-[1px] bg-gray-200"></div>
         </div>
-      </div>
+        {/* Tabs for navigation */}
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6 w-full">
+          <TabsList className="flex flex-row items-center justify-center gap-4 border-b pb-2 w-full pl-10 bg-transparent outline-none focus:outline-none">
+            <TabsTrigger value="twilio" className="outline-none">
+              Twilio
+            </TabsTrigger>
+            <TabsTrigger value="stripe" className="outline-none">
+              Stripe
+            </TabsTrigger>
+          </TabsList>
 
-      {currentTab === 1 ? (
-        <Integrations
-          selectedAgency={selectedAgency}
-          reduxUser={reduxUser}
-          refreshUserData={refreshUserData}
-        />
-      ) : currentTab === 2 ? (
-        <div
-          className="pt-6 w-full overflow-auto"
-          style={{
-            msOverflowStyle: 'none', // IE and Edge
-            scrollbarWidth: 'none', // Firefox
-          }}
-        >
-          <style jsx>{`
-            div::-webkit-scrollbar {
-              display: none; /* Chrome, Safari, Opera */
-            }
-          `}</style>
-          <ConnectStripe selectedAgency={selectedAgency} />
-        </div>
-      ) : (
-        'No Tab Selected'
-      )}
+          <TabsContent value="twilio">
+            <Integrations
+              selectedAgency={selectedAgency}
+              reduxUser={reduxUser}
+              refreshUserData={refreshUserData}
+            />
+          </TabsContent>
+
+          <TabsContent value="stripe">
+            <div
+              className="pt-6 w-full overflow-auto"
+              style={{
+                msOverflowStyle: 'none', // IE and Edge
+                scrollbarWidth: 'none', // Firefox
+              }}
+            >
+              <style jsx>{`
+                div::-webkit-scrollbar {
+                  display: none; /* Chrome, Safari, Opera */
+                }
+              `}</style>
+              <ConnectStripe selectedAgency={selectedAgency} />
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   )
 }

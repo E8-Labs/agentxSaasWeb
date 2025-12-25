@@ -24,6 +24,7 @@ const RichTextEditor = forwardRef(
       availableVariables = [],
       toolbarPosition = 'top',
       customToolbarElement = null, // Custom element to render on the right side of toolbar
+      editorHeight = null, // Optional prop to set custom editor height
     },
     ref,
   ) => {
@@ -192,6 +193,7 @@ const RichTextEditor = forwardRef(
           className={`quill-editor-wrapper ${
             toolbarPosition === 'bottom' ? 'toolbar-bottom' : 'toolbar-top'
           }`}
+          style={editorHeight ? { '--editor-height': editorHeight } : {}}
         >
           <ReactQuill
             ref={quillRef}
@@ -324,7 +326,7 @@ const RichTextEditor = forwardRef(
 
           .quill-editor-wrapper .ql-editor {
             min-height: 120px;
-            max-height: 400px;
+            ${editorHeight ? `height: var(--editor-height); max-height: var(--editor-height);` : 'max-height: 400px;'}
             overflow-y: auto;
           }
 

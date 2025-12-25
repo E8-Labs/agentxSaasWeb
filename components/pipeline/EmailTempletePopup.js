@@ -53,6 +53,7 @@ function EmailTempletePopup({
 }) {
   const richTextEditorRef = useRef(null)
   const [selectedVariable, setSelectedVariable] = useState('')
+  const [selectedSubjectVariable, setSelectedSubjectVariable] = useState('')
 
   console.log('EmailTempletePopup: addRow called with:', {
     communicationType,
@@ -780,16 +781,17 @@ function EmailTempletePopup({
           borderRadius: 2,
           boxShadow: 24,
           p: 0,
-          maxHeight: '90vh',
+          maxHeight: '80vh',
+          height: '80vh',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'visible',
           zIndex: 1300,
         }}
       >
-        <div className={`flex flex-col w-full h-full p-0 bg-white rounded-lg overflow-visible`}>
+        <div className={`flex flex-col w-full h-full p-0 bg-white rounded-lg overflow-hidden`}>
           {/* Header - Unified design for both cases */}
-          <div className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center justify-between p-4 border-b flex-shrink-0">
             <h2 className="text-xl font-semibold">
               {!isLeadEmail && (addRow || isEditing) ? 'Email Template' : 'New Message'}
             </h2>
@@ -797,8 +799,8 @@ function EmailTempletePopup({
           </div>
           
           <div
-            className="flex flex-col w-full flex-1 overflow-y-auto overflow-x-visible p-4 space-y-4"
-            style={{ scrollbarWidth: 'none', position: 'relative' }}
+            className="flex flex-col w-full overflow-y-auto overflow-x-visible p-4 space-y-4"
+            style={{ scrollbarWidth: 'none', position: 'relative', minHeight: 0, maxHeight: '100%' }}
           >
             <AgentSelectSnackMessage
               isVisible={true}
@@ -813,104 +815,13 @@ function EmailTempletePopup({
 
 
 
-            {/* Select Template and CC/BCC toggle buttons - Unified design */}
-            <div className="flex items-center justify-between border-b">
-              <div className="flex items-center gap-2">
-                <FormControl size="small" sx={{ minWidth: 180 }}>
-                  <Select
-                    value={selectedTemp || ''}
-                    onChange={(e) => handleSelect(e.target.value)}
-                    displayEmpty
-                    renderValue={(selected) =>
-                      selected?.templateName || (
-                        <div style={{ color: '#aaa' }}>Select Template</div>
-                      )
-                    }
-                    sx={{
-                      fontSize: '0.875rem',
-                      height: '36px',
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#d1d5db',
-                      },
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'hsl(var(--brand-primary))',
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'hsl(var(--brand-primary))',
-                      },
-                    }}
-                    MenuProps={{
-                      PaperProps: {
-                        style: {
-                          maxHeight: '30vh',
-                          overflow: 'auto',
-                          scrollbarWidth: 'none',
-                        },
-                      },
-                    }}
-                  >
-                    {templetes?.length > 0 ? (
-                      templetes?.map((item, index) =>
-                        detailsLoader?.id === item.id ? (
-                          <CircularProgress key={item.id} size={20} />
-                        ) : (
-                          <MenuItem
-                            key={index}
-                            value={item}
-                          >
-                            <div className="flex flex-row items-center gap-2 w-full">
-                              <div className="text-[15] font-[500] flex-1 truncate min-w-0">
-                                {item.templateName}
-                              </div>
-                              {delTempLoader?.id === item.id ? (
-                                <CircularProgress size={20} className="flex-shrink-0" />
-                              ) : (
-                                <button
-                                  onClick={(e) => {
-                                    e.preventDefault()
-                                    handleDelete(e, item)
-                                  }}
-                                  className="text-brand-primary hover:text-brand-primary/80 transition-colors flex-shrink-0 ml-2"
-                                >
-                                  <Trash2 size={16} />
-                                </button>
-                              )}
-                            </div>
-                          </MenuItem>
-                        ),
-                      )
-                    ) : (
-                      <div className="ml-2">No template found</div>
-                    )}
-                  </Select>
-                </FormControl>
-              </div>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <button
-                  onClick={() => setShowCC(!showCC)}
-                  className={`px-3 py-1 text-xs rounded transition-colors ${
-                    showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Cc
-                </button>
-                <button
-                  onClick={() => setShowBCC(!showBCC)}
-                  className={`px-3 py-1 text-xs rounded transition-colors ${
-                    showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Bcc
-                </button>
-              </div>
-            </div>
 
             {/* From and To Fields - Unified layout */}
             <div className="flex items-center gap-4">
-              {/* From Field */}
+              {/* From Field - Full width with CC/BCC buttons next to it */}
               <div className="flex items-center gap-2 flex-1">
                 <label className="text-sm font-medium whitespace-nowrap">From:</label>
-                <div className="flex-1 relative">
+                <div className="relative flex-1">
                   {googleAccountLoader ? (
                     <div className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg flex items-center justify-center">
                       <CircularProgress size={20} />
@@ -981,6 +892,25 @@ function EmailTempletePopup({
                       </Select>
                     </FormControl>
                   )}
+                </div>
+                {/* CC/BCC buttons next to From field */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <button
+                    onClick={() => setShowCC(!showCC)}
+                    className={`px-3 py-1 text-xs rounded transition-colors ${
+                      showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Cc
+                  </button>
+                  <button
+                    onClick={() => setShowBCC(!showBCC)}
+                    className={`px-3 py-1 text-xs rounded transition-colors ${
+                      showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    Bcc
+                  </button>
                 </div>
               </div>
 
@@ -1108,27 +1038,95 @@ function EmailTempletePopup({
             )}
 
             {!isLeadEmail && (
-              <>
-                <div className="text-[15px] font-[400] text-[#00000080] mt-3">
+              <div className="flex items-center gap-2 flex-1">
+                <label className="text-[15px] font-[400] text-black whitespace-nowrap">
                   Template Name
-                </div>
-
-                <div className="w-full px-[0.5%] mt-1">
-                  <Input
-                    placeholder="Template Name"
-                    value={tempName || ''}
-                    onChange={(event) => {
-                      setTempName(event.target.value)
-                      setTempNameChanged(true)
+                </label>
+                <Input
+                  placeholder="Template Name"
+                  value={tempName || ''}
+                  onChange={(event) => {
+                    setTempName(event.target.value)
+                    setTempNameChanged(true)
+                  }}
+                  className="flex-1 h-[42px] border rounded-lg focus-visible:ring-1 focus-visible:ring-black focus-visible:border-black"
+                  style={{ height: '42px' }}
+                />
+                {/* Select Template dropdown next to Template Name field */}
+                <div className="flex-1">
+                  <FormControl size="small" fullWidth sx={{ minWidth: 180 }}>
+                  <Select
+                    value={selectedTemp || ''}
+                    onChange={(e) => handleSelect(e.target.value)}
+                    displayEmpty
+                    renderValue={(selected) =>
+                      selected?.templateName || (
+                        <div style={{ color: '#aaa' }}>Select Template</div>
+                      )
+                    }
+                    sx={{
+                      fontSize: '0.875rem',
+                      height: '42px',
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#d1d5db',
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'hsl(var(--brand-primary))',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'hsl(var(--brand-primary))',
+                      },
                     }}
-                    className="w-full h-[42px] border rounded-lg focus-visible:ring-1 focus-visible:ring-black focus-visible:border-black"
-                    style={{ height: '42px' }}
-                  />
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: '30vh',
+                          overflow: 'auto',
+                          scrollbarWidth: 'none',
+                        },
+                      },
+                    }}
+                  >
+                    {templetes?.length > 0 ? (
+                      templetes?.map((item, index) =>
+                        detailsLoader?.id === item.id ? (
+                          <CircularProgress key={item.id} size={20} />
+                        ) : (
+                          <MenuItem
+                            key={index}
+                            value={item}
+                          >
+                            <div className="flex flex-row items-center gap-2 w-full">
+                              <div className="text-[15] font-[500] flex-1 truncate min-w-0">
+                                {item.templateName}
+                              </div>
+                              {delTempLoader?.id === item.id ? (
+                                <CircularProgress size={20} className="flex-shrink-0" />
+                              ) : (
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    handleDelete(e, item)
+                                  }}
+                                  className="text-brand-primary hover:text-brand-primary/80 transition-colors flex-shrink-0 ml-2"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              )}
+                            </div>
+                          </MenuItem>
+                        ),
+                      )
+                    ) : (
+                      <div className="ml-2">No template found</div>
+                    )}
+                  </Select>
+                  </FormControl>
                 </div>
-              </>
+              </div>
             )}
 
-            {/* Subject Field - Unified design */}
+            {/* Subject Field - Unified design with Variables dropdown */}
             <div className="flex items-center gap-2">
               <label className="text-sm font-medium w-16">Subject:</label>
               <Input
@@ -1139,39 +1137,153 @@ function EmailTempletePopup({
                 }}
                 placeholder="Email subject"
                 className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
-                style={{ height: '42px' }}
+                style={{ height: '42px', maxWidth: 'calc(100% - 200px)' }}
               />
+              {/* Variables dropdown for subject */}
+              {uniqueColumns && uniqueColumns.length > 0 && (
+                <FormControl size="small" sx={{ minWidth: 150 }}>
+                  <Select
+                    value={selectedSubjectVariable}
+                    onChange={(e) => {
+                      const value = e.target.value
+                      setSelectedSubjectVariable('')
+                      if (value) {
+                        const variableText = value.startsWith('{') && value.endsWith('}')
+                          ? value
+                          : `{${value}}`
+                        setSubject((prev) => prev + variableText)
+                        setSubjectChanged(true)
+                      }
+                    }}
+                    displayEmpty
+                    sx={{
+                      fontSize: '0.875rem',
+                      height: '42px',
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#d1d5db',
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'hsl(var(--brand-primary))',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'hsl(var(--brand-primary))',
+                      },
+                    }}
+                  >
+                    <MenuItem value="" disabled>
+                      <em>Variables</em>
+                    </MenuItem>
+                    {uniqueColumns.map((variable, index) => {
+                      const displayText = variable.startsWith('{') && variable.endsWith('}')
+                        ? variable
+                        : `{${variable}}`
+                      return (
+                        <MenuItem key={index} value={variable}>
+                          {displayText}
+                        </MenuItem>
+                      )
+                    })}
+                  </Select>
+                </FormControl>
+              )}
             </div>
 
             {/* Message Body - Unified design */}
             <div>
               <label className="text-sm font-medium mb-2 block">Message:</label>
-              <div 
-                style={bodyHeight ? { 
-                  height: bodyHeight,
-                  display: 'flex',
-                  flexDirection: 'column'
-                } : {}}
-                className={bodyHeight ? 'overflow-hidden' : ''}
-              >
-                <RichTextEditor
-                  ref={richTextEditorRef}
-                  value={body}
-                  onChange={(html) => {
-                    setBody(html)
-                    setBodyChanged(true)
-                  }}
-                  placeholder="Type your message..."
-                  availableVariables={[]}
-                  toolbarPosition="bottom"
-                />
-              </div>
+              {(() => {
+                // Calculate editor height: subtract toolbar height (~42px) from container height
+                // Use a reasonable default that fits within the modal
+                const containerHeight = bodyHeight || '300px'
+                const toolbarHeight = 42
+                let editorHeight = '250px'
+                
+                if (bodyHeight) {
+                  // Extract numeric value from bodyHeight (could be '400px' or 400)
+                  const numericValue = typeof bodyHeight === 'string' 
+                    ? parseInt(bodyHeight.replace('px', '')) 
+                    : bodyHeight
+                  if (!isNaN(numericValue)) {
+                    editorHeight = `${numericValue - toolbarHeight}px`
+                  }
+                }
+                
+                return (
+                  <div 
+                    style={{ 
+                      height: containerHeight,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      minHeight: 0
+                    }}
+                    className="overflow-hidden"
+                  >
+                    <RichTextEditor
+                      ref={richTextEditorRef}
+                      value={body}
+                      onChange={(html) => {
+                        setBody(html)
+                        setBodyChanged(true)
+                      }}
+                      placeholder="Type your message..."
+                      availableVariables={[]}
+                      toolbarPosition="bottom"
+                      editorHeight={editorHeight}
+                      customToolbarElement={
+                    uniqueColumns && uniqueColumns.length > 0 ? (
+                      <FormControl size="small" sx={{ minWidth: 150 }}>
+                        <Select
+                          value={selectedVariable}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            setSelectedVariable('')
+                            if (value && richTextEditorRef.current) {
+                              richTextEditorRef.current.insertVariable(value)
+                            }
+                          }}
+                          displayEmpty
+                          sx={{
+                            fontSize: '0.875rem',
+                            height: '32px',
+                            backgroundColor: 'white',
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              borderColor: '#d1d5db',
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'hsl(var(--brand-primary))',
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'hsl(var(--brand-primary))',
+                            },
+                          }}
+                        >
+                          <MenuItem value="" disabled>
+                            <em>Variables</em>
+                          </MenuItem>
+                          {uniqueColumns.map((variable, index) => {
+                            const displayText = variable.startsWith('{') && variable.endsWith('}')
+                              ? variable
+                              : `{${variable}}`
+                            return (
+                              <MenuItem key={index} value={variable}>
+                                {displayText}
+                              </MenuItem>
+                            )
+                          })}
+                        </Select>
+                      </FormControl>
+                    ) : null
+                  }
+                    />
+                  </div>
+                )
+              })()}
             </div>
 
             {/* Attachments - Only show in body for pipeline emails */}
             {!isLeadEmail && (
               <>
-                <div className="mt-3 flex flex-row items-center justify-between">
+                <div className="mt-2 flex flex-row items-center justify-between">
                   <label className="flex flex-row items-center gap-2 cursor-pointer">
                     <div className="text-[15px] font-[500] text-brand-primary underline">
                       Add Attachments
@@ -1224,51 +1336,17 @@ function EmailTempletePopup({
               </>
             )}
           </div>
-          {/* Footer - Unified design */}
-          <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50">
+          {/* Footer - Sticky at bottom */}
+          <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50 flex-shrink-0">
             <div className="flex items-center gap-2">
-              {/* Insert Variable dropdown */}
-              {uniqueColumns && uniqueColumns.length > 0 && (
-                <FormControl size="small" sx={{ minWidth: 180 }}>
-                  <Select
-                    value={selectedVariable}
-                    onChange={(e) => {
-                      const value = e.target.value
-                      setSelectedVariable('')
-                      if (value && richTextEditorRef.current) {
-                        richTextEditorRef.current.insertVariable(value)
-                      }
-                    }}
-                    displayEmpty
-                    sx={{
-                      fontSize: '0.875rem',
-                      height: '36px',
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#d1d5db',
-                      },
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'hsl(var(--brand-primary))',
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'hsl(var(--brand-primary))',
-                      },
-                    }}
-                  >
-                    <MenuItem value="" disabled>
-                      <em>Insert Variable...</em>
-                    </MenuItem>
-                    {uniqueColumns.map((variable, index) => {
-                      const displayText = variable.startsWith('{') && variable.endsWith('}')
-                        ? variable
-                        : `{${variable}}`
-                      return (
-                        <MenuItem key={index} value={variable}>
-                          {displayText}
-                        </MenuItem>
-                      )
-                    })}
-                  </Select>
-                </FormControl>
+              {/* Cancel button - Only show for pipeline email, positioned on left */}
+              {!isLeadEmail && (
+                <button 
+                  className="text-[#6b7280] outline-none h-[50px] px-4"
+                  onClick={onClose}
+                >
+                  Cancel
+                </button>
               )}
               
               {/* Attachment button - Only show for lead email */}
@@ -1303,16 +1381,6 @@ function EmailTempletePopup({
             </div>
             
             <div className="flex items-center gap-4">
-              {/* Cancel button - Only show for pipeline email */}
-              {!isLeadEmail && (
-                <button 
-                  className="text-[#6b7280] outline-none h-[50px]"
-                  onClick={onClose}
-                >
-                  Cancel
-                </button>
-              )}
-              
               <button
                 onClick={saveEmail}
                 disabled={isSaveDisabled || saveEmailLoader}
