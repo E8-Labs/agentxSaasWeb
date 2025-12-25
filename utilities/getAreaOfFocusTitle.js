@@ -23,3 +23,4 @@ export function getAreaOfFocusTitle(userType) {
 
   return userTypeMap[userType] || 'What area do you focus on?'
 }
+

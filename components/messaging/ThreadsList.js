@@ -10,14 +10,12 @@ const ThreadsList = ({
   onSelectThread,
   onNewMessage,
   getLeadName,
-  getThreadDisplayName,
   getRecentMessageType,
   formatUnreadCount,
   onDeleteThread,
   searchValue,
   onSearchChange,
 }) => {
-  console.log('threads count is:', threads.length)
   const [openMenuId, setOpenMenuId] = useState(null)
   return (
     <div className="w-80 border-r border-gray-200 flex flex-col h-screen bg-white">
@@ -125,7 +123,7 @@ const ThreadsList = ({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
                       <h3 className="font-bold text-sm text-black truncate">
-                        {getThreadDisplayName ? getThreadDisplayName(thread) : (thread.lead?.firstName || thread.lead?.name || 'Unknown Contact')}
+                        {thread.lead?.firstName || thread.lead?.name || 'Unknown Lead'}
                       </h3>
                       <div className="flex items-center gap-2 ml-2 flex-shrink-0">
                         <span className="text-xs text-gray-500">
@@ -150,7 +148,7 @@ const ThreadsList = ({
                                   setOpenMenuId(null)
                                 }}
                               />
-                              <div className="absolute right-0 top-6 z-20 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[140px]">
+                              <div className="absolute right-0 top-6 z-20 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[120px]">
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation()
@@ -159,10 +157,10 @@ const ThreadsList = ({
                                     }
                                     setOpenMenuId(null)
                                   }}
-                                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 whitespace-nowrap"
+                                  className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                                 >
                                   <Trash2 size={16} />
-                                  <span>Delete</span>
+                                  Delete Lead
                                 </button>
                               </div>
                             </>

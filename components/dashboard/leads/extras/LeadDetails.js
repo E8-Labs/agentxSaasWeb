@@ -31,7 +31,17 @@ import { Elements } from '@stripe/react-stripe-js'
 import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import parsePhoneNumberFromString from 'libphonenumber-js'
-import { Phone, View } from 'lucide-react'
+import {
+  Phone,
+  View,
+  Smile,
+  Frown,
+  AlertTriangle,
+  Flame,
+  Sun,
+  Snowflake,
+  CheckCircle2,
+} from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
@@ -1174,6 +1184,83 @@ const LeadDetails = ({
 
     // Open dialer modal with the phone number
     setShowDialerModal(true)
+  }
+
+  // Helper function to format objections from JSON
+  const formatObjections = (objectionsJson) => {
+    if (!objectionsJson) return 'None'
+    try {
+      const objections = typeof objectionsJson === 'string' 
+        ? JSON.parse(objectionsJson) 
+        : objectionsJson
+      
+      // Handle "None" string
+      if (typeof objections === 'string' && objections.toLowerCase() === 'none') {
+        return 'None'
+      }
+      
+      if (!Array.isArray(objections) || objections.length === 0) {
+        return 'None'
+      }
+      
+      return objections
+        .filter((obj) => obj && obj !== 'None' && obj !== 'none')
+        .map((obj, idx) => {
+          if (typeof obj === 'string') {
+            // Format: "Category: Price | What was said: Not in budget"
+            const parts = obj.split('|')
+            if (parts.length >= 2) {
+              return `${parts[0].trim()}\n${parts[1].trim()}`
+            }
+            return obj
+          }
+          return String(obj)
+        })
+        .join('\n\n')
+    } catch (error) {
+      // If parsing fails, return as string if it's not "None"
+      if (typeof objectionsJson === 'string' && objectionsJson.toLowerCase() !== 'none') {
+        return objectionsJson
+      }
+      return 'None'
+    }
+  }
+
+  // Helper function to format next steps from JSON
+  const formatNextSteps = (nextStepsJson) => {
+    if (!nextStepsJson) return 'No next steps'
+    try {
+      const nextSteps = typeof nextStepsJson === 'string' 
+        ? JSON.parse(nextStepsJson) 
+        : nextStepsJson
+      if (!Array.isArray(nextSteps) || nextSteps.length === 0) {
+        return 'No next steps'
+      }
+      return nextSteps
+        .filter((step) => step && step.trim())
+        .map((step, idx) => `${idx + 1}. ${step}`)
+        .join('\n')
+    } catch (error) {
+      // If parsing fails, return as string
+      if (typeof nextStepsJson === 'string') {
+        return nextStepsJson
+      }
+      return 'No next steps'
+    }
+  }
+
+  // Helper function to get temperature icon based on value
+  const getTemperatureIcon = (temperature) => {
+    if (!temperature) return null
+    const tempLower = temperature.toLowerCase()
+    if (tempLower.includes('hot')) {
+      return <Flame size={16} color="#ef4444" />
+    } else if (tempLower.includes('warm')) {
+      return <Sun size={16} color="#f59e0b" />
+    } else if (tempLower.includes('cold')) {
+      return <Snowflake size={16} color="#3b82f6" />
+    }
+    return <Sun size={16} color="#6b7280" />
   }
 
   const callTranscript = (item, initialText) => {
@@ -2760,15 +2847,184 @@ const LeadDetails = ({
                                       className="border rounded-xl p-4 mb-4 mt-4"
                                       style={{ border: '1px solid #00000020' }}
                                     >
-                                      <div
-                                        style={{
-                                          fontWeight: '500',
-                                          color: '#15151560',
-                                          fontsize: 12,
-                                        }}
-                                      >
-                                        {GetFormattedDateString(
-                                          item?.createdAt,
+                                      <div className="flex flex-row items-center justify-between w-full">
+                                        <div
+                                          style={{
+                                            fontWeight: '500',
+                                            color: '#15151560',
+                                            fontsize: 12,
+                                          }}
+                                        >
+                                          {GetFormattedDateString(
+                                            item?.createdAt,
+                                            true, // Include time
+                                          )}
+                                        </div>
+                                        {/* Call Summary Icons */}
+                                        {item.type === 'call_summary' && item.callSummary && (
+                                          <div className="flex flex-row items-center gap-2">
+                                            {/* Sentiment Icon */}
+                                            {item.callSummary.prospectSentiment && (
+                                              <Tooltip
+                                                title={`Customer Sentiment: ${item.callSummary.prospectSentiment}`}
+                                                arrow
+                                                componentsProps={{
+                                                  tooltip: {
+                                                    sx: {
+                                                      backgroundColor: '#ffffff',
+                                                      color: '#333',
+                                                      fontSize: '14px',
+                                                      padding: '10px 15px',
+                                                      borderRadius: '8px',
+                                                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                                      maxWidth: '300px',
+                                                    },
+                                                  },
+                                                  arrow: {
+                                                    sx: {
+                                                      color: '#ffffff',
+                                                    },
+                                                  },
+                                                }}
+                                              >
+                                                <div
+                                                  style={{
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                  }}
+                                                >
+                                                  <Smile size={16} color="#6b7280" />
+                                                </div>
+                                              </Tooltip>
+                                            )}
+                                            {/* Objections Icon */}
+                                            {item.callSummary.objectionsRaised && (
+                                              <Tooltip
+                                                title={
+                                                  <div style={{ whiteSpace: 'pre-line' }}>
+                                                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                                                      Objections:
+                                                    </div>
+                                                    {formatObjections(item.callSummary.objectionsRaised)}
+                                                  </div>
+                                                }
+                                                arrow
+                                                componentsProps={{
+                                                  tooltip: {
+                                                    sx: {
+                                                      backgroundColor: '#ffffff',
+                                                      color: '#333',
+                                                      fontSize: '14px',
+                                                      padding: '10px 15px',
+                                                      borderRadius: '8px',
+                                                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                                      maxWidth: '300px',
+                                                    },
+                                                  },
+                                                  arrow: {
+                                                    sx: {
+                                                      color: '#ffffff',
+                                                    },
+                                                  },
+                                                }}
+                                              >
+                                                <div
+                                                  style={{
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                  }}
+                                                >
+                                                  <AlertTriangle size={16} color="#ef4444" />
+                                                </div>
+                                              </Tooltip>
+                                            )}
+                                            {/* Temperature Icon */}
+                                            {item.callSummary.leadTemperature && (
+                                              <Tooltip
+                                                title={
+                                                  <div style={{ whiteSpace: 'pre-line' }}>
+                                                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                                                      Lead Temperature:
+                                                    </div>
+                                                    {item.callSummary.leadTemperature}
+                                                  </div>
+                                                }
+                                                arrow
+                                                componentsProps={{
+                                                  tooltip: {
+                                                    sx: {
+                                                      backgroundColor: '#ffffff',
+                                                      color: '#333',
+                                                      fontSize: '14px',
+                                                      padding: '10px 15px',
+                                                      borderRadius: '8px',
+                                                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                                      maxWidth: '300px',
+                                                    },
+                                                  },
+                                                  arrow: {
+                                                    sx: {
+                                                      color: '#ffffff',
+                                                    },
+                                                  },
+                                                }}
+                                              >
+                                                <div
+                                                  style={{
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                  }}
+                                                >
+                                                  {getTemperatureIcon(item.callSummary.leadTemperature)}
+                                                </div>
+                                              </Tooltip>
+                                            )}
+                                            {/* Next Steps Icon */}
+                                            {item.callSummary.nextSteps && (
+                                              <Tooltip
+                                                title={
+                                                  <div style={{ whiteSpace: 'pre-line' }}>
+                                                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                                                      Next Steps:
+                                                    </div>
+                                                    {formatNextSteps(item.callSummary.nextSteps)}
+                                                  </div>
+                                                }
+                                                arrow
+                                                componentsProps={{
+                                                  tooltip: {
+                                                    sx: {
+                                                      backgroundColor: '#ffffff',
+                                                      color: '#333',
+                                                      fontSize: '14px',
+                                                      padding: '10px 15px',
+                                                      borderRadius: '8px',
+                                                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                                      maxWidth: '300px',
+                                                    },
+                                                  },
+                                                  arrow: {
+                                                    sx: {
+                                                      color: '#ffffff',
+                                                    },
+                                                  },
+                                                }}
+                                              >
+                                                <div
+                                                  style={{
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                  }}
+                                                >
+                                                  <CheckCircle2 size={16} color="#10b981" />
+                                                </div>
+                                              </Tooltip>
+                                            )}
+                                          </div>
                                         )}
                                       </div>
                                       <div
