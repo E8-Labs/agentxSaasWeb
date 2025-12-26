@@ -3,7 +3,7 @@
 // //console.log;
 
 let BasePath =
-  // process.env.NEXT_PUBLIC_BASE_API_URL ||
+  process.env.NEXT_PUBLIC_BASE_API_URL ||
   (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     ? 'https://apimyagentx.com/agentx/'
     : 'https://apimyagentx.com/agentxtest/')
@@ -242,6 +242,19 @@ const Apis = {
   gmailAccount: `${BasePath}api/mail/accounts`,
   connectGmailAccount: `${BasePath}api/mail/connect-gmail`,
   agencyMailAccount: `${BasePath}api/mail/agency-account`,
+  // Mailgun APIs
+  createMailgunIntegration: `${BasePath}api/mailgun/integration`,
+  createMailgunSubdomain: `${BasePath}api/mailgun/subdomain`,
+  verifyMailgunDomain: `${BasePath}api/mailgun/verify-domain`,
+  listMailgunIntegrations: `${BasePath}api/mailgun/integrations`,
+  createMailgunSubdomain: `${BasePath}api/mailgun/subdomain`,
+  getAvailableDomains: `${BasePath}api/mailgun/available-domains`,
+  getAvailableDomains: `${BasePath}api/mailgun/available-domains`,
+  getMailgunIntegration: `${BasePath}api/mailgun/integration`,
+  updateMailgunIntegration: `${BasePath}api/mailgun/integration`,
+  deleteMailgunIntegration: `${BasePath}api/mailgun/integration`,
+  requestMailgunEmail: `${BasePath}api/mail/request-mailgun-email`,
+  assignMailgunEmail: `${BasePath}api/mail/assign-mailgun-email`,
   a2pNumbers: `${BasePath}api/agent/getA2PVerifiedNumbers`,
 
   agencyActivityData: `${BasePath}api/admin/stats`,

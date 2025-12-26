@@ -813,7 +813,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                     className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                     style={{ height: '42px' }}
                   >
-                    Connect Gmail
+                        Connect Email
                   </button>
                   ) : (
                     <>
@@ -823,11 +823,16 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                         className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
                         style={{ height: '42px' }}
                       >
-                        <span className="text-sm text-gray-700 truncate">
-                          {selectedEmailAccount
-                            ? emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))?.email || emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))?.name || 'Select email account'
-                            : 'Select email account'}
-                        </span>
+                          <span className="text-sm text-gray-700 truncate">
+                            {selectedEmailAccount
+                              ? (() => {
+                                  const account = emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))
+                                  if (!account) return 'Select email account'
+                                  const providerLabel = account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider || ''
+                                  return `${account.email || account.name || account.displayName}${providerLabel ? ` (${providerLabel})` : ''}`
+                                })()
+                              : 'Select email account'}
+                          </span>
                         <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                       </button>
                       {emailDropdownOpen && (
@@ -846,7 +851,14 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                                 selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
                               }`}
                             >
-                              {account.email || account.name}
+                                <div className="flex items-center justify-between">
+                                  <span>{account.email || account.name || account.displayName}</span>
+                                  {account.provider && (
+                                    <span className="text-xs text-gray-500 ml-2">
+                                      {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
+                                    </span>
+                                  )}
+                                </div>
                             </button>
                           ))}
                           <div className="border-t border-gray-200 p-2">

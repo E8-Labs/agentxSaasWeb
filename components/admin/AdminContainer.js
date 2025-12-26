@@ -21,6 +21,7 @@ import AdminPaymentCharges from './paymentCharges/AdminPaymentCharges'
 import AgencyPlans from './plans/AgencyPlans'
 import AgentXPlans from './plans/AgentXPlans'
 import AdminPromoCodes from './promoCodes/AdminPromoCodes'
+import AdminMailgunIntegration from './integrations/AdminMailgunIntegration'
 
 function AdminContainer() {
   const router = useRouter()
@@ -76,6 +77,11 @@ function AdminContainer() {
       id: 11,
       name: 'Promo Codes',
       value: 'promo-codes',
+    },
+    {
+      id: 12,
+      name: 'Integrations',
+      value: 'integrations',
     },
     {
       id: 10,
@@ -278,6 +284,8 @@ function AdminContainer() {
             <AdminCronJobs isActive={selectedManu.name === 'Cron Jobs'} />
           ) : selectedManu.name === 'Promo Codes' ? (
             <AdminPromoCodes />
+          ) : selectedManu.name === 'Integrations' ? (
+            <AdminMailgunIntegration />
           ) : (
             <div>
               <Dashboard />
