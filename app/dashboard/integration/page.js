@@ -15,6 +15,7 @@ import { CaretDown, CaretUp, Copy } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
+import { Elements } from '@stripe/react-stripe-js'
 
 import DashboardSlider from '@/components/animations/DashboardSlider'
 import Apis from '@/components/apis/Apis'
@@ -29,6 +30,9 @@ import { connectGmailAccount } from '@/components/pipeline/TempleteServices'
 import { allIntegrations } from '@/constants/Constants'
 import { generateOAuthState } from '@/utils/oauthState'
 import { getAgencyCustomDomain } from '@/utils/getAgencyCustomDomain'
+import { useUser } from '@/hooks/redux-hooks'
+import getProfileDetails from '@/components/apis/GetProfile'
+import SimpleUpgradeView from '@/components/common/SimpleUpgradeView'
 
 function Page() {
   const [showKeysBox, setshowKeysBox] = useState(false)
@@ -52,6 +56,9 @@ function Page() {
 
   // Google auth states
   const [googleAuthLoader, setGoogleAuthLoader] = useState(false)
+
+  // Upgrade modal states
+  const { user: reduxUser, setUser: setReduxUser } = useUser()
 
   useEffect(() => {
     getMyApiKeys()
@@ -191,6 +198,32 @@ function Page() {
     // //console.log;
     return maskedId
   }
+
+  // Function to refresh user data after upgrade
+  const refreshUserData = async () => {
+    try {
+      const profileResponse = await getProfileDetails()
+      if (profileResponse?.data?.status === true) {
+        const freshUserData = profileResponse.data.data
+        const localData = JSON.parse(localStorage.getItem('User') || '{}')
+        const updatedUserData = {
+          token: localData.token,
+          user: freshUserData,
+        }
+        setReduxUser(updatedUserData)
+        localStorage.setItem('User', JSON.stringify(updatedUserData))
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error('Error refreshing user data:', error)
+      return false
+    }
+  }
+
+  // Check if user has API access
+  const allowAPIAccess = reduxUser?.planCapabilities?.allowAPIAccess ?? reduxUser?.user?.planCapabilities?.allowAPIAccess
+  const shouldShowAPIKeys = allowAPIAccess === true
 
   // Google OAuth handler
   const handleGoogleAuth = async () => {
@@ -366,7 +399,7 @@ function Page() {
                 setSearch(search)
               }}
             />
-            <div className="border w-4/12 p-3 ">
+            <div className="border w-4/12 p-3 relative">
               <button
                 className="w-full"
                 onClick={() => {
@@ -383,8 +416,8 @@ function Page() {
                 </div>
               </button>
 
-              {showKeysBox && (
-                <>
+              {showKeysBox && shouldShowAPIKeys && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border rounded-lg shadow-lg z-50 p-4">
                   {/* {
                     myKeys.map((item, index) => {
 
@@ -475,7 +508,17 @@ function Page() {
                       </div>
                     </button>
                   )}
-                </>
+                </div>
+              )}
+
+              {showKeysBox && !shouldShowAPIKeys && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border rounded-lg shadow-lg z-50 p-4 max-h-[600px] overflow-y-auto">
+                  <SimpleUpgradeView
+                    title="Unlock API Access"
+                    subTitle="Upgrade your plan to access API keys and integrate with your favorite tools"
+                    onUpgradeSuccess={refreshUserData}
+                  />
+                </div>
               )}
             </div>
           </div>
