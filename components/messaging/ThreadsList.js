@@ -26,7 +26,7 @@ const ThreadsList = ({
         {onFilterClick && (
           <button
             onClick={onFilterClick}
-            className={`flex flex-row items-center justify-center border h-10 px-3 gap-2 rounded-full ${
+            className={`flex flex-row items-center justify-center border h-10 px-3 gap-2 ${
               selectedTeamMemberIdsCount > 0
                 ? 'bg-purple-100 border-purple-500'
                 : 'border-gray-300'
