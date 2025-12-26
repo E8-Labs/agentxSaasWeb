@@ -2175,68 +2175,76 @@ const Pipeline1 = () => {
                   </div>
                   <button
                     onClick={handleOpenFilterModal}
-                    className={`flex flex-row items-center justify-center border h-[50px] px-4 gap-2 ${
-                      appliedTeamMemberIds.length > 0
-                        ? 'bg-purple-100 border-purple-500'
-                        : 'border-gray-300'
-                    }`}
+                    className="outline-none"
                     title="Filter by team member"
                   >
-                    <svg
-                      width="22"
-                      height="22"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path
-                        d="M22 6.5H16"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M6 6.5H2"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M10 10C11.933 10 13.5 8.433 13.5 6.5C13.5 4.567 11.933 3 10 3C8.067 3 6.5 4.567 6.5 6.5C6.5 8.433 8.067 10 10 10Z"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M22 17.5H18"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M8 17.5H2"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M14 21C15.933 21 17.5 19.433 17.5 17.5C17.5 15.567 15.933 14 14 14C12.067 14 10.5 15.567 10.5 17.5C10.5 19.433 12.067 21 14 21Z"
-                        stroke="currentColor"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    {appliedTeamMemberIds.length > 0 && (
-                      <span className="text-purple-600 text-sm font-medium">
-                        {appliedTeamMemberIds.length}
-                      </span>
-                    )}
+                    <div className="flex flex-row">
+                      <svg
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M22 6.5H16"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M6 6.5H2"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M10 10C11.933 10 13.5 8.433 13.5 6.5C13.5 4.567 11.933 3 10 3C8.067 3 6.5 4.567 6.5 6.5C6.5 8.433 8.067 10 10 10Z"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M22 17.5H18"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M8 17.5H2"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M14 21C15.933 21 17.5 19.433 17.5 17.5C17.5 15.567 15.933 14 14 14C12.067 14 10.5 15.567 10.5 17.5C10.5 19.433 12.067 21 14 21Z"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      {appliedTeamMemberIds.length > 0 && (
+                        <div
+                          className="flex bg-red rounded-full min-w-[24px] px-[2px] h-6 flex-row items-center justify-center text-white flex-shrink-0"
+                          style={{
+                            fontSize: 13,
+                            marginTop: -13,
+                            alignSelf: 'flex-start',
+                            marginLeft: -15,
+                          }}
+                        >
+                          {appliedTeamMemberIds.length < 100
+                            ? appliedTeamMemberIds.length
+                            : '99+'}
+                        </div>
+                      )}
+                    </div>
                   </button>
                   <div className="flex flex-col">
                     <NotficationsDrawer />
@@ -4423,11 +4431,15 @@ const Pipeline1 = () => {
           >
             <Box
               className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh]"
-              sx={{ ...styles.modalsStyle, scrollbarWidth: 'none' }}
+              sx={{
+                ...styles.modalsStyle,
+                scrollbarWidth: 'none',
+                borderRadius: '13px',
+              }}
             >
               <div className="flex flex-col w-full">
                 <div
-                  className="w-full"
+                  className="w-full rounded-[13px]"
                   style={{
                     backgroundColor: '#ffffff',
                     padding: 20,

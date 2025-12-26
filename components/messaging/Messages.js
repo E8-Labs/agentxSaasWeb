@@ -2068,7 +2068,7 @@ const Messages = () => {
         }}
       >
         <Box
-          className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh]"
+          className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh] rounded-[13px]"
           sx={{
             height: 'auto',
             bgcolor: 'transparent',
@@ -2076,14 +2076,14 @@ const Messages = () => {
             mx: 'auto',
             my: '50vh',
             transform: 'translateY(-55%)',
-            borderRadius: 2,
+            borderRadius: '13px',
             border: 'none',
             outline: 'none',
           }}
         >
           <div className="flex flex-col w-full">
             <div
-              className="w-full"
+              className="w-full rounded-[13px]"
               style={{
                 backgroundColor: '#ffffff',
                 padding: 20,
