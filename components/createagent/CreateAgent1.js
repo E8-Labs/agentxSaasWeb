@@ -881,6 +881,25 @@ const CreateAgent1 = ({
         },
       })
 
+      // Check HTTP status code first
+      if (response.status !== 200) {
+        setLoaderModal(false)
+        setBuildAgentLoader(false)
+        setIsVisible(true)
+        
+        if (response.status === 401) {
+          setSnackMessage('Unauthorized. Please log in again.')
+          setMsgType(SnackbarTypes.Error)
+        } else if (response.status === 403) {
+          setSnackMessage('Access forbidden. You do not have permission to create agents.')
+          setMsgType(SnackbarTypes.Error)
+        } else {
+          setSnackMessage(`Agent creation failed! (Status: ${response.status})`)
+          setMsgType(SnackbarTypes.Error)
+        }
+        return
+      }
+
       if (response) {
         // //console.log;
         setIsVisible(true)
@@ -919,6 +938,31 @@ const CreateAgent1 = ({
       // console.error("Error occured in build agent api is: ----", error);
       setLoaderModal(false)
       setBuildAgentLoader(false)
+      setIsVisible(true)
+      
+      // Handle axios error responses
+      if (error.response) {
+        const statusCode = error.response.status
+        if (statusCode === 401) {
+          setSnackMessage('Unauthorized. Please log in again.')
+          setMsgType(SnackbarTypes.Error)
+        } else if (statusCode === 403) {
+          setSnackMessage('Access forbidden. You do not have permission to create agents.')
+          setMsgType(SnackbarTypes.Error)
+        } else {
+          const errorMessage = error.response.data?.message || error.response.data?.error || `Agent creation failed! (Status: ${statusCode})`
+          setSnackMessage(errorMessage)
+          setMsgType(SnackbarTypes.Error)
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        setSnackMessage('Network error. Please check your connection and try again.')
+        setMsgType(SnackbarTypes.Error)
+      } else {
+        // Something else happened
+        setSnackMessage('An unexpected error occurred. Please try again.')
+        setMsgType(SnackbarTypes.Error)
+      }
     } finally {
     }
   }

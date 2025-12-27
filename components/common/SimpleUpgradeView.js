@@ -17,73 +17,54 @@ function SimpleUpgradeView({
   const { user: reduxUser } = useUser()
 
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center p-8">
-      {/* Star Icons */}
-      <div className="flex flex-row items-center justify-center gap-2 mb-4">
+    <div className="h-screen w-full flex flex-col items-center justify-center -mt-16">
+      {/* Image */}
+      <Image
+        src={'/otherAssets/noTemView.png'}
+        height={280}
+        width={240}
+        alt="*"
+      />
+      
+      {/* Upgrade UI Section */}
+      <div className="w-full flex flex-col items-center -mt-12 gap-4">
         <Image
-          alt="*"
           src={'/otherAssets/starsIcon2.png'}
-          height={24}
-          width={24}
-          className="object-contain"
-        />
-        <Image
+          height={30}
+          width={30}
           alt="*"
-          src={'/otherAssets/starsIcon2.png'}
-          height={24}
-          width={24}
-          className="object-contain"
         />
+        <div style={{ fontWeight: '700', fontSize: 22 }}>
+          {title}
+        </div>
+        <div
+          style={{
+            fontWeight: '400',
+            fontSize: 15,
+            textAlign: 'center',
+          }}
+        >
+          {subTitle}
+        </div>
       </div>
-
-      {/* Title */}
-      <div
-        className="font-bold text-center mb-3"
-        style={{
-          fontSize: '24px',
-          fontWeight: '700',
-          color: '#000000',
-        }}
-      >
-        {title}
-      </div>
-
-      {/* Subtitle */}
-      <div
-        className="text-center mb-8 max-w-2xl"
-        style={{
-          fontSize: '16px',
-          fontWeight: '400',
-          color: '#000000',
-          lineHeight: '1.5',
-        }}
-      >
-        {subTitle}
-      </div>
-
+      
       {/* Upgrade Button */}
-      <button
-        className="rounded-lg text-white text-center flex flex-row items-center justify-center transition-colors"
-        style={{
-          fontSize: '16px',
-          fontWeight: '500',
-          backgroundColor: 'hsl(var(--brand-primary))',
-          height: '50px',
-          padding: '0 32px',
-          minWidth: '180px',
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = `hsl(var(--brand-primary) / 0.9)`
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = `hsl(var(--brand-primary))`
-        }}
-        onClick={() => {
-          setShowUpgradePlanModal(true)
-        }}
-      >
-        Upgrade Plan
-      </button>
+      <div className="mt-8">
+        <button
+          className="rounded-lg text-white bg-brand-primary"
+          style={{
+            fontWeight: '500',
+            fontSize: '16',
+            height: '50px',
+            width: '173px',
+          }}
+          onClick={() => {
+            setShowUpgradePlanModal(true)
+          }}
+        >
+          Upgrade Plan
+        </button>
+      </div>
 
       {/* UpgradePlan Modal */}
       <Elements stripe={getStripe()}>
