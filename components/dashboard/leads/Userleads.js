@@ -74,9 +74,12 @@ const Userleads = ({
   const bottomRef = useRef(null)
 
   //Sheet Caching related
-  let sheetIndexSelected = useRef(0)
   let searchParams = useSearchParams()
   const router = useRouter()
+  // Read sheet parameter synchronously on component initialization
+  const initialSheetParam = searchParams.get('sheet')
+  const initialSheetIndex = initialSheetParam !== null ? Number(initialSheetParam) || 0 : 0
+  let sheetIndexSelected = useRef(initialSheetIndex)
 
   //user local data
   const [userLocalDetails, setUserLocalDetails] = useState(null)
@@ -432,16 +435,17 @@ const Userleads = ({
     }
   }, [filtersSelected, SelectedSheetId])
 
-  //Caching & refresh logic
+  //Caching & refresh logic - sync URL parameter with ref
   useEffect(() => {
-    const sheet = searchParams.get('sheet') // Get the value of 'tab'
+    const sheet = searchParams.get('sheet') // Get the value of 'sheet'
     let number = Number(sheet) || 0
-    //console.log;
-    sheetIndexSelected = number
-    // if (!sheet) {
-    setParamsInSearchBar(number)
-    // }
-  }, [])
+    // Update the ref with the current sheet index from URL
+    sheetIndexSelected.current = number
+    // Ensure URL is set if it was missing
+    if (sheet === null) {
+      setParamsInSearchBar(number)
+    }
+  }, [searchParams])
   const setParamsInSearchBar = (index = 1) => {
     // Create a new URLSearchParams object to modify
     const params = new URLSearchParams(searchParams.toString())
@@ -594,8 +598,9 @@ const Userleads = ({
       // //console.log;
       let data = JSON.parse(d)
       let ind = 0
-      if (sheetIndexSelected < data.length) {
-        ind = sheetIndexSelected
+      // Use .current to access the ref value
+      if (sheetIndexSelected.current < data.length) {
+        ind = sheetIndexSelected.current
       }
       setSheetsList(data)
       setCurrentSheet(data[ind])
@@ -1031,8 +1036,12 @@ const Userleads = ({
   const handleFilterLeads = async (filterText = null) => {
     //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&id=${nextCursorValue === null ? 'null' : nextCursorValue}
     const currentRequestVersion = ++requestVersion.current
+    const currentSheetId = SelectedSheetId // Capture the sheet ID at request start
     try {
-      setMoreLeadsLoader(true)
+      // Only set loading if this is still the current request and sheet
+      if (currentRequestVersion === requestVersion.current && currentSheetId === SelectedSheetId) {
+        setMoreLeadsLoader(true)
+      }
 
       const localData = localStorage.getItem('User')
       let AuthToken = null
@@ -1093,70 +1102,88 @@ const Userleads = ({
             //   setShowNoLeadErr("No leads found");
 
             const data = response.data.data
-            if (!nextCursorValue) {
-              let sheetId = null
-              if (data.length > 0) {
-                sheetId = data[0].sheetId
-                setShowNoLeadsLabel(null)
-              } else {
-                setShowNoLeadsLabel(true)
-              }
-
-              if (sheetId == SelectedSheetId) {
-                LeadsInSheet[SelectedSheetId] = response.data
-
-                // Try to save to localStorage with error handling
-                const storageKey = `Leads${SelectedSheetId}`
-                const storageSuccess = safeLocalStorageSet(
-                  storageKey,
-                  response.data,
-                )
-
-                if (!storageSuccess) {
-                  console.warn(
-                    '⚠️ Failed to store in localStorage, data will be available in memory cache only',
-                  )
+            // Get sheetId from response to verify it matches current selection
+            let sheetId = null
+            if (data.length > 0) {
+              sheetId = data[0].sheetId
+            }
+            
+            // Only process response if it matches the currently selected sheet
+            // This prevents race conditions when switching sheets quickly
+            // For empty responses, we process them if it's the first page (nextCursorValue is 0/falsy)
+            // because empty responses don't have a sheetId but should still be shown for the current sheet
+            const shouldProcess = (sheetId == SelectedSheetId) || 
+              (data.length === 0 && !nextCursorValue)
+            
+            if (shouldProcess) {
+              if (!nextCursorValue) {
+                // First page load
+                if (data.length > 0) {
+                  setShowNoLeadsLabel(null)
+                } else {
+                  setShowNoLeadsLabel(true)
                 }
 
-                setLeadsList(data)
-                setFilterLeads(data)
+                // Only set leads if sheet matches (or empty response for first page)
+                if (sheetId == SelectedSheetId || data.length === 0) {
+                  if (data.length > 0 && sheetId == SelectedSheetId) {
+                    LeadsInSheet[SelectedSheetId] = response.data
+
+                    // Try to save to localStorage with error handling
+                    const storageKey = `Leads${SelectedSheetId}`
+                    const storageSuccess = safeLocalStorageSet(
+                      storageKey,
+                      response.data,
+                    )
+
+                    if (!storageSuccess) {
+                      console.warn(
+                        '⚠️ Failed to store in localStorage, data will be available in memory cache only',
+                      )
+                    }
+                  }
+
+                  setLeadsList(data)
+                  setFilterLeads(data)
+                }
+              } else {
+                // For pagination, append leads only if sheet matches
+                if (sheetId == SelectedSheetId && data.length > 0) {
+                  setLeadsList((prevDetails) => [...prevDetails, ...data])
+                  setFilterLeads((prevDetails) => [...prevDetails, ...data])
+                }
               }
 
-              let leads = data
-              let leadColumns = response.data.columns
-              //   setSelectedSheetId(item.id);
-              //   setLeadsList([]);
-              //   setFilterLeads([]);
-              if (leads && leadColumns) {
-                // //////console.log
-                // setLeadsList((prevDetails) => [...prevDetails, ...leads]);
-                // setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
-                let dynamicColumns = []
-                if (leads.length > 0) {
-                  // Filter out address column if no leads have address data
-                  const filteredColumns = filterAddressColumn(
-                    leadColumns,
-                    leads,
-                  )
-                  dynamicColumns = [
-                    ...filteredColumns,
-                    // { title: "Tag" },
-                    {
-                      title: 'More',
-                      idDefault: false,
-                    },
-                  ]
+              // Set columns only if sheet matches or it's an empty response
+              if (sheetId == SelectedSheetId || (data.length === 0 && !nextCursorValue)) {
+                let leads = data
+                let leadColumns = response.data.columns
+                if (leads && leadColumns) {
+                  let dynamicColumns = []
+                  if (leads.length > 0) {
+                    // Filter out address column if no leads have address data
+                    const filteredColumns = filterAddressColumn(
+                      leadColumns,
+                      leads,
+                    )
+                    dynamicColumns = [
+                      ...filteredColumns,
+                      // { title: "Tag" },
+                      {
+                        title: 'More',
+                        idDefault: false,
+                      },
+                    ]
+                  }
+                  setLeadColumns(dynamicColumns)
+                } else if (data.length === 0) {
+                  // Clear columns if no leads for this sheet
+                  setLeadColumns([])
                 }
-                // setLeadColumns(response.data.columns);
-                setLeadColumns(dynamicColumns)
-                // return
-              } else {
-                //////console.log;
               }
             } else {
-              setShowNoLeadsLabel(false)
-              setLeadsList((prevDetails) => [...prevDetails, ...data])
-              setFilterLeads((prevDetails) => [...prevDetails, ...data])
+              // Response is for a different sheet, ignore it
+              console.log('Ignoring response for different sheet:', sheetId, 'Current:', SelectedSheetId)
             }
 
             setHasMore(responseData.hasMore)
@@ -1175,8 +1202,12 @@ const Userleads = ({
     } catch (error) {
       // console.error("Error occured in api is :", error);
     } finally {
-      setMoreLeadsLoader(false)
-      setSheetsLoader(false)
+      // Only clear loading if this is still the current request
+      // This prevents old requests from clearing the loader when a new request has started
+      if (currentRequestVersion === requestVersion.current) {
+        setMoreLeadsLoader(false)
+        setSheetsLoader(false)
+      }
       //////console.log;
     }
   }
@@ -1486,8 +1517,9 @@ const Userleads = ({
           SetSheetsToLocalStorage(sheets)
           if (sheets.length > 0) {
             let ind = 0
-            if (sheetIndexSelected < sheets.length) {
-              ind = sheetIndexSelected
+            // Use .current to access the ref value
+            if (sheetIndexSelected.current < sheets.length) {
+              ind = sheetIndexSelected.current
             }
             setCurrentSheet(response.data.data[ind])
             setSelectedSheetId(response.data.data[ind].id)
@@ -2331,12 +2363,28 @@ const Userleads = ({
                           className="outline-none w-full"
                           onClick={() => {
                             setSearchLead('')
+                            // Update ref immediately to prevent flash
+                            sheetIndexSelected.current = index
+                            // Clear leads immediately to prevent race condition
+                            setLeadsList([])
+                            setFilterLeads([])
+                            setLeadColumns([])
+                            // Clear loading state immediately to prevent showing old loading state
+                            setMoreLeadsLoader(false)
+                            setSheetsLoader(false)
+                            setInitialLoader(false)
+                            // Reset filtering flag to allow new request to start
+                            isFilteringRef.current = false
+                            // Invalidate any pending requests by incrementing request version
+                            requestVersion.current++
+                            // Reset pagination
+                            setNextCursorValue(0)
+                            setHasMore(true)
+                            // Update selected sheet
                             setSelectedSheetId(item.id)
                             setParamsInSearchBar(index)
                             setSelectedLeadsList([])
                             setSelectedAll(false)
-                            setSelectedLeadsList([])
-                            setNextCursorValue('')
                             //   getLeads(item, 0);
                           }}
                         >
@@ -2534,13 +2582,13 @@ const Userleads = ({
                 <div className="text-xl text-center mt-8 font-bold text-[22px]">
                   No leads found
                 </div>
-              ) : (
+              ) : moreLeadsLoader || initialLoader || sheetsLoader ? (
                 <div className="w-full flex justify-center items-center">
                   <LeadLoading />
                   {/* <div>Loading..</div>
                   <CircularProgress size={35} sx={{ color: "#7902DF" }} /> */}
                 </div>
-              )}
+              ) : null}
 
               <UpgradeModal
                 open={showUpgradeModal}

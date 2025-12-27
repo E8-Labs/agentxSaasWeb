@@ -833,60 +833,30 @@ const AgencySignUp = ({
                   />
                 </div>
 
-                <div className="flex flex-row items-center gap-4 w-full mt-4">
-                  <div className="w-6/12">
-                    <div style={styles.headingStyle}>{`Agency Name`}</div>
-                    <Input
-                      ref={(el) => (inputsFields.current[3] = el)}
-                      autoComplete="off"
-                      autoCorrect="off"
-                      spellCheck="false"
-                      enterKeyHint="done"
-                      placeholder="Agency Name"
-                      className="w-full border rounded px-3 py-2.5 focus:border-black transition-colors"
-                      style={{
-                        ...styles.inputStyle,
-                        marginTop: '8px',
-                        border: '1px solid #00000020',
-                      }}
-                      value={company}
-                      onChange={(e) => {
-                        setCompany(e.target.value)
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === 'Done') {
-                          inputsFields.current[4]?.focus() // Move to the second input
-                        }
-                      }}
-                    />
-                  </div>
-                  <div className="w-6/12">
-                    <div style={styles.headingStyle}>Website (optional)</div>
-                    <Input
-                      ref={(el) => (inputsFields.current[4] = el)}
-                      autoComplete="off"
-                      autoCorrect="off"
-                      spellCheck="false"
-                      enterKeyHint="done"
-                      placeholder="Website"
-                      className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px] w-full"
-                      style={{
-                        ...styles.inputStyle,
-                        marginTop: '8px',
-                        border: '1px solid #00000020',
-                      }}
-                      value={website}
-                      onChange={(e) => {
-                        setwebsite(e.target.value)
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === 'Done') {
-                          inputsFields.current[5]?.focus() // Move to the second input
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
+                <div style={styles.headingStyle} className="mt-4">{`Agency Name`}</div>
+                <Input
+                  ref={(el) => (inputsFields.current[3] = el)}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck="false"
+                  enterKeyHint="done"
+                  placeholder="Agency Name"
+                  className="w-full border rounded px-3 py-2.5 focus:border-black transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: '1px solid #00000020',
+                  }}
+                  value={company}
+                  onChange={(e) => {
+                    setCompany(e.target.value)
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === 'Done') {
+                      inputsFields.current[4]?.focus() // Move to the next input
+                    }
+                  }}
+                />
 
                 <div style={styles.headingStyle} className="mt-4 mb-2">
                   Agency Size
@@ -951,21 +921,40 @@ const AgencySignUp = ({
                   </Select>
                 </FormControl>
 
+                <div style={styles.headingStyle} className="mt-4">Website (optional)</div>
+                <Input
+                  ref={(el) => (inputsFields.current[4] = el)}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck="false"
+                  enterKeyHint="done"
+                  placeholder="Website"
+                  className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px] w-full"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: '1px solid #00000020',
+                  }}
+                  value={website}
+                  onChange={(e) => {
+                    setwebsite(e.target.value)
+                  }}
+                />
+
                 <div
                   disabled={shouldContinue}
-                  className="flex items-center justify-center rounded-lg text-white bg-purple mt-4 text-center cursor-pointer"
+                  className={`flex items-center justify-center rounded-lg mt-4 text-center ${shouldContinue ? 'bg-gray-300 cursor-not-allowed' : 'bg-purple cursor-pointer'}`}
                   style={{
                     fontWeight: '700',
                     fontSize: '16',
-                    backgroundColor: shouldContinue && '#00000020',
-                    color: shouldContinue && '#000000',
+                    color: shouldContinue ? '#000000' : '#ffffff',
                     height: '40px',
                     width: '100px',
                     alignSelf: 'flex-end',
                   }}
                   onClick={handleVerifyPopup}
                 >
-                  <span className="text-white">Continue</span>
+                  <span>Continue</span>
                 </div>
                 {/* Modal for verify number */}
 

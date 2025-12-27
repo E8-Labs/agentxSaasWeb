@@ -1170,7 +1170,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       </div>
                     </div>
                   ) : (
-                    <div className="w-full  flex items-center justify-center -mt-6 sm:-mt-8 md:-mt-10">
+                    <div className="w-full  flex items-center justify-center ">
                       <div className="w-full h-[35vh] flex items-center justify-center">
                         <UpgardView
                           setShowSnackMsg={setShowSnackMsg}

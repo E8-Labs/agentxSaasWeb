@@ -583,7 +583,7 @@ const AgencyAddCard = ({
         style={{ backgroundColor: 'transparent' }}
       >
         <div
-          className={`${isSmallScreen ? 'w-full px-4 mt-0 pb-24' : 'relative flex-1'}`}
+          className={`${isSmallScreen ? 'w-full px-4 mt-0 pb-32' : 'relative flex-1'}`}
           style={
             isSmallScreen
               ? {}
@@ -878,8 +878,13 @@ const AgencyAddCard = ({
 
         {/* Mobile Continue Button - Fixed at bottom */}
         {isSmallScreen && (
-          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 safe-area-inset-bottom">
-            <div className="max-w-md mx-auto px-4 py-4">
+          <div 
+            className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50"
+            style={{ 
+              paddingBottom: `calc(1.5rem + env(safe-area-inset-bottom, 0px))`,
+            }}
+          >
+            <div className="max-w-md mx-auto px-4 pt-4 pb-2">
               <button
                 onClick={handleAddCard}
                 disabled={
@@ -910,7 +915,7 @@ const AgencyAddCard = ({
                   'Continue'
                 )}
               </button>
-              <p className="text-xs text-center text-gray-500 mt-2">
+              <p className="text-xs text-center text-gray-500 mt-2 mb-2">
                 By continuing you agree to{' '}
                 <a
                   href="https://www.myagentx.com/terms-and-condition"

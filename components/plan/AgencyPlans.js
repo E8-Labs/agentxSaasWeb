@@ -583,9 +583,8 @@ function AgencyPlans({
           <div className="flex-1 overflow-y-auto px-4 pt-4 pb-40 min-h-0">
             <div className="w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
               {/* Header */}
-              <div className="bg-brand-primary px-6 py-8">
-                <h1 className="text-2xl font-bold text-white mb-2">Order Summary</h1>
-                <p className="text-white/80 text-sm">Choose your plan and continue</p>
+              <div className="bg-white px-6 py-1">
+                <h1 className="text-2xl font-bold text-black">Select a plan</h1>
               </div>
 
               {/* Content */}
@@ -726,7 +725,12 @@ function AgencyPlans({
           </div>
 
           {/* Fixed Bottom Section with Continue Button */}
-          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 safe-area-inset-bottom">
+          <div 
+            className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50" 
+            style={{ 
+              paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom, 0px))',
+            }}
+          >
             <div className="max-w-md mx-auto px-6 pt-4 pb-6 space-y-3">
               {/* Terms and Conditions */}
               <p className="text-xs text-center text-gray-500">

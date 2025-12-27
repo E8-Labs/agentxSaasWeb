@@ -7,6 +7,7 @@ import { AgentXOrb } from '@/components/common/AgentXOrb'
 import { UserTypes } from '@/constants/UserTypes'
 import AppLogo from '@/components/common/AppLogo'
 import { forceApplyBranding } from '@/utilities/applyBranding'
+import { getAgencyUUIDForAPI } from '@/utilities/AgencyUtility'
 
 const Header = ({
   skipSellerKYC,
@@ -19,6 +20,8 @@ const Header = ({
   const router = useRouter()
   const [isSubaccount, setIsSubaccount] = useState(false)
   const [hasAgencyLogo, setHasAgencyLogo] = useState(false)
+  const [agencyLogoUrl, setAgencyLogoUrl] = useState(null)
+  const [isAgencyOnboarding, setIsAgencyOnboarding] = useState(false)
   
   // Check if current domain is a custom domain (not app.assignx.ai or dev.assignx.ai)
   // Initialize immediately if on client side
@@ -49,13 +52,24 @@ const Header = ({
       let isSub = false
       let isAgency = false
       
+      // Check if it's a subaccount registration (has AgencyUUID but no User data yet)
+      const agencyUuid = getAgencyUUIDForAPI()
+      const isSubaccountRegistration = !!agencyUuid && !userData
+      
       if (userData) {
         const parsedUser = JSON.parse(userData)
-        isSub =
-          parsedUser?.user?.userRole === 'AgencySubAccount' ||
-          parsedUser?.userRole === 'AgencySubAccount'
-        isAgency = parsedUser?.user?.userRole === 'Agency' || parsedUser?.userRole === 'Agency'
+        const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+        isSub = userRole === 'AgencySubAccount'
+        isAgency = userRole === 'Agency'
         setIsSubaccount(isSub)
+        
+        console.log('🔍 [Header] User role check:', {
+          userRole,
+          isSub,
+          isAgency,
+          parsedUserUserRole: parsedUser?.user?.userRole,
+          parsedUserRole: parsedUser?.userRole
+        })
         
         // Check if current user is Agency and creating agent for subaccount
         if (isAgency) {
@@ -79,6 +93,17 @@ const Header = ({
         } else {
           setIsAgencyCreatingForSubaccount(false)
         }
+      } else if (isSubaccountRegistration) {
+        // During subaccount registration, treat as subaccount
+        setIsSubaccount(true)
+        setIsAgencyCreatingForSubaccount(false)
+      }
+      
+      // Fallback: If we have agency UUID but user role check didn't detect as subaccount,
+      // still treat as subaccount (might be during onboarding flow or role not set yet)
+      if (!isSub && agencyUuid) {
+        console.log('🔍 [Header] Fallback: Agency UUID present, treating as subaccount')
+        setIsSubaccount(true)
       }
 
       // Check if agency has branding logo
@@ -114,9 +139,12 @@ const Header = ({
       // Set hasAgencyLogo if logoUrl exists
       const hasLogo = branding?.logoUrl
       setHasAgencyLogo(hasLogo)
+      setAgencyLogoUrl(branding?.logoUrl || null)
       
       console.log('🔍 [Header] Branding check:', {
-        isSubaccount: isSub,
+        isSubaccount: isSub || isSubaccountRegistration,
+        isSubaccountRegistration,
+        agencyUuid,
         hasAgencyLogo: hasLogo,
         logoUrl: branding?.logoUrl,
         branding: branding,
@@ -142,6 +170,20 @@ const Header = ({
     }
   }, [])
 
+  // Check if we're on agency onboarding page
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const checkOnboarding = () => {
+        const isOnboarding = window.location.pathname.includes('/agency/onboarding')
+        setIsAgencyOnboarding(isOnboarding)
+      }
+      checkOnboarding()
+      // Listen for route changes
+      window.addEventListener('popstate', checkOnboarding)
+      return () => window.removeEventListener('popstate', checkOnboarding)
+    }
+  }, [])
+
   function getSkipPageForSellerKyc() {
     if (user && user.user.userType != UserTypes.RealEstateAgent) {
       return '/pipeline'
@@ -149,10 +191,79 @@ const Header = ({
     return '/buyerskycquestions'
   }
 
+  // Determine what to show on mobile left side
+  const getMobileLeftLogo = () => {
+    // If agency onboarding, don't show anything on left (orb will be centered)
+    if (isAgencyOnboarding) {
+      return null
+    }
+    
+    // If subaccount with agency logo, show agency logo
+    if (isSubaccount && agencyLogoUrl) {
+      return (
+        <div className="flex md:hidden">
+          <Image
+            src={agencyLogoUrl}
+            alt="Agency logo"
+            height={30}
+            width={130}
+            style={{ objectFit: 'contain', maxHeight: '30px' }}
+          />
+        </div>
+      )
+    }
+    
+    // If subaccount without agency logo, don't show anything on left (orb will be centered)
+    if (isSubaccount && !agencyLogoUrl) {
+      return null
+    }
+    
+    // Default: show AppLogo
+    return (
+      <div className="flex md:hidden">
+        <AppLogo
+          height={30}
+          width={130}
+          alt="logo"
+        />
+      </div>
+    )
+  }
+
+  // Determine what to show in center (for mobile orb)
+  const getMobileCenterOrb = () => {
+    // If agency onboarding, show orb in center
+    if (isAgencyOnboarding) {
+      return (
+        <div className="flex md:hidden justify-center">
+          <AgentXOrb
+            size={30}
+            style={{ height: '30px', width: '30px', resize: 'contain' }}
+          />
+        </div>
+      )
+    }
+    
+    // If subaccount without agency logo, show orb in center
+    if (isSubaccount && !agencyLogoUrl) {
+      return (
+        <div className="flex md:hidden justify-center">
+          <AgentXOrb
+            size={30}
+            style={{ height: '30px', width: '30px', resize: 'contain' }}
+          />
+        </div>
+      )
+    }
+    
+    return null
+  }
+
   return (
     <div>
       <div className="px-4 flex flex-row items-center md:pt-6">
         <div className="w-4/12">
+          {/* Desktop logo */}
           <div className="ms-6 hidden md:flex">
             <AppLogo
               height={29}
@@ -160,8 +271,13 @@ const Header = ({
               alt="logo"
             />
           </div>
+          {/* Mobile logo */}
+          {getMobileLeftLogo()}
         </div>
         <div className="w-4/12 flex flex-row justify-center">
+          {/* Mobile center orb */}
+          {getMobileCenterOrb()}
+          {/* Desktop center orb */}
           {(() => {
             // Check domain again on render to ensure it's always current
             const currentIsCustomDomain = typeof window !== 'undefined' 
@@ -182,10 +298,12 @@ const Header = ({
               shouldShowOrb,
             })
             return shouldShowOrb ? (
-              <AgentXOrb
-                size={69}
-                style={{ height: '69px', width: '75px', resize: 'contain' }}
-              />
+              <div className="hidden md:flex">
+                <AgentXOrb
+                  size={69}
+                  style={{ height: '69px', width: '75px', resize: 'contain' }}
+                />
+              </div>
             ) : null
           })()}
         </div>

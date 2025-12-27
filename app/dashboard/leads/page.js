@@ -95,11 +95,13 @@ const Page = ({ params }) => {
         className="overflow-y-none flex flex-row justify-center items-center bg-white"
       >
         {shouldShowUpgrade ? (
+          <div className="w-full h-full">
           <SimpleUpgradeView
             title="Unlock Leads Feature"
             subTitle="Upgrade your plan to add and manage leads in your CRM"
             onUpgradeSuccess={refreshUserData}
           />
+          </div>
         ) : (
           <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
         )}
