@@ -198,23 +198,8 @@ const Header = ({
       return null
     }
     
-    // If subaccount with agency logo, show agency logo
-    if (isSubaccount && agencyLogoUrl) {
-      return (
-        <div className="flex md:hidden">
-          <Image
-            src={agencyLogoUrl}
-            alt="Agency logo"
-            height={30}
-            width={130}
-            style={{ objectFit: 'contain', maxHeight: '30px' }}
-          />
-        </div>
-      )
-    }
-    
-    // If subaccount without agency logo, don't show anything on left (orb will be centered)
-    if (isSubaccount && !agencyLogoUrl) {
+    // If subaccount (with or without logo), don't show anything on left (logo/orb will be centered)
+    if (isSubaccount) {
       return null
     }
     
@@ -230,7 +215,7 @@ const Header = ({
     )
   }
 
-  // Determine what to show in center (for mobile orb)
+  // Determine what to show in center (for mobile orb/logo)
   const getMobileCenterOrb = () => {
     // If agency onboarding, show orb in center
     if (isAgencyOnboarding) {
@@ -239,6 +224,21 @@ const Header = ({
           <AgentXOrb
             size={30}
             style={{ height: '30px', width: '30px', resize: 'contain' }}
+          />
+        </div>
+      )
+    }
+    
+    // If subaccount with agency logo, show agency logo in center
+    if (isSubaccount && agencyLogoUrl) {
+      return (
+        <div className="flex md:hidden justify-center">
+          <Image
+            src={agencyLogoUrl}
+            alt="Agency logo"
+            height={30}
+            width={130}
+            style={{ objectFit: 'contain', maxHeight: '30px' }}
           />
         </div>
       )

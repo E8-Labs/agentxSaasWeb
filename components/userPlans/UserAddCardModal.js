@@ -544,10 +544,12 @@ const UserAddCard = ({
         style={{ backgroundColor: 'transparent' }}
       >
         <div
-          className={`${isSmallScreen ? 'w-full px-4 mt-0 pb-24' : 'relative flex-1'}`}
+          className={`${isSmallScreen ? 'w-full px-4 pt-6 pb-52 overflow-y-auto' : 'relative flex-1'}`}
           style={
             isSmallScreen
-              ? {}
+              ? {
+                  paddingTop: 'max(1.5rem, env(safe-area-inset-top, 0px))',
+                }
               : {
                   minWidth: 0,
                   maxWidth: '720px',
@@ -838,8 +840,33 @@ const UserAddCard = ({
 
         {/* Mobile Continue Button - Fixed at bottom */}
         {isSmallScreen && (
-          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 safe-area-inset-bottom">
-            <div className="max-w-md mx-auto px-4 py-4">
+          <div 
+            className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50"
+            style={{ 
+              paddingBottom: `calc(2rem + env(safe-area-inset-bottom, 0px))`,
+            }}
+          >
+            <div className="max-w-md mx-auto px-4 pt-4 pb-4 space-y-3">
+              <p className="text-xs text-center text-gray-500 mb-1">
+                By continuing you agree to{' '}
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    const { termsUrl } = getPolicyUrls()
+                    window.open(termsUrl, '_blank')
+                  }}
+                  style={{
+                    textDecoration: 'underline',
+                    color: 'hsl(var(--brand-primary))',
+                  }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold"
+                >
+                  Terms & Conditions
+                </a>
+              </p>
               <button
                 onClick={handleAddCard}
                 disabled={
@@ -870,26 +897,6 @@ const UserAddCard = ({
                   'Continue'
                 )}
               </button>
-              <p className="text-xs text-center text-gray-500 mt-2">
-                By continuing you agree to{' '}
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    const { termsUrl } = getPolicyUrls()
-                    window.open(termsUrl, '_blank')
-                  }}
-                  style={{
-                    textDecoration: 'underline',
-                    color: 'hsl(var(--brand-primary))',
-                  }}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold"
-                >
-                  Terms & Conditions
-                </a>
-              </p>
             </div>
           </div>
         )}
@@ -1043,43 +1050,86 @@ const UserAddCard = ({
               </div>
             </div>
 
-            <div className="flex flex-col items-center gap-2 w-full mt-6 flex justify-center">
-              {addCardLoader ? (
-                <div className="flex flex-row justify-center items-center mt-8 w-full">
-                  <CircularProgress size={30} />
-                </div>
-              ) : (
-                <div className="flex flex-row justify-end items-center mt-8 w-full">
-                  {CardAdded && CardExpiry && CVC ? (
-                    <button
-                      onClick={handleAddCard}
-                      disabled={addCardLoader || disableContinue || isSubscribingRef.current}
-                      className="w-full h-[50px] rounded-xl px-8 text-white py-3 disabled:opacity-50 disabled:cursor-not-allowed"
-                      style={{
-                        backgroundColor: 'hsl(var(--brand-primary))',
-                        fontWeight: '600',
-                        fontSize: 17,
-                      }}
-                    >
-                      Continue
-                    </button>
-                  ) : (
-                    <button
-                      disabled={true}
-                      className="bg-[#00000020] w-full h-[50px] rounded-xl px-8 text-[#000000] py-3"
-                      style={{ fontWeight: '600', fontSize: 17 }}
-                    >
-                      Continue
-                    </button>
-                  )}
-                </div>
-              )}
+            {!isSmallScreen && (
+              <div className="flex flex-col items-center gap-2 w-full mt-6 flex justify-center">
+                {addCardLoader ? (
+                  <div className="flex flex-row justify-center items-center mt-8 w-full">
+                    <CircularProgress size={30} />
+                  </div>
+                ) : (
+                  <div className="flex flex-row justify-end items-center mt-8 w-full">
+                    {CardAdded && CardExpiry && CVC ? (
+                      <button
+                        onClick={handleAddCard}
+                        disabled={addCardLoader || disableContinue || isSubscribingRef.current}
+                        className="w-full h-[50px] rounded-xl px-8 text-white py-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                        style={{
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          fontWeight: '600',
+                          fontSize: 17,
+                        }}
+                      >
+                        Continue
+                      </button>
+                    ) : (
+                      <button
+                        disabled={true}
+                        className="bg-[#00000020] w-full h-[50px] rounded-xl px-8 text-[#000000] py-3"
+                        style={{ fontWeight: '600', fontSize: 17 }}
+                      >
+                        Continue
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+            {!isSmallScreen && (
+              <div
+                className="mt-2 text-center"
+                style={{
+                  fontWeight: '400',
+                  fontSize: 10,
+                }}
+              >
+                By continuing you agree to our
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    const { termsUrl } = getPolicyUrls()
+                    window.open(termsUrl, '_blank')
+                  }}
+                  style={{ textDecoration: 'underline', color: 'hsl(var(--brand-primary))', cursor: 'pointer' }}
+                  className="ms-1 me-1"
+                  rel="noopener noreferrer"
+                >
+                  Terms & Conditions
+                </a>
+                and agree to a 12-month license term. Payments are billed{' '}
+                {selectedPlan?.duration} as selected.
+              </div>
+            )}
             </div>
+          </div>
+        )}
+      </div>
+      
+      {/* Fixed Bottom Section for Mobile */}
+      {isSmallScreen && (
+        <div 
+          className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50"
+          style={{ 
+            paddingBottom: `calc(1.5rem + env(safe-area-inset-bottom, 0px))`,
+          }}
+        >
+          <div className="max-w-md mx-auto px-4 pt-4 pb-2 space-y-3">
             <div
-              className="mt-2 text-center"
+              className="text-center mb-2"
               style={{
                 fontWeight: '400',
                 fontSize: 10,
+                color: '#8A8A8A',
               }}
             >
               By continuing you agree to our
@@ -1096,13 +1146,31 @@ const UserAddCard = ({
               >
                 Terms & Conditions
               </a>
-              and agree to a 12-month license term. Payments are billed{' '}
-              {selectedPlan?.duration} as selected.
             </div>
-            </div>
+            {addCardLoader ? (
+              <div className="flex flex-row justify-center items-center w-full">
+                <CircularProgress size={30} />
+              </div>
+            ) : (
+              <button
+                onClick={handleAddCard}
+                disabled={!CardAdded || !CardExpiry || !CVC || addCardLoader || disableContinue || isSubscribingRef.current}
+                className={`w-full h-[50px] rounded-xl px-8 text-white py-3 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  CardAdded && CardExpiry && CVC
+                    ? 'bg-brand-primary hover:opacity-90'
+                    : 'bg-gray-300 text-gray-500'
+                }`}
+                style={{
+                  fontWeight: '600',
+                  fontSize: 17,
+                }}
+              >
+                Continue
+              </button>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }
