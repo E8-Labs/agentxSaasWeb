@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { X, Check, AlertCircle, Copy, ExternalLink } from 'lucide-react'
 import axios from 'axios'
 import { toast } from 'sonner'
@@ -124,9 +125,21 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
 
   if (!open) return null
 
-  return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[9999]">
-      <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+  const modalContent = (
+    <div 
+      className="fixed inset-0 bg-black/50 flex items-center justify-center" 
+      style={{ zIndex: 100001 }}
+      onClick={(e) => {
+        // Only close if clicking the backdrop, not the modal content
+        if (e.target === e.currentTarget) {
+          onClose()
+        }
+      }}
+    >
+      <div 
+        className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-xl font-semibold">Setup Mailgun Domain</h2>
           <button
@@ -307,6 +320,13 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
       </div>
     </div>
   )
+
+  // Use portal to render outside any other modal context
+  if (typeof window !== 'undefined') {
+    return createPortal(modalContent, document.body)
+  }
+  
+  return modalContent
 }
 
 export default MailgunDomainSetup

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { X, Check, AlertCircle, Plus } from 'lucide-react'
+import { X, Check, AlertCircle, Plus, Settings } from 'lucide-react'
 import axios from 'axios'
 import { toast } from 'sonner'
 import Apis from '@/components/apis/Apis'
@@ -10,6 +10,7 @@ import { getUserLocalData } from '@/components/constants/constants'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import MailgunDomainSetup from './MailgunDomainSetup'
 
 const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
   const [mailgunIntegrations, setMailgunIntegrations] = useState([])
@@ -19,10 +20,11 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
   const [displayName, setDisplayName] = useState('')
   const [loading, setLoading] = useState(false)
   const [fetchingIntegrations, setFetchingIntegrations] = useState(true)
-  const [showCreateSubdomain, setShowCreateSubdomain] = useState(false)
+  const [activeTab, setActiveTab] = useState('existing') // 'existing', 'subdomain', 'custom'
   const [subdomainPrefix, setSubdomainPrefix] = useState('')
   const [selectedParentDomainId, setSelectedParentDomainId] = useState('')
   const [creatingSubdomain, setCreatingSubdomain] = useState(false)
+  const [showDomainSetup, setShowDomainSetup] = useState(false)
 
   useEffect(() => {
     if (open) {
@@ -32,7 +34,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       setEmailPrefix('')
       setDisplayName('')
       setSelectedIntegrationId('')
-      setShowCreateSubdomain(false)
+      setActiveTab('existing')
       setSubdomainPrefix('')
       setSelectedParentDomainId('')
     }
@@ -128,10 +130,10 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
         toast.success('Subdomain created! Please configure DNS records and verify it.')
         // Refresh integrations list
         await fetchMailgunIntegrations()
-        // Select the newly created subdomain
+        // Select the newly created subdomain and switch to existing tab
         if (response.data.data?.id) {
           setSelectedIntegrationId(response.data.data.id.toString())
-          setShowCreateSubdomain(false)
+          setActiveTab('existing')
           setSubdomainPrefix('')
         }
       } else {
@@ -227,12 +229,15 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       }}
     >
       <div 
-        className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 relative" 
+        className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 relative" 
         onClick={(e) => e.stopPropagation()}
         style={{ zIndex: 100000 }}
       >
         <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-xl font-semibold">Request Mailgun Email</h2>
+          <div>
+            <h2 className="text-xl font-semibold">Request Mailgun Email</h2>
+            <p className="text-sm text-gray-500 mt-1">Choose how you want to set up your email address</p>
+          </div>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600"
@@ -242,209 +247,324 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
           </button>
         </div>
 
+        {/* Tab Navigation */}
+        <div className="border-b border-gray-200 px-6">
+          <div className="flex gap-1 -mb-px">
+            <button
+              type="button"
+              onClick={() => setActiveTab('existing')}
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'existing'
+                  ? 'border-purple-600 text-purple-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Use Existing Domain
+            </button>
+            {/* Commented out for now */}
+            {/* <button
+              type="button"
+              onClick={() => setActiveTab('subdomain')}
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'subdomain'
+                  ? 'border-purple-600 text-purple-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Create Subdomain
+            </button> */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('custom')}
+              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                activeTab === 'custom'
+                  ? 'border-purple-600 text-purple-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              Setup Custom Domain
+            </button>
+          </div>
+        </div>
+
         <div className="p-6 space-y-4">
           {fetchingIntegrations ? (
             <div className="text-center py-8">
-              <p className="text-gray-500">Loading available domains...</p>
-            </div>
-          ) : mailgunIntegrations.length === 0 ? (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <div className="flex items-start gap-2">
-                <AlertCircle className="text-yellow-600 mt-0.5" size={20} />
-                <div className="flex-1">
-                  <p className="text-sm font-medium text-yellow-900">
-                    No verified domains available
-                  </p>
-                  <p className="text-sm text-yellow-700 mt-1">
-                    Please ask your agency admin or platform admin to set up a Mailgun domain first.
-                  </p>
-                </div>
-              </div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+              <p className="text-gray-500 mt-4">Loading available domains...</p>
             </div>
           ) : (
             <>
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <Label htmlFor="domain">Select Domain</Label>
-                  {mailgunIntegrations.length > 0 && (
-                    <button
-                      type="button"
-                      onClick={() => setShowCreateSubdomain(!showCreateSubdomain)}
-                      className="text-sm text-purple-600 hover:text-purple-700 flex items-center gap-1"
-                    >
-                      <Plus size={16} />
-                      {showCreateSubdomain ? 'Use Existing Domain' : 'Create Subdomain'}
-                    </button>
-                  )}
-                </div>
-                
-                {showCreateSubdomain ? (
-                  <div className="space-y-3 p-4 border border-purple-200 rounded-lg bg-purple-50">
-                    {availableDomains.length > 0 ? (
-                      <>
-                        <div>
-                          <Label htmlFor="parentDomain" className="text-sm">Parent Domain</Label>
-                          <select
-                            id="parentDomain"
-                            value={selectedParentDomainId}
-                            onChange={(e) => setSelectedParentDomainId(e.target.value)}
-                            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
-                            style={{ pointerEvents: 'auto', zIndex: 10001 }}
-                          >
-                            {availableDomains.map((domain) => (
-                              <option key={domain.id} value={domain.id.toString()}>
-                                {domain.domain}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div>
-                          <Label htmlFor="subdomainPrefix" className="text-sm">Subdomain Prefix</Label>
-                          <div className="mt-1 flex items-center gap-2">
-                            <input
-                              id="subdomainPrefix"
-                              type="text"
-                              placeholder="example"
-                              value={subdomainPrefix}
-                              onChange={(e) => setSubdomainPrefix(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                              className="flex-1 h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-base shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 md:text-sm"
-                              autoComplete="off"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                e.target.focus()
-                              }}
-                              onFocus={(e) => {
-                                e.stopPropagation()
-                              }}
-                            />
-                            <span className="text-gray-500">.</span>
-                            <span className="text-gray-700 font-medium text-sm">
-                              {availableDomains.find(d => d.id.toString() === selectedParentDomainId)?.domain || ''}
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-500 mt-1">
-                            Example: example.main.assignx.ai
-                          </p>
-                        </div>
-                        <div className="flex gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setShowCreateSubdomain(false)
-                              setSubdomainPrefix('')
-                            }}
-                          >
-                            Cancel
-                          </Button>
-                          <Button
-                            type="button"
-                            size="sm"
-                            onClick={handleCreateSubdomain}
-                            disabled={creatingSubdomain || !subdomainPrefix}
-                          >
-                            {creatingSubdomain ? 'Creating...' : 'Create Subdomain'}
-                          </Button>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="text-center py-4">
-                        <p className="text-sm text-gray-600">
-                          Loading available domains...
+              {/* Tab 1: Use Existing Domain */}
+              {activeTab === 'existing' && (
+                <>
+                  {mailgunIntegrations.length === 0 ? (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
+                      <AlertCircle className="text-blue-600 mx-auto mb-3" size={32} />
+                      <p className="text-sm font-medium text-blue-900 mb-2">
+                        No verified domains available
+                      </p>
+                      <p className="text-sm text-blue-700 mb-4">
+                        Switch to another tab to create a subdomain or set up your own custom domain.
+                      </p>
+                    </div>
+                  ) : (
+                    <>
+                      <div>
+                        <Label htmlFor="domain" className="text-sm font-medium text-gray-700">
+                          Select Domain
+                        </Label>
+                        <select
+                          id="domain"
+                          value={selectedIntegrationId}
+                          onChange={(e) => setSelectedIntegrationId(e.target.value)}
+                          className="mt-2 w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white text-sm"
+                        >
+                          {mailgunIntegrations.map((integration) => (
+                            <option key={integration.id} value={integration.id.toString()}>
+                              {integration.domain}
+                            </option>
+                          ))}
+                        </select>
+                        <p className="text-xs text-gray-500 mt-1.5">
+                          Choose from available verified domains
                         </p>
                       </div>
-                    )}
-                  </div>
-                ) : (
-                  <select
-                    id="domain"
-                    value={selectedIntegrationId}
-                    onChange={(e) => setSelectedIntegrationId(e.target.value)}
-                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
-                  >
-                    {mailgunIntegrations.map((integration) => (
-                      <option key={integration.id} value={integration.id.toString()}>
-                        {integration.domain}
-                      </option>
-                    ))}
-                  </select>
-                )}
-              </div>
 
-              {!showCreateSubdomain && (
-                <>
-                  <div>
-                    <Label htmlFor="emailPrefix">Email Address</Label>
-                    <div className="mt-1 flex items-center gap-2">
-                      <input
-                        id="emailPrefix"
-                        type="text"
-                        placeholder="john"
-                        value={emailPrefix}
-                        onChange={(e) => {
-                          const newValue = e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g, '')
-                          setEmailPrefix(newValue)
-                        }}
-                        className="flex-1 h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-base shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 md:text-sm"
-                        autoComplete="off"
-                        autoFocus
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          e.target.focus()
-                        }}
-                        onFocus={(e) => {
-                          e.stopPropagation()
-                        }}
-                      />
-                      <span className="text-gray-500">@</span>
-                      <span className="text-gray-700 font-medium">
-                        {selectedIntegration?.domain || ''}
-                      </span>
-                    </div>
-                    {emailPrefix && selectedIntegration && (
-                      <p className="text-sm text-gray-500 mt-1">
-                        Full email: {emailPrefix}@{selectedIntegration.domain}
-                      </p>
-                    )}
-                  </div>
+                      <div>
+                        <Label htmlFor="emailPrefix" className="text-sm font-medium text-gray-700">
+                          Email Address
+                        </Label>
+                        <div className="mt-2 flex items-center gap-2">
+                          <input
+                            id="emailPrefix"
+                            type="text"
+                            placeholder="john"
+                            value={emailPrefix}
+                            onChange={(e) => {
+                              const newValue = e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g, '')
+                              setEmailPrefix(newValue)
+                            }}
+                            className="flex-1 h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                            autoComplete="off"
+                            autoFocus
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              e.target.focus()
+                            }}
+                            onFocus={(e) => {
+                              e.stopPropagation()
+                            }}
+                          />
+                          <span className="text-gray-400 text-sm">@</span>
+                          <span className="text-gray-700 font-medium text-sm min-w-[120px]">
+                            {selectedIntegration?.domain || ''}
+                          </span>
+                        </div>
+                        {emailPrefix && selectedIntegration && (
+                          <p className="text-xs text-gray-500 mt-1.5">
+                            Your email will be: <span className="font-medium text-gray-700">{emailPrefix}@{selectedIntegration.domain}</span>
+                          </p>
+                        )}
+                      </div>
 
-                  <div>
-                    <Label htmlFor="displayName">Display Name (Optional)</Label>
-                    <input
-                      id="displayName"
-                      type="text"
-                      placeholder="John Doe"
-                      value={displayName}
-                      onChange={(e) => setDisplayName(e.target.value)}
-                      className="mt-1 h-9 w-full rounded-md border border-gray-300 bg-white px-3 py-1 text-base shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 md:text-sm"
-                      autoComplete="off"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        e.target.focus()
-                      }}
-                      onFocus={(e) => {
-                        e.stopPropagation()
-                      }}
-                    />
-                  </div>
+                      <div>
+                        <Label htmlFor="displayName" className="text-sm font-medium text-gray-700">
+                          Display Name <span className="text-gray-400 font-normal">(Optional)</span>
+                        </Label>
+                        <input
+                          id="displayName"
+                          type="text"
+                          placeholder="John Doe"
+                          value={displayName}
+                          onChange={(e) => setDisplayName(e.target.value)}
+                          className="mt-2 h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                          autoComplete="off"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            e.target.focus()
+                          }}
+                          onFocus={(e) => {
+                            e.stopPropagation()
+                          }}
+                        />
+                        <p className="text-xs text-gray-500 mt-1.5">
+                          This name will appear as the sender name in emails
+                        </p>
+                      </div>
+
+                      <div className="flex justify-end gap-3 pt-4 border-t">
+                        <Button variant="outline" onClick={onClose} type="button">
+                          Cancel
+                        </Button>
+                        <Button 
+                          onClick={handleRequestEmail} 
+                          disabled={loading || !emailPrefix || !selectedIntegrationId}
+                          className="bg-purple-600 hover:bg-purple-700"
+                        >
+                          {loading ? 'Creating...' : 'Create Email'}
+                        </Button>
+                      </div>
+                    </>
+                  )}
                 </>
               )}
 
-              {!showCreateSubdomain && (
-                <div className="flex justify-end gap-2 pt-4">
-                  <Button variant="outline" onClick={onClose} type="button">
-                    Cancel
-                  </Button>
-                  <Button onClick={handleRequestEmail} disabled={loading || !emailPrefix}>
-                    {loading ? 'Creating...' : 'Create Email'}
-                  </Button>
+              {/* Tab 2: Create Subdomain - Commented out for now */}
+              {/* {activeTab === 'subdomain' && (
+                <div className="space-y-4">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="bg-blue-100 rounded-full p-2">
+                        <Plus className="text-blue-600" size={20} />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-blue-900 mb-1">
+                          Create a Subdomain
+                        </p>
+                        <p className="text-xs text-blue-700">
+                          Create a subdomain from an existing domain (e.g., <span className="font-mono">salman.main.assignx.ai</span>). 
+                          You'll need to configure DNS records after creation.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {availableDomains.length > 0 ? (
+                    <>
+                      <div>
+                        <Label htmlFor="parentDomain" className="text-sm font-medium text-gray-700">
+                          Parent Domain
+                        </Label>
+                        <select
+                          id="parentDomain"
+                          value={selectedParentDomainId}
+                          onChange={(e) => setSelectedParentDomainId(e.target.value)}
+                          className="mt-2 w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white text-sm"
+                        >
+                          {availableDomains.map((domain) => (
+                            <option key={domain.id} value={domain.id.toString()}>
+                              {domain.domain}
+                            </option>
+                          ))}
+                        </select>
+                        <p className="text-xs text-gray-500 mt-1.5">
+                          Select the domain to create a subdomain from
+                        </p>
+                      </div>
+                      <div>
+                        <Label htmlFor="subdomainPrefix" className="text-sm font-medium text-gray-700">
+                          Subdomain Prefix
+                        </Label>
+                        <div className="mt-2 flex items-center gap-2">
+                          <input
+                            id="subdomainPrefix"
+                            type="text"
+                            placeholder="salman"
+                            value={subdomainPrefix}
+                            onChange={(e) => setSubdomainPrefix(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                            className="flex-1 h-10 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                            autoComplete="off"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              e.target.focus()
+                            }}
+                            onFocus={(e) => {
+                              e.stopPropagation()
+                            }}
+                          />
+                          <span className="text-gray-400 text-sm">.</span>
+                          <span className="text-gray-700 font-medium text-sm min-w-[150px]">
+                            {availableDomains.find(d => d.id.toString() === selectedParentDomainId)?.domain || ''}
+                          </span>
+                        </div>
+                        {subdomainPrefix && (
+                          <p className="text-xs text-gray-500 mt-1.5">
+                            Your subdomain will be: <span className="font-mono font-medium text-gray-700">{subdomainPrefix}.{availableDomains.find(d => d.id.toString() === selectedParentDomainId)?.domain || ''}</span>
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex justify-end gap-3 pt-4 border-t">
+                        <Button variant="outline" onClick={() => setActiveTab('existing')} type="button">
+                          Cancel
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={handleCreateSubdomain}
+                          disabled={creatingSubdomain || !subdomainPrefix}
+                          className="bg-purple-600 hover:bg-purple-700"
+                        >
+                          {creatingSubdomain ? 'Creating...' : 'Create Subdomain'}
+                        </Button>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="text-center py-8">
+                      <AlertCircle className="text-gray-400 mx-auto mb-3" size={32} />
+                      <p className="text-sm text-gray-600 mb-1">No parent domains available</p>
+                      <p className="text-xs text-gray-500">
+                        Ask your agency admin to set up a domain, or use the "Setup Custom Domain" tab to create your own.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )} */}
+
+              {/* Tab 3: Setup Custom Domain */}
+              {activeTab === 'custom' && (
+                <div className="space-y-4">
+                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="bg-purple-100 rounded-full p-2">
+                        <Settings className="text-purple-600" size={20} />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-purple-900 mb-1">
+                          Setup Your Own Custom Domain
+                        </p>
+                        <p className="text-xs text-purple-700">
+                          Connect your own domain (e.g., <span className="font-mono">mail.yourdomain.com</span>) with your Mailgun account. 
+                          You'll need your Mailgun API key and access to your domain's DNS settings.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-center py-6">
+                    <Settings className="text-gray-400 mx-auto mb-4" size={48} />
+                    <p className="text-sm font-medium text-gray-900 mb-2">
+                      Ready to set up your custom domain?
+                    </p>
+                    <p className="text-xs text-gray-500 mb-6">
+                      We'll guide you through the process step by step
+                    </p>
+                    <Button
+                      type="button"
+                      onClick={() => setShowDomainSetup(true)}
+                      className="bg-purple-600 hover:bg-purple-700"
+                    >
+                      <Settings size={16} className="mr-2" />
+                      Start Domain Setup
+                    </Button>
+                  </div>
                 </div>
               )}
             </>
           )}
         </div>
       </div>
+      
+      {/* Mailgun Domain Setup Modal */}
+      <MailgunDomainSetup
+        open={showDomainSetup}
+        onClose={() => setShowDomainSetup(false)}
+        onSuccess={() => {
+          setShowDomainSetup(false)
+          // Refresh the integrations list after domain is created
+          fetchMailgunIntegrations()
+          toast.success('Domain setup completed! You can now request an email address.')
+        }}
+      />
     </div>
   )
 
