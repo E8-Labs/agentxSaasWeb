@@ -51,6 +51,9 @@ import {
   MessageSquare,
   Pencil,
   Trash2,
+  Copy,
+  Meh,
+  ListChecks,
 } from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
@@ -1388,89 +1391,292 @@ const LeadDetails = ({
     return <Sun size={16} color="#6b7280" />
   }
 
+  // Helper function to get sentiment icon
+  const getSentimentIcon = (sentiment) => {
+    if (!sentiment) return null
+    const sentimentLower = sentiment.toLowerCase()
+    if (sentimentLower.includes('positive') || sentimentLower.includes('happy') || sentimentLower.includes('excited')) {
+      return <Smile size={18} color="hsl(var(--brand-primary))" />
+    } else if (sentimentLower.includes('negative') || sentimentLower.includes('angry') || sentimentLower.includes('frustrated')) {
+      return <Frown size={18} color="hsl(var(--brand-primary))" />
+    } else {
+      return <Meh size={18} color="hsl(var(--brand-primary))" />
+    }
+  }
+
+  // Helper function to get temperature icon
+  const getTemperatureIconForActivity = (temperature) => {
+    if (!temperature) return null
+    const tempLower = temperature.toLowerCase()
+    if (tempLower.includes('hot')) {
+      return <Flame size={18} color="hsl(var(--brand-primary))" />
+    } else if (tempLower.includes('warm')) {
+      return <Sun size={18} color="hsl(var(--brand-primary))" />
+    } else if (tempLower.includes('cold')) {
+      return <Snowflake size={18} color="hsl(var(--brand-primary))" />
+    }
+    return null
+  }
+
+  // Helper function to format next steps for tooltip
+  const formatNextStepsForTooltip = (nextSteps) => {
+    if (!nextSteps) return 'No next steps'
+    try {
+      const steps = typeof nextSteps === 'string' ? JSON.parse(nextSteps) : nextSteps
+      if (Array.isArray(steps) && steps.length > 0) {
+        return steps.map((step, idx) => `${idx + 1}. ${step}`).join('\n')
+      }
+      return typeof nextSteps === 'string' ? nextSteps : 'No next steps'
+    } catch {
+      return typeof nextSteps === 'string' ? nextSteps : 'No next steps'
+    }
+  }
+
   const callTranscript = (item, initialText) => {
+    const callSummary = item.callSummary
+    const summaryText = callSummary?.callSummary || null
+    const hasSummary = summaryText && summaryText.trim()
+    
+    // Use summary if available, otherwise fallback to transcript
+    const displayText = hasSummary ? summaryText : (item.transcript || 'No summary or transcript available')
+    
     return (
       <div className="flex flex-col">
-        <div className="flex mt-4 flex-row items-center gap-4">
-          <div
-            className=""
-            style={{
-              fontWeight: '500',
-              fontSize: 12,
-              color: '#00000070',
-            }}
-          >
-            Call ID
-          </div>
-
-          <button onClick={() => handleCopy(item.callId)}>
-            <Image src={'/svgIcons/copy.svg'} height={15} width={15} alt="*" />
-          </button>
-        </div>
+        {/* Top row: Duration, Play button, and Icons (Sentiment, Temp, Next Steps) */}
         <div className="flex flex-row items-center justify-between mt-4">
-          <div
-            style={{
-              fontWeight: '500',
-              fontSize: 15,
-            }}
-          >
-            {moment(item?.duration * 1000).format('mm:ss')}{' '}
-          </div>
-          <button
-            onClick={() => {
-              if (item?.recordingUrl) {
-                setShowAudioPlay({ recordingUrl: item.recordingUrl, callId: item.callId })
-              } else {
-                setShowNoAudioPlay(true)
-              }
-              // window.open(item.recordingUrl, "_blank")
-            }}
-          >
-            <Image src={'/assets/play.png'} height={35} width={35} alt="*" />
-          </button>
-        </div>
-        {item.transcript ? (
-          <div className="w-full">
+          <div className="flex flex-row items-center gap-3">
             <div
-              className="mt-4"
               style={{
-                fontWeight: '600',
+                fontWeight: '500',
                 fontSize: 15,
               }}
             >
-              {/* {item.transcript} */}
-              {`${initialText}...`}
-              {/* {isExpanded.includes(
-                                                        item.id
-                                                      )
-                                                        ? `${item.transcript}`
-                                                        : `${initialText}...`} */}
+              {moment(item?.duration * 1000).format('mm:ss')}
             </div>
-            <div className="w-full flex flex-row items-center justify-between">
-              <button
+            <button
+              onClick={() => {
+                if (item?.recordingUrl) {
+                  setShowAudioPlay({ recordingUrl: item.recordingUrl, callId: item.callId })
+                } else {
+                  setShowNoAudioPlay(true)
+                }
+              }}
+              className="flex items-center justify-center"
+              style={{
+                width: 35,
+                height: 35,
+              }}
+            >
+              <Image 
+                src={'/assets/play.png'} 
+                height={35} 
+                width={35} 
+                alt="Play recording"
                 style={{
-                  fontWeight: '600',
-                  fontSize: 15,
+                  filter: 'hue-rotate(0deg) saturate(1) brightness(1)',
                 }}
-                onClick={() => {
-                  handleReadMoreToggle(item)
-                }}
-                className="mt-2 text-black underline"
-              >
-                {'Read Transcript'}
-              </button>
-            </div>
+              />
+            </button>
           </div>
-        ) : (
+          
+          {/* Top right icons: Sentiment, Temperature, Next Steps */}
+          <div className="flex flex-row items-center gap-3">
+            {callSummary?.prospectSentiment && (
+              <Tooltip
+                title={`Sentiment: ${callSummary.prospectSentiment}`}
+                arrow
+                componentsProps={{
+                  tooltip: {
+                    sx: {
+                      backgroundColor: '#ffffff',
+                      color: '#333',
+                      fontSize: '14px',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                      maxWidth: '300px',
+                    },
+                  },
+                  arrow: {
+                    sx: {
+                      color: '#ffffff',
+                    },
+                  },
+                }}
+              >
+                <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  {getSentimentIcon(callSummary.prospectSentiment)}
+                </div>
+              </Tooltip>
+            )}
+            
+            {callSummary?.leadTemperature && (
+              <Tooltip
+                title={`Lead Temperature: ${callSummary.leadTemperature}`}
+                arrow
+                componentsProps={{
+                  tooltip: {
+                    sx: {
+                      backgroundColor: '#ffffff',
+                      color: '#333',
+                      fontSize: '14px',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                      maxWidth: '300px',
+                    },
+                  },
+                  arrow: {
+                    sx: {
+                      color: '#ffffff',
+                    },
+                  },
+                }}
+              >
+                <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  {getTemperatureIconForActivity(callSummary.leadTemperature)}
+                </div>
+              </Tooltip>
+            )}
+            
+            {callSummary?.nextSteps && (
+              <Tooltip
+                title={
+                  <div style={{ whiteSpace: 'pre-line' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>Next Steps:</div>
+                    {formatNextStepsForTooltip(callSummary.nextSteps)}
+                  </div>
+                }
+                arrow
+                componentsProps={{
+                  tooltip: {
+                    sx: {
+                      backgroundColor: '#ffffff',
+                      color: '#333',
+                      fontSize: '14px',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                      maxWidth: '300px',
+                    },
+                  },
+                  arrow: {
+                    sx: {
+                      color: '#ffffff',
+                    },
+                  },
+                }}
+              >
+                <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  <ListChecks size={18} color="hsl(var(--brand-primary))" />
+                </div>
+              </Tooltip>
+            )}
+          </div>
+        </div>
+
+        {/* Summary text */}
+        <div className="w-full mt-4">
           <div
             style={{
               fontWeight: '600',
               fontSize: 15,
+              marginBottom: '8px',
             }}
           >
-            No transcript
+            Summary:
           </div>
-        )}
+          <div
+            style={{
+              fontWeight: '400',
+              fontSize: 15,
+              color: '#151515',
+              lineHeight: '1.5',
+            }}
+          >
+            {displayText}
+          </div>
+        </div>
+
+        {/* Bottom row: Call ID, Transcript icons (left) and Caller name (right) */}
+        <div className="flex flex-row items-center justify-between mt-4">
+          <div className="flex flex-row items-center gap-4">
+            {/* Call ID Icon */}
+            <Tooltip
+              title="Copy Call ID"
+              arrow
+              componentsProps={{
+                tooltip: {
+                  sx: {
+                    backgroundColor: '#ffffff',
+                    color: '#333',
+                    fontSize: '14px',
+                    padding: '6px 10px',
+                    borderRadius: '6px',
+                    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.15)',
+                  },
+                },
+                arrow: {
+                  sx: {
+                    color: '#ffffff',
+                  },
+                },
+              }}
+            >
+              <button 
+                onClick={() => handleCopy(item.callId)}
+                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              >
+                <Copy size={18} color="hsl(var(--brand-primary))" />
+              </button>
+            </Tooltip>
+
+            {/* Transcript Icon */}
+            {item.transcript && (
+              <Tooltip
+                title="Read Transcript"
+                arrow
+                componentsProps={{
+                  tooltip: {
+                    sx: {
+                      backgroundColor: '#ffffff',
+                      color: '#333',
+                      fontSize: '14px',
+                      padding: '6px 10px',
+                      borderRadius: '6px',
+                      boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.15)',
+                    },
+                  },
+                  arrow: {
+                    sx: {
+                      color: '#ffffff',
+                    },
+                  },
+                }}
+              >
+                <button
+                  onClick={() => {
+                    handleReadMoreToggle(item)
+                  }}
+                  style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                >
+                  <FileText size={18} color="hsl(var(--brand-primary))" />
+                </button>
+              </Tooltip>
+            )}
+          </div>
+
+          {/* Caller name (right side) */}
+          {/* <div
+            style={{
+              fontWeight: '500',
+              fontSize: 14,
+              color: '#00000070',
+            }}
+          >
+            By {item.callerName || item.agent?.name || 'Unknown'}
+          </div> */}
+        </div>
       </div>
     )
   }
@@ -2127,9 +2333,11 @@ const LeadDetails = ({
 
                       {getExtraColumsCount(columnsLength) >= 1 && (
                         <div className="flex flex-row items-center gap-2 mt-3">
-                          <FileText
-                            size={16}
-                            color="#000000"
+                          <Image
+                            src={'/assets/customsIcon.svg'}
+                            alt="*"
+                            height={16}
+                            width={16}
                           />
                           <button
                             onClick={() => {
@@ -2938,10 +3146,10 @@ const LeadDetails = ({
                                               </button>
                                             </>
                                           )}
-                                          {/* Call Summary Icons */}
+                                          {/* Call Summary Icons - COMMENTED OUT: Moved to Activity tab
                                           {item.type === 'call_summary' && item.callSummary && (
                                             <div className="flex flex-row items-center gap-2">
-                                            {/* Sentiment Icon */}
+                                            Sentiment Icon
                                             {item.callSummary.prospectSentiment && (
                                               <Tooltip
                                                 title={`Customer Sentiment: ${item.callSummary.prospectSentiment}`}
@@ -2976,7 +3184,7 @@ const LeadDetails = ({
                                                 </div>
                                               </Tooltip>
                                             )}
-                                            {/* Objections Icon */}
+                                            Objections Icon
                                             {item.callSummary.objectionsRaised && (
                                               <Tooltip
                                                 title={
@@ -3018,7 +3226,7 @@ const LeadDetails = ({
                                                 </div>
                                               </Tooltip>
                                             )}
-                                            {/* Temperature Icon */}
+                                            Temperature Icon
                                             {item.callSummary.leadTemperature && (
                                               <Tooltip
                                                 title={
@@ -3060,7 +3268,7 @@ const LeadDetails = ({
                                                 </div>
                                               </Tooltip>
                                             )}
-                                            {/* Next Steps Icon */}
+                                            Next Steps Icon
                                             {item.callSummary.nextSteps && (
                                               <Tooltip
                                                 title={
@@ -3103,7 +3311,7 @@ const LeadDetails = ({
                                               </Tooltip>
                                             )}
                                             </div>
-                                          )}
+                                          )} */}
                                         </div>
                                       </div>
                                       <div
@@ -3345,47 +3553,6 @@ const LeadDetails = ({
                                                             initialText,
                                                           )}
 
-                                                      <div
-                                                        className="
-                                                        w-full flex flex-row justify-end -mt-2
-                                                        "
-                                                      >
-                                                        <button
-                                                          style={{
-                                                            fontWeight: '600',
-                                                            fontSize: 15,
-                                                            color: '#00000050',
-                                                          }}
-                                                          onClick={() => {
-                                                            setShowConfirmationPopup(
-                                                              true,
-                                                            )
-                                                            setSelectedCallLog(
-                                                              item,
-                                                            )
-                                                            //  deleteCallLog(item)
-                                                          }}
-                                                        >
-                                                          Delete
-                                                        </button>
-
-                                                        <DeleteCallLogConfimation
-                                                          showConfirmationPopup={
-                                                            showConfirmationPopup
-                                                          }
-                                                          setShowConfirmationPopup={
-                                                            showConfirmationPopup
-                                                          }
-                                                          onContinue={() => {
-                                                            deleteCallLog(
-                                                              seletedCallLog,
-                                                            )
-                                                          }}
-                                                          loading={
-                                                            delCallLoader
-                                                          }
-                                                        />
-                                                      </div>
                                                     </div>
                                                   </>
                                                 ))}

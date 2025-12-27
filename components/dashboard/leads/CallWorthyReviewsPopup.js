@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Modal } from '@mui/material'
+import { Box, CircularProgress, Modal, Popover } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import {
   CaretDown,
@@ -17,6 +17,7 @@ import Apis from '@/components/apis/Apis'
 import { TranscriptViewer } from '@/components/calls/TranscriptViewer'
 import { GetFormattedDateString } from '@/utilities/utility'
 import { getBrandPrimaryHex } from '@/utilities/colorUtils'
+import { AssignTeamMember } from '@/components/onboarding/services/apisServices/ApiService'
 
 function CallWorthyReviewsPopup({ open, close }) {
   const [importantCalls, setImportantCalls] = useState([])
@@ -30,6 +31,13 @@ function CallWorthyReviewsPopup({ open, close }) {
   const [showNoAudioPlay, setShowNoAudioPlay] = useState(false)
 
   const [primaryColor, setPrimaryColor] = useState('#7902DF')
+
+  // Team assignment states
+  const [myTeam, setMyTeam] = useState([])
+  const [myTeamAdmin, setMyTeamAdmin] = useState(null)
+  const [getTeamLoader, setGetTeamLoader] = useState(false)
+  const [globalLoader, setGlobalLoader] = useState(false)
+  const [anchorEl, setAnchorEl] = React.useState(null)
   useEffect(() => {
     const updateBrandColor = () => {
       setPrimaryColor(getBrandPrimaryHex())
@@ -47,7 +55,103 @@ function CallWorthyReviewsPopup({ open, close }) {
   }, [])
   useEffect(() => {
     getImportantCalls()
+    getMyteam()
   }, [])
+
+  //code for getting teammebers
+  const getMyteam = async () => {
+    try {
+      setGetTeamLoader(true)
+      const data = localStorage.getItem('User')
+
+      if (data) {
+        let u = JSON.parse(data)
+        let path = Apis.getTeam
+
+        const response = await axios.get(path, {
+          headers: {
+            Authorization: 'Bearer ' + u.token,
+          },
+        })
+
+        if (response) {
+          setGetTeamLoader(false)
+
+          if (response.data.status === true) {
+            setMyTeam(response.data.data)
+            setMyTeamAdmin(response.data.admin)
+          }
+        }
+      }
+    } catch (e) {
+      setGetTeamLoader(false)
+    }
+  }
+
+  //code for popover
+  const handleShowPopup = (event) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClosePopup = () => {
+    setAnchorEl(null)
+  }
+
+  const popoverOpen = Boolean(anchorEl)
+  const id = popoverOpen ? 'simple-popover' : undefined
+
+  //function to assign lead to the team
+  const handleAssignLeadToTeammember = async (item) => {
+    try {
+      handleClosePopup()
+      setGlobalLoader(true)
+      let ApiData = null
+      if (item.invitedUserId) {
+        ApiData = {
+          leadId: selectedCall.id,
+          teamMemberUserId: item.invitedUserId,
+        }
+      } else if (item.invitedUser?.id) {
+        ApiData = {
+          leadId: selectedCall.id,
+          teamMemberUserId: item.invitedUser.id,
+        }
+      } else {
+        ApiData = {
+          leadId: selectedCall.id,
+          teamMemberUserId: item.id,
+        }
+      }
+      let response = await AssignTeamMember(ApiData)
+      if (response && response.data && response.data.status === true) {
+        // Update the state directly to show the assigned team member
+        setSelectedCall((prevData) => {
+          return {
+            ...prevData,
+            teamsAssigned: [...(prevData.teamsAssigned || []), item],
+          }
+        })
+        // Also update the important calls list to keep it in sync
+        const leadIdToUpdate = ApiData.leadId
+        setImportantCalls((prevCalls) => {
+          return prevCalls.map((call) => {
+            if (call.id === leadIdToUpdate) {
+              return {
+                ...call,
+                teamsAssigned: [...(call.teamsAssigned || []), item],
+              }
+            }
+            return call
+          })
+        })
+      }
+    } catch (error) {
+      console.error('Error assigning team member:', error)
+    } finally {
+      setGlobalLoader(false)
+      handleClosePopup()
+    }
+  }
 
   const getImportantCalls = async () => {
     try {
@@ -568,20 +672,42 @@ function CallWorthyReviewsPopup({ open, close }) {
                                           width={20}
                                           alt="man"
                                         />
-                                        <div style={styles.subHeading}>
-                                          Assign
-                                        </div>
+                                        <button
+                                          className="outline-none"
+                                          onClick={(event) => {
+                                            handleShowPopup(event)
+                                          }}
+                                        >
+                                          <div style={styles.subHeading}>
+                                            Assign
+                                          </div>
+                                        </button>
                                       </div>
                                       <div
                                         className="text-end"
                                         style={styles.paragraph}
                                       >
-                                        <Image
-                                          src={'/assets/manIcon.png'}
-                                          height={16}
-                                          width={16}
-                                          alt="man"
-                                        />
+                                        {globalLoader ? (
+                                          <CircularProgress size={16} />
+                                        ) : selectedCall?.teamsAssigned?.length > 0 ? (
+                                          <div className="flex flex-row items-center gap-2">
+                                            {selectedCall.teamsAssigned.slice(0, 1).map((member, idx) => (
+                                              <div key={idx} className="h-[16px] w-[16px] bg-black rounded-full flex items-center justify-center text-white text-xs">
+                                                {member?.name?.charAt(0) || member?.invitedUser?.name?.charAt(0) || 'T'}
+                                              </div>
+                                            ))}
+                                            {selectedCall.teamsAssigned.length > 1 && (
+                                              <span className="text-xs">+{selectedCall.teamsAssigned.length - 1}</span>
+                                            )}
+                                          </div>
+                                        ) : (
+                                          <Image
+                                            src={'/assets/manIcon.png'}
+                                            height={16}
+                                            width={16}
+                                            alt="man"
+                                          />
+                                        )}
                                       </div>
                                     </div>
 
@@ -617,6 +743,107 @@ function CallWorthyReviewsPopup({ open, close }) {
 
                                     {/* Code for custom variables */}
                                   </div>
+
+                                  <Popover
+                                    id={id}
+                                    open={popoverOpen}
+                                    anchorEl={anchorEl}
+                                    onClose={handleClosePopup}
+                                    anchorOrigin={{
+                                      vertical: 'bottom',
+                                      horizontal: 'left',
+                                    }}
+                                    transformOrigin={{
+                                      vertical: 'top',
+                                      horizontal: 'left',
+                                    }}
+                                    disablePortal={false}
+                                    PaperProps={{
+                                      elevation: 0,
+                                      style: {
+                                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                                        borderRadius: '10px',
+                                        minWidth: '120px',
+                                        zIndex: 9999,
+                                      },
+                                    }}
+                                  >
+                                    <button
+                                      className="hover:bg-gray-50"
+                                      onClick={() => {
+                                        handleAssignLeadToTeammember(myTeamAdmin)
+                                      }}
+                                    >
+                                      <div className="p-2 w-full flex flex-row items-center justify-start gap-2 ">
+                                        <div className="">
+                                          {myTeamAdmin?.thumb_profile_image ? (
+                                            <Image
+                                              className="rounded-full"
+                                              src={myTeamAdmin.thumb_profile_image}
+                                              height={32}
+                                              width={32}
+                                              alt="*"
+                                              style={{
+                                                borderRaduis: 50,
+                                              }}
+                                            />
+                                          ) : (
+                                            <div
+                                              className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                                            >
+                                              {myTeamAdmin?.name?.slice(0, 1)}
+                                            </div>
+                                          )}
+                                        </div>
+                                        <div className="">{myTeamAdmin?.name}</div>
+                                        <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
+                                          Admin
+                                        </div>
+                                      </div>
+                                    </button>
+                                    {myTeam.length > 0 ? (
+                                      <div>
+                                        {myTeam.map((item, index) => {
+                                          return (
+                                            <div
+                                              key={index}
+                                              className="p-2 flex flex-col gap-2"
+                                              style={{ fontWeight: '500', fontSize: 15 }}
+                                            >
+                                              <button
+                                                className="text-start flex flex-row items-center justify-start gap-2 hover:bg-gray-50"
+                                                onClick={() => {
+                                                  handleAssignLeadToTeammember(item)
+                                                }}
+                                              >
+                                                {item?.invitedUser?.thumb_profile_image ? (
+                                                  <Image
+                                                    className="rounded-full"
+                                                    src={
+                                                      item.invitedUser?.thumb_profile_image
+                                                    }
+                                                    height={32}
+                                                    width={32}
+                                                    alt="*"
+                                                    style={{}}
+                                                  />
+                                                ) : (
+                                                  <div
+                                                    className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                                                  >
+                                                    {(item?.invitedUser?.name || item?.name)?.slice(0, 1)}
+                                                  </div>
+                                                )}
+                                                {item?.invitedUser?.name || item?.name}
+                                              </button>
+                                            </div>
+                                          )
+                                        })}
+                                      </div>
+                                    ) : (
+                                      ''
+                                    )}
+                                  </Popover>
 
                                   <div style={{ paddingInline: 30 }}>
                                     <div

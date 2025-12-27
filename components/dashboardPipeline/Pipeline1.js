@@ -2176,7 +2176,7 @@ const Pipeline1 = () => {
                   <button
                     onClick={handleOpenFilterModal}
                     className="outline-none"
-                    title="Filter by team member"
+                    title="Filter"
                   >
                     <div className="flex flex-row">
                       <svg
@@ -4430,16 +4430,24 @@ const Pipeline1 = () => {
             }}
           >
             <Box
-              className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh]"
+              className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh] rounded-[13px]"
               sx={{
-                ...styles.modalsStyle,
-                scrollbarWidth: 'none',
+                height: 'auto',
+                bgcolor: 'transparent',
+                p: 0,
+                mx: 'auto',
+                my: '50vh',
+                transform: 'translateY(-55%)',
                 borderRadius: '13px',
+                border: 'none',
+                outline: 'none',
+                scrollbarWidth: 'none',
+                overflow: 'hidden',
               }}
             >
               <div className="flex flex-col w-full">
                 <div
-                  className="w-full rounded-[13px]"
+                  className="w-full rounded-[13px] overflow-hidden"
                   style={{
                     backgroundColor: '#ffffff',
                     padding: 20,
@@ -4449,14 +4457,9 @@ const Pipeline1 = () => {
                 >
                   <div className="flex flex-row items-center justify-between mb-4">
                     <div style={{ fontWeight: '700', fontSize: 22 }}>
-                      Filter by Team Member
+                      Filter
                     </div>
-                    <button
-                      onClick={() => setShowFilterModal(false)}
-                      className="outline-none"
-                    >
-                      <X size={24} />
-                    </button>
+                    <CloseBtn onClick={() => setShowFilterModal(false)} />
                   </div>
                   
                   <div
@@ -4502,20 +4505,10 @@ const Pipeline1 = () => {
                     )}
                   </div>
                   
-                  <div className="w-full mt-4 flex flex-row justify-between gap-3">
-                    <button
-                      onClick={handleClearFilter}
-                      className="bg-gray-200 h-[50px] rounded-xl text-gray-700 w-6/12"
-                      style={{
-                        fontWeight: '600',
-                        fontSize: 16,
-                      }}
-                    >
-                      Clear
-                    </button>
+                  <div className="w-full mt-4">
                     <button
                       onClick={handleApplyFilter}
-                      className="bg-purple h-[50px] rounded-xl text-white w-6/12"
+                      className="bg-purple h-[50px] rounded-xl text-white w-full"
                       style={{
                         fontWeight: '600',
                         fontSize: 16,

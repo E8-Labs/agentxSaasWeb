@@ -21,13 +21,13 @@ const ThreadsList = ({
   const [openMenuId, setOpenMenuId] = useState(null)
   return (
     <div className="w-80 border-r border-gray-200 flex flex-col h-screen bg-white">
-      <div className="px-6 pt-8 pb-6 flex flex-row items-center justify-between">
+      <div className="px-6 pt-8 pb-6 flex flex-row items-center justify-between rounded">
         <h1 className="text-3xl font-bold text-black">Messages</h1>
         {onFilterClick && (
           <button
             onClick={onFilterClick}
             className="outline-none"
-            title="Filter by team member"
+            title="Filter"
           >
             <div className="flex flex-row">
               <svg
