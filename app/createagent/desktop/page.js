@@ -86,12 +86,6 @@ const Page = () => {
       // style={backgroundImage}
       className="overflow-y-none h-[100svh] flex flex-col justify-between items-center py-4 px-4"
     >
-      <AppLogo
-        height={29}
-        width={122}
-        style={{ alignSelf: 'flex-start' }}
-        alt="logo"
-      />
       <div className="-mt-4 w-full ">
         <DesktopView width={width} isSubAccount={isSubAccount} isAgencyCreatingForSubaccount={isAgencyCreatingForSubaccount} />
       </div>
@@ -113,12 +107,19 @@ const Page = () => {
                 borderBottom: 'none',
               }}
             >
+              <div className="flex justify-center mt-8 mb-4">
+                <AppLogo
+                  height={44}
+                  width={183}
+                  alt="logo"
+                />
+              </div>
               <div
                 style={{
                   fontWeight: '700',
                   fontSize: 22,
                   textAlign: 'center',
-                  marginTop: 130,
+                  marginTop: 0,
                   color: '#000',
                   zIndex: 100,
                   // backgroundColor: "red",
