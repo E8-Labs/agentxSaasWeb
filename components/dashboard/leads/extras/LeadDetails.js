@@ -335,14 +335,26 @@ const LeadDetails = ({
       //   item.invitingUserId
       // return;
       let response = await AssignTeamMember(ApiData)
-      if (response.data.status === true) {
+      if (response && response.data && response.data.status === true) {
         setSelectedLeadsDetails((prevData) => {
-          return {
-            ...prevData,
-            teamsAssigned: [...prevData.teamsAssigned, item],
+          // Filter duplicates before adding
+          const existingIds = (prevData.teamsAssigned || []).map(u => u.id || u.invitedUserId)
+          const itemId = item.id || item.invitedUserId
+          
+          // Only add if not already assigned
+          if (!existingIds.includes(itemId)) {
+            return {
+              ...prevData,
+              teamsAssigned: [...(prevData.teamsAssigned || []), item],
+            }
           }
+          return prevData
         })
         leadAssignedTeam(item, selectedLeadsDetails)
+      } else if (response && response.data && response.data.status === false) {
+        // Show error message if assignment failed (e.g., duplicate)
+        setShowErrorSnack(response.data.message || 'Failed to assign team member')
+        setShowErrorSnack2(true)
       }
       //console.log;
     } catch (error) {
@@ -2279,54 +2291,15 @@ const LeadDetails = ({
 
                       <div className="w-full mt-3">
                         <div className="">
-                          {selectedLeadsDetails?.teamsAssigned?.length > 0 ? (
-                            <div className="">
-                              <LeadTeamsAssignedList
-                                users={selectedLeadsDetails?.teamsAssigned}
-                              />
-                            </div>
-                          ) : globalLoader ? (
+                          {globalLoader ? (
                             <CircularProgress size={25} />
                           ) : (
-                            <div className="flex flex-col w-full max-w-full overflow-hidden">
-                              <div className="flex flex-row items-center gap-2">
-                                <Users
-                                  size={16}
-                                  color="#000000"
-                                />
-                                <button
-                                  className="outline-none flex flex-row items-center gap-1"
-                                  onClick={(event) => {
-                                    handleShowPopup(event)
-                                  }}
-                                >
-                                  <div style={styles.heading2}>
-                                    Assign Team
-                                  </div>
-                                </button>
-                              </div>
-                              <div className="flex w-full">
-                                {showTeams && (
-                                  <div className="flex flex-col mt-4 gap-1 w-full max-w-full overflow-hidden">
-                                    {myTeam.map((user) => (
-                                      <div
-                                        key={user.id}
-                                        className="flex space-x-3 overflow-x-auto items-center"
-                                      >
-                                        <div className="flex items-center space-x-1">
-                                          <div className="w-6 h-6 bg-brand-primary rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                            {user?.name?.charAt(0)}
-                                          </div>
-                                          <span className="text-gray-700 text-sm">
-                                            {user?.name}
-                                          </span>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
+                            <LeadTeamsAssignedList
+                              users={selectedLeadsDetails?.teamsAssigned || []}
+                              onAssignClick={(event) => {
+                                handleShowPopup(event)
+                              }}
+                            />
                           )}
                         </div>
                       </div>

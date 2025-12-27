@@ -18,6 +18,7 @@ import { TranscriptViewer } from '@/components/calls/TranscriptViewer'
 import { GetFormattedDateString } from '@/utilities/utility'
 import { getBrandPrimaryHex } from '@/utilities/colorUtils'
 import { AssignTeamMember } from '@/components/onboarding/services/apisServices/ApiService'
+import LeadTeamsAssignedList from './LeadTeamsAssignedList'
 
 function CallWorthyReviewsPopup({ open, close }) {
   const [importantCalls, setImportantCalls] = useState([])
@@ -126,24 +127,42 @@ function CallWorthyReviewsPopup({ open, close }) {
       if (response && response.data && response.data.status === true) {
         // Update the state directly to show the assigned team member
         setSelectedCall((prevData) => {
-          return {
-            ...prevData,
-            teamsAssigned: [...(prevData.teamsAssigned || []), item],
+          // Filter duplicates before adding
+          const existingIds = (prevData.teamsAssigned || []).map(u => u.id || u.invitedUserId)
+          const itemId = item.id || item.invitedUserId || item.invitedUser?.id
+          
+          // Only add if not already assigned
+          if (!existingIds.includes(itemId)) {
+            return {
+              ...prevData,
+              teamsAssigned: [...(prevData.teamsAssigned || []), item],
+            }
           }
+          return prevData
         })
         // Also update the important calls list to keep it in sync
         const leadIdToUpdate = ApiData.leadId
         setImportantCalls((prevCalls) => {
           return prevCalls.map((call) => {
             if (call.id === leadIdToUpdate) {
-              return {
-                ...call,
-                teamsAssigned: [...(call.teamsAssigned || []), item],
+              // Filter duplicates before adding
+              const existingIds = (call.teamsAssigned || []).map(u => u.id || u.invitedUserId)
+              const itemId = item.id || item.invitedUserId || item.invitedUser?.id
+              
+              // Only add if not already assigned
+              if (!existingIds.includes(itemId)) {
+                return {
+                  ...call,
+                  teamsAssigned: [...(call.teamsAssigned || []), item],
+                }
               }
             }
             return call
           })
         })
+      } else if (response && response.data && response.data.status === false) {
+        // Show error message if assignment failed (e.g., duplicate)
+        console.error('Failed to assign team member:', response.data.message)
       }
     } catch (error) {
       console.error('Error assigning team member:', error)
@@ -664,51 +683,17 @@ function CallWorthyReviewsPopup({ open, close }) {
                                       </div>
                                     )}
 
-                                    <div className="flex flex-row items--center w-full justify-between mt-4">
-                                      <div className="flex flex-row items-center gap-4">
-                                        <Image
-                                          src={'/svgIcons/manIcon.svg'}
-                                          height={20}
-                                          width={20}
-                                          alt="man"
-                                        />
-                                        <button
-                                          className="outline-none"
-                                          onClick={(event) => {
+                                    <div className="w-full mt-4">
+                                      {globalLoader ? (
+                                        <CircularProgress size={25} />
+                                      ) : (
+                                        <LeadTeamsAssignedList
+                                          users={selectedCall?.teamsAssigned || []}
+                                          onAssignClick={(event) => {
                                             handleShowPopup(event)
                                           }}
-                                        >
-                                          <div style={styles.subHeading}>
-                                            Assign
-                                          </div>
-                                        </button>
-                                      </div>
-                                      <div
-                                        className="text-end"
-                                        style={styles.paragraph}
-                                      >
-                                        {globalLoader ? (
-                                          <CircularProgress size={16} />
-                                        ) : selectedCall?.teamsAssigned?.length > 0 ? (
-                                          <div className="flex flex-row items-center gap-2">
-                                            {selectedCall.teamsAssigned.slice(0, 1).map((member, idx) => (
-                                              <div key={idx} className="h-[16px] w-[16px] bg-black rounded-full flex items-center justify-center text-white text-xs">
-                                                {member?.name?.charAt(0) || member?.invitedUser?.name?.charAt(0) || 'T'}
-                                              </div>
-                                            ))}
-                                            {selectedCall.teamsAssigned.length > 1 && (
-                                              <span className="text-xs">+{selectedCall.teamsAssigned.length - 1}</span>
-                                            )}
-                                          </div>
-                                        ) : (
-                                          <Image
-                                            src={'/assets/manIcon.png'}
-                                            height={16}
-                                            width={16}
-                                            alt="man"
-                                          />
-                                        )}
-                                      </div>
+                                        />
+                                      )}
                                     </div>
 
                                     {selectedCall?.booking && (
