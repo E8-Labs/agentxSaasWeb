@@ -2780,14 +2780,17 @@ const Pipeline1 = () => {
                                     )}
 
                                     <div className="w-full flex flex-row items-center justify-between">
-                                      {lead?.lead?.teamsAssigned?.length > 0 ? (
-                                        <LeadTeamsAssignedList
-                                          users={lead?.lead?.teamsAssigned}
-                                          maxVisibleUsers={1}
-                                        />
-                                      ) : (
-                                        <div className="w-8 h-8" />
-                                      )}
+                                      <LeadTeamsAssignedList
+                                        users={lead?.lead?.teamsAssigned || []}
+                                        compactMode={true}
+                                        onAssignClick={(event) => {
+                                          // Open LeadDetails modal for assignment
+                                          setShowDetailsModal(true)
+                                          setSelectedLeadsDetails(lead.lead)
+                                          setPipelineId(lead.lead.pipeline?.id || '')
+                                          setNoteDetails(lead.lead.notes || [])
+                                        }}
+                                      />
                                       {/* <div className="flex flex-row items-center gap-3">
                                                                             <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
                                                                                 Tag
