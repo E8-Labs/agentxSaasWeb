@@ -49,6 +49,8 @@ import {
   Users,
   FileText,
   MessageSquare,
+  Pencil,
+  Trash2,
 } from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
@@ -185,6 +187,14 @@ const LeadDetails = ({
   const [showConfirmationPopup, setShowConfirmationPopup] = useState(false)
   const [seletedCallLog, setSelectedCallLog] = useState(null)
   const [delCallLoader, setdelCallLoader] = useState(false)
+
+  // Note edit/delete states
+  const [editingNote, setEditingNote] = useState(null)
+  const [editNoteValue, setEditNoteValue] = useState('')
+  const [editNoteLoader, setEditNoteLoader] = useState(false)
+  const [deleteNoteId, setDeleteNoteId] = useState(null)
+  const [deleteNoteLoader, setDeleteNoteLoader] = useState(false)
+  const [showDeleteNoteConfirm, setShowDeleteNoteConfirm] = useState(false)
 
   // Email functionality states
   const [showEmailModal, setShowEmailModal] = useState(false)
@@ -534,6 +544,113 @@ const LeadDetails = ({
     } finally {
       setStagesListLoader(false)
       // //console.log;
+    }
+  }
+
+  // Function to handle editing a note
+  const handleEditNote = async () => {
+    try {
+      if (!editingNote || !editNoteValue.trim()) {
+        setShowErrorSnack('Note content cannot be empty')
+        setShowErrorSnack2(true)
+        return
+      }
+
+      setEditNoteLoader(true)
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
+      if (localData) {
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
+      }
+
+      const response = await fetch(
+        `/api/leads/${selectedLeadsDetails.id}/notes/${editingNote.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${AuthToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            note: editNoteValue,
+          }),
+        },
+      )
+
+      const data = await response.json()
+
+      if (data.status === true) {
+        // Update the note in the list
+        setNoteDetails((prevNotes) =>
+          prevNotes.map((note) =>
+            note.id === editingNote.id
+              ? { ...note, note: editNoteValue }
+              : note,
+          ),
+        )
+        setEditingNote(null)
+        setEditNoteValue('')
+        setShowSuccessSnack('Note updated successfully')
+        setShowSuccessSnack2(true)
+      } else {
+        setShowErrorSnack(data.message || 'Failed to update note')
+        setShowErrorSnack2(true)
+      }
+    } catch (error) {
+      console.error('Error updating note:', error)
+      setShowErrorSnack('Failed to update note. Please try again.')
+      setShowErrorSnack2(true)
+    } finally {
+      setEditNoteLoader(false)
+    }
+  }
+
+  // Function to handle deleting a note
+  const handleDeleteNote = async () => {
+    try {
+      if (!deleteNoteId) return
+
+      setDeleteNoteLoader(true)
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
+      if (localData) {
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
+      }
+
+      const response = await fetch(
+        `/api/leads/${selectedLeadsDetails.id}/notes/${deleteNoteId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${AuthToken}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+
+      const data = await response.json()
+
+      if (data.status === true) {
+        // Remove the note from the list
+        setNoteDetails((prevNotes) =>
+          prevNotes.filter((note) => note.id !== deleteNoteId),
+        )
+        setDeleteNoteId(null)
+        setShowDeleteNoteConfirm(false)
+        setShowSuccessSnack('Note deleted successfully')
+        setShowSuccessSnack2(true)
+      } else {
+        setShowErrorSnack(data.message || 'Failed to delete note')
+        setShowErrorSnack2(true)
+      }
+    } catch (error) {
+      console.error('Error deleting note:', error)
+      setShowErrorSnack('Failed to delete note. Please try again.')
+      setShowErrorSnack2(true)
+    } finally {
+      setDeleteNoteLoader(false)
     }
   }
 
@@ -2795,9 +2912,35 @@ const LeadDetails = ({
                                             true, // Include time
                                           )}
                                         </div>
-                                        {/* Call Summary Icons */}
-                                        {item.type === 'call_summary' && item.callSummary && (
-                                          <div className="flex flex-row items-center gap-2">
+                                        <div className="flex flex-row items-center gap-2">
+                                          {/* Edit/Delete buttons - only show for manual notes */}
+                                          {item.type === 'manual' && (
+                                            <>
+                                              <button
+                                                onClick={() => {
+                                                  setEditingNote(item)
+                                                  setEditNoteValue(item.note)
+                                                }}
+                                                className="p-1 hover:bg-gray-100 rounded"
+                                                style={{ cursor: 'pointer' }}
+                                              >
+                                                <Pencil size={16} color="#6b7280" />
+                                              </button>
+                                              <button
+                                                onClick={() => {
+                                                  setDeleteNoteId(item.id)
+                                                  setShowDeleteNoteConfirm(true)
+                                                }}
+                                                className="p-1 hover:bg-gray-100 rounded"
+                                                style={{ cursor: 'pointer' }}
+                                              >
+                                                <Trash2 size={16} color="#ef4444" />
+                                              </button>
+                                            </>
+                                          )}
+                                          {/* Call Summary Icons */}
+                                          {item.type === 'call_summary' && item.callSummary && (
+                                            <div className="flex flex-row items-center gap-2">
                                             {/* Sentiment Icon */}
                                             {item.callSummary.prospectSentiment && (
                                               <Tooltip
@@ -2959,8 +3102,9 @@ const LeadDetails = ({
                                                 </div>
                                               </Tooltip>
                                             )}
-                                          </div>
-                                        )}
+                                            </div>
+                                          )}
+                                        </div>
                                       </div>
                                       <div
                                         className="mt-4"
@@ -3413,6 +3557,157 @@ const LeadDetails = ({
           </div>
         </div>
       </Drawer>
+
+      {/* Modal to edit note */}
+      <Modal
+        open={!!editingNote}
+        onClose={() => {
+          setEditingNote(null)
+          setEditNoteValue('')
+        }}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: '#00000020',
+          },
+        }}
+      >
+        <Box
+          className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 h-[70vh]"
+          sx={{ ...styles.modalsStyle, scrollbarWidth: 'none' }}
+        >
+          <div className="flex flex-row justify-center w-full h-[50vh]">
+            <div
+              className="w-full"
+              style={{
+                backgroundColor: '#ffffff',
+                padding: 20,
+                paddingInline: 30,
+                borderRadius: '13px',
+                height: '100%',
+              }}
+            >
+              <div style={{ fontWeight: '700', fontsize: 22 }}>
+                Edit your note
+              </div>
+              <div
+                className="mt-4"
+                style={{
+                  height: '70%',
+                  overflow: 'auto',
+                }}
+              >
+                <TextareaAutosize
+                  maxRows={12}
+                  className="outline-none focus:outline-none focus:ring-0 w-full"
+                  style={{
+                    fontsize: 15,
+                    fontWeight: '500',
+                    height: '250px',
+                    border: '1px solid #00000020',
+                    resize: 'none',
+                    borderRadius: '13px',
+                  }}
+                  placeholder="Edit note"
+                  value={editNoteValue}
+                  onChange={(event) => {
+                    setEditNoteValue(event.target.value)
+                  }}
+                />
+              </div>
+              <div className="w-full mt-4 h-[20%] flex flex-row justify-center gap-2">
+                {editNoteLoader ? (
+                  <CircularProgress size={25} />
+                ) : (
+                  <>
+                    <button
+                      className="bg-gray-200 h-[50px] rounded-xl text-gray-700 rounded-xl w-3/12"
+                      style={{
+                        fontWeight: '600',
+                        fontsize: 16,
+                      }}
+                      onClick={() => {
+                        setEditingNote(null)
+                        setEditNoteValue('')
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="bg-brand-primary h-[50px] rounded-xl text-white rounded-xl w-3/12"
+                      style={{
+                        fontWeight: '600',
+                        fontsize: 16,
+                      }}
+                      onClick={handleEditNote}
+                    >
+                      Update
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
+      {/* Modal to confirm note deletion */}
+      <Modal
+        open={showDeleteNoteConfirm}
+        onClose={() => {
+          setShowDeleteNoteConfirm(false)
+          setDeleteNoteId(null)
+        }}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: '#00000020',
+          },
+        }}
+      >
+        <Box
+          className="lg:w-4/12 sm:w-4/12 w-6/12"
+          sx={styles.modalsStyle}
+        >
+          <div className="flex flex-row justify-center w-full">
+            <div
+              className="w-full"
+              style={{
+                backgroundColor: '#ffffff',
+                padding: 20,
+                borderRadius: '13px',
+              }}
+            >
+              <div className="font-bold text-xl mt-6">
+                Are you sure you want to delete this note?
+              </div>
+              <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
+                <button
+                  className="w-1/2 font-bold text-xl text-[#6b7280] h-[50px]"
+                  onClick={() => {
+                    setShowDeleteNoteConfirm(false)
+                    setDeleteNoteId(null)
+                  }}
+                >
+                  Cancel
+                </button>
+                {deleteNoteLoader ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <button
+                    className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                    onClick={handleDeleteNote}
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </Box>
+      </Modal>
 
       {/* Modal to add notes */}
 

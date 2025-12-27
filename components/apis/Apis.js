@@ -3,7 +3,7 @@
 // //console.log;
 
 let BasePath =
-  process.env.NEXT_PUBLIC_BASE_API_URL ||
+  // process.env.NEXT_PUBLIC_BASE_API_URL ||
   (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     ? 'https://apimyagentx.com/agentx/'
     : 'https://apimyagentx.com/agentxtest/')
@@ -14,6 +14,7 @@ let BasePath =
 console.log('Current base url is', BasePath)
 
 const Apis = {
+  BasePath: BasePath,
   getCalenders: `${BasePath}api/calendar/calendars`,
   register: `${BasePath}api/user/register`,
   LogIn: `${BasePath}api/user/login`,
@@ -76,6 +77,8 @@ const Apis = {
   testAI: `${BasePath}api/agent/testAi`,
   addCalender: `${BasePath}api/calendar/createCalendar`,
   addLeadNote: `${BasePath}api/leads/addLeadNote`,
+  updateLeadNote: `/api/leads`, // Will be used with noteId in path
+  deleteLeadNote: `/api/leads`, // Will be used with noteId in path
   getDashboardData: `${BasePath}api/agent/dashboard`,
   delLeadTag: `${BasePath}api/leads/deleteLeadTag`,
   //apis to add card & subscribe plan
