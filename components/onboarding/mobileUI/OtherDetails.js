@@ -17,6 +17,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import PhoneInput from 'react-phone-input-2'
 
 import Apis from '@/components/apis/Apis'
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import { SnackMessageTitles } from '@/components/constants/constants'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
@@ -662,8 +663,15 @@ const OtherDetails = ({
           }
 
           // Force apply branding after registration (for subaccounts/agencies)
+          // Make it non-blocking with timeout to prevent hanging
           if (user.userRole === 'AgencySubAccount' || user.userRole === 'Agency') {
-            await forceApplyBranding(response.data)
+            // Run branding in background, don't block the flow
+            Promise.race([
+              forceApplyBranding(response.data),
+              new Promise((resolve) => setTimeout(resolve, 5000)), // 5 second timeout
+            ]).catch((error) => {
+              console.error('Error applying branding (non-blocking):', error)
+            })
           }
 
           if (screenWidth <= SM_SCREEN_SIZE) {
@@ -674,7 +682,11 @@ const OtherDetails = ({
             // //console.log;
             // handleContinue();
             handleShowRedirectPopup()
-            router.push('/createagent')
+            // Use window.location.href for hard redirect to ensure clean page reload
+            // This prevents DOM cleanup errors during navigation
+            console.log('✅ Registration successful, redirecting to: /createagent')
+            window.location.href = '/createagent'
+            return
           }
         } else {
           setSnackMessage(response.data.message)
@@ -1153,17 +1165,13 @@ const OtherDetails = ({
                       </div>
 
                       <div className="w-full mt-2 flex flex-row justify-center">
-                        <Image
-                          className=""
-                          src="/agentXOrb.gif"
+                        <AgentXOrb
+                          size={102}
                           style={{
                             height: '100px',
                             width: '110px',
                             resize: 'contain',
                           }}
-                          height={102}
-                          width={102}
-                          alt="*"
                         />
                       </div>
 
@@ -1238,10 +1246,11 @@ const OtherDetails = ({
                               if (handleShowRedirectPopup) {
                                 handleShowRedirectPopup()
                               }
-                              // Small delay to ensure popup shows before navigation
-                              setTimeout(() => {
-                                router.push('/createagent')
-                              }, 100)
+                              // Use window.location.href for hard redirect to ensure clean page reload
+                              // This prevents DOM cleanup errors during navigation
+                              console.log('✅ Registration successful, redirecting to: /createagent')
+                              window.location.href = '/createagent'
+                              return
                             }
                           }}
                           // onClick={() => {

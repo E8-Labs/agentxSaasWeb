@@ -1,7 +1,7 @@
 import CloseIcon from '@mui/icons-material/Close'
 import { Box, CircularProgress, Modal, Tooltip } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
@@ -21,11 +21,7 @@ export default function EnrichModal({
   setCreditCost,
   creditCost,
 }) {
-  let stripePublickKey =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-  const stripePromise = loadStripe(stripePublickKey)
+  const stripePromise = getStripe()
 
   const [userData, setUserData] = useState(null)
   const [showAddCard, setShowAddCard] = useState(false)

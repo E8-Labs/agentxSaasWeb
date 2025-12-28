@@ -24,6 +24,7 @@ import AdminTeam from './AdminTeams'
 import ResetTrial from './ResetTrial'
 import UserActivityLogs from './UserActivityLogs'
 import AdminPipeline1 from './pipline/AdminPipeline1'
+import { PersistanceKeys } from '@/constants/Constants'
 
 function SelectedUserDetails({
   selectedUser,
@@ -138,8 +139,97 @@ function SelectedUserDetails({
     getData()
   }, [selectedUser])
 
+  // Listen for refresh event from AdminAgentX when agent is created
+  useEffect(() => {
+    const handleRefreshUser = async (event) => {
+      if (event.detail?.userId === selectedUser?.id) {
+        console.log('Refreshing selectedUser profile after agent creation...')
+        try {
+          const refreshedData = await AdminGetProfileDetails(selectedUser.id)
+          if (refreshedData) {
+            setUser(refreshedData)
+            // Update selectedUser to trigger re-render of child components
+            // This will update the usage count in AdminAgentX
+          }
+        } catch (error) {
+          console.error('Error refreshing user profile:', error)
+        }
+      }
+    }
+
+    window.addEventListener('refreshSelectedUser', handleRefreshUser)
+
+    return () => {
+      window.removeEventListener('refreshSelectedUser', handleRefreshUser)
+    }
+  }, [selectedUser])
+
+  // Restore tab state when component mounts (only for admin/agency users)
+  useEffect(() => {
+    if (!isAdminOrAgency()) return
+    
+    try {
+      const storedData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+      if (storedData) {
+        const stateObject = JSON.parse(storedData)
+        if (stateObject?.restoreState?.selectedTabName) {
+          const tabName = stateObject.restoreState.selectedTabName
+          const foundTab = manuBar.find((tab) => tab.name === tabName)
+          if (foundTab) {
+            setSelectedManu(foundTab)
+            console.log('Restored tab state:', tabName)
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error restoring tab state:', error)
+    }
+  }, []) // Run once on mount
+
+  // Helper function to check if user is admin or agency
+  const isAdminOrAgency = () => {
+    if (typeof window === 'undefined') return false
+    try {
+      const userData = localStorage.getItem('User')
+      if (userData) {
+        const parsedUser = JSON.parse(userData)
+        const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+        const userType = parsedUser?.user?.userType || parsedUser?.userType
+        return userRole === 'Admin' || userType === 'admin' || userRole === 'Agency'
+      }
+    } catch (error) {
+      console.error('Error checking user role:', error)
+    }
+    return false
+  }
+
+  // Store tab state when selected (only for admin/agency users)
+  const storeTabState = (tabName) => {
+    if (!isAdminOrAgency()) return
+    
+    try {
+      const existingData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+      let stateObject = existingData ? JSON.parse(existingData) : {}
+      
+      if (!stateObject.restoreState) {
+        stateObject.restoreState = {}
+      }
+      
+      stateObject.restoreState.selectedTabName = tabName
+      
+      localStorage.setItem(
+        PersistanceKeys.isFromAdminOrAgency,
+        JSON.stringify(stateObject)
+      )
+    } catch (error) {
+      console.error('Error storing tab state:', error)
+    }
+  }
+
   const handleManuClick = (item) => {
     setSelectedManu(item)
+    // Store tab state for restoration (only for admin/agency users)
+    storeTabState(item.name)
   }
 
   const handleAddMinutes = async () => {

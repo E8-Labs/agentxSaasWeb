@@ -16,6 +16,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import PhoneInput from 'react-phone-input-2'
 
 import Apis from '@/components/apis/Apis'
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import Header from '@/components/onboarding/Header'
 import ProgressBar from '@/components/onboarding/ProgressBar'
 import SendVerificationCode from '@/components/onboarding/services/AuthVerification/AuthService'
@@ -342,9 +343,16 @@ const AgencySignupMobile = ({
           }
 
           // Force apply branding after registration (for agencies/subaccounts)
+          // Make it non-blocking with timeout to prevent hanging
           const user = response.data.data.user
           if (user?.userRole === 'AgencySubAccount' || user?.userRole === 'Agency') {
-            await forceApplyBranding(response.data)
+            // Run branding in background, don't block the flow
+            Promise.race([
+              forceApplyBranding(response.data),
+              new Promise((resolve) => setTimeout(resolve, 5000)), // 5 second timeout
+            ]).catch((error) => {
+              console.error('Error applying branding (non-blocking):', error)
+            })
           }
 
           setCongratsPopup(true)
@@ -458,13 +466,13 @@ const AgencySignupMobile = ({
       <div className="flex flex-col bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[90%] sm:max-h-[90%] py-4 overflow-hidden scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
         <div className="h-[90svh] sm:h-[82svh]">
           {/* header */}
-          <div className="h-[10%]">
+          <div className="h-[8%]">
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[90%]">
+          <div className="flex flex-col items-center px-4 w-full h-[92%]">
             <div
-              className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
+              className="mt-2 w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: 'center' }}
             >
               Create Your AI Agency
@@ -731,28 +739,6 @@ const AgencySignupMobile = ({
                 }}
               />
 
-              <div style={styles.headingStyle} className="mt-6">
-                Website (optional)
-              </div>
-              <Input
-                ref={(el) => (inputsFields.current[4] = el)}
-                autoComplete="off"
-                autoCorrect="off"
-                spellCheck="false"
-                enterKeyHint="done"
-                placeholder="Website"
-                className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px] w-full"
-                style={{
-                  ...styles.inputStyle,
-                  marginTop: '8px',
-                  border: '1px solid #00000020',
-                }}
-                value={website}
-                onChange={(e) => {
-                  setWebsite(e.target.value)
-                }}
-              />
-
               <div style={styles.headingStyle} className="mt-6 mb-2">
                 Agency Size
               </div>
@@ -815,6 +801,28 @@ const AgencySignupMobile = ({
                 </Select>
               </FormControl>
 
+              <div style={styles.headingStyle} className="mt-6">
+                Website (optional)
+              </div>
+              <Input
+                ref={(el) => (inputsFields.current[4] = el)}
+                autoComplete="off"
+                autoCorrect="off"
+                spellCheck="false"
+                enterKeyHint="done"
+                placeholder="Website"
+                className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px] w-full"
+                style={{
+                  ...styles.inputStyle,
+                  marginTop: '8px',
+                  border: '1px solid #00000020',
+                }}
+                value={website}
+                onChange={(e) => {
+                  setWebsite(e.target.value)
+                }}
+              />
+
               <SnackMessages
                 message={response.message}
                 isVisible={isVisible}
@@ -834,14 +842,14 @@ const AgencySignupMobile = ({
           ) : (
             <button
               disabled={shouldContinue}
-              className="rounded-lg text-white bg-purple"
+              className={`rounded-lg ${shouldContinue ? 'bg-gray-300' : 'bg-purple text-white'}`}
               style={{
                 fontWeight: '700',
                 fontSize: '16',
-                backgroundColor: shouldContinue ? '#00000020' : undefined,
-                color: shouldContinue ? '#000000' : undefined,
+                color: shouldContinue ? '#000000' : '#ffffff',
                 height: '40px',
                 width: '100px',
+                cursor: shouldContinue ? 'not-allowed' : 'pointer',
               }}
               onClick={handleVerifyPopup}
             >
@@ -990,17 +998,13 @@ const AgencySignupMobile = ({
               </div>
 
               <div className="w-full mt-8 flex flex-row justify-center">
-                <Image
-                  className=""
-                  src="/agentXOrb.gif"
+                <AgentXOrb
+                  size={102}
                   style={{
                     height: '100px',
                     width: '110px',
                     resize: 'contain',
                   }}
-                  height={102}
-                  width={102}
-                  alt="*"
                 />
               </div>
 

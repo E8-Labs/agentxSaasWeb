@@ -1,18 +1,17 @@
 'use client'
 
 import { Button, Drawer } from '@mui/material'
+import axios from 'axios'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { Suspense, useEffect, useState } from 'react'
 
+import Apis from '@/components/apis/Apis'
+
 import SubAccountPlansAndPayments from '@/components/dashboard/subaccount/myAccount/SubAccountPlansAndPayments'
 import MyPhoneNumber from '@/components/myAccount/MyPhoneNumber'
-import {
-  CancellationAndRefundUrl,
-  privacyPollicyUrl,
-  termsAndConditionUrl,
-} from '@/constants/Constants'
 import { isSubaccountTeamMember } from '@/constants/teamTypes/TeamTypes'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
 import { getUserLocalData } from '../constants/constants'
 import NotficationsDrawer from '../notofications/NotficationsDrawer'
@@ -31,7 +30,115 @@ function MyAccount() {
   const router = useRouter()
 
   const [tabSelected, setTabSelected] = useState(6)
+  const [xbarTitle, setXbarTitle] = useState('Bar Services') // Default title
 
+  // Get Xbar title from branding
+  useEffect(() => {
+    // Fetch branding from API and update xbar title
+    const fetchBrandingAndUpdateTitle = async () => {
+      try {
+        const localData = localStorage.getItem('User')
+        let authToken = null
+
+        if (localData) {
+          const userData = JSON.parse(localData)
+          authToken = userData.token
+        }
+
+        if (authToken) {
+          try {
+            const response = await axios.get(Apis.getAgencyBranding, {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+                'Content-Type': 'application/json',
+              },
+            })
+
+            if (response?.data?.status === true && response?.data?.data?.branding) {
+              const branding = response.data.data.branding
+              
+              // Update localStorage with fresh branding data
+              localStorage.setItem('agencyBranding', JSON.stringify(branding))
+              
+              // Update xbar title if available
+              if (branding?.xbarTitle) {
+                console.log('✅ [MyAccount] Fetched xbarTitle from API:', branding.xbarTitle)
+                setXbarTitle(branding.xbarTitle)
+                return
+              }
+            }
+          } catch (error) {
+            console.log('⚠️ [MyAccount] Error fetching branding from API:', error)
+            // Fall through to localStorage check
+          }
+        }
+      } catch (error) {
+        console.log('❌ [MyAccount] Error in fetchBrandingAndUpdateTitle:', error)
+      }
+      
+      // Fallback: Get Xbar title from localStorage
+      const getXbarTitle = () => {
+        try {
+          const storedBranding = localStorage.getItem('agencyBranding')
+          if (storedBranding) {
+            const branding = JSON.parse(storedBranding)
+            if (branding?.xbarTitle) {
+              setXbarTitle(branding.xbarTitle)
+              return
+            }
+          }
+          // Fallback: check user data
+          const userData = localStorage.getItem('User')
+          if (userData) {
+            const parsedUser = JSON.parse(userData)
+            const branding = parsedUser?.user?.agencyBranding || parsedUser?.agencyBranding
+            if (branding?.xbarTitle) {
+              setXbarTitle(branding.xbarTitle)
+              return
+            }
+          }
+        } catch (error) {
+          console.log('Error getting xbar title from branding:', error)
+        }
+        // Default title
+        setXbarTitle('Bar Services')
+      }
+      
+      getXbarTitle()
+    }
+    
+    // Fetch branding on mount
+    fetchBrandingAndUpdateTitle()
+    
+    // Listen for branding updates
+    const handleBrandingUpdate = (event) => {
+      if (event?.detail?.xbarTitle) {
+        console.log('✅ [MyAccount] Setting xbarTitle from event:', event.detail.xbarTitle)
+        setXbarTitle(event.detail.xbarTitle)
+        // Also update localStorage
+        const storedBranding = localStorage.getItem('agencyBranding')
+        if (storedBranding) {
+          try {
+            const branding = JSON.parse(storedBranding)
+            const updatedBranding = { ...branding, xbarTitle: event.detail.xbarTitle }
+            localStorage.setItem('agencyBranding', JSON.stringify(updatedBranding))
+          } catch (error) {
+            console.error('Error updating localStorage from event:', error)
+          }
+        }
+      } else {
+        // Fallback: re-fetch from localStorage
+        fetchBrandingAndUpdateTitle()
+      }
+    }
+    window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    }
+  }, [])
+
+  // Create menu bar dynamically with current xbar title
   const manuBar = [
     {
       id: 1,
@@ -53,9 +160,9 @@ function MyAccount() {
     },
     {
       id: 4,
-      heading: 'Bar Services',
+      heading: xbarTitle,
       subHeading: 'Our version of the genius bar',
-      icon: '/assets/X.svg',
+      icon: '/svgIcons/agentXIcon.svg',
     },
     {
       id: 5,
@@ -107,7 +214,7 @@ function MyAccount() {
     },
   ]
 
-  const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected])
+  const [selectedManu, setSelectedManu] = useState(null)
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false)
   const [userLocalData, setUserLocalData] = useState(null)
   //select the invite teams by default
@@ -121,12 +228,14 @@ function MyAccount() {
     const exists = manuBar.find((item) => item.id === number)
     if (exists) {
       setTabSelected(number)
+      setSelectedManu(exists)
     } else {
       setTabSelected(6) // Default to Invite Agents
       setParamsInSearchBar(6)
+      setSelectedManu(manuBar.find(item => item.id === 6))
       // console.log("Setting the tab value");
     }
-  }, [])
+  }, [xbarTitle])
 
   const setParamsInSearchBar = (index = 1) => {
     // Create a new URLSearchParams object to modify
@@ -168,14 +277,16 @@ function MyAccount() {
   }
 
   const handleTabSelect = (item, index) => {
+    const { termsUrl, privacyUrl, cancellationUrl } = getPolicyUrls()
+    
     if (item.id === 8) {
-      window.open(termsAndConditionUrl, '_blank')
+      window.open(termsUrl, '_blank')
       return
     } else if (item.id === 9) {
-      window.open(privacyPollicyUrl, '_blank')
+      window.open(privacyUrl, '_blank')
       return
     } else if (item.id === 10) {
-      window.open(CancellationAndRefundUrl, '_blank')
+      window.open(cancellationUrl, '_blank')
       return
     }
     console.log('Index is', index)

@@ -21,7 +21,7 @@ import { PersistanceKeys } from '@/constants/Constants'
 
 import { GreetingTagInput } from '../tagInputs/GreetingTagInput'
 import { PromptTagInput } from '../tagInputs/PromptTagInput'
-import EditModal from './EditModal'
+import EditModal from './EditObjectionGuardrailModal'
 
 const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
   const [ObjectionsList, setObjectionsList] = useState([])
@@ -77,11 +77,13 @@ const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
       }
 
       let mainAgentId = null
+      let agentId = null
       // //console.log;
 
       if (selectedAgentId) {
         // //console.log;
         mainAgentId = selectedAgentId.mainAgentId //selectedAgentId.id
+        agentId = selectedAgentId.id || null // Get agentId if available
       } else {
         // //console.log;
         const localAgent = localStorage.getItem('agentDetails')
@@ -89,6 +91,7 @@ const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
           const agentDetails = JSON.parse(localAgent)
           // //console.log;
           mainAgentId = agentDetails.id
+          agentId = agentDetails.agentId || null // Get agentId if available
         }
       }
 
@@ -96,7 +99,11 @@ const Objection = ({ showTitle, selectedAgentId, kycsData, uniqueColumns }) => {
 
       // //console.log;
 
-      const ApiPath = `${Apis.getObjectionGuardrial}?mainAgentId=${mainAgentId}`
+      // Build API path with mainAgentId and optional agentId
+      let ApiPath = `${Apis.getObjectionGuardrial}?mainAgentId=${mainAgentId}`
+      if (agentId) {
+        ApiPath += `&agentId=${agentId}`
+      }
       // //console.log;
       // return
       const response = await axios.get(ApiPath, {

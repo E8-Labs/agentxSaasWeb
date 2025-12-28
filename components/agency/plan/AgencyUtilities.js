@@ -66,7 +66,7 @@
 //     return num.toFixed(2);
 // }
 
-export function formatFractional2(price) {
+export function formatFractional2(price, maxDecimalPlaces = 2) {
   if (price == null || price === undefined || price === '') {
     return '0'
   }
@@ -76,23 +76,14 @@ export function formatFractional2(price) {
     return '0'
   }
 
-  // Round to 2 decimal places first to handle cases like 55.00001
-  const rounded = Math.round(num * 100) / 100
-
-  // Check if the rounded number is a whole number
-  const isWholeNumber = Number.isInteger(rounded) || rounded % 1 === 0
+  // Check if the number is a whole number (no decimal part)
+  const isWholeNumber = Number.isInteger(num) || num % 1 === 0
 
   if (isWholeNumber) {
-    // Whole numbers: no decimal places
-    return new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(rounded)
-  } else {
-    // Decimal numbers: always show 2 decimal places
-    return new Intl.NumberFormat('en-US', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(rounded)
+    // Whole numbers: return without decimal places
+    return num.toString()
   }
+
+  // For decimal numbers, always show exactly 2 decimal places
+  return num.toFixed(2)
 }

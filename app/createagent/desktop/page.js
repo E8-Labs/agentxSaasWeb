@@ -5,6 +5,7 @@ import Image from 'next/image'
 import React, { useEffect } from 'react'
 import { useState } from 'react'
 
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import CreatAgent3 from '@/components/createagent/CreatAgent3'
 import CreateAgent1 from '@/components/createagent/CreateAgent1'
 import CreateAgent2 from '@/components/createagent/CreateAgent2'
@@ -18,6 +19,7 @@ const Page = () => {
   const [index, setIndex] = useState(0)
   const [width, setWidth] = useState(410)
   const [isSubAccount, setIsSubAccount] = useState(false)
+  const [isAgencyCreatingForSubaccount, setIsAgencyCreatingForSubaccount] = useState(false)
   // let components = [CreateAgent1, CreatAgent3, CreateAgent4, CreateAgentVoice];
 
   useEffect(() => {
@@ -30,6 +32,23 @@ const Page = () => {
       const userData = JSON.parse(localData)
       if (userData?.user?.userRole === 'AgencySubAccount') {
         setIsSubAccount(true)
+      }
+      
+      // Check if current user is Agency and creating agent for subaccount
+      const isAgency = userData?.user?.userRole === 'Agency' || userData?.userRole === 'Agency'
+      if (isAgency) {
+        // Check if there's subaccount data in isFromAdminOrAgency
+        const fromAdminOrAgency = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+        if (fromAdminOrAgency) {
+          try {
+            const parsed = JSON.parse(fromAdminOrAgency)
+            if (parsed?.subAccountData) {
+              setIsAgencyCreatingForSubaccount(true)
+            }
+          } catch (error) {
+            console.log('Error parsing isFromAdminOrAgency:', error)
+          }
+        }
       }
     }
     // Also check SubaccoutDetails
@@ -67,14 +86,8 @@ const Page = () => {
       // style={backgroundImage}
       className="overflow-y-none h-[100svh] flex flex-col justify-between items-center py-4 px-4"
     >
-      <AppLogo
-        height={29}
-        width={122}
-        style={{ alignSelf: 'flex-start' }}
-        alt="logo"
-      />
       <div className="-mt-4 w-full ">
-        <DesktopView width={width} isSubAccount={isSubAccount} />
+        <DesktopView width={width} isSubAccount={isSubAccount} isAgencyCreatingForSubaccount={isAgencyCreatingForSubaccount} />
       </div>
       <div
         style={{ width: '100%' }}
@@ -94,12 +107,19 @@ const Page = () => {
                 borderBottom: 'none',
               }}
             >
+              <div className="flex justify-center mt-8 mb-4">
+                <AppLogo
+                  height={44}
+                  width={183}
+                  alt="logo"
+                />
+              </div>
               <div
                 style={{
                   fontWeight: '700',
                   fontSize: 22,
                   textAlign: 'center',
-                  marginTop: 130,
+                  marginTop: 0,
                   color: '#000',
                   zIndex: 100,
                   // backgroundColor: "red",
@@ -122,7 +142,7 @@ const Page = () => {
                 desktop.
               </div>
               <div
-                className="text-purple"
+                className="text-brand-primary"
                 style={{
                   fontWeight: '500',
                   fontSize: 11,
@@ -150,7 +170,10 @@ const Page = () => {
 
 export default Page
 
-const DesktopView = ({ width, isSubAccount = false }) => {
+const DesktopView = ({ width, isSubAccount = false, isAgencyCreatingForSubaccount = false }) => {
+  // Hide orb if user is subaccount OR if agency is creating for subaccount
+  const shouldHideOrb = isSubAccount || isAgencyCreatingForSubaccount
+  
   return (
     <div className="">
       <div
@@ -177,7 +200,7 @@ const DesktopView = ({ width, isSubAccount = false }) => {
         />
       </div>
 
-      {!isSubAccount && (
+      {!shouldHideOrb && (
         <>
           <div
             style={{
@@ -208,9 +231,10 @@ const DesktopView = ({ width, isSubAccount = false }) => {
           </div>
 
           <div className="w-full flex flex-row justify-center  ">
-            <Image
+            <AgentXOrb
               className="mix-blend-multiply" //mix-blend-multiply
-              src="/agentXOrb.gif"
+              width={145}
+              height={140}
               style={{
                 position: 'absolute',
                 top: '37%', // Adjust this value to move it higher
@@ -222,8 +246,6 @@ const DesktopView = ({ width, isSubAccount = false }) => {
                 width: '145px',
                 resize: 'contain',
               }}
-              height={69}
-              width={69}
               alt="*"
             />
           </div>

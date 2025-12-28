@@ -6,22 +6,36 @@
 
 /* Selected date (active) styling */
 .react-calendar__tile--active {
-  background-color: #7c3aed !important; /* Custom purple background */
+  background-color: hsl(var(--brand-primary, 270 75% 50%)) !important; /* Brand primary color */
   color: white !important; /* White text */
   border-radius: 9999px !important; /* Circular shape */
   font-weight: bold;
 }
 
-/* Hover styling */
+/* Hover styling - darker version of brand primary */
 .react-calendar__tile--active:hover {
-  background-color: #5b24a8 !important; /* Darker purple on hover */
+  background-color: hsl(var(--brand-primary, 270 75% 50%)) !important;
+  filter: brightness(0.85) !important; /* Darker on hover */
 }
 
-/* Current date styling */
+/* Current date styling - light version of brand primary */
 .current-date {
-  background-color: #d6bcfa !important; /* Light purple for today's date */
-  color: black !important;
+  background-color: hsl(var(--brand-primary, 270 75% 50%) / 0.2) !important; /* Light brand color for today's date */
+  color: hsl(var(--brand-primary, 270 75% 50%)) !important; /* Brand color text */
   border-radius: 9999px !important; /* Circular shape */
+}
+
+/* Range selection styling */
+.react-calendar__tile--range {
+  background-color: hsl(var(--brand-primary, 270 75% 50%) / 0.3) !important;
+  color: hsl(var(--brand-primary, 270 75% 50%)) !important;
+}
+
+.react-calendar__tile--rangeStart,
+.react-calendar__tile--rangeEnd {
+  background-color: hsl(var(--brand-primary, 270 75% 50%)) !important;
+  color: white !important;
+  border-radius: 9999px !important;
 }
 
 .react-calendar {

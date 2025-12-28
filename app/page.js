@@ -13,20 +13,20 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import React, { Suspense, useEffect, useRef, useState } from 'react'
 import PhoneInput from 'react-phone-input-2'
 
-import LoaderAnimation from '@/components/animations/LoaderAnimation'
-import Apis from '@/components/apis/Apis'
-import LoginComponent from '@/components/auth/LoginComponent'
+import LoaderAnimation from '../components/animations/LoaderAnimation'
+import Apis from '../components/apis/Apis'
+import LoginComponent from '../components/auth/LoginComponent'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
-} from '@/components/dashboard/leads/AgentSelectSnackMessage'
-import SendVerificationCode from '@/components/onboarding/services/AuthVerification/AuthService'
-import SnackMessages from '@/components/onboarding/services/AuthVerification/SnackMessages'
+} from '../components/dashboard/leads/AgentSelectSnackMessage'
+import SendVerificationCode from '../components/onboarding/services/AuthVerification/AuthService'
+import SnackMessages from '../components/onboarding/services/AuthVerification/SnackMessages'
 import {
   getLocalLocation,
   getLocation,
-} from '@/components/onboarding/services/apisServices/ApiService'
-import { PersistanceKeys } from '@/constants/Constants'
-import { setCookie } from '@/utilities/cookies'
+} from '../components/onboarding/services/apisServices/ApiService'
+import { PersistanceKeys } from '../constants/Constants'
+import { setCookie } from '../utilities/cookies'
 
 // import MultiWindow3DScene from "@/components/test/Multiwindow3dScene";
 // import { useRouter, useSearchParams } from "next/navigation";

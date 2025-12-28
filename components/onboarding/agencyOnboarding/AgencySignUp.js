@@ -19,6 +19,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import PhoneInput from 'react-phone-input-2'
 
 import Apis from '@/components/apis/Apis'
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import BackgroundVideo from '@/components/general/BackgroundVideo'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import Body from '@/components/onboarding/Body'
@@ -400,9 +401,16 @@ const AgencySignUp = ({
           }
 
           // Force apply branding after registration (for agencies/subaccounts)
+          // Make it non-blocking with timeout to prevent hanging
           const user = response.data.data.user
           if (user?.userRole === 'AgencySubAccount' || user?.userRole === 'Agency') {
-            await forceApplyBranding(response.data)
+            // Run branding in background, don't block the flow
+            Promise.race([
+              forceApplyBranding(response.data),
+              new Promise((resolve) => setTimeout(resolve, 5000)), // 5 second timeout
+            ]).catch((error) => {
+              console.error('Error applying branding (non-blocking):', error)
+            })
           }
 
           let screenWidth = 1000
@@ -825,60 +833,30 @@ const AgencySignUp = ({
                   />
                 </div>
 
-                <div className="flex flex-row items-center gap-4 w-full mt-4">
-                  <div className="w-6/12">
-                    <div style={styles.headingStyle}>{`Agency Name`}</div>
-                    <Input
-                      ref={(el) => (inputsFields.current[3] = el)}
-                      autoComplete="off"
-                      autoCorrect="off"
-                      spellCheck="false"
-                      enterKeyHint="done"
-                      placeholder="Agency Name"
-                      className="w-full border rounded px-3 py-2.5 focus:border-black transition-colors"
-                      style={{
-                        ...styles.inputStyle,
-                        marginTop: '8px',
-                        border: '1px solid #00000020',
-                      }}
-                      value={company}
-                      onChange={(e) => {
-                        setCompany(e.target.value)
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === 'Done') {
-                          inputsFields.current[4]?.focus() // Move to the second input
-                        }
-                      }}
-                    />
-                  </div>
-                  <div className="w-6/12">
-                    <div style={styles.headingStyle}>Website (optional)</div>
-                    <Input
-                      ref={(el) => (inputsFields.current[4] = el)}
-                      autoComplete="off"
-                      autoCorrect="off"
-                      spellCheck="false"
-                      enterKeyHint="done"
-                      placeholder="Website"
-                      className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px] w-full"
-                      style={{
-                        ...styles.inputStyle,
-                        marginTop: '8px',
-                        border: '1px solid #00000020',
-                      }}
-                      value={website}
-                      onChange={(e) => {
-                        setwebsite(e.target.value)
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === 'Done') {
-                          inputsFields.current[5]?.focus() // Move to the second input
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
+                <div style={styles.headingStyle} className="mt-4">{`Agency Name`}</div>
+                <Input
+                  ref={(el) => (inputsFields.current[3] = el)}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck="false"
+                  enterKeyHint="done"
+                  placeholder="Agency Name"
+                  className="w-full border rounded px-3 py-2.5 focus:border-black transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: '1px solid #00000020',
+                  }}
+                  value={company}
+                  onChange={(e) => {
+                    setCompany(e.target.value)
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === 'Done') {
+                      inputsFields.current[4]?.focus() // Move to the next input
+                    }
+                  }}
+                />
 
                 <div style={styles.headingStyle} className="mt-4 mb-2">
                   Agency Size
@@ -943,22 +921,41 @@ const AgencySignUp = ({
                   </Select>
                 </FormControl>
 
-                <button
+                <div style={styles.headingStyle} className="mt-4">Website (optional)</div>
+                <Input
+                  ref={(el) => (inputsFields.current[4] = el)}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck="false"
+                  enterKeyHint="done"
+                  placeholder="Website"
+                  className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px] w-full"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: '1px solid #00000020',
+                  }}
+                  value={website}
+                  onChange={(e) => {
+                    setwebsite(e.target.value)
+                  }}
+                />
+
+                <div
                   disabled={shouldContinue}
-                  className="rounded-lg text-white bg-purple mt-4"
+                  className={`flex items-center justify-center rounded-lg mt-4 text-center ${shouldContinue ? 'bg-gray-300 cursor-not-allowed' : 'bg-purple cursor-pointer'}`}
                   style={{
                     fontWeight: '700',
                     fontSize: '16',
-                    backgroundColor: shouldContinue && '#00000020',
-                    color: shouldContinue && '#000000',
+                    color: shouldContinue ? '#000000' : '#ffffff',
                     height: '40px',
                     width: '100px',
                     alignSelf: 'flex-end',
                   }}
                   onClick={handleVerifyPopup}
                 >
-                  Continue
-                </button>
+                  <span>Continue</span>
+                </div>
                 {/* Modal for verify number */}
 
                 <Modal
@@ -1010,7 +1007,7 @@ const AgencySignUp = ({
                           style={{ display: 'flex', gap: '8px' }}
                         >
                           {Array.from({ length }).map((_, index) => (
-                            <input
+                            <Input
                               key={index}
                               ref={(el) => (verifyInputRef.current[index] = el)}
                               autoComplete="off"
@@ -1044,8 +1041,6 @@ const AgencySignUp = ({
                                 height: '40px',
                                 textAlign: 'center',
                                 fontSize: '20px',
-                                border: '1px solid #ccc',
-                                borderRadius: '5px',
                               }}
                               className="border rounded px-3 py-2.5 focus:border-black transition-colors"
                             />
@@ -1129,17 +1124,13 @@ const AgencySignUp = ({
                         </div>
 
                         <div className="w-full mt-8 flex flex-row justify-center">
-                          <Image
-                            className=""
-                            src="/agentXOrb.gif"
+                          <AgentXOrb
+                            size={102}
                             style={{
                               height: '100px',
                               width: '110px',
                               resize: 'contain',
                             }}
-                            height={102}
-                            width={102}
-                            alt="*"
                           />
                         </div>
 
@@ -1223,7 +1214,7 @@ const AgencySignUp = ({
               />
             */}
             <div
-              className="w-full bg-transparent flex flex-col items-center justify-end"
+              className="relative w-full bg-transparent flex flex-col items-center justify-end overflow-visible"
               style={{
                 backgroundImage: "url('/agencyIcons/signupLogo.png')",
                 backgroundSize: 'cover',
@@ -1232,8 +1223,19 @@ const AgencySignUp = ({
                 width: '580px',
               }}
             >
+              <div className="absolute top-6 sm:top-12 flex w-full justify-center pointer-events-none z-0">
+                <div className="relative h-[300px] w-[300px] sm:h-[360px] sm:w-[360px]">
+                  <div className="absolute inset-4 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.75),rgba(121,2,223,0.3),rgba(35,222,255,0.25))] blur-3xl opacity-80" />
+                  <AgentXOrb
+                    width={360}
+                    height={360}
+                    className="relative h-full w-full drop-shadow-[0_30px_90px_rgba(121,2,223,0.35)]"
+                    alt="AgentX orb"
+                  />
+                </div>
+              </div>
               <div
-                className="inline-flex flex-col items-center  w-[25vw] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl" //absolute bottom-10 right-0 sm:right-40
+                className="relative inline-flex flex-col items-center  w-[25vw] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl z-10" //absolute bottom-10 right-0 sm:right-40
                 // className="w-[531px] h-[481px] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl"
               >
                 <div className="inline-flex flex-col items-start w-full px-6">

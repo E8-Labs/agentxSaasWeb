@@ -1,3 +1,5 @@
+'use client'
+
 import 'react-phone-input-2/lib/style.css'
 
 import {
@@ -16,6 +18,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import PhoneInput from 'react-phone-input-2'
 
 import Apis from '@/components/apis/Apis'
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import Body from '@/components/onboarding/Body'
 import Footer from '@/components/onboarding/Footer'
 import Header from '@/components/onboarding/Header'
@@ -24,6 +27,7 @@ import { PersistanceKeys } from '@/constants/Constants'
 import { clearAgencyUUID, getAgencyUUIDForAPI } from '@/utilities/AgencyUtility'
 import { GetCampaigneeNameIfAvailable } from '@/utilities/UserUtility'
 import { setCookie } from '@/utilities/cookies'
+import { forceApplyBranding } from '@/utilities/applyBranding'
 
 import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
@@ -391,8 +395,15 @@ const GeneralAgentSignUp = ({
 
           let user = response.data.data.user
           // Force apply branding after registration (for subaccounts/agencies)
+          // Make it non-blocking with timeout to prevent hanging
           if (user?.userRole === 'AgencySubAccount' || user?.userRole === 'Agency') {
-            await forceApplyBranding(response.data)
+            // Run branding in background, don't block the flow
+            Promise.race([
+              forceApplyBranding(response.data),
+              new Promise((resolve) => setTimeout(resolve, 5000)), // 5 second timeout
+            ]).catch((error) => {
+              console.error('Error applying branding (non-blocking):', error)
+            })
           }
 
           let screenWidth = 1000
@@ -414,13 +425,62 @@ const GeneralAgentSignUp = ({
           } else {
             //console.log;
             // handleContinue();
+            
+            // CRITICAL: Redirect FIRST, before showing popup
+            // This ensures redirect happens even if popup blocks execution
+            console.log('✅ Registration successful, redirecting to: /createagent')
+            
+            // Redirect immediately - don't wait for anything
+            const performRedirect = () => {
+              try {
+                console.log('🔄 Attempting redirect to /createagent')
+                window.location.href = '/createagent'
+              } catch (error) {
+                console.error('❌ Error with window.location.href:', error)
+                try {
+                  window.location.replace('/createagent')
+                } catch (replaceError) {
+                  console.error('❌ Error with window.location.replace:', replaceError)
+                  // Last resort: use window.open
+                  try {
+                    window.open('/createagent', '_self')
+                  } catch (openError) {
+                    console.error('❌ All redirect methods failed:', openError)
+                  }
+                }
+              }
+            }
+            
+            // Execute redirect immediately (synchronous)
+            performRedirect()
+            
+            // Show popup AFTER redirect is initiated (non-blocking)
             handleShowRedirectPopup()
-            router.push('/createagent')
+            
+            // Fallback: Force redirect after 200ms if still on onboarding page
+            setTimeout(() => {
+              const currentPath = window.location.pathname
+              if (currentPath === '/onboarding' || currentPath.includes('/onboarding')) {
+                console.warn('⚠️ Still on onboarding page after 200ms, forcing redirect')
+                window.location.replace('/createagent')
+              }
+            }, 200)
+            
+            // Final fallback: Force redirect after 800ms
+            setTimeout(() => {
+              const currentPath = window.location.pathname
+              if (currentPath === '/onboarding' || currentPath.includes('/onboarding')) {
+                console.warn('⚠️ Still on onboarding page after 800ms, forcing redirect with replace')
+                window.location.replace('/createagent')
+              }
+            }, 800)
+            
+            return
           }
         }
       }
     } catch (error) {
-      // console.error("Error occured in register api is: ", error);
+      console.error('Error occurred in register API:', error)
     } finally {
       setRegisterLoader(false)
     }
@@ -529,14 +589,14 @@ const GeneralAgentSignUp = ({
       style={{ width: '100%' }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
-      <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[100%] sm:max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
-        <div className="h-[84svh] sm:h-[82svh]">
+      <div className="flex flex-col bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[100%] sm:h-[95%] py-4 relative">
+        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24 scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
           {/* header */}
           <div className="h-[10%]">
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[90%]">
+          <div className="flex flex-col items-center px-4 w-full h-[95%]">
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: 'center' }}
@@ -907,7 +967,7 @@ const GeneralAgentSignUp = ({
                         style={{ display: 'flex', gap: '8px' }}
                       >
                         {Array.from({ length }).map((_, index) => (
-                          <input
+                          <Input
                             key={index}
                             ref={(el) => (verifyInputRef.current[index] = el)}
                             autoComplete="off"
@@ -937,10 +997,8 @@ const GeneralAgentSignUp = ({
                               height: '40px',
                               textAlign: 'center',
                               fontSize: '20px',
-                              border: '1px solid #ccc',
-                              borderRadius: '5px',
                             }}
-                            className=" focus:outline-none focus:ring-0"
+                            className="focus:outline-none focus:ring-0"
                           />
                         ))}
                       </div>
@@ -1022,17 +1080,13 @@ const GeneralAgentSignUp = ({
                       </div>
 
                       <div className="w-full mt-8 flex flex-row justify-center">
-                        <Image
-                          className=""
-                          src="/agentXOrb.gif"
+                        <AgentXOrb
+                          size={102}
                           style={{
                             height: '100px',
                             width: '110px',
                             resize: 'contain',
                           }}
-                          height={102}
-                          width={102}
-                          alt="*"
                         />
                       </div>
 
@@ -1073,21 +1127,25 @@ const GeneralAgentSignUp = ({
                             console.log('Get Started clicked - screenWidth:', screenWidth, 'isMobileDevice:', isMobileDevice)
                             
                             // If mobile device OR small screen, navigate to payment step (step 4) to allow subscription
+                            // Determine redirect path
+                            let redirectPath = '/createagent'
                             if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
                               // Mobile: Navigate to payment step (step 4) to allow subscription
                               console.log('Mobile detected - navigating to payment step')
-                              router.push('/createagent?step=4')
+                              redirectPath = '/createagent?step=4'
                             } else {
                               // Desktop: Navigate to createagent
                               console.log('Desktop detected - navigating to createagent')
                               if (handleShowRedirectPopup) {
                                 handleShowRedirectPopup()
                               }
-                              // Small delay to ensure popup shows before navigation
-                              setTimeout(() => {
-                                router.push('/createagent')
-                              }, 100)
                             }
+                            
+                            // Use window.location.href for hard redirect to ensure clean page reload
+                            // This prevents DOM cleanup errors during navigation
+                            console.log('✅ Registration successful, redirecting to:', redirectPath)
+                            window.location.href = redirectPath
+                            return
                           }}
                         >
                           Get Started
@@ -1110,17 +1168,19 @@ const GeneralAgentSignUp = ({
           </div>
         </div>
 
-        <div className="h-[10%]">
-          <div>
+        {/* Fixed Footer */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+          <div className="px-4 pt-3 pb-2">
             <ProgressBar value={80} />
           </div>
-
-          <Footer
-            handleContinue={handleVerifyPopup}
-            handleBack={handleBack}
-            registerLoader={registerLoader}
-            shouldContinue={shouldContinue}
-          />
+          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
+            <Footer
+              handleContinue={handleVerifyPopup}
+              handleBack={handleBack}
+              registerLoader={registerLoader}
+              shouldContinue={shouldContinue}
+            />
+          </div>
         </div>
       </div>
     </div>

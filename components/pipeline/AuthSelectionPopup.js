@@ -19,6 +19,7 @@ import {
   deleteAccount,
   getGmailAccounts,
 } from './TempleteServices'
+import MailgunEmailRequest from '../messaging/MailgunEmailRequest'
 import { generateOAuthState } from '@/utils/oauthState'
 import { getAgencyCustomDomain } from '@/utils/getAgencyCustomDomain'
 
@@ -45,7 +46,8 @@ function AuthSelectionPopup({
   const [selectedAccount, setSelectedAccount] = useState(null)
   const [loginLoader, setLoginLoader] = useState(false)
   const [delLoader, setDelLoader] = useState(null)
-  const [showGmailConfirmationPopup, setShowGmailConfirmationPopup] = useState(false)
+  const [showMailgunRequest, setShowMailgunRequest] = useState(false)
+
   //google calendar click
   const handleGoogleOAuthClick = async () => {
     setShowGmailConfirmationPopup(false)
@@ -69,9 +71,10 @@ function AuthSelectionPopup({
     // This ensures state is always generated and popup context is preserved
     const domainToUse = currentHostname
 
-    // Generate state parameter if we have a domain to redirect back to
+    // Generate state parameter (provider signal). Keep it even if agencyId is missing,
+    // because middleware relies on `state.provider` to route the callback correctly.
     let stateParam = null
-    if (domainToUse && agencyId) {
+    if (domainToUse) {
       stateParam = generateOAuthState({
         agencyId,
         customDomain: domainToUse,
@@ -182,7 +185,7 @@ function AuthSelectionPopup({
   }
 
   return (
-    <div>
+    <>
       <Modal open={open} onClose={onClose}>
         <Box
           className="w-full h-full py-4 flex items-center justify-center"
@@ -203,7 +206,7 @@ function AuthSelectionPopup({
             />
             <div className="flex flex-row items-center justify-between w-full">
               <div className="text-[18px] font-[700] ">
-                Login to Email Account
+                Login
               </div>
               <CloseBtn onClick={onClose} />
             </div>
@@ -300,48 +303,51 @@ function AuthSelectionPopup({
                 <CircularProgress size={30} />
               </div>
             ) : (
-              <div className="flex flex-col gap-6 w-full items-center mt-7">
-                <button
-                  onClick={handleGmailConfirmationPopup}
-                  className="disabled:opacity-60"
-                >
-                  <Image
-                    src={'/otherAssets/gmailIcon.png'}
-                    height={90}
-                    width={90}
-                    alt="*"
-                  />
-                </button>
-
-                <div className="text-[15px] font-[400]">Gmail</div>
+              <div className="flex flex-row gap-8 w-full items-center justify-center mt-7">
+                <div className="flex flex-col gap-4 items-center">
+                  <button
+                    onClick={handleGoogleOAuthClick}
+                    className="disabled:opacity-60 rounded-full hover:opacity-80 transition-opacity"
+                  >
+                    <Image
+                      src={'/otherAssets/gmailIcon.png'}
+                      height={90}
+                      width={90}
+                      alt="*"
+                      className="rounded-full"
+                    />
+                  </button>
+                  <div className="text-[15px] font-[400]">Gmail</div>
+                </div>
+                <div className="flex flex-col gap-4 items-center">
+                  <button
+                    onClick={() => {
+                      setShowMailgunRequest(true)
+                      onClose() // Close the AuthSelectionPopup modal to prevent blocking
+                    }}
+                    className="disabled:opacity-60 rounded-full hover:opacity-80 transition-opacity bg-white border-2 border-gray-200 hover:border-gray-300 flex items-center justify-center"
+                    style={{ width: '90px', height: '90px' }}
+                  >
+                    <div className="text-3xl">📧</div>
+                  </button>
+                  <div className="text-[15px] font-[400]">Mailgun</div>
+                </div>
               </div>
             )}
           </div>
         </Box>
       </Modal>
-
-      <Modal open={showGmailConfirmationPopup} onClose={handleGmailConfirmationPopupClose}>
-        <Box className="w-full h-full py-4 flex items-center justify-center" sx={{ ...styles.modalsStyle }}>
-          <div className="flex flex-col w-3/12  px-8 py-6 bg-white max-h-[70vh] rounded-2xl">
-            <div className="flex flex-row items-center justify-between w-full">
-              <div className=""></div>
-              <CloseBtn onClick={handleGmailConfirmationPopupClose} />
-            </div>
-            <div className="flex flex-col gap-6 w-full items-center mt-7">
-              <div className="text-[15px] font-[400]">
-                Due to Gmail security, you'll be able to send gmails from here but you won't receive replies here on assignX. Instead, those replies will be sent to your Gmail inbox.
-              </div>
-
-              <button className="bg-brand-primary text-white px-4 py-2 rounded-md" onClick={handleGoogleOAuthClick}>
-                Continue
-              </button>
-            </div>
-          </div>
-        </Box>
-      </Modal>
-    </div>
-
-
+      <MailgunEmailRequest
+        open={showMailgunRequest}
+        onClose={() => setShowMailgunRequest(false)}
+        onSuccess={() => {
+          setShowMailgunRequest(false)
+          if (onSuccess) {
+            onSuccess()
+          }
+        }}
+      />
+    </>
   )
 }
 

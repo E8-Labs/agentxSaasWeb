@@ -37,6 +37,7 @@ import PhoneInput from 'react-phone-input-2'
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import DuplicateButton from '@/components/animation/DuplicateButton'
 import DashboardSlider from '@/components/animations/DashboardSlider'
+import AgencySupportWidget from '@/components/agency/AgencySupportWidget'
 import LoaderAnimation from '@/components/animations/LoaderAnimation'
 import Apis from '@/components/apis/Apis'
 import { DEFAULT_ASSISTANT_ID } from '@/components/askSky/constants'
@@ -47,6 +48,7 @@ import voicesList from '@/components/createagent/Voices'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
+
 import ActionsTab from '@/components/dashboard/myagentX/ActionsTab'
 import AgentsListPaginated from '@/components/dashboard/myagentX/AgentsListPaginated'
 import AllSetModal from '@/components/dashboard/myagentX/AllSetModal'
@@ -56,6 +58,7 @@ import { EditPhoneNumberModal } from '@/components/dashboard/myagentX/EditPhoneN
 import EmbedModal from '@/components/dashboard/myagentX/EmbedModal'
 import EmbedSmartListModal from '@/components/dashboard/myagentX/EmbedSmartListModal'
 import Knowledgebase from '@/components/dashboard/myagentX/Knowledgebase'
+import MoreAgentsPopup from '@/components/dashboard/MoreAgentsPopup'
 import NewSmartListModal from '@/components/dashboard/myagentX/NewSmartListModal'
 import PiepelineAdnStage from '@/components/dashboard/myagentX/PiepelineAdnStage'
 import UserCalender from '@/components/dashboard/myagentX/UserCallender'
@@ -168,6 +171,68 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const [showMainAgent, setShowMainAgent] = useState(null)
   //calender details of selected agent
   const [calendarDetails, setCalendarDetails] = useState(null)
+
+  // Helper function to check if user is admin or agency
+  const isAdminOrAgency = () => {
+    if (typeof window === 'undefined') return false
+    try {
+      const userData = localStorage.getItem('User')
+      if (userData) {
+        const parsedUser = JSON.parse(userData)
+        const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+        const userType = parsedUser?.user?.userType || parsedUser?.userType
+        return userRole === 'Admin' || userType === 'admin' || userRole === 'Agency'
+      }
+    } catch (error) {
+      console.error('Error checking user role:', error)
+    }
+    return false
+  }
+
+  // Store agent state when drawer is opened (only for admin/agency users)
+  const storeAgentState = (agent) => {
+    if (!isAdminOrAgency() || !agent?.id) return
+    
+    try {
+      const existingData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+      let stateObject = existingData ? JSON.parse(existingData) : {}
+      
+      if (!stateObject.restoreState) {
+        stateObject.restoreState = {}
+      }
+      
+      stateObject.restoreState.selectedAgentId = agent.id
+      
+      localStorage.setItem(
+        PersistanceKeys.isFromAdminOrAgency,
+        JSON.stringify(stateObject)
+      )
+    } catch (error) {
+      console.error('Error storing agent state:', error)
+    }
+  }
+
+  // Wrapper function to set drawer agent and store state
+  const setDrawerSelectedAgent = (agentOrUpdater) => {
+    if (typeof agentOrUpdater === 'function') {
+      // Handle function updater: (prev) => newState
+      setShowDrawerSelectedAgent((prev) => {
+        const newAgent = agentOrUpdater(prev)
+        // Store agent state for restoration (only for admin/agency users)
+        if (newAgent) {
+          storeAgentState(newAgent)
+        }
+        return newAgent
+      })
+    } else {
+      // Handle direct value
+      setShowDrawerSelectedAgent(agentOrUpdater)
+      // Store agent state for restoration (only for admin/agency users)
+      if (agentOrUpdater) {
+        storeAgentState(agentOrUpdater)
+      }
+    }
+  }
   const [activeTab, setActiveTab] = useState('Agent Info')
   const [mainAgentsList, setMainAgentsList] = useState([])
   const [agentData, setAgentData] = useState([])
@@ -344,6 +409,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
   const [showAddScoringModal, setShowAddScoringModal] = useState(false)
+  const [showMoreAgentsPopup, setShowMoreAgentsPopup] = useState(false)
+  const [moreAgentsPopupType, setMoreAgentsPopupType] = useState('newagent')
 
   // Web Agent Modal states
   const [showWebAgentModal, setShowWebAgentModal] = useState(false)
@@ -371,6 +438,36 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     ad.play()
     setAudio(ad) // Play the audio
   }
+
+  // Restore agent drawer state when component mounts and agents are loaded (only for admin/agency users)
+  useEffect(() => {
+    if (!isAdminOrAgency() || !agentData || agentData.length === 0) return
+    
+    try {
+      const storedData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+      if (storedData) {
+        const stateObject = JSON.parse(storedData)
+        if (stateObject?.restoreState?.selectedAgentId) {
+          const agentId = stateObject.restoreState.selectedAgentId
+          // Find agent in mainAgentsList (which contains all agents)
+          const foundAgent = mainAgentsList.find((agent) => agent.id === agentId)
+          if (foundAgent) {
+            setDrawerSelectedAgent(foundAgent)
+            console.log('Restored agent drawer state:', agentId)
+          } else {
+            // Also check in agentData
+            const foundInAgentData = agentData.find((agent) => agent.id === agentId)
+            if (foundInAgentData) {
+              setDrawerSelectedAgent(foundInAgentData)
+              console.log('Restored agent drawer state from agentData:', agentId)
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error restoring agent drawer state:', error)
+    }
+  }, [agentData, mainAgentsList]) // Run when agents are loaded
 
   //refill the test ai popup input fields
 
@@ -498,6 +595,49 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     setOpenGptManu(null)
   }
 
+  // Function to render icon with branding using mask-image (same logic as myAgentX/page.js)
+  const renderBrandedIcon = (iconPath, width, height) => {
+    if (typeof window === 'undefined') {
+      return <Image src={iconPath} width={width} height={height} alt="*" />
+    }
+
+    // Get brand color from CSS variable
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')?.trim()
+
+    // Only apply branding if brand color is set and valid (indicates custom domain with branding)
+    // Check for empty string, null, undefined, or if it doesn't contain valid color values
+    if (!brandColor || brandColor === '' || brandColor.length < 3) {
+      return <Image src={iconPath} width={width} height={height} alt="*" />
+    }
+
+    // Use mask-image approach: background color with icon as mask
+    // This works for both SVG and PNG icons
+    return (
+      <div
+        style={{
+          width: width,
+          height: height,
+          minWidth: width,
+          minHeight: height,
+          backgroundColor: `hsl(${brandColor})`,
+          WebkitMaskImage: `url(${iconPath})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(${iconPath})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          transition: 'background-color 0.2s ease-in-out',
+          flexShrink: 0,
+        }}
+      />
+    )
+  }
+
   //handle duplicate agent
   const handleDuplicate = async () => {
     console.log('Duplicate agent clicked')
@@ -587,7 +727,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       navigator.clipboard
         .writeText(url)
         .then(() => {
-          setShowSuccessSnack('Webhook URL Copied')
+          // Only show "Webhook URL Copied" for webhook agents, not for embed agents
+          const message = fetureType === 'webhook' ? 'Webhook URL Copied' : 'Embed code copied'
+          setShowSuccessSnack(message)
           setIsVisibleSnack(true)
           setShowWebAgentModal(false)
           setShowAllSetModal(false)
@@ -621,7 +763,52 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     ) {
       setShowUpgradeModal(true)
     } else {
-      setSelectedAgentForWebAgent(agent)
+      // Merge with existing updated agent state if available (to preserve smartlist updates)
+      // Also check mainAgentsList for the most up-to-date agent data
+      let agentToUse = agent
+      
+      // First, try to get updated agent from mainAgentsList (which is updated after smartlist creation)
+      const agentIdToFind = agent.id
+      if (agentIdToFind && typeof agentIdToFind === 'number') {
+        const updatedAgentFromList = mainAgentsList
+          .flatMap(ma => ma.agents || [])
+          .find(a => a.id === agentIdToFind)
+        
+        if (updatedAgentFromList) {
+          // Use the agent from mainAgentsList as it has the latest updates
+          agentToUse = updatedAgentFromList
+          console.log('🔍 ADMIN-WEB-AGENT - Using updated agent from mainAgentsList:', {
+            agentId: agentIdToFind,
+            smartListIdForWeb: updatedAgentFromList.smartListIdForWeb,
+            smartListIdForWebhook: updatedAgentFromList.smartListIdForWebhook,
+            smartListEnabledForWeb: updatedAgentFromList.smartListEnabledForWeb,
+            smartListEnabledForWebhook: updatedAgentFromList.smartListEnabledForWebhook,
+          })
+        }
+      }
+      
+      // Also merge with selectedAgentForWebAgent if it exists and matches (for additional state updates)
+      if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === agent.id) {
+        // Merge any additional updates from selectedAgentForWebAgent state
+        agentToUse = {
+          ...agentToUse,
+          // Preserve updated smartlist fields from state (prefer selectedAgentForWebAgent if it has newer data)
+          smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? agentToUse.smartListIdForWeb,
+          smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? agentToUse.smartListEnabledForWeb,
+          smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? agentToUse.smartListIdForWebhook,
+          smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? agentToUse.smartListEnabledForWebhook,
+          smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? agentToUse.smartListIdForEmbed,
+          smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? agentToUse.smartListEnabledForEmbed,
+        }
+        console.log('🔍 ADMIN-WEB-AGENT - Merged with selectedAgentForWebAgent state:', {
+          original: agent,
+          fromList: agentToUse,
+          fromState: selectedAgentForWebAgent,
+          merged: agentToUse,
+        })
+      }
+      
+      setSelectedAgentForWebAgent(agentToUse)
       setShowWebAgentModal(true)
       setFetureType('webagent')
     }
@@ -636,7 +823,83 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     ) {
       setShowUpgradeModal(true)
     } else {
-      setSelectedAgentForEmbed(agent)
+      console.log('🔍 ADMIN-EMBED-CLICK - Starting with agent:', {
+        agentId: agent.id,
+        agentName: agent.name,
+        agentSmartListIdForEmbed: agent.smartListIdForEmbed,
+        agentSmartListEnabledForEmbed: agent.smartListEnabledForEmbed,
+      })
+      
+      // CRITICAL: Always read from mainAgentsList (localStorage) as the source of truth
+      // This ensures we get the correct smartlist status from persisted data
+      const agentFromMainList = getAgentFromMainList(agent.id)
+      
+      // Use agent from main list if found (has latest persisted data), otherwise use the passed agent
+      let agentToUse = agentFromMainList || agent
+      
+      // CRITICAL: Only merge selectedAgentForEmbed if it's for the EXACT SAME agent
+      // This prevents cross-contamination between different agents
+      if (selectedAgentForEmbed && selectedAgentForEmbed.id === agent.id && selectedAgentForEmbed.id === agentToUse.id) {
+        // We have an updated version of THIS SPECIFIC agent - merge the smartlist fields
+        // But prioritize agentFromMainList data since it's from localStorage (persisted)
+        agentToUse = {
+          ...agentToUse,
+          // Only override if selectedAgentForEmbed has newer data (non-null/true values)
+          smartListIdForEmbed: selectedAgentForEmbed.smartListIdForEmbed ?? agentToUse.smartListIdForEmbed,
+          smartListEnabledForEmbed: selectedAgentForEmbed.smartListEnabledForEmbed ?? agentToUse.smartListEnabledForEmbed,
+          smartListIdForWeb: selectedAgentForEmbed.smartListIdForWeb ?? agentToUse.smartListIdForWeb,
+          smartListEnabledForWeb: selectedAgentForEmbed.smartListEnabledForWeb ?? agentToUse.smartListEnabledForWeb,
+          smartListIdForWebhook: selectedAgentForEmbed.smartListIdForWebhook ?? agentToUse.smartListIdForWebhook,
+          smartListEnabledForWebhook: selectedAgentForEmbed.smartListEnabledForWebhook ?? agentToUse.smartListEnabledForWebhook,
+        }
+        console.log('🔍 ADMIN-EMBED-CLICK - Merged with selectedAgentForEmbed (same agent):', {
+          original: agent,
+          fromMainList: agentFromMainList,
+          selectedAgentForEmbed: {
+            id: selectedAgentForEmbed.id,
+            name: selectedAgentForEmbed.name,
+            smartListIdForEmbed: selectedAgentForEmbed.smartListIdForEmbed,
+            smartListEnabledForEmbed: selectedAgentForEmbed.smartListEnabledForEmbed,
+          },
+          merged: {
+            id: agentToUse.id,
+            name: agentToUse.name,
+            smartListIdForEmbed: agentToUse.smartListIdForEmbed,
+            smartListEnabledForEmbed: agentToUse.smartListEnabledForEmbed,
+          },
+        })
+      } else {
+        // Clear selectedAgentForEmbed if it's for a different agent to prevent cross-contamination
+        if (selectedAgentForEmbed && selectedAgentForEmbed.id !== agent.id) {
+          console.log('🔍 ADMIN-EMBED-CLICK - Clearing selectedAgentForEmbed (different agent):', {
+            selectedAgentId: selectedAgentForEmbed.id,
+            selectedAgentName: selectedAgentForEmbed.name,
+            currentAgentId: agent.id,
+            currentAgentName: agent.name,
+          })
+          setSelectedAgentForEmbed(null)
+        }
+        
+        if (agentFromMainList) {
+          console.log('🔍 ADMIN-EMBED-CLICK - Using agent from main list (source of truth from localStorage):', {
+            original: agent,
+            fromMainList: {
+              id: agentFromMainList.id,
+              name: agentFromMainList.name,
+              smartListIdForEmbed: agentFromMainList.smartListIdForEmbed,
+              smartListEnabledForEmbed: agentFromMainList.smartListEnabledForEmbed,
+            },
+          })
+        } else {
+          console.log('🔍 ADMIN-EMBED-CLICK - Agent not found in mainAgentsList, using original agent:', {
+            agentId: agent.id,
+            agentName: agent.name,
+            smartListIdForEmbed: agent.smartListIdForEmbed,
+            smartListEnabledForEmbed: agent.smartListEnabledForEmbed,
+          })
+        }
+      }
+      setSelectedAgentForEmbed(agentToUse)
       setShowEmbedModal(true)
     }
   }
@@ -654,16 +917,230 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     setShowNewSmartListModal(true)
   }
 
-  const handleSmartListCreated = (smartListId) => {
+  // Helper function to get agent from mainAgentsList (reads from nested agents array)
+  const getAgentFromMainList = (agentId) => {
+    if (!mainAgentsList || mainAgentsList.length === 0) {
+      return null
+    }
+    
+    // Convert agentId to number if it's a numeric string for strict comparison
+    const agentIdNum = typeof agentId === 'string' && !isNaN(agentId) ? Number(agentId) : agentId
+    const agentIdStr = String(agentId)
+    
+    for (const mainAgent of mainAgentsList) {
+      if (mainAgent.agents && mainAgent.agents.length > 0) {
+        const foundAgent = mainAgent.agents.find((subAgent) => {
+          // Strict matching: check numeric id first, then UUIDs
+          if (typeof agentIdNum === 'number' && !isNaN(agentIdNum)) {
+            return subAgent.id === agentIdNum
+          }
+          return (
+            (subAgent.modelIdVapi && subAgent.modelIdVapi === agentIdStr) ||
+            (subAgent.agentUuid && subAgent.agentUuid === agentIdStr)
+          )
+        })
+        
+        if (foundAgent) {
+          console.log('🔍 ADMIN-GET-AGENT-FROM-MAIN-LIST - Found agent:', {
+            agentId,
+            agentIdNum,
+            foundAgentId: foundAgent.id,
+            foundAgentName: foundAgent.name,
+            smartListIdForEmbed: foundAgent.smartListIdForEmbed,
+            smartListEnabledForEmbed: foundAgent.smartListEnabledForEmbed,
+          })
+          return foundAgent
+        }
+      }
+    }
+    
+    console.warn('🔍 ADMIN-GET-AGENT-FROM-MAIN-LIST - Agent not found:', {
+      agentId,
+      agentIdNum,
+      mainAgentsListCount: mainAgentsList.length,
+    })
+    return null
+  }
+
+  // Helper function to update agent in mainAgentsList and localStorage
+  const updateAgentInMainList = (agentId, updates) => {
+    // Convert agentId to number if it's a numeric string for strict comparison
+    const agentIdNum = typeof agentId === 'string' && !isNaN(agentId) ? Number(agentId) : agentId
+    const agentIdStr = String(agentId)
+    
+    let foundAgent = null
+    let updatedCount = 0
+    
+    const updatedList = mainAgentsList.map((mainAgent) => {
+      const updatedSubAgents = mainAgent.agents.map((subAgent) => {
+        // Strict matching: check numeric id first, then UUIDs
+        let matches = false
+        
+        // For numeric IDs, do strict numeric comparison
+        if (typeof agentIdNum === 'number' && !isNaN(agentIdNum)) {
+          matches = subAgent.id === agentIdNum
+        }
+        
+        // If not matched by numeric ID, try UUIDs (exact string match)
+        if (!matches) {
+          matches = 
+            (subAgent.modelIdVapi && subAgent.modelIdVapi === agentIdStr) ||
+            (subAgent.agentUuid && subAgent.agentUuid === agentIdStr)
+        }
+
+        if (matches) {
+          foundAgent = subAgent
+          updatedCount++
+          console.log('🔧 ADMIN-AGENT-UPDATE - Found and updating agent:', {
+            agentId,
+            agentIdNum,
+            agentIdStr,
+            foundAgentId: subAgent.id,
+            foundAgentName: subAgent.name,
+            foundModelIdVapi: subAgent.modelIdVapi,
+            updates,
+          })
+          return {
+            ...subAgent,
+            ...updates,
+          }
+        }
+        return subAgent
+      })
+
+      return {
+        ...mainAgent,
+        agents: updatedSubAgents,
+      }
+    })
+
+    if (!foundAgent) {
+      console.error('🔧 ADMIN-AGENT-UPDATE - Agent NOT found in mainAgentsList:', {
+        agentId,
+        agentIdNum,
+        agentIdStr,
+        mainAgentsListCount: mainAgentsList.length,
+        availableAgentIds: mainAgentsList.flatMap(ma => 
+          ma.agents?.map(a => ({ id: a.id, name: a.name, modelIdVapi: a.modelIdVapi })) || []
+        ),
+      })
+      return // Don't update if agent not found
+    }
+
+    if (updatedCount > 1) {
+      console.error('🔧 ADMIN-AGENT-UPDATE - WARNING: Multiple agents matched! This should not happen:', {
+        agentId,
+        updatedCount,
+      })
+      return // Don't update if multiple matches (data corruption risk)
+    }
+
+    // Update state
+    setMainAgentsList(updatedList)
+
+    // Update localStorage
+    localStorage.setItem(
+      PersistanceKeys.LocalStoredAgentsListMain,
+      JSON.stringify(updatedList),
+    )
+
+    console.log('🔧 ADMIN-AGENT-UPDATE - Successfully updated agent in main list and localStorage:', {
+      agentId,
+      agentIdNum,
+      foundAgentId: foundAgent.id,
+      foundAgentName: foundAgent.name,
+      updates,
+    })
+  }
+
+  const handleSmartListCreated = async (smartListData) => {
+    console.log('🔧 ADMIN-WEB-AGENT - Smart list created:', smartListData)
+    console.log('🔧 ADMIN-WEB-AGENT - Current fetureType:', fetureType)
+
+    // Note: AddSmartList API already attached the smartlist with correct agentType
+    // So we don't need to call attachSmartList again here
+    // Just update local state for UI consistency
+    const smartListId = smartListData?.id || smartListData?.data?.id || smartListData
+    // Use agentType from the response if available, otherwise fall back to fetureType
+    const agentType = smartListData?.agentType || (fetureType === 'webhook' ? 'webhook' : 'web')
+    console.log('🔧 ADMIN-WEB-AGENT - Determined agentType:', agentType, 'from smartListData:', smartListData)
+    
+    // Explicitly set fetureType based on agentType to ensure AllSetModal shows correct type
+    // This ensures the modal title displays correctly even if fetureType state was not set properly
+    // agentType can be 'webhook' or 'web', and we map 'web' to 'webagent' for fetureType
+    if (agentType === 'webhook') {
+      console.log('🔧 ADMIN-WEB-AGENT - Setting fetureType to webhook')
+      setFetureType('webhook')
+    } else if (agentType === 'web') {
+      console.log('🔧 ADMIN-WEB-AGENT - Setting fetureType to webagent (browser agent)')
+      setFetureType('webagent')
+    } else {
+      // Fallback: preserve existing fetureType if agentType is unexpected
+      console.log('🔧 ADMIN-WEB-AGENT - Unknown agentType, preserving fetureType:', fetureType)
+    }
+
+    // Determine which fields to update based on agentType
+    const updates = {
+      smartListId: smartListId, // Legacy field
+    }
+
+    if (agentType === 'webhook') {
+      updates.smartListIdForWebhook = smartListId
+      updates.smartListEnabledForWebhook = true
+    } else {
+      updates.smartListIdForWeb = smartListId
+      updates.smartListEnabledForWeb = true
+    }
+
+    // Update selectedAgentForWebAgent state
+    if (selectedAgentForWebAgent) {
+      const updatedAgent = {
+        ...selectedAgentForWebAgent,
+        ...updates,
+      }
+      setSelectedAgentForWebAgent(updatedAgent)
+
+      // Update agent in mainAgentsList and localStorage
+      // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
+      const agentIdToUpdate = selectedAgentForWebAgent?.id
+      if (agentIdToUpdate && typeof agentIdToUpdate === 'number') {
+        console.log('🔧 ADMIN-WEB-AGENT - Updating agent in main list:', {
+          agentId: agentIdToUpdate,
+          agentName: selectedAgentForWebAgent?.name,
+          agentIdType: typeof agentIdToUpdate,
+          updates,
+          selectedAgentForWebAgent: {
+            id: selectedAgentForWebAgent.id,
+            name: selectedAgentForWebAgent.name,
+            modelIdVapi: selectedAgentForWebAgent.modelIdVapi,
+          },
+        })
+        updateAgentInMainList(agentIdToUpdate, updates)
+      } else {
+        console.error('🔧 ADMIN-WEB-AGENT - Cannot update main list: agentId is missing or invalid', {
+          agentIdToUpdate,
+          agentIdType: typeof agentIdToUpdate,
+          selectedAgentForWebAgent: {
+            id: selectedAgentForWebAgent?.id,
+            idType: typeof selectedAgentForWebAgent?.id,
+            modelIdVapi: selectedAgentForWebAgent?.modelIdVapi,
+            name: selectedAgentForWebAgent?.name,
+          },
+        })
+      }
+    }
+
     setShowNewSmartListModal(false)
     setSelectedSmartList(smartListId)
+    console.log('🔧 ADMIN-WEB-AGENT - Opening AllSetModal with fetureType:', fetureType)
     setShowAllSetModal(true)
-    setFetureType('webagent')
   }
 
   const handleCloseAllSetModal = () => {
     setShowAllSetModal(false)
-    setSelectedAgentForWebAgent(null)
+    // Don't clear selectedAgentForWebAgent - preserve it so modal can read updated state when reopened
+    // The state is already updated in handleSmartListCreated with the new smartlist info
+    // Only clear selectedSmartList
     setSelectedSmartList('')
   }
 
@@ -672,7 +1149,59 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     setShowEmbedSmartListModal(true)
   }
 
-  const handleEmbedSmartListCreated = (smartListId) => {
+  const handleEmbedSmartListCreated = async (smartListData) => {
+    console.log('🔧 ADMIN-EMBED-AGENT - Smart list created:', smartListData)
+
+    // Note: AddSmartList API already attached the smartlist with agentType='embed'
+    // So we don't need to call attachSmartList again here
+    // Just update local state for UI consistency
+    const smartListId = smartListData?.id || smartListData?.data?.id || smartListData
+    
+    if (selectedAgentForEmbed && smartListId) {
+      // Determine which fields to update for embed agent
+      const updates = {
+        smartListId: smartListId, // Legacy field
+        smartListIdForEmbed: smartListId,
+        smartListEnabledForEmbed: true,
+      }
+
+      // Update selectedAgentForEmbed state
+      const updatedAgent = {
+        ...selectedAgentForEmbed,
+        ...updates,
+      }
+      setSelectedAgentForEmbed(updatedAgent)
+
+      // Update agent in mainAgentsList and localStorage
+      // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
+      const agentIdToUpdate = selectedAgentForEmbed?.id
+      if (agentIdToUpdate && typeof agentIdToUpdate === 'number') {
+        console.log('🔧 ADMIN-EMBED-AGENT - Updating agent in main list:', {
+          agentId: agentIdToUpdate,
+          agentName: selectedAgentForEmbed?.name,
+          agentIdType: typeof agentIdToUpdate,
+          updates,
+          selectedAgentForEmbed: {
+            id: selectedAgentForEmbed.id,
+            name: selectedAgentForEmbed.name,
+            modelIdVapi: selectedAgentForEmbed.modelIdVapi,
+          },
+        })
+        updateAgentInMainList(agentIdToUpdate, updates)
+      } else {
+        console.error('🔧 ADMIN-EMBED-AGENT - Cannot update main list: agentId is missing or invalid', {
+          agentIdToUpdate,
+          agentIdType: typeof agentIdToUpdate,
+          selectedAgentForEmbed: {
+            id: selectedAgentForEmbed?.id,
+            idType: typeof selectedAgentForEmbed?.id,
+            modelIdVapi: selectedAgentForEmbed?.modelIdVapi,
+            name: selectedAgentForEmbed?.name,
+          },
+        })
+      }
+    }
+
     setShowEmbedSmartListModal(false)
     const code = `<iframe src="${baseUrl}embed/support/${selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
   height: 100vh; border: none; background: transparent; z-index: 
@@ -684,11 +1213,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   const handleCloseEmbedAllSetModal = () => {
     setShowEmbedAllSetModal(false)
-    setSelectedAgentForEmbed(null)
+    // Don't clear selectedAgentForEmbed - keep it so the state persists when modal is reopened
+    // setSelectedAgentForEmbed(null)
     setEmbedCode('')
     // Restore drawer if it was open before modal
     if (drawerStateBeforeModal) {
-      setShowDrawerSelectedAgent(drawerStateBeforeModal)
+      setDrawerSelectedAgent(drawerStateBeforeModal)
       setDrawerStateBeforeModal(null)
     }
   }
@@ -742,7 +1272,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
               )
 
               if (matchedAgent) {
-                setShowDrawerSelectedAgent(matchedAgent)
+                setDrawerSelectedAgent(matchedAgent)
                 console.log('Matched Agent Stored:') //, matchedAgent
               } else {
                 console.log('No matching agent found.')
@@ -1039,7 +1569,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     setCalendarDetails(comparedAgent)
 
     ////console.log
-    setShowDrawerSelectedAgent(item)
+    setDrawerSelectedAgent(item)
     setSelectedImage(item?.thumb_profile_image)
     //// //console.log;
     if (item.agentType === 'inbound') {
@@ -1050,7 +1580,13 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       // }
     } else if (item.agentType === 'outbound') {
       setShowReassignBtn(false)
-      setShowGlobalBtn(true)
+      // For subaccounts, only show global button if agency global number exists
+      if (selectedUser?.userRole === 'AgencySubAccount') {
+        const globalNumber = getGlobalPhoneNumber(selectedUser)
+        setShowGlobalBtn(globalNumber !== null)
+      } else {
+        setShowGlobalBtn(true)
+      }
     }
   }
 
@@ -1197,7 +1733,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         // setShowClaimPopup(null);
         setAssignNumber(item.phoneNumber.slice(1))
         setOpenCalimNumDropDown(false)
-        setShowDrawerSelectedAgent((prev) => {
+        setDrawerSelectedAgent((prev) => {
           return { ...prev, phoneNumber: item.phoneNumber }
         })
 
@@ -1478,12 +2014,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             // let updatedSubAgent = null
             if (updateAgentData.agents.length > 0 && showDrawerSelectedAgent) {
               if (updateAgentData.agents[0].id == showDrawerSelectedAgent.id) {
-                setShowDrawerSelectedAgent(updateAgentData.agents[0])
+                setDrawerSelectedAgent(updateAgentData.agents[0])
               } else if (updateAgentData.agents.length > 1) {
                 if (
                   updateAgentData.agents[1].id == showDrawerSelectedAgent.id
                 ) {
-                  setShowDrawerSelectedAgent(updateAgentData.agents[1])
+                  setDrawerSelectedAgent(updateAgentData.agents[1])
                 }
               }
             }
@@ -1573,7 +2109,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         if (response.data.status === true) {
           setShowSuccessSnack(`Phone number assigned`)
 
-          setShowDrawerSelectedAgent((prev) => {
+          setDrawerSelectedAgent((prev) => {
             return { ...prev, phoneNumber }
           })
           setIsVisibleSnack(true)
@@ -1801,7 +2337,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           ),
         )
 
-        setShowDrawerSelectedAgent(null)
+        setDrawerSelectedAgent(null)
         setDelAgentModal(false)
 
         //updating data on localstorage
@@ -1954,6 +2490,41 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     getAgents()
   }, [selectedUser])
 
+  // Listen for agent created event from child window
+  useEffect(() => {
+    const handleMessage = async (event) => {
+      // Verify message type and userId matches selectedUser
+      if (
+        event.data?.type === 'AGENT_CREATED' &&
+        event.data?.userId === selectedUser?.id
+      ) {
+        console.log('Received AGENT_CREATED event, reloading agents...')
+
+        // Clear current agents list to force fresh fetch
+        setMainAgentsList([])
+        setAgentsListSeparated([])
+        localStorage.removeItem(PersistanceKeys.LocalStoredAgentsListMain)
+
+        // Reload agents from the beginning (offset 0)
+        setInitialLoader(true)
+        getAgents(false, null, false)
+
+        // Dispatch custom event for parent component to refresh selectedUser
+        window.dispatchEvent(
+          new CustomEvent('refreshSelectedUser', {
+            detail: { userId: selectedUser.id },
+          }),
+        )
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+
+    return () => {
+      window.removeEventListener('message', handleMessage)
+    }
+  }, [selectedUser])
+
   const handleSelectProfileImg = (index) => {
     fileInputRef.current[index]?.click()
   }
@@ -1991,7 +2562,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     console.log('Pagination status passed is', paginationStatus)
     // console.log('search', search)
     try {
-      let offset = mainAgentsList.length
+      // If mainAgentsList is empty (fresh reload), start from offset 0
+      let offset = mainAgentsList.length > 0 ? mainAgentsList.length : 0
       let ApiPath = `${Apis.getAgents}?offset=${offset}&userId=${selectedUser.id}` //?agentType=outbound
 
       if (search) {
@@ -2063,24 +2635,34 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     }
   }
 
-  //function to add new agent
-  const handleAddNewAgent = (event) => {
-    event.preventDefault()
-    console.log('selectedUser create agent', selectedUser)
-    // return
-    if (selectedUser?.plan) {
+  //function to add new agent by more agents popup
+  const handleAddAgentByMoreAgentsPopup = () => {
+    try {
+      setShowMoreAgentsPopup(false)
+      console.log('handleAddAgentByMoreAgentsPopup is called (admin side)')
       const data = {
         status: true,
       }
       localStorage.setItem('fromDashboard', JSON.stringify(data))
+
+      localStorage.setItem(
+        'AddAgentByPayingPerMonth',
+        JSON.stringify({
+          status: true,
+        }),
+      )
+      //remove data from local storage after 2 minutes
+      setTimeout(
+        () => {
+          localStorage.removeItem('AddAgentByPayingPerMonth')
+          console.log('AddAgentByPayingPerMonth removed from local storage')
+        },
+        2 * 60 * 1000,
+      )
+
       const d = {
         subAccountData: selectedUser,
         isFromAgency: from,
-      }
-
-      let u = {
-        user: selectedUser,
-        isFrom: from,
       }
 
       localStorage.setItem(
@@ -2097,12 +2679,155 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         )
       }
 
-      // router.push("/createagent");
-      window.location.href = '/createagent'
-    } else {
+      // Check if current logged-in user is Admin or Agency
+      let isAdminOrAgency = false
+
+      // Check from Redux first
+      if (reduxUser) {
+        const userType = reduxUser?.userType
+        const userRole = reduxUser?.userRole
+        isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
+        console.log('handleAddAgentByMoreAgentsPopup - Redux user check:', { userType, userRole, isAdminOrAgency })
+      }
+
+      // Fallback to localStorage if Redux doesn't have the data
+      if (!isAdminOrAgency && typeof window !== 'undefined') {
+        try {
+          const localUserData = localStorage.getItem('User')
+          if (localUserData) {
+            const parsedUser = JSON.parse(localUserData)
+            const userType = parsedUser?.user?.userType || parsedUser?.userType
+            const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+            isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
+            console.log('handleAddAgentByMoreAgentsPopup - localStorage user check:', { userType, userRole, isAdminOrAgency })
+          }
+        } catch (error) {
+          console.log('Error parsing localStorage User data:', error)
+        }
+      }
+
+      console.log('routing to createagent from add new agent function (admin side)')
+
+      // Open in new tab if current user is Admin or Agency
+      if (isAdminOrAgency) {
+        console.log('Opening /createagent in new tab (user is Admin or Agency)')
+        window.open('/createagent', '_blank')
+      } else {
+        console.log('Opening /createagent in same tab')
+        setTimeout(() => {
+          window.location.href = '/createagent'
+        }, 100)
+      }
+    } catch (error) {
+      console.error('Error in handleAddAgentByMoreAgentsPopup:', error)
+    }
+  }
+
+  //function to add new agent
+  const handleAddNewAgent = (event) => {
+    event.preventDefault()
+    console.log('selectedUser create agent', selectedUser)
+    
+    if (!selectedUser?.plan) {
       console.log('User has no plan subscribed')
       setIsVisibleSnack2(true)
       setShowErrorSnack('User has no plan subscribed')
+      return
+    }
+
+    // Check agent limits before proceeding
+    const currentAgents = selectedUser?.currentUsage?.maxAgents || 0
+    const maxAgents = selectedUser?.planCapabilities?.maxAgents || 0
+    const isFreePlan = selectedUser?.plan === null || selectedUser?.plan?.price === 0
+
+    console.log('Agent limit check:', {
+      currentAgents,
+      maxAgents,
+      isFreePlan,
+      planCapabilities: selectedUser?.planCapabilities,
+    })
+
+    // Check if user is on free plan and has reached their limit
+    if (isFreePlan && currentAgents >= 1) {
+      console.log('🚫 [ADMIN] Free plan subaccount has reached limit')
+      setShowUpgradeModal(true)
+      return
+    }
+
+    // Check if paid plan user has reached their agent limit
+    // Only check if maxAgents is less than 1000 (1000+ indicates unlimited)
+    if (currentAgents >= maxAgents && maxAgents > 0 && maxAgents < 1000) {
+      console.log('🚫 [ADMIN] Paid plan subaccount has reached limit')
+      setShowMoreAgentsPopup(true)
+      setMoreAgentsPopupType('newagent')
+      return
+    }
+
+    // User can create agent - proceed to creation
+    console.log('✅ [ADMIN] Subaccount can create agent - proceeding to /createagent')
+    const data = {
+      status: true,
+    }
+    localStorage.setItem('fromDashboard', JSON.stringify(data))
+    const d = {
+      subAccountData: selectedUser,
+      isFromAgency: from,
+    }
+
+    let u = {
+      user: selectedUser,
+      isFrom: from,
+    }
+
+    localStorage.setItem(
+      PersistanceKeys.isFromAdminOrAgency,
+      JSON.stringify(d),
+    )
+
+    // Save current URL for redirect after agent creation
+    if (typeof window !== 'undefined') {
+      const currentUrl = window.location.href
+      localStorage.setItem(
+        PersistanceKeys.returnUrlAfterAgentCreation,
+        currentUrl,
+      )
+    }
+
+    // Check if current logged-in user is Admin or Agency
+    let isAdminOrAgency = false
+
+    // Check from Redux first
+    if (reduxUser) {
+      const userType = reduxUser?.userType
+      const userRole = reduxUser?.userRole
+      isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
+      console.log('handleAddNewAgent - Redux user check:', { userType, userRole, isAdminOrAgency })
+    }
+
+    // Fallback to localStorage if Redux doesn't have the data
+    if (!isAdminOrAgency && typeof window !== 'undefined') {
+      try {
+        const localUserData = localStorage.getItem('User')
+        if (localUserData) {
+          const parsedUser = JSON.parse(localUserData)
+          const userType = parsedUser?.user?.userType || parsedUser?.userType
+          const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+          isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
+          console.log('handleAddNewAgent - localStorage user check:', { userType, userRole, isAdminOrAgency })
+        }
+      } catch (error) {
+        console.log('Error parsing localStorage User data:', error)
+      }
+    }
+
+    // Open in new tab if current user is Admin or Agency
+    if (isAdminOrAgency) {
+      console.log('Opening /createagent in new tab (user is Admin or Agency)')
+      window.open('/createagent', '_blank')
+    } else {
+      console.log('Opening /createagent in same tab')
+      // router.push("/createagent");
+      window.location.href = '/createagent'
     }
   }
 
@@ -2332,10 +3057,10 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
             let agent = response.data.data
             if (agent.agents[0].id == showDrawerSelectedAgent.id) {
-              setShowDrawerSelectedAgent(agent.agents[0])
+              setDrawerSelectedAgent(agent.agents[0])
             } else if (agent.agents.length > 1) {
               if (agent.agents[1].id == showDrawerSelectedAgent.id) {
-                setShowDrawerSelectedAgent(agent.agents[1])
+                setDrawerSelectedAgent(agent.agents[1])
               }
             }
 
@@ -2494,7 +3219,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           bottom: 0,
         }}
       >
-        <DashboardSlider needHelp={false} selectedUser={selectedUser} />
+        {/* Show Agency Support Widget for Agency users, regular DashboardSlider for others */}
+        {selectedUser?.userRole === 'Agency' || agencyUser ? (
+          <AgencySupportWidget needHelp={false} selectedUser={selectedUser} />
+        ) : (
+          <DashboardSlider needHelp={false} selectedUser={selectedUser} />
+        )}
       </div>
       {/* Code for popover */}
       <Popover
@@ -2980,7 +3710,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
       <Modal
         open={showDrawerSelectedAgent}
-        onClose={() => setShowDrawerSelectedAgent(null)}
+        onClose={() => setDrawerSelectedAgent(null)}
         closeAfterTransition
         BackdropProps={{
           timeout: 500,
@@ -2990,24 +3720,26 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         }}
       >
         <Box
+          className="responsive-agent-modal"
           sx={{
             position: 'fixed',
-            top: 14,
-            right: 25,
-            width: '50vw', // Adjust width as needed
-            maxWidth: '600px',
-            height: '95vh',
             bgcolor: 'white',
             boxShadow: 3,
-            p: 3,
             display: 'flex',
             flexDirection: 'column',
             transition: 'transform 0.7s ease-in-out',
-            borderRadius: 5,
+            // Keep sx props as fallback
+            top: { xs: 0, sm: 14 },
+            right: { xs: 0, sm: 25 },
+            width: { xs: '100vw', sm: '85vw', md: '70vw', lg: '50vw' },
+            maxWidth: { xs: '100vw', sm: '550px', md: '650px', lg: '750px' },
+            height: { xs: '100vh', sm: '95vh' },
+            p: { xs: 2, sm: 3 },
+            borderRadius: { xs: 0, sm: 5 },
           }}
         >
           <div
-            className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
+            className="flex flex-col w-full h-full py-2 px-3 sm:px-5 rounded-xl"
           // style={{  }}
           >
             <div
@@ -3290,12 +4022,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         handleWebAgentClick(showDrawerSelectedAgent)
                       }}
                     >
-                      <Image
-                        src={'/assets/openVoice.png'}
-                        alt="*"
-                        height={18}
-                        width={18}
-                      />
+                      {renderBrandedIcon('/assets/openVoice.png', 18, 18)}
                     </button>
                     <button
                       style={{ paddingLeft: '3px' }}
@@ -3303,12 +4030,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         handleEmbedClick(showDrawerSelectedAgent)
                       }}
                     >
-                      <Image
-                        src={'/svgIcons/embedIcon.svg'}
-                        height={22}
-                        width={22}
-                        alt="*"
-                      />
+                      {renderBrandedIcon('/svgIcons/embedIcon.svg', 22, 22)}
                     </button>
 
                     <button
@@ -3326,18 +4048,56 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         ) {
                           setShowUpgradeModal(true)
                         } else {
+                          // Merge with existing updated agent state if available
+                          // Also check mainAgentsList for the most up-to-date agent data
+                          let agentToUse = showDrawerSelectedAgent
+                          
+                          // First, try to get updated agent from mainAgentsList (which is updated after smartlist creation)
+                          const agentIdToFind = showDrawerSelectedAgent.id
+                          if (agentIdToFind && typeof agentIdToFind === 'number') {
+                            const updatedAgentFromList = mainAgentsList
+                              .flatMap(ma => ma.agents || [])
+                              .find(a => a.id === agentIdToFind)
+                            
+                            if (updatedAgentFromList) {
+                              // Use the agent from mainAgentsList as it has the latest updates
+                              agentToUse = updatedAgentFromList
+                              console.log('🔍 ADMIN-WEBHOOK - Using updated agent from mainAgentsList:', {
+                                agentId: agentIdToFind,
+                                smartListIdForWebhook: updatedAgentFromList.smartListIdForWebhook,
+                                smartListEnabledForWebhook: updatedAgentFromList.smartListEnabledForWebhook,
+                              })
+                            }
+                          }
+                          
+                          // Also merge with selectedAgentForWebAgent if it exists and matches (for additional state updates)
+                          if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
+                            // Merge any additional updates from selectedAgentForWebAgent state
+                            agentToUse = {
+                              ...agentToUse,
+                              // Preserve updated smartlist fields from state (prefer selectedAgentForWebAgent if it has newer data)
+                              smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? agentToUse.smartListIdForWeb,
+                              smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? agentToUse.smartListEnabledForWeb,
+                              smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? agentToUse.smartListIdForWebhook,
+                              smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? agentToUse.smartListEnabledForWebhook,
+                              smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? agentToUse.smartListIdForEmbed,
+                              smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? agentToUse.smartListEnabledForEmbed,
+                            }
+                            console.log('🔍 ADMIN-WEBHOOK - Merged with selectedAgentForWebAgent state:', {
+                              original: showDrawerSelectedAgent,
+                              fromList: agentToUse,
+                              fromState: selectedAgentForWebAgent,
+                              merged: agentToUse,
+                            })
+                          }
+                          
                           setFetureType('webhook')
-                          setSelectedAgentForWebAgent(showDrawerSelectedAgent)
+                          setSelectedAgentForWebAgent(agentToUse)
                           setShowWebAgentModal(true)
                         }
                       }}
                     >
-                      <Image
-                        src={'/svgIcons/webhook.svg'}
-                        height={22}
-                        width={22}
-                        alt="*"
-                      />
+                      {renderBrandedIcon('/svgIcons/webhook.svg', 22, 22)}
                     </button>
                   </div>
                 </div>
@@ -3358,8 +4118,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     )
                   }
                   icon="/svgIcons/selectedCallIcon.svg"
-                  bgColor="bg-blue-100"
-                  iconColor="text-blue-500"
+                  bgColor="bg-brand-primary/10"
+                  iconColor="text-brand-primary"
                 />
                 <Card
                   name="Convos"
@@ -3385,8 +4145,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     </div>
                   }
                   icon="/otherAssets/hotLeadsIcon2.png"
-                  bgColor="bg-orange-100"
-                  iconColor="text-orange-500"
+                  bgColor="bg-brand-primary/10"
+                  iconColor="text-brand-primary"
                 />
                 <Card
                   name="Booked"
@@ -3398,8 +4158,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     </div>
                   }
                   icon="/otherAssets/greenCalenderIcon.png"
-                  bgColor="bg-green-100"
-                  iconColor="text-green-500"
+                  bgColor="bg-brand-primary/10"
+                  iconColor="text-brand-primary"
                 />
                 <Card
                   name="Time"
@@ -3422,8 +4182,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     )
                   }
                   icon="/otherAssets/minsCounter.png"
-                  bgColor="bg-green-100"
-                  iconColor="text-green-500"
+                  bgColor="bg-brand-primary/10"
+                  iconColor="text-brand-primary"
                 />
               </div>
               {/* Bottom Agent Info */}
@@ -3433,8 +4193,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     key={tab}
                     onClick={() => setActiveTab(tab)}
                     className={`${activeTab === tab
-                        ? 'text-brand-primary border-b-2 border-brand-primary'
-                        : 'text-black-500'
+                      ? 'text-brand-primary border-b-2 border-brand-primary'
+                      : 'text-black-500'
                       }`}
                     style={{ fontSize: 15, fontWeight: '500' }}
                   >
@@ -3727,74 +4487,94 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                       flexDirection: 'row',
                                       alignItems: 'center',
                                       justifyContent: 'space-between',
+                                      
+                                      padding: '8px 16px',
+                                      width: '100%',
                                     }}
                                     value={item.name}
                                     key={index}
                                     disabled={SelectedVoice === item.name}
                                   >
-                                    <Image
-                                      src={item.img}
-                                      height={40}
-                                      width={35}
-                                      alt="*"
-                                    />
-                                    <div>{item.name}</div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+                                      <div className="flex flex-row items-center justify-center">
+                                        <Image
+                                          src={item.img}
+                                          height={
+                                            // item.name === 'Axel' ||
+                                            // item.name === 'Max'
+                                            //   ? 40
+                                            // :
+                                            35
+                                          }
+                                          width={
+                                            // item.name === 'Axel' ||
+                                            // item.name === 'Max'
+                                            //   ? 22: 
+                                            35
+                                          }
+                                          alt="*"
+                                        />
+                                      </div>
+                                      <div style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>
+                                    </div>
 
                                     {/* Play/Pause Button (Prevents dropdown close) */}
-                                    {item.preview ? (
-                                      <div //style={{marginLeft:15}}
-                                        onClick={(e) => {
-                                          console.log(
-                                            'audio preview ',
-                                            item.preview,
-                                          )
-                                          e.stopPropagation() // Prevent dropdown from closing
-                                          e.preventDefault() // Prevent selection event
+                                    <div style={{ flexShrink: 0 }}>
+                                      {item.preview ? (
+                                        <div
+                                          onClick={(e) => {
+                                            console.log(
+                                              'audio preview ',
+                                              item.preview,
+                                            )
+                                            e.stopPropagation() // Prevent dropdown from closing
+                                            e.preventDefault() // Prevent selection event
 
-                                          if (preview === item.preview) {
-                                            if (audio) {
-                                              audio.pause()
-                                              audio.removeEventListener(
-                                                'ended',
-                                                () => { },
-                                              )
+                                            if (preview === item.preview) {
+                                              if (audio) {
+                                                audio.pause()
+                                                audio.removeEventListener(
+                                                  'ended',
+                                                  () => { },
+                                                )
+                                              }
+                                              setPreview(null)
+                                            } else {
+                                              playVoice(item.preview)
                                             }
-                                            setPreview(null)
-                                          } else {
-                                            playVoice(item.preview)
-                                          }
-                                        }}
-                                      >
-                                        {preview === item.preview ? (
-                                          <PauseCircle
-                                            size={38}
-                                            weight="regular"
-                                          />
-                                        ) : (
+                                          }}
+                                        >
+                                          {preview === item.preview ? (
+                                            <PauseCircle
+                                              size={38}
+                                              weight="regular"
+                                            />
+                                          ) : (
+                                            <Image
+                                              src={'/assets/play.png'}
+                                              height={25}
+                                              width={25}
+                                              alt="*"
+                                            />
+                                          )}
+                                        </div>
+                                      ) : (
+                                        <div
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            e.preventDefault()
+                                            setShowNoAudioModal(item)
+                                          }}
+                                        >
                                           <Image
                                             src={'/assets/play.png'}
                                             height={25}
                                             width={25}
                                             alt="*"
                                           />
-                                        )}
-                                      </div>
-                                    ) : (
-                                      <div
-                                        onClick={(e) => {
-                                          e.stopPropagation()
-                                          e.preventDefault()
-                                          setShowNoAudioModal(item)
-                                        }}
-                                      >
-                                        <Image
-                                          src={'/assets/play.png'}
-                                          height={25}
-                                          width={25}
-                                          alt="*"
-                                        />
-                                      </div>
-                                    )}
+                                        </div>
+                                      )}
+                                    </div>
                                   </MenuItem>
                                 )
                               })}
@@ -4292,46 +5072,43 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                     </MenuItem>
                                   )
                                 })}
-                                <MenuItem
-                                  style={styles.dropdownMenu}
-                                  value={
-                                    showGlobalBtn
-                                      ? getGlobalPhoneNumber(selectedUser).replace(
+                                {showGlobalBtn && getGlobalPhoneNumber(selectedUser) && (
+                                  <MenuItem
+                                    style={styles.dropdownMenu}
+                                    value={
+                                      getGlobalPhoneNumber(selectedUser)?.replace(
                                         '+',
                                         '',
+                                      ) || ''
+                                    }
+                                    disabled={
+                                      (assignNumber &&
+                                        assignNumber.replace('+', '') ===
+                                        getGlobalPhoneNumber(selectedUser)?.replace(
+                                          '+',
+                                          '',
+                                        )) ||
+                                      (showDrawerSelectedAgent &&
+                                        showDrawerSelectedAgent.agentType ===
+                                        'inbound')
+                                    }
+                                    onClick={() => {
+                                      console.log(
+                                        'This triggers when user clicks on assigning global number',
+                                        assignNumber,
                                       )
-                                      : ''
-                                  }
-                                  // disabled={!showGlobalBtn}
-                                  disabled={
-                                    (assignNumber &&
-                                      assignNumber.replace('+', '') ===
-                                      getGlobalPhoneNumber(selectedUser).replace(
-                                        '+',
-                                        '',
-                                      )) ||
-                                    (showDrawerSelectedAgent &&
-                                      showDrawerSelectedAgent.agentType ===
-                                      'inbound')
-                                  }
-                                  onClick={() => {
-                                    console.log(
-                                      'This triggers when user clicks on assigning global number',
-                                      assignNumber,
-                                    )
-                                    // return;
-                                    AssignNumber(
-                                      getGlobalPhoneNumber(selectedUser),
-                                    )
-                                    // handleReassignNumber(showConfirmationModal);
-                                  }}
-                                >
-                                  {getGlobalPhoneNumber(selectedUser)}
-                                  {showGlobalBtn &&
-                                    ' (available for testing calls only)'}
-                                  {showGlobalBtn == false &&
-                                    ' (Only for outbound agents. You must buy a number)'}
-                                </MenuItem>
+                                      // return;
+                                      const globalNumber = getGlobalPhoneNumber(selectedUser)
+                                      if (globalNumber) {
+                                        AssignNumber(globalNumber)
+                                      }
+                                      // handleReassignNumber(showConfirmationModal);
+                                    }}
+                                  >
+                                    {getGlobalPhoneNumber(selectedUser)}
+                                    {' (available for testing calls only)'}
+                                  </MenuItem>
+                                )}
                                 <div
                                   className="ms-4 pe-4"
                                   style={{
@@ -4560,6 +5337,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     UserPipeline={UserPipeline}
                     mainAgent={calendarDetails}
                     selectedUser={selectedUser}
+                    from={from}
                   />
                 </div>
               ) : activeTab === 'Knowledge' ? (
@@ -4781,7 +5559,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   fontSize: '20',
                 }}
                 onClick={() => {
-                  setShowDrawerSelectedAgent(ShowWarningModal)
+                  setDrawerSelectedAgent(ShowWarningModal)
                   setShowWarningModal(null)
                 }}
               >
@@ -5453,6 +6231,37 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         featureTitle={featureTitle}
       />
 
+      <MoreAgentsPopup
+        open={showMoreAgentsPopup}
+        onClose={() => {
+          setShowMoreAgentsPopup(false)
+        }}
+        onUpgrade={() => {
+          // Close current modal first, then open upgrade modal after delay to prevent React DOM errors
+          setShowMoreAgentsPopup(false)
+          setTimeout(() => {
+            setShowUpgradePlanModal(true)
+          }, 150)
+        }}
+        onAddAgent={() => {
+          console.log('moreAgentsPopupType', moreAgentsPopupType)
+          // Close modal first to prevent React DOM errors
+          setShowMoreAgentsPopup(false)
+          // Execute action after a small delay
+          setTimeout(() => {
+            if (moreAgentsPopupType === 'newagent') {
+              handleAddAgentByMoreAgentsPopup()
+            } else {
+              handleAddAgentByMoreAgentsPopup()
+            }
+          }, 150)
+        }}
+        costPerAdditionalAgent={
+          selectedUser?.planCapabilities?.costPerAdditionalAgent || 10
+        }
+        from={'agents'}
+      />
+
       <AddScoringModal
         open={showAddScoringModal}
         onClose={() => {
@@ -5486,6 +6295,35 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         onCopyUrl={handleWebhookClick}
         selectedSmartList={selectedSmartList}
         setSelectedSmartList={setSelectedSmartList}
+        agent={selectedAgentForWebAgent} // Pass full agent object
+        selectedUser={selectedUser} // Pass selectedUser for agency/admin scenarios
+        onAgentUpdate={(updatedAgent) => {
+          // Update the agent state when smartlist is attached/detached
+          setSelectedAgentForWebAgent(updatedAgent)
+          
+          // Also update in mainAgentsList and localStorage
+          // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
+          const agentIdToUpdate = updatedAgent?.id
+          if (agentIdToUpdate && typeof agentIdToUpdate === 'number') {
+            // Determine which fields were updated
+            const updates = {}
+            if (updatedAgent.smartListIdForWeb !== undefined) {
+              updates.smartListIdForWeb = updatedAgent.smartListIdForWeb
+            }
+            if (updatedAgent.smartListEnabledForWeb !== undefined) {
+              updates.smartListEnabledForWeb = updatedAgent.smartListEnabledForWeb
+            }
+            if (updatedAgent.smartListIdForWebhook !== undefined) {
+              updates.smartListIdForWebhook = updatedAgent.smartListIdForWebhook
+            }
+            if (updatedAgent.smartListEnabledForWebhook !== undefined) {
+              updates.smartListEnabledForWebhook = updatedAgent.smartListEnabledForWebhook
+            }
+            if (Object.keys(updates).length > 0) {
+              updateAgentInMainList(agentIdToUpdate, updates)
+            }
+          }
+        }}
       />
 
       <NewSmartListModal
@@ -5495,6 +6333,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           selectedAgentForWebAgent?.id || selectedAgentForWebAgent?.modelIdVapi
         }
         onSuccess={handleSmartListCreated}
+        agentType={fetureType === 'webhook' ? 'webhook' : 'web'} // Pass agentType
+        selectedUser={selectedUser} // Pass selectedUser for agency/admin scenarios
       />
 
       <AllSetModal
@@ -5514,16 +6354,37 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         agentId={
           selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi
         }
-        agentSmartRefill={selectedAgentForEmbed?.smartListId}
+        agentSmartRefill={selectedAgentForEmbed?.smartListIdForEmbed || selectedAgentForEmbed?.smartListId} // Use embed-specific field
         onShowSmartList={handleShowEmbedSmartList}
         selectedUser={selectedUser}
         agent={selectedAgentForEmbed}
+        onAgentUpdate={(updatedAgent) => {
+          // Update the agent state when smartlist is attached
+          setSelectedAgentForEmbed(updatedAgent)
+          
+          // Also update in mainAgentsList and localStorage
+          // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
+          const agentIdToUpdate = updatedAgent?.id
+          if (agentIdToUpdate && typeof agentIdToUpdate === 'number') {
+            // Determine which fields were updated
+            const updates = {}
+            if (updatedAgent.smartListIdForEmbed !== undefined) {
+              updates.smartListIdForEmbed = updatedAgent.smartListIdForEmbed
+            }
+            if (updatedAgent.smartListEnabledForEmbed !== undefined) {
+              updates.smartListEnabledForEmbed = updatedAgent.smartListEnabledForEmbed
+            }
+            if (Object.keys(updates).length > 0) {
+              updateAgentInMainList(agentIdToUpdate, updates)
+            }
+          }
+        }}
         onShowAllSet={() => {
           setShowEmbedModal(false)
           // Save drawer state before closing it
           if (showDrawerSelectedAgent) {
             setDrawerStateBeforeModal(showDrawerSelectedAgent)
-            setShowDrawerSelectedAgent(null)
+            setDrawerSelectedAgent(null)
           }
           setShowEmbedAllSetModal(true)
           const code = `<iframe src="${baseUrl}embed/support/${selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
@@ -5538,7 +6399,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         open={showEmbedSmartListModal}
         onClose={() => setShowEmbedSmartListModal(false)}
         agentId={
-          selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi
+          selectedAgentForEmbed?.id ?? selectedAgentForEmbed?.modelIdVapi
         }
         onSuccess={handleEmbedSmartListCreated}
         fetureType={fetureType}
@@ -5559,10 +6420,51 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 }
 
 const Card = ({ name, value, icon, bgColor, iconColor }) => {
+  // Render icon with branding using mask-image approach (same logic as myAgentX/page.js)
+  const renderIcon = () => {
+    if (typeof window === 'undefined') {
+      return <Image src={icon} height={24} width={24} alt="icon" />
+    }
+
+    // Get brand color from CSS variable
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')?.trim()
+
+    // Only apply branding if brand color is set and valid (indicates custom domain with branding)
+    if (!brandColor || brandColor === '' || brandColor.length < 3) {
+      return <Image src={icon} height={24} width={24} alt="icon" />
+    }
+
+    // Use mask-image approach: background color with icon as mask
+    return (
+      <div
+        style={{
+          width: 24,
+          height: 24,
+          minWidth: 24,
+          minHeight: 24,
+          backgroundColor: `hsl(${brandColor})`,
+          WebkitMaskImage: `url(${icon})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(${icon})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          transition: 'background-color 0.2s ease-in-out',
+          flexShrink: 0,
+        }}
+      />
+    )
+  }
+
   return (
     <div className="flex flex-col items-start gap-2">
       {/* Icon */}
-      <Image src={icon} height={24} color={bgColor} width={24} alt="icon" />
+      {renderIcon()}
 
       <div style={{ fontSize: 15, fontWeight: '500', color: '#000' }}>
         {name}

@@ -446,8 +446,15 @@ const SolarRepAgentSignUp = ({
           }
 
           // Force apply branding after registration (for subaccounts/agencies)
+          // Make it non-blocking with timeout to prevent hanging
           if (user?.userRole === 'AgencySubAccount' || user?.userRole === 'Agency') {
-            await forceApplyBranding(response.data)
+            // Run branding in background, don't block the flow
+            Promise.race([
+              forceApplyBranding(response.data),
+              new Promise((resolve) => setTimeout(resolve, 5000)), // 5 second timeout
+            ]).catch((error) => {
+              console.error('Error applying branding (non-blocking):', error)
+            })
           }
 
           if (screenWidth <= SM_SCREEN_SIZE) {
@@ -456,8 +463,56 @@ const SolarRepAgentSignUp = ({
           } else {
             // //console.log;
             // handleContinue();
+            
+            // CRITICAL: Redirect FIRST, before showing popup
+            // This ensures redirect happens even if popup blocks execution
+            console.log('✅ Registration successful, redirecting to: /createagent')
+            
+            // Redirect immediately - don't wait for anything
+            const performRedirect = () => {
+              try {
+                console.log('🔄 Attempting redirect to /createagent')
+                window.location.href = '/createagent'
+              } catch (error) {
+                console.error('❌ Error with window.location.href:', error)
+                try {
+                  window.location.replace('/createagent')
+                } catch (replaceError) {
+                  console.error('❌ Error with window.location.replace:', replaceError)
+                  try {
+                    window.open('/createagent', '_self')
+                  } catch (openError) {
+                    console.error('❌ All redirect methods failed:', openError)
+                  }
+                }
+              }
+            }
+            
+            // Execute redirect immediately (synchronous)
+            performRedirect()
+            
+            // Show popup AFTER redirect is initiated (non-blocking)
             handleShowRedirectPopup()
-            router.push('/createagent')
+            
+            // Fallback: Force redirect after 200ms if still on onboarding page
+            setTimeout(() => {
+              const currentPath = window.location.pathname
+              if (currentPath === '/onboarding' || currentPath.includes('/onboarding')) {
+                console.warn('⚠️ Still on onboarding page after 200ms, forcing redirect')
+                window.location.replace('/createagent')
+              }
+            }, 200)
+            
+            // Final fallback: Force redirect after 800ms
+            setTimeout(() => {
+              const currentPath = window.location.pathname
+              if (currentPath === '/onboarding' || currentPath.includes('/onboarding')) {
+                console.warn('⚠️ Still on onboarding page after 800ms, forcing redirect with replace')
+                window.location.replace('/createagent')
+              }
+            }, 800)
+
+            return
 
             // setCongratsPopup(true);
           }
@@ -573,14 +628,14 @@ const SolarRepAgentSignUp = ({
       style={{ width: '100%' }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
-      <div className="bg-white rounded-2xl mx-2 w-full md:w-10/12 max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
-        <div className="h-[82svh]">
+      <div className="flex flex-col bg-white rounded-2xl mx-2 w-full md:w-10/12 h-[100%] sm:h-[95%] py-4 relative">
+        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24 scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
           {/* header */}
           <div className="h-[10%]">
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[90%]">
+          <div className="flex flex-col items-center px-4 w-full h-[95%]">
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: 'center' }}
@@ -816,7 +871,7 @@ const SolarRepAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Where do you primarily operate or serve customer
               </div>
-              <input
+              <Input
                 placeholder="Specific cities, counties, or regions"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -829,7 +884,7 @@ const SolarRepAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Company
               </div>
-              <input
+              <Input
                 placeholder="Name"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -842,7 +897,7 @@ const SolarRepAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Installation Volume per Year
               </div>
-              <input
+              <Input
                 // type="number"
                 placeholder="Type here"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
@@ -856,7 +911,7 @@ const SolarRepAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Average Project Size (kw)
               </div>
-              <input
+              <Input
                 // type="number"
                 placeholder="Type here"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
@@ -986,7 +1041,7 @@ const SolarRepAgentSignUp = ({
                         style={{ display: 'flex', gap: '8px' }}
                       >
                         {Array.from({ length }).map((_, index) => (
-                          <input
+                          <Input
                             key={index}
                             ref={(el) => (verifyInputRef.current[index] = el)}
                             // type="text"
@@ -1012,10 +1067,8 @@ const SolarRepAgentSignUp = ({
                               height: '40px',
                               textAlign: 'center',
                               fontSize: '20px',
-                              border: '1px solid #ccc',
-                              borderRadius: '5px',
                             }}
-                            className=" focus:outline-none focus:ring-0"
+                            className="focus:outline-none focus:ring-0"
                           />
                         ))}
                       </div>
@@ -1065,17 +1118,19 @@ const SolarRepAgentSignUp = ({
           </div>
         </div>
 
-        <div className="h-[10%]">
-          <div>
+        {/* Fixed Footer */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+          <div className="px-4 pt-3 pb-2">
             <ProgressBar value={80} />
           </div>
-
-          <Footer
-            handleContinue={handleVerifyPopup}
-            handleBack={handleSolarAgentBack}
-            registerLoader={registerLoader}
-            shouldContinue={shouldContinue}
-          />
+          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
+            <Footer
+              handleContinue={handleVerifyPopup}
+              handleBack={handleSolarAgentBack}
+              registerLoader={registerLoader}
+              shouldContinue={shouldContinue}
+            />
+          </div>
         </div>
       </div>
     </div>

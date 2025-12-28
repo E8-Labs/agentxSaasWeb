@@ -1,6 +1,6 @@
 import { Box, CircularProgress, Modal, Tooltip } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -30,6 +30,8 @@ import { getUserPlans } from './UserPlanServices'
 import YearlyPlanModal from './YearlyPlanModal'
 import AppLogo from '@/components/common/AppLogo'
 import { Checkbox } from '@/components/ui/checkbox'
+import { logout } from '@/utilities/UserUtility'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 function UserPlans({
   handleContinue,
@@ -44,11 +46,7 @@ function UserPlans({
 }) {
   const router = useRouter()
 
-  let stripePublickKey =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-  const stripePromise = loadStripe(stripePublickKey)
+  const stripePromise = getStripe()
 
   const { user: reduxUser, setUser: setReduxUser } = useUser()
 
@@ -153,26 +151,41 @@ function UserPlans({
         handleContinue()
       }
     }
-    if (!isFrom) {
+    
+    // Determine user type - use prop if provided, otherwise detect from user data
+    let detectedFrom = isFrom
+    if (!detectedFrom) {
       let data = localStorage.getItem('User')
       if (data) {
         let user = JSON.parse(data)
-        console.log('user.user.userRole', user.user.userRole)
-        if (isTeamMember(user.user)) {
+        const userRole = user?.user?.userRole
+        console.log('user.user.userRole', userRole)
+        
+        // Only set to SubAccount if user is actually a subaccount
+        if (userRole === 'AgencySubAccount') {
+          detectedFrom = 'SubAccount'
+        } else if (isTeamMember(user.user)) {
+          // For team members, check their team type
           if (isSubaccountTeamMember(user.user)) {
-            isFrom = 'SubAccount'
+            detectedFrom = 'SubAccount'
+          } else {
+            // Team member but not subaccount - treat as normal user
+            detectedFrom = 'User'
           }
-        } else if (user.user.userRole === 'AgencySubAccount') {
-          isFrom = 'SubAccount'
-        } else if (user.user.userRole === 'Agency') {
-          isFrom = 'Agency'
+        } else if (userRole === 'Agency') {
+          detectedFrom = 'Agency'
         } else {
-          isFrom = 'User'
+          // Default to User for normal agents
+          detectedFrom = 'User'
         }
+      } else {
+        // No user data, default to User
+        detectedFrom = 'User'
       }
     }
-    setRoutedFrom(isFrom)
-    getPlans()
+    setRoutedFrom(detectedFrom)
+    // Call getPlans with the detected user type
+    getPlans(detectedFrom)
   }, [])
 
   const handleClose = async (data) => {
@@ -322,6 +335,10 @@ function UserPlans({
         ApiData = {
           planId: selectedPlan?.id || hoverPlan?.id,
         }
+        // Add userId to body if subscribing for a subaccount
+        if (selectedUser) {
+          ApiData.userId = selectedUser.id
+        }
       }
 
       // //console.log;
@@ -348,28 +365,13 @@ function UserPlans({
           setAddPaymentPopUp(false)
           setShouldAutoSubscribe(false)
           
+          // Determine redirect path
+          let redirectPath = null
+          
           if (reduxUser?.userRole === 'Agency') {
-            setShowRoutingLoader(true)
-            router.push('/agency/dashboard')
-            setTimeout(() => {
-              setShowRoutingLoader(false)
-            }, 3000)
-            return
-          }
-          if (from === 'dashboard' || isFrom === 'SubAccount') {
-            setShowRoutingLoader(true)
-            router.push('/dashboard')
-            console.log('route to dashboard - from:', from, 'isFrom:', isFrom)
-            // Fallback redirect after a short delay to ensure navigation
-            setTimeout(() => {
-              if (window.location.pathname !== '/dashboard') {
-                console.log('Fallback redirect to dashboard')
-                window.location.href = '/dashboard'
-              }
-              // Hide loader after navigation completes
-              setShowRoutingLoader(false)
-            }, 3000)
-            return
+            redirectPath = '/agency/dashboard'
+          } else if (from === 'dashboard' || isFrom === 'SubAccount') {
+            redirectPath = '/dashboard'
           } else {
             // Check if user is on mobile (for normal users and subaccounts)
             const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
@@ -382,13 +384,22 @@ function UserPlans({
             if ((screenWidth <= SM_SCREEN_SIZE || isMobileDevice) && 
                 (isFrom === 'SubAccount' || reduxUser?.userRole === 'AgencySubAccount' || !isFrom || isFrom === 'User')) {
               console.log('Mobile user/subaccount - redirecting to continue to desktop screen')
-              router.push('/createagent/desktop')
+              redirectPath = '/createagent/desktop'
             } else {
               console.log('handle continue ')
               if (handleContinue) {
                 handleContinue()
+                return // Exit early if handleContinue is called
               }
             }
+          }
+          
+          // Use window.location.href for hard redirect to ensure clean page reload
+          // This prevents DOM cleanup errors during navigation
+          if (redirectPath) {
+            console.log('✅ Subscription successful, redirecting to:', redirectPath)
+            window.location.href = redirectPath
+            return
           }
         } else if (response.data.status === false) {
           // Handle subscription failure - check if it's due to missing payment method
@@ -413,15 +424,18 @@ function UserPlans({
     }
   }
 
-  const getPlans = async () => {
-    let plansList = await getUserPlans(isFrom, selectedUser)
+  const getPlans = async (overrideFrom = null) => {
+    const fromValue = overrideFrom || isFrom || routedFrom
+    console.log('getPlans is called', fromValue)
+    console.log('selectedUser is', selectedUser)
+    let plansList = await getUserPlans(fromValue, selectedUser)
     console.log('Plans list found is', plansList)
     if (plansList) {
-      console.log('isFrom is', isFrom)
+      console.log('isFrom is', fromValue)
       // Filter features in each plan to only show features where thumb = false
       let filteredPlans = []
 
-      if (isFrom !== 'SubAccount') {
+      if (fromValue !== 'SubAccount') {
         filteredPlans = plansList?.map((plan) => ({
           ...plan,
           features:
@@ -430,7 +444,7 @@ function UserPlans({
               : [],
         }))
       }
-      if (isFrom === 'Agency') {
+      if (fromValue === 'Agency') {
         filteredPlans = plansList?.map((plan) => ({
           ...plan,
           features:
@@ -442,45 +456,29 @@ function UserPlans({
       const quarterly = []
       const yearly = []
       let freePlan = null
-      console.log('Status f is from is', isFrom)
-      if (isFrom == 'SubAccount') {
-        console.log('My condition should run 😲')
-        plansList?.forEach((plan) => {
-          switch (plan.duration) {
-            case 'monthly':
-              monthly.push(plan)
-              break
-            case 'quarterly':
-              quarterly.push(plan)
-              break
-            case 'yearly':
-              yearly.push(plan)
-              break
-            default:
-              break
-          }
-        })
-      } else {
-        console.log('else condition is running', filteredPlans)
-        filteredPlans.forEach((plan) => {
-          switch (plan.billingCycle) {
-            case 'monthly':
-              monthly.push(plan)
-              if (plan.discountedPrice == 0) {
-                freePlan = plan
-              }
-              break
-            case 'quarterly':
-              quarterly.push(plan)
-              break
-            case 'yearly':
-              yearly.push(plan)
-              break
-            default:
-              break
-          }
-        })
-      }
+      console.log('Status f is from is', fromValue)
+      // Handle both SubAccount plans (with duration) and normal plans (with billingCycle)
+      const plansToProcess = fromValue === 'SubAccount' ? plansList : filteredPlans
+      plansToProcess?.forEach((plan) => {
+        // SubAccount plans use 'duration', normal plans use 'billingCycle'
+        const cycle = plan.duration || plan.billingCycle
+        switch (cycle) {
+          case 'monthly':
+            monthly.push(plan)
+            if (plan.discountedPrice == 0) {
+              freePlan = plan
+            }
+            break
+          case 'quarterly':
+            quarterly.push(plan)
+            break
+          case 'yearly':
+            yearly.push(plan)
+            break
+          default:
+            break
+        }
+      })
 
       // if (freePlan) {
       //     quarterly.unshift({ ...freePlan, billingCycle: "quarterly" });
@@ -488,8 +486,8 @@ function UserPlans({
       // }
 
       //select duration selection dynamically
-      console.log('Isfrom is', isFrom)
-      if (isFrom === 'SubAccount') {
+      console.log('Isfrom is', fromValue)
+      if (fromValue === 'SubAccount') {
         if (
           monthly.length > 0 &&
           quarterly.length === 0 &&
@@ -553,43 +551,138 @@ function UserPlans({
 
   // Check if a plan is the current user's plan
   const isCurrentPlan = (plan) => {
-    if (!reduxUser?.plan || !plan) return false
+    if (!reduxUser?.plan || !plan) {
+      console.log('🔍 [isCurrentPlan] Early return:', {
+        hasReduxPlan: !!reduxUser?.plan,
+        hasPlan: !!plan,
+      })
+      return false
+    }
     const userPlan = reduxUser.plan
 
-    // First, try to match by ID or planId (most reliable)
-    const userPlanId = userPlan.id ?? userPlan.planId
+    // Log user's current plan details
+    console.log('🔍 [isCurrentPlan] User Plan Details:', {
+      userPlanId: userPlan.id,
+      userPlanPlanId: userPlan.planId,
+      userName: userPlan.name,
+      userTitle: userPlan.title,
+      userBillingCycle: userPlan.billingCycle,
+      userDuration: userPlan.duration,
+      userStatus: userPlan.status,
+    })
+
+    // Log plan being checked
+    console.log('🔍 [isCurrentPlan] Checking Plan:', {
+      planId: plan.id,
+      planPlanId: plan.planId,
+      planName: plan.name,
+      planTitle: plan.title,
+      planBillingCycle: plan.billingCycle,
+      planDuration: plan.duration,
+    })
+
+    // First, try to match by planId (most reliable)
+    // Prioritize planId over id because id might be a subscription/user_plan ID, not the actual plan ID
+    // Compare userPlan.planId with plan.id (the plan's database ID)
+    const userPlanPlanId = userPlan.planId ?? userPlan.id
     const planId = plan.id ?? plan.planId
 
     // Only match by ID if both IDs exist and are truthy
-    if (userPlanId != null && planId != null) {
+    if (userPlanPlanId != null && planId != null) {
       // Convert to strings for consistent comparison (handles number vs string)
-      if (String(userPlanId) === String(planId)) {
+      const userPlanPlanIdStr = String(userPlanPlanId)
+      const planIdStr = String(planId)
+      
+      console.log('🔍 [isCurrentPlan] ID Comparison:', {
+        userPlanId: userPlan.id,
+        userPlanPlanId,
+        planId,
+        userPlanPlanIdStr,
+        planIdStr,
+        match: userPlanPlanIdStr === planIdStr,
+      })
+
+      if (userPlanPlanIdStr === planIdStr) {
+        console.log('✅ [isCurrentPlan] MATCHED BY PLAN ID:', {
+          planId: plan.id,
+          planPlanId: plan.planId,
+          planTitle: plan.title || plan.name,
+          userPlanPlanId,
+          planId,
+        })
         return true
       }
+    } else {
+      console.log('⚠️ [isCurrentPlan] ID comparison skipped:', {
+        userPlanPlanId,
+        planId,
+        reason: userPlanPlanId == null ? 'userPlanPlanId is null/undefined' : 'planId is null/undefined',
+      })
     }
 
-    // Fallback: Match by name and billing cycle (for cases where IDs might differ)
-    // Only match if both name and billing cycle match exactly
-    const userPlanName = userPlan.name || userPlan.title
-    const planName = plan.name || plan.title
-    const userBillingCycle = (userPlan.billingCycle || userPlan.duration || '')
-      .toLowerCase()
-      .trim()
-    const planBillingCycle = (plan.billingCycle || plan.duration || '')
-      .toLowerCase()
-      .trim()
+    // Fallback: Match by name and billing cycle ONLY if both plan IDs are missing
+    // This is a last resort - we should always prefer ID matching
+    // Only use this if we truly can't match by ID (both IDs are null/undefined)
+    if (userPlanPlanId == null && planId == null) {
+      const userPlanName = userPlan.name || userPlan.title
+      const planName = plan.name || plan.title
+      const userBillingCycle = (userPlan.billingCycle || userPlan.duration || '')
+        .toLowerCase()
+        .trim()
+      const planBillingCycle = (plan.billingCycle || plan.duration || '')
+        .toLowerCase()
+        .trim()
 
-    // Both name and billing cycle must exist and match
-    if (userPlanName && planName && userPlanName === planName) {
-      if (
-        userBillingCycle &&
-        planBillingCycle &&
-        userBillingCycle === planBillingCycle
-      ) {
-        return true
+      console.log('🔍 [isCurrentPlan] Name & Billing Cycle Comparison (fallback - no IDs available):', {
+        userPlanName,
+        planName,
+        userBillingCycle,
+        planBillingCycle,
+        nameMatch: userPlanName && planName && userPlanName === planName,
+        billingCycleMatch: userBillingCycle && planBillingCycle && userBillingCycle === planBillingCycle,
+      })
+
+      // Both name and billing cycle must exist and match
+      if (userPlanName && planName && userPlanName === planName) {
+        if (
+          userBillingCycle &&
+          planBillingCycle &&
+          userBillingCycle === planBillingCycle
+        ) {
+          console.log('✅ [isCurrentPlan] MATCHED BY NAME + BILLING CYCLE (fallback):', {
+            planId: plan.id,
+            planPlanId: plan.planId,
+            planTitle: plan.title || plan.name,
+            planName,
+            planBillingCycle,
+            userPlanName,
+            userBillingCycle,
+          })
+          return true
+        } else {
+          console.log('⚠️ [isCurrentPlan] Name matched but billing cycle did not:', {
+            planId: plan.id,
+            planTitle: plan.title || plan.name,
+            planName,
+            planBillingCycle,
+            userPlanName,
+            userBillingCycle,
+          })
+        }
       }
+    } else {
+      console.log('⚠️ [isCurrentPlan] Skipping name fallback - IDs are available but did not match:', {
+        userPlanPlanId,
+        planId,
+        reason: 'Should match by ID, not by name',
+      })
     }
 
+    console.log('❌ [isCurrentPlan] NO MATCH:', {
+      planId: plan.id,
+      planPlanId: plan.planId,
+      planTitle: plan.title || plan.name,
+    })
     return false
   }
 
@@ -708,8 +801,23 @@ function UserPlans({
               alt="logo"
             />
 
-            <div className={`w-[${from === 'billing-modal' ? '80%' : '100%'}]`}>
-              <ProgressBar value={100} />
+            <div className={`w-[${from === 'billing-modal' ? '80%' : '100%'}] flex flex-row items-center gap-2`}>
+              <div className="flex-1">
+                <ProgressBar value={100} />
+              </div>
+              {/* Logout button right in front of progress line */}
+              <button
+                onClick={() => logout('User clicked logout from plans page')}
+                className="px-3 py-1.5 text-sm text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors flex-shrink-0"
+                style={{
+                  fontSize: '13px',
+                  fontWeight: '400',
+                  color: '#6b7280',
+                  backgroundColor: '#f3f4f6',
+                }}
+              >
+                Logout
+              </button>
             </div>
           </div>
         )}
@@ -806,11 +914,66 @@ function UserPlans({
                 : 'center',
           }}
         >
-          {getCurrentPlans()?.length > 0 &&
+          {(() => {
+            // Log summary before rendering plans
+            const allPlans = getCurrentPlans()
+            if (allPlans?.length > 0) {
+              const matchedPlans = []
+              const unmatchedPlans = []
+              
+              allPlans.forEach((plan) => {
+                const isCurrent = isCurrentPlan(plan)
+                if (isCurrent) {
+                  matchedPlans.push({
+                    id: plan.id,
+                    planId: plan.planId,
+                    title: plan.title || plan.name,
+                    name: plan.name,
+                    billingCycle: plan.billingCycle || plan.duration,
+                  })
+                } else {
+                  unmatchedPlans.push({
+                    id: plan.id,
+                    planId: plan.planId,
+                    title: plan.title || plan.name,
+                    name: plan.name,
+                    billingCycle: plan.billingCycle || plan.duration,
+                  })
+                }
+              })
+              
+              console.log('📊 [UserPlans] PLAN MATCHING SUMMARY:', {
+                totalPlans: allPlans.length,
+                matchedPlansCount: matchedPlans.length,
+                unmatchedPlansCount: unmatchedPlans.length,
+                matchedPlans: matchedPlans,
+                unmatchedPlans: unmatchedPlans,
+                userPlan: reduxUser?.plan ? {
+                  id: reduxUser.plan.id,
+                  planId: reduxUser.plan.planId,
+                  name: reduxUser.plan.name,
+                  title: reduxUser.plan.title,
+                  billingCycle: reduxUser.plan.billingCycle,
+                  duration: reduxUser.plan.duration,
+                  status: reduxUser.plan.status,
+                } : null,
+              })
+            }
+            return allPlans
+          })().length > 0 &&
             getCurrentPlans()?.map((item, index) => {
               const isCurrentUserPlan = isCurrentPlan(item)
               const currentPlanStatus = reduxUser?.plan?.status
               const isDisabled = disAblePlans || (isCurrentUserPlan && currentPlanStatus !== 'cancelled')
+              
+              console.log(`🔍 [UserPlans] Rendering Plan ${index + 1}:`, {
+                planId: item.id,
+                planPlanId: item.planId,
+                title: item.title || item.name,
+                isCurrentUserPlan,
+                currentPlanStatus,
+                isDisabled,
+              })
 
               return (
                 <button
@@ -843,17 +1006,17 @@ function UserPlans({
                     <div className="pb-2">
                       {item.status ? (
                         <div className=" flex flex-row items-center gap-2">
-                          <Image
-                            src={
-                              selectedPlan?.id === item.id ||
-                              (hoverPlan?.id === item.id && !isDisabled)
-                                ? '/svgIcons/powerWhite.svg'
-                                : '/svgIcons/power.svg'
-                            }
-                            height={24}
-                            width={24}
-                            alt="*"
-                          />
+                          {selectedPlan?.id === item.id ||
+                          (hoverPlan?.id === item.id && !isDisabled) ? (
+                            <Image
+                              src="/svgIcons/powerWhite.svg"
+                              height={24}
+                              width={24}
+                              alt="*"
+                            />
+                          ) : (
+                            renderBrandedIcon('/svgIcons/power.svg', 24, 24)
+                          )}
 
                           <div
                             className={`text-base font-semibold ${
@@ -866,17 +1029,17 @@ function UserPlans({
                           >
                             {item.status}
                           </div>
-                          <Image
-                            src={
-                              selectedPlan?.id === item.id ||
-                              (hoverPlan?.id === item.id && !isDisabled)
-                                ? '/svgIcons/enterArrowWhite.svg'
-                                : '/svgIcons/enterArrow.svg'
-                            }
-                            height={20}
-                            width={20}
-                            alt="*"
-                          />
+                          {selectedPlan?.id === item.id ||
+                          (hoverPlan?.id === item.id && !isDisabled) ? (
+                            <Image
+                              src="/svgIcons/enterArrowWhite.svg"
+                              height={20}
+                              width={20}
+                              alt="*"
+                            />
+                          ) : (
+                            renderBrandedIcon('/svgIcons/enterArrow.svg', 20, 20)
+                          )}
                         </div>
                       ) : (
                         <div className="h-[3vh]"></div>

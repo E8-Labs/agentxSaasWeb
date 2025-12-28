@@ -3,7 +3,7 @@
 // //console.log;
 
 let BasePath =
-  process.env.NEXT_PUBLIC_BASE_API_URL ||
+  // process.env.NEXT_PUBLIC_BASE_API_URL ||
   (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     ? 'https://apimyagentx.com/agentx/'
     : 'https://apimyagentx.com/agentxtest/')
@@ -14,6 +14,7 @@ let BasePath =
 console.log('Current base url is', BasePath)
 
 const Apis = {
+  BasePath: BasePath,
   getCalenders: `${BasePath}api/calendar/calendars`,
   register: `${BasePath}api/user/register`,
   LogIn: `${BasePath}api/user/login`,
@@ -61,6 +62,7 @@ const Apis = {
   resumeCalls: `${BasePath}api/pipeline/resumeAgentCadence`,
   getUniqueColumns: `${BasePath}api/leads/getUniqueColumns`,
   addSmartList: `${BasePath}api/leads/addSmartList`,
+  updateAgentSupportButton: `${BasePath}api/agent/updateAgentSupportButton`,
   delSmartList: `${BasePath}api/leads/deleteList`,
   addCustomStage: `${BasePath}api/pipeline/createStage`,
   deleteStage: `${BasePath}api/pipeline/deletePipelineStage`,
@@ -75,6 +77,8 @@ const Apis = {
   testAI: `${BasePath}api/agent/testAi`,
   addCalender: `${BasePath}api/calendar/createCalendar`,
   addLeadNote: `${BasePath}api/leads/addLeadNote`,
+  updateLeadNote: `/api/leads`, // Will be used with noteId in path
+  deleteLeadNote: `/api/leads`, // Will be used with noteId in path
   getDashboardData: `${BasePath}api/agent/dashboard`,
   delLeadTag: `${BasePath}api/leads/deleteLeadTag`,
   //apis to add card & subscribe plan
@@ -241,6 +245,19 @@ const Apis = {
   gmailAccount: `${BasePath}api/mail/accounts`,
   connectGmailAccount: `${BasePath}api/mail/connect-gmail`,
   agencyMailAccount: `${BasePath}api/mail/agency-account`,
+  // Mailgun APIs
+  createMailgunIntegration: `${BasePath}api/mailgun/integration`,
+  createMailgunSubdomain: `${BasePath}api/mailgun/subdomain`,
+  verifyMailgunDomain: `${BasePath}api/mailgun/verify-domain`,
+  listMailgunIntegrations: `${BasePath}api/mailgun/integrations`,
+  createMailgunSubdomain: `${BasePath}api/mailgun/subdomain`,
+  getAvailableDomains: `${BasePath}api/mailgun/available-domains`,
+  getAvailableDomains: `${BasePath}api/mailgun/available-domains`,
+  getMailgunIntegration: `${BasePath}api/mailgun/integration`,
+  updateMailgunIntegration: `${BasePath}api/mailgun/integration`,
+  deleteMailgunIntegration: `${BasePath}api/mailgun/integration`,
+  requestMailgunEmail: `${BasePath}api/mail/request-mailgun-email`,
+  assignMailgunEmail: `${BasePath}api/mail/assign-mailgun-email`,
   a2pNumbers: `${BasePath}api/agent/getA2PVerifiedNumbers`,
 
   agencyActivityData: `${BasePath}api/admin/stats`,
@@ -359,6 +376,7 @@ const Apis = {
   updateAgencyTermsPrivacy: `${BasePath}api/agency/branding/terms-privacy`,
   getAgencyTermsByUUID: `${BasePath}api/agency/getTermsByUUID`,
   getAgencyPrivacyByUUID: `${BasePath}api/agency/getPrivacyByUUID`,
+  getAgencyCancellationByUUID: `${BasePath}api/agency/getCancellationByUUID`,
 
   // Agency Global Phone Number APIs
   getAgencyPhoneNumbers: `${BasePath}api/agency/phone-numbers`,
@@ -370,6 +388,7 @@ const Apis = {
   getThreadById: `${BasePath}api/user/messaging/threads`,
   getMessagesForThread: `${BasePath}api/user/messaging/threads`,
   markThreadAsRead: `${BasePath}api/user/messaging/threads`,
+  deleteThread: `${BasePath}api/user/messaging/threads`,
   getEmailsBySubject: `${BasePath}api/user/messaging/emails-by-subject`,
 }
 

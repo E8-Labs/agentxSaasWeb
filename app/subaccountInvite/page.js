@@ -4,6 +4,8 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 
+import { AgentXOrb } from '@/components/common/AgentXOrb'
+
 const Page = () => {
   const router = useRouter()
 
@@ -36,13 +38,10 @@ const Page = () => {
         <div style={{ fontWeight: '600', fontSize: '38px', marginBottom: 20 }}>
           {`Congrats! You’re in!`}
         </div>
-        <Image
-          className=""
-          src="/agentXOrb.gif"
-          style={{ height: '142px', width: '152px', resize: 'contain' }}
+        <AgentXOrb
+          width={152}
           height={142}
-          width={142}
-          alt="*"
+          style={{ height: '142px', width: '152px', resize: 'contain' }}
         />
         <div
           style={{ fontWeight: '600', fontSize: '16px', color: '#00000070' }}

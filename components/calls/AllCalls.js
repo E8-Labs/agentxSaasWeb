@@ -31,6 +31,7 @@ import {
   GetTimezone,
   convertUTCToTimezone,
 } from '@/utilities/utility'
+import { getBrandPrimaryHex, getBrandPrimaryHsl } from '@/utilities/colorUtils'
 
 import LeadLoading from '../dashboard/leads/LeadLoading'
 import LeadDetails from '../dashboard/leads/extras/LeadDetails'
@@ -74,6 +75,9 @@ function AllCalls({ user }) {
   const [filtersChanged, setFiltersChanged] = useState(false)
 
   const [pipelineLoader, setPipelineLoader] = useState(false)
+
+  // Brand primary color state for inline styles
+  const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
 
   //code for pagination
   const [offset, setOffset] = useState(5)
@@ -171,6 +175,23 @@ function AllCalls({ user }) {
       getCallLogs(0)
     }, 400)
   }, [searchValue || filtersChanged])
+
+  // Update brand primary color on mount and when branding changes
+  useEffect(() => {
+    const updateBrandColor = () => {
+      setBrandPrimaryColor(getBrandPrimaryHex())
+    }
+    
+    // Set initial color
+    updateBrandColor()
+    
+    // Listen for branding updates
+    window.addEventListener('agencyBrandingUpdated', updateBrandColor)
+    
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', updateBrandColor)
+    }
+  }, [])
   //select pipeline
   const handleChangePipeline = (event) => {
     const selectedValue = event.target.value
@@ -584,8 +605,13 @@ function AllCalls({ user }) {
                 return (
                   <div className="flex-shrink-0" key={filter.key + index}>
                     <div
-                      className="px-4 py-2 bg-[#402FFF10] text-purple  flex-shrink-0 [#7902DF10] rounded-[25px] flex flex-row items-center gap-2"
-                      style={{ fontWeight: '500', fontSize: 15 }}
+                      className="px-4 py-2 flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
+                      style={{ 
+                        fontWeight: '500', 
+                        fontSize: 15,
+                        backgroundColor: `hsl(var(--brand-primary, 270 75% 50%) / 0.1)`,
+                        color: `hsl(var(--brand-primary, 270 75% 50%))`
+                      }}
                     >
                       {getFilterTitle(filter)}
                       <button
@@ -796,10 +822,10 @@ function AllCalls({ user }) {
                             setShowDetailsModal(true)
                           }}
                         >
-                          <div
+                          <div className="text-brand-primary"
                             style={{
                               fontSize: 12,
-                              color: '#7902DF',
+                              // color: '#7902DF',
                               textDecorationLine: 'underline',
                             }}
                           >
@@ -1059,7 +1085,7 @@ function AllCalls({ user }) {
                               }}
                               className={`p-2 border border-[#00000020] ${
                                 selectedStageIds.includes(item.id)
-                                  ? `bg-purple`
+                                  ? `bg-brand-primary`
                                   : 'bg-transparent'
                               } px-6
                                                                 ${
@@ -1111,7 +1137,7 @@ function AllCalls({ user }) {
                               backgroundColor: selectedStatus.includes(
                                 item.status,
                               )
-                                ? '#7902df'
+                                ? brandPrimaryColor
                                 : '',
                             }}
                           >
@@ -1143,7 +1169,7 @@ function AllCalls({ user }) {
                       <CircularProgress size={25} />
                     ) : (
                       <button
-                        className="bg-purple h-[45px] w-full bg-purple text-white rounded-xl outline-none"
+                        className="h-[45px] w-full text-white rounded-xl outline-none"
                         style={{
                           fontSize: 16.8,
                           fontWeight: '600',
@@ -1151,7 +1177,7 @@ function AllCalls({ user }) {
                             (selectedFromDate && selectedToDate) ||
                             selectedStageIds.length > 0 ||
                             selectedStatus.length > 0
-                              ? ''
+                              ? brandPrimaryColor
                               : '#00000050',
                         }}
                         onClick={() => {

@@ -145,19 +145,19 @@ const UserService = ({ handleContinue, handleBack }) => {
   return (
     <div
       style={{ width: '100%' }}
-      className="overflow-y-none flex flex-row justify-center items-center"
+      className="overflow-y-none flex flex-row justify-center items-center "
     >
       <div
-        className="bg-white sm:rounded-2xl flex flex-col justify-between w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[90%] py-4"
+        className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative"
         style={{ scrollbarWidth: 'none' }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
-        <div className="h-[90svh] sm:h-[82svh]">
+        <div className="h-[95svh] sm:h-[92svh] overflow-hidden pb-24">
           {/* header84svh */}
           <div className="h-[10%]">
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[90%]">
+          <div className="flex flex-col items-center px-4 w-full h-[100%]">
             <div
               className="mt-6  w-10/12 sm:w-full md:w-11/12 md:text-4xl text-lg font-[650] sm:font-[600]"
               style={{ textAlign: 'center' }}
@@ -171,7 +171,7 @@ const UserService = ({ handleContinue, handleBack }) => {
               </div>
             ) : (
               <div
-                className="mt-2 pb-2 sm:mt-8 w-full md:w-10/12 lg:w-7/12 gap-4 flex flex-col sm:max-h-[90%] max-h-[100%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin"
+                className="mt-2 pb-10 sm:mt-8 w-full md:w-10/12 lg:w-7/12 gap-4 flex flex-col  overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin"
                 style={{
                   scrollbarColor: 'hsl(var(--brand-primary, 270 75% 50%)) transparent',
                 }}
@@ -287,12 +287,12 @@ const UserService = ({ handleContinue, handleBack }) => {
           </div>
         </div>
 
-        <div className="mb-6 h-[10%] flex flex-col justify-end">
-          <div>
+        {/* Fixed Footer */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+          <div className="px-4 pt-3 pb-2">
             <ProgressBar value={33} />
           </div>
-
-          <div style={{ height: '35px' }}>
+          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
             <Footer
               handleContinue={handleNext}
               handleBack={handleBack}

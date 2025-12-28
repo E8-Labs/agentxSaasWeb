@@ -1,6 +1,6 @@
 'use client'
 
-import { Alert, Button, CircularProgress, Fade, Snackbar } from '@mui/material'
+import { Alert, Button, CircularProgress, Fade, Snackbar, Tooltip } from '@mui/material'
 import axios from 'axios'
 import moment from 'moment'
 import Image from 'next/image'
@@ -48,6 +48,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
           'Content-Type': 'application/json',
         },
       })
+      console.log('Agency phone number s response ', response)
 
       if (response?.data?.status === true) {
         const data = response.data.data
@@ -210,9 +211,32 @@ function AgencyPhoneNumbers({ selectedAgency }) {
     setShowClaimPopup(false)
   }
 
+  // Get user data - either from selectedAgency or localStorage
+  const getUserData = () => {
+    if (selectedAgency) {
+      return selectedAgency
+    }
+    try {
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        const u = JSON.parse(localData)
+        return u?.user || null
+      }
+    } catch (error) {
+      console.error('Error reading user data from localStorage:', error)
+    }
+    return null
+  }
+
+  const userData = getUserData()
+
+  // Check if Twilio is connected
+  // If user is an Agency, check if twilio exists on the user object
+  const isTwilioConnected = userData?.userRole === 'Agency' && userData?.twilio ? true : false
+
   return (
     <div
-      className="w-full p-8"
+      className="flex  flex-col w-full p-8  overflow-y-hidden"
       style={{ maxWidth: '1200px', margin: '0 auto' }}
     >
       {/* Header */}
@@ -229,18 +253,33 @@ function AgencyPhoneNumbers({ selectedAgency }) {
             visible to all subaccounts.
           </div>
         </div>
-        <Button
-          variant="contained"
-          onClick={() => setShowClaimPopup(true)}
-          style={{
-            backgroundColor: 'hsl(var(--brand-primary))',
-            color: '#fff',
-            textTransform: 'none',
-            minWidth: '150px',
-          }}
+        <Tooltip
+          title={
+            !isTwilioConnected
+              ? 'Please connect your Twilio account first to get a global number'
+              : ''
+          }
+          arrow
         >
-          Get Global Number
-        </Button>
+          <span>
+            <Button
+              variant="contained"
+              onClick={() => setShowClaimPopup(true)}
+              disabled={!isTwilioConnected}
+              style={{
+                backgroundColor: isTwilioConnected
+                  ? 'hsl(var(--brand-primary))'
+                  : '#d0d0d0',
+                color: '#fff',
+                textTransform: 'none',
+                minWidth: '150px',
+                cursor: isTwilioConnected ? 'pointer' : 'not-allowed',
+              }}
+            >
+              Get Global Number
+            </Button>
+          </span>
+        </Tooltip>
       </div>
 
       {/* Global Number Info Banner */}
@@ -301,18 +340,19 @@ function AgencyPhoneNumbers({ selectedAgency }) {
       ) : (
         <div
           className="flex flex-col gap-4 overflow-y-auto"
-          style={{ maxHeight: '600px' }}
+          style={{  }}
         >
           {phoneNumbers.map((number) => {
             const isGlobal = number.isAgencyGlobalNumber
             const isSubaccountNumber = number.subaccountNumber
             const isDisabled = number.disabled === true
             const isLoading = actionLoading === `set-${number.id}`
+            const isA2PVerified = number.isA2PVerified === true || number.a2pVerificationStatus === 'verified'
 
             return (
               <div
                 key={number.id}
-                className="flex w-6/12 p-6 rounded-lg border-2 transition-all flex items-center justify-between gap-4"
+                className="flex w-7/12 px-4 py-5 rounded-lg border-2 transition-all flex items-center justify-between gap-4"
                 style={{
                   borderColor: isGlobal ? 'hsl(var(--brand-primary))' : isDisabled ? '#d0d0d0' : '#e0e0e0',
                   backgroundColor: isGlobal ? 'hsl(var(--brand-primary) / 0.1)' : isDisabled ? '#f9f9f9' : '#fff',
@@ -320,25 +360,33 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                 }}
               >
                 {/* Left Section - Phone Number Info */}
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-2">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
                     {isGlobal && (
                       <div
-                        className="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap bg-brand-primary text-white"
+                        className="-ml-1 px-2 py-0.5 rounded-full text-[10px] leading-4 font-semibold whitespace-nowrap bg-brand-primary text-white"
                       >
                         Global Number
                       </div>
                     )}
+                    {isA2PVerified && (
+                      <div
+                        className="-ml-1 px-2 py-0.5 rounded-full text-[10px] leading-4 font-semibold whitespace-nowrap"
+                        style={{ backgroundColor: '#10b981', color: '#fff' }}
+                      >
+                        A2P
+                      </div>
+                    )}
                     {isDisabled && (
                       <div
-                        className="px-3 py-1 rounded-full text-xs font-semibold whitespace-nowrap"
+                        className="-ml-1 px-2 py-0.5 rounded-full text-[10px] leading-4 font-semibold whitespace-nowrap"
                         style={{ backgroundColor: '#999', color: '#fff' }}
                       >
                         Disabled
                       </div>
                     )}
                     <div
-                      className="text-xl font-semibold"
+                      className="text-base md:text-lg font-semibold whitespace-nowrap"
                       style={{ color: isDisabled ? '#999' : '#000' }}
                     >
                       {formatPhoneNumber(number.phone)}
@@ -362,14 +410,14 @@ function AgencyPhoneNumbers({ selectedAgency }) {
                 </div>
 
                 {/* Right Section - Action Button or Subaccount Info */}
-                <div className="flex-shrink-0">
+                <div className="flex-shrink-0 ml-auto">
                   {isSubaccountNumber ? (
                     <div
                       className="text-sm py-2 px-4 text-center rounded"
                       style={{
                         color: '#666',
                         fontWeight: '500',
-                        minWidth: '180px',
+                        minWidth: '260px',
                         backgroundColor: '#f5f5f5',
                       }}
                     >
@@ -439,7 +487,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
             await fetchPhoneNumbers()
             setShowClaimPopup(false)
           }}
-          selectedUSer={selectedAgency}
+          selectedUSer={userData}
         />
       )}
     </div>

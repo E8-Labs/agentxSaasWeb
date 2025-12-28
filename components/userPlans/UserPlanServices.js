@@ -110,24 +110,31 @@ export const getUserPlans = async (from, selectedUser) => {
     // If cache is stale or doesn't exist, make API call
     let token = AuthToken()
 
-    let path = Apis.getPlans
+    // If no auth token, avoid hitting protected endpoints
+    if (!token) {
+      console.log('⚠️ [getUserPlans] No auth token found, skipping plan fetch')
+      return null
+    }
 
-    if (isTeamMember(UserLocalData)) {
-      if (isAgencyTeamMember(UserLocalData)) {
-        path = Apis.getPlansForAgency
-      } else if (isSubaccountTeamMember(UserLocalData)) {
-        path = Apis.getSubAccountPlans
-      }
+    let path = Apis.getPlans
+    const role = UserLocalData?.userRole
+    const isAgency = role === 'Agency'
+    const isSubAccount = role === 'AgencySubAccount'
+    const teamAgency =
+      isTeamMember(UserLocalData) && isAgencyTeamMember(UserLocalData)
+    const teamSub =
+      isTeamMember(UserLocalData) && isSubaccountTeamMember(UserLocalData)
+
+    if (isAgency || teamAgency) {
+      path = Apis.getPlansForAgency
+    } else if (isSubAccount || teamSub) {
+      path = Apis.getSubAccountPlans
+    } else if ((from === 'agency' || from === 'Agency') && (isAgency || teamAgency)) {
+      path = Apis.getPlansForAgency
+    } else if (from === 'SubAccount' && (isSubAccount || teamSub)) {
+      path = Apis.getSubAccountPlans
     } else {
-      if (UserLocalData?.userRole === 'AgencySubAccount') {
-        path = Apis.getSubAccountPlans
-      } else if (UserLocalData?.userRole === 'Agency') {
-        path = Apis.getPlansForAgency
-      } else if (from === 'SubAccount') {
-        path = Apis.getSubAccountPlans
-      } else if (from === 'agency' || from === 'Agency') {
-        path = Apis.getPlansForAgency
-      }
+      path = Apis.getPlans
     }
 
     console.log('path of get plans', path)
@@ -486,6 +493,7 @@ export const getTotalPrice = (selectedPlan) => {
 
 // Returns a human-friendly next charge date string based on plan billing cycle
 // monthly: +30 days, quarterly: +3 calendar months, yearly: +12 calendar months
+// If plan has trial, adds trial days to the date
 export const getNextChargeDate = (selectedPlan, fromDate = new Date()) => {
   try {
     const billingCycle =
@@ -495,20 +503,30 @@ export const getNextChargeDate = (selectedPlan, fromDate = new Date()) => {
     const baseDate = new Date(fromDate)
     const nextDate = new Date(baseDate)
 
-    if (billingCycle === 'monthly') {
-      // exactly 30 days from now as requested
-      nextDate.setDate(nextDate.getDate() + 30)
-    } else if (billingCycle === 'quarterly') {
-      // add 3 calendar months
-      const month = nextDate.getMonth()
-      nextDate.setMonth(month + 3)
-    } else if (billingCycle === 'yearly') {
-      // add 12 calendar months
-      const month = nextDate.getMonth()
-      nextDate.setMonth(month + 12)
+    // Check if plan has trial and add trial days first
+    const hasTrial = selectedPlan?.hasTrial === true
+    const trialDays = selectedPlan?.trialValidForDays || 0
+    
+    if (hasTrial && trialDays > 0) {
+      // Add trial days to the base date
+      nextDate.setDate(nextDate.getDate() + trialDays)
     } else {
-      // default to 30 days if unknown
-      nextDate.setDate(nextDate.getDate() + 30)
+      // No trial, calculate based on billing cycle
+      if (billingCycle === 'monthly') {
+        // exactly 30 days from now as requested
+        nextDate.setDate(nextDate.getDate() + 30)
+      } else if (billingCycle === 'quarterly') {
+        // add 3 calendar months
+        const month = nextDate.getMonth()
+        nextDate.setMonth(month + 3)
+      } else if (billingCycle === 'yearly') {
+        // add 12 calendar months
+        const month = nextDate.getMonth()
+        nextDate.setMonth(month + 12)
+      } else {
+        // default to 30 days if unknown
+        nextDate.setDate(nextDate.getDate() + 30)
+      }
     }
 
     const formatted = nextDate.toLocaleDateString(undefined, {

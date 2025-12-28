@@ -1175,7 +1175,7 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
             HowtoVideos.KycQuestions
           }
         />
-        <div className="hidden lg:inline  xl:w-[270px] lg:w-[270px] -ml-4 mt-12">
+        <div className="hidden lg:inline  xl:w-[340px] lg:w-[340px] -ml-4 mt-12">
           <VideoCard
             duration={(() => {
               const tutorial = getTutorialByType(

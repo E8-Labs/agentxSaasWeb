@@ -941,7 +941,7 @@ const AdminAssignLead = ({
               </div>
 
               <div className="mt-4" style={styles.heading}>
-                Drip calls per day
+                Drip per day
               </div>
 
               <div className="flex flex-row items-center gap-8 mt-4">
@@ -1027,7 +1027,7 @@ const AdminAssignLead = ({
                     width={24}
                     alt="*"
                   />
-                  <div style={styles.title}>Call Now</div>
+                  <div style={styles.title}>Start Now</div>
                 </button>
                 <div className="w-1/2">
                   <button
@@ -1045,7 +1045,7 @@ const AdminAssignLead = ({
                     }}
                   >
                     <CalendarDots size={32} weight="bold" />
-                    <div style={styles.title}>Schedule Call</div>
+                    <div style={styles.title}>Schedule</div>
                   </button>
                   {/* <div>
                                         {

@@ -13,7 +13,7 @@ import { isValidUrl } from '@/constants/Constants'
 
 import { AuthToken } from '../plan/AuthDetails'
 
-const AgencySupportAndWidget = () => {
+const AgencySupportAndWidget = ({ selectedAgency }) => {
   //settings data
   const [settingsData, setSettingsData] = useState(null)
   //snack msg
@@ -353,6 +353,12 @@ const AgencySupportAndWidget = () => {
         try {
           const formData = new FormData()
           formData.append('logo', file)
+          
+          // Add userId if selectedAgency is provided (admin view)
+          if (selectedAgency?.id) {
+            formData.append('userId', selectedAgency.id)
+          }
+          
           const Auth = AuthToken()
           const response = await axios.post(
             Apis.uploadSupportWidgetLogo,
@@ -401,9 +407,16 @@ const AgencySupportAndWidget = () => {
     // Save to API
     try {
       const Auth = AuthToken()
+      const updateData = { supportWidgetTitle: buttonLabel }
+      
+      // Add userId if selectedAgency is provided (admin view)
+      if (selectedAgency?.id) {
+        updateData.userId = selectedAgency.id
+      }
+      
       const response = await axios.put(
         Apis.updateSupportWidgetTitle,
-        { supportWidgetTitle: buttonLabel },
+        updateData,
         {
           headers: {
             Authorization: 'Bearer ' + Auth,

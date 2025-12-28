@@ -200,6 +200,13 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
   const handlePlanCreated = (response) => {
     console.log('Response received is:', response)
     let newPlan = response?.data?.data
+    console.log("New plan is", newPlan)
+    if(!newPlan) {
+      console.log("New plan is not found")
+      setSnackMsg(response?.data?.message || 'An error occurred')
+      setSnackMsgType(SnackbarTypes.Success)
+      return
+    }
 
     // Load existing plans based on type
     let localPlans = []
@@ -221,7 +228,10 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
     let updatedPlans = []
     const idToCompare = newPlan.id
     const existingIndex = localPlans.findIndex(
-      (plan) => plan.id === idToCompare,
+      (plan) => {
+        console.log('Plan is', plan)
+        return plan.id === idToCompare
+      },
     )
 
     if (existingIndex !== -1) {
@@ -394,24 +404,40 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
 
       if (response) {
         console.log('Response of del plans api is', response.data)
-        if (response.data.status === true) {
-          // if (planType === "monthly") {
-          //     // setInitialLoader(true);
-          //     getMonthlyPlan();
-          // } else if (planType === "Xbar") {
-          //     getXBarOptions()
-          // }
-          setSnackMsg(response.data.message)
-          setSnackMsgType(SnackbarTypes.Success)
-          getPlanApiTrigerer()
+        if (response.data?.status === true) {
+          // Close modal and clear selections first
+          setShowDeleteModal(false)
           setSelectedPlan(null)
           setSelectedPlanDetails(null)
           setmoreDropdown(null)
           setAnchorEl(null)
+          
+          // Refresh plans list
+          getPlanApiTrigerer()
+          
+          // Set snackbar message after a small delay to ensure it shows after modal closes
+          setTimeout(() => {
+            const message = response.data?.message || 'Plan deleted successfully'
+            console.log('Setting success snackbar:', message)
+            setSnackMsg(message)
+            setSnackMsgType(SnackbarTypes.Success)
+          }, 100)
+        } else if (response.data?.status === false) {
           setShowDeleteModal(false)
-        } else if (response.data.status === false) {
-          setSnackMsg(response.data.message)
-          setSnackMsgType(SnackbarTypes.Error)
+          setTimeout(() => {
+            const message = response.data?.message || 'Failed to delete plan'
+            console.log('Setting error snackbar:', message)
+            setSnackMsg(message)
+            setSnackMsgType(SnackbarTypes.Error)
+          }, 100)
+        } else {
+          // Handle unexpected response structure
+          setShowDeleteModal(false)
+          setTimeout(() => {
+            console.log('Setting fallback snackbar')
+            setSnackMsg('Plan deleted successfully')
+            setSnackMsgType(SnackbarTypes.Success)
+          }, 100)
         }
       }
     } catch (error) {
@@ -538,21 +564,9 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
         <div
           className="w-full h-32 flex flex-row items-center justify-between rounded-lg px-6 relative overflow-hidden"
           style={{
-            backgroundImage: "url('/agencyIcons/plansBannerBg.png')",
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
+            background: `linear-gradient(135deg, hsl(var(--brand-primary)), hsl(var(--brand-primary) / 0.8))`,
           }}
         >
-          {/* Brand Color Overlay */}
-          {isAgency && (
-            <div
-              className="absolute inset-0 rounded-lg"
-              style={{
-                backgroundColor: 'hsl(var(--brand-primary) / 0.8)',
-                mixBlendMode: 'multiply',
-              }}
-            />
-          )}
           {/* Content */}
           <div className="relative z-10 flex flex-row items-center justify-between w-full">
             <div

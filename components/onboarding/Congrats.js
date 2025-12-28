@@ -2,6 +2,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useRef } from 'react'
 
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import AppLogo from '@/components/common/AppLogo'
 
 // import Lottie from 'lottie-react';
@@ -25,13 +26,17 @@ const Congrats = () => {
       typeof navigator !== 'undefined' ? navigator.userAgent : ''
     )
     
+    // Determine redirect path
+    let redirectPath = '/createagent'
     if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
       // Mobile: Navigate to payment step (step 4) to allow subscription
-      router.push('/createagent?step=4')
-    } else {
-      // Desktop: Navigate to createagent
-      router.push('/createagent')
+      redirectPath = '/createagent?step=4'
     }
+    
+    // Use window.location.href for hard redirect to ensure clean page reload
+    // This prevents DOM cleanup errors during navigation
+    console.log('✅ Redirecting to:', redirectPath)
+    window.location.href = redirectPath
   }
 
   return (
@@ -51,12 +56,10 @@ const Congrats = () => {
         <div className="flex flex-col items-center justify-center px-4 w-full h-[85%]">
           <div className="mt-8 gap-4 flex flex-col overflow-hidden">
             {/* <Image src={"/assets/congrats.png"} style={{ height: "318px", width: "466px", resize: "contain" }} height={318} width={466} alt='*' /> */}
-            <Image
-              src={'/agentXOrb.gif'}
-              style={{ height: '280px', width: '300px', resize: '' }}
-              height={280}
+            <AgentXOrb
               width={300}
-              alt="*"
+              height={280}
+              style={{ height: '280px', width: '300px', resize: '' }}
             />
           </div>
           <div

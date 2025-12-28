@@ -2,14 +2,14 @@
 
 import { useParams } from 'next/navigation'
 import { useRouter } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { saveAgencyUUID } from '@/utilities/AgencyUtility'
 
 function Page() {
   const params = useParams()
   const router = useRouter()
-  const [isRedirecting, setIsRedirecting] = useState(false)
+  const hasRedirected = useRef(false)
 
   // Save agency UUID when component loads and redirect to main onboarding
   useEffect(() => {
@@ -18,7 +18,7 @@ function Page() {
     console.log('[Agency Onboarding] UUID from params:', params.uuid)
 
     const handleUUID = async () => {
-      if (params.uuid && !isRedirecting) {
+      if (params.uuid && !hasRedirected.current) {
         console.log('[Agency Onboarding] Processing UUID:', params.uuid)
 
         // Save the UUID
@@ -33,7 +33,7 @@ function Page() {
           console.error('[Agency Onboarding] Error saving UUID:', error)
         }
 
-        setIsRedirecting(true)
+        hasRedirected.current = true
 
         // Add a small delay to ensure localStorage is updated
         setTimeout(() => {
@@ -46,7 +46,7 @@ function Page() {
     }
 
     handleUUID()
-  }, [params.uuid, router, isRedirecting])
+  }, [params.uuid, router])
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-50">

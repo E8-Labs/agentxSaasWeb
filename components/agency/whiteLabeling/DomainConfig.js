@@ -8,7 +8,7 @@ import AgentSelectSnackMessage, {
 
 import LabelingHeader from './LabelingHeader'
 
-const DomainConfig = () => {
+const DomainConfig = ({ selectedAgency }) => {
   const [subdomain, setSubdomain] = useState(null)
   const [customDomain, setCustomDomain] = useState('')
   const [domainStatus, setDomainStatus] = useState(null) // { domain, status, sslStatus, dnsRecords, verifiedAt, lastCheckedAt }
@@ -23,7 +23,7 @@ const DomainConfig = () => {
   const [copiedFields, setCopiedFields] = useState({}) // Track which fields are copied
   const autoRefreshIntervalRef = useRef(null)
 
-  // Fetch subdomain and domain status on mount
+  // Fetch subdomain and domain status on mount or when selectedAgency changes
   useEffect(() => {
     fetchSubdomain()
     fetchDomainStatus()
@@ -33,7 +33,7 @@ const DomainConfig = () => {
         clearInterval(autoRefreshIntervalRef.current)
       }
     }
-  }, [])
+  }, [selectedAgency])
 
   const fetchSubdomain = async () => {
     try {
@@ -50,7 +50,13 @@ const DomainConfig = () => {
         return
       }
 
-      const response = await axios.get(Apis.getAgencyBranding, {
+      // Add userId parameter if selectedAgency is provided (admin view)
+      let apiUrl = Apis.getAgencyBranding
+      if (selectedAgency?.id) {
+        apiUrl += `?userId=${selectedAgency.id}`
+      }
+
+      const response = await axios.get(apiUrl, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           'Content-Type': 'application/json',
@@ -82,7 +88,13 @@ const DomainConfig = () => {
         return
       }
 
-      const response = await axios.get(Apis.getDomainStatus, {
+      // Add userId parameter if selectedAgency is provided (admin view)
+      let apiUrl = Apis.getDomainStatus
+      if (selectedAgency?.id) {
+        apiUrl += `?userId=${selectedAgency.id}`
+      }
+
+      const response = await axios.get(apiUrl, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           'Content-Type': 'application/json',
@@ -149,9 +161,16 @@ const DomainConfig = () => {
         return
       }
 
+      const domainData = { domain: customDomain.trim() }
+      
+      // Add userId if selectedAgency is provided (admin view)
+      if (selectedAgency?.id) {
+        domainData.userId = selectedAgency.id
+      }
+
       const response = await axios.post(
         Apis.addCustomDomain,
-        { domain: customDomain.trim() },
+        domainData,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -231,9 +250,16 @@ const DomainConfig = () => {
         return
       }
 
+      const verifyData = { domain: customDomain.trim() }
+      
+      // Add userId if selectedAgency is provided (admin view)
+      if (selectedAgency?.id) {
+        verifyData.userId = selectedAgency.id
+      }
+
       const response = await axios.post(
         Apis.verifyCustomDomain,
-        { domain: customDomain.trim() },
+        verifyData,
         {
           headers: {
             Authorization: `Bearer ${authToken}`,
@@ -303,12 +329,19 @@ const DomainConfig = () => {
         return
       }
 
+      const deleteData = { domain: customDomain.trim() }
+      
+      // Add userId if selectedAgency is provided (admin view)
+      if (selectedAgency?.id) {
+        deleteData.userId = selectedAgency.id
+      }
+
       const response = await axios.delete(Apis.removeCustomDomain, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           'Content-Type': 'application/json',
         },
-        data: { domain: customDomain.trim() },
+        data: deleteData,
       })
 
       if (response?.data?.status === true) {
@@ -571,7 +604,7 @@ const DomainConfig = () => {
                                     onClick={() =>
                                       handleCopyField(record.value, valueFieldId)
                                     }
-                                    className="text-purple hover:text-purple-700 text-xs font-medium px-2 py-1 rounded transition-colors flex-shrink-0"
+                                    className="text-brand-primary hover:text-brand-primary/80 text-xs font-medium px-2 py-1 rounded transition-colors flex-shrink-0"
                                     title="Copy value"
                                   >
                                     {copiedFields[valueFieldId] ? 'Copied' : 'Copy'}

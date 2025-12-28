@@ -7,13 +7,14 @@ import {
   useElements,
   useStripe,
 } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
 
 import { PersistanceKeys } from '@/constants/Constants'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
 import AdminGetProfileDetails from '../admin/AdminGetProfileDetails'
 import { formatFractional2 } from '../agency/plan/AgencyUtilities'
@@ -35,6 +36,7 @@ import {
   getUserLocalData,
   getUserPlans,
 } from './UserPlanServices'
+import { cn } from '@/lib/utils'
 
 // Separate component for card form to isolate Stripe Elements
 const CardForm = ({
@@ -293,6 +295,7 @@ function UpgradePlanContent({
   const [isPreSelectedPlanTriggered, setIsPreSelectedPlanTriggered] =
     useState(false)
   const [loading, setLoading] = useState(false)
+  const [brandPrimaryColor, setBrandPrimaryColor] = useState('hsl(270, 75%, 50%)')
 
   let haveCards = cards && cards.length > 0 ? true : false
 
@@ -379,7 +382,29 @@ function UpgradePlanContent({
       return canProceed
     }
 
-    // If no cards and not adding new, still allow if plan is selected (they might add card during subscription)
+    // Check if the selected plan is free
+    const planPrice =
+      currentSelectedPlan?.discountPrice ||
+      currentSelectedPlan?.discountedPrice ||
+      currentSelectedPlan?.price ||
+      currentSelectedPlan?.originalPrice ||
+      0
+    const isFreePlan = planPrice === 0 || planPrice === null
+
+    // If no cards and not adding new payment method
+    if (!haveCards && !isAddingNewPaymentMethod) {
+      // If it's a free plan, allow subscription without payment method
+      if (isFreePlan) {
+        console.log('Button enabled: free plan, no payment method required')
+        return true
+      }
+      // If it's a paid plan and user hasn't started entering card details, hide the button
+      // (isAddingNewPaymentMethod is false means they haven't started entering card details)
+      console.log('Button hidden: paid plan requires payment method, no card details entered')
+      return false
+    }
+
+    // Fallback case (shouldn't reach here, but just in case)
     console.log('Button enabled: fallback case')
     return true
   }
@@ -391,6 +416,38 @@ function UpgradePlanContent({
   //     console.log('setCurrentUserPlan', currentUserPlan)
   // }
   //     , [currentSelectedPlan, currentFullPlan])
+
+  // Get brand primary color on mount and when modal opens
+  useEffect(() => {
+    const getBrandColor = () => {
+      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
+        try {
+          const brandColor = getComputedStyle(document.documentElement)
+            .getPropertyValue('--brand-primary')
+            .trim()
+          if (brandColor) {
+            // Handle both formats: "270 75% 50%" or "hsl(270, 75%, 50%)"
+            if (brandColor.startsWith('hsl')) {
+              setBrandPrimaryColor(brandColor)
+            } else {
+              setBrandPrimaryColor(`hsl(${brandColor})`)
+            }
+          }
+        } catch (error) {
+          console.log('Error getting brand color:', error)
+        }
+      }
+    }
+    getBrandColor()
+    // Also listen for branding updates
+    const handleBrandingUpdate = () => {
+      getBrandColor()
+    }
+    window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    }
+  }, [open])
 
   // Handle pre-selected plan from previous screen
   useEffect(() => {
@@ -599,15 +656,17 @@ function UpgradePlanContent({
             )
             setSelectedPlanIndex(planIndex)
             setTogglePlan(matchingPlan.id)
-          } else {
+          } else if (currentPlans.length > 0) {
             setCurrentSelectedPlan(currentPlans[0])
             setSelectedPlanIndex(0)
             setTogglePlan(currentPlans[0]?.id)
-            console.log('no matching plan found')
+            console.log('no matching plan found, setting first plan')
           }
+          setLoading(false)
         }, 100)
+      } else {
+        setLoading(false)
       }
-      setLoading(false)
     }
   }
 
@@ -1220,10 +1279,6 @@ function UpgradePlanContent({
       }
       console.log('Api data for upgrade plan', DataToSendInApi)
 
-      if (selectedUser) {
-        ApiPath = `${ApiPath}?userId=${selectedUser.id}`
-      }
-
       console.log('Api path is', ApiPath)
 
       //headers for api
@@ -1317,6 +1372,7 @@ function UpgradePlanContent({
     // If selected plan is the current plan, show "Cancel Subscription"
     if (isCurrentPlan) {
       console.log('🔍 [getButtonText] Same plan, returning Cancel Subscription')
+      //let's not return any title and disable the button
       return 'Cancel Subscription'
     }
 
@@ -1385,6 +1441,22 @@ function UpgradePlanContent({
       return 'same'
     }
 
+    // Get billing cycle order (monthly < quarterly < yearly)
+    const billingCycleOrder = {
+      monthly: 1,
+      quarterly: 2,
+      yearly: 3,
+    }
+
+    const currentBillingOrder =
+      billingCycleOrder[currentPlan.billingCycle] ||
+      billingCycleOrder[currentPlan.duration] ||
+      1
+    const targetBillingOrder =
+      billingCycleOrder[targetPlan.billingCycle] ||
+      billingCycleOrder[targetPlan.duration] ||
+      1
+
     // Define tier ranking: Starter < Growth < Scale
     const tierRanking = {
       Starter: 1,
@@ -1417,29 +1489,15 @@ function UpgradePlanContent({
       }
     }
 
-    // Get billing cycle order (monthly < quarterly < yearly)
-    const billingCycleOrder = {
-      monthly: 1,
-      quarterly: 2,
-      yearly: 3,
-    }
-
-    const currentBillingOrder =
-      billingCycleOrder[currentPlan.billingCycle] ||
-      billingCycleOrder[currentPlan.duration] ||
-      1
-    const targetBillingOrder =
-      billingCycleOrder[targetPlan.billingCycle] ||
-      billingCycleOrder[targetPlan.duration] ||
-      1
-
-    console.log('🔍 [comparePlans] Tier comparison:', {
+    console.log('🔍 [comparePlans] Comparison:', {
       currentTitle: currentPlan.title || currentPlan.name,
       currentTierRank,
       targetTitle: targetPlan.title || targetPlan.name,
       targetTierRank,
       currentBillingCycle: currentPlan.billingCycle || currentPlan.duration,
       targetBillingCycle: targetPlan.billingCycle || targetPlan.duration,
+      currentBillingOrder,
+      targetBillingOrder,
     })
 
     // If we can determine tier ranks, compare them first
@@ -1472,7 +1530,22 @@ function UpgradePlanContent({
       }
     }
 
-    // Fall back to price comparison if tier can't be determined
+    // If tier can't be determined, compare billing cycles first
+    // Longer billing cycle (yearly > quarterly > monthly) is generally an upgrade
+    // This handles cases like "Malik's Plan" monthly -> yearly where tier detection fails
+    if (targetBillingOrder > currentBillingOrder) {
+      console.log(
+        '🔍 [comparePlans] Result: UPGRADE (longer billing cycle, tier unknown)',
+      )
+      return 'upgrade'
+    } else if (targetBillingOrder < currentBillingOrder) {
+      console.log(
+        '🔍 [comparePlans] Result: DOWNGRADE (shorter billing cycle, tier unknown)',
+      )
+      return 'downgrade'
+    }
+
+    // Fall back to price comparison if billing cycles are the same
     const currentPrice =
       currentPlan.discountPrice ||
       currentPlan.discountedPrice ||
@@ -1507,14 +1580,8 @@ function UpgradePlanContent({
     } else if (targetPrice < currentPrice) {
       return 'downgrade'
     } else {
-      // Same price, different plans - consider billing cycle
-      if (targetBillingOrder > currentBillingOrder) {
-        return 'upgrade'
-      } else if (targetBillingOrder < currentBillingOrder) {
-        return 'downgrade'
-      } else {
-        return 'same'
-      }
+      // Same price, same billing cycle - must be the same plan
+      return 'same'
     }
   }
 
@@ -2134,11 +2201,13 @@ function UpgradePlanContent({
                           >
                             <div>I agree to</div>
                             <a
-                              href={
-                                'https://www.myagentx.com/terms-and-condition'
-                              }
-                              className="text-brand-primary hover:text-brand-primary/80 underline transition-colors duration-200"
-                              target="_blank"
+                              href="#"
+                              onClick={(e) => {
+                                e.preventDefault()
+                                const { termsUrl } = getPolicyUrls()
+                                window.open(termsUrl, '_blank')
+                              }}
+                              className="text-brand-primary hover:text-brand-primary/80 underline transition-colors duration-200 cursor-pointer"
                               rel="noopener noreferrer"
                             >
                               Terms & Conditions
@@ -2189,38 +2258,28 @@ function UpgradePlanContent({
                   </div>
                 </div>
 
-                <div className="w-full flex self-end flex-row items-end justify-end flex-shrink-0 mt-3">
-                  <div className="w-1/2"></div>
-                  {subscribeLoader ? (
-                    <div className="w-full flex flex-col items-center justify-center h-[53px]">
-                      <CircularProgress size={25} />
-                    </div>
-                  ) : (
+                {/* Hide button if selected plan is the current plan */}
+                {currentSelectedPlan && !isPlanCurrent(currentSelectedPlan) && getButtonText() !== 'Cancel Subscription' && (
+                  <div className="w-full flex self-end flex-row items-end justify-end flex-shrink-0 mt-3">
+                    <div className="w-1/2"></div>
                     <div className="w-1/2">
                       {subscribeLoader ? (
-                        <div className="w-1/2 flex flex-col items-center justify-center h-[53px]">
+                        <div className="w-full flex flex-col items-center justify-center md:h-[53px] h-[42px]">
                           <CircularProgress size={25} />
                         </div>
                       ) : (
-                        <button
-                          className={`w-full flex flex-col items-center justify-center md:h-[53px] h-[42px] rounded-lg text-base sm:text-lg font-semibold transition-all duration-300
-                                                    ${isUpgradeButtonEnabled()
-                              ? 'text-white bg-brand-primary hover:bg-brand-primary/90'
-                              : 'text-black bg-[#00000050] cursor-not-allowed'
-                            }`}
-                          disabled={!isUpgradeButtonEnabled()}
-                          onClick={() => {
-                            if (isUpgradeButtonEnabled()) {
-                              handleSubscribePlan()
-                            }
-                          }}
-                        >
-                          {getButtonText()}
-                        </button>
+                        <button 
+                        className={cn("flex md:h-[53px] h-[42px] w-full rounded-lg items-center justify-center text-base sm:text-lg font-semibold text-white", isUpgradeButtonEnabled() ? 'bg-brand-primary cursor-pointer' : 'cursor-not-allowed opacity-60')}
+                        onClick={() => {
+                          if (isUpgradeButtonEnabled()) {
+                            handleSubscribePlan()
+                          }
+                        }}
+                        >{getButtonText()}</button>
                       )}
                     </div>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -2274,11 +2333,7 @@ function UpgradePlan({
   selectedUser,
   // setShowSnackMsg = null
 }) {
-  let stripePublickKey =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-  const stripePromise = loadStripe(stripePublickKey)
+  const stripePromise = getStripe()
 
   const [showSnackMsg, setShowSnackMsg] = useState({
     type: SnackbarTypes.Success,

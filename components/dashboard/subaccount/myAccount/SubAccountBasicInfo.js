@@ -17,6 +17,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { UserTypes } from '@/constants/UserTypes'
 import { useUser } from '@/hooks/redux-hooks'
 import { logout } from '@/utilities/UserUtility'
+import { getAreaOfFocusTitle } from '@/utilities/getAreaOfFocusTitle'
 
 function SubAccountBasicInfo() {
   const router = useRouter()
@@ -1891,7 +1892,7 @@ function SubAccountBasicInfo() {
               }}
             >
               {agentAreasOfFocus.length > 0
-                ? 'What area of real estate do you focus on?'
+                ? getAreaOfFocusTitle(userType) || 'What area do you focus on?'
                 : 'What industries do you specialize in?'}
             </div>
             {selectedArea.length > 0 &&

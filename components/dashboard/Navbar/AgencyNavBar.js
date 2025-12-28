@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import { initializeApp } from 'firebase/app'
 import Image from 'next/image'
@@ -47,11 +47,7 @@ import AgentSelectSnackMessage, {
 import AgencyChecklist from './AgencyChecklist'
 import CheckList from './CheckList'
 
-let stripePublickKey =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-    ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-const stripePromise = loadStripe(stripePublickKey)
+const stripePromise = getStripe()
 
 const AgencyNavBar = () => {
   // const [user, setUser] = useState(null)
@@ -97,6 +93,9 @@ const AgencyNavBar = () => {
 
   // Branding state for powered by icon
   const [poweredByIconUrl, setPoweredByIconUrl] = useState('/agencyIcons/poweredByIcon.png')
+  
+  // Branding state for logo
+  const [agencyLogoUrl, setAgencyLogoUrl] = useState(null)
 
   //check stripe
   useEffect(() => {
@@ -355,7 +354,7 @@ const AgencyNavBar = () => {
     }
   }, [setReduxUser])
 
-  // Listen for branding updates and update powered by icon
+  // Listen for branding updates and update powered by icon and logo
   useEffect(() => {
     if (typeof window === 'undefined') return
 
@@ -384,6 +383,7 @@ const AgencyNavBar = () => {
       // If assignx domain AND not a subaccount AND not an agency, use default icon
       if (isAssignxDomain && !isSubaccount && !isAgency) {
         setPoweredByIconUrl('/agencyIcons/poweredByIcon.png')
+        setAgencyLogoUrl(null)
         return
       }
 
@@ -439,6 +439,13 @@ const AgencyNavBar = () => {
         } catch (error) {
           console.log('Error parsing user data for agencyBranding:', error)
         }
+      }
+
+      // Set logo URL if available
+      if (branding?.logoUrl) {
+        setAgencyLogoUrl(branding.logoUrl)
+      } else {
+        setAgencyLogoUrl(null)
       }
 
       // Use default icon if no branding found or no custom powered by icon
@@ -630,14 +637,20 @@ const AgencyNavBar = () => {
   return (
     <div>
       <AgentSelectSnackMessage
-        isVisible={true}
-        hide={() => setShowSuccessSnack(false)}
+        isVisible={showsuccessSnack}
+        hide={() => {
+          setShowSuccessSnack(false)
+          setSuccessSnack(null)
+        }}
         message={successSnack}
         type={SnackbarTypes.Success}
       />
       <AgentSelectSnackMessage
         isVisible={showerrorSnack}
-        hide={() => setShowErrorSnack(false)}
+        hide={() => {
+          setShowErrorSnack(false)
+          setErrorSnack(null)
+        }}
         message={errorSnack}
         type={SnackbarTypes.Error}
       />
@@ -707,17 +720,34 @@ const AgencyNavBar = () => {
         >
           <div className="w-full flex flex-row gap-3 items-center justify-start">
             <div className="w-10/12 flex flex-col items-end">
-              <div className="w-full">
-                {/*userDetails?.user?.name || "Agency Name"*/}
-                <EditAgencyName />
-              </div>
-              <Image
-                src={'/agencyIcons/poweredByIcon.png'}
-                alt="powered by logo"
-                height={33}
-                width={140}
-                objectFit="contain"
-              />
+              {agencyLogoUrl ? (
+                // Show logo if available
+                <div className="w-full flex justify-start items-center">
+                  <Image
+                    src={agencyLogoUrl}
+                    alt="agency logo"
+                    height={32}
+                    width={120}
+                    style={{ objectFit: 'contain', maxHeight: '32px', maxWidth: '120px' }}
+                    unoptimized={true}
+                  />
+                </div>
+              ) : (
+                // Show agency name if no logo
+                <div className="w-full">
+                  <EditAgencyName />
+                </div>
+              )}
+              {/* Only show "Powered by" label if no logo is present */}
+              {!agencyLogoUrl && (
+                <Image
+                  src={'/agencyIcons/poweredByIcon.png'}
+                  alt="powered by logo"
+                  height={33}
+                  width={140}
+                  objectFit="contain"
+                />
+              )}
             </div>
           </div>
 
@@ -934,9 +964,11 @@ const AgencyNavBar = () => {
                     if (result) {
                       setShowAddPaymentPopup(false)
                       setSuccessSnack('Payment method updated')
+                      setShowSuccessSnack(true)
                     } else {
                       setShowAddPaymentPopup(false)
-                      setShowErrorSnack('Failed to update payment method')
+                      setErrorSnack('Failed to update payment method')
+                      setShowErrorSnack(true)
                     }
                   }}
                   // togglePlan={""}

@@ -10,6 +10,7 @@ import {
   Fade,
   FormControl,
   InputLabel,
+  Menu,
   MenuItem,
   Modal,
   Popover,
@@ -27,10 +28,33 @@ import {
 } from '@phosphor-icons/react'
 import { setUser } from '@sentry/nextjs'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import parsePhoneNumberFromString from 'libphonenumber-js'
-import { Phone, View } from 'lucide-react'
+import {
+  Phone,
+  View,
+  Smile,
+  Frown,
+  AlertTriangle,
+  Flame,
+  Sun,
+  Snowflake,
+  CheckCircle2,
+  Mail,
+  MapPin,
+  Tag,
+  Workflow,
+  Calendar,
+  Users,
+  FileText,
+  MessageSquare,
+  Pencil,
+  Trash2,
+  Copy,
+  Meh,
+  ListChecks,
+} from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
@@ -69,6 +93,7 @@ import ConfirmPerplexityModal from './CofirmPerplexityModal'
 import DeleteCallLogConfimation from './DeleteCallLogConfimation'
 import NoPerplexity from './NoPerplexity'
 import Perplexity from './Perplexity'
+import DialerModal from '@/components/dialer/DialerModal'
 
 const LeadDetails = ({
   showDetailsModal,
@@ -166,6 +191,14 @@ const LeadDetails = ({
   const [seletedCallLog, setSelectedCallLog] = useState(null)
   const [delCallLoader, setdelCallLoader] = useState(false)
 
+  // Note edit/delete states
+  const [editingNote, setEditingNote] = useState(null)
+  const [editNoteValue, setEditNoteValue] = useState('')
+  const [editNoteLoader, setEditNoteLoader] = useState(false)
+  const [deleteNoteId, setDeleteNoteId] = useState(null)
+  const [deleteNoteLoader, setDeleteNoteLoader] = useState(false)
+  const [showDeleteNoteConfirm, setShowDeleteNoteConfirm] = useState(false)
+
   // Email functionality states
   const [showEmailModal, setShowEmailModal] = useState(false)
   const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null)
@@ -186,17 +219,19 @@ const LeadDetails = ({
 
   const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
 
+  // Send action dropdown state
+  const [sendActionAnchor, setSendActionAnchor] = useState(null)
+
   // Stripe configuration for upgrade modal
-  let stripePublickKey =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-  const stripePromise = loadStripe(stripePublickKey)
+  const stripePromise = getStripe()
 
   // Upgrade modal states
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [selectedPlan, setSelectedPlan] = useState(null)
   const [currentFullPlan, setCurrentFullPlan] = useState(null)
+
+  // Dialer modal state
+  const [showDialerModal, setShowDialerModal] = useState(false)
 
   const [creditCost, setCreditCost] = useState(null)
 
@@ -300,14 +335,26 @@ const LeadDetails = ({
       //   item.invitingUserId
       // return;
       let response = await AssignTeamMember(ApiData)
-      if (response.data.status === true) {
+      if (response && response.data && response.data.status === true) {
         setSelectedLeadsDetails((prevData) => {
-          return {
-            ...prevData,
-            teamsAssigned: [...prevData.teamsAssigned, item],
+          // Filter duplicates before adding
+          const existingIds = (prevData.teamsAssigned || []).map(u => u.id || u.invitedUserId)
+          const itemId = item.id || item.invitedUserId
+          
+          // Only add if not already assigned
+          if (!existingIds.includes(itemId)) {
+            return {
+              ...prevData,
+              teamsAssigned: [...(prevData.teamsAssigned || []), item],
+            }
           }
+          return prevData
         })
         leadAssignedTeam(item, selectedLeadsDetails)
+      } else if (response && response.data && response.data.status === false) {
+        // Show error message if assignment failed (e.g., duplicate)
+        setShowErrorSnack(response.data.message || 'Failed to assign team member')
+        setShowErrorSnack2(true)
       }
       //console.log;
     } catch (error) {
@@ -512,6 +559,113 @@ const LeadDetails = ({
     } finally {
       setStagesListLoader(false)
       // //console.log;
+    }
+  }
+
+  // Function to handle editing a note
+  const handleEditNote = async () => {
+    try {
+      if (!editingNote || !editNoteValue.trim()) {
+        setShowErrorSnack('Note content cannot be empty')
+        setShowErrorSnack2(true)
+        return
+      }
+
+      setEditNoteLoader(true)
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
+      if (localData) {
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
+      }
+
+      const response = await fetch(
+        `/api/leads/${selectedLeadsDetails.id}/notes/${editingNote.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${AuthToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            note: editNoteValue,
+          }),
+        },
+      )
+
+      const data = await response.json()
+
+      if (data.status === true) {
+        // Update the note in the list
+        setNoteDetails((prevNotes) =>
+          prevNotes.map((note) =>
+            note.id === editingNote.id
+              ? { ...note, note: editNoteValue }
+              : note,
+          ),
+        )
+        setEditingNote(null)
+        setEditNoteValue('')
+        setShowSuccessSnack('Note updated successfully')
+        setShowSuccessSnack2(true)
+      } else {
+        setShowErrorSnack(data.message || 'Failed to update note')
+        setShowErrorSnack2(true)
+      }
+    } catch (error) {
+      console.error('Error updating note:', error)
+      setShowErrorSnack('Failed to update note. Please try again.')
+      setShowErrorSnack2(true)
+    } finally {
+      setEditNoteLoader(false)
+    }
+  }
+
+  // Function to handle deleting a note
+  const handleDeleteNote = async () => {
+    try {
+      if (!deleteNoteId) return
+
+      setDeleteNoteLoader(true)
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
+      if (localData) {
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
+      }
+
+      const response = await fetch(
+        `/api/leads/${selectedLeadsDetails.id}/notes/${deleteNoteId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${AuthToken}`,
+            'Content-Type': 'application/json',
+          },
+        },
+      )
+
+      const data = await response.json()
+
+      if (data.status === true) {
+        // Remove the note from the list
+        setNoteDetails((prevNotes) =>
+          prevNotes.filter((note) => note.id !== deleteNoteId),
+        )
+        setDeleteNoteId(null)
+        setShowDeleteNoteConfirm(false)
+        setShowSuccessSnack('Note deleted successfully')
+        setShowSuccessSnack2(true)
+      } else {
+        setShowErrorSnack(data.message || 'Failed to delete note')
+        setShowErrorSnack2(true)
+      }
+    } catch (error) {
+      console.error('Error deleting note:', error)
+      setShowErrorSnack('Failed to delete note. Please try again.')
+      setShowErrorSnack2(true)
+    } finally {
+      setDeleteNoteLoader(false)
     }
   }
 
@@ -956,11 +1110,14 @@ const LeadDetails = ({
 
   const getCommunicationTypeIcon = (item) => {
     console.log('item.communication', item.communicationType)
+    // Check if it's a dialer call (callOrigin === 'Dialer' or isWebCall === false for calls)
+    const isDialerCall = item.callOrigin === 'Dialer' || (item.communicationType === 'call' && item.isWebCall === false)
+    
     if (item.communicationType == 'sms') {
       return '/otherAssets/smsIcon.png'
     } else if (item.communicationType == 'email') {
       return '/otherAssets/email.png'
-    } else if (item.communicationType == 'call') {
+    } else if (item.communicationType == 'call' || isDialerCall) {
       return '/otherAssets/callIcon.png'
     } else if (item.communicationType == 'web') {
       return '/otherAssets/webhook2.svg'
@@ -1136,89 +1293,402 @@ const LeadDetails = ({
     }
   }
 
+  const startDialerFlow = () => {
+    if (!selectedLeadsDetails?.phone) {
+      setShowSnackMsg({
+        type: SnackbarTypes.Error,
+        message: 'No phone number available for this lead',
+        isVisible: true,
+      })
+      return
+    }
+
+    // Format phone number to E.164 format if needed
+    let phoneNumber = selectedLeadsDetails.phone
+    try {
+      // Try to parse and format the phone number
+      const parsed = parsePhoneNumberFromString(phoneNumber, 'US')
+      if (parsed && parsed.isValid()) {
+        phoneNumber = parsed.format('E.164')
+      } else {
+        // If parsing fails, try to clean and add + if missing
+        phoneNumber = phoneNumber.replace(/\D/g, '')
+        if (phoneNumber && !phoneNumber.startsWith('+')) {
+          phoneNumber = '+' + phoneNumber
+        }
+      }
+    } catch (error) {
+      console.warn('Error parsing phone number:', error)
+      // Use phone number as-is if parsing fails
+    }
+
+    // Open dialer modal with the phone number
+    setShowDialerModal(true)
+  }
+
+  // Helper function to format objections from JSON
+  const formatObjections = (objectionsJson) => {
+    if (!objectionsJson) return 'None'
+    try {
+      const objections = typeof objectionsJson === 'string' 
+        ? JSON.parse(objectionsJson) 
+        : objectionsJson
+      
+      // Handle "None" string
+      if (typeof objections === 'string' && objections.toLowerCase() === 'none') {
+        return 'None'
+      }
+      
+      if (!Array.isArray(objections) || objections.length === 0) {
+        return 'None'
+      }
+      
+      return objections
+        .filter((obj) => obj && obj !== 'None' && obj !== 'none')
+        .map((obj, idx) => {
+          if (typeof obj === 'string') {
+            // Format: "Category: Price | What was said: Not in budget"
+            const parts = obj.split('|')
+            if (parts.length >= 2) {
+              return `${parts[0].trim()}\n${parts[1].trim()}`
+            }
+            return obj
+          }
+          return String(obj)
+        })
+        .join('\n\n')
+    } catch (error) {
+      // If parsing fails, return as string if it's not "None"
+      if (typeof objectionsJson === 'string' && objectionsJson.toLowerCase() !== 'none') {
+        return objectionsJson
+      }
+      return 'None'
+    }
+  }
+
+  // Helper function to format next steps from JSON
+  const formatNextSteps = (nextStepsJson) => {
+    if (!nextStepsJson) return 'No next steps'
+    try {
+      const nextSteps = typeof nextStepsJson === 'string' 
+        ? JSON.parse(nextStepsJson) 
+        : nextStepsJson
+      if (!Array.isArray(nextSteps) || nextSteps.length === 0) {
+        return 'No next steps'
+      }
+      return nextSteps
+        .filter((step) => step && step.trim())
+        .map((step, idx) => `${idx + 1}. ${step}`)
+        .join('\n')
+    } catch (error) {
+      // If parsing fails, return as string
+      if (typeof nextStepsJson === 'string') {
+        return nextStepsJson
+      }
+      return 'No next steps'
+    }
+  }
+
+  // Helper function to get temperature icon based on value
+  const getTemperatureIcon = (temperature) => {
+    if (!temperature) return null
+    const tempLower = temperature.toLowerCase()
+    if (tempLower.includes('hot')) {
+      return <Flame size={16} color="#ef4444" />
+    } else if (tempLower.includes('warm')) {
+      return <Sun size={16} color="#f59e0b" />
+    } else if (tempLower.includes('cold')) {
+      return <Snowflake size={16} color="#3b82f6" />
+    }
+    return <Sun size={16} color="#6b7280" />
+  }
+
+  // Helper function to get sentiment icon
+  const getSentimentIcon = (sentiment) => {
+    if (!sentiment) return null
+    const sentimentLower = sentiment.toLowerCase()
+    if (sentimentLower.includes('positive') || sentimentLower.includes('happy') || sentimentLower.includes('excited')) {
+      return <Smile size={18} color="hsl(var(--brand-primary))" />
+    } else if (sentimentLower.includes('negative') || sentimentLower.includes('angry') || sentimentLower.includes('frustrated')) {
+      return <Frown size={18} color="hsl(var(--brand-primary))" />
+    } else {
+      return <Meh size={18} color="hsl(var(--brand-primary))" />
+    }
+  }
+
+  // Helper function to get temperature icon
+  const getTemperatureIconForActivity = (temperature) => {
+    if (!temperature) return null
+    const tempLower = temperature.toLowerCase()
+    if (tempLower.includes('hot')) {
+      return <Flame size={18} color="hsl(var(--brand-primary))" />
+    } else if (tempLower.includes('warm')) {
+      return <Sun size={18} color="hsl(var(--brand-primary))" />
+    } else if (tempLower.includes('cold')) {
+      return <Snowflake size={18} color="hsl(var(--brand-primary))" />
+    }
+    return null
+  }
+
+  // Helper function to format next steps for tooltip
+  const formatNextStepsForTooltip = (nextSteps) => {
+    if (!nextSteps) return 'No next steps'
+    try {
+      const steps = typeof nextSteps === 'string' ? JSON.parse(nextSteps) : nextSteps
+      if (Array.isArray(steps) && steps.length > 0) {
+        return steps.map((step, idx) => `${idx + 1}. ${step}`).join('\n')
+      }
+      return typeof nextSteps === 'string' ? nextSteps : 'No next steps'
+    } catch {
+      return typeof nextSteps === 'string' ? nextSteps : 'No next steps'
+    }
+  }
+
   const callTranscript = (item, initialText) => {
+    const callSummary = item.callSummary
+    const summaryText = callSummary?.callSummary || null
+    const hasSummary = summaryText && summaryText.trim()
+    
+    // Use summary if available, otherwise fallback to transcript
+    const displayText = hasSummary ? summaryText : (item.transcript || 'No summary or transcript available')
+    
     return (
       <div className="flex flex-col">
-        <div className="flex mt-4 flex-row items-center gap-4">
-          <div
-            className=""
-            style={{
-              fontWeight: '500',
-              fontSize: 12,
-              color: '#00000070',
-            }}
-          >
-            Call ID
-          </div>
-
-          <button onClick={() => handleCopy(item.callId)}>
-            <Image src={'/svgIcons/copy.svg'} height={15} width={15} alt="*" />
-          </button>
-        </div>
+        {/* Top row: Duration, Play button, and Icons (Sentiment, Temp, Next Steps) */}
         <div className="flex flex-row items-center justify-between mt-4">
-          <div
-            style={{
-              fontWeight: '500',
-              fontSize: 15,
-            }}
-          >
-            {moment(item?.duration * 1000).format('mm:ss')}{' '}
-          </div>
-          <button
-            onClick={() => {
-              if (item?.recordingUrl) {
-                setShowAudioPlay(item?.recordingUrl)
-              } else {
-                setShowNoAudioPlay(true)
-              }
-              // window.open(item.recordingUrl, "_blank")
-            }}
-          >
-            <Image src={'/assets/play.png'} height={35} width={35} alt="*" />
-          </button>
-        </div>
-        {item.transcript ? (
-          <div className="w-full">
+          <div className="flex flex-row items-center gap-3">
             <div
-              className="mt-4"
               style={{
-                fontWeight: '600',
+                fontWeight: '500',
                 fontSize: 15,
               }}
             >
-              {/* {item.transcript} */}
-              {`${initialText}...`}
-              {/* {isExpanded.includes(
-                                                        item.id
-                                                      )
-                                                        ? `${item.transcript}`
-                                                        : `${initialText}...`} */}
+              {moment(item?.duration * 1000).format('mm:ss')}
             </div>
-            <div className="w-full flex flex-row items-center justify-between">
-              <button
+            <button
+              onClick={() => {
+                if (item?.recordingUrl) {
+                  setShowAudioPlay({ recordingUrl: item.recordingUrl, callId: item.callId })
+                } else {
+                  setShowNoAudioPlay(true)
+                }
+              }}
+              className="flex items-center justify-center"
+              style={{
+                width: 35,
+                height: 35,
+              }}
+            >
+              <Image 
+                src={'/assets/play.png'} 
+                height={35} 
+                width={35} 
+                alt="Play recording"
                 style={{
-                  fontWeight: '600',
-                  fontSize: 15,
+                  filter: 'hue-rotate(0deg) saturate(1) brightness(1)',
                 }}
-                onClick={() => {
-                  handleReadMoreToggle(item)
-                }}
-                className="mt-2 text-black underline"
-              >
-                {'Read Transcript'}
-              </button>
-            </div>
+              />
+            </button>
           </div>
-        ) : (
+          
+          {/* Top right icons: Sentiment, Temperature, Next Steps */}
+          <div className="flex flex-row items-center gap-3">
+            {callSummary?.prospectSentiment && (
+              <Tooltip
+                title={`Sentiment: ${callSummary.prospectSentiment}`}
+                arrow
+                componentsProps={{
+                  tooltip: {
+                    sx: {
+                      backgroundColor: '#ffffff',
+                      color: '#333',
+                      fontSize: '14px',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                      maxWidth: '300px',
+                    },
+                  },
+                  arrow: {
+                    sx: {
+                      color: '#ffffff',
+                    },
+                  },
+                }}
+              >
+                <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  {getSentimentIcon(callSummary.prospectSentiment)}
+                </div>
+              </Tooltip>
+            )}
+            
+            {callSummary?.leadTemperature && (
+              <Tooltip
+                title={`Lead Temperature: ${callSummary.leadTemperature}`}
+                arrow
+                componentsProps={{
+                  tooltip: {
+                    sx: {
+                      backgroundColor: '#ffffff',
+                      color: '#333',
+                      fontSize: '14px',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                      maxWidth: '300px',
+                    },
+                  },
+                  arrow: {
+                    sx: {
+                      color: '#ffffff',
+                    },
+                  },
+                }}
+              >
+                <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  {getTemperatureIconForActivity(callSummary.leadTemperature)}
+                </div>
+              </Tooltip>
+            )}
+            
+            {callSummary?.nextSteps && (
+              <Tooltip
+                title={
+                  <div style={{ whiteSpace: 'pre-line' }}>
+                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>Next Steps:</div>
+                    {formatNextStepsForTooltip(callSummary.nextSteps)}
+                  </div>
+                }
+                arrow
+                componentsProps={{
+                  tooltip: {
+                    sx: {
+                      backgroundColor: '#ffffff',
+                      color: '#333',
+                      fontSize: '14px',
+                      padding: '8px 12px',
+                      borderRadius: '8px',
+                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                      maxWidth: '300px',
+                    },
+                  },
+                  arrow: {
+                    sx: {
+                      color: '#ffffff',
+                    },
+                  },
+                }}
+              >
+                <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+                  <ListChecks size={18} color="hsl(var(--brand-primary))" />
+                </div>
+              </Tooltip>
+            )}
+          </div>
+        </div>
+
+        {/* Summary text */}
+        <div className="w-full mt-4">
           <div
             style={{
               fontWeight: '600',
               fontSize: 15,
+              marginBottom: '8px',
             }}
           >
-            No transcript
+            Summary:
           </div>
-        )}
+          <div
+            style={{
+              fontWeight: '400',
+              fontSize: 15,
+              color: '#151515',
+              lineHeight: '1.5',
+            }}
+          >
+            {displayText}
+          </div>
+        </div>
+
+        {/* Bottom row: Call ID, Transcript icons (left) and Caller name (right) */}
+        <div className="flex flex-row items-center justify-between mt-4">
+          <div className="flex flex-row items-center gap-4">
+            {/* Call ID Icon */}
+            <Tooltip
+              title="Copy Call ID"
+              arrow
+              componentsProps={{
+                tooltip: {
+                  sx: {
+                    backgroundColor: '#ffffff',
+                    color: '#333',
+                    fontSize: '14px',
+                    padding: '6px 10px',
+                    borderRadius: '6px',
+                    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.15)',
+                  },
+                },
+                arrow: {
+                  sx: {
+                    color: '#ffffff',
+                  },
+                },
+              }}
+            >
+              <button 
+                onClick={() => handleCopy(item.callId)}
+                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              >
+                <Copy size={18} color="hsl(var(--brand-primary))" />
+              </button>
+            </Tooltip>
+
+            {/* Transcript Icon */}
+            {item.transcript && (
+              <Tooltip
+                title="Read Transcript"
+                arrow
+                componentsProps={{
+                  tooltip: {
+                    sx: {
+                      backgroundColor: '#ffffff',
+                      color: '#333',
+                      fontSize: '14px',
+                      padding: '6px 10px',
+                      borderRadius: '6px',
+                      boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.15)',
+                    },
+                  },
+                  arrow: {
+                    sx: {
+                      color: '#ffffff',
+                    },
+                  },
+                }}
+              >
+                <button
+                  onClick={() => {
+                    handleReadMoreToggle(item)
+                  }}
+                  style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                >
+                  <FileText size={18} color="hsl(var(--brand-primary))" />
+                </button>
+              </Tooltip>
+            )}
+          </div>
+
+          {/* Caller name (right side) */}
+          {/* <div
+            style={{
+              fontWeight: '500',
+              fontSize: 14,
+              color: '#00000070',
+            }}
+          >
+            By {item.callerName || item.agent?.name || 'Unknown'}
+          </div> */}
+        </div>
       </div>
     )
   }
@@ -1389,6 +1859,113 @@ const LeadDetails = ({
                               {selectedLeadsDetails?.lastName}
                             </div>
 
+                            {/* Send Action Dropdown Button */}
+                            <div className="relative">
+                              <button
+                                className="flex flex-row items-center gap-1 px-2 py-1 border border-brand-primary text-brand-primary rounded-lg"
+                                onClick={(e) => setSendActionAnchor(e.currentTarget)}
+                              >
+                                <span className="text-[12px] font-[400]">Send</span>
+                                <CaretDown size={12} weight="bold" />
+                              </button>
+                              <Menu
+                                anchorEl={sendActionAnchor}
+                                open={Boolean(sendActionAnchor)}
+                                onClose={() => setSendActionAnchor(null)}
+                                anchorOrigin={{
+                                  vertical: 'bottom',
+                                  horizontal: 'left',
+                                }}
+                                transformOrigin={{
+                                  vertical: 'top',
+                                  horizontal: 'left',
+                                }}
+                                PaperProps={{
+                                  style: {
+                                    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                                    borderRadius: '12px',
+                                    minWidth: '150px',
+                                  },
+                                }}
+                              >
+                                {/* Email Option */}
+                                {(selectedLeadsDetails?.email ||
+                                  selectedLeadsDetails?.emails?.length > 0) && (
+                                  <MenuItem
+                                    onClick={() => {
+                                      setSendActionAnchor(null)
+                                      if (googleAccounts.length === 0) {
+                                        setShowAuthSelectionPopup(true)
+                                      } else {
+                                        setShowEmailModal(true)
+                                      }
+                                    }}
+                                    disabled={sendEmailLoader}
+                                  >
+                                    <div className="flex flex-row items-center gap-2 w-full">
+                                      <Mail
+                                        size={20}
+                                        color="#000000"
+                                      />
+                                      <span>Email</span>
+                                    </div>
+                                  </MenuItem>
+                                )}
+                                {/* Text Option */}
+                                {selectedLeadsDetails?.phone && (
+                                  <MenuItem
+                                    onClick={() => {
+                                      setSendActionAnchor(null)
+                                      setShowSMSModal(true)
+                                    }}
+                                    disabled={
+                                      sendSMSLoader ||
+                                      !userLocalData?.planCapabilities
+                                        ?.allowTextMessages ||
+                                      phoneNumbers.length == 0
+                                    }
+                                  >
+                                    <div className="flex flex-row items-center gap-2 w-full">
+                                      <MessageSquare
+                                        size={20}
+                                        color="#000000"
+                                      />
+                                      <span>Text</span>
+                                      {(!userLocalData?.planCapabilities
+                                        ?.allowTextMessages ||
+                                        phoneNumbers.length == 0) && (
+                                        <Image
+                                          src="/otherAssets/starsIcon2.png"
+                                          height={16}
+                                          width={16}
+                                          alt="upgrade"
+                                          className="ml-auto"
+                                        />
+                                      )}
+                                    </div>
+                                  </MenuItem>
+                                )}
+                                {/* Call Option */}
+                                {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' &&
+                                  selectedLeadsDetails?.phone && (
+                                    <MenuItem
+                                      onClick={() => {
+                                        setSendActionAnchor(null)
+                                        startDialerFlow()
+                                      }}
+                                    >
+                                      <div className="flex flex-row items-center gap-2 w-full">
+                                        <Phone
+                                          size={20}
+                                          color="#000000"
+                                        />
+                                        <span>Call</span>
+                                      </div>
+                                    </MenuItem>
+                                  )}
+                              </Menu>
+                            </div>
+
                             {selectedLeadsDetails?.scoringDetails &&
                               selectedLeadsDetails?.scoringDetails?.questions
                                 ?.length > 0 && (
@@ -1417,15 +1994,13 @@ const LeadDetails = ({
                           {(selectedLeadsDetails?.email ||
                             selectedLeadsDetails?.emails?.length > 0) && (
                             <div className="flex flex-row items-center gap-2">
-                              <Image
-                                src="/otherAssets/email.png"
-                                height={16}
-                                width={16}
-                                alt="email"
+                              <Mail
+                                size={16}
+                                color="#000000"
                               />
                               <div style={styles.heading2}>
                                 {selectedLeadsDetails?.email ? (
-                                  truncateEmail(selectedLeadsDetails?.email)
+                                  selectedLeadsDetails?.email
                                 ) : (
                                   <div>
                                     {selectedLeadsDetails?.emails
@@ -1450,7 +2025,7 @@ const LeadDetails = ({
                                                 <span className="text-brand-primary">
                                                   New
                                                 </span>{' '}
-                                                {truncateEmail(email.email)}
+                                                {email.email}
                                               </div>
                                             </div>
                                             <button
@@ -1473,37 +2048,6 @@ const LeadDetails = ({
                                   </div>
                                 )}
                               </div>
-                              {/* Send Email Button */}
-                              <button
-                                className="flex flex-row items-center gap-1 px-1 py-1 border border-brand-primary text-brand-primary rounded-lg  ml-4"
-                                onClick={() => {
-                                  if (googleAccounts.length === 0) {
-                                    setShowAuthSelectionPopup(true)
-                                  } else {
-                                    setShowEmailModal(true)
-                                  }
-                                }}
-                                disabled={sendEmailLoader}
-                              >
-                                <div
-                                  style={{
-                                    width: 18,
-                                    height: 18,
-                                    backgroundColor: 'hsl(var(--brand-primary))',
-                                    WebkitMaskImage: 'url(/otherAssets/sendEmailIcon.png)',
-                                    maskImage: 'url(/otherAssets/sendEmailIcon.png)',
-                                    WebkitMaskSize: 'contain',
-                                    maskSize: 'contain',
-                                    WebkitMaskRepeat: 'no-repeat',
-                                    maskRepeat: 'no-repeat',
-                                    WebkitMaskPosition: 'center',
-                                    maskPosition: 'center',
-                                  }}
-                                />
-                                <span className="text-brand-primary text-[12px] font-[400]">
-                                  Send Email
-                                </span>
-                              </button>
                             </div>
                           )}
                           <div>
@@ -1531,7 +2075,7 @@ const LeadDetails = ({
                                             <span className="text-brand-primary text-[15px] font-[400]">
                                               New
                                             </span>{' '}
-                                            {truncateEmail(email.email)}
+                                            {email.email}
                                           </div>
                                         </div>
                                         <button
@@ -1555,16 +2099,11 @@ const LeadDetails = ({
                             )}
                           </div>
                           {selectedLeadsDetails?.phone && (
-                            <div className="flex flex-row gap-2 justify-center items-center -mt-2">
-                              {/* <div className="w-4 h-4 filter invert brightness-0"> */}
-                              <Image
-                                src="/otherAssets/phone.png"
-                                width={16}
-                                height={20}
-                                alt="call"
+                            <div className="flex flex-row items-center gap-2">
+                              <Phone
+                                size={16}
+                                color="#000000"
                               />
-                              {/* </div> */}
-                              {/* <Phone className="w-4 h-4 text-black" /> */}
                               <div style={styles.heading2}>
                                 {formatPhoneNumber(
                                   selectedLeadsDetails?.phone,
@@ -1578,130 +2117,14 @@ const LeadDetails = ({
                                   {selectedLeadsDetails?.cell}
                                 </div>
                               )}
-                              {/* Send SMS Button for Phone */}
-                              <div className="relative ml-4">
-                                {/* Stars icon overlapping top-left corner of button */}
-                                {userLocalData?.planCapabilities
-                                  ?.allowTextMessages === false && (
-                                  <Image
-                                    className="absolute -top-3 -left-2 z-10"
-                                    src="/otherAssets/starsIcon2.png"
-                                    height={20}
-                                    width={20}
-                                    alt="Upgrade"
-                                  />
-                                )}
-
-                                <Tooltip
-                                  title={
-                                    userLocalData?.planCapabilities
-                                      ?.allowTextMessages === false ? (
-                                      <div className="flex flex-col items-start gap-1">
-                                        <span>
-                                          <button
-                                            className="text-brand-primary underline hover:text-brand-primary/80 transition-colors text-left p-0 bg-transparent border-none ml-1"
-                                            onClick={() => {
-                                              console.log(
-                                                'Upgrade clicked from SMS tooltip',
-                                              )
-                                              setShowUpgradeModal(true)
-                                            }}
-                                          >
-                                            {`Upgrade `}
-                                          </button>
-                                          {' account to send text'}
-                                        </span>
-                                      </div>
-                                    ) : phoneNumbers.length == 0 ? (
-                                      'You need to complete A2P to text'
-                                    ) : (
-                                      ''
-                                    )
-                                  }
-                                  arrow
-                                  disableHoverListener={
-                                    userLocalData?.planCapabilities
-                                      ?.allowTextMessages &&
-                                    phoneNumbers.length > 0
-                                  }
-                                  disableFocusListener={
-                                    userLocalData?.planCapabilities
-                                      ?.allowTextMessages &&
-                                    phoneNumbers.length > 0
-                                  }
-                                  disableTouchListener={
-                                    userLocalData?.planCapabilities
-                                      ?.allowTextMessages &&
-                                    phoneNumbers.length > 0
-                                  }
-                                  componentsProps={{
-                                    tooltip: {
-                                      sx: {
-                                        backgroundColor: '#ffffff',
-                                        color: '#333',
-                                        fontSize: '14px',
-                                        fontWeight: '500',
-                                        padding: '12px 15px',
-                                        borderRadius: '8px',
-                                        boxShadow:
-                                          '0px 4px 20px rgba(0, 0, 0, 0.15)',
-                                        border: '1px solid #e5e7eb',
-                                        maxWidth: '250px',
-                                      },
-                                    },
-                                    arrow: {
-                                      sx: {
-                                        color: '#ffffff',
-                                      },
-                                    },
-                                  }}
-                                >
-                                  {sendSMSLoader ? (
-                                    <CircularProgress size={20} />
-                                  ) : (
-                                    <button
-                                      className={`flex flex-row border border-brand-primary items-center gap-1 px-1 py-1 text-brand-primary rounded-lg`}
-                                      onClick={() => setShowSMSModal(true)}
-                                      disabled={
-                                        sendSMSLoader ||
-                                        !userLocalData?.planCapabilities
-                                          ?.allowTextMessages ||
-                                        phoneNumbers.length == 0
-                                      }
-                                    >
-                                      <div
-                                        style={{
-                                          width: 18,
-                                          height: 18,
-                                          backgroundColor: 'hsl(var(--brand-primary))',
-                                          WebkitMaskImage: 'url(/otherAssets/sendSmsIcon.png)',
-                                          maskImage: 'url(/otherAssets/sendSmsIcon.png)',
-                                          WebkitMaskSize: 'contain',
-                                          maskSize: 'contain',
-                                          WebkitMaskRepeat: 'no-repeat',
-                                          maskRepeat: 'no-repeat',
-                                          WebkitMaskPosition: 'center',
-                                          maskPosition: 'center',
-                                        }}
-                                      />
-                                      <span className="text-[12px] font-[400]">
-                                        Send Text
-                                      </span>
-                                    </button>
-                                  )}
-                                </Tooltip>
-                              </div>
                             </div>
                           )}
 
                           {selectedLeadsDetails?.address && (
                             <div className="flex flex-row items-center gap-2">
-                              {/* <EnvelopeSimple size={20} color='#00000060' /> */}
-                              <Image
-                                src={'/otherAssets/location.png'}
-                                height={16}
-                                width={16}
-                                alt="man"
+                              <MapPin
+                                size={16}
+                                color="#000000"
                               />
                               <div style={styles.heading2}>
                                 {selectedLeadsDetails?.address || '-'}
@@ -1710,11 +2133,9 @@ const LeadDetails = ({
                           )}
                           {selectedLeadsDetails?.tags.length > 0 && (
                             <div className="flex flex-row items-center gap-2">
-                              <Image
-                                src={'/otherAssets/tag.png'}
-                                height={16}
-                                width={16}
-                                alt="man"
+                              <Tag
+                                size={16}
+                                color="#000000"
                               />
                               <div>
                                 {selectedLeadsDetails?.tags.length > 0 ? (
@@ -1796,15 +2217,9 @@ const LeadDetails = ({
                           )}
                           {selectedLeadsDetails?.pipeline && (
                             <div className="flex flex-row items-center gap-2">
-                              <Image
-                                src="/otherAssets/pipeline2.png"
-                                height={20}
-                                width={20}
-                                alt="*"
-                                style={{
-                                  filter:
-                                    'invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%)',
-                                }}
+                              <Workflow
+                                size={20}
+                                color="#000000"
                               />
                               <div style={styles.heading2}>
                                 {selectedLeadsDetails?.pipeline
@@ -1817,11 +2232,9 @@ const LeadDetails = ({
                           <div>
                             {selectedLeadsDetails?.booking && (
                               <div className="flex flex-row items-center gap-2">
-                                <Image
-                                  src="/otherAssets/Calendar.png"
-                                  height={16}
-                                  width={16}
-                                  alt="*"
+                                <Calendar
+                                  size={16}
+                                  color="#000000"
                                 />
                                 <div style={styles.heading2}>
                                   {GetFormattedDateString(
@@ -1878,117 +2291,57 @@ const LeadDetails = ({
 
                       <div className="w-full mt-3">
                         <div className="">
-                          {selectedLeadsDetails?.teamsAssigned?.length > 0 ? (
-                            <div className="">
-                              <LeadTeamsAssignedList
-                                users={selectedLeadsDetails?.teamsAssigned}
-                              />
-                            </div>
-                          ) : globalLoader ? (
+                          {globalLoader ? (
                             <CircularProgress size={25} />
                           ) : (
-                            <div className="flex flex-col w-full max-w-full overflow-hidden">
-                              <button
-                                className="flex flex-row items-center gap-3"
-                                onClick={(event) => {
-                                  handleShowPopup(event)
-                                }}
-                              >
-                                <Image
-                                  src={'/otherAssets/assignTeamIcon.png'}
-                                  alt="*"
-                                  height={16}
-                                  width={16}
-                                />
-                                <div
-                                  style={{
-                                    fontWeight: '500',
-                                    fontsize: 15,
-                                    color: '#000000100',
-                                  }}
-                                >
-                                  Assign Team
-                                </div>
-                              </button>
-                              <div className="flex w-full">
-                                {showTeams && (
-                                  <div className="flex flex-col mt-4 gap-1 w-full max-w-full overflow-hidden">
-                                    {myTeam.map((user) => (
-                                      <div
-                                        key={user.id}
-                                        className="flex space-x-3 overflow-x-auto items-center"
-                                      >
-                                        <div className="flex items-center space-x-1">
-                                          <div className="w-6 h-6 bg-brand-primary rounded-full flex items-center justify-center text-white font-bold text-sm">
-                                            {user?.name?.charAt(0)}
-                                          </div>
-                                          <span className="text-gray-700 text-sm">
-                                            {user?.name}
-                                          </span>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
+                            <LeadTeamsAssignedList
+                              users={selectedLeadsDetails?.teamsAssigned || []}
+                              onAssignClick={(event) => {
+                                handleShowPopup(event)
+                              }}
+                            />
                           )}
                         </div>
                       </div>
 
-                      <div className="flex w-full">
-                        {getExtraColumsCount(columnsLength) >= 1 && (
-                          <div className="flex flex-col mt-2 rounded-xl p-2 w-full max-w-full overflow-hidden">
-                            <button
-                              onClick={() => {
-                                setShowCustomVariables(!showCustomVariables)
-                              }}
-                              className="flex flex-row items-center w-full justify-between outline-none"
-                            >
-                              <div className="flex flex-row items-center gap-3">
-                                <Image
-                                  src={'/assets/customsIcon.svg'}
-                                  alt="*"
-                                  height={16}
-                                  width={16}
-                                />
-                                <div
-                                  style={{
-                                    fontWeight: '500',
-                                    fontsize: 15,
-                                    color: '#000000100',
-                                  }}
-                                >
-                                  Custom fields
-                                </div>
-                                {showCustomVariables ? (
-                                  <CaretUp
-                                    size={16}
-                                    weight="bold"
-                                    color="#15151570"
-                                  />
-                                ) : (
-                                  <CaretDown
-                                    size={16}
-                                    weight="bold"
-                                    color="#15151570"
-                                  />
-                                )}
-                              </div>
-                              <div>
-                                {getExtraColumsCount(columnsLength) > 0 ? (
-                                  <div
-                                    className="text-brand-primary underline"
-                                    style={{ fontsize: 15, fontWeight: '500' }}
-                                  >
-                                    +{getExtraColumsCount(columnsLength)}
-                                  </div>
-                                ) : (
-                                  ''
-                                )}
-                              </div>
-                            </button>
-                            <div className="flex w-full ">
+                      {getExtraColumsCount(columnsLength) >= 1 && (
+                        <div className="flex flex-row items-center gap-2 mt-3">
+                          <Image
+                            src={'/assets/customsIcon.svg'}
+                            alt="*"
+                            height={16}
+                            width={16}
+                          />
+                          <button
+                            onClick={() => {
+                              setShowCustomVariables(!showCustomVariables)
+                            }}
+                            className="outline-none flex flex-row items-center gap-1"
+                          >
+                            <div style={styles.heading2}>
+                              Custom fields
+                            </div>
+                            {showCustomVariables ? (
+                              <CaretUp
+                                size={16}
+                                weight="bold"
+                                color="#000000"
+                              />
+                            ) : (
+                              <CaretDown
+                                size={16}
+                                weight="bold"
+                                color="#000000"
+                              />
+                            )}
+                          </button>
+                        </div>
+                      )}
+
+                    <div className="flex w-full">
+                      {getExtraColumsCount(columnsLength) >= 1 && (
+                        <div className="flex flex-col mt-2 rounded-xl p-2 w-full max-w-full overflow-hidden">
+                          <div className="flex w-full ">
                               {showCustomVariables && (
                                 <div className="flex flex-col mt-4 gap-1 w-full max-w-full overflow-hidden">
                                   {leadColumns.map((column, index) => {
@@ -2133,7 +2486,7 @@ const LeadDetails = ({
                                             <span className="text-brand-primary">
                                               New
                                             </span>{' '}
-                                            {truncateEmail(email?.email)}
+                                            {email?.email}
                                           </div>
                                         </div>
                                       </div>
@@ -2377,6 +2730,7 @@ const LeadDetails = ({
                           setShowKycDetails(false)
                           setShowNotesDetails(false)
                           setShowAcitivityDetails(false)
+                          setShowCustomVariables(false)
                         }}
                       >
                         <div
@@ -2385,7 +2739,7 @@ const LeadDetails = ({
                             height: 20,
                             backgroundColor: showPerplexityDetails
                               ? 'hsl(var(--brand-primary))'
-                              : 'transparent',
+                              : '#000000',
                             WebkitMaskImage: `url(${
                               showPerplexityDetails
                                 ? '/svgIcons/sparklesPurple.svg'
@@ -2426,6 +2780,7 @@ const LeadDetails = ({
                           setShowKycDetails(true)
                           setShowNotesDetails(false)
                           setShowAcitivityDetails(false)
+                          setShowCustomVariables(false)
                         }}
                       >
                         <div
@@ -2477,6 +2832,7 @@ const LeadDetails = ({
                           setShowKycDetails(false)
                           setShowNotesDetails(false)
                           setShowAcitivityDetails(true)
+                          setShowCustomVariables(false)
                         }}
                       >
                         <div
@@ -2526,6 +2882,7 @@ const LeadDetails = ({
                           setShowKycDetails(false)
                           setShowNotesDetails(true)
                           setShowAcitivityDetails(false)
+                          setShowCustomVariables(false)
                         }}
                       >
                         <div
@@ -2564,7 +2921,7 @@ const LeadDetails = ({
                     </div>
                     <div
                       className="w-full"
-                      style={{ height: '1px', backgroundColor: '#15151530' }}
+                      style={{ height: '1px', backgroundColor: '#15151510' }}
                     />
 
                     <div style={{ paddingInline: 0 }}>
@@ -2723,16 +3080,212 @@ const LeadDetails = ({
                                       className="border rounded-xl p-4 mb-4 mt-4"
                                       style={{ border: '1px solid #00000020' }}
                                     >
-                                      <div
-                                        style={{
-                                          fontWeight: '500',
-                                          color: '#15151560',
-                                          fontsize: 12,
-                                        }}
-                                      >
-                                        {GetFormattedDateString(
-                                          item?.createdAt,
-                                        )}
+                                      <div className="flex flex-row items-center justify-between w-full">
+                                        <div
+                                          style={{
+                                            fontWeight: '500',
+                                            color: '#15151560',
+                                            fontsize: 12,
+                                          }}
+                                        >
+                                          {GetFormattedDateString(
+                                            item?.createdAt,
+                                            true, // Include time
+                                          )}
+                                        </div>
+                                        <div className="flex flex-row items-center gap-2">
+                                          {/* Edit/Delete buttons - only show for manual notes */}
+                                          {item.type === 'manual' && (
+                                            <>
+                                              <button
+                                                onClick={() => {
+                                                  setEditingNote(item)
+                                                  setEditNoteValue(item.note)
+                                                }}
+                                                className="p-1 hover:bg-gray-100 rounded"
+                                                style={{ cursor: 'pointer' }}
+                                              >
+                                                <Pencil size={16} color="#6b7280" />
+                                              </button>
+                                              <button
+                                                onClick={() => {
+                                                  setDeleteNoteId(item.id)
+                                                  setShowDeleteNoteConfirm(true)
+                                                }}
+                                                className="p-1 hover:bg-gray-100 rounded"
+                                                style={{ cursor: 'pointer' }}
+                                              >
+                                                <Trash2 size={16} color="#ef4444" />
+                                              </button>
+                                            </>
+                                          )}
+                                          {/* Call Summary Icons - COMMENTED OUT: Moved to Activity tab
+                                          {item.type === 'call_summary' && item.callSummary && (
+                                            <div className="flex flex-row items-center gap-2">
+                                            Sentiment Icon
+                                            {item.callSummary.prospectSentiment && (
+                                              <Tooltip
+                                                title={`Customer Sentiment: ${item.callSummary.prospectSentiment}`}
+                                                arrow
+                                                componentsProps={{
+                                                  tooltip: {
+                                                    sx: {
+                                                      backgroundColor: '#ffffff',
+                                                      color: '#333',
+                                                      fontSize: '14px',
+                                                      padding: '10px 15px',
+                                                      borderRadius: '8px',
+                                                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                                      maxWidth: '300px',
+                                                    },
+                                                  },
+                                                  arrow: {
+                                                    sx: {
+                                                      color: '#ffffff',
+                                                    },
+                                                  },
+                                                }}
+                                              >
+                                                <div
+                                                  style={{
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                  }}
+                                                >
+                                                  <Smile size={16} color="#6b7280" />
+                                                </div>
+                                              </Tooltip>
+                                            )}
+                                            Objections Icon
+                                            {item.callSummary.objectionsRaised && (
+                                              <Tooltip
+                                                title={
+                                                  <div style={{ whiteSpace: 'pre-line' }}>
+                                                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                                                      Objections:
+                                                    </div>
+                                                    {formatObjections(item.callSummary.objectionsRaised)}
+                                                  </div>
+                                                }
+                                                arrow
+                                                componentsProps={{
+                                                  tooltip: {
+                                                    sx: {
+                                                      backgroundColor: '#ffffff',
+                                                      color: '#333',
+                                                      fontSize: '14px',
+                                                      padding: '10px 15px',
+                                                      borderRadius: '8px',
+                                                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                                      maxWidth: '300px',
+                                                    },
+                                                  },
+                                                  arrow: {
+                                                    sx: {
+                                                      color: '#ffffff',
+                                                    },
+                                                  },
+                                                }}
+                                              >
+                                                <div
+                                                  style={{
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                  }}
+                                                >
+                                                  <AlertTriangle size={16} color="#ef4444" />
+                                                </div>
+                                              </Tooltip>
+                                            )}
+                                            Temperature Icon
+                                            {item.callSummary.leadTemperature && (
+                                              <Tooltip
+                                                title={
+                                                  <div style={{ whiteSpace: 'pre-line' }}>
+                                                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                                                      Lead Temperature:
+                                                    </div>
+                                                    {item.callSummary.leadTemperature}
+                                                  </div>
+                                                }
+                                                arrow
+                                                componentsProps={{
+                                                  tooltip: {
+                                                    sx: {
+                                                      backgroundColor: '#ffffff',
+                                                      color: '#333',
+                                                      fontSize: '14px',
+                                                      padding: '10px 15px',
+                                                      borderRadius: '8px',
+                                                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                                      maxWidth: '300px',
+                                                    },
+                                                  },
+                                                  arrow: {
+                                                    sx: {
+                                                      color: '#ffffff',
+                                                    },
+                                                  },
+                                                }}
+                                              >
+                                                <div
+                                                  style={{
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                  }}
+                                                >
+                                                  {getTemperatureIcon(item.callSummary.leadTemperature)}
+                                                </div>
+                                              </Tooltip>
+                                            )}
+                                            Next Steps Icon
+                                            {item.callSummary.nextSteps && (
+                                              <Tooltip
+                                                title={
+                                                  <div style={{ whiteSpace: 'pre-line' }}>
+                                                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                                                      Next Steps:
+                                                    </div>
+                                                    {formatNextSteps(item.callSummary.nextSteps)}
+                                                  </div>
+                                                }
+                                                arrow
+                                                componentsProps={{
+                                                  tooltip: {
+                                                    sx: {
+                                                      backgroundColor: '#ffffff',
+                                                      color: '#333',
+                                                      fontSize: '14px',
+                                                      padding: '10px 15px',
+                                                      borderRadius: '8px',
+                                                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                                      maxWidth: '300px',
+                                                    },
+                                                  },
+                                                  arrow: {
+                                                    sx: {
+                                                      color: '#ffffff',
+                                                    },
+                                                  },
+                                                }}
+                                              >
+                                                <div
+                                                  style={{
+                                                    cursor: 'pointer',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                  }}
+                                                >
+                                                  <CheckCircle2 size={16} color="#10b981" />
+                                                </div>
+                                              </Tooltip>
+                                            )}
+                                            </div>
+                                          )} */}
+                                        </div>
                                       </div>
                                       <div
                                         className="mt-4"
@@ -2831,13 +3384,20 @@ const LeadDetails = ({
                                             <div className="h-full w-full">
                                               <div className="flex flex-row items-center justify-between">
                                                 <div className="flex flex-row items-center gap-1">
-                                                  <Image
-                                                    src={getCommunicationTypeIcon(
-                                                      item,
-                                                    )}
-                                                    height={15}
-                                                    width={15}
-                                                    alt="*"
+                                                  <div
+                                                    style={{
+                                                      width: 15,
+                                                      height: 15,
+                                                      backgroundColor: '#000000',
+                                                      WebkitMaskImage: `url(${getCommunicationTypeIcon(item)})`,
+                                                      maskImage: `url(${getCommunicationTypeIcon(item)})`,
+                                                      WebkitMaskSize: 'contain',
+                                                      maskSize: 'contain',
+                                                      WebkitMaskRepeat: 'no-repeat',
+                                                      maskRepeat: 'no-repeat',
+                                                      WebkitMaskPosition: 'center',
+                                                      maskPosition: 'center',
+                                                    }}
                                                   />
                                                   <div
                                                     style={{
@@ -2966,47 +3526,6 @@ const LeadDetails = ({
                                                             initialText,
                                                           )}
 
-                                                      <div
-                                                        className="
-                                                        w-full flex flex-row justify-end -mt-2
-                                                        "
-                                                      >
-                                                        <button
-                                                          style={{
-                                                            fontWeight: '600',
-                                                            fontSize: 15,
-                                                            color: '#00000050',
-                                                          }}
-                                                          onClick={() => {
-                                                            setShowConfirmationPopup(
-                                                              true,
-                                                            )
-                                                            setSelectedCallLog(
-                                                              item,
-                                                            )
-                                                            //  deleteCallLog(item)
-                                                          }}
-                                                        >
-                                                          Delete
-                                                        </button>
-
-                                                        <DeleteCallLogConfimation
-                                                          showConfirmationPopup={
-                                                            showConfirmationPopup
-                                                          }
-                                                          setShowConfirmationPopup={
-                                                            showConfirmationPopup
-                                                          }
-                                                          onContinue={() => {
-                                                            deleteCallLog(
-                                                              seletedCallLog,
-                                                            )
-                                                          }}
-                                                          loading={
-                                                            delCallLoader
-                                                          }
-                                                        />
-                                                      </div>
                                                     </div>
                                                   </>
                                                 ))}
@@ -3179,6 +3698,157 @@ const LeadDetails = ({
         </div>
       </Drawer>
 
+      {/* Modal to edit note */}
+      <Modal
+        open={!!editingNote}
+        onClose={() => {
+          setEditingNote(null)
+          setEditNoteValue('')
+        }}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: '#00000020',
+          },
+        }}
+      >
+        <Box
+          className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 h-[70vh]"
+          sx={{ ...styles.modalsStyle, scrollbarWidth: 'none' }}
+        >
+          <div className="flex flex-row justify-center w-full h-[50vh]">
+            <div
+              className="w-full"
+              style={{
+                backgroundColor: '#ffffff',
+                padding: 20,
+                paddingInline: 30,
+                borderRadius: '13px',
+                height: '100%',
+              }}
+            >
+              <div style={{ fontWeight: '700', fontsize: 22 }}>
+                Edit your note
+              </div>
+              <div
+                className="mt-4"
+                style={{
+                  height: '70%',
+                  overflow: 'auto',
+                }}
+              >
+                <TextareaAutosize
+                  maxRows={12}
+                  className="outline-none focus:outline-none focus:ring-0 w-full"
+                  style={{
+                    fontsize: 15,
+                    fontWeight: '500',
+                    height: '250px',
+                    border: '1px solid #00000020',
+                    resize: 'none',
+                    borderRadius: '13px',
+                  }}
+                  placeholder="Edit note"
+                  value={editNoteValue}
+                  onChange={(event) => {
+                    setEditNoteValue(event.target.value)
+                  }}
+                />
+              </div>
+              <div className="w-full mt-4 h-[20%] flex flex-row justify-center gap-2">
+                {editNoteLoader ? (
+                  <CircularProgress size={25} />
+                ) : (
+                  <>
+                    <button
+                      className="bg-gray-200 h-[50px] rounded-xl text-gray-700 rounded-xl w-3/12"
+                      style={{
+                        fontWeight: '600',
+                        fontsize: 16,
+                      }}
+                      onClick={() => {
+                        setEditingNote(null)
+                        setEditNoteValue('')
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      className="bg-brand-primary h-[50px] rounded-xl text-white rounded-xl w-3/12"
+                      style={{
+                        fontWeight: '600',
+                        fontsize: 16,
+                      }}
+                      onClick={handleEditNote}
+                    >
+                      Update
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
+      {/* Modal to confirm note deletion */}
+      <Modal
+        open={showDeleteNoteConfirm}
+        onClose={() => {
+          setShowDeleteNoteConfirm(false)
+          setDeleteNoteId(null)
+        }}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: '#00000020',
+          },
+        }}
+      >
+        <Box
+          className="lg:w-4/12 sm:w-4/12 w-6/12"
+          sx={styles.modalsStyle}
+        >
+          <div className="flex flex-row justify-center w-full">
+            <div
+              className="w-full"
+              style={{
+                backgroundColor: '#ffffff',
+                padding: 20,
+                borderRadius: '13px',
+              }}
+            >
+              <div className="font-bold text-xl mt-6">
+                Are you sure you want to delete this note?
+              </div>
+              <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
+                <button
+                  className="w-1/2 font-bold text-xl text-[#6b7280] h-[50px]"
+                  onClick={() => {
+                    setShowDeleteNoteConfirm(false)
+                    setDeleteNoteId(null)
+                  }}
+                >
+                  Cancel
+                </button>
+                {deleteNoteLoader ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <button
+                    className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                    onClick={handleDeleteNote}
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
       {/* Modal to add notes */}
 
       <Modal
@@ -3327,7 +3997,7 @@ const LeadDetails = ({
             >
               
               <audio controls>
-                <source src={showAudioPlay} type="audio/mpeg" />
+                <source src={showAudioPlay?.recordingUrl} type="audio/mpeg" />
                 Your browser does not support the audio element.
               </audio>
               <button
@@ -3370,11 +4040,10 @@ const LeadDetails = ({
                 className="mb-3"
                 style={{ fontWeight: '600', fontSize: 15 }}
                 onClick={() => {
-                  navigator.clipboard.writeText(showAudioPlay).then(() => {
+                  if (showAudioPlay?.callId) {
+                    window.open(`/recordings/${showAudioPlay.callId}`, '_blank')
                     setShowAudioPlay(null)
-                    setShowSuccessSnack('Audio URL copied')
-                    setShowSuccessSnack2(true)
-                  })
+                  }
                 }}
               >
                 <Image
@@ -3389,7 +4058,7 @@ const LeadDetails = ({
                 id="custom-audio"
                 controls
                 style={{ width: '100%' }}
-                src={showAudioPlay}
+                src={showAudioPlay?.recordingUrl}
               />
 
               {/* Buttons */}
@@ -3443,6 +4112,15 @@ const LeadDetails = ({
         isLeadSMS={true}
         leadPhone={selectedLeadsDetails?.phone}
         leadId={selectedLeadsDetails?.id}
+      />
+
+      {/* Dialer Modal */}
+      <DialerModal
+        open={showDialerModal}
+        onClose={() => setShowDialerModal(false)}
+        initialPhoneNumber={selectedLeadsDetails?.phone || ''}
+        leadId={selectedLeadsDetails?.id}
+        leadName={selectedLeadsDetails?.name || selectedLeadsDetails?.firstName || ''}
       />
 
       {/* Upgrade Plan Modal */}

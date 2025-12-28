@@ -10,11 +10,10 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
-import AgencyPlans from '@/components/plan/AgencyPlans'
+import UpgradePlan from '@/components/userPlans/UpgradePlan'
 
 import {
   formatDecimalValue,
-  handlePricePerMinInputValue,
 } from '../agencyServices/CheckAgencyData'
 import { AuthToken } from './AuthDetails'
 import ConfigureSideUI from './ConfigureSideUI'
@@ -524,15 +523,17 @@ export default function PlanConfiguration({
     formData.append('title', basicsData?.title)
     formData.append('planDescription', basicsData?.planDescription)
     formData.append('originalPrice', basicsData?.originalPrice || 0) //replaced
-    formData.append('pricePerCredit', basicsData?.discountedPrice)
+    // basicsData.discountedPrice is now total price per month (not price per credit)
+    formData.append('totalPricePerMonth', basicsData?.discountedPrice)
+    // Keep pricePerCredit for backward compatibility (will be ignored if totalPricePerMonth is provided)
     if (selectedAgency) {
       formData.append('userId', selectedAgency.id)
     }
     if (basicsData?.originalPrice > 0) {
       const disCountPercentag = (
         ((basicsData?.originalPrice -
-          basicsData?.discountedPrice * basicsData?.minutes) /
-          basicsData?.originalPrice) * //replaced
+          Number(basicsData?.discountedPrice)) /
+          basicsData?.originalPrice) * //replaced - discountedPrice is now total, not per credit
         100
       ).toFixed(2)
       formData.append('percentageDiscount', disCountPercentag)
@@ -582,14 +583,17 @@ export default function PlanConfiguration({
   //code to create plan
   const handleCreatePlan = async () => {
     try {
-      // Validate profit margin before creating plan
+      // Validate profit margin before creating plan - now using price per credit derived from total price
       if (
         basicsData?.discountedPrice &&
+        basicsData?.minutes &&
         agencyPlanCost &&
-        Number(agencyPlanCost) > 0
+        Number(agencyPlanCost) > 0 &&
+        Number(basicsData.minutes) > 0
       ) {
+        const pricePerCredit = Number(basicsData.discountedPrice) / Number(basicsData.minutes)
         const margin =
-          ((Number(basicsData.discountedPrice) - Number(agencyPlanCost)) /
+          ((pricePerCredit - Number(agencyPlanCost)) /
             Number(agencyPlanCost)) *
           100
         if (margin < 10) {
@@ -657,14 +661,17 @@ export default function PlanConfiguration({
 
   const handleUpdatePlan = async () => {
     try {
-      // Validate profit margin before updating plan
+      // Validate profit margin before updating plan - now using price per credit derived from total price
       if (
         basicsData?.discountedPrice &&
+        basicsData?.minutes &&
         agencyPlanCost &&
-        Number(agencyPlanCost) > 0
+        Number(agencyPlanCost) > 0 &&
+        Number(basicsData.minutes) > 0
       ) {
+        const pricePerCredit = Number(basicsData.discountedPrice) / Number(basicsData.minutes)
         const margin =
-          ((Number(basicsData.discountedPrice) - Number(agencyPlanCost)) /
+          ((pricePerCredit - Number(agencyPlanCost)) /
             Number(agencyPlanCost)) *
           100
         if (margin < 10) {
@@ -818,7 +825,7 @@ export default function PlanConfiguration({
   const handleBackClick = () => {
     setConfigurationData({
       maxAgents: noOfAgents,
-      maxLeads: noOfAgents,
+      maxLeads: noOfContacts, // Store noOfContacts, not noOfAgents
       costPerAdditionalAgent: costPerAdditionalAgent,
       costPerAdditionalSeat: costPerAdditionalSeat,
       language: language,
@@ -988,7 +995,9 @@ export default function PlanConfiguration({
               <div className="w-full flex flex-row items-center justify-center gap-2">
                 {/* Plan Name */}
                 <div className="w-1/2">
-                  <label style={styles.labels}>Number of Agents</label>
+                  <label style={styles.labels}>
+                    Number of Agents <span style={{ color: '#ef4444' }}>*</span>
+                  </label>
                   <input
                     style={styles.inputs}
                     className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
@@ -1013,7 +1022,9 @@ export default function PlanConfiguration({
                 {/* Tag Option */}
                 <div className="w-1/2">
                   <div className="flex flex-row items-center gap-2">
-                    <label style={styles.labels}>Price Additional Agents</label>
+                    <label style={styles.labels}>
+                      Price Additional Agents <span style={{ color: '#ef4444' }}>*</span>
+                    </label>
                     <Tooltip
                       title={
                         "Your cost for additional agents are $5. We don't charge you for this, we bill the customer when they optin to add additional agents."
@@ -1144,7 +1155,9 @@ export default function PlanConfiguration({
                                 </div>
                             */}
               <div className="w-full">
-                <label style={styles.labels}>Number of Contacts</label>
+                <label style={styles.labels}>
+                  Number of Contacts <span style={{ color: '#ef4444' }}>*</span>
+                </label>
                 <input
                   style={styles.inputs}
                   className="w-full border border-gray-200 outline-none focus:outline-none focus:ring-0 focus:border-gray-200 rounded p-2 mb-4 mt-1"
@@ -1242,30 +1255,17 @@ export default function PlanConfiguration({
           </div>
 
           {/*Upgrade agency plan*/}
-          <Modal
+          <UpgradePlan
             open={showUpgradePlanPopup}
-            onClose={() => {
+            handleClose={async () => {
+              // Refresh profile and features after upgrade
+              await getProfileDetails()
+              fetchAgencyAllowedFeatures()
               setShowUpgradePlanPopup(false)
             }}
-          >
-            <Box className="bg-white rounded-xl max-w-[80%] w-[95%] h-[90vh] border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-y-auto">
-              <div className="w-full flex flex-row items-center justify-end px-4 pt-4 h-[5%]">
-                <CloseBtn
-                  onClick={() => {
-                    setShowUpgradePlanPopup(false)
-                  }}
-                />
-              </div>
-              <div className="w-full h-[95%]">
-                <AgencyPlans
-                  isFrom={'addPlan'}
-                  handleCloseModal={(d) => {
-                    handleCloseModal(d)
-                  }}
-                />
-              </div>
-            </Box>
-          </Modal>
+            from="addPlan"
+            selectedUser={selectedAgency}
+          />
         </div>
       </Box>
     </Modal>

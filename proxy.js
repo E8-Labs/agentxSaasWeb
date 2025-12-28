@@ -1,63 +1,64 @@
 import { NextResponse } from 'next/server'
-import { parseOAuthState } from '@/utils/oauthState'
+import { parseOAuthState } from './utils/oauthState'
+import {
+  encodeBrandingHeader,
+  encodeBrandingCookie,
+} from './lib/branding-transport'
+
+/**
+ * Creates a NextResponse.next() with branding data passed via request headers.
+ * This ensures getServerBranding() can read branding in the same request cycle
+ * (not just on subsequent requests via cookies).
+ *
+ * @param {Request} request - The incoming request
+ * @param {Object|null} agencyBranding - The branding data to pass
+ * @returns {NextResponse} Response with modified request headers
+ */
+function encodeBranding(branding) {
+  if (!branding) return null
+  try {
+    return encodeURIComponent(JSON.stringify(branding))
+  } catch (e) {
+    // If branding contains unsupported values, skip encoding to avoid crashing middleware
+    return null
+  }
+}
+
+function createResponseWithBrandingHeaders(request, agencyBranding) {
+  const encodedBranding = encodeBranding(agencyBranding)
+  if (encodedBranding) {
+    const requestHeaders = new Headers(request.headers)
+    const encoded = encodeBrandingHeader(agencyBranding)
+    if (encoded) {
+      requestHeaders.set('x-agency-branding', encoded)
+    }
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    })
+  }
+  return NextResponse.next()
+}
 
 export async function proxy(request) {
   const { pathname } = request.nextUrl
   const hostname = request.headers.get('host') || ''
 
-  // Subdomain and custom domain detection
+  // Custom domain detection - all domains are treated as custom domains
+  // Subdomain logic has been removed - always check domains table
   let agencyId = null
   let agencySubdomain = null
   let isCustomDomain = false
   let agencyBranding = null
 
-  // Check if it's a subdomain of assignx.ai
-  if (hostname.includes('.assignx.ai')) {
-    // Extract subdomain: {uuid}.assignx.ai
-    const subdomainParts = hostname.split('.')
-    if (subdomainParts.length >= 3) {
-      agencySubdomain = hostname // Full subdomain
-      const subdomainValue = subdomainParts[0] // Just the UUID part
-
-      try {
-        // Call lookup API
-        const baseUrl =
-          process.env.NEXT_PUBLIC_BASE_API_URL ||
-          (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-            ? 'https://apimyagentx.com/agentx/'
-            : 'https://apimyagentx.com/agentxtest/')
-
-        const lookupResponse = await fetch(
-          `${baseUrl}api/agency/lookup-by-domain`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ subdomain: subdomainValue }),
-          },
-        )
-
-        if (lookupResponse.ok) {
-          const lookupData = await lookupResponse.json()
-          if (lookupData.status && lookupData.data) {
-            agencyId = lookupData.data.agencyId
-            // Store branding for later use
-            if (lookupData.data.branding) {
-              agencyBranding = lookupData.data.branding
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error looking up subdomain:', error)
-      }
-    }
-  } else if (
+  // Check if it's a custom domain (not localhost and not 127.0.0.1)
+  // All domains including *.assignx.ai are now treated as custom domains
+  if (
     hostname &&
     !hostname.includes('localhost') &&
     !hostname.includes('127.0.0.1')
   ) {
-    // Check if it's a custom domain (not localhost and not assignx.ai)
     isCustomDomain = true
 
     try {
@@ -67,6 +68,8 @@ export async function proxy(request) {
           ? 'https://apimyagentx.com/agentx/'
           : 'https://apimyagentx.com/agentxtest/')
 
+      // Always pass full hostname as customDomain parameter
+      // Backend will check the domains table
       const lookupResponse = await fetch(
         `${baseUrl}api/agency/lookup-by-domain`,
         {
@@ -97,10 +100,6 @@ export async function proxy(request) {
   const userCookie = request.cookies.get('User')
   let user = null
 
-  if (user === null) {
-    console.log('not found user')
-  }
-
   if (userCookie) {
     try {
       user = JSON.parse(decodeURIComponent(userCookie.value))
@@ -114,6 +113,78 @@ export async function proxy(request) {
       console.error('🍪 Cookie value that failed to parse:', userCookie.value)
       // Don't immediately logout on parsing errors - could be temporary corruption
       user = null
+    }
+  }
+
+  // For favicon routes, always check the branding cookie even without user
+  // This ensures the correct favicon is served based on stored branding
+  if (!agencyBranding && (pathname === '/icon' || pathname === '/apple-icon')) {
+    const brandingCookie = request.cookies.get('agencyBranding')
+    if (brandingCookie?.value) {
+      try {
+        agencyBranding = JSON.parse(decodeURIComponent(brandingCookie.value))
+      } catch (e) {
+        // Invalid cookie, will use default
+      }
+    }
+  }
+
+  // For logged-in agency/subaccount users, ensure branding is available
+  // First check cookie cache, then fetch from API if needed
+  if (user && !agencyBranding) {
+    const userRole = user.userRole
+    if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
+      // First check if branding cookie exists (cache)
+      const brandingCookie = request.cookies.get('agencyBranding')
+      if (brandingCookie?.value) {
+        try {
+          agencyBranding = JSON.parse(decodeURIComponent(brandingCookie.value))
+        } catch (e) {
+          // Invalid cookie, will fetch fresh
+        }
+      }
+
+      // If no cached branding, fetch from API with timeout
+      if (!agencyBranding) {
+        try {
+          const baseUrl =
+            process.env.NEXT_PUBLIC_BASE_API_URL ||
+            (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+              ? 'https://apimyagentx.com/agentx/'
+              : 'https://apimyagentx.com/agentxtest/')
+
+          const tokenCookie = request.cookies.get('token')
+          const authToken = tokenCookie?.value || user.token
+          if (authToken) {
+            // Add timeout to prevent slow API from blocking page load
+            const controller = new AbortController()
+            const timeoutId = setTimeout(() => controller.abort(), 3000)
+
+            try {
+              const response = await fetch(`${baseUrl}api/agency/branding`, {
+                headers: {
+                  Authorization: `Bearer ${authToken}`,
+                  'Content-Type': 'application/json',
+                },
+                signal: controller.signal,
+              })
+              clearTimeout(timeoutId)
+
+              if (response.ok) {
+                const data = await response.json()
+                if (data?.status && data?.data?.branding) {
+                  agencyBranding = data.data.branding
+                }
+              }
+            } catch (fetchError) {
+              clearTimeout(timeoutId)
+              // Silent fail on timeout or network error
+            }
+          }
+        } catch (error) {
+          // Silent fail, will use default branding
+        }
+      }
     }
   }
 
@@ -135,15 +206,14 @@ export async function proxy(request) {
           sameSite: 'lax',
         })
         if (agencyBranding) {
-          redirectResponse.cookies.set(
-            'agencyBranding',
-            JSON.stringify(agencyBranding),
-            {
+          const cookieVal = encodeBrandingCookie(agencyBranding)
+          if (cookieVal) {
+            redirectResponse.cookies.set('agencyBranding', cookieVal, {
               httpOnly: false,
               sameSite: 'lax',
               maxAge: 60 * 60 * 24,
-            },
-          )
+            })
+          }
         }
       }
       return redirectResponse
@@ -166,7 +236,8 @@ export async function proxy(request) {
 
   // ---- Security headers for embed ----
   if (pathname.startsWith('/embed/vapi')) {
-    const res = NextResponse.next()
+    // Create response with branding in request headers (for immediate access by getServerBranding)
+    const res = createResponseWithBrandingHeaders(request, agencyBranding)
     res.headers.set('X-Frame-Options', 'ALLOWALL')
     res.headers.set(
       'Content-Security-Policy',
@@ -191,17 +262,20 @@ export async function proxy(request) {
         sameSite: 'lax',
       })
       if (agencyBranding) {
-        res.cookies.set('agencyBranding', JSON.stringify(agencyBranding), {
-          httpOnly: false,
-          sameSite: 'lax',
-          maxAge: 60 * 60 * 24,
-        })
+        const cookieVal = encodeBrandingCookie(agencyBranding)
+        if (cookieVal) {
+          res.cookies.set('agencyBranding', cookieVal, {
+            httpOnly: false,
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24,
+          })
+        }
       }
     }
     return res
   }
 
-  // ---- Public paths ----
+  // ---- Public paths (including favicon routes) ----
   if (
     pathname === '/' ||
     pathname === '/onboarding' ||
@@ -211,9 +285,15 @@ export async function proxy(request) {
     pathname.startsWith('/agency/verify') ||
     (pathname.startsWith('/agency/') &&
       (pathname.includes('/privacy') || pathname.includes('/terms'))) || // allows /agency/[agencyUUID]/privacy and /agency/[agencyUUID]/terms
-    pathname.startsWith('/recordings/')
+    pathname.startsWith('/recordings/') ||
+    pathname === '/icon' || // favicon - needs branding but no auth redirect
+    pathname === '/apple-icon' // apple touch icon - needs branding but no auth redirect
   ) {
-    const publicResponse = NextResponse.next()
+    // Create response with branding in request headers (for immediate access by getServerBranding)
+    const publicResponse = createResponseWithBrandingHeaders(
+      request,
+      agencyBranding,
+    )
     if (agencyId) {
       publicResponse.headers.set('x-agency-id', agencyId.toString())
       publicResponse.headers.set('x-agency-domain', hostname)
@@ -225,15 +305,15 @@ export async function proxy(request) {
         sameSite: 'lax',
       })
       if (agencyBranding) {
-        publicResponse.cookies.set(
-          'agencyBranding',
-          JSON.stringify(agencyBranding),
-          {
+        // Also set cookie for future requests
+        const cookieVal = encodeBrandingCookie(agencyBranding)
+        if (cookieVal) {
+          publicResponse.cookies.set('agencyBranding', cookieVal, {
             httpOnly: false,
             sameSite: 'lax',
             maxAge: 60 * 60 * 24,
-          },
-        )
+          })
+        }
       }
     }
     return publicResponse
@@ -253,8 +333,19 @@ export async function proxy(request) {
     
     // Parse state to determine if we need to redirect to custom domain
     const stateData = oauthState ? parseOAuthState(oauthState) : null
-    const provider = stateData?.provider || (oauthCode ? 'google' : 'ghl')
-    
+    // Proper provider detection is via `state.provider`.
+    // If `state` is missing, do NOT guess based on `code` (both Google & GHL use it).
+    // Fallback is only possible for known callback endpoints; otherwise we return a safe error redirect.
+    const provider =
+      stateData?.provider ||
+      (pathname.startsWith('/google-auth/callback')
+        ? 'google'
+        : pathname.startsWith('/api/ghl/exchange')
+          ? 'ghl'
+          : null)
+    console.log('🔄 Provider:', provider)
+    console.log('🔄 State data:', stateData)
+    console.log('🔄 Pathname:', pathname)
     // If state has customDomain, redirect to custom domain
     if (stateData?.customDomain) {
       const { customDomain } = stateData
@@ -331,6 +422,13 @@ export async function proxy(request) {
       return NextResponse.redirect(errorUrl.toString())
     }
     
+    // If provider couldn't be determined (missing/invalid state), redirect to a safe page.
+    if (!provider) {
+      const safeUrl = new URL('/dashboard/myAgentX', baseUrl)
+      safeUrl.searchParams.set('oauth_error', 'missing_state')
+      return NextResponse.redirect(safeUrl.toString())
+    }
+
     // Handle success - redirect to appropriate callback
     if (provider === 'google') {
       const callbackUrl = new URL('/google-auth/callback', baseUrl)
@@ -363,13 +461,6 @@ export async function proxy(request) {
   // ---- Require login for everything else ----
   if (!user) {
     // Not logged in → always send home
-    console.log(
-      '🔄 MIDDLEWARE REDIRECT - Time:',
-      new Date().toISOString(),
-      'Reason: No user found',
-      'Path:',
-      pathname,
-    )
     const redirectResponse = NextResponse.redirect(new URL('/', request.url))
     if (agencyId) {
       redirectResponse.headers.set('x-agency-id', agencyId.toString())
@@ -385,12 +476,6 @@ export async function proxy(request) {
     return redirectResponse
   }
 
-  // 🚨 Force re-login if cookie is outdated (missing userRole or userType)
-  // if (!user.userRole || !user.userType) {
-  //   // Allow request to proceed without deleting cookie to avoid instant logout on fresh login
-  //   return NextResponse.next();
-  // }
-  console.log('User data is', user)
   // ---- Centralized redirect rule ----
   let expectedPath = null
 
@@ -410,39 +495,24 @@ export async function proxy(request) {
     pathname.startsWith('/pipeline') ||
     pathname.startsWith('/plan') ||
     pathname.startsWith('/web-agent') ||
-    pathname.startsWith('/embedCalendar')
+    pathname.startsWith('/embedCalendar') ||
+    pathname === '/icon' ||
+    pathname === '/apple-icon'
   ) {
-    return NextResponse.next()
+    return createResponseWithBrandingHeaders(request, agencyBranding)
   }
-
-  // ---- Prevent redirect loops ----
-  const isExactMatch = pathname === expectedPath
-  const isSubPath = pathname.startsWith(expectedPath + '/')
-
-  console.log(
-    '🔍 MIDDLEWARE DEBUG - Path:',
-    pathname,
-    'Expected:',
-    expectedPath,
-    'IsExact:',
-    isExactMatch,
-    'IsSubPath:',
-    isSubPath,
-    'UserType:',
-    user.userType,
-    'UserRole:',
-    user.userRole,
-  )
 
   if (
     pathname !== expectedPath && // exact base mismatch
     !pathname.startsWith(expectedPath + '/') // allow deeper subpaths
   ) {
-    console.log('Path mismatch detected')
     if (pathname === '/createagent' && user.userType === 'admin') {
       // allowed createagent for admin
-      console.log('Accessing /createagent as admin, allowing')
-      const adminResponse = NextResponse.next()
+      // Create response with branding in request headers (for immediate access by getServerBranding)
+      const adminResponse = createResponseWithBrandingHeaders(
+        request,
+        agencyBranding,
+      )
       if (agencyId) {
         adminResponse.headers.set('x-agency-id', agencyId.toString())
         adminResponse.headers.set('x-agency-domain', hostname)
@@ -453,33 +523,19 @@ export async function proxy(request) {
           httpOnly: false,
           sameSite: 'lax',
         })
-        if (agencyBranding) {
-          adminResponse.cookies.set(
-            'agencyBranding',
-            JSON.stringify(agencyBranding),
-            {
-              httpOnly: false,
-              sameSite: 'lax',
-              maxAge: 60 * 60 * 24,
-            },
-          )
+      if (agencyBranding) {
+        const cookieVal = encodeBrandingCookie(agencyBranding)
+        if (cookieVal) {
+          adminResponse.cookies.set('agencyBranding', cookieVal, {
+            httpOnly: false,
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24,
+          })
         }
+      }
       }
       return adminResponse
     }
-    console.log(
-      '🔄 MIDDLEWARE REDIRECT - Time:',
-      new Date().toISOString(),
-      'Reason: Path mismatch',
-      'Current:',
-      pathname,
-      'Expected:',
-      expectedPath,
-      'UserType:',
-      user.userType,
-      'UserRole:',
-      user.userRole,
-    )
     const redirectResponse = NextResponse.redirect(
       new URL(expectedPath, request.url),
     )
@@ -495,21 +551,21 @@ export async function proxy(request) {
         sameSite: 'lax',
       })
       if (agencyBranding) {
-        redirectResponse.cookies.set(
-          'agencyBranding',
-          JSON.stringify(agencyBranding),
-          {
+        const cookieVal = encodeBrandingCookie(agencyBranding)
+        if (cookieVal) {
+          redirectResponse.cookies.set('agencyBranding', cookieVal, {
             httpOnly: false,
             sameSite: 'lax',
             maxAge: 60 * 60 * 24,
-          },
-        )
+          })
+        }
       }
     }
     return redirectResponse
   }
 
-  const response = NextResponse.next()
+  // Create response with branding in request headers (for immediate access by getServerBranding)
+  const response = createResponseWithBrandingHeaders(request, agencyBranding)
   // Inject agency headers if found
   if (agencyId) {
     response.headers.set('x-agency-id', agencyId.toString())
@@ -521,9 +577,13 @@ export async function proxy(request) {
       httpOnly: false,
       sameSite: 'lax',
     })
-    // Store branding in cookie for client-side access
-    if (agencyBranding) {
-      response.cookies.set('agencyBranding', JSON.stringify(agencyBranding), {
+  }
+  // Store branding in cookie for client-side access (cache for subsequent requests)
+  // This is set regardless of agencyId to support logged-in agency/subaccount users on localhost
+  if (agencyBranding) {
+    const cookieVal = encodeBrandingCookie(agencyBranding)
+    if (cookieVal) {
+      response.cookies.set('agencyBranding', cookieVal, {
         httpOnly: false,
         sameSite: 'lax',
         maxAge: 60 * 60 * 24, // 24 hours
@@ -547,5 +607,7 @@ export const config = {
     '/admin/:path*',
     '/embedCalendar/:path*',
     '/agency/dashboard/:path*', // subpaths processed normally
+    '/icon', // favicon - needs branding header
+    '/apple-icon', // apple touch icon - needs branding header
   ],
 }

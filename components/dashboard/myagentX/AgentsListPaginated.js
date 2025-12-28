@@ -104,6 +104,47 @@ const AgentsListPaginated = ({
     }
   }, [canGetMore])
 
+  // Function to render icon with branding using mask-image (same logic as NotificationsDrawer.js)
+  const renderBrandedIcon = (iconPath, width, height) => {
+    if (typeof window === 'undefined') {
+      return <Image src={iconPath} width={width} height={height} alt="*" />
+    }
+
+    // Get brand color from CSS variable
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')?.trim()
+
+    // Only apply branding if brand color is set and valid (indicates custom domain with branding)
+    if (!brandColor || brandColor === '' || brandColor.length < 3) {
+      return <Image src={iconPath} width={width} height={height} alt="*" />
+    }
+
+    // Use mask-image approach: background color with icon as mask
+    return (
+      <div
+        style={{
+          width: width,
+          height: height,
+          minWidth: width,
+          minHeight: height,
+          backgroundColor: `hsl(${brandColor})`,
+          WebkitMaskImage: `url(${iconPath})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(${iconPath})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          transition: 'background-color 0.2s ease-in-out',
+          flexShrink: 0,
+        }}
+      />
+    )
+  }
+
   const formatName = (item) => {
     let agentName = null
 
@@ -331,12 +372,7 @@ const AgentsListPaginated = ({
                             setRenameAgent(item.name)
                           }}
                         >
-                          <Image
-                            src={'/svgIcons/editPen.svg'}
-                            height={24}
-                            width={24}
-                            alt="*"
-                          />
+                          {renderBrandedIcon('/svgIcons/editPen.svg', 24, 24)}
                         </button>
                         <div
                           style={{
@@ -439,6 +475,8 @@ const AgentsListPaginated = ({
                         }
 
                         setSelectedAgent(item)
+                        // Reset keys array for each agent to avoid accumulating variables from previous agents
+                        keys = []
                         const callScript =
                           item.prompt.callScript + ' ' + item.prompt.greeting
                         const regex = /\{(.*?)\}/g
@@ -469,9 +507,10 @@ const AgentsListPaginated = ({
                             'CU_address',
                             'CU_status',
                           ]
+                          // Remove the length restriction to allow longer variable names like "Appointment Date" and "Appointment Time"
                           if (
                             !defaultVariables.includes(match[1]) &&
-                            match[1]?.length < 15
+                            match[1]?.trim().length > 0
                           ) {
                             if (
                               !keys.includes(match[1]) &&

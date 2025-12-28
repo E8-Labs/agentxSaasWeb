@@ -2,7 +2,7 @@
 
 import { Box, CircularProgress, LinearProgress, Modal } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -18,16 +18,13 @@ import AgentSelectSnackMessage, {
 import ProgressBar from '@/components/onboarding/ProgressBar'
 import UserPlans from '@/components/userPlans/UserPlans'
 import { PersistanceKeys } from '@/constants/Constants'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
 import { formatDecimalValue } from '../agencyServices/CheckAgencyData'
 import { AuthToken } from '../plan/AuthDetails'
 
 //code for add card
-let stripePublickKey =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-    ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-const stripePromise = loadStripe(stripePublickKey)
+const stripePromise = getStripe()
 
 const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
   const router = useRouter()
@@ -192,19 +189,27 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
             typeof navigator !== 'undefined' ? navigator.userAgent : ''
           )
           
+          // Determine redirect path
+          let redirectPath = '/dashboard'
+          
           // For mobile subaccounts, redirect to continue to desktop screen
           if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
             console.log('Mobile subaccount - redirecting to continue to desktop screen')
-            setPlanSubscribed(true)
-            router.push('/createagent/desktop')
+            redirectPath = '/createagent/desktop'
           } else if (handleContinue && subaccount) {
             // Only call handleContinue if it exists and subaccount is from onboarding flow
             handleContinue()
-          } else {
-            // Default: redirect to dashboard (when coming from direct URL or handleContinue is undefined)
-            setPlanSubscribed(true)
-            router.push('/dashboard')
+            return // Exit early if handleContinue is called
           }
+          
+          // Use window.location.href for hard redirect to ensure clean page reload
+          // This prevents DOM cleanup errors during navigation
+          // Don't set state before redirect - it causes React cleanup errors during navigation
+          console.log('✅ Subscription successful, redirecting to:', redirectPath)
+          // Use setTimeout to ensure redirect happens in next event loop, avoiding React cleanup conflicts
+          setTimeout(() => {
+            window.location.href = redirectPath
+          }, 0)
         } else if (response.data.status === false) {
           setErrorMsg(response.data.message)
           setSnackMsgType(SnackbarTypes.Error)
@@ -320,15 +325,19 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
             // For mobile subaccounts, redirect to continue to desktop screen
             if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
               console.log('Mobile subaccount - redirecting to continue to desktop screen')
-              setPlanSubscribed(true)
-              router.push('/createagent/desktop')
+              // Use window.location.href for hard redirect to prevent React cleanup errors
+              setTimeout(() => {
+                window.location.href = '/createagent/desktop'
+              }, 0)
             } else if (handleContinue && subaccount) {
               // Only call handleContinue if it exists and subaccount is from onboarding flow
               handleContinue()
             } else {
               // Default: redirect to dashboard (when coming from direct URL or handleContinue is undefined)
-              setPlanSubscribed(true)
-              router.push('/dashboard')
+              // Use window.location.href for hard redirect to prevent React cleanup errors
+              setTimeout(() => {
+                window.location.href = '/dashboard'
+              }, 0)
             }
           }
         }}
@@ -414,10 +423,14 @@ function TermsText() {
     >
       <p style={{ color: '#15151580' }}>
         I agree to{' '}
-        <a
-          href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
-          style={{ textDecoration: 'underline', color: 'black' }} // Underline and color styling
-          target="_blank" // Opens in a new tab (optional)
+          <a
+            href="#"
+            onClick={(e) => {
+              e.preventDefault()
+              const { termsUrl } = getPolicyUrls()
+              window.open(termsUrl, '_blank')
+            }}
+          style={{ textDecoration: 'underline', color: 'black', cursor: 'pointer' }} // Underline and color styling
           rel="noopener noreferrer" // Security for external links
         >
           Terms & Conditions

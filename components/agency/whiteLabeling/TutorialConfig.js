@@ -13,7 +13,7 @@ import LabelingHeader from './LabelingHeader'
 import TutorialViewCard from './TutorialViewCard'
 import VideoPlayerModal from './VideoPlayerModal'
 
-const TutorialConfig = () => {
+const TutorialConfig = ({ selectedAgency }) => {
   const [showEditModal, setShowEditModal] = useState(false)
   const [showVideoModal, setShowVideoModal] = useState(false)
   const [selectedTutorial, setSelectedTutorial] = useState(null)
@@ -80,7 +80,7 @@ const TutorialConfig = () => {
     {
       id: 6,
       title: 'Learn about creating a script',
-      description: '6:10',
+      description: '13:56',
       videoUrl: HowtoVideos.script,
       enabled: true,
       videoType: HowToVideoTypes.Script,
@@ -108,6 +108,16 @@ const TutorialConfig = () => {
       // Used in: components/dashboard/myagentX/mcp/MCPView.js
     },
     {
+      id: 12,
+      title: 'Learn about lead scoring',
+      description: '06:13',
+      videoUrl: HowtoVideos.LeadScoring,
+      enabled: true,
+      videoType: HowToVideoTypes.LeadScoring,
+      thumbnailSrc: '/assets/youtubeplay.png',
+      // Used in: components/dashboard/myagentX/leadScoring/LeadScoring.js
+    },
+    {
       id: 9,
       title: 'Learn how to add Twilio Trust Hub',
       description: '14:31',
@@ -129,7 +139,7 @@ const TutorialConfig = () => {
     },
     {
       id: 11,
-      title: 'Welcome to AgentX',
+      title: 'Welcome to AssignX',
       description: '05:02',
       videoUrl: HowtoVideos.WalkthroughWatched,
       enabled: true,
@@ -141,7 +151,7 @@ const TutorialConfig = () => {
 
   useEffect(() => {
     getHowToVideos()
-  }, [])
+  }, [selectedAgency])
 
   // Helper function to format duration from seconds to "M:SS" or "MM:SS" format
   const formatDuration = (seconds) => {
@@ -154,7 +164,14 @@ const TutorialConfig = () => {
   const getHowToVideos = async () => {
     try {
       let token = AuthToken()
-      const response = await axios.get(Apis.getHowToVideo, {
+      
+      // Add userId parameter if selectedAgency is provided (admin view)
+      let apiUrl = Apis.getHowToVideo
+      if (selectedAgency?.id) {
+        apiUrl += `?userId=${selectedAgency.id}`
+      }
+      
+      const response = await axios.get(apiUrl, {
         headers: {
           Authorization: 'Bearer ' + token,
         },
@@ -284,6 +301,11 @@ const TutorialConfig = () => {
         'enabled',
         isEditMode && selectedTutorial ? selectedTutorial.enabled : true,
       )
+      
+      // Add userId if selectedAgency is provided (admin view)
+      if (selectedAgency?.id) {
+        formData.append('userId', selectedAgency.id)
+      }
 
       formData.forEach((value, key) => {
         console.log('key is of formData', key)

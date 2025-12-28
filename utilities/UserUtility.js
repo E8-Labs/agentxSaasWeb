@@ -41,6 +41,10 @@ export function logout(reason = 'Unknown reason') {
     document.cookie = 'User=; path=/; domain=' + window.location.hostname + '; expires=Thu, 01 Jan 1970 00:00:00 GMT'
     // Clear cookie without domain (for current domain)
     document.cookie = 'User=; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+
+    // Clear agencyBranding cookie (used for server-side favicon/theming)
+    document.cookie = 'agencyBranding=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
+    document.cookie = 'agencyBranding=; path=/; domain=' + window.location.hostname + '; expires=Thu, 01 Jan 1970 00:00:00 GMT'
     
     // Clear sessionStorage as well
     if (typeof sessionStorage !== 'undefined') {

@@ -20,13 +20,14 @@ import { loadStripe } from '@stripe/stripe-js'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
-import { toast } from 'react-toastify'
+import { toast } from 'sonner'
 
 import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import { useUser } from '@/hooks/redux-hooks'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
 import { formatFractional2 } from '../agency/plan/AgencyUtilities'
 // import Apis from '../Apis/Apis';
@@ -72,6 +73,8 @@ const UserAddCard = ({
   const cardExpiryRef = useRef(null)
   const cardCvcRef = useRef(null)
   const isSubscribingRef = useRef(false) // Prevent duplicate subscription calls
+  const [isSubaccount, setIsSubaccount] = useState(false)
+  const [hasAgencyLogo, setHasAgencyLogo] = useState(false)
 
   //check for button
   const [CardAdded, setCardAdded] = useState(false)
@@ -84,6 +87,57 @@ const UserAddCard = ({
   //disable continue btn after the card added
   const [disableContinue, setDisableContinue] = useState(false)
   const [currentUserPlan, setCurrentUserPlan] = useState(null)
+
+  // Check if user is subaccount and if agency has branding
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        let isSub = false
+        let hasLogo = false
+        
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          isSub =
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+            parsedUser?.userRole === 'AgencySubAccount'
+          setIsSubaccount(isSub)
+        }
+
+        // Check if agency has branding logo
+        let branding = null
+        const storedBranding = localStorage.getItem('agencyBranding')
+        if (storedBranding) {
+          try {
+            branding = JSON.parse(storedBranding)
+          } catch (error) {
+            console.log('Error parsing agencyBranding from localStorage:', error)
+          }
+        }
+
+        // Also check user data for agencyBranding
+        if (userData) {
+          try {
+            const parsedUser = JSON.parse(userData)
+            if (parsedUser?.user?.agencyBranding) {
+              branding = parsedUser.user.agencyBranding
+            } else if (parsedUser?.agencyBranding) {
+              branding = parsedUser.agencyBranding
+            } else if (parsedUser?.user?.agency?.agencyBranding) {
+              branding = parsedUser.user.agency.agencyBranding
+            }
+          } catch (error) {
+            console.log('Error parsing user data for agencyBranding:', error)
+          }
+        }
+
+        hasLogo = !!branding?.logoUrl
+        setHasAgencyLogo(hasLogo)
+      } catch (error) {
+        console.log('Error parsing user data:', error)
+      }
+    }
+  }, [])
 
   // Autofocus the first field when the component mounts
   useEffect(() => {
@@ -181,10 +235,6 @@ const UserAddCard = ({
   const handleAddCard = async (e) => {
     setAddCardLoader(true)
     setDisableContinue(true)
-    if (stop) {
-      stop(false)
-      setDisableContinue(false)
-    }
     if (e && e.preventDefault) {
       e.preventDefault()
     }
@@ -351,19 +401,54 @@ const UserAddCard = ({
         plan: planType,
       }
 
-      if (isFrom == 'SubAccount' || isFrom == 'Agency') {
+      // Get user's actual role to verify before making API call
+      let userRole = null
+      if (localData) {
+        const LocalDetails = JSON.parse(localData)
+        userRole = LocalDetails?.user?.userRole || LocalDetails?.userRole
+      }
+      const reduxUserRole = reduxUser?.userRole || reduxUser?.user?.userRole
+      const actualUserRole = userRole || reduxUserRole
+
+      // Debug logging to identify the issue
+      console.log('🔍 [UserAddCardModal] isFrom value:', isFrom, 'Type:', typeof isFrom)
+      console.log('🔍 [UserAddCardModal] Actual user role:', actualUserRole)
+      console.log('🔍 [UserAddCardModal] Comparison checks:', {
+        isSubAccount: isFrom === 'SubAccount',
+        isAgency: isFrom === 'Agency',
+        isAgencyLowercase: isFrom === 'agency',
+        isAgents: isFrom === 'agents',
+        actualRoleIsSubAccount: actualUserRole === 'AgencySubAccount',
+        actualRoleIsAgency: actualUserRole === 'Agency',
+      })
+
+      // Only use agency API if user is actually an agency or subaccount
+      const isActuallySubAccount = actualUserRole === 'AgencySubAccount'
+      const isActuallyAgency = actualUserRole === 'Agency'
+      const shouldUseAgencyAPI = (isFrom === 'SubAccount' && isActuallySubAccount) || 
+                                  (isFrom === 'Agency' && isActuallyAgency)
+
+      if (shouldUseAgencyAPI) {
         ApiData = {
           planId: selectedPlan.id,
+        }
+        // Add userId to body if subscribing for a subaccount (fromAdmin or selectedUser)
+        if (fromAdmin && selectedUser) {
+          ApiData.userId = selectedUser.id
         }
       }
 
       // //console.log;
 
       let ApiPath = Apis.subscribePlan
-      if (isFrom == 'SubAccount') {
+      // Only call agency API if user is actually an agency or subaccount
+      if (isFrom === 'SubAccount' && isActuallySubAccount) {
         ApiPath = Apis.subAgencyAndSubAccountPlans
-      } else if (isFrom == 'Agency') {
+      } else if (isFrom === 'Agency' && isActuallyAgency) {
         ApiPath = Apis.subAgencyAndSubAccountPlans
+      } else {
+        // Default to normal user subscription API
+        ApiPath = Apis.subscribePlan
       }
       // //console.log;
       console.log('Api data', ApiData)
@@ -423,114 +508,137 @@ const UserAddCard = ({
     Plan720Min: 'Plan720',
   }
 
-  // Detect mobile screen - use useMemo to avoid hook order issues
-  const [isMobile, setIsMobile] = useState(() => {
+  // Detect screen sizes
+  const [isSmallScreen, setIsSmallScreen] = useState(() => {
     if (typeof window !== 'undefined') {
       return window.innerWidth < 640
     }
     return false
   })
+  const [isMediumScreen, setIsMediumScreen] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return window.innerWidth < 1200
+    }
+    return false
+  })
   
   useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640)
+    const checkScreenSize = () => {
+      const width = window.innerWidth
+      setIsSmallScreen(width < 640)
+      setIsMediumScreen(width < 1200)
     }
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
+    checkScreenSize()
+    window.addEventListener('resize', checkScreenSize)
+    return () => window.removeEventListener('resize', checkScreenSize)
   }, [])
 
-  // Show loading state if Stripe is not ready - but after all hooks are called
   if (!stripeReact || !elements) {
-    return (
-      <div className="flex items-center justify-center p-8 min-h-[200px]">
-        <div className="text-center">
-          <CircularProgress />
-          <p className="mt-4 text-gray-600">Loading payment form...</p>
-        </div>
-      </div>
-    )
+    return <div>Loading stripe</div>
   }
 
   return (
-    <div className={`${isMobile ? 'py-4' : '-mt-10'}`} style={{ width: '100%' }}>
+    <div style={{ width: '100%' }}>
       <div
-        className={`w-full flex ${isMobile ? 'flex-col' : 'flex-row'} ${isMobile ? 'items-stretch' : 'items-center'}`}
+        className={`w-full flex ${isSmallScreen ? 'flex-col' : 'flex-row'} items-start gap-6`}
         style={{ backgroundColor: 'transparent' }}
       >
-        {/* Left side with orb - Hidden on mobile */}
-        {!isMobile && (
-          <div
-            className="flex w-[55%] flex-row LeftDiv"
-            style={{ backgroundColor: 'transparent' }}
-          >
+        <div
+          className={`${isSmallScreen ? 'w-full px-4 pt-6 pb-52 overflow-y-auto' : 'relative flex-1'}`}
+          style={
+            isSmallScreen
+              ? {
+                  paddingTop: 'max(1.5rem, env(safe-area-inset-top, 0px))',
+                }
+              : {
+                  minWidth: 0,
+                  maxWidth: '720px',
+                }
+          }
+        >
+          {/* Orb */}
+          {!isSmallScreen && (
             <div
-              className="LeftInnerDiv1"
-              style={{ backgroundColor: 'transparent', flexShrink: 0 }}
+              className="absolute left-0 top-[75%] -translate-y-1/2 flex justify-center items-center shrink-0"
+              style={{
+                width: isMediumScreen ? '150px' : '170px',
+                height: isMediumScreen ? '150px' : '170px',
+                marginLeft: '0px',
+              }}
             >
               <Image
                 alt="*"
-                src={'/otherAssets/paymentCircle.png'}
-                height={320}
-                width={320}
+                src={'/otherAssets/paymentCircle2.png'}
+                height={isMediumScreen ? 170 : 190}
+                width={isMediumScreen ? 170 : 190}
+                style={{
+                  borderTopRightRadius: '200px',
+                  borderBottomRightRadius: '200px',
+                  boxShadow: '0 0 40px 0 rgba(128, 90, 213, 0.5)', // purple shadow
+                }}
               />
             </div>
-            <div
-              className="mt-[7vh]"
-              style={{ width: '75%', marginLeft: '-100px' }}
-            >
+          )}
+
+          {/* Form */}
+          <div
+            className="flex flex-col justify-start flex-1 min-w-0"
+            style={
+              isSmallScreen
+                ? {}
+                : {
+                    paddingLeft: isMediumScreen ? '160px' : '200px',
+                  }
+            }
+          >
+            {isSmallScreen ? (
+              <div className="mb-6">
+                <div style={{ fontWeight: '600', fontSize: 24 }}>
+                  Continue to Payment
+                </div>
+                <div
+                  style={{
+                    fontWeight: '400',
+                    fontSize: 14,
+                    color: '#4F5B76',
+                    marginTop: 8,
+                  }}
+                >
+                  Add your payment method to continue
+                </div>
+              </div>
+            ) : (
               <div className="flex w-full flex-col items-start">
                 <div style={{ fontWeight: '600', fontSize: 28 }}>
                   Continue to Payment
                 </div>
               </div>
-            </div>
-          </div>
-        )}
-        
-        {/* Right side - Full width on mobile */}
-        <div
-          className={`${isMobile ? 'w-full px-0' : 'w-[45%]'} flex flex-col`}
-        >
-          {/* Mobile header */}
-          {isMobile && (
-            <div className="mb-6 px-4">
-              <h2 className="text-2xl font-bold text-gray-900">
-                Continue to Payment
-              </h2>
-              <p className="text-sm text-gray-600 mt-2">
-                Add your payment method to continue
-              </p>
-            </div>
-          )}
-          
-          {/* Desktop Form Fields */}
-          {!isMobile && (
+            )}
             <div className="flex w-full flex-col items-start mt-4">
               <div
                 style={{
                   fontWeight: '400',
-
                   fontSize: 14,
                   color: '#4F5B76',
                 }}
               >
                 Card Number
               </div>
+
               <div
-                className="mt-1 px-3 py-1 border relative flex items-center"
+                className="mt-1 px-3 py-1 border relative flex items-center  w-full"
                 style={{
                   backgroundColor: 'rgba(255, 255, 255, 0.8)',
                   borderRadius: '8px',
                 }}
               >
-                <div className="flex-1 w-[20vw]">
+                <div className="flex-1 min-w-0 w-full">
                   <CardNumberElement
                     options={elementOptions}
                     autoFocus={true}
                     onChange={(event) => {
                       handleFieldChange(event, cardExpiryRef)
                       if (event.complete) {
-                        // //console.log;
                         setCardAdded(true)
                       } else {
                         setCardAdded(false)
@@ -543,455 +651,420 @@ const UserAddCard = ({
                     }}
                   />
                 </div>
-                <div className="flex items-center gap-1 ml-2">
+                <div className="flex items-center gap-1 ml-2 flex-shrink-0">
                   <Image
                     src="/svgIcons/Visa.svg"
                     alt="Visa"
-                    width={32}
-                    height={20}
+                    width={28}
+                    height={18}
                   />
                   <Image
                     src="/svgIcons/Mastercard.svg"
                     alt="Mastercard"
-                    width={32}
-                    height={20}
+                    width={28}
+                    height={18}
                   />
                   <Image
                     src="/svgIcons/Amex.svg"
                     alt="American Express"
-                    width={32}
-                    height={20}
+                    width={28}
+                    height={18}
                   />
                   <Image
                     src="/svgIcons/Discover.svg"
                     alt="Discover"
-                    width={32}
-                    height={20}
+                    width={28}
+                    height={18}
                   />
                 </div>
               </div>
-              <div className="flex flex-row gap-2 w-full mt-4">
-                <div className="w-6/12">
-                  <div
-                    style={{
-                      fontWeight: '400',
-
-                      fontSize: 14,
-                      color: '#4F5B76',
-                    }}
-                  >
-                    Exp Date
-                  </div>
-                  <div
-                    className="mt-1 px-3 py-1 border"
-                    style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                      borderRadius: '8px',
-                    }}
-                  >
-                    <CardExpiryElement
-                      options={elementOptions}
-                      style={{
-                        width: '100%',
-                        padding: '8px',
-                        color: 'white',
-                        fontSize: '22px',
-                        border: '1px solid blue',
-                        borderRadius: '4px',
-                      }}
-                      onChange={(event) => {
-                        handleFieldChange(event, cardCvcRef)
-                        if (event.complete) {
-                          // //console.log;
-                          setCardExpiry(true)
-                        } else {
-                          setCardExpiry(false)
-                        }
-                      }}
-                      ref={cardExpiryRef}
-                      onReady={(element) => {
-                        cardExpiryRef.current = element
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className="w-6/12">
-                  <div
-                    style={{
-                      fontWeight: '400',
-
-                      fontSize: 14,
-                      color: '#4F5B76',
-                    }}
-                  >
-                    CVV
-                  </div>
-                  <div
-                    className="mt-1 px-3 py-1 border"
-                    style={{
-                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                      borderRadius: '8px',
-                    }}
-                  >
-                    <CardCvcElement
-                      // options={elementOptions}
-                      options={{
-                        ...elementOptions,
-                        placeholder: 'CVV', // 👈 add this
-                      }}
-                      style={{
-                        width: '100%',
-                        padding: '8px',
-                        color: 'white',
-                        fontSize: '22px',
-                        border: '1px solid blue',
-                        borderRadius: '4px',
-                      }}
-                      ref={cardCvcRef}
-                      onReady={(element) => {
-                        cardCvcRef.current = element
-                      }}
-                      onChange={(event) => {
-                        // handleFieldChange(event, cardCvcRef);
-                        if (event.complete) {
-                          // //console.log;
-                          setCVC(true)
-                        } else {
-                          setCVC(false)
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Optional input field for agent x invite code */}
-
-              <div
-                className="mt-4"
-                style={{
-                  fontWeight: '400',
-
-                  fontSize: 14,
-                  color: '#4F5B76',
-                }}
-              >
-                {`Referral Code (optional)`}
-              </div>
-
-              <div className="mt-1 w-full">
-                <input
-                  value={inviteCode}
-                  onChange={(e) => {
-                    setInviteCode(e.target.value)
-                  }}
-                  className="outline-none focus:ring-0 w-full h-[50px]"
-                  style={{
-                    color: '#000000',
-                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                    borderRadius: '8px',
-                    border: '1px solid #00000020',
-                    fontSize: 15,
-                    fontWeight: '500',
-                  }}
-                  placeholder="Enter Referral code"
-                />
-                <style jsx>{`
-                  input::placeholder {
-                    olor: #00000050; /* Set placeholder text color to red */
-                  }
-                `}</style>
-              </div>
             </div>
-          )}
-          
-          {/* Mobile Form Fields */}
-          {isMobile && (
-            <div className="flex w-full flex-col items-start mb-4 space-y-4 px-4">
-              <div className="w-full">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Card Number
-                </label>
+
+            <div
+              className={`flex ${isSmallScreen ? 'flex-col' : 'flex-row'} gap-2 w-full mt-4`}
+            >
+              <div className={isSmallScreen ? 'w-full' : 'w-6/12'}>
                 <div
-                  className="px-4 py-3.5 border-2 relative flex items-center bg-white"
                   style={{
-                    borderRadius: '12px',
-                    borderColor: '#E5E7EB',
+                    fontWeight: '400',
+                    fontSize: 14,
+                    color: '#4F5B76',
                   }}
                 >
-                  <div className="flex-1">
-                    <CardNumberElement
-                      options={elementOptions}
-                      autoFocus={true}
-                      onChange={(event) => {
-                        handleFieldChange(event, cardExpiryRef)
-                        if (event.complete) {
-                          setCardAdded(true)
-                        } else {
-                          setCardAdded(false)
-                        }
-                      }}
-                      ref={cardNumberRef}
-                      onReady={(element) => {
-                        cardNumberRef.current = element
-                        cardNumberRef.current.focus()
-                      }}
-                    />
-                  </div>
-                  <div className="flex items-center gap-1 ml-2">
-                    <Image
-                      src="/svgIcons/Visa.svg"
-                      alt="Visa"
-                      width={24}
-                      height={15}
-                    />
-                    <Image
-                      src="/svgIcons/Mastercard.svg"
-                      alt="Mastercard"
-                      width={24}
-                      height={15}
-                    />
-                    <Image
-                      src="/svgIcons/Amex.svg"
-                      alt="American Express"
-                      width={24}
-                      height={15}
-                    />
-                    <Image
-                      src="/svgIcons/Discover.svg"
-                      alt="Discover"
-                      width={24}
-                      height={15}
-                    />
-                  </div>
+                  Exp Date
                 </div>
-              </div>
-              
-              <div className="flex flex-row gap-3 w-full">
-                <div className="flex-1">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    Exp Date
-                  </label>
-                  <div
-                    className="px-4 py-3.5 border-2 bg-white"
-                    style={{
-                      borderRadius: '12px',
-                      borderColor: '#E5E7EB',
-                    }}
-                  >
-                    <CardExpiryElement
-                      options={elementOptions}
-                      onChange={(event) => {
-                        handleFieldChange(event, cardCvcRef)
-                        if (event.complete) {
-                          setCardExpiry(true)
-                        } else {
-                          setCardExpiry(false)
-                        }
-                      }}
-                      ref={cardExpiryRef}
-                      onReady={(element) => {
-                        cardExpiryRef.current = element
-                      }}
-                    />
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <label className="block text-sm font-semibold text-gray-900 mb-2">
-                    CVV
-                  </label>
-                  <div
-                    className="px-4 py-3.5 border-2 bg-white"
-                    style={{
-                      borderRadius: '12px',
-                      borderColor: '#E5E7EB',
-                    }}
-                  >
-                    <CardCvcElement
-                      options={{
-                        ...elementOptions,
-                        placeholder: 'CVV',
-                      }}
-                      ref={cardCvcRef}
-                      onReady={(element) => {
-                        cardCvcRef.current = element
-                      }}
-                      onChange={(event) => {
-                        if (event.complete) {
-                          setCVC(true)
-                        } else {
-                          setCVC(false)
-                        }
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="w-full">
-                <label className="block text-sm font-semibold text-gray-900 mb-2">
-                  Referral Code (optional)
-                </label>
-                <input
-                  value={inviteCode}
-                  onChange={(e) => {
-                    setInviteCode(e.target.value)
-                  }}
-                  className="outline-none focus:ring-2 focus:ring-brand-primary w-full h-[50px] px-4 bg-white"
+                <div
+                  className="mt-1 px-3 py-1 border"
                   style={{
-                    color: '#000000',
-                    borderRadius: '12px',
-                    border: '2px solid #E5E7EB',
-                    fontSize: 15,
-                    fontWeight: '500',
+                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                    borderRadius: '8px',
                   }}
-                  placeholder="Enter Referral code"
-                />
+                >
+                  <CardExpiryElement
+                    options={elementOptions}
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      color: 'white',
+                      fontSize: '22px',
+                      border: '1px solid blue',
+                      borderRadius: '4px',
+                    }}
+                    onChange={(event) => {
+                      handleFieldChange(event, cardCvcRef)
+                      if (event.complete) {
+                        setCardExpiry(true)
+                      } else {
+                        setCardExpiry(false)
+                      }
+                    }}
+                    ref={cardExpiryRef}
+                    onReady={(element) => {
+                      cardExpiryRef.current = element
+                    }}
+                  />
+                </div>
+              </div>
+              <div className={isSmallScreen ? 'w-full' : 'w-6/12'}>
+                <div
+                  style={{
+                    fontWeight: '400',
+                    fontSize: 14,
+                    color: '#4F5B76',
+                  }}
+                >
+                  CVV
+                </div>
+                <div
+                  className="mt-1 px-3 py-1 border"
+                  style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                    borderRadius: '8px',
+                  }}
+                >
+                  <CardCvcElement
+                    options={{
+                      ...elementOptions,
+                      placeholder: 'CVV',
+                    }}
+                    style={{
+                      width: '100%',
+                      padding: '8px',
+                      color: 'white',
+                      fontSize: '22px',
+                      border: '1px solid blue',
+                      borderRadius: '4px',
+                    }}
+                    ref={cardCvcRef}
+                    onReady={(element) => {
+                      cardCvcRef.current = element
+                    }}
+                    onChange={(event) => {
+                      if (event.complete) {
+                        setCVC(true)
+                      } else {
+                        setCVC(false)
+                      }
+                    }}
+                  />
+                </div>
               </div>
             </div>
-          )}
+
+            {/* Optional input field for agent x invite code */}
+
+            <div
+              className="mt-4"
+              style={{
+                fontWeight: '400',
+                fontSize: 14,
+                color: '#4F5B76',
+              }}
+            >
+              {`Promo or Referral code (optional)`}
+            </div>
+
+            <div className="mt-1">
+              <input
+                value={inviteCode}
+                onChange={(e) => {
+                  setInviteCode(e.target.value)
+                }}
+                className="outline-none focus:ring-0 w-full h-[50px]"
+                style={{
+                  color: '#000000',
+                  backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                  borderRadius: '8px',
+                  border: '1px solid #00000020',
+                  fontSize: 15,
+                  fontWeight: '500',
+                }}
+                placeholder="Enter Promo or Referral code"
+              />
+              <style jsx>{`
+                input::placeholder {
+                  color: #00000050;
+                }
+              `}</style>
+            </div>
+            {inviteCode ? (
+              <div
+                className="mt-2 flex items-center gap-2"
+                style={{ minHeight: 24 }}
+              >
+                {referralStatus === 'loading' && (
+                  <>
+                    <div style={{ fontSize: 12, color: '#4F5B76' }}>
+                      Validating code…
+                    </div>
+                  </>
+                )}
+                {referralStatus === 'invalid' && (
+                  <div
+                    style={{ fontSize: 12, color: '#D93025', fontWeight: 600 }}
+                  >
+                    {referralMessage || 'Invalid referral code'}
+                  </div>
+                )}
+                {referralStatus === 'valid' && (
+                  <div
+                    style={{ fontSize: 12, color: '#34A853', fontWeight: 600 }}
+                  >
+                    {referralMessage || 'Code applied'}
+                  </div>
+                )}
+              </div>
+            ) : null}
+          </div>
         </div>
+
+        {/* Mobile Continue Button - Fixed at bottom */}
+        {isSmallScreen && (
+          <div 
+            className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50"
+            style={{ 
+              paddingBottom: `calc(2rem + env(safe-area-inset-bottom, 0px))`,
+            }}
+          >
+            <div className="max-w-md mx-auto px-4 pt-4 pb-4 space-y-3">
+              <p className="text-xs text-center text-gray-500 mb-1">
+                By continuing you agree to{' '}
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    const { termsUrl } = getPolicyUrls()
+                    window.open(termsUrl, '_blank')
+                  }}
+                  style={{
+                    textDecoration: 'underline',
+                    color: 'hsl(var(--brand-primary))',
+                  }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold"
+                >
+                  Terms & Conditions
+                </a>
+              </p>
+              <button
+                onClick={handleAddCard}
+                disabled={
+                  !CardAdded ||
+                  !CardExpiry ||
+                  !CVC ||
+                  addCardLoader ||
+                  disableContinue ||
+                  isSubscribingRef.current
+                }
+                className={`w-full h-[50px] rounded-xl font-bold text-white text-lg transition-all ${
+                  !CardAdded ||
+                  !CardExpiry ||
+                  !CVC ||
+                  addCardLoader ||
+                  disableContinue ||
+                  isSubscribingRef.current
+                    ? 'bg-gray-300 cursor-not-allowed'
+                    : 'bg-brand-primary hover:opacity-90 shadow-lg active:scale-98'
+                }`}
+              >
+                {addCardLoader ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <CircularProgress size={20} color="inherit" />
+                    <span>Processing...</span>
+                  </div>
+                ) : (
+                  'Continue'
+                )}
+              </button>
+            </div>
+          </div>
+        )}
         
-        {/* Order Summary - Desktop */}
-        {!isMobile && (
+        {/* Order Summary - Desktop only */}
+        {!isSmallScreen && (
           <div
-            className="w-[45%] flex flex-col justify-start items-center pe-4 rounded-lg h-full"
+            className="w-[42%] flex flex-col justify-start items-center pe-4 rounded-lg"
             style={{ backgroundColor: 'transparent' }}
           >
             <div
-              className="rounded-lg p-2 w-[90%] flex flex-col justify-start"
-              style={{ backgroundColor: '#ffffff' }}
+              className=" rounded-lg p-4 w-[90%]"
+              style={{ backgroundColor: '#ffffffcc' }}
             >
-            <div className={`w-full flex flex-col items-start text-[#000]`}>
-              <div className=" text-xl font-semibold ">Order Summary</div>
-              <div className="flex flex-row items-start justify-between w-full mt-6">
-                <div>
-                  <div className=" text-lg font-semibold">
-                    {selectedPlan
-                      ? `${selectedPlan?.name || selectedPlan?.title}`
-                      : 'No Plan Selected'}
-                  </div>
-                  <div className=" text-xs font-regular capitalize">
-                    {selectedPlan
-                      ? `${selectedPlan?.billingCycle || selectedPlan?.duration} subscription`
-                      : ''}
-                    {'subscription'}
-                  </div>
-                  {/*currentSelectedPlan?.billingCycle?.charAt(0).toUpperCase() + currentSelectedPlan?.billingCycle?.slice(1)*/}
+            <div style={{ fontSize: 22, fontWeight: '600' }}>Order Summary</div>
+            <div className="flex flex-row items-start justify-between w-full mt-6">
+              <div>
+                <div style={{ fontWeight: '600', fontSize: 15 }}>
+                  {selectedPlan?.title || selectedPlan?.name || 'No Plan Selected'}
                 </div>
-                <div className="" style={{ fontWeight: '600', fontSize: 15 }}>
-                  {selectedPlan
-                    ? `$${formatFractional2(selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice)}`
-                    : ''}
+                <div style={{ fontWeight: '400', fontSize: 13, marginTop: '' }}>
+                  {(() => {
+                    const billingCycle = selectedPlan?.billingCycle || selectedPlan?.duration || 'monthly'
+                    const cycleLabel = billingCycle.charAt(0).toUpperCase() + billingCycle.slice(1) + ' subscription'
+                    return cycleLabel
+                  })()}: $
+                  {(() => {
+                    const price = selectedPlan?.discountedPrice || 
+                                  selectedPlan?.discountPrice || 
+                                  selectedPlan?.originalPrice || 
+                                  0
+                    return formatFractional2(price)
+                  })()}
                 </div>
               </div>
+              <div style={{ fontWeight: '600', fontSize: 15 }}>
+                ${formatFractional2(selectedPlan?.discountedPrice || selectedPlan?.discountPrice || selectedPlan?.originalPrice || 0)}
+              </div>
+            </div>
 
-              <div className="flex flex-row items-start justify-between w-full mt-6">
-                <div>
-                  <div
-                    className="capitalize"
-                    style={{ fontWeight: '600', fontSize: 15 }}
-                  >
-                    {` Total Billed ${selectedPlan?.billingCycle || selectedPlan?.duration}`}
-                  </div>
-                  <div
-                    className=""
-                    style={{ fontWeight: '400', fontSize: 13, marginTop: '' }}
-                  >
-                    Next Charge Date {getNextChargeDate(selectedPlan)}
+            <div className="flex flex-row items-start justify-between w-full mt-6">
+              <div>
+                <div
+                  className="capitalize"
+                  style={{ fontWeight: '600', fontSize: 15 }}
+                >
+                  {` Total Billed ${selectedPlan?.billingCycle || selectedPlan?.duration || 'No Plan Selected'}`}
+                </div>
+                <div
+                  className=""
+                  style={{
+                    fontWeight: '400',
+                    fontSize: 13,
+                    marginTop: '',
+                  }}
+                >
+                  Next Charge Date {getNextChargeDate(selectedPlan)}
+                </div>
+              </div>
+              <div
+                className=""
+                style={{ fontWeight: '600', fontSize: 15 }}
+              >
+                {(() => {
+                  // Check if plan has trial and user is subscribing for the first time
+                  // const hasTrial = selectedPlan?.hasTrial === true
+                  // const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+                  
+                  // If plan has trial and user has no previous plan, show $0
+                  // if (hasTrial && isFirstTimeSubscription) {
+                  //   return '$0'
+                  // }
+                  
+                  const billingMonths = GetMonthCountFronBillingCycle(
+                    selectedPlan?.billingCycle || selectedPlan?.duration,
+                  )
+                  const monthlyPrice =
+                    selectedPlan?.discountPrice ||
+                    selectedPlan?.discountedPrice ||
+                    selectedPlan?.originalPrice ||
+                    0
+                  return `$${formatFractional2(billingMonths * monthlyPrice)}`
+                })()}
+              </div>
+            </div>
+
+            {inviteCode && (
+              <div>
+                <div className="flex flex-row items-start justify-between w-full mt-6">
+                  <div>
+                    <div style={{ fontWeight: '600', fontSize: 15 }}>
+                      Referral Code
+                    </div>
+                    <div
+                      style={{
+                        fontWeight: '400',
+                        fontSize: 13,
+                        marginTop: '',
+                      }}
+                    >
+                      {referralMessage}
+                    </div>
                   </div>
                 </div>
-                <div className="" style={{ fontWeight: '600', fontSize: 15 }}>
+              </div>
+            )}
+
+            {!inviteCode && (
+              <div className="w-full h-10 mt-6"></div>
+            )}
+
+            <div className="mt-6 h-[1px] w-full bg-[#00000035]"></div>
+
+            <div className="flex flex-row items-start justify-between w-full mt-6">
+              <div style={{ fontWeight: '600', fontSize: 15 }}>Total:</div>
+              <div className="flex flex-col items-end">
+                <div style={{ fontWeight: '600', fontSize: 22 }}>
                   {(() => {
                     if (!selectedPlan) return '$0'
 
-                    // Check if plan has trial and user is subscribing for the first time
+                    // Check if plan has trial and user is subscribing for the first time (no previous plan)
                     const hasTrial = selectedPlan?.hasTrial === true
                     const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
                     
-                    // If plan has trial and user has no previous plan, show $0
+                    // If plan has trial and user has no previous plan, show $0 (they won't be charged immediately)
                     if (hasTrial && isFirstTimeSubscription) {
                       return '$0'
                     }
 
-                    return `$${formatFractional2(GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || selectedPlan?.duration) * (selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice))}`
+                    const billingMonths = GetMonthCountFronBillingCycle(
+                      selectedPlan?.billingCycle || selectedPlan?.duration,
+                    )
+                    const monthlyPrice =
+                      selectedPlan?.discountPrice ||
+                      selectedPlan?.discountedPrice ||
+                      selectedPlan?.originalPrice ||
+                      0
+                    return `$${formatFractional2(billingMonths * monthlyPrice)}`
                   })()}
                 </div>
-              </div>
-
-              {inviteCode ? (
-                <div>
-                  <div className="flex flex-row items-start justify-between w-full mt-6">
-                    <div>
-                      <div style={{ fontWeight: '600', fontSize: 15 }}>
-                        Referral Code
-                      </div>
-                      <div
-                        style={{
-                          fontWeight: '400',
-                          fontSize: 13,
-                          marginTop: '',
-                        }}
-                      >
-                        {referralMessage}
-                      </div>
-                    </div>
-                  </div>
+                <div
+                  style={{
+                    fontWeight: '400',
+                    fontSize: 13,
+                    marginTop: '',
+                    color: '#8A8A8A',
+                  }}
+                >
+                  Due Today
                 </div>
-              ) : (
-                <div className="w-full h-10 mt-6"></div>
-              )}
-
-              <div className="w-full h-[1px] bg-gray-200 my-2"></div>
+              </div>
             </div>
 
-            {/* Fixed bottom section */}
-            <div className="flex-shrink-0 mt-4">
-              <div className="flex flex-row items-start justify-between w-full mt-6 mb-2">
-                <div className=" text-3xl font-semibold  ">Total:</div>
-                <div className="flex flex-col items-end ">
-                  <div className=" text-3xl font-semibold  ">
-                    {(() => {
-                      if (!selectedPlan) return '$0'
-
-                      // Check if plan has trial and user is subscribing for the first time (no previous plan)
-                      const hasTrial = selectedPlan?.hasTrial === true
-                      const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-                      
-                      // If plan has trial and user has no previous plan, show $0 (they won't be charged immediately)
-                      if (hasTrial && isFirstTimeSubscription) {
-                        return '$0'
-                      }
-
-                      return `$${getTotalPrice(selectedPlan)}`
-                    })()}
-                  </div>
-                  <div
-                    style={{
-                      fontWeight: '400',
-                      fontSize: 13,
-                      marginTop: '',
-                      color: '#8A8A8A',
-                    }}
-                  >
-                    Due Today
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col items-center w-full">
+            {!isSmallScreen && (
+              <div className="flex flex-col items-center gap-2 w-full mt-6 flex justify-center">
                 {addCardLoader ? (
-                  <div className="flex flex-row justify-center items-center w-full">
+                  <div className="flex flex-row justify-center items-center mt-8 w-full">
                     <CircularProgress size={30} />
                   </div>
                 ) : (
-                  <div className="w-full">
+                  <div className="flex flex-row justify-end items-center mt-8 w-full">
                     {CardAdded && CardExpiry && CVC ? (
                       <button
                         onClick={handleAddCard}
                         disabled={addCardLoader || disableContinue || isSubscribingRef.current}
                         className="w-full h-[50px] rounded-xl px-8 text-white py-3 disabled:opacity-50 disabled:cursor-not-allowed"
                         style={{
-                          backgroundColor: '#7902DF',
+                          backgroundColor: 'hsl(var(--brand-primary))',
                           fontWeight: '600',
                           fontSize: 17,
                         }}
@@ -1010,145 +1083,94 @@ const UserAddCard = ({
                   </div>
                 )}
               </div>
+            )}
+            {!isSmallScreen && (
               <div
-                className="flex flex-row items-center gap-1 w-full justify-center mt-2"
+                className="mt-2 text-center"
                 style={{
                   fontWeight: '400',
-                  fontSize: 13,
+                  fontSize: 10,
                 }}
               >
-                <div>By continuing you agree to our</div>
+                By continuing you agree to our
                 <a
-                  href="https://www.myagentx.com/terms-and-condition" // Replace with the actual URL
-                  style={{ textDecoration: 'underline', color: '#7902DF' }} // Underline and color styling
-                  target="_blank" // Opens in a new tab (optional)
-                  rel="noopener noreferrer" // Security for external links
-                >
-                  Terms & Conditions
-                </a>
-              </div>
-            </div>
-          </div>
-          </div>
-        )}
-        
-        {/* Order Summary - Mobile */}
-        {isMobile && (
-          <div className="w-full bg-white rounded-2xl p-5 shadow-lg mb-4 mx-4">
-            <div className="w-full flex flex-col text-gray-900">
-              <div className="text-xl font-bold mb-5">Order Summary</div>
-              <div className="flex flex-row items-start justify-between w-full mb-4">
-                <div>
-                  <div className="text-lg font-semibold">
-                    {selectedPlan
-                      ? `${selectedPlan?.name || selectedPlan?.title}`
-                      : 'No Plan Selected'}
-                  </div>
-                  <div className="text-xs font-regular capitalize text-gray-600">
-                    {selectedPlan
-                      ? `${selectedPlan?.billingCycle || selectedPlan?.duration} subscription`
-                      : ''}
-                  </div>
-                </div>
-                <div className="font-semibold text-lg">
-                  {selectedPlan
-                    ? `$${formatFractional2(selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice)}`
-                    : ''}
-                </div>
-              </div>
-
-              <div className="flex flex-row items-start justify-between w-full mb-4">
-                <div>
-                  <div className="capitalize font-semibold text-sm">
-                    {`Total Billed ${selectedPlan?.billingCycle || selectedPlan?.duration}`}
-                  </div>
-                  <div className="text-xs text-gray-600 mt-1">
-                    Next Charge Date {getNextChargeDate(selectedPlan)}
-                  </div>
-                </div>
-                <div className="font-semibold text-sm">
-                  {(() => {
-                    if (!selectedPlan) return '$0'
-                    const hasTrial = selectedPlan?.hasTrial === true
-                    const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-                    if (hasTrial && isFirstTimeSubscription) {
-                      return '$0'
-                    }
-                    return `$${formatFractional2(GetMonthCountFronBillingCycle(selectedPlan?.billingCycle || selectedPlan?.duration) * (selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice))}`
-                  })()}
-                </div>
-              </div>
-
-              {inviteCode && (
-                <div className="mb-4">
-                  <div className="font-semibold text-sm mb-1">Referral Code</div>
-                  <div className="text-xs text-gray-600">{referralMessage}</div>
-                </div>
-              )}
-
-              <div className="w-full h-[1px] bg-gray-200 my-4"></div>
-
-              <div className="flex flex-row items-start justify-between w-full mb-4">
-                <div className="text-2xl font-semibold">Total:</div>
-                <div className="flex flex-col items-end">
-                  <div className="text-2xl font-semibold">
-                    {(() => {
-                      if (!selectedPlan) return '$0'
-                      const hasTrial = selectedPlan?.hasTrial === true
-                      const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-                      if (hasTrial && isFirstTimeSubscription) {
-                        return '$0'
-                      }
-                      return `$${getTotalPrice(selectedPlan)}`
-                    })()}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">Due Today</div>
-                </div>
-              </div>
-              
-              <div className="w-full">
-                {addCardLoader ? (
-                  <div className="flex flex-row justify-center items-center w-full py-4">
-                    <CircularProgress size={30} />
-                  </div>
-                ) : (
-                  <div className="w-full">
-                    {CardAdded && CardExpiry && CVC ? (
-                      <button
-                        onClick={handleAddCard}
-                        disabled={addCardLoader || disableContinue || isSubscribingRef.current}
-                        className="w-full h-[52px] rounded-xl text-white py-3 disabled:opacity-50 disabled:cursor-not-allowed bg-brand-primary font-bold text-base shadow-lg active:scale-98 transition-all"
-                      >
-                        Continue
-                      </button>
-                    ) : (
-                      <button
-                        disabled={true}
-                        className="bg-gray-200 w-full h-[50px] rounded-xl text-gray-500 py-3"
-                        style={{ fontWeight: '600', fontSize: 17 }}
-                      >
-                        Continue
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex flex-row items-center gap-1 w-full justify-center mt-4 text-xs text-gray-600">
-                <div>By continuing you agree to our</div>
-                <a
-                  href="https://www.myagentx.com/terms-and-condition"
-                  style={{ textDecoration: 'underline', color: 'hsl(var(--brand-primary))' }}
-                  target="_blank"
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    const { termsUrl } = getPolicyUrls()
+                    window.open(termsUrl, '_blank')
+                  }}
+                  style={{ textDecoration: 'underline', color: 'hsl(var(--brand-primary))', cursor: 'pointer' }}
+                  className="ms-1 me-1"
                   rel="noopener noreferrer"
                 >
                   Terms & Conditions
                 </a>
+                and agree to a 12-month license term. Payments are billed{' '}
+                {selectedPlan?.duration} as selected.
               </div>
+            )}
             </div>
           </div>
         )}
       </div>
+      
+      {/* Fixed Bottom Section for Mobile */}
+      {isSmallScreen && (
+        <div 
+          className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50"
+          style={{ 
+            paddingBottom: `calc(1.5rem + env(safe-area-inset-bottom, 0px))`,
+          }}
+        >
+          <div className="max-w-md mx-auto px-4 pt-4 pb-2 space-y-3">
+            <div
+              className="text-center mb-2"
+              style={{
+                fontWeight: '400',
+                fontSize: 10,
+                color: '#8A8A8A',
+              }}
+            >
+              By continuing you agree to our
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  const { termsUrl } = getPolicyUrls()
+                  window.open(termsUrl, '_blank')
+                }}
+                style={{ textDecoration: 'underline', color: 'hsl(var(--brand-primary))', cursor: 'pointer' }}
+                className="ms-1 me-1"
+                rel="noopener noreferrer"
+              >
+                Terms & Conditions
+              </a>
+            </div>
+            {addCardLoader ? (
+              <div className="flex flex-row justify-center items-center w-full">
+                <CircularProgress size={30} />
+              </div>
+            ) : (
+              <button
+                onClick={handleAddCard}
+                disabled={!CardAdded || !CardExpiry || !CVC || addCardLoader || disableContinue || isSubscribingRef.current}
+                className={`w-full h-[50px] rounded-xl px-8 text-white py-3 disabled:opacity-50 disabled:cursor-not-allowed ${
+                  CardAdded && CardExpiry && CVC
+                    ? 'bg-brand-primary hover:opacity-90'
+                    : 'bg-gray-300 text-gray-500'
+                }`}
+                style={{
+                  fontWeight: '600',
+                  fontSize: 17,
+                }}
+              >
+                Continue
+              </button>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

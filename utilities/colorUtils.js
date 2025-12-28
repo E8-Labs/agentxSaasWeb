@@ -170,3 +170,71 @@ export function isLightColor(hslString, opacity = 1) {
   return adjustedLightness > 50
 }
 
+/**
+ * Gets the brand primary color from CSS variable as HSL string
+ * Can be used directly in inline styles: style={{ color: `hsl(${getBrandPrimaryHsl()})` }}
+ * @returns {string} - HSL color string (e.g., "270 75% 50%") or default if not available
+ */
+export function getBrandPrimaryHsl() {
+  if (typeof window === 'undefined') return getDefaultPrimaryColor()
+  
+  const root = document.documentElement
+  const brandPrimary = getComputedStyle(root).getPropertyValue('--brand-primary').trim()
+  
+  if (brandPrimary) {
+    return brandPrimary
+  }
+  
+  return getDefaultPrimaryColor()
+}
+
+/**
+ * Gets the brand primary color from CSS variable as hex string
+ * Useful for inline styles that require hex format (e.g., Material-UI sx prop)
+ * @returns {string} - Hex color string (e.g., "#7902DF") or default if not available
+ */
+export function getBrandPrimaryHex() {
+  if (typeof window === 'undefined') return '#7902DF'
+  
+  const root = document.documentElement
+  const brandPrimary = getComputedStyle(root).getPropertyValue('--brand-primary').trim()
+  
+  if (brandPrimary) {
+    // Convert HSL to hex
+    const hslMatch = brandPrimary.match(/(\d+)\s+(\d+)%\s+(\d+)%/)
+    if (hslMatch) {
+      const h = parseInt(hslMatch[1]) / 360
+      const s = parseInt(hslMatch[2]) / 100
+      const l = parseInt(hslMatch[3]) / 100
+      
+      const c = (1 - Math.abs(2 * l - 1)) * s
+      const x = c * (1 - Math.abs(((h * 6) % 2) - 1))
+      const m = l - c / 2
+      
+      let r = 0, g = 0, b = 0
+      
+      if (0 <= h && h < 1/6) {
+        r = c; g = x; b = 0
+      } else if (1/6 <= h && h < 2/6) {
+        r = x; g = c; b = 0
+      } else if (2/6 <= h && h < 3/6) {
+        r = 0; g = c; b = x
+      } else if (3/6 <= h && h < 4/6) {
+        r = 0; g = x; b = c
+      } else if (4/6 <= h && h < 5/6) {
+        r = x; g = 0; b = c
+      } else if (5/6 <= h && h < 1) {
+        r = c; g = 0; b = x
+      }
+      
+      r = Math.round((r + m) * 255)
+      g = Math.round((g + m) * 255)
+      b = Math.round((b + m) * 255)
+      
+      return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
+    }
+  }
+  
+  return '#7902DF' // Default fallback
+}
+

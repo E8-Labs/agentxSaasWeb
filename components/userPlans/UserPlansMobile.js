@@ -2,7 +2,7 @@
 
 import { Box, CircularProgress, Modal } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -28,6 +28,7 @@ import {
   getNextChargeDate,
   getTotalPrice,
 } from './UserPlanServices'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
 function UserPlansMobile({
   handleContinue,
@@ -42,13 +43,7 @@ function UserPlansMobile({
 }) {
   const router = useRouter()
 
-  const stripePromise = useMemo(() => {
-    const stripePublickKey =
-      process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-        ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-        : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-    return loadStripe(stripePublickKey)
-  }, [])
+  const stripePromise = getStripe()
 
   const { user: reduxUser, setUser: setReduxUser } = useUser()
 
@@ -312,8 +307,11 @@ function UserPlansMobile({
           setAddPaymentPopUp(false)
           setShouldAutoSubscribe(false)
           
+          // Determine redirect path
+          let redirectPath = null
+          
           if (from === 'dashboard') {
-            router.push('/dashboard')
+            redirectPath = '/dashboard'
           } else {
             // Check if user is on mobile
             const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
@@ -324,17 +322,26 @@ function UserPlansMobile({
             
             // For mobile users (all types including agencies), redirect to continue to desktop screen
             if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
-              router.push('/createagent/desktop')
+              redirectPath = '/createagent/desktop'
             } else {
               // Desktop: Agencies go to agency dashboard, others continue
               if (reduxUser?.userRole === 'Agency' || isFrom === 'Agency' || routedFrom === 'Agency') {
-                router.push('/agency/dashboard')
+                redirectPath = '/agency/dashboard'
               } else {
                 if (handleContinue) {
                   handleContinue()
+                  return // Exit early if handleContinue is called
                 }
               }
             }
+          }
+          
+          // Use window.location.href for hard redirect to ensure clean page reload
+          // This prevents DOM cleanup errors during navigation
+          if (redirectPath) {
+            console.log('✅ Subscription successful, redirecting to:', redirectPath)
+            window.location.href = redirectPath
+            return
           }
         }
       }
@@ -467,8 +474,55 @@ function UserPlansMobile({
 
   const currentPlans = getCurrentPlans()
   const monthlyPrice = selectedPlan ? getMonthlyPrice(selectedPlan) : 0
-  const totalPrice = selectedPlan ? getTotalPrice(selectedPlan) : 0
-  const nextChargeDate = selectedPlan ? getNextChargeDate(selectedPlan) : null
+  
+  // Check if user has a current plan (for first-time subscription check)
+  const getCurrentUserPlan = () => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        const userData = JSON.parse(localData)
+        return userData?.user?.plan || null
+      }
+    } catch (error) {
+      console.log('Error getting current user plan:', error)
+    }
+    return null
+  }
+  
+  const currentUserPlan = getCurrentUserPlan()
+  const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+  
+  // Calculate total price - show $0 if plan has trial and it's first-time subscription
+  let totalPrice = 0
+  if (selectedPlan) {
+    const hasTrial = selectedPlan?.hasTrial === true
+    if (hasTrial && isFirstTimeSubscription) {
+      totalPrice = 0
+    } else {
+      totalPrice = getTotalPrice(selectedPlan)
+    }
+  }
+  
+  // Calculate next charge date - if trial and first-time, show trial end date, otherwise use normal calculation
+  let nextChargeDate = null
+  if (selectedPlan) {
+    const hasTrial = selectedPlan?.hasTrial === true
+    const trialDays = selectedPlan?.trialValidForDays || 0
+    
+    if (hasTrial && isFirstTimeSubscription && trialDays > 0) {
+      // For trial plans on first-time subscription, next charge date is when trial ends
+      const trialEndDate = new Date()
+      trialEndDate.setDate(trialEndDate.getDate() + trialDays)
+      nextChargeDate = trialEndDate.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+    } else {
+      // Normal calculation (includes trial if not first-time)
+      nextChargeDate = getNextChargeDate(selectedPlan)
+    }
+  }
 
   return (
     <div className="h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 relative overflow-hidden flex flex-col">
@@ -481,12 +535,11 @@ function UserPlansMobile({
       {/* Scrollable Container */}
       <div className="relative z-10 flex-1 flex flex-col overflow-hidden min-h-0">
         {/* Main Card - Scrollable */}
-        <div className="flex-1 overflow-y-auto px-4 pt-4 pb-32 min-h-0">
+        <div className="flex-1 overflow-y-auto px-4 pt-4 pb-40 min-h-0">
           <div className="w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
             {/* Header */}
-            <div className="bg-brand-primary px-6 py-8">
-              <h1 className="text-2xl font-bold text-white mb-2">Order Summary</h1>
-              <p className="text-white/80 text-sm">Choose your plan and continue</p>
+            <div className="bg-white px-6 py-4">
+              <h1 className="text-2xl font-bold text-black pt-2">Select a plan</h1>
             </div>
 
             {/* Content */}
@@ -525,12 +578,19 @@ function UserPlansMobile({
                 <div
                   key={plan.id}
                   onClick={() => handlePlanSelect(plan)}
-                  className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                  className={`relative p-4 rounded-xl border-2 transition-all cursor-pointer ${
                     selectedPlan?.id === plan.id
                       ? 'border-brand-primary bg-brand-primary/5'
                       : 'border-gray-200 hover:border-brand-primary/30'
                   }`}
                 >
+                  {/* Trial Badge - Top Right Corner */}
+                  {isFrom === 'SubAccount' && plan?.hasTrial === true && plan?.trialValidForDays && (
+                    <div className="absolute top-2 right-2 bg-brand-primary text-white text-xs font-semibold px-2 py-1 rounded-md shadow-sm">
+                      {plan.trialValidForDays} Day Trial
+                    </div>
+                  )}
+                  
                   <div className="flex items-center justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
@@ -580,8 +640,15 @@ function UserPlansMobile({
 
           {/* Order Summary */}
           {selectedPlan && (
-            <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-              <h3 className="font-semibold text-gray-900 mb-3">Plan Details</h3>
+            <div className="bg-gray-50 rounded-xl p-4 space-y-3 relative">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-semibold text-gray-900">Plan Details</h3>
+                {isFrom === 'SubAccount' && selectedPlan?.hasTrial === true && selectedPlan?.trialValidForDays && (
+                  <span className="bg-brand-primary text-white text-xs font-semibold px-2 py-1 rounded-md">
+                    {selectedPlan.trialValidForDays} Day Trial
+                  </span>
+                )}
+              </div>
               
               <div className="flex justify-between items-center">
                 <div>
@@ -651,13 +718,28 @@ function UserPlansMobile({
           </div>
         </div>
 
-        {/* Sticky Bottom Section with Continue Button */}
-        <div className="bg-white border-t border-gray-200 shadow-lg flex-shrink-0 relative z-20 safe-area-inset-bottom">
-          <div className="max-w-md mx-auto px-6 pt-4 pb-6 space-y-3">
+        {/* Fixed Bottom Section with Continue Button */}
+        <div 
+          className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50"
+          style={{ 
+            paddingBottom: `calc(1.5rem + env(safe-area-inset-bottom, 0px))`,
+          }}
+        >
+          <div className="max-w-md mx-auto px-6 pt-4 pb-2 space-y-3">
             {/* Terms and Conditions */}
             <p className="text-xs text-center text-gray-500">
               By continuing you agree to{' '}
-              <span className="text-brand-primary font-semibold">Terms & Conditions</span>
+              <span
+                onClick={() => {
+                  const { termsUrl } = getPolicyUrls()
+                  if (termsUrl) {
+                    window.open(termsUrl, '_blank')
+                  }
+                }}
+                className="text-brand-primary font-semibold hover:text-brand-primary/80 underline transition-colors duration-200 cursor-pointer"
+              >
+                Terms & Conditions
+              </span>
             </p>
             
             {/* Continue Button */}
@@ -701,9 +783,9 @@ function UserPlansMobile({
         <Box
           sx={{
             position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
+            top: { xs: 0, sm: '50%' },
+            left: { xs: 0, sm: '50%' },
+            transform: { xs: 'none', sm: 'translate(-50%, -50%)' },
             width: '100%',
             maxWidth: { xs: '100%', sm: '500px' },
             height: { xs: '100vh', sm: 'auto' },
@@ -712,9 +794,10 @@ function UserPlansMobile({
             borderRadius: { xs: '0', sm: '16px' },
             boxShadow: 24,
             p: 0,
-            overflow: 'auto',
+            overflow: { xs: 'hidden', sm: 'auto' },
             display: 'flex',
             flexDirection: 'column',
+            paddingBottom: { xs: 'env(safe-area-inset-bottom, 0px)', sm: 0 },
           }}
         >
           <Elements stripe={stripePromise}>

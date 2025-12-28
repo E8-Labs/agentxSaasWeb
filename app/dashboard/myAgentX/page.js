@@ -114,6 +114,8 @@ import {
 import { GetFormattedDateString } from '@/utilities/utility'
 import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 import { parseOAuthState } from '@/utils/oauthState'
+import { forceApplyBranding } from '@/utilities/applyBranding'
+import { hexToHsl, calculateIconFilter } from '@/utilities/colorUtils'
 
 import VoiceMailTab from '../../../components/dashboard/myagentX/VoiceMailTab'
 
@@ -126,6 +128,7 @@ const DuplicateButton = dynamic(
     ssr: false,
   },
 )
+
 function Page() {
   // IMMEDIATE POPUP HANDLING - Run before React renders to preserve popup context
   // This must run synchronously when component loads, before any state updates
@@ -136,11 +139,37 @@ function Page() {
     const locationId = params.get('locationId')
     const code = params.get('code')
     const error = params.get('error')
-    
+
     // Check if we're in a popup window
     const isPopup = window.opener !== null && window.opener !== window
     const hasOpener = typeof window.opener !== 'undefined' && window.opener !== null
-    
+
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: 'debug-session',
+        runId: 'pre-fix',
+        hypothesisId: 'H1',
+        location: 'app/dashboard/myAgentX/page.js:ghl-params',
+        message: 'MyAgentX loaded with GHL params',
+        data: {
+          pathname: window.location.pathname,
+          href: window.location.href.slice(0, 200),
+          searchKeys: Array.from(params.keys()).slice(0, 20),
+          ghlOauthSuccess: ghlOauthSuccess || null,
+          hasLocationId: Boolean(locationId),
+          hasCode: Boolean(code),
+          hasError: Boolean(error),
+          isPopup: Boolean(isPopup),
+          hasOpener: Boolean(hasOpener),
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {})
+    // #endregion agent log
+
     // If in popup and GHL OAuth success, close immediately
     if (ghlOauthSuccess === 'success' && (isPopup || hasOpener)) {
       shouldClosePopup = true
@@ -149,9 +178,9 @@ function Page() {
         // Send message to parent window
         if (window.opener && !window.opener.closed) {
           window.opener.postMessage(
-            { 
-              type: 'GHL_OAUTH_SUCCESS', 
-              locationId: locationId || null 
+            {
+              type: 'GHL_OAUTH_SUCCESS',
+              locationId: locationId || null
             },
             window.location.origin,
           )
@@ -160,7 +189,7 @@ function Page() {
       } catch (e) {
         console.error('🚨 IMMEDIATE: Error sending message:', e)
       }
-      
+
       // Close popup immediately - try multiple times
       const closePopup = () => {
         try {
@@ -188,15 +217,15 @@ function Page() {
           }
         }
       }
-      
+
       // Try closing immediately
       closePopup()
-      
+
       // Try again after a short delay (some browsers need this)
       setTimeout(closePopup, 100)
       setTimeout(closePopup, 300)
     }
-    
+
     // Also handle initial OAuth callback in popup (code parameter)
     if ((code || error) && (isPopup || hasOpener)) {
       console.log('🚨 IMMEDIATE: OAuth callback detected in popup')
@@ -205,12 +234,91 @@ function Page() {
     }
   }
 
+  // If this page is opened as the GHL OAuth redirect (contains ?code=...),
+  // immediately message the opener (the original app window) and close.
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const code = params.get('code')
+    const error = params.get('error')
+    const state = params.get('state')
+    if (!code && !error) return
+
+    const hasOpener = typeof window.opener !== 'undefined' && window.opener !== null && window.opener !== window
+
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: 'debug-session',
+        runId: 'pre-fix',
+        hypothesisId: 'H2',
+        location: 'app/dashboard/myAgentX/page.js:ghl-code-handoff',
+        message: 'MyAgentX handling GHL code/error callback',
+        data: {
+          hasCode: Boolean(code),
+          hasError: Boolean(error),
+          hasState: Boolean(state),
+          hasOpener,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {})
+    // #endregion agent log
+
+    if (hasOpener) {
+      try {
+        window.opener.postMessage(
+          { type: 'GHL_OAUTH_CODE', code, error, state },
+          '*',
+        )
+      } catch {}
+      try {
+        window.close()
+      } catch {}
+    }
+  }, [])
+
+  // Listen for any postMessage events globally (debugging OAuth popup handoff)
+  useEffect(() => {
+    function onAnyMessage(e) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: 'debug-session',
+          runId: 'pre-fix',
+          hypothesisId: 'H2',
+          location: 'app/dashboard/myAgentX/page.js:window-message',
+          message: 'MyAgentX received window message event',
+          data: {
+            origin: e.origin,
+            dataType: typeof e.data,
+            messageType: e?.data?.type || null,
+            hasLocationId: Boolean(e?.data?.locationId),
+            keys: e?.data && typeof e.data === 'object' ? Object.keys(e.data).slice(0, 20) : null,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {})
+      // #endregion agent log
+    }
+    window.addEventListener('message', onAnyMessage)
+    return () => window.removeEventListener('message', onAnyMessage)
+  }, [])
+
   // Redux hooks for plan management
   const { user: reduxUser, isAuthenticated, setUser: setReduxUser } = useUser()
 
   // Add flags to prevent infinite loops
   const [isInitializing, setIsInitializing] = useState(false)
   const [hasInitialized, setHasInitialized] = useState(false)
+
+  // Custom domain detection and branding
+  const [isCustomDomain, setIsCustomDomain] = useState(false)
+  const [agencyBranding, setAgencyBranding] = useState(null)
 
   // Handle OAuth callbacks - redirect to handler if OAuth parameters are present
   // Also handle GHL OAuth success redirect from exchange route
@@ -228,27 +336,27 @@ function Page() {
     // Check if we're in a popup window - check multiple ways
     const isPopup = window.opener !== null && window.opener !== window
     const hasOpener = typeof window.opener !== 'undefined' && window.opener !== null
-    
+
     // Handle GHL OAuth success redirect (after token exchange)
     if (ghlOauthSuccess === 'success') {
       console.log('✅ GHL OAuth successful, triggering calendar refresh')
       console.log('- Is popup:', isPopup)
       console.log('- Has opener:', hasOpener)
       console.log('- window.opener:', window.opener)
-      
+
       // If in popup, send message to parent and close immediately
       if (isPopup || hasOpener) {
         console.log('✅ Detected popup context, sending message to parent and closing')
-        
+
         // Function to close popup and notify parent
         const closePopupAndNotify = () => {
           try {
             // Send message to parent window first
             if (window.opener && !window.opener.closed) {
               window.opener.postMessage(
-                { 
-                  type: 'GHL_OAUTH_SUCCESS', 
-                  locationId: locationId || null 
+                {
+                  type: 'GHL_OAUTH_SUCCESS',
+                  locationId: locationId || null
                 },
                 window.location.origin,
               )
@@ -257,12 +365,12 @@ function Page() {
           } catch (e) {
             console.error('Error sending message to parent:', e)
           }
-          
+
           // Close popup
           try {
             window.close()
             console.log('✅ Popup close attempted')
-            
+
             // If window didn't close (some browsers block it), focus parent as fallback
             setTimeout(() => {
               if (!window.closed && window.opener && !window.opener.closed) {
@@ -286,22 +394,22 @@ function Page() {
             }
           }
         }
-        
+
         // Close immediately (don't wait)
         closePopupAndNotify()
         return
       }
-      
+
       // If not in popup, trigger calendar refresh via event
       const cleanUrl = new URL(window.location.href)
       cleanUrl.searchParams.delete('ghl_oauth')
       cleanUrl.searchParams.delete('locationId')
       window.history.replaceState({}, '', cleanUrl.toString())
 
-      window.dispatchEvent(new CustomEvent('ghl-oauth-success', { 
-        detail: { locationId } 
+      window.dispatchEvent(new CustomEvent('ghl-oauth-success', {
+        detail: { locationId }
       }))
-      
+
       return
     }
 
@@ -321,7 +429,7 @@ function Page() {
             console.error('Error parsing state:', e)
           }
         }
-        
+
         // If custom domain in state, redirect to custom domain exchange route
         if (stateData?.customDomain && stateData?.provider === 'ghl') {
           const isLocalhost = stateData.customDomain.includes('localhost') || stateData.customDomain.includes('127.0.0.1')
@@ -330,12 +438,12 @@ function Page() {
           exchangeUrl.searchParams.set('code', code)
           if (state) exchangeUrl.searchParams.set('state', state)
           if (redirectUri) exchangeUrl.searchParams.set('redirect_uri', redirectUri)
-          
+
           console.log('🔄 Redirecting popup to custom domain exchange:', exchangeUrl.toString())
           window.location.href = exchangeUrl.toString()
           return
         }
-        
+
         // Fallback: redirect to OAuth handler
         const oauthHandlerUrl = new URL('/api/oauth/redirect', window.location.origin)
         if (code) oauthHandlerUrl.searchParams.set('code', code)
@@ -345,11 +453,11 @@ function Page() {
           oauthHandlerUrl.searchParams.set('error_description', params.get('error_description'))
         }
         if (redirectUri) oauthHandlerUrl.searchParams.set('redirect_uri', redirectUri)
-        
+
         window.location.href = oauthHandlerUrl.toString()
         return
       }
-      
+
       // Not in popup - use normal redirect
       const oauthHandlerUrl = new URL('/api/oauth/redirect', window.location.origin)
       if (code) oauthHandlerUrl.searchParams.set('code', code)
@@ -722,7 +830,36 @@ function Page() {
           'Bring your AI agent to your website allowing them to engage with leads and customers',
         )
       } else {
-        setSelectedAgentForWebAgent(agent)
+        // Merge with existing updated agent state if available (to preserve smartlist updates)
+        let agentToUse = agent
+        if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === agent.id) {
+          // We have an updated version of this agent - merge the smartlist fields
+          agentToUse = {
+            ...agent,
+            // Preserve updated smartlist fields from state
+            smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? agent.smartListIdForWeb,
+            smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? agent.smartListEnabledForWeb,
+            smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? agent.smartListIdForWebhook,
+            smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? agent.smartListEnabledForWebhook,
+            smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? agent.smartListIdForEmbed,
+            smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? agent.smartListEnabledForEmbed,
+          }
+          console.log('🔍 WEB-AGENT - Merged with updated agent state:', {
+            original: agent,
+            updated: selectedAgentForWebAgent,
+            merged: agentToUse,
+          })
+        }
+        console.log('🔍 WEB-AGENT - Agent data being passed to modal:', {
+          agent: agentToUse,
+          smartListEnabledForWeb: agentToUse?.smartListEnabledForWeb,
+          smartListIdForWeb: agentToUse?.smartListIdForWeb,
+          smartListEnabledForEmbed: agentToUse?.smartListEnabledForEmbed,
+          smartListIdForEmbed: agentToUse?.smartListIdForEmbed,
+          smartListEnabled: agentToUse?.smartListEnabled, // Legacy field
+          smartListId: agentToUse?.smartListId, // Legacy field
+        })
+        setSelectedAgentForWebAgent(agentToUse)
         setShowWebAgentModal(true)
         setFetureType('webagent')
       }
@@ -748,8 +885,8 @@ function Page() {
     if (selectedAgentForWebAgent) {
       const modelId = encodeURIComponent(
         selectedAgentForWebAgent?.modelIdVapi ||
-          selectedAgentForWebAgent?.agentUuid ||
-          '',
+        selectedAgentForWebAgent?.agentUuid ||
+        '',
       )
       // console.log('selectedAgentForWebAgent', selectedAgentForWebAgent)
       console.log(
@@ -774,24 +911,232 @@ function Page() {
     setShowNewSmartListModal(true)
   }
 
-  const handleSmartListCreated = (smartListData) => {
-    console.log('smartListData', smartListData)
-    let agent = {
-      ...selectedAgentForWebAgent,
-      smartListId: smartListData.id,
+  // Helper function to get agent from mainAgentsList (reads from nested agents array)
+  const getAgentFromMainList = (agentId) => {
+    if (!mainAgentsList || mainAgentsList.length === 0) {
+      return null
     }
-    console.log('agent', agent)
-    setSelectedAgentForWebAgent(agent)
-    console.log(
-      'selectedAgentForWebAgent after updating',
-      selectedAgentForWebAgent,
+    
+    // Convert agentId to number if it's a numeric string for strict comparison
+    const agentIdNum = typeof agentId === 'string' && !isNaN(agentId) ? Number(agentId) : agentId
+    const agentIdStr = String(agentId)
+    
+    for (const mainAgent of mainAgentsList) {
+      if (mainAgent.agents && mainAgent.agents.length > 0) {
+        const foundAgent = mainAgent.agents.find((subAgent) => {
+          // Strict matching: check numeric id first, then UUIDs
+          if (typeof agentIdNum === 'number' && !isNaN(agentIdNum)) {
+            return subAgent.id === agentIdNum
+          }
+          return (
+            (subAgent.modelIdVapi && subAgent.modelIdVapi === agentIdStr) ||
+            (subAgent.agentUuid && subAgent.agentUuid === agentIdStr)
+          )
+        })
+        
+        if (foundAgent) {
+          console.log('🔍 GET-AGENT-FROM-MAIN-LIST - Found agent:', {
+            agentId,
+            agentIdNum,
+            foundAgentId: foundAgent.id,
+            foundAgentName: foundAgent.name,
+            smartListIdForEmbed: foundAgent.smartListIdForEmbed,
+            smartListEnabledForEmbed: foundAgent.smartListEnabledForEmbed,
+          })
+          return foundAgent
+        }
+      }
+    }
+    
+    console.warn('🔍 GET-AGENT-FROM-MAIN-LIST - Agent not found:', {
+      agentId,
+      agentIdNum,
+      mainAgentsListCount: mainAgentsList.length,
+    })
+    return null
+  }
+
+  // Helper function to update agent in mainAgentsList and localStorage
+  const updateAgentInMainList = (agentId, updates) => {
+    // Convert agentId to number if it's a numeric string for strict comparison
+    const agentIdNum = typeof agentId === 'string' && !isNaN(agentId) ? Number(agentId) : agentId
+    const agentIdStr = String(agentId)
+    
+    let foundAgent = null
+    let updatedCount = 0
+    
+    const updatedList = mainAgentsList.map((mainAgent) => {
+      const updatedSubAgents = mainAgent.agents.map((subAgent) => {
+        // Strict matching: check numeric id first, then UUIDs
+        let matches = false
+        
+        // For numeric IDs, do strict numeric comparison
+        if (typeof agentIdNum === 'number' && !isNaN(agentIdNum)) {
+          matches = subAgent.id === agentIdNum
+        }
+        
+        // If not matched by numeric ID, try UUIDs (exact string match)
+        if (!matches) {
+          matches = 
+            (subAgent.modelIdVapi && subAgent.modelIdVapi === agentIdStr) ||
+            (subAgent.agentUuid && subAgent.agentUuid === agentIdStr)
+        }
+
+        if (matches) {
+          foundAgent = subAgent
+          updatedCount++
+          console.log('🔧 AGENT-UPDATE - Found and updating agent:', {
+            agentId,
+            agentIdNum,
+            agentIdStr,
+            foundAgentId: subAgent.id,
+            foundAgentName: subAgent.name,
+            foundModelIdVapi: subAgent.modelIdVapi,
+            updates,
+          })
+          return {
+            ...subAgent,
+            ...updates,
+          }
+        }
+        return subAgent
+      })
+
+      return {
+        ...mainAgent,
+        agents: updatedSubAgents,
+      }
+    })
+
+    if (!foundAgent) {
+      console.error('🔧 AGENT-UPDATE - Agent NOT found in mainAgentsList:', {
+        agentId,
+        agentIdNum,
+        agentIdStr,
+        mainAgentsListCount: mainAgentsList.length,
+        availableAgentIds: mainAgentsList.flatMap(ma => 
+          ma.agents?.map(a => ({ id: a.id, name: a.name, modelIdVapi: a.modelIdVapi })) || []
+        ),
+      })
+      return // Don't update if agent not found
+    }
+
+    if (updatedCount > 1) {
+      console.error('🔧 AGENT-UPDATE - WARNING: Multiple agents matched! This should not happen:', {
+        agentId,
+        updatedCount,
+      })
+      return // Don't update if multiple matches (data corruption risk)
+    }
+
+    // Update state
+    setMainAgentsList(updatedList)
+
+    // Update localStorage
+    localStorage.setItem(
+      PersistanceKeys.LocalStoredAgentsListMain,
+      JSON.stringify(updatedList),
     )
-    showDrawerSelectedAgent.smartListId = smartListData.id
-    console.log(
-      'showDrawerSelectedAgent after updating',
-      showDrawerSelectedAgent,
-    )
-    setFetureType('webagent')
+
+    console.log('🔧 AGENT-UPDATE - Successfully updated agent in main list and localStorage:', {
+      agentId,
+      agentIdNum,
+      foundAgentId: foundAgent.id,
+      foundAgentName: foundAgent.name,
+      updates,
+    })
+  }
+
+  const handleSmartListCreated = async (smartListData) => {
+    console.log('🔧 WEB-AGENT - Smart list created:', smartListData)
+    console.log('🔧 WEB-AGENT - Current fetureType:', fetureType)
+
+    // Note: AddSmartList API already attached the smartlist with correct agentType
+    // So we don't need to call attachSmartList again here
+    // Just update local state for UI consistency
+    const smartListId = smartListData?.id || smartListData?.data?.id || smartListData
+    // Use agentType from the response if available, otherwise fall back to fetureType
+    const agentType = smartListData?.agentType || (fetureType === 'webhook' ? 'webhook' : 'web')
+    console.log('🔧 WEB-AGENT - Determined agentType:', agentType, 'from smartListData:', smartListData)
+    
+    // Explicitly set fetureType based on agentType to ensure AllSetModal shows correct type
+    // This ensures the modal title displays correctly even if fetureType state was not set properly
+    // agentType can be 'webhook' or 'web', and we map 'web' to 'webagent' for fetureType
+    if (agentType === 'webhook') {
+      console.log('🔧 WEB-AGENT - Setting fetureType to webhook')
+      setFetureType('webhook')
+    } else if (agentType === 'web') {
+      console.log('🔧 WEB-AGENT - Setting fetureType to webagent (browser agent)')
+      setFetureType('webagent')
+    } else {
+      // Fallback: preserve existing fetureType if agentType is unexpected
+      console.log('🔧 WEB-AGENT - Unknown agentType, preserving fetureType:', fetureType)
+    }
+
+    // Determine which fields to update based on agentType
+    const updates = {
+      smartListId: smartListId, // Legacy field
+    }
+
+    if (agentType === 'webhook') {
+      updates.smartListIdForWebhook = smartListId
+      updates.smartListEnabledForWebhook = true
+    } else {
+      updates.smartListIdForWeb = smartListId
+      updates.smartListEnabledForWeb = true
+    }
+
+    // Update selectedAgentForWebAgent state
+    const updatedAgent = {
+      ...selectedAgentForWebAgent,
+      ...updates,
+    }
+    setSelectedAgentForWebAgent(updatedAgent)
+
+    // Update agent in mainAgentsList and localStorage
+    // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
+    const agentIdToUpdate = selectedAgentForWebAgent?.id
+    if (agentIdToUpdate && typeof agentIdToUpdate === 'number') {
+      console.log('🔧 WEB-AGENT - Updating agent in main list:', {
+        agentId: agentIdToUpdate,
+        agentName: selectedAgentForWebAgent?.name,
+        agentIdType: typeof agentIdToUpdate,
+        updates,
+        selectedAgentForWebAgent: {
+          id: selectedAgentForWebAgent.id,
+          name: selectedAgentForWebAgent.name,
+          modelIdVapi: selectedAgentForWebAgent.modelIdVapi,
+        },
+      })
+      updateAgentInMainList(agentIdToUpdate, updates)
+    } else {
+      console.error('🔧 WEB-AGENT - Cannot update main list: agentId is missing or invalid', {
+        agentIdToUpdate,
+        agentIdType: typeof agentIdToUpdate,
+        selectedAgentForWebAgent: {
+          id: selectedAgentForWebAgent?.id,
+          idType: typeof selectedAgentForWebAgent?.id,
+          modelIdVapi: selectedAgentForWebAgent?.modelIdVapi,
+          name: selectedAgentForWebAgent?.name,
+        },
+      })
+    }
+
+    // Update showDrawerSelectedAgent if it exists
+    if (showDrawerSelectedAgent) {
+      showDrawerSelectedAgent.smartListId = smartListId
+      if (agentType === 'webhook') {
+        showDrawerSelectedAgent.smartListIdForWebhook = smartListId
+        showDrawerSelectedAgent.smartListEnabledForWebhook = true
+      } else {
+        showDrawerSelectedAgent.smartListIdForWeb = smartListId
+        showDrawerSelectedAgent.smartListEnabledForWeb = true
+      }
+    }
+
+    // Don't overwrite fetureType - preserve the current value (webhook or webagent)
+    // so AllSetModal displays the correct agent type
+    console.log('🔧 WEB-AGENT - Opening AllSetModal with fetureType:', fetureType)
     setShowNewSmartListModal(false)
     setShowAllSetModal(true)
   }
@@ -803,6 +1148,96 @@ function Page() {
 
   // Embed Modal handlers
   const handleEmbedClick = (agent) => {
+    console.log('🔍 EMBED-CLICK - Starting with agent:', {
+      agentId: agent.id,
+      agentName: agent.name,
+      agentSmartListIdForEmbed: agent.smartListIdForEmbed,
+      agentSmartListEnabledForEmbed: agent.smartListEnabledForEmbed,
+    })
+    
+    // CRITICAL: Always read from mainAgentsList (localStorage) as the source of truth
+    // This ensures we get the correct smartlist status from persisted data
+    const agentFromMainList = getAgentFromMainList(agent.id)
+    
+    // Use agent from main list if found (has latest persisted data), otherwise use the passed agent
+    let agentToUse = agentFromMainList || agent
+    
+    // CRITICAL: Only merge selectedAgentForEmbed if it's for the EXACT SAME agent
+    // This prevents cross-contamination between different agents
+    if (selectedAgentForEmbed && selectedAgentForEmbed.id === agent.id && selectedAgentForEmbed.id === agentToUse.id) {
+      // We have an updated version of THIS SPECIFIC agent - merge the smartlist fields
+      // But prioritize agentFromMainList data since it's from localStorage (persisted)
+      agentToUse = {
+        ...agentToUse,
+        // Only override if selectedAgentForEmbed has newer data (non-null/true values)
+        smartListIdForEmbed: selectedAgentForEmbed.smartListIdForEmbed ?? agentToUse.smartListIdForEmbed,
+        smartListEnabledForEmbed: selectedAgentForEmbed.smartListEnabledForEmbed ?? agentToUse.smartListEnabledForEmbed,
+        smartListIdForWeb: selectedAgentForEmbed.smartListIdForWeb ?? agentToUse.smartListIdForWeb,
+        smartListEnabledForWeb: selectedAgentForEmbed.smartListEnabledForWeb ?? agentToUse.smartListEnabledForWeb,
+        smartListIdForWebhook: selectedAgentForEmbed.smartListIdForWebhook ?? agentToUse.smartListIdForWebhook,
+        smartListEnabledForWebhook: selectedAgentForEmbed.smartListEnabledForWebhook ?? agentToUse.smartListEnabledForWebhook,
+      }
+      console.log('🔍 EMBED-CLICK - Merged with selectedAgentForEmbed (same agent):', {
+        original: agent,
+        fromMainList: agentFromMainList,
+        selectedAgentForEmbed: {
+          id: selectedAgentForEmbed.id,
+          name: selectedAgentForEmbed.name,
+          smartListIdForEmbed: selectedAgentForEmbed.smartListIdForEmbed,
+          smartListEnabledForEmbed: selectedAgentForEmbed.smartListEnabledForEmbed,
+        },
+        merged: {
+          id: agentToUse.id,
+          name: agentToUse.name,
+          smartListIdForEmbed: agentToUse.smartListIdForEmbed,
+          smartListEnabledForEmbed: agentToUse.smartListEnabledForEmbed,
+        },
+      })
+    } else {
+      // Clear selectedAgentForEmbed if it's for a different agent to prevent cross-contamination
+      if (selectedAgentForEmbed && selectedAgentForEmbed.id !== agent.id) {
+        console.log('🔍 EMBED-CLICK - Clearing selectedAgentForEmbed (different agent):', {
+          selectedAgentId: selectedAgentForEmbed.id,
+          selectedAgentName: selectedAgentForEmbed.name,
+          currentAgentId: agent.id,
+          currentAgentName: agent.name,
+        })
+        setSelectedAgentForEmbed(null)
+      }
+      
+      if (agentFromMainList) {
+        console.log('🔍 EMBED-CLICK - Using agent from main list (source of truth from localStorage):', {
+          original: agent,
+          fromMainList: {
+            id: agentFromMainList.id,
+            name: agentFromMainList.name,
+            smartListIdForEmbed: agentFromMainList.smartListIdForEmbed,
+            smartListEnabledForEmbed: agentFromMainList.smartListEnabledForEmbed,
+          },
+        })
+      } else {
+        console.log('🔍 EMBED-CLICK - Agent not found in mainAgentsList, using original agent:', {
+          agentId: agent.id,
+          agentName: agent.name,
+          smartListIdForEmbed: agent.smartListIdForEmbed,
+          smartListEnabledForEmbed: agent.smartListEnabledForEmbed,
+        })
+      }
+    }
+    console.log('🔍 EMBED-CLICK - Final agent data to use:', {
+      agentId: agentToUse.id,
+      agentName: agentToUse.name,
+      smartListEnabledForEmbed: agentToUse?.smartListEnabledForEmbed,
+      smartListIdForEmbed: agentToUse?.smartListIdForEmbed,
+      smartListEnabled: agentToUse?.smartListEnabled, // Legacy
+      smartListId: agentToUse?.smartListId, // Legacy
+      hasNewFields: {
+        smartListEnabledForEmbed: agentToUse?.smartListEnabledForEmbed !== undefined,
+        smartListIdForEmbed: agentToUse?.smartListIdForEmbed !== undefined,
+      },
+      source: agentFromMainList ? 'mainAgentsList (localStorage)' : 'original agent prop',
+    })
+
     if (reduxUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
       setShowUpgradeModal(true)
       setTitle('Unlock your Web Agent')
@@ -818,7 +1253,19 @@ function Page() {
           'Bring your AI agent to your website allowing them to engage with leads and customers',
         )
       } else {
-        setSelectedAgentForEmbed(agent)
+        // CRITICAL: Validate that agentToUse has the correct smartlist data
+        // Log a warning if we detect potential cross-contamination
+        if (agentToUse.smartListIdForEmbed && agentToUse.id !== agent.id) {
+          console.error('🔍 EMBED-CLICK - WARNING: Potential data corruption detected!', {
+            agentId: agent.id,
+            agentName: agent.name,
+            agentToUseId: agentToUse.id,
+            agentToUseName: agentToUse.name,
+            smartListIdForEmbed: agentToUse.smartListIdForEmbed,
+          })
+        }
+        
+        setSelectedAgentForEmbed(agentToUse)
         setShowEmbedModal(true)
       }
     }
@@ -829,7 +1276,65 @@ function Page() {
     setShowEmbedSmartListModal(true)
   }
 
-  const handleEmbedSmartListCreated = (smartListData) => {
+  const handleEmbedSmartListCreated = async (smartListData) => {
+    console.log('🔧 EMBED-AGENT - Smart list created:', smartListData)
+
+    // Note: AddSmartList API already attached the smartlist with agentType='embed'
+    // Update local agent state so the modal shows correct state if reopened
+    const smartListId = smartListData?.id || smartListData?.data?.id || smartListData
+    
+    if (selectedAgentForEmbed && smartListId) {
+      // Determine which fields to update for embed agent
+      const updates = {
+        smartListId: smartListId, // Legacy field
+        smartListIdForEmbed: smartListId,
+        smartListEnabledForEmbed: true,
+      }
+
+      // Update selectedAgentForEmbed state
+      const updatedAgent = {
+        ...selectedAgentForEmbed,
+        ...updates,
+      }
+      setSelectedAgentForEmbed(updatedAgent)
+
+      // Update agent in mainAgentsList and localStorage
+      // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
+      const agentIdToUpdate = selectedAgentForEmbed?.id
+      if (agentIdToUpdate && typeof agentIdToUpdate === 'number') {
+        console.log('🔧 EMBED-AGENT - Updating agent in main list:', {
+          agentId: agentIdToUpdate,
+          agentName: selectedAgentForEmbed?.name,
+          agentIdType: typeof agentIdToUpdate,
+          updates,
+          selectedAgentForEmbed: {
+            id: selectedAgentForEmbed.id,
+            name: selectedAgentForEmbed.name,
+            modelIdVapi: selectedAgentForEmbed.modelIdVapi,
+          },
+        })
+        updateAgentInMainList(agentIdToUpdate, updates)
+      } else {
+        console.error('🔧 EMBED-AGENT - Cannot update main list: agentId is missing or invalid', {
+          agentIdToUpdate,
+          agentIdType: typeof agentIdToUpdate,
+          selectedAgentForEmbed: {
+            id: selectedAgentForEmbed?.id,
+            idType: typeof selectedAgentForEmbed?.id,
+            modelIdVapi: selectedAgentForEmbed?.modelIdVapi,
+            name: selectedAgentForEmbed?.name,
+          },
+        })
+      }
+
+      console.log('🔧 EMBED-AGENT - Updated local agent state and main list:', {
+        agentId: agentIdToUpdate,
+        agentName: selectedAgentForEmbed?.name,
+        smartListIdForEmbed: updatedAgent.smartListIdForEmbed,
+        smartListEnabledForEmbed: updatedAgent.smartListEnabledForEmbed,
+      })
+    }
+
     setShowEmbedSmartListModal(false)
     setShowEmbedAllSetModal(true)
     // Generate embed code here
@@ -842,7 +1347,8 @@ function Page() {
 
   const handleCloseEmbedAllSetModal = () => {
     setShowEmbedAllSetModal(false)
-    setSelectedAgentForEmbed(null)
+    // Don't clear selectedAgentForEmbed - keep it so the state persists when modal is reopened
+    // setSelectedAgentForEmbed(null)
     setEmbedCode('')
   }
 
@@ -1154,6 +1660,120 @@ function Page() {
 
   ////// //console.log;
 
+  // Function to render icon with branding using mask-image (same logic as NotificationsDrawer.js)
+  const renderBrandedIcon = (iconPath, width, height) => {
+    if (typeof window === 'undefined') {
+      return <Image src={iconPath} width={width} height={height} alt="*" />
+    }
+
+    // Get brand color from CSS variable
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')?.trim()
+
+    // Only apply branding if brand color is set and valid (indicates custom domain with branding)
+    // Check for empty string, null, undefined, or if it doesn't contain valid color values
+    if (!brandColor || brandColor === '' || brandColor.length < 3) {
+      return <Image src={iconPath} width={width} height={height} alt="*" />
+    }
+
+    // Use mask-image approach: background color with icon as mask
+    // This works for both SVG and PNG icons
+    return (
+      <div
+        style={{
+          width: width,
+          height: height,
+          minWidth: width,
+          minHeight: height,
+          backgroundColor: `hsl(${brandColor})`,
+          WebkitMaskImage: `url(${iconPath})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(${iconPath})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          transition: 'background-color 0.2s ease-in-out',
+          flexShrink: 0,
+        }}
+      />
+    )
+  }
+
+  // Custom domain detection and branding application
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    // Check if current domain is a custom domain (not dev.assignx.ai or app.assignx.ai)
+    const hostname = window.location.hostname
+    const isCustom = hostname !== 'dev.assignx.ai' && hostname !== 'app.assignx.ai'
+    setIsCustomDomain(isCustom)
+
+    // Get agency branding from localStorage
+    const storedBranding = localStorage.getItem('agencyBranding')
+    if (storedBranding) {
+      try {
+        const brandingData = JSON.parse(storedBranding)
+        setAgencyBranding(brandingData)
+
+        // Apply branding CSS variables if it's a custom domain
+        if (isCustom && brandingData) {
+          try {
+            const primaryColor = brandingData.primaryColor || '#7902DF'
+            const secondaryColor = brandingData.secondaryColor || '#8B5CF6'
+            const primaryHsl = hexToHsl(primaryColor)
+            const secondaryHsl = hexToHsl(secondaryColor)
+
+            document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+            document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
+            document.documentElement.style.setProperty('--primary', primaryHsl)
+            document.documentElement.style.setProperty('--secondary', secondaryHsl)
+
+            const iconFilter = calculateIconFilter(primaryColor)
+            document.documentElement.style.setProperty('--icon-filter', iconFilter)
+
+            console.log('✅ [Agents Page] Applied branding CSS variables:', {
+              primaryColor,
+              hostname
+            })
+          } catch (error) {
+            console.log('Error applying branding styles:', error)
+          }
+        }
+      } catch (error) {
+        console.log('Error parsing agencyBranding from localStorage:', error)
+      }
+    }
+
+    // Listen for branding updates
+    const handleBrandingUpdate = (event) => {
+      const updatedBranding = event.detail
+      if (updatedBranding) {
+        setAgencyBranding(updatedBranding)
+        if (isCustom) {
+          try {
+            const primaryColor = updatedBranding.primaryColor || '#7902DF'
+            const primaryHsl = hexToHsl(primaryColor)
+            document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+            const iconFilter = calculateIconFilter(primaryColor)
+            document.documentElement.style.setProperty('--icon-filter', iconFilter)
+          } catch (error) {
+            console.log('Error applying branding styles:', error)
+          }
+        }
+      }
+    }
+
+    window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    }
+  }, [])
+
   //code for scroll ofset
   useEffect(() => {
     getUniquesColumn()
@@ -1261,6 +1881,82 @@ function Page() {
 
   //   return model;
   // }
+
+
+  /**
+   * Renders the live call transfer number section with appropriate upgrade/request feature modals
+   * @param {Object} params - Function parameters
+   * @param {Object} params.reduxUser - The current user from Redux store
+   * @param {Function} params.setReduxUser - Function to update Redux user state
+   * @param {Object} params.showDrawerSelectedAgent - The selected agent object
+   * @param {Function} params.setShowEditNumberPopup - Function to show edit number popup
+   * @param {Function} params.setSelectedNumber - Function to set selected number type
+   * @returns {JSX.Element} The rendered component
+   */
+  function renderLiveCallTransferSection({
+    reduxUser,
+    setReduxUser,
+    showDrawerSelectedAgent,
+    setShowEditNumberPopup,
+    setSelectedNumber,
+  }) {
+    const isSubaccount = reduxUser?.userRole === 'AgencySubAccount'
+
+    // For subaccount: check agency capabilities first
+    if (isSubaccount) {
+      // If agency has disabled the feature, show request feature button
+      if (reduxUser?.agencyCapabilities?.allowLiveCallTransfer === false) {
+        return (
+          <UpgradeTagWithModal
+            reduxUser={reduxUser}
+            setReduxUser={setReduxUser}
+            requestFeature={true}
+          />
+        )
+      }
+      // If agency allows it, check plan capabilities
+      if (!reduxUser?.planCapabilities?.allowLiveCallTransfer) {
+        return (
+          <UpgradeTagWithModal
+            reduxUser={reduxUser}
+            setReduxUser={setReduxUser}
+          />
+        )
+      }
+    } else {
+      // For normal user: check plan capabilities directly
+      if (!reduxUser?.planCapabilities?.allowLiveCallTransfer) {
+        return (
+          <UpgradeTagWithModal
+            reduxUser={reduxUser}
+            setReduxUser={setReduxUser}
+          />
+        )
+      }
+    }
+
+    // Show live transfer number and edit button if feature is enabled
+    // Note: This function has access to isCustomDomain and agencyBranding from parent scope
+    return (
+      <div className="flex flex-row items-center justify-between gap-2">
+        <div>
+          {showDrawerSelectedAgent?.liveTransferNumber ? (
+            <div>{showDrawerSelectedAgent?.liveTransferNumber}</div>
+          ) : (
+            '-'
+          )}
+        </div>
+        <button
+          onClick={() => {
+            setShowEditNumberPopup(showDrawerSelectedAgent?.liveTransferNumber)
+            setSelectedNumber('Calltransfer')
+          }}
+        >
+          {renderBrandedIcon('/svgIcons/editIcon2.svg', 24, 24)}
+        </button>
+      </div>
+    )
+  }
 
   //function for image selection on dashboard
   const handleImageChange = async (event) => {
@@ -1526,7 +2222,13 @@ function Page() {
       // }
     } else if (item.agentType === 'outbound') {
       setShowReassignBtn(false)
-      setShowGlobalBtn(true)
+      // For subaccounts, only show global button if agency global number exists
+      if (reduxUser?.userRole === 'AgencySubAccount') {
+        const globalNumber = getGlobalPhoneNumber(reduxUser)
+        setShowGlobalBtn(globalNumber !== null)
+      } else {
+        setShowGlobalBtn(true)
+      }
     }
   }
 
@@ -2929,10 +3631,11 @@ function Page() {
 
       console.log('routing to createagent from add new agent function')
 
-      // Use setTimeout to ensure state updates complete before navigation
+      // Use window.location.href for hard redirect to ensure page loads properly
+      // This prevents navigation issues where URL changes but page doesn't render
       setTimeout(() => {
-        router.push('/createagent')
-      }, 0)
+        window.location.href = '/createagent'
+      }, 100)
     } catch (error) {
       console.error('Error in handleAddAgentByMoreAgentsPopup:', error)
     }
@@ -3419,8 +4122,9 @@ function Page() {
       navigator.clipboard
         .writeText(url)
         .then(() => {
-          // alert("Embed code copied to clipboard!");
-          setShowSuccessSnack('Webhook URL Copied')
+          // Only show "Webhook URL Copied" for webhook agents, not for embed agents
+          const message = fetureType === 'webhook' ? 'Webhook URL Copied' : 'Embed code copied'
+          setShowSuccessSnack(message)
           setIsVisibleSnack(true)
           setShowWebAgentModal(false)
           setShowAllSetModal(false)
@@ -3448,7 +4152,7 @@ function Page() {
         .writeText(iframeCode)
         .then(() => {
           // alert("Embed code copied to clipboard!");
-          setShowSuccessSnack('Embed widget copied')
+          setShowSuccessSnack('Embed code copied')
           setIsVisibleSnack(true)
         })
         .catch((err) => {
@@ -3466,7 +4170,7 @@ function Page() {
   }
 
   return (
-    <div className="w-full flex flex-col items-center">
+    <div className="w-full flex flex-col items-center bg-white" style={{ backgroundColor: '#ffffff', minHeight: '100vh', width: '100%' }}>
       {/* Success snack bar */}
       <div>
         <AgentSelectSnackMessage
@@ -3556,7 +4260,7 @@ function Page() {
                     width={16}
                     height={16}
                     className="cursor-pointer rounded-full"
-                    // onClick={() => setIntroVideoModal2(true)}
+                  // onClick={() => setIntroVideoModal2(true)}
                   />
                 </div>
               </Tooltip>
@@ -3587,34 +4291,34 @@ function Page() {
                   getAgents(false, e.target.value, searchLoader)
                 }, 500)
               }}
-              //test code 2 failed
-              // onChange={(e) => {
-              //   const a = e.target.value;
-              //   setSearch(a);
+            //test code 2 failed
+            // onChange={(e) => {
+            //   const a = e.target.value;
+            //   setSearch(a);
 
-              //   if (a) {
-              //     console.log("There was some value");
+            //   if (a) {
+            //     console.log("There was some value");
 
-              //     // ✅ Only save original list once
-              //     if (agentsBeforeSearch.length === 0) {
-              //       setAgentsBeforeSearch(agentsListSeparated);
-              //     }
+            //     // ✅ Only save original list once
+            //     if (agentsBeforeSearch.length === 0) {
+            //       setAgentsBeforeSearch(agentsListSeparated);
+            //     }
 
-              //     clearTimeout(searchTimeoutRef.current);
-              //     searchTimeoutRef.current = setTimeout(() => {
-              //       const searchLoader = true;
-              //       getAgents(false, a, searchLoader);
-              //     }, 500);
-              //   } else {
-              //     console.log("There was no value");
+            //     clearTimeout(searchTimeoutRef.current);
+            //     searchTimeoutRef.current = setTimeout(() => {
+            //       const searchLoader = true;
+            //       getAgents(false, a, searchLoader);
+            //     }, 500);
+            //   } else {
+            //     console.log("There was no value");
 
-              //     // ✅ Restore the original list when search is cleared
-              //     setAgentsListSeparated(agentsBeforeSearch);
-              //   }
+            //     // ✅ Restore the original list when search is cleared
+            //     setAgentsListSeparated(agentsBeforeSearch);
+            //   }
 
-              //   // ✅ Optional: toggle loading based on canGetMore
-              //   setCanKeepLoading(canGetMore === true);
-              // }}
+            //   // ✅ Optional: toggle loading based on canGetMore
+            //   setCanKeepLoading(canGetMore === true);
+            // }}
             />
             <button className="outline-none border-none">
               <Image
@@ -3689,8 +4393,8 @@ function Page() {
 
         {/* code to add new agent */}
         {agentsListSeparated.length > 0 && (
-          <Link
-            className="w-full py-6 flex justify-center items-center"
+          <div
+            className="w-full py-6 flex justify-center items-center h-[70px] cursor-pointer"
             href=""
             prefetch={true}
             style={{
@@ -3707,13 +4411,13 @@ function Page() {
               className="flex flex-row items-center gap-1"
               style={{
                 fontSize: 20,
-                fontWeight: '600',
+                fontWeight: '500',
                 color: '#000',
               }}
             >
               <Plus weight="bold" size={22} /> Add New Agent
             </div>
-          </Link>
+          </div>
         )}
       </div>
 
@@ -3976,7 +4680,7 @@ function Page() {
                       maxHeight: '150px',
                       overflowY: 'auto',
                     }}
-                    // defaultMask={loading ? 'Loading...' : undefined}
+                  // defaultMask={loading ? 'Loading...' : undefined}
                   />
                 </div>
 
@@ -4007,9 +4711,8 @@ function Page() {
                       <input
                         placeholder="Type here"
                         // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${
-                          index === scriptKeys?.length - 1 ? 'mb-16' : ''
-                        }`}
+                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? 'mb-16' : ''
+                          }`}
                         style={{
                           ...styles.inputStyle,
                           border: '1px solid #00000010',
@@ -4083,7 +4786,7 @@ function Page() {
 
       <UpgradePlan
         selectedPlan={null}
-        setSelectedPlan={() => {}}
+        setSelectedPlan={() => { }}
         open={showUpgradePlanModal}
         handleClose={async (upgradeResult) => {
           setShowUpgradePlanModal(false)
@@ -4102,31 +4805,35 @@ function Page() {
 
       <MoreAgentsPopup
         open={showMoreAgentsPopup}
-        onClose={() => setShowMoreAgentsPopup(false)}
-        onUpgrade={() => {
+        onClose={() => {
           setShowMoreAgentsPopup(false)
-          setShowUpgradePlanModal(true)
+        }}
+        onUpgrade={() => {
+          // Close current modal first, then open upgrade modal after delay to prevent React DOM errors
+          setShowMoreAgentsPopup(false)
+          setTimeout(() => {
+            setShowUpgradePlanModal(true)
+          }, 150)
         }}
         onAddAgent={() => {
           console.log('moreAgentsPopupType', moreAgentsPopupType)
-          if (moreAgentsPopupType === 'duplicate') {
-            setShowMoreAgentsPopup(false)
-            handleDuplicate()
-          } else if (moreAgentsPopupType === 'newagent') {
-            handleAddAgentByMoreAgentsPopup()
-
-            // router.push('/createagent')
-            // setShowMoreAgentsPopup(false);
-          } else {
-            //  router.push('/createagent')
-            //  setShowMoreAgentsPopup(false);
-            handleAddAgentByMoreAgentsPopup()
-          }
+          // Close modal first to prevent React DOM errors
+          setShowMoreAgentsPopup(false)
+          // Execute action after a small delay
+          setTimeout(() => {
+            if (moreAgentsPopupType === 'duplicate') {
+              handleDuplicate()
+            } else if (moreAgentsPopupType === 'newagent') {
+              handleAddAgentByMoreAgentsPopup()
+            } else {
+              handleAddAgentByMoreAgentsPopup()
+            }
+          }, 150)
         }}
         costPerAdditionalAgent={
           reduxUser?.planCapabilities?.costPerAdditionalAgent || 10
         }
-        from={'myAgentX'}
+        from={'agents'}
       />
 
       <AskToUpgrade
@@ -4147,16 +4854,25 @@ function Page() {
           handleDrawerClose()
         }}
         PaperProps={{
+          className: 'responsive-drawer-paper',
           sx: {
-            width: '45%', // Adjust width as needed
-            borderRadius: '20px', // Rounded corners
             padding: '0px', // Internal padding
             boxShadow: 3, // Light shadow
-            margin: '1%', // Small margin for better appearance
             backgroundColor: 'white', // Ensure it's visible
-            height: '96.5vh',
             overflow: 'hidden',
             scrollbarWidth: 'none',
+            // Keep sx props as fallback, but CSS class will override
+            width: {
+              xs: '100%',
+              sm: '85%',
+              md: '70%',
+              lg: '50%',
+              xl: '40%'
+            },
+            maxWidth: { xs: '100vw', sm: '500px', md: '600px', lg: '700px', xl: '800px' },
+            borderRadius: { xs: '0px', sm: '20px' },
+            margin: { xs: '0%', sm: '1%' },
+            height: { xs: '100vh', sm: '96.5vh' },
           },
         }}
         BackdropProps={{
@@ -4168,8 +4884,8 @@ function Page() {
         }}
       >
         <div
-          className="flex flex-col w-full h-full  py-2 px-5 rounded-xl"
-          // style={{  }}
+          className="flex flex-col w-full h-full py-2 px-3 sm:px-5 rounded-xl"
+        // style={{  }}
         >
           <div
             className="w-full flex flex-col h-[95%]"
@@ -4261,12 +4977,7 @@ function Page() {
                       }}
                     >
                       <div className="flex flex-row items-center gap-2">
-                        <Image
-                          src={'/svgIcons/editIcon2.svg'}
-                          height={24}
-                          width={24}
-                          alt="*"
-                        />
+                        {renderBrandedIcon('/svgIcons/editIcon2.svg', 24, 24)}
                         <div className="relative group max-w-[150px]">
                           <div className="truncate font-semibold text-[22px]">
                             {showDrawerSelectedAgent?.name
@@ -4513,12 +5224,7 @@ function Page() {
                         handleWebAgentClick(showDrawerSelectedAgent)
                       }}
                     >
-                      <Image
-                        src={'/assets/openVoice.png'}
-                        alt="*"
-                        height={18}
-                        width={18}
-                      />
+                      {renderBrandedIcon('/assets/openVoice.png', 18, 18)}
                     </button>
                   </Tooltip>
                   <Tooltip
@@ -4548,12 +5254,7 @@ function Page() {
                         handleEmbedClick(showDrawerSelectedAgent)
                       }}
                     >
-                      <Image
-                        src={'/svgIcons/embedIcon.svg'}
-                        height={22}
-                        width={22}
-                        alt="*"
-                      />
+                      {renderBrandedIcon('/svgIcons/embedIcon.svg', 22, 22)}
                     </button>
                   </Tooltip>
 
@@ -4603,19 +5304,34 @@ function Page() {
                               'Bring your AI agent to your website allowing them to engage with leads and customers',
                             )
                           } else {
+                            // Merge with existing updated agent state if available
+                            let agentToUse = showDrawerSelectedAgent
+                            if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
+                              // We have an updated version of this agent - merge the smartlist fields
+                              agentToUse = {
+                                ...showDrawerSelectedAgent,
+                                // Preserve updated smartlist fields from state
+                                smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? showDrawerSelectedAgent.smartListIdForWeb,
+                                smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? showDrawerSelectedAgent.smartListEnabledForWeb,
+                                smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? showDrawerSelectedAgent.smartListIdForWebhook,
+                                smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? showDrawerSelectedAgent.smartListEnabledForWebhook,
+                                smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? showDrawerSelectedAgent.smartListIdForEmbed,
+                                smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? showDrawerSelectedAgent.smartListEnabledForEmbed,
+                              }
+                              console.log('🔍 WEBHOOK - Merged with updated agent state:', {
+                                original: showDrawerSelectedAgent,
+                                updated: selectedAgentForWebAgent,
+                                merged: agentToUse,
+                              })
+                            }
                             setFetureType('webhook')
-                            setSelectedAgentForWebAgent(showDrawerSelectedAgent)
+                            setSelectedAgentForWebAgent(agentToUse)
                             setShowWebAgentModal(true)
                           }
                         }
                       }}
                     >
-                      <Image
-                        src={'/svgIcons/webhook.svg'}
-                        height={22}
-                        width={22}
-                        alt="*"
-                      />
+                      {renderBrandedIcon('/svgIcons/webhook.svg', 22, 22)}
                     </button>
                   </Tooltip>
                 </div>
@@ -4628,7 +5344,7 @@ function Page() {
                 name="Calls"
                 value={
                   showDrawerSelectedAgent?.calls &&
-                  showDrawerSelectedAgent?.calls > 0 ? (
+                    showDrawerSelectedAgent?.calls > 0 ? (
                     <div>{showDrawerSelectedAgent?.calls}</div>
                   ) : (
                     '-'
@@ -4637,12 +5353,14 @@ function Page() {
                 icon="/svgIcons/selectedCallIcon.svg"
                 bgColor="bg-blue-100"
                 iconColor="text-blue-500"
+                isCustomDomain={isCustomDomain}
+                agencyBranding={agencyBranding}
               />
               <Card
                 name="Convos"
                 value={
                   showDrawerSelectedAgent?.callsGt10 &&
-                  showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                    showDrawerSelectedAgent?.callsGt10 > 0 ? (
                     <div>{showDrawerSelectedAgent?.callsGt10}</div>
                   ) : (
                     '-'
@@ -4651,6 +5369,8 @@ function Page() {
                 icon="/svgIcons/convosIcon2.svg"
                 bgColor="bg-brand-primary/10"
                 iconColor="text-brand-primary"
+                isCustomDomain={isCustomDomain}
+                agencyBranding={agencyBranding}
               />
               <Card
                 name="Hot Leads"
@@ -4664,6 +5384,8 @@ function Page() {
                 icon="/otherAssets/hotLeadsIcon2.png"
                 bgColor="bg-orange-100"
                 iconColor="text-orange-500"
+                isCustomDomain={isCustomDomain}
+                agencyBranding={agencyBranding}
               />
               <Card
                 name="Booked"
@@ -4677,21 +5399,23 @@ function Page() {
                 icon="/otherAssets/greenCalenderIcon.png"
                 bgColor="bg-green-100"
                 iconColor="text-green-500"
+                isCustomDomain={isCustomDomain}
+                agencyBranding={agencyBranding}
               />
               <Card
                 name="Mins Talked"
                 value={
                   showDrawerSelectedAgent?.totalDuration &&
-                  showDrawerSelectedAgent?.totalDuration > 0 ? (
+                    showDrawerSelectedAgent?.totalDuration > 0 ? (
                     // <div>{showDrawer?.totalDuration}</div>
                     <div>
                       {showDrawerSelectedAgent?.totalDuration
                         ? moment
-                            .utc(
-                              (showDrawerSelectedAgent?.totalDuration || 0) *
-                                1000,
-                            )
-                            .format('HH:mm:ss')
+                          .utc(
+                            (showDrawerSelectedAgent?.totalDuration || 0) *
+                            1000,
+                          )
+                          .format('HH:mm:ss')
                         : '-'}
                     </div>
                   ) : (
@@ -4701,6 +5425,8 @@ function Page() {
                 icon="/otherAssets/minsCounter.png"
                 bgColor="bg-green-100"
                 iconColor="text-green-500"
+                isCustomDomain={isCustomDomain}
+                agencyBranding={agencyBranding}
               />
             </div>
             {/* Bottom Agent Info */}
@@ -4709,11 +5435,10 @@ function Page() {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`${
-                    activeTab === tab
+                  className={`${activeTab === tab
                       ? 'text-brand-primary border-b-2 border-brand-primary'
                       : 'text-black-500'
-                  }`}
+                    }`}
                   style={{
                     fontSize: 15,
                     fontWeight: '500',
@@ -4813,9 +5538,9 @@ function Page() {
                                 border: 'none', // Remove the default outline
                               },
                               '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                {
-                                  border: 'none', // Remove outline on focus
-                                },
+                              {
+                                border: 'none', // Remove outline on focus
+                              },
                               '&.MuiSelect-select': {
                                 py: 0, // Optional padding adjustments
                               },
@@ -4840,8 +5565,8 @@ function Page() {
                                   // disabled={item.value === "multi" && (reduxUser?.planCapabilities?.allowLanguageSelection === false)}
                                   style={
                                     item.value === 'multi' &&
-                                    reduxUser?.planCapabilities
-                                      ?.allowLanguageSelection === false
+                                      reduxUser?.planCapabilities
+                                        ?.allowLanguageSelection === false
                                       ? { pointerEvents: 'auto' }
                                       : {}
                                   }
@@ -5006,32 +5731,31 @@ function Page() {
                                     flexDirection: 'row',
                                     alignItems: 'center',
                                     justifyContent: 'space-between',
-                                    marginLeft:
-                                      item.name === 'Max' ||
-                                      item.name === 'Axel'
-                                        ? 5
-                                        : 0,
+                                    
                                   }}
                                   value={item.name}
                                   key={index}
                                   disabled={SelectedVoice === item.name}
                                 >
-                                  <Image
-                                    src={item.img}
-                                    height={
-                                      item.name === 'Axel' ||
-                                      item.name === 'Max'
-                                        ? 40
-                                        : 35
-                                    }
-                                    width={
-                                      item.name === 'Axel' ||
-                                      item.name === 'Max'
-                                        ? 22
-                                        : 35
-                                    }
-                                    alt="*"
-                                  />
+                                  <div className="flex flex-row items-center justify-center">
+                                    <Image
+                                      src={item.img}
+                                      height={
+                                        // item.name === 'Axel' ||
+                                        // item.name === 'Max'
+                                        //   ? 40
+                                        // :
+                                        35
+                                      }
+                                      width={
+                                        // item.name === 'Axel' ||
+                                        // item.name === 'Max'
+                                        //   ? 22: 
+                                        35
+                                      }
+                                      alt="*"
+                                    />
+                                  </div>
                                   <div>{item.name}</div>
 
                                   {/* Play/Pause Button (Prevents dropdown close) */}
@@ -5050,7 +5774,7 @@ function Page() {
                                             audio.pause()
                                             audio.removeEventListener(
                                               'ended',
-                                              () => {},
+                                              () => { },
                                             )
                                           }
                                           setPreview(null)
@@ -5162,9 +5886,9 @@ function Page() {
                                 border: 'none', // Remove the default outline
                               },
                               '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                {
-                                  border: 'none', // Remove outline on focus
-                                },
+                              {
+                                border: 'none', // Remove outline on focus
+                              },
                               '&.MuiSelect-select': {
                                 py: 0, // Optional padding adjustments
                               },
@@ -5261,9 +5985,9 @@ function Page() {
                                 border: 'none', // Remove the default outline
                               },
                               '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                {
-                                  border: 'none', // Remove outline on focus
-                                },
+                              {
+                                border: 'none', // Remove outline on focus
+                              },
                               '&.MuiSelect-select': {
                                 py: 0, // Optional padding adjustments
                               },
@@ -5365,9 +6089,9 @@ function Page() {
                                 border: 'none', // Remove the default outline
                               },
                               '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                {
-                                  border: 'none', // Remove outline on focus
-                                },
+                              {
+                                border: 'none', // Remove outline on focus
+                              },
                               '&.MuiSelect-select': {
                                 py: 0, // Optional padding adjustments
                               },
@@ -5529,37 +6253,37 @@ function Page() {
                                     {showReassignBtn && (
                                       <div
                                         className="w-full"
-                                        // onClick={(e) => {
-                                        //   console.log(
-                                        //     "Should open confirmation modal"
-                                        //   );
-                                        //   e.stopPropagation();
-                                        //   setShowConfirmationModal(item);
-                                        // }}
+                                      // onClick={(e) => {
+                                      //   console.log(
+                                      //     "Should open confirmation modal"
+                                      //   );
+                                      //   e.stopPropagation();
+                                      //   setShowConfirmationModal(item);
+                                      // }}
                                       >
                                         {item.claimedBy && (
                                           <div className="flex flex-row items-center gap-2">
                                             {showDrawerSelectedAgent?.name !==
                                               item.claimedBy.name && (
-                                              <div>
-                                                <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                {reassignLoader === item ? (
-                                                  <CircularProgress size={15} />
-                                                ) : (
-                                                  <button
-                                                    className="text-brand-primary underline"
-                                                    onClick={(e) => {
-                                                      e.stopPropagation()
-                                                      setShowConfirmationModal(
-                                                        item,
-                                                      )
-                                                    }}
-                                                  >
-                                                    Reassign
-                                                  </button>
-                                                )}
-                                              </div>
-                                            )}
+                                                <div>
+                                                  <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                                  {reassignLoader === item ? (
+                                                    <CircularProgress size={15} />
+                                                  ) : (
+                                                    <button
+                                                      className="text-brand-primary underline"
+                                                      onClick={(e) => {
+                                                        e.stopPropagation()
+                                                        setShowConfirmationModal(
+                                                          item,
+                                                        )
+                                                      }}
+                                                    >
+                                                      Reassign
+                                                    </button>
+                                                  )}
+                                                </div>
+                                              )}
                                           </div>
                                         )}
                                       </div>
@@ -5567,44 +6291,43 @@ function Page() {
                                   </MenuItem>
                                 )
                               })}
-                              <MenuItem
-                                style={styles.dropdownMenu}
-                                value={
-                                  showGlobalBtn
-                                    ? getGlobalPhoneNumber(reduxUser).replace(
-                                        '+',
-                                        '',
-                                      )
-                                    : ''
-                                }
-                                // disabled={!showGlobalBtn}
-                                disabled={
-                                  (assignNumber &&
-                                    assignNumber.replace('+', '') ===
-                                      getGlobalPhoneNumber(reduxUser).replace(
+                              {showGlobalBtn && getGlobalPhoneNumber(reduxUser) && (
+                                <MenuItem
+                                  style={styles.dropdownMenu}
+                                  value={
+                                    getGlobalPhoneNumber(reduxUser)?.replace(
+                                      '+',
+                                      '',
+                                    ) || ''
+                                  }
+                                  disabled={
+                                    (assignNumber &&
+                                      assignNumber.replace('+', '') ===
+                                      getGlobalPhoneNumber(reduxUser)?.replace(
                                         '+',
                                         '',
                                       )) ||
-                                  (showDrawerSelectedAgent &&
-                                    showDrawerSelectedAgent.agentType ===
+                                    (showDrawerSelectedAgent &&
+                                      showDrawerSelectedAgent.agentType ===
                                       'inbound')
-                                }
-                                onClick={() => {
-                                  // console.log(
-                                  //   "This triggers when user clicks on assigning global number",
-                                  //   assignNumber
-                                  // );
-                                  // return;
-                                  AssignNumber(getGlobalPhoneNumber(reduxUser))
-                                  // handleReassignNumber(showConfirmationModal);
-                                }}
-                              >
-                                {getGlobalPhoneNumber(reduxUser)}
-                                {showGlobalBtn &&
-                                  ' (available for testing calls only)'}
-                                {showGlobalBtn == false &&
-                                  ' (Only for outbound agents. You must buy a number)'}
-                              </MenuItem>
+                                  }
+                                  onClick={() => {
+                                    // console.log(
+                                    //   "This triggers when user clicks on assigning global number",
+                                    //   assignNumber
+                                    // );
+                                    // return;
+                                    const globalNumber = getGlobalPhoneNumber(reduxUser)
+                                    if (globalNumber) {
+                                      AssignNumber(globalNumber)
+                                    }
+                                    // handleReassignNumber(showConfirmationModal);
+                                  }}
+                                >
+                                  {getGlobalPhoneNumber(reduxUser)}
+                                  {' (available for testing calls only)'}
+                                </MenuItem>
+                              )}
                               <div
                                 className="ms-4 pe-4"
                                 style={{
@@ -5671,12 +6394,7 @@ function Page() {
                           setSelectedNumber('Callback')
                         }}
                       >
-                        <Image
-                          src={'/svgIcons/editIcon2.svg'}
-                          height={24}
-                          width={24}
-                          alt="*"
-                        />
+                        {renderBrandedIcon('/svgIcons/editIcon2.svg', 24, 24)}
                       </button>
                     </div>
                   </div>
@@ -5692,47 +6410,13 @@ function Page() {
                         Call transfer number
                       </div>
                     </div>
-                    {reduxUser?.agencyCapabilities?.allowLiveCallTransfer ===
-                    false ? (
-                      <UpgradeTagWithModal
-                        reduxUser={reduxUser}
-                        setReduxUser={setReduxUser}
-                        requestFeature={true}
-                      />
-                    ) : !reduxUser?.agencyCapabilities
-                        ?.allowLiveCallTransfer ? (
-                      <UpgradeTagWithModal
-                        reduxUser={reduxUser}
-                        setReduxUser={setReduxUser}
-                      />
-                    ) : (
-                      <div className="flex flex-row items-center justify-between gap-2">
-                        <div>
-                          {showDrawerSelectedAgent?.liveTransferNumber ? (
-                            <div>
-                              {showDrawerSelectedAgent?.liveTransferNumber}
-                            </div>
-                          ) : (
-                            '-'
-                          )}
-                        </div>
-                        <button
-                          onClick={() => {
-                            setShowEditNumberPopup(
-                              showDrawerSelectedAgent?.liveTransferNumber,
-                            )
-                            setSelectedNumber('Calltransfer')
-                          }}
-                        >
-                          <Image
-                            src={'/svgIcons/editIcon2.svg'}
-                            height={24}
-                            width={24}
-                            alt="*"
-                          />
-                        </button>
-                      </div>
-                    )}
+                    {renderLiveCallTransferSection({
+                      reduxUser,
+                      setReduxUser,
+                      showDrawerSelectedAgent,
+                      setShowEditNumberPopup,
+                      setSelectedNumber,
+                    })}
                   </div>
                 </div>
 
@@ -5769,7 +6453,7 @@ function Page() {
               </div>
             ) : activeTab === 'Actions' ? (
               !allowToolsAndActions &&
-              reduxUser?.userRole !== 'AgencySubAccount' ? (
+                reduxUser?.userRole !== 'AgencySubAccount' ? (
                 <UpgardView
                   setShowSnackMsg={setShowSnackMsg}
                   title={'Unlock Actions'}
@@ -6330,7 +7014,7 @@ function Page() {
                     </div>
 
                     <div className="w-full">
-                      <div className="w-5/12">
+                      <div className="flex">
                         <VideoCard
                           duration={getTutorialByType(HowToVideoTypes.Script)?.description || '13:56'}
                           width="60"
@@ -6665,6 +7349,34 @@ function Page() {
         onCopyUrl={handleWebhookClick}
         selectedSmartList={selectedSmartList}
         setSelectedSmartList={setSelectedSmartList}
+        agent={selectedAgentForWebAgent} // Pass full agent object
+        onAgentUpdate={(updatedAgent) => {
+          // Update the agent state when smartlist is attached/detached
+          setSelectedAgentForWebAgent(updatedAgent)
+          
+          // Also update in mainAgentsList and localStorage
+          // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
+          const agentIdToUpdate = updatedAgent?.id
+          if (agentIdToUpdate && typeof agentIdToUpdate === 'number') {
+            // Determine which fields were updated
+            const updates = {}
+            if (updatedAgent.smartListIdForWeb !== undefined) {
+              updates.smartListIdForWeb = updatedAgent.smartListIdForWeb
+            }
+            if (updatedAgent.smartListEnabledForWeb !== undefined) {
+              updates.smartListEnabledForWeb = updatedAgent.smartListEnabledForWeb
+            }
+            if (updatedAgent.smartListIdForWebhook !== undefined) {
+              updates.smartListIdForWebhook = updatedAgent.smartListIdForWebhook
+            }
+            if (updatedAgent.smartListEnabledForWebhook !== undefined) {
+              updates.smartListEnabledForWebhook = updatedAgent.smartListEnabledForWebhook
+            }
+            if (Object.keys(updates).length > 0) {
+              updateAgentInMainList(agentIdToUpdate, updates)
+            }
+          }
+        }}
       />
 
       <NewSmartListModal
@@ -6674,6 +7386,7 @@ function Page() {
           selectedAgentForWebAgent?.id || selectedAgentForWebAgent?.modelIdVapi
         }
         onSuccess={handleSmartListCreated}
+        agentType={fetureType === 'webhook' ? 'webhook' : 'web'} // Pass agentType
       />
 
       <AllSetModal
@@ -6693,9 +7406,30 @@ function Page() {
         agentId={
           selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi
         }
-        agentSmartRefill={selectedAgentForEmbed?.smartListId}
+        agentSmartRefill={selectedAgentForEmbed?.smartListIdForEmbed || selectedAgentForEmbed?.smartListId} // Use embed-specific field
         onShowSmartList={handleShowEmbedSmartList}
         agent={selectedAgentForEmbed}
+        onAgentUpdate={(updatedAgent) => {
+          // Update the agent state when smartlist is attached
+          setSelectedAgentForEmbed(updatedAgent)
+          
+          // Also update in mainAgentsList and localStorage
+          // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
+          const agentIdToUpdate = updatedAgent?.id
+          if (agentIdToUpdate && typeof agentIdToUpdate === 'number') {
+            // Determine which fields were updated
+            const updates = {}
+            if (updatedAgent.smartListIdForEmbed !== undefined) {
+              updates.smartListIdForEmbed = updatedAgent.smartListIdForEmbed
+            }
+            if (updatedAgent.smartListEnabledForEmbed !== undefined) {
+              updates.smartListEnabledForEmbed = updatedAgent.smartListEnabledForEmbed
+            }
+            if (Object.keys(updates).length > 0) {
+              updateAgentInMainList(agentIdToUpdate, updates)
+            }
+          }
+        }}
         onShowAllSet={() => {
           setShowEmbedModal(false)
           setShowEmbedAllSetModal(true)
@@ -6711,7 +7445,7 @@ function Page() {
         open={showEmbedSmartListModal}
         onClose={() => setShowEmbedSmartListModal(false)}
         agentId={
-          selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi
+          selectedAgentForEmbed?.id ?? selectedAgentForEmbed?.modelIdVapi
         }
         onSuccess={handleEmbedSmartListCreated}
         fetureType={fetureType}
@@ -6724,18 +7458,59 @@ function Page() {
         agentName={selectedAgentForEmbed?.name || ''}
         isEmbedFlow={true}
         embedCode={embedCode}
-        // fetureType={fetureType}
-        // onCopyUrl={handleWebhookClick}
+      // fetureType={fetureType}
+      // onCopyUrl={handleWebhookClick}
       />
     </div>
   )
 }
 
-const Card = ({ name, value, icon, bgColor, iconColor }) => {
+const Card = ({ name, value, icon, bgColor, iconColor, isCustomDomain, agencyBranding }) => {
+  // Render icon with branding using mask-image approach (same logic as NotificationsDrawer.js)
+  const renderIcon = () => {
+    if (typeof window === 'undefined') {
+      return <Image src={icon} height={24} width={24} alt="icon" />
+    }
+
+    // Get brand color from CSS variable
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')?.trim()
+
+    // Only apply branding if brand color is set and valid (indicates custom domain with branding)
+    if (!brandColor || brandColor === '' || brandColor.length < 3) {
+      return <Image src={icon} height={24} width={24} alt="icon" />
+    }
+
+    // Use mask-image approach: background color with icon as mask
+    return (
+      <div
+        style={{
+          width: 24,
+          height: 24,
+          minWidth: 24,
+          minHeight: 24,
+          backgroundColor: `hsl(${brandColor})`,
+          WebkitMaskImage: `url(${icon})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(${icon})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          transition: 'background-color 0.2s ease-in-out',
+          flexShrink: 0,
+        }}
+      />
+    )
+  }
+
   return (
     <div className="flex flex-col items-start gap-2">
       {/* Icon */}
-      <Image src={icon} height={24} color={bgColor} width={24} alt="icon" />
+      {renderIcon()}
 
       <div style={{ fontSize: 15, fontWeight: '500', color: '#000' }}>
         {name}

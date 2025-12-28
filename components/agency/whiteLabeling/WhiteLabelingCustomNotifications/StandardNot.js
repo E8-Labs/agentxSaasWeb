@@ -12,7 +12,9 @@ import {
 import {
   createOrUpdateNotificationCustomization,
   deleteNotificationCustomization,
+  setNotificationEnabled,
   toggleNotificationCustomization,
+  toggleNotificationEnabled,
 } from '@/services/notificationServices/NotificationCustomizationService'
 
 import EditEmailNotification from './EditEmailNotification'
@@ -23,6 +25,7 @@ const StandardNot = ({
   notificationsData = [],
   onRefresh,
   category = 'Standard',
+  selectedAgency,
 }) => {
   const [isEditPushModalOpen, setIsEditPushModalOpen] = useState(false)
   const [isEditEmailModalOpen, setIsEditEmailModalOpen] = useState(false)
@@ -30,6 +33,8 @@ const StandardNot = ({
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(null)
   const [toggling, setToggling] = useState(null)
+  const [togglingEnabled, setTogglingEnabled] = useState(null)
+  const notificationRefs = React.useRef({})
 
   // Sanitize HTML for safe rendering
   const sanitizeHTML = (html) => {
@@ -57,6 +62,30 @@ const StandardNot = ({
     })
   }
 
+  // Helper function to check if notification has actual content customizations
+  const hasActualCustomizations = (item) => {
+    if (!item.customization) return false
+    
+    const customization = item.customization
+    const metadata = item.metadata
+    
+    // Check if any custom field differs from default
+    const hasCustomPushTitle = customization.customPushTitle && 
+      customization.customPushTitle !== metadata?.defaultPushTitle
+    const hasCustomPushBody = customization.customPushBody && 
+      customization.customPushBody !== metadata?.defaultPushBody
+    const hasCustomEmailSubject = customization.customEmailSubject && 
+      customization.customEmailSubject !== metadata?.defaultEmailSubject
+    const hasCustomEmailBody = customization.customEmailBody && 
+      customization.customEmailBody !== metadata?.defaultEmailBody
+    const hasCustomCTA = customization.customEmailCTA && 
+      customization.customEmailCTA !== metadata?.defaultEmailCTA
+    
+    // Return true if any content field is actually customized
+    return hasCustomPushTitle || hasCustomPushBody || hasCustomEmailSubject || 
+           hasCustomEmailBody || hasCustomCTA
+  }
+
   // Transform API data to match the expected UI format
   const transformedNotifications = useMemo(() => {
     if (!notificationsData || notificationsData.length === 0) {
@@ -66,56 +95,64 @@ const StandardNot = ({
     // Filter notifications by category
     return notificationsData
       .filter((item) => item.metadata?.category === category)
-      .map((item, index) => ({
-        id: index + 1,
-        notificationType: item.notificationType,
-        title: item.metadata?.name || 'Notification',
-        description: item.metadata?.description || '',
-        tootTip: item.metadata?.description || '',
-        // App Notification (Push) fields
-        appNotficationTitle:
-          item.customization?.customPushTitle ||
-          item.metadata?.defaultPushTitle ||
-          '',
-        appNotficationBody:
-          item.customization?.customPushBody ||
-          item.metadata?.defaultPushBody ||
-          '',
-        appNotficationCTA:
-          item.customization?.customEmailCTA ||
-          item.metadata?.defaultEmailCTA ||
-          '',
-        // Email Template fields
-        emailNotficationTitle:
-          item.customization?.customEmailSubject ||
-          item.metadata?.defaultEmailSubject ||
-          '',
-        emailNotficationBody:
-          item.customization?.customEmailBody ||
-          item.metadata?.defaultEmailBody ||
-          '',
-        emailNotficationCTA:
-          item.customization?.customEmailCTA ||
-          item.metadata?.defaultEmailCTA ||
-          '',
-        // Legacy fields for backward compatibility
-        subject:
-          item.customization?.customEmailSubject ||
-          item.metadata?.defaultEmailSubject ||
-          '',
-        subjectDescription:
-          item.customization?.customEmailBody ||
-          item.metadata?.defaultEmailBody ||
-          '',
-        CTA:
-          item.customization?.customEmailCTA ||
-          item.metadata?.defaultEmailCTA ||
-          '',
-        isActive: item.isActive,
-        isCustomized: item.isCustomized,
-        availableVariables: item.metadata?.availableVariables || [],
-        supportsCTA: item.metadata?.supportsCTA || false,
-      }))
+      .map((item, index) => {
+        // Check if there are actual content customizations (not just toggle changes)
+        const hasContentCustomizations = hasActualCustomizations(item)
+        
+        return {
+          id: index + 1,
+          notificationType: item.notificationType,
+          title: item.metadata?.name || 'Notification',
+          description: item.metadata?.description || '',
+          tootTip: item.metadata?.description || '',
+          // App Notification (Push) fields
+          appNotficationTitle:
+            item.customization?.customPushTitle ||
+            item.metadata?.defaultPushTitle ||
+            '',
+          appNotficationBody:
+            item.customization?.customPushBody ||
+            item.metadata?.defaultPushBody ||
+            '',
+          appNotficationCTA:
+            item.customization?.customEmailCTA ||
+            item.metadata?.defaultEmailCTA ||
+            '',
+          // Email Template fields
+          emailNotficationTitle:
+            item.customization?.customEmailSubject ||
+            item.metadata?.defaultEmailSubject ||
+            '',
+          emailNotficationBody:
+            item.customization?.customEmailBody ||
+            item.metadata?.defaultEmailBody ||
+            '',
+          emailNotficationCTA:
+            item.customization?.customEmailCTA ||
+            item.metadata?.defaultEmailCTA ||
+            '',
+          // Legacy fields for backward compatibility
+          subject:
+            item.customization?.customEmailSubject ||
+            item.metadata?.defaultEmailSubject ||
+            '',
+          subjectDescription:
+            item.customization?.customEmailBody ||
+            item.metadata?.defaultEmailBody ||
+            '',
+          CTA:
+            item.customization?.customEmailCTA ||
+            item.metadata?.defaultEmailCTA ||
+            '',
+          isActive: item.isActive,
+          isCustomized: hasContentCustomizations, // Only true if content is actually customized
+          isNotificationEnabled: item.isNotificationEnabled ?? true, // Default to true
+          availableVariables: item.metadata?.availableVariables || [],
+          supportsCTA: item.metadata?.supportsCTA || false,
+          // Store original item for reference
+          originalItem: item,
+        }
+      })
   }, [notificationsData, category])
 
   const handleEditPushClick = (notification) => {
@@ -131,6 +168,10 @@ const StandardNot = ({
   const handleSavePushNotification = async (updatedData) => {
     try {
       setSaving(true)
+
+      // Store the notification type to scroll to after refresh
+      const notificationType = selectedNotification.actualNotificationType ||
+        selectedNotification.notificationType
 
       // Prepare data for API with push notification fields
       // Only include fields that are explicitly provided (not undefined)
@@ -152,10 +193,11 @@ const StandardNot = ({
       }
 
       // Call API to save customization
+      const userId = selectedAgency?.id || undefined
       await createOrUpdateNotificationCustomization(
-        selectedNotification.actualNotificationType ||
-          selectedNotification.notificationType,
+        notificationType,
         apiData,
+        userId,
       )
 
       console.log('Push notification saved successfully')
@@ -164,6 +206,14 @@ const StandardNot = ({
       if (onRefresh) {
         await onRefresh()
       }
+
+      // Scroll to the notification after refresh
+      setTimeout(() => {
+        const notificationElement = notificationRefs.current[notificationType]
+        if (notificationElement) {
+          notificationElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 100)
     } catch (error) {
       console.error('Error saving push notification:', error)
       alert('Failed to save push notification. Please try again.')
@@ -175,6 +225,10 @@ const StandardNot = ({
   const handleSaveEmailNotification = async (updatedData) => {
     try {
       setSaving(true)
+
+      // Store the notification type to scroll to after refresh
+      const notificationType = selectedNotification.actualNotificationType ||
+        selectedNotification.notificationType
 
       // Prepare data for API with email fields
       // Only include fields that are explicitly provided (not undefined)
@@ -196,10 +250,11 @@ const StandardNot = ({
       }
 
       // Call API to save customization
+      const userId = selectedAgency?.id || undefined
       await createOrUpdateNotificationCustomization(
-        selectedNotification.actualNotificationType ||
-          selectedNotification.notificationType,
+        notificationType,
         apiData,
+        userId,
       )
 
       console.log('Email notification saved successfully')
@@ -208,6 +263,14 @@ const StandardNot = ({
       if (onRefresh) {
         await onRefresh()
       }
+
+      // Scroll to the notification after refresh
+      setTimeout(() => {
+        const notificationElement = notificationRefs.current[notificationType]
+        if (notificationElement) {
+          notificationElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        }
+      }, 100)
     } catch (error) {
       console.error('Error saving email notification:', error)
       alert('Failed to save email notification. Please try again.')
@@ -238,7 +301,8 @@ const StandardNot = ({
     try {
       setDeleting(notification.notificationType)
 
-      await deleteNotificationCustomization(notification.notificationType)
+      const userId = selectedAgency?.id || undefined
+      await deleteNotificationCustomization(notification.notificationType, userId)
 
       console.log('Notification customization deleted successfully')
 
@@ -258,7 +322,8 @@ const StandardNot = ({
     try {
       setToggling(notification.notificationType)
 
-      await toggleNotificationCustomization(notification.notificationType)
+      const userId = selectedAgency?.id || undefined
+      await toggleNotificationCustomization(notification.notificationType, userId)
 
       console.log('Notification toggled successfully')
 
@@ -274,6 +339,27 @@ const StandardNot = ({
     }
   }
 
+  const handleToggleEnabled = async (notification) => {
+    try {
+      setTogglingEnabled(notification.notificationType)
+
+      const userId = selectedAgency?.id || undefined
+      await toggleNotificationEnabled(notification.notificationType, userId)
+
+      console.log('Notification enabled status toggled successfully')
+
+      // Refresh the data
+      if (onRefresh) {
+        await onRefresh()
+      }
+    } catch (error) {
+      console.error('Error toggling notification enabled status:', error)
+      alert('Failed to toggle notification enabled status. Please try again.')
+    } finally {
+      setTogglingEnabled(null)
+    }
+  }
+
   return (
     <>
       {saving && (
@@ -283,16 +369,45 @@ const StandardNot = ({
       )}
       {transformedNotifications.map((item) => {
         return (
-          <div key={item.id} className="w-full border-b px-4 pb-4 mb-4">
+          <div 
+            key={item.id} 
+            ref={(el) => {
+              if (el) {
+                notificationRefs.current[item.notificationType] = el
+              }
+            }}
+            className="w-full border-b px-4 pb-4 mb-4"
+          >
             <div className="flex flex-row items-center justify-between mb-2">
               <div style={styles.semiBoldHeading}>
                 {item.title || 'Team member Invite email'}
               </div>
               <div className="flex items-center gap-3">
-                {/* Toggle Switch */}
+                {/* Enable/Disable Toggle Switch */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-600">
+                    {item.isNotificationEnabled ? 'Enabled' : 'Disabled'}
+                  </span>
+                  <Tooltip
+                    title={
+                      item.isNotificationEnabled
+                        ? 'Disable this notification for subaccounts'
+                        : 'Enable this notification for subaccounts'
+                    }
+                    placement="top"
+                  >
+                    <Switch
+                      checked={item.isNotificationEnabled ?? true}
+                      onChange={() => handleToggleEnabled(item)}
+                      disabled={togglingEnabled === item.notificationType}
+                      color="primary"
+                      size="small"
+                    />
+                  </Tooltip>
+                </div>
 
-                {/* Delete Button */}
-                {item.isCustomized && (
+                {/* Delete Button - Only show if notification is enabled and customized */}
+                {item.isCustomized && item.isNotificationEnabled && (
                   <button
                     onClick={() => handleDelete(item)}
                     disabled={deleting === item.notificationType}

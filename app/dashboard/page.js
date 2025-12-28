@@ -10,7 +10,7 @@ import {
   Typography,
 } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import moment from 'moment'
 import Image from 'next/image'
@@ -62,11 +62,7 @@ const Page = () => {
     isVisible: false,
   })
 
-  let stripePublickKey =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-  const stripePromise = loadStripe(stripePublickKey)
+  const stripePromise = getStripe()
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -263,24 +259,7 @@ const Page = () => {
                   width={20}
                   alt="*"
                 />
-                {/* <Popover
- id="mouse-over-popover"
- sx={{ pointerEvents: 'none' }}
- open={open}
- anchorEl={anchorEl}
- anchorOrigin={{
- vertical: 'bottom',
- horizontal: 'left',
- }}
- transformOrigin={{
- vertical: 'top',
- horizontal: 'left',
- }}
- onClose={handlePopoverClose}
- disableRestoreFocus
- >
- <Typography sx={{ p: 1 }}>I use Popover.</Typography>
- </Popover> */}
+                
               </div>
             )}
           </div>
@@ -333,7 +312,7 @@ const Page = () => {
           <CircularProgress size={45} />
         </div>
       ) : (
-        <div className="flex flex-col mt-12 items-center w-full h-[100%]">
+        <div className="flex flex-col items-center w-full h-[100%] relative">
           <div className="bg-gradient-to-b from-brand-primary to-brand-primary/10"
             style={{
               position: 'absolute',
@@ -342,26 +321,27 @@ const Page = () => {
               width: '100%',
               height: '20%',
               objectFit: 'cover',
-              zIndex: -1, // Ensure the video stays behind content
+              zIndex: 0, // Behind content but visible
               overflow: 'hidden',
-
             }}
           >
           </div>
-          <div className="w-9/12 flex flex-col items-center h-[100%]">
+          {/* Notification icon positioned at the right edge of the screen */}
+          <div
+            style={{
+              position: 'fixed',
+              top: 25,
+              right: 20,
+              zIndex: 20,
+            }}
+          >
+            <NotficationsDrawer />
+          </div>
+          <div className="w-9/12 flex flex-col items-center h-[100%] relative z-10">
             {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>
  Good to have you back, <span className='text-[#00000090]'>{userDetails?.name}</span>
  </div> */}
-            <div
-              style={{
-                position: 'absolute',
-                top: 25,
-                right: 50,
-              }}
-            >
-              <NotficationsDrawer />
-            </div>
-            <div className="h-[95%] w-11/12 flex flex-row justify-center bg-white rounded-xl">
+            <div className="h-[95%] w-11/12 flex flex-row justify-center bg-white rounded-xl mt-12">
               <div className="w-11/12 h-[100%]">
                 <div className="w-full flex flex-row items-center justify-between h-[30%]">
                   <div className="w-2/12 flex flex-col gap-1">
@@ -491,22 +471,12 @@ const Page = () => {
                     <div
                       className="w-full h-40vh flex flex-row justify-between items-center px-8 py-4 relative overflow-hidden"
                       style={{
-                        backgroundImage: "url('/agencyIcons/plansBannerBg.png')",
-                        backgroundSize: 'cover',
-                        backgroundPosition: 'center',
+                        backgroundColor: 'hsl(var(--brand-primary))',
                         width: '40vw',
                         minHeight: '13vh',
                         borderRadius: 10,
                       }}
                     >
-                      {/* Brand Color Overlay */}
-                      <div
-                        className="absolute inset-0 rounded-lg"
-                        style={{
-                          backgroundColor: 'hsl(var(--brand-primary) / 0.8)',
-                          mixBlendMode: 'multiply',
-                        }}
-                      />
                       {/* Content */}
                       <div className="flex flex-row gap-3 items-start relative z-10">
                         <Image

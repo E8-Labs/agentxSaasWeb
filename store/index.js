@@ -1,10 +1,21 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { combineReducers } from '@reduxjs/toolkit'
 import { persistReducer, persistStore } from 'redux-persist'
-import storage from 'redux-persist/lib/storage'
 
 // Import slices
 import userSlice from './slices/userSlice'
+
+// SSR-safe storage wrapper
+const createNoopStorage = () => ({
+  getItem: () => Promise.resolve(null),
+  setItem: (_key, value) => Promise.resolve(value),
+  removeItem: () => Promise.resolve(),
+})
+
+const storage =
+  typeof window !== 'undefined'
+    ? require('redux-persist/lib/storage').default
+    : createNoopStorage()
 
 // Persist configuration
 const persistConfig = {

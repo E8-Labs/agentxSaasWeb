@@ -394,8 +394,15 @@ const WebOwnersAgentSignUp = ({
           }
 
           // Force apply branding after registration (for subaccounts/agencies)
+          // Make it non-blocking with timeout to prevent hanging
           if (user?.userRole === 'AgencySubAccount' || user?.userRole === 'Agency') {
-            await forceApplyBranding(response.data)
+            // Run branding in background, don't block the flow
+            Promise.race([
+              forceApplyBranding(response.data),
+              new Promise((resolve) => setTimeout(resolve, 5000)), // 5 second timeout
+            ]).catch((error) => {
+              console.error('Error applying branding (non-blocking):', error)
+            })
           }
 
           handleWaitList()
@@ -511,14 +518,14 @@ const WebOwnersAgentSignUp = ({
       style={{ width: '100%' }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
-      <div className="bg-white rounded-2xl mx-2 w-full md:w-10/12 max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
-        <div className="h-[82vh]">
+      <div className="flex flex-col bg-white rounded-2xl mx-2 w-full md:w-10/12 h-[100%] sm:h-[95%] py-4 relative">
+        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24 scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
           {/* header */}
           <div className="h-[10%]">
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[90%]">
+          <div className="flex flex-col items-center px-4 w-full h-[95%]">
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: 'center' }}
@@ -530,7 +537,7 @@ const WebOwnersAgentSignUp = ({
               style={{ scrollbarWidth: 'none' }}
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>
-              <input
+              <Input
                 placeholder="Name"
                 className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -589,7 +596,7 @@ const WebOwnersAgentSignUp = ({
                 </div>
               </div>
 
-              <input
+              <Input
                 placeholder="Email address"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -768,7 +775,7 @@ const WebOwnersAgentSignUp = ({
                 )}
               </div>
 
-              <input
+              <Input
                 placeholder="URL"
                 className="border border-[#00000010] rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -836,7 +843,7 @@ const WebOwnersAgentSignUp = ({
                         style={{ display: 'flex', gap: '8px' }}
                       >
                         {Array.from({ length }).map((_, index) => (
-                          <input
+                          <Input
                             key={index}
                             ref={(el) => (verifyInputRef.current[index] = el)}
                             // type="text"
@@ -862,10 +869,8 @@ const WebOwnersAgentSignUp = ({
                               height: '40px',
                               textAlign: 'center',
                               fontSize: '20px',
-                              border: '1px solid #ccc',
-                              borderRadius: '5px',
                             }}
-                            className=" focus:outline-none focus:ring-0"
+                            className="focus:outline-none focus:ring-0"
                           />
                         ))}
                       </div>
@@ -915,17 +920,19 @@ const WebOwnersAgentSignUp = ({
           </div>
         </div>
 
-        <div className="h-[10%]">
-          <div>
+        {/* Fixed Footer */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+          <div className="px-4 pt-3 pb-2">
             <ProgressBar value={80} />
           </div>
-
-          <Footer
-            handleContinue={handleVerifyPopup}
-            handleBack={handleWebsiteAgentBack}
-            registerLoader={registerLoader}
-            shouldContinue={shouldContinue}
-          />
+          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
+            <Footer
+              handleContinue={handleVerifyPopup}
+              handleBack={handleWebsiteAgentBack}
+              registerLoader={registerLoader}
+              shouldContinue={shouldContinue}
+            />
+          </div>
         </div>
       </div>
     </div>

@@ -40,6 +40,8 @@ const Pipeline1 = ({ handleContinue }) => {
 
   const [shouldContinue, setShouldContinue] = useState(true)
   const [isSubaccount, setIsSubaccount] = useState(false)
+  const [hasAgencyLogo, setHasAgencyLogo] = useState(false)
+  const [showOrb, setShowOrb] = useState(true)
   const [toggleClick, setToggleClick] = useState(false)
   const [selectedPipelineItem, setSelectedPipelineItem] = useState(null)
   const [selectPipleLine, setSelectPipleLine] = useState('')
@@ -68,17 +70,53 @@ const Pipeline1 = ({ handleContinue }) => {
   }, [reorderSuccessBarMessage])
 
   useEffect(() => {
-    // Check if user is subaccount
+    // Check if user is subaccount and if agency has logo
     if (typeof window !== 'undefined') {
       try {
         const userData = localStorage.getItem('User')
+        let isSub = false
+        let hasLogo = false
+        
         if (userData) {
           const parsedUser = JSON.parse(userData)
-          setIsSubaccount(
+          isSub =
             parsedUser?.user?.userRole === 'AgencySubAccount' ||
-              parsedUser?.userRole === 'AgencySubAccount',
-          )
+            parsedUser?.userRole === 'AgencySubAccount'
+          setIsSubaccount(isSub)
         }
+
+        // Check if agency has branding logo
+        let branding = null
+        const storedBranding = localStorage.getItem('agencyBranding')
+        if (storedBranding) {
+          try {
+            branding = JSON.parse(storedBranding)
+          } catch (error) {
+            console.log('Error parsing agencyBranding from localStorage:', error)
+          }
+        }
+
+        // Also check user data for agencyBranding
+        if ( userData) {
+          try {
+            const parsedUser = JSON.parse(userData)
+            if (parsedUser?.user?.agencyBranding) {
+              branding = parsedUser.user.agencyBranding
+            } else if (parsedUser?.agencyBranding) {
+              branding = parsedUser.agencyBranding
+            } else if (parsedUser?.user?.agency?.agencyBranding) {
+              branding = parsedUser.user.agency.agencyBranding
+            }
+          } catch (error) {
+            console.log('Error parsing user data for agencyBranding:', error)
+          }
+        }
+
+        hasLogo = !!branding?.logoUrl
+        setHasAgencyLogo(hasLogo)
+
+        // Show orb if: not subaccount OR (subaccount but no logo)
+        setShowOrb(!isSub || (isSub && !hasLogo))
       } catch (error) {
         console.log('Error parsing user data:', error)
       }
@@ -93,7 +131,7 @@ const Pipeline1 = ({ handleContinue }) => {
     const localAgentData = localStorage.getItem('agentDetails')
     if (localAgentData && localAgentData != 'undefined') {
       const Data = JSON.parse(localAgentData)
-      if (Data.agents.length === 1 && Data.agents[0].agentType == 'inbound') {
+      if (Data?.agents?.length === 1 && Data.agents[0]?.agentType == 'inbound') {
         return
       } else {
         // //console.log;
@@ -123,6 +161,7 @@ const Pipeline1 = ({ handleContinue }) => {
         const restoredAssignedLeads = {}
         const restoredRowsByIndex = {}
         const restoredNextStage = {}
+        const restoredNextStageTitles = {} // For dropdown values
 
         storedCadenceDetails?.forEach((cadence) => {
           const stageIndex = selectedPipeline.stages.findIndex(
@@ -138,6 +177,8 @@ const Pipeline1 = ({ handleContinue }) => {
               )
               if (nextStage) {
                 restoredNextStage[stageIndex] = nextStage
+                // Also set the stage title for the dropdown
+                restoredNextStageTitles[stageIndex] = nextStage.stageTitle || nextStage.title
               }
             }
           }
@@ -146,6 +187,7 @@ const Pipeline1 = ({ handleContinue }) => {
         setAssignedLeads(restoredAssignedLeads)
         setRowsByIndex(restoredRowsByIndex)
         setSelectedNextStage(restoredNextStage)
+        setNextStage(restoredNextStageTitles) // Set dropdown values
       } else {
         // //console.log;
       }
@@ -257,10 +299,34 @@ const Pipeline1 = ({ handleContinue }) => {
       if (response) {
         console.log('Response is of get pipelines', response.data.data)
         setPipelinesDetails(response.data.data)
-        setSelectPipleLine(response.data.data[0].title)
-        setSelectedPipelineItem(response.data.data[0])
-        setSelectedPipelineStages(response.data.data[0].stages)
-        setOldStages(response.data.data[0].stages)
+        
+        // Check if there's stored cadence data and select that pipeline
+        const localCadences = localStorage.getItem('AddCadenceDetails')
+        let pipelineToSelect = response.data.data[0] // Default to first pipeline
+        
+        if (localCadences && localCadences !== 'null') {
+          try {
+            const localCadenceDetails = JSON.parse(localCadences)
+            const storedPipelineId = localCadenceDetails.pipelineID
+            
+            // Find the pipeline that matches the stored cadence
+            const matchingPipeline = response.data.data.find(
+              (pipeline) => pipeline.id === storedPipelineId,
+            )
+            
+            if (matchingPipeline) {
+              pipelineToSelect = matchingPipeline
+              console.log('Found matching pipeline for cadence:', matchingPipeline.title)
+            }
+          } catch (error) {
+            console.log('Error parsing cadence details:', error)
+          }
+        }
+        
+        setSelectPipleLine(pipelineToSelect.title)
+        setSelectedPipelineItem(pipelineToSelect)
+        setSelectedPipelineStages(pipelineToSelect.stages)
+        setOldStages(pipelineToSelect.stages)
         localStorage.setItem(
           'pipelinesData',
           JSON.stringify(response.data.data),
@@ -442,8 +508,8 @@ const Pipeline1 = ({ handleContinue }) => {
       const agentData = JSON.parse(agentDetails)
       // //console.log;
       if (
-        agentData.agents.length === 1 &&
-        agentData.agents[0].agentType === 'inbound'
+        agentData?.agents?.length === 1 &&
+        agentData.agents[0]?.agentType === 'inbound'
       ) {
         cadenceData = {
           pipelineID: selectedPipelineItem?.id,
@@ -696,18 +762,18 @@ const Pipeline1 = ({ handleContinue }) => {
         />
       )}
       <div
-        className="bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col" //overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+        className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative"
       >
-        <div className="w-full flex-1 flex flex-col min-h-0">
+        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
           {/* header with title centered vertically */}
-          <div className="relative w-full flex-shrink-0">
+          <div className="relative w-full flex-shrink-0" style={{ minHeight: showOrb ? '140px' : '100px' }}>
             <Header />
             <div
-              className="absolute left-1/2 transform -translate-x-1/2 md:text-4xl text-lg font-[700]"
+              className="absolute left-1/2 md:text-4xl text-lg font-[700]"
               style={{
-                top: '50%',
+                top: showOrb ? 'calc(50% + 45px)' : '50%',
                 transform: 'translate(-50%, -50%)',
-                zIndex: 10,
+                zIndex: 50,
                 pointerEvents: 'none',
               }}
             >
@@ -764,7 +830,7 @@ const Pipeline1 = ({ handleContinue }) => {
           >
 
             <div
-              className="mt-4 w-8/12 gap-4 ml-[10vw] flex flex-col flex-1 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+              className={`w-8/12 gap-4 ml-[10vw] flex flex-col flex-1 overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple ${showOrb ? 'mt-6' : 'mt-4'}`}
               style={{ scrollbarWidth: 'none', minHeight: 0 }}
             >
               {pipelinesDetails.length > 1 && (
@@ -881,17 +947,20 @@ const Pipeline1 = ({ handleContinue }) => {
             </div>
           </div>
         </div>
-        <div className="w-full flex-shrink-0">
-          <div>
+
+        {/* Fixed Footer */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+          <div className="px-4 pt-3 pb-2">
             <ProgressBar value={33} />
           </div>
-
-          <Footer
-            handleContinue={printAssignedLeadsData}
-            donotShowBack={true}
-            registerLoader={createPipelineLoader}
-            shouldContinue={shouldContinue}
-          />
+          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
+            <Footer
+              handleContinue={printAssignedLeadsData}
+              donotShowBack={true}
+              registerLoader={createPipelineLoader}
+              shouldContinue={shouldContinue}
+            />
+          </div>
         </div>
       </div>
     </div>

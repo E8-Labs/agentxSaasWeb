@@ -56,11 +56,22 @@ export default function AddXBarPlan({
       setTitle(selectedPlan?.title)
       setTag(selectedPlan?.tag ?? '')
       setPlanDescription(selectedPlan?.planDescription)
-      setOriginalPrice((selectedPlan?.discountedPrice).toFixed(2))
-      const OriginalPrice = selectedPlan?.originalPrice
-      if (OriginalPrice > 0) {
-        setDiscountedPrice(OriginalPrice)
+      
+      // Safely handle null/undefined values for prices
+      const discountedPriceValue = selectedPlan?.discountedPrice
+      if (discountedPriceValue != null && !isNaN(discountedPriceValue)) {
+        setOriginalPrice(Number(discountedPriceValue).toFixed(2))
+      } else {
+        setOriginalPrice('')
       }
+      
+      const originalPriceValue = selectedPlan?.originalPrice
+      if (originalPriceValue != null && !isNaN(originalPriceValue) && Number(originalPriceValue) > 0) {
+        setDiscountedPrice(originalPriceValue)
+      } else {
+        setDiscountedPrice('')
+      }
+      
       setMinutes(selectedPlan?.minutes)
       setIsDefaultPlan(selectedPlan?.isDefault || false)
     }
@@ -168,17 +179,25 @@ export default function AddXBarPlan({
       formData.append('title', title)
       formData.append('tag', tag)
       formData.append('planDescription', planDescription)
-      formData.append('originalPrice', discountedPrice || 0)
-      formData.append('discountedPrice', originalPrice)
-      if (discountedPrice > 0) {
+      
+      // originalPrice (backend) = strikethrough price (optional)
+      // discountedPrice (backend) = actual selling price (always required)
+      if (discountedPrice && Number(discountedPrice) > 0 && originalPrice && Number(originalPrice) > 0) {
+        // Has strikethrough price - calculate discount
         const percentage = (
-          ((discountedPrice - originalPrice) / discountedPrice) *
+          ((Number(discountedPrice) - Number(originalPrice)) / Number(discountedPrice)) *
           100
         ).toFixed(2)
+        formData.append('originalPrice', discountedPrice) // strikethrough price
+        formData.append('discountedPrice', originalPrice) // actual selling price
         formData.append('percentageDiscount', percentage)
       } else {
+        // No strikethrough price - just set the selling price
+        formData.append('originalPrice', '') // null/empty for no strikethrough
+        formData.append('discountedPrice', originalPrice) // actual selling price (required)
         formData.append('percentageDiscount', 0)
       }
+      
       formData.append('minutes', minutes)
       formData.append('isDefault', isDefaultPlan)
 
@@ -257,21 +276,25 @@ export default function AddXBarPlan({
       formData.append('title', title)
       formData.append('tag', tag)
       formData.append('planDescription', planDescription)
-      formData.append('originalPrice', discountedPrice || 0)
-      if (discountedPrice > 0) {
+      
+      // originalPrice (backend) = strikethrough price (optional)
+      // discountedPrice (backend) = actual selling price (always required)
+      if (discountedPrice && Number(discountedPrice) > 0 && originalPrice && Number(originalPrice) > 0) {
+        // Has strikethrough price - calculate discount
         const percentage = (
-          ((discountedPrice - originalPrice) / discountedPrice) *
+          ((Number(discountedPrice) - Number(originalPrice)) / Number(discountedPrice)) *
           100
         ).toFixed(2)
+        formData.append('originalPrice', discountedPrice) // strikethrough price
+        formData.append('discountedPrice', originalPrice) // actual selling price
         formData.append('percentageDiscount', percentage)
-        formData.append('discountedPrice', originalPrice)
       } else {
-        formData.append('discountedPrice', 0)
+        // No strikethrough price - just set the selling price
+        formData.append('originalPrice', '') // null/empty for no strikethrough
+        formData.append('discountedPrice', originalPrice) // actual selling price (required)
+        formData.append('percentageDiscount', 0)
       }
-      formData.append(
-        'percentageDiscount',
-        100 - (originalPrice / discountedPrice) * 100,
-      )
+      
       formData.append('minutes', minutes)
       formData.append('isDefault', isDefaultPlan)
 
@@ -284,8 +307,11 @@ export default function AddXBarPlan({
       if (response) {
         console.log('Response of add xbars api is', response.data)
         setAddPlanLoader(false)
+        console.log("Set add plan loader to false")
         onPlanCreated(response)
+        console.log("Here after onPlanCreated")
         if (response.data.status === true) {
+          console.log("status is true")
           //update the xbars state on localstorage to update checklist
           const localData = localStorage.getItem('User')
           if (localData) {
@@ -293,16 +319,19 @@ export default function AddXBarPlan({
             D.user.checkList.checkList.plansXbarAdded = true
             localStorage.setItem('User', JSON.stringify(D))
           }
+          console.log("Dispatch UpdateAgencyCheckList event")
           window.dispatchEvent(
             new CustomEvent('UpdateAgencyCheckList', {
               detail: { update: true },
             }),
           )
-
+          console.log("Set snack message")
           setSnackMsg(response.data.message)
           setSnackMsgType(SnackbarTypes.Success)
           handleResetValues()
+          console.log("Handle reset values")
           handleClose(response.data.message)
+          console.log("Handle close")
         } else if (response.data.status === false) {
           setSnackMsg(response.data.message)
           setSnackMsgType(SnackbarTypes.Error)
@@ -310,7 +339,7 @@ export default function AddXBarPlan({
       }
     } catch (error) {
       setAddPlanLoader(false)
-      console.error('Error is', error.message)
+      console.error('Error is', error)
     } finally {
       setAddPlanLoader(false)
     }

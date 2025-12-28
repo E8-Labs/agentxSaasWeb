@@ -63,4 +63,5 @@ export const NotificationTypes = {
   SubscriptionRenewalIn24Hour: 'SubscriptionRenewalIn24Hour',
   AutoMinuteTopupNotificaiton: 'AutoMinuteTopupNotificaiton',
   PlanSubscribed: 'PlanSubscribed',
+  SubaccountInvitation: 'SubaccountInvitation', // When an agency creates a subaccount and sends invitation email
 }

@@ -21,6 +21,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../leads/AgentSelectSnackMessage'
 import TagsInput from '../leads/TagsInput'
+import Apis from '@/components/apis/Apis'
 
 const EmbedSmartListModal = ({
   open,
@@ -124,17 +125,50 @@ const EmbedSmartListModal = ({
         AuthToken = UserDetails.token
       }
 
+      // Extract the actual ID value - ensure it's a primitive (number or string)
+      let agentIdToUse = null
+      
+      // First try to get numeric ID from agent object
+      if (agent?.id !== undefined && agent?.id !== null) {
+        agentIdToUse = agent.id
+      }
+      // If agentId prop is a number or string, use it
+      else if (typeof agentId === 'number' || typeof agentId === 'string') {
+        agentIdToUse = agentId
+      }
+      // If agentId is an object, try to extract id or modelIdVapi
+      else if (agentId && typeof agentId === 'object') {
+        agentIdToUse = agentId.id ?? agentId.modelIdVapi ?? agentId.agentUuid ?? null
+      }
+      // If agent exists but no id, try modelIdVapi
+      else if (agent?.modelIdVapi) {
+        agentIdToUse = agent.modelIdVapi
+      }
+      
+      if (!agentIdToUse) {
+        throw new Error('Agent ID is required but could not be determined')
+      }
+      
       const formData = new FormData()
-      formData.append('agentId', agentId)
+      formData.append('agentId', String(agentIdToUse))
       if (selectedUser?.id) {
         formData.append('userId', selectedUser.id)
       }
+      
+      console.log('🔧 EMBED-SMARTLIST - updateSupportButton using agentId:', {
+        originalAgentId: agentId,
+        agentIdType: typeof agentId,
+        agentIdFromAgent: agent?.id,
+        finalAgentId: agentIdToUse,
+        finalAgentIdType: typeof agentIdToUse,
+      })
       if (logoFile) {
         formData.append('media', logoFile)
         console.log('🔧 EMBED-SMARTLIST - Adding logo file to update')
       }
       formData.append('supportButtonText', buttonLabel)
       formData.append('smartListEnabled', 'true')
+      formData.append('agentType', 'embed') // Specify agent type for embed agents
 
       console.log('🔧 EMBED-SMARTLIST - Support button settings:', {
         agentId,
@@ -145,7 +179,7 @@ const EmbedSmartListModal = ({
       })
 
       const response = await axios.post(
-        'https://apimyagentx.com/agentxtest/api/agent/updateAgentSupportButton',
+        Apis.updateAgentSupportButton,
         formData,
         {
           headers: {
@@ -197,12 +231,45 @@ const EmbedSmartListModal = ({
       // Use tags from TagsInput component
       const filteredTags = tagsValue || []
 
+      // Extract the actual ID value - ensure it's a primitive (number or string)
+      let agentIdToUse = null
+      
+      // First try to get numeric ID from agent object
+      if (agent?.id !== undefined && agent?.id !== null) {
+        agentIdToUse = agent.id
+      }
+      // If agentId prop is a number or string, use it
+      else if (typeof agentId === 'number' || typeof agentId === 'string') {
+        agentIdToUse = agentId
+      }
+      // If agentId is an object, try to extract id or modelIdVapi
+      else if (agentId && typeof agentId === 'object') {
+        agentIdToUse = agentId.id ?? agentId.modelIdVapi ?? agentId.agentUuid ?? null
+      }
+      // If agent exists but no id, try modelIdVapi
+      else if (agent?.modelIdVapi) {
+        agentIdToUse = agent.modelIdVapi
+      }
+      
+      if (!agentIdToUse) {
+        throw new Error('Agent ID is required but could not be determined')
+      }
+      
       let payload = {
         sheetName: sheetName.trim(),
         columns: allFields,
         tags: filteredTags,
-        agentId: agentId,
+        agentId: agentIdToUse,
+        agentType: 'embed', // Specify agent type for embed agents
       }
+      
+      console.log('🔧 EMBED-SMARTLIST - Using agentId:', {
+        originalAgentId: agentId,
+        agentIdType: typeof agentId,
+        agentIdFromAgent: agent?.id,
+        finalAgentId: agentIdToUse,
+        finalAgentIdType: typeof agentIdToUse,
+      })
 
       if (selectedUser) {
         payload.userId = selectedUser?.id
@@ -212,9 +279,15 @@ const EmbedSmartListModal = ({
         '🔧 EMBED-SMARTLIST - Creating smart list with payload:',
         payload,
       )
+      console.log(
+        '🔧 EMBED-SMARTLIST - agentType in payload:',
+        payload.agentType,
+        'type:',
+        typeof payload.agentType,
+      )
 
       const response = await axios.post(
-        'https://apimyagentx.com/agentxtest/api/leads/addSmartList',
+        Apis.addSmartList,
         payload,
         {
           headers: {
@@ -246,9 +319,43 @@ const EmbedSmartListModal = ({
       return
     }
 
+    // Extract and validate agentId
+    let agentIdToUse = null
+    
+    // First try to get numeric ID from agent object
+    if (agent?.id !== undefined && agent?.id !== null) {
+      agentIdToUse = agent.id
+    }
+    // If agentId prop is a number or string, use it
+    else if (typeof agentId === 'number' || typeof agentId === 'string') {
+      agentIdToUse = agentId
+    }
+    // If agentId is an object, try to extract id or modelIdVapi
+    else if (agentId && typeof agentId === 'object') {
+      agentIdToUse = agentId.id ?? agentId.modelIdVapi ?? agentId.agentUuid ?? null
+    }
+    // If agent exists but no id, try modelIdVapi
+    else if (agent?.modelIdVapi) {
+      agentIdToUse = agent.modelIdVapi
+    }
+    
+    if (!agentIdToUse) {
+      showSnackbar(
+        'Error',
+        'Agent ID is missing. Please try again.',
+        SnackbarTypes.Error,
+      )
+      return
+    }
+
     try {
       setLoading(true)
-      console.log('🔧 EMBED-SMARTLIST - Starting save process...')
+      console.log('🔧 EMBED-SMARTLIST - Starting save process...', {
+        agentId: agentIdToUse,
+        originalAgentId: agentId,
+        agentIdFromAgent: agent?.id,
+        agent,
+      })
 
       // Step 1: Update support button settings first (including logo and button text)
       await updateSupportButton()
@@ -263,9 +370,10 @@ const EmbedSmartListModal = ({
       }
     } catch (error) {
       console.error('🔧 EMBED-SMARTLIST - Error in save process:', error)
+      const errorMessage = error.response?.data?.message || error.message || 'Error saving settings. Please try again.'
       showSnackbar(
         'Error',
-        error.message || 'Error saving settings. Please try again.',
+        errorMessage,
         SnackbarTypes.Error,
       )
     } finally {

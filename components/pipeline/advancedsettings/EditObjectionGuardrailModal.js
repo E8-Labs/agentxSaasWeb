@@ -132,7 +132,7 @@ const EditModal = ({
       fontSize: 15,
     },
   }
-
+//Edit modal for Objections and Guardrails | Advanced Settings
   return (
     <Modal open={isOpen} onClose={onClose}>
       <Box className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-lg p-6 shadow-lg w-full max-w-md outline-none">
@@ -147,7 +147,7 @@ const EditModal = ({
 
         <div>
           <div className="mt-4 mb-2" style={styles.heading}>
-            Title
+          {`${editName === 'Objection' ? "What's the objection" : "What's the guardrail"}`}
           </div>
           <input
             style={styles.inputStyle}
@@ -162,7 +162,7 @@ const EditModal = ({
 
         <div>
           <div className="mt-4 mb-2" style={styles.heading}>
-            Description
+            Response
           </div>
           {/*
                         <GreetingTagInput

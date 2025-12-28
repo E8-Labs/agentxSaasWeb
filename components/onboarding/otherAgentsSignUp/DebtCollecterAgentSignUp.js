@@ -549,8 +549,8 @@ const DebtCollerterAgentSignUp = ({
       style={{ width: '100%' }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
-      <div className="bg-white rounded-2xl mx-2 w-full md:w-10/12 max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
-        <div className="h-[82svh]">
+      <div className="flex flex-col bg-white rounded-2xl mx-2 w-full md:w-10/12 h-[100%] sm:max-h-[90%] py-4">
+        <div className="h-[84svh] sm:h-[90svh] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
           {/* header */}
           <div className="h-[10%]">
             <Header />
@@ -627,7 +627,7 @@ const DebtCollerterAgentSignUp = ({
                 </div>
               </div>
 
-              <input
+              <Input
                 placeholder="Email address"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -792,7 +792,7 @@ const DebtCollerterAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Where do you primarily collect debts?
               </div>
-              <input
+              <Input
                 placeholder="Specific cities, counties, or regions"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -805,7 +805,7 @@ const DebtCollerterAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Name of the company or collection agency you work with, if any.
               </div>
-              <input
+              <Input
                 placeholder="Name"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -818,7 +818,7 @@ const DebtCollerterAgentSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 What is the typical balance size of debts you recover?
               </div>
-              <input
+              <Input
                 placeholder="Type here"
                 className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -933,7 +933,7 @@ const DebtCollerterAgentSignUp = ({
                         style={{ display: 'flex', gap: '8px' }}
                       >
                         {Array.from({ length }).map((_, index) => (
-                          <input
+                          <Input
                             key={index}
                             ref={(el) => (verifyInputRef.current[index] = el)}
                             // type="text"
@@ -959,10 +959,8 @@ const DebtCollerterAgentSignUp = ({
                               height: '40px',
                               textAlign: 'center',
                               fontSize: '20px',
-                              border: '1px solid #ccc',
-                              borderRadius: '5px',
                             }}
-                            className=" focus:outline-none focus:ring-0"
+                            className="focus:outline-none focus:ring-0"
                           />
                         ))}
                       </div>
@@ -1012,7 +1010,7 @@ const DebtCollerterAgentSignUp = ({
           </div>
         </div>
 
-        <div className="h-[10%]">
+        <div className="h-[10%] flex flex-col justify-end">
           <div>
             <ProgressBar value={80} />
           </div>

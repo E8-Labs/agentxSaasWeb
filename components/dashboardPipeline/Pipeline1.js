@@ -154,6 +154,9 @@ const Pipeline1 = () => {
 
   //code for filter modal popup
   const [showFilterModal, setShowFilterModal] = useState(false)
+  const [selectedTeamMemberIds, setSelectedTeamMemberIds] = useState([]) // Temporary selection in modal
+  const [appliedTeamMemberIds, setAppliedTeamMemberIds] = useState([]) // Actually applied filter
+  const [filterTeamMembers, setFilterTeamMembers] = useState([])
 
   const handlePopoverOpen = (event) => {
     setActionInfoEl(event.currentTarget)
@@ -377,10 +380,71 @@ const Pipeline1 = () => {
 
         setMyTeamList(teams)
         setMyTeamAdmin(response.admin)
+        
+        // Also populate filter team members list
+        const filterMembers = []
+        if (response.admin) {
+          filterMembers.push({
+            id: response.admin.id,
+            name: response.admin.name,
+            email: response.admin.email,
+          })
+        }
+        if (response.data && response.data.length > 0) {
+          for (const t of response.data) {
+            if (t.status == 'Accepted' && t.invitedUser) {
+              filterMembers.push({
+                id: t.invitedUser.id,
+                name: t.invitedUser.name,
+                email: t.invitedUser.email,
+              })
+            }
+          }
+        }
+        setFilterTeamMembers(filterMembers)
       }
     } catch (error) {
       // console.error("Error occured in api is", error);
     }
+  }
+  
+  // Handler for team member filter selection
+  const handleTeamMemberFilterToggle = (memberId) => {
+    setSelectedTeamMemberIds((prev) => {
+      if (prev.includes(memberId)) {
+        return prev.filter((id) => id !== memberId)
+      } else {
+        return [...prev, memberId]
+      }
+    })
+  }
+  
+  // Handler to apply filter and refresh pipeline data
+  const handleApplyFilter = async () => {
+    const newAppliedIds = [...selectedTeamMemberIds]
+    setAppliedTeamMemberIds(newAppliedIds) // Apply the selected filters
+    setShowFilterModal(false)
+    if (SelectedPipeline) {
+      // Pass the IDs directly instead of relying on state
+      await getPipelineDetails(SelectedPipeline, newAppliedIds)
+    }
+  }
+  
+  // Handler to clear filter
+  const handleClearFilter = async () => {
+    setSelectedTeamMemberIds([])
+    setAppliedTeamMemberIds([])
+    setShowFilterModal(false)
+    if (SelectedPipeline) {
+      // Pass empty array directly instead of relying on state
+      await getPipelineDetails(SelectedPipeline, [])
+    }
+  }
+  
+  // When opening the filter modal, sync selectedTeamMemberIds with appliedTeamMemberIds
+  const handleOpenFilterModal = () => {
+    setSelectedTeamMemberIds([...appliedTeamMemberIds])
+    setShowFilterModal(true)
   }
 
   useEffect(() => {
@@ -610,7 +674,7 @@ const Pipeline1 = () => {
     return dataFound
   }
 
-  async function getPipelineDetails(pipeline) {
+  async function getPipelineDetails(pipeline, teamMemberIdsOverride = null) {
     //console.log;
     // console.log(
     //   "Pipeline index from getpipelinedetails is ",
@@ -626,7 +690,13 @@ const Pipeline1 = () => {
       }
 
       // //console.log;
-      const ApiPath = Apis.getPipelineById + '?pipelineId=' + pipeline.id
+      let ApiPath = Apis.getPipelineById + '?pipelineId=' + pipeline.id
+      // Use override if provided, otherwise use state
+      const teamMemberIdsToUse = teamMemberIdsOverride !== null ? teamMemberIdsOverride : appliedTeamMemberIds
+      // Add teamMemberIds to query if filter is active
+      if (teamMemberIdsToUse && teamMemberIdsToUse.length > 0) {
+        ApiPath += '&teamMemberIds=' + teamMemberIdsToUse.join(',')
+      }
       //console.log;
       setPipelineDetailLoader(true)
       const response = await axios.get(ApiPath, {
@@ -694,6 +764,10 @@ const Pipeline1 = () => {
       let ApiPath = `${Apis.getLeadsInStage}?offset=${offset}&stageId=${stageId}`
       if (search) {
         ApiPath = `${Apis.getLeadsInStage}?stageId=${stageId}&search=${search}&offset=${offset}`
+      }
+      // Add teamMemberIds to query if filter is active
+      if (appliedTeamMemberIds && appliedTeamMemberIds.length > 0) {
+        ApiPath += `&teamMemberIds=${appliedTeamMemberIds.join(',')}`
       }
       console.log(`Api path is ${ApiPath}`)
       const response = await axios.get(ApiPath, {
@@ -2099,6 +2173,79 @@ const Pipeline1 = () => {
                       />
                     </button>
                   </div>
+                  <button
+                    onClick={handleOpenFilterModal}
+                    className="outline-none"
+                    title="Filter"
+                  >
+                    <div className="flex flex-row">
+                      <svg
+                        width="22"
+                        height="22"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M22 6.5H16"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M6 6.5H2"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M10 10C11.933 10 13.5 8.433 13.5 6.5C13.5 4.567 11.933 3 10 3C8.067 3 6.5 4.567 6.5 6.5C6.5 8.433 8.067 10 10 10Z"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M22 17.5H18"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M8 17.5H2"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                        <path
+                          d="M14 21C15.933 21 17.5 19.433 17.5 17.5C17.5 15.567 15.933 14 14 14C12.067 14 10.5 15.567 10.5 17.5C10.5 19.433 12.067 21 14 21Z"
+                          stroke="currentColor"
+                          strokeWidth="1.5"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                      {appliedTeamMemberIds.length > 0 && (
+                        <div
+                          className="flex bg-red rounded-full min-w-[24px] px-[2px] h-6 flex-row items-center justify-center text-white flex-shrink-0"
+                          style={{
+                            fontSize: 13,
+                            marginTop: -13,
+                            alignSelf: 'flex-start',
+                            marginLeft: -15,
+                          }}
+                        >
+                          {appliedTeamMemberIds.length < 100
+                            ? appliedTeamMemberIds.length
+                            : '99+'}
+                        </div>
+                      )}
+                    </div>
+                  </button>
                   <div className="flex flex-col">
                     <NotficationsDrawer />
                   </div>
@@ -2633,14 +2780,17 @@ const Pipeline1 = () => {
                                     )}
 
                                     <div className="w-full flex flex-row items-center justify-between">
-                                      {lead?.lead?.teamsAssigned?.length > 0 ? (
-                                        <LeadTeamsAssignedList
-                                          users={lead?.lead?.teamsAssigned}
-                                          maxVisibleUsers={1}
-                                        />
-                                      ) : (
-                                        <div className="w-8 h-8" />
-                                      )}
+                                      <LeadTeamsAssignedList
+                                        users={lead?.lead?.teamsAssigned || []}
+                                        compactMode={true}
+                                        onAssignClick={(event) => {
+                                          // Open LeadDetails modal for assignment
+                                          setShowDetailsModal(true)
+                                          setSelectedLeadsDetails(lead.lead)
+                                          setPipelineId(lead.lead.pipeline?.id || '')
+                                          setNoteDetails(lead.lead.notes || [])
+                                        }}
+                                      />
                                       {/* <div className="flex flex-row items-center gap-3">
                                                                             <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
                                                                                 Tag
@@ -2664,25 +2814,21 @@ const Pipeline1 = () => {
                                                   className="flex flex-row items-center gap-2 px-2 py-1 rounded-lg"
                                                   style={{
                                                     backgroundColor: 'hsl(var(--brand-primary) / 0.15)',
+                                                    maxWidth: 'fit-content',
                                                   }}
                                                 >
                                                   <div
-                                                    className="text-brand-primary" //1C55FF10
+                                                    className="text-brand-primary"
+                                                    style={{
+                                                      fontSize: 13,
+                                                      maxWidth: '12ch',
+                                                      wordBreak: 'break-word',
+                                                      overflowWrap: 'break-word',
+                                                      whiteSpace: 'normal',
+                                                      lineHeight: '1.2',
+                                                    }}
                                                   >
-                                                    {tagVal.length > 4 ? (
-                                                      <div
-                                                        style={{ fontSize: 13 }}
-                                                      >
-                                                        {tagVal.slice(0, 4)}
-                                                        {'...'}
-                                                      </div>
-                                                    ) : (
-                                                      <div
-                                                        style={{ fontSize: 13 }}
-                                                      >
-                                                        {tagVal}
-                                                      </div>
-                                                    )}
+                                                    {tagVal}
                                                   </div>
                                                   {DelTagLoader &&
                                                   lead.lead.id ===
@@ -2760,7 +2906,7 @@ const Pipeline1 = () => {
                   </div>
                   <div className="h-[36px] flex flex-row items-start justify-center">
                     <button
-                      className="h-[23px] text-purple outline-none mt-2"
+                      className="h-[23px] text-brand-primary outline-none mt-2"
                       style={{
                         width: '200px',
                         fontSize: '16.8',
@@ -3287,9 +3433,7 @@ const Pipeline1 = () => {
                             </div>
                           </div>
                         </MenuItem> */}
-                              <MenuItem value="">
-                                <em>Delete</em>
-                              </MenuItem>
+                              
                               {myTeamList.map((item, index) => {
                                 return (
                                   <MenuItem
@@ -3496,7 +3640,7 @@ const Pipeline1 = () => {
                   </div>
                 ) : (
                   <button
-                    className="mt-4 outline-none  bg-purple"
+                    className="mt-4 outline-none  bg-brand-primary"
                     style={{
                       // backgroundColor: "#402FFF",
                       color: 'white',
@@ -3954,7 +4098,7 @@ const Pipeline1 = () => {
                       </div>
                     ) : (
                       <button
-                        className="w-full h-[50px] rounded-xl bg-purple text-white mt-12"
+                        className="w-full h-[50px] rounded-xl bg-brand-primary text-white mt-12"
                         style={{
                           fontWeight: '600',
                           fontSize: 16.8,
@@ -4067,7 +4211,7 @@ const Pipeline1 = () => {
                       <div>
                         <button
                           disabled={!showReorderBtn}
-                          className="w-full bg-purple text-white mt-6 h-[50px] rounded-xl text-xl font-[500]"
+                          className="w-full bg-brand-primary text-white mt-6 h-[50px] rounded-xl text-xl font-[500]"
                           onClick={() => {
                             handleReorder()
                           }}
@@ -4276,6 +4420,110 @@ const Pipeline1 = () => {
               </div>
             </Box>
           </Modal>
+          {/* Filter Modal for Team Members */}
+          <Modal
+            open={showFilterModal}
+            onClose={() => setShowFilterModal(false)}
+            closeAfterTransition
+            BackdropProps={{
+              timeout: 1000,
+              sx: {
+                backgroundColor: '#00000020',
+              },
+            }}
+          >
+            <Box
+              className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh] rounded-[13px]"
+              sx={{
+                height: 'auto',
+                bgcolor: 'transparent',
+                p: 0,
+                mx: 'auto',
+                my: '50vh',
+                transform: 'translateY(-55%)',
+                borderRadius: '13px',
+                border: 'none',
+                outline: 'none',
+                scrollbarWidth: 'none',
+                overflow: 'hidden',
+              }}
+            >
+              <div className="flex flex-col w-full">
+                <div
+                  className="w-full rounded-[13px] overflow-hidden"
+                  style={{
+                    backgroundColor: '#ffffff',
+                    padding: 20,
+                    paddingInline: 30,
+                    borderRadius: '13px',
+                  }}
+                >
+                  <div className="flex flex-row items-center justify-between mb-4">
+                    <div style={{ fontWeight: '700', fontSize: 22 }}>
+                      Filter
+                    </div>
+                    <CloseBtn onClick={() => setShowFilterModal(false)} />
+                  </div>
+                  
+                  <div
+                    className="mt-4"
+                    style={{
+                      maxHeight: '400px',
+                      overflowY: 'auto',
+                      border: '1px solid #00000020',
+                      borderRadius: '13px',
+                      padding: '10px',
+                    }}
+                  >
+                    {filterTeamMembers.length === 0 ? (
+                      <div className="text-center py-8 text-gray-500">
+                        No team members available
+                      </div>
+                    ) : (
+                      filterTeamMembers.map((member) => (
+                        <div
+                          key={member.id}
+                          className="flex flex-row items-center gap-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer"
+                          onClick={() => handleTeamMemberFilterToggle(member.id)}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedTeamMemberIds.includes(member.id)}
+                            onChange={() => handleTeamMemberFilterToggle(member.id)}
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                          />
+                          <div className="flex flex-col flex-1">
+                            <span className="font-medium text-gray-900">
+                              {member.name}
+                            </span>
+                            {member.email && (
+                              <span className="text-sm text-gray-500">
+                                {member.email}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                  
+                  <div className="w-full mt-4">
+                    <button
+                      onClick={handleApplyFilter}
+                      className="bg-purple h-[50px] rounded-xl text-white w-full"
+                      style={{
+                        fontWeight: '600',
+                        fontSize: 16,
+                      }}
+                    >
+                      Apply Filter
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </Box>
+          </Modal>
           {/* Code for side view */}
           {importantCalls?.length > 0 && (
             <div
@@ -4326,9 +4574,9 @@ const Pipeline1 = () => {
                             While you were away
                           </div>
                         </button>
-                        <div className="flex flex-col items-start ml-[30px] border border-purple rounded">
+                        <div className="flex flex-col items-start ml-[30px] border border-brand-primary rounded">
                           <button
-                            className="text-purple  px-2"
+                            className="text-brand-primary  px-2"
                             onClick={() => {
                               // setExpandSideView(false);
                               setOpenCallWorthyPopup(true)

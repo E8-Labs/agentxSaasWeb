@@ -1,11 +1,11 @@
 import { Box, CircularProgress, Modal } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
-import { termsAndConditionUrl } from '@/constants/Constants'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
 import Apis from '../apis/Apis'
 import getProfileDetails from '../apis/GetProfile'
@@ -16,11 +16,7 @@ import AgentSelectSnackMessage, {
 import { handleAutoCharge } from './PlansView'
 
 const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
-  let stripePublickKey =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-      ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-      : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-  const stripePromise = loadStripe(stripePublickKey)
+  const stripePromise = getStripe()
 
   const [subscribePlanLoader, setSubscribePlanLoader] = useState(false)
   const [addPaymentPopup, setAddPaymentPopup] = useState(false)
@@ -301,7 +297,8 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
               href="#"
               className="text-purple "
               onClick={() => {
-                window.open(termsAndConditionUrl)
+                const { termsUrl } = getPolicyUrls()
+                window.open(termsUrl, '_blank')
               }}
             >
               Terms & Conditions

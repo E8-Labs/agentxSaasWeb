@@ -110,7 +110,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
           const parsedUser = JSON.parse(userData)
           setIsSubaccount(
             parsedUser?.user?.userRole === 'AgencySubAccount' ||
-              parsedUser?.userRole === 'AgencySubAccount',
+            parsedUser?.userRole === 'AgencySubAccount',
           )
         }
       } catch (error) {
@@ -163,6 +163,24 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       }
     }
   }, [])
+
+  // Update showGlobalBtn for subaccounts based on agency global number availability
+  useEffect(() => {
+    if (userData?.userRole === 'AgencySubAccount') {
+      const globalNumber = getGlobalPhoneNumber(userData)
+      // Only show global button if agency has a global number
+      // Don't override if it was already set to false for inbound agents
+      const localAgentsData = localStorage.getItem('agentDetails')
+      if (localAgentsData) {
+        const agetnDetails = JSON.parse(localAgentsData)
+        if (agetnDetails?.agents[0]?.agentType !== 'inbound') {
+          setShowGlobalBtn(globalNumber !== null)
+        }
+      } else {
+        setShowGlobalBtn(globalNumber !== null)
+      }
+    }
+  }, [userData])
 
   useEffect(() => {
     // //console.log;
@@ -583,12 +601,33 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
   return (
     <div
-      style={{ width: '100%' }}
-      className="overflow-y-hidden flex flex-row justify-center items-center"
+
+      className="relative overflow-y-hidden flex flex-row justify-center items-center"
+      style={{ with: '100%', overflowY: 'hidden', overflowX: 'visible' }}
     >
+      {/* Video positioned outside left border - similar to CreateAgent1 */}
       <div
-        className="bg-white sm:rounded-2xl w-full sm:w-10/12 h-[90vh] py-4 flex flex-col justify-between"
-        // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+        className="hidden lg:block -ml-4 xl:w-[260px] lg:w-[240px] "
+        style={{
+          position: 'absolute',
+          top: '20%',
+          zIndex: 1000,
+          left: '8%',
+        }}
+      >
+        <VideoCard
+          duration={'1:52'}
+          horizontal={false}
+          playVideo={() => {
+            setIntroVideoModal(true)
+          }}
+          title="Learn about phone numbers"
+        />
+      </div>
+      <div
+        className="relative bg-white sm:rounded-2xl w-10/12 h-[96svh] py-4 px-4 sm:px-6 flex flex-col"
+        style={{ overflowY: 'hidden', overflowX: 'visible' }}
+      // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
         <AgentSelectSnackMessage
           message={showSnackMsg.message}
@@ -598,654 +637,624 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             setShowSnackMsg({ type: null, message: '', isVisible: false })
           }
         />
-        <div>
-          {/* Video Card */}
+        <div className="flex-1 flex flex-col h-[90svh] overflow-y-hidden relative" style={{ overflowX: 'visible' }}>
+          {/* Video Card - positioned on main div with high z-index */}
           <IntroVideoModal
             open={introVideoModal}
             onClose={() => setIntroVideoModal(false)}
             videoTitle="Learn about phone numbers"
             videoUrl={HowtoVideos.LetsTalkDigits}
           />
+
+
+
           {/* header */}
           <Header />
           {/* Body */}
-          <div
-            className="-ml-4 lg:flex hidden  xl:w-[280px] lg:w-[280px]"
-            style={{
-              position: 'absolute',
-              // left: "18%",
-              // translate: "-50%",
-              // left: "14%",
-              top: '20%',
-              // backgroundColor: "red"
-            }}
-          >
-            <VideoCard
-              duration={'1:52'}
-              horizontal={false}
-              playVideo={() => {
-                setIntroVideoModal(true)
-              }}
-              title="Learn about phone numbers"
-            />
-          </div>
-          <div
-            className="flex flex-col items-center px-4 w-full"
-            style={{
-              paddingTop: isSubaccount ? '50px' : undefined,
-            }}
-          >
-            <div
-              className="w-11/12 md:text-4xl text-lg font-[600]"
-              style={{
-                textAlign: 'center',
-                marginTop: isSubaccount ? '-80px' : '24px',
-                marginBottom: '16px',
-              }}
-              // onClick={handleContinue}
-            >
-              {`Let's talk digits`}
-            </div>
-            <div
-              className="w-11/12 sm:w-6/12 gap-4 flex flex-col h-auto overflow-auto"
-              // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
-              style={{ scrollbarWidth: 'none' }}
-            >
-              <div style={styles.headingStyle}>
-                {`Select a phone number you'd like to use to call with`}
+          <div className="flex flex-col items-center w-full relative h-[88%] overflow-y-auto" style={{ overflowX: 'visible' }}>
+            <div className="w-full flex flex-col gap-8 items-center px-4">
+              <div className="w-11/12 md:text-4xl text-xl font-[700] text-center">
+                {`Let's talk digits`}
               </div>
 
-              <div
-                className="border rounded-lg focus-within:border-black transition-colors"
-                style={{
-                  height: 'clamp(45px, 50px, 55px)',
-                  fontSize: 'clamp(11px, 2vw, 13px)',
-                  overflow: 'hidden',
-                  boxSizing: 'border-box',
-                  border: '1px solid #00000020',
-                }}
-              >
-                <Box className="w-full h-full">
-                  <FormControl className="w-full h-full  justify-center">
-                    <Select
-                      ref={selectRef}
-                      open={openCalimNumDropDown}
-                      onClose={() => setOpenCalimNumDropDown(false)}
-                      onOpen={() => setOpenCalimNumDropDown(true)}
-                      className="border-none rounded-2xl outline-none"
-                      displayEmpty
-                      value={selectNumber}
-                      // onChange={handleSelectNumber}
-                      onChange={(e) => {
-                        let value = e.target.value
-                        console.log('Value updated bcz clicked on menu item')
-                        if (agentType?.agentType !== 'inbound') {
-                          console.log('Value for outbound is', value)
-                          setSelectNumber(value)
-                          setOpenCalimNumDropDown(false)
-                        }
-                      }}
-                      renderValue={(selected) => {
-                        if (selected === '') {
-                          return <div>Select Number</div>
-                        }
-                        return selected
-                      }}
-                      sx={{
-                        ...styles.dropdownMenu,
-                        backgroundColor: '#FFFFFF',
-                        height: '100%',
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          border: 'none',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          border: 'none',
-                        },
-                        '& .MuiSelect-select': {
-                          display: 'flex',
-                          alignItems: 'center',
-                          height: '100%',
-                        },
-                        '&:focus': {
-                          outline: 'none',
-                        },
-                      }}
-                    >
-                      {previousNumber.map((item, index) => (
-                        <MenuItem
-                          key={index}
-                          style={{
-                            ...styles.dropdownMenu,
-                            fontSize: 'clamp(11px, 2vw, 13px)',
-                            padding: 'clamp(4px, 0.8vw, 8px)',
-                            minHeight: 'clamp(30px, 35px, 40px)',
-                          }}
-                          value={
-                            item?.phoneNumber?.startsWith('+')
-                              ? item?.phoneNumber.slice(1)
-                              : item?.phoneNumber
-                          }
-                          disabled={
-                            typeof selectNumber === 'string' &&
-                            selectNumber.replace('+', '') ===
-                              item.phoneNumber.replace('+', '')
-                          }
-                          className="flex flex-row items-center gap-2"
-                          onClick={(e) => {
-                            console.log('Menu item clicked')
-                            // return;
-                            if (showReassignBtn && item?.claimedBy) {
-                              e.stopPropagation()
-                              setShowConfirmationModal(item)
-                              console.log('Hit release number api', item)
-                              // AssignNumber
-                            } else {
-                              AssignNumber()
+              <div className="w-full flex flex-col lg:flex-row items-start justify-center gap-10 relative" style={{ overflowX: 'visible' }}>
+
+                {/* Centered form content - container is centered, but items inside are left-aligned */}
+                <div className="flex flex-col gap-6 w-full lg:w-auto items-start" style={{ maxWidth: '600px' }}>
+                  <div style={styles.headingStyle} className="w-full text-left">
+                    {`Select a phone number you'd like to use to call with`}
+                  </div>
+
+                  <div
+                    className="border rounded-lg focus-within:border-black transition-colors w-full"
+                    style={{
+                      height: 'clamp(45px, 50px, 55px)',
+                      fontSize: 'clamp(11px, 2vw, 13px)',
+                      overflow: 'hidden',
+                      boxSizing: 'border-box',
+                      border: '1px solid #00000020',
+                    }}
+                  >
+                    <Box className="w-full h-full">
+                      <FormControl className="w-full h-full  justify-center">
+                        <Select
+                          ref={selectRef}
+                          open={openCalimNumDropDown}
+                          onClose={() => setOpenCalimNumDropDown(false)}
+                          onOpen={() => setOpenCalimNumDropDown(true)}
+                          className="border-none rounded-2xl outline-none"
+                          displayEmpty
+                          value={selectNumber}
+                          // onChange={handleSelectNumber}
+                          onChange={(e) => {
+                            let value = e.target.value
+                            console.log('Value updated bcz clicked on menu item')
+                            if (agentType?.agentType !== 'inbound') {
+                              console.log('Value for outbound is', value)
+                              setSelectNumber(value)
+                              setOpenCalimNumDropDown(false)
                             }
                           }}
+                          renderValue={(selected) => {
+                            if (selected === '') {
+                              return <div>Select Number</div>
+                            }
+                            return selected
+                          }}
+                          sx={{
+                            ...styles.dropdownMenu,
+                            backgroundColor: '#FFFFFF',
+                            height: '100%',
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              border: 'none',
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                              border: 'none',
+                            },
+                            '& .MuiSelect-select': {
+                              display: 'flex',
+                              alignItems: 'center',
+                              height: '100%',
+                            },
+                            '&:focus': {
+                              outline: 'none',
+                            },
+                          }}
                         >
-                          <div
-                          // (
-                          //   console.log(
-                          //     `Comparing names: agentName="${agentType?.agentName}", claimedBy="${item.claimedBy.name}", equal=${agentType?.agentName?.trim() === item.claimedBy.name?.trim()}`
-                          //   ),
-                          //   agentType?.agentName?.trim() !== item.claimedBy.name?.trim() &&
-                          >
-                            {item.phoneNumber}
-                          </div>
-                          {showReassignBtn && (
-                            <div>
-                              {item.claimedBy && (
-                                <div
-                                  className="flex flex-row items-center"
-                                  onClick={(e) => {
-                                    if (item?.claimedBy) {
-                                      e.stopPropagation()
-                                      setShowConfirmationModal(item)
-                                    }
-                                  }}
-                                >
-                                  <div className="text-[#15151570] me-1">
-                                    (Claimed by {item.claimedBy.name})
-                                  </div>
-                                  {reassignLoader?.claimedBy?.id ===
-                                  item.claimedBy.id ? (
-                                    <CircularProgress size={15} />
-                                  ) : (
-                                    <button
-                                      className="text-brand-primary underline"
+                          {previousNumber.map((item, index) => (
+                            <MenuItem
+                              key={index}
+                              style={{
+                                ...styles.dropdownMenu,
+                                fontSize: 'clamp(11px, 2vw, 13px)',
+                                padding: 'clamp(4px, 0.8vw, 8px)',
+                                minHeight: 'clamp(30px, 35px, 40px)',
+                              }}
+                              value={
+                                item?.phoneNumber?.startsWith('+')
+                                  ? item?.phoneNumber.slice(1)
+                                  : item?.phoneNumber
+                              }
+                              disabled={
+                                typeof selectNumber === 'string' &&
+                                selectNumber.replace('+', '') ===
+                                item.phoneNumber.replace('+', '')
+                              }
+                              className="flex flex-row items-center gap-2"
+                              onClick={(e) => {
+                                console.log('Menu item clicked')
+                                // return;
+                                if (showReassignBtn && item?.claimedBy) {
+                                  e.stopPropagation()
+                                  setShowConfirmationModal(item)
+                                  console.log('Hit release number api', item)
+                                  // AssignNumber
+                                } else {
+                                  AssignNumber()
+                                }
+                              }}
+                            >
+                              <div
+                              // (
+                              //   console.log(
+                              //     `Comparing names: agentName="${agentType?.agentName}", claimedBy="${item.claimedBy.name}", equal=${agentType?.agentName?.trim() === item.claimedBy.name?.trim()}`
+                              //   ),
+                              //   agentType?.agentName?.trim() !== item.claimedBy.name?.trim() &&
+                              >
+                                {item.phoneNumber}
+                              </div>
+                              {showReassignBtn && (
+                                <div>
+                                  {item.claimedBy && (
+                                    <div
+                                      className="flex flex-row items-center"
                                       onClick={(e) => {
-                                        e.stopPropagation()
-                                        // handleReassignNumber(item);
-                                        setShowConfirmationModal(item)
-                                        // handleReassignNumber(e.target.value)
+                                        if (item?.claimedBy) {
+                                          e.stopPropagation()
+                                          setShowConfirmationModal(item)
+                                        }
                                       }}
                                     >
-                                      Reassign
-                                    </button>
+                                      <div className="text-[#15151570] me-1">
+                                        (Claimed by {item.claimedBy.name})
+                                      </div>
+                                      {reassignLoader?.claimedBy?.id ===
+                                        item.claimedBy.id ? (
+                                        <CircularProgress size={15} />
+                                      ) : (
+                                        <button
+                                          className="text-brand-primary underline"
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            // handleReassignNumber(item);
+                                            setShowConfirmationModal(item)
+                                            // handleReassignNumber(e.target.value)
+                                          }}
+                                        >
+                                          Reassign
+                                        </button>
+                                      )}
+                                    </div>
                                   )}
                                 </div>
                               )}
-                            </div>
+                            </MenuItem>
+                          ))}
+                          {showGlobalBtn && getGlobalPhoneNumber(userData) && (
+                            <MenuItem
+                              style={styles.dropdownMenu}
+                              value={
+                                getGlobalPhoneNumber(userData)?.replace('+', '') || ''
+                              }
+                            >
+                              {getGlobalPhoneNumber(userData)}
+                              {' (available for testing calls only)'}
+                            </MenuItem>
                           )}
-                        </MenuItem>
-                      ))}
-                      <MenuItem
-                        style={styles.dropdownMenu}
-                        value={
-                          showGlobalBtn
-                            ? getGlobalPhoneNumber(userData).replace('+', '')
-                            : ''
-                        }
-                      >
-                        {getGlobalPhoneNumber(userData)}
-                        {showGlobalBtn && ' (available for testing calls only)'}
-                        {showGlobalBtn == false &&
-                          ' (Only for outbound agents. You must buy a number)'}
-                      </MenuItem>
-                      <div
-                        className="ms-4"
-                        style={{ ...styles.inputStyle, color: '#00000070' }}
-                      >
-                        <i>Get your own unique phone number.</i>{' '}
-                        <button
-                          className="text-brand-primary underline"
-                          style={{ fontSize: 'clamp(10px, 2vw, 14px)' }}
-                          onClick={() => {
-                            setShowClaimPopup(true)
+                          <div
+                            className="ms-4"
+                            style={{ ...styles.inputStyle, color: '#00000070' }}
+                          >
+                            <i>Get your own unique phone number.</i>{' '}
+                            <button
+                              className="text-brand-primary underline"
+                              style={{ fontSize: 'clamp(10px, 2vw, 14px)' }}
+                              onClick={() => {
+                                setShowClaimPopup(true)
+                              }}
+                            >
+                              Claim one
+                            </button>
+                          </div>
+                        </Select>
+                      </FormControl>
+                    </Box>
+                  </div>
+
+                  {/* Code for Purchase and find number popup */}
+                  {showClaimPopup && (
+                    <ClaimNumber
+                      showClaimPopup={showClaimPopup}
+                      handleCloseClaimPopup={handleCloseClaimPopup}
+                      setOpenCalimNumDropDown={setOpenCalimNumDropDown}
+                      setSelectNumber={(number) => {
+                        console.log('Number is', number)
+                        setSelectNumber(number)
+                      }}
+                      setPreviousNumber={(numbers) => {
+                        console.log('Numbers are', numbers)
+                        setPreviousNumber(numbers)
+                      }}
+                      previousNumber={previousNumber}
+                    />
+                  )}
+
+                  {/* Code for Purchase number success popup */}
+                  <Modal
+                    open={openPurchaseSuccessModal}
+                    // onClose={() => setAddKYCQuestion(false)}
+                    closeAfterTransition
+                    BackdropProps={{
+                      timeout: 1000,
+                      sx: {
+                        backgroundColor: '#00000020',
+                        // //backdropFilter: "blur(20px)",
+                      },
+                    }}
+                  >
+                    <Box
+                      className="lg:w-8/12 sm:w-full w-8/12"
+                      sx={styles.claimPopup}
+                    >
+                      <div className="flex flex-row justify-center w-full">
+                        <div
+                          className="sm:w-8/12 w-full min-h-[50vh] max-h-[80vh] flex flex-col justify-between"
+                          style={{
+                            backgroundColor: '#ffffff',
+                            padding: 20,
+                            borderRadius: '13px',
                           }}
                         >
-                          Claim one
-                        </button>
-                      </div>
-                    </Select>
-                  </FormControl>
-                </Box>
-              </div>
-
-              {/* Code for Purchase and find number popup */}
-              {showClaimPopup && (
-                <ClaimNumber
-                  showClaimPopup={showClaimPopup}
-                  handleCloseClaimPopup={handleCloseClaimPopup}
-                  setOpenCalimNumDropDown={setOpenCalimNumDropDown}
-                  setSelectNumber={(number) => {
-                    console.log('Number is', number)
-                    setSelectNumber(number)
-                  }}
-                  setPreviousNumber={(numbers) => {
-                    console.log('Numbers are', numbers)
-                    setPreviousNumber(numbers)
-                  }}
-                  previousNumber={previousNumber}
-                />
-              )}
-
-              {/* Code for Purchase number success popup */}
-              <Modal
-                open={openPurchaseSuccessModal}
-                // onClose={() => setAddKYCQuestion(false)}
-                closeAfterTransition
-                BackdropProps={{
-                  timeout: 1000,
-                  sx: {
-                    backgroundColor: '#00000020',
-                    // //backdropFilter: "blur(20px)",
-                  },
-                }}
-              >
-                <Box
-                  className="lg:w-8/12 sm:w-full w-8/12"
-                  sx={styles.claimPopup}
-                >
-                  <div className="flex flex-row justify-center w-full">
-                    <div
-                      className="sm:w-8/12 w-full min-h-[50vh] max-h-[80vh] flex flex-col justify-between"
-                      style={{
-                        backgroundColor: '#ffffff',
-                        padding: 20,
-                        borderRadius: '13px',
-                      }}
-                    >
-                      <div>
-                        <div className="flex flex-row justify-end">
-                          {/* <button onClick={() => { setOpenPurchaseSuccessModal(false) }}>
+                          <div>
+                            <div className="flex flex-row justify-end">
+                              {/* <button onClick={() => { setOpenPurchaseSuccessModal(false) }}>
                                                         <Image src={"/assets/crossIcon.png"} height={40} width={40} alt='*' />
                                                     </button> */}
+                            </div>
+                            <PurchaseNumberSuccess
+                              selectedNumber={selectedPurchasedNumber}
+                              handleContinue={() => {
+                                setOpenPurchaseSuccessModal(false)
+                              }}
+                            />
+                          </div>
                         </div>
-                        <PurchaseNumberSuccess
-                          selectedNumber={selectedPurchasedNumber}
-                          handleContinue={() => {
-                            setOpenPurchaseSuccessModal(false)
-                          }}
-                        />
                       </div>
-                    </div>
-                  </div>
-                </Box>
-              </Modal>
+                    </Box>
+                  </Modal>
 
-              <button
-                onClick={() => {
-                  // setOpenPurchaseSuccessModal(true);
-                }}
-                style={styles.headingStyle}
-                className="text-start"
-              >
-                What callback number should we use if someone requests one
-                during a call?
-              </button>
+                  <button
+                    onClick={() => {
+                      // setOpenPurchaseSuccessModal(true);
+                    }}
+                    style={styles.headingStyle}
+                    className="text-left w-full"
+                  >
+                    What callback number should we use if someone requests one
+                    during a call?
+                  </button>
 
-              <div
-                className="flex flex-row items-center overflow-x-auto"
-                style={{
-                  scrollbarWidth: 'none',
-                  overflowY: 'hidden',
-                  height: 'clamp(40px, 45px, 50px)',
-                  flexShrink: 0,
-                  paddingBottom: '3px',
-                  gap: 'clamp(5px, 1.2vw, 10px)',
-                }}
-              >
-                <div
-                  className="flex flex-row items-center min-w-full"
-                  style={{ gap: 'clamp(5px, 1.2vw, 10px)' }}
-                >
-                  {previousNumber.map((item, index) => (
-                    <button
-                      key={index}
-                      className="flex flex-row items-center justify-center rounded-lg transition-all duration-200"
-                      style={{
-                        ...styles.callBackStyles,
-                        width: 'clamp(100px, 22vw, 220px)',
-                        height: 'clamp(30px, 35px, 40px)',
-                        fontSize: 'clamp(9px, 1.8vw, 13px)',
-                        border:
-                          userSelectedNumber === item
+                  <div
+                    className="flex flex-row items-center overflow-x-auto justify-start w-full"
+                    style={{
+                      scrollbarWidth: 'none',
+                      overflowY: 'visible',
+                      flexShrink: 0,
+                      paddingTop: '6px',
+                      paddingBottom: '6px',
+                      gap: 'clamp(5px, 1.2vw, 10px)',
+                    }}
+                  >
+                    <div
+                      className="flex flex-row items-center min-w-full"
+                      style={{ gap: 'clamp(5px, 1.2vw, 10px)' }}
+                    >
+                      {previousNumber.map((item, index) => (
+                        <button
+                          key={index}
+                          className="flex flex-row items-center justify-center rounded-lg transition-all duration-200"
+                          style={{
+                            ...styles.callBackStyles,
+                            width: 'clamp(100px, 22vw, 220px)',
+                            height: 'clamp(30px, 35px, 40px)',
+                            fontSize: 'clamp(9px, 1.8vw, 13px)',
+                            border:
+                              userSelectedNumber === item
+                                ? '2px solid hsl(var(--brand-primary))'
+                                : '1px solid #15151550',
+                            backgroundColor:
+                              userSelectedNumber === item ? 'hsl(var(--brand-primary) / 0.1)' : '#fff',
+                            minWidth: 'clamp(85px, 18vw, 150px)',
+                            maxWidth: '220px',
+                            whiteSpace: 'nowrap',
+                            padding: 'clamp(5px, 0.8vw, 10px)',
+                          }}
+                          onClick={() => handleSelectedNumberClick(item)}
+                        >
+                          Use {formatPhoneNumber(item.phoneNumber)}
+                        </button>
+                      ))}
+                      <button
+                        className="flex flex-row items-center justify-center rounded-lg transition-all duration-200"
+                        style={{
+                          ...styles.callBackStyles,
+                          width: 'clamp(100px, 22vw, 200px)',
+                          height: 'clamp(30px, 35px, 40px)',
+                          fontSize: 'clamp(9px, 1.8vw, 13px)',
+                          border: useOfficeNumber
                             ? '2px solid hsl(var(--brand-primary))'
                             : '1px solid #15151550',
-                        backgroundColor:
-                          userSelectedNumber === item ? 'hsl(var(--brand-primary) / 0.1)' : '#fff',
-                        minWidth: 'clamp(85px, 18vw, 150px)',
-                        maxWidth: '220px',
-                        whiteSpace: 'nowrap',
-                        padding: 'clamp(5px, 0.8vw, 10px)',
-                      }}
-                      onClick={() => handleSelectedNumberClick(item)}
-                    >
-                      Use {formatPhoneNumber(item.phoneNumber)}
-                    </button>
-                  ))}
-                  <button
-                    className="flex flex-row items-center justify-center rounded-lg transition-all duration-200"
-                    style={{
-                      ...styles.callBackStyles,
-                      width: 'clamp(100px, 22vw, 200px)',
-                      height: 'clamp(30px, 35px, 40px)',
-                      fontSize: 'clamp(9px, 1.8vw, 13px)',
-                      border: useOfficeNumber
-                        ? '2px solid hsl(var(--brand-primary))'
-                        : '1px solid #15151550',
-                      backgroundColor: useOfficeNumber ? 'hsl(var(--brand-primary) / 0.1)' : '#fff',
-                      minWidth: 'clamp(85px, 18vw, 150px)',
-                      maxWidth: '200px',
-                      whiteSpace: 'nowrap',
-                      padding: 'clamp(5px, 0.8vw, 9px)',
-                    }}
-                    onClick={handleOfficeNumberClick}
-                  >
-                    Use my cell or office number
-                  </button>
-                </div>
-              </div>
-
-              {showOfficeNumberInput ? (
-                <div className="w-full">
-                  <div className="mt-2" style={styles.dropdownMenu}>
-                    Enter your cell or office number
-                  </div>
-
-                  <PhoneInput
-                    containerClass="phone-input-container"
-                    className="outline-none bg-white focus:ring-0"
-                    country={'us'} // restrict to US only
-                    onlyCountries={['us', 'mx']}
-                    disableDropdown={true}
-                    countryCodeEditable={false}
-                    disableCountryCode={false}
-                    value={officeNumber}
-                    onChange={handleOfficeNumberChange}
-                    // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                    placeholder={'Enter Phone Number'}
-                    // disabled={loading} // Disable input if still loading
-                    style={{
-                      borderRadius: '7px',
-                      border: '1px solid #00000020',
-                      outline: 'none',
-                      boxShadow: 'none',
-                    }}
-                    inputStyle={{
-                      width: '100%',
-                      borderWidth: '0px',
-                      backgroundColor: 'transparent',
-                      paddingLeft: '60px',
-                      paddingTop: '10px',
-                      paddingBottom: '10px',
-                      paddingRight: '12px',
-                      outline: 'none',
-                      boxShadow: 'none',
-                    }}
-                    buttonStyle={{
-                      border: 'none',
-                      backgroundColor: 'transparent',
-                      outline: 'none',
-                    }}
-                    dropdownStyle={{
-                      maxHeight: '150px',
-                      overflowY: 'auto',
-                    }}
-                    // defaultMask={locationLoader ? "Loading..." : undefined}
-                  />
-                  {officeErrorMessage && (
-                    <div
-                      className="mt-2"
-                      style={{ fontWeight: '500', fontSize: 11, color: 'red' }}
-                    >
-                      {officeErrorMessage}
-                    </div>
-                  )}
-                </div>
-              ) : (
-                ''
-              )}
-
-              {/* Phone number input here */}
-              {userData?.userRole === 'AgencySubAccount' &&
-              userData?.agencyCapabilities?.allowLiveCallTransfer === false ? (
-                // userData?.agencyCapabilities?.allowLiveCallTransfer === true || userData?.planCapabilities?.allowLiveCallTransfer === true)
-                <div className="w-full h-[35vh]  flex items-center justify-center">
-                  <UpgardView
-                    setShowSnackMsg={setShowSnackMsg}
-                    title={'Enable Live Transfer'}
-                    subTitle={
-                      'Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation.'
-                    }
-                    userData={userData}
-                    onUpgradeSuccess={(userData) => {
-                      console.log(
-                        '🔥 CREATEAGENT4 - LT:Upgrade successful',
-                        userData,
-                      )
-                      console.log('🔥 CREATEAGENT4 - UserData type check:', {
-                        hasToken: userData?.hasOwnProperty('token'),
-                        hasUser: userData?.hasOwnProperty('user'),
-                        isFullFormat:
-                          userData?.hasOwnProperty('token') &&
-                          userData?.hasOwnProperty('user'),
-                        dataStructure: Object.keys(userData || {}),
-                      })
-
-                      console.log(
-                        '🔥 CREATEAGENT4 - About to call setUpdatedUserData',
-                      )
-                      setUpdatedUserData(userData)
-                      console.log(
-                        '🔥 CREATEAGENT4 - About to call setUserData (Redux)',
-                      )
-                      setUserData(userData)
-                      console.log(
-                        '🔥 CREATEAGENT4 - Both setters called successfully',
-                      )
-
-                      // Verify localStorage was updated
-                      setTimeout(() => {
-                        const localStorageData = localStorage.getItem('User')
-                        console.log(
-                          '🔥 CREATEAGENT4 - localStorage after update:',
-                          localStorageData
-                            ? JSON.parse(localStorageData)
-                            : null,
-                        )
-                      }, 100)
-                    }}
-                    // handleContinue={handleContinue}
-                  />
-                </div>
-              ) : isFromAgencyOrAdmin?.planCapabilities
-                  ?.allowLiveCallTransfer === true ||
-                (!isFromAgencyOrAdmin &&
-                  userData?.planCapabilities?.allowLiveCallTransfer ===
-                    true) ? (
-                <div className="">
-                  <div className="w-full">
-                    <div style={styles.headingStyle}>
-                      What number should we forward live transfers to when a
-                      lead wants to talk to you?
-                    </div>
-                    <PhoneInput
-                      containerClass="phone-input-container"
-                      className="outline-none bg-white mt-2 focus:ring-0"
-                      country={'us'} // restrict to US only
-                      onlyCountries={['us', 'mx']}
-                      disableDropdown={true}
-                      countryCodeEditable={false}
-                      disableCountryCode={false}
-                      value={callBackNumber}
-                      onChange={handleCallBackNumberChange}
-                      // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                      placeholder={'Enter Phone Number'}
-                      // disabled={loading} // Disable input if still loading
-                      style={{
-                        borderRadius: '7px',
-                        border: '1px solid #00000020',
-                        outline: 'none',
-                        boxShadow: 'none',
-                      }}
-                      inputStyle={{
-                        width: '100%',
-                        borderWidth: '0px',
-                        backgroundColor: 'transparent',
-                        paddingLeft: '60px',
-                        paddingTop: '14px',
-                        paddingBottom: '14px',
-                        paddingRight: '16px',
-                        outline: 'none',
-                        boxShadow: 'none',
-                      }}
-                      buttonStyle={{
-                        border: 'none',
-                        backgroundColor: 'transparent',
-                        outline: 'none',
-                      }}
-                      dropdownStyle={{
-                        maxHeight: '150px',
-                        overflowY: 'auto',
-                      }}
-                      // defaultMask={locationLoader ? "Loading..." : undefined}
-                    />
-                    <div
-                      style={{ fontWeight: '500', fontSize: 11, color: 'red' }}
-                    >
-                      {errorMessage}
+                          backgroundColor: useOfficeNumber ? 'hsl(var(--brand-primary) / 0.1)' : '#fff',
+                          minWidth: 'clamp(85px, 18vw, 150px)',
+                          maxWidth: '200px',
+                          whiteSpace: 'nowrap',
+                          padding: 'clamp(5px, 0.8vw, 9px)',
+                        }}
+                        onClick={handleOfficeNumberClick}
+                      >
+                        Use my cell or office number
+                      </button>
                     </div>
                   </div>
-                  <div className="flex flex-row items-center gap-4 justify-start">
-                    <button onClick={handleToggleClick}>
-                      {toggleClick ? (
+
+                  {showOfficeNumberInput ? (
+                    <div className="w-full flex flex-col items-start">
+                      <div className="mt-2" style={styles.dropdownMenu}>
+                        Enter your cell or office number
+                      </div>
+
+                      <PhoneInput
+                        containerClass="phone-input-container"
+                        className="outline-none bg-white focus:ring-0"
+                        country={'us'} // restrict to US only
+                        onlyCountries={['us', 'mx']}
+                        disableDropdown={true}
+                        countryCodeEditable={false}
+                        disableCountryCode={false}
+                        value={officeNumber}
+                        onChange={handleOfficeNumberChange}
+                        placeholder={'Enter Phone Number'}
+                        style={{
+                          borderRadius: '7px',
+                          border: '1px solid #00000020',
+                          outline: 'none',
+                          boxShadow: 'none',
+                          width: '100%',
+                        }}
+                        inputStyle={{
+                          width: '100%',
+                          borderWidth: '0px',
+                          backgroundColor: 'transparent',
+                          paddingLeft: '60px',
+                          paddingTop: '14px',
+                          paddingBottom: '14px',
+                          paddingRight: '16px',
+                          outline: 'none',
+                          boxShadow: 'none',
+                        }}
+                        buttonStyle={{
+                          border: 'none',
+                          backgroundColor: 'transparent',
+                          outline: 'none',
+                        }}
+                        dropdownStyle={{
+                          maxHeight: '150px',
+                          overflowY: 'auto',
+                        }}
+                      />
+                      {officeErrorMessage && (
                         <div
-                          className="bg-brand-primary flex flex-row items-center justify-center rounded"
-                          style={{ height: '24px', width: '24px' }}
+                          className="mt-2"
+                          style={{ fontWeight: '500', fontSize: 11, color: 'red' }}
                         >
-                          <Image
-                            src={'/assets/whiteTick.png'}
-                            height={8}
-                            width={10}
-                            alt="*"
-                          />
+                          {officeErrorMessage}
                         </div>
-                      ) : (
-                        <div
-                          className="bg-none border-2 flex flex-row items-center justify-center rounded"
-                          style={{ height: '24px', width: '24px' }}
-                        ></div>
                       )}
-                    </button>
-                    <div
-                      style={{
-                        color: '#151515',
-                        fontSize: 15,
-                        fontWeight: '500',
-                        marginLeft: '8px',
-                      }}
-                    >
-                      {`Don't make live transfers. Prefer the AI Agent schedules them for a call back.`}
                     </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="w-full  flex items-center justify-center -mt-6 sm:-mt-8 md:-mt-10">
-                  <div className="w-full h-[35vh] flex items-center justify-center">
-                    <UpgardView
-                      setShowSnackMsg={setShowSnackMsg}
-                      title={'Enable Live Transfer'}
-                      subTitle={
-                        'Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation.'
-                      }
-                      userData={userData}
-                      onUpgradeSuccess={(userData) => {
-                        console.log(
-                          '🔥 CREATEAGENT4 - Second LT:Upgrade successful',
-                          userData,
-                        )
-                        console.log(
-                          '🔥 CREATEAGENT4 - Second - UserData type check:',
-                          {
+                  ) : (
+                    ''
+                  )}
+
+                  {/* Phone number input here */}
+                  {userData?.userRole === 'AgencySubAccount' &&
+                    userData?.agencyCapabilities?.allowLiveCallTransfer === false ? (
+                    // userData?.agencyCapabilities?.allowLiveCallTransfer === true || userData?.planCapabilities?.allowLiveCallTransfer === true)
+                    <div className="w-full h-[35vh]  flex items-center justify-center">
+                      <UpgardView
+                        setShowSnackMsg={setShowSnackMsg}
+                        title={'Enable Live Transfer'}
+                        subTitle={
+                          'Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation.'
+                        }
+                        userData={userData}
+                        onUpgradeSuccess={(userData) => {
+                          console.log(
+                            '🔥 CREATEAGENT4 - LT:Upgrade successful',
+                            userData,
+                          )
+                          console.log('🔥 CREATEAGENT4 - UserData type check:', {
                             hasToken: userData?.hasOwnProperty('token'),
                             hasUser: userData?.hasOwnProperty('user'),
                             isFullFormat:
                               userData?.hasOwnProperty('token') &&
                               userData?.hasOwnProperty('user'),
                             dataStructure: Object.keys(userData || {}),
-                          },
-                        )
+                          })
 
-                        console.log(
-                          '🔥 CREATEAGENT4 - Second - About to call setUpdatedUserData',
-                        )
-                        setUpdatedUserData(userData)
-                        console.log(
-                          '🔥 CREATEAGENT4 - Second - About to call setUserData (Redux)',
-                        )
-                        setUserData(userData)
-                        console.log(
-                          '🔥 CREATEAGENT4 - Second - Both setters called successfully',
-                        )
-
-                        // Verify localStorage was updated
-                        setTimeout(() => {
-                          const localStorageData = localStorage.getItem('User')
                           console.log(
-                            '🔥 CREATEAGENT4 - Second - localStorage after update:',
-                            localStorageData
-                              ? JSON.parse(localStorageData)
-                              : null,
+                            '🔥 CREATEAGENT4 - About to call setUpdatedUserData',
                           )
-                        }, 100)
-                      }}
-                      // handleContinue={handleContinue}
-                    />
-                  </div>
-                </div>
-              )}
+                          setUpdatedUserData(userData)
+                          console.log(
+                            '🔥 CREATEAGENT4 - About to call setUserData (Redux)',
+                          )
+                          setUserData(userData)
+                          console.log(
+                            '🔥 CREATEAGENT4 - Both setters called successfully',
+                          )
 
-              {/* <Body /> */}
+                          // Verify localStorage was updated
+                          setTimeout(() => {
+                            const localStorageData = localStorage.getItem('User')
+                            console.log(
+                              '🔥 CREATEAGENT4 - localStorage after update:',
+                              localStorageData
+                                ? JSON.parse(localStorageData)
+                                : null,
+                            )
+                          }, 100)
+                        }}
+                      // handleContinue={handleContinue}
+                      />
+                    </div>
+                  ) : isFromAgencyOrAdmin?.planCapabilities
+                    ?.allowLiveCallTransfer === true ||
+                    (!isFromAgencyOrAdmin &&
+                      userData?.planCapabilities?.allowLiveCallTransfer ===
+                      true) ? (
+                    <div className="w-full">
+                      <div className="w-full flex flex-col items-start">
+                        <div style={styles.headingStyle} className="text-left w-full">
+                          What number should we forward live transfers to when a
+                          lead wants to talk to you?
+                        </div>
+                        <PhoneInput
+                          containerClass="phone-input-container"
+                          className="outline-none bg-white mt-2 focus:ring-0"
+                          country={'us'} // restrict to US only
+                          onlyCountries={['us', 'mx']}
+                          disableDropdown={true}
+                          countryCodeEditable={false}
+                          disableCountryCode={false}
+                          value={callBackNumber}
+                          onChange={handleCallBackNumberChange}
+                          // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                          placeholder={'Enter Phone Number'}
+                          // disabled={loading} // Disable input if still loading
+                          style={{
+                            borderRadius: '7px',
+                            border: '1px solid #00000020',
+                            outline: 'none',
+                            boxShadow: 'none',
+                            width: '100%',
+                          }}
+                          inputStyle={{
+                            width: '100%',
+                            borderWidth: '0px',
+                            backgroundColor: 'transparent',
+                            paddingLeft: '60px',
+                            paddingTop: '14px',
+                            paddingBottom: '14px',
+                            paddingRight: '16px',
+                            outline: 'none',
+                            boxShadow: 'none',
+                          }}
+                          buttonStyle={{
+                            border: 'none',
+                            backgroundColor: 'transparent',
+                            outline: 'none',
+                          }}
+                          dropdownStyle={{
+                            maxHeight: '150px',
+                            overflowY: 'auto',
+                          }}
+                        // defaultMask={locationLoader ? "Loading..." : undefined}
+                        />
+                        <div
+                          style={{ fontWeight: '500', fontSize: 11, color: 'red' }}
+                        >
+                          {errorMessage}
+                        </div>
+                      </div>
+                      <div className="flex flex-row items-center gap-4 justify-start w-full">
+                        <button onClick={handleToggleClick}>
+                          {toggleClick ? (
+                            <div
+                              className="bg-brand-primary flex flex-row items-center justify-center rounded"
+                              style={{ height: '24px', width: '24px' }}
+                            >
+                              <Image
+                                src={'/assets/whiteTick.png'}
+                                height={8}
+                                width={10}
+                                alt="*"
+                              />
+                            </div>
+                          ) : (
+                            <div
+                              className="bg-none border-2 flex flex-row items-center justify-center rounded"
+                              style={{ height: '24px', width: '24px' }}
+                            ></div>
+                          )}
+                        </button>
+                        <div
+                          style={{
+                            color: '#151515',
+                            fontSize: 15,
+                            fontWeight: '500',
+                            marginLeft: '8px',
+                          }}
+                        >
+                          {`Don't make live transfers. Prefer the AI Agent schedules them for a call back.`}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="w-full  flex items-center justify-center ">
+                      <div className="w-full h-[35vh] flex items-center justify-center">
+                        <UpgardView
+                          setShowSnackMsg={setShowSnackMsg}
+                          title={'Enable Live Transfer'}
+                          subTitle={
+                            'Allow your AI to initiate live transfers during the call. This allows your team to receive hot leads mid conversation.'
+                          }
+                          userData={userData}
+                          onUpgradeSuccess={(userData) => {
+                            console.log(
+                              '🔥 CREATEAGENT4 - Second LT:Upgrade successful',
+                              userData,
+                            )
+                            console.log(
+                              '🔥 CREATEAGENT4 - Second - UserData type check:',
+                              {
+                                hasToken: userData?.hasOwnProperty('token'),
+                                hasUser: userData?.hasOwnProperty('user'),
+                                isFullFormat:
+                                  userData?.hasOwnProperty('token') &&
+                                  userData?.hasOwnProperty('user'),
+                                dataStructure: Object.keys(userData || {}),
+                              },
+                            )
+
+                            console.log(
+                              '🔥 CREATEAGENT4 - Second - About to call setUpdatedUserData',
+                            )
+                            setUpdatedUserData(userData)
+                            console.log(
+                              '🔥 CREATEAGENT4 - Second - About to call setUserData (Redux)',
+                            )
+                            setUserData(userData)
+                            console.log(
+                              '🔥 CREATEAGENT4 - Second - Both setters called successfully',
+                            )
+
+                            // Verify localStorage was updated
+                            setTimeout(() => {
+                              const localStorageData = localStorage.getItem('User')
+                              console.log(
+                                '🔥 CREATEAGENT4 - Second - localStorage after update:',
+                                localStorageData
+                                  ? JSON.parse(localStorageData)
+                                  : null,
+                              )
+                            }, 100)
+                          }}
+                        // handleContinue={handleContinue}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  {/* <Body /> */}
+                </div>
+              </div>
             </div>
           </div>
-        </div>
+          <div className="flex flex-col h-[55px] gap-2">
+            <div>
+              <ProgressBar value={33} />
+            </div>
 
-        <div>
-          <div>
-            <ProgressBar value={33} />
+            <Footer
+              handleContinue={() => {
+                if (agentType?.agentType === 'inbound' && !selectNumber) {
+                  console.log('Without api call')
+                  handleContinue()
+                } else {
+                  console.log('With api call')
+                  setAssignLoader(true)
+                  AssignNumber()
+                  handleContinue()
+                }
+              }}
+              handleBack={handleBack}
+              registerLoader={assignLoader}
+              shouldContinue={shouldContinue}
+              donotShowBack={true}
+            />
           </div>
-
-          <Footer
-            handleContinue={() => {
-              if (agentType?.agentType === 'inbound' && !selectNumber) {
-                console.log('Without api call')
-                handleContinue()
-              } else {
-                console.log('With api call')
-                setAssignLoader(true)
-                AssignNumber()
-                handleContinue()
-              }
-            }}
-            handleBack={handleBack}
-            registerLoader={assignLoader}
-            shouldContinue={shouldContinue}
-            donotShowBack={true}
-          />
         </div>
+
+
 
         {/* Code for the confirmation of reassign button */}
         <Modal

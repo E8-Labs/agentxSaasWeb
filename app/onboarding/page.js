@@ -15,6 +15,7 @@ import FocusArea from '@/components/onboarding/FocusArea'
 import SignUpForm from '@/components/onboarding/SignUpForm'
 import UserService from '@/components/onboarding/UserService'
 import UserType from '@/components/onboarding/UserType'
+import { forceApplyBranding } from '@/utilities/applyBranding'
 import BasicDetails from '@/components/onboarding/mobileUI/BasicDetails'
 import LawAgentSignUpMobile from '@/components/onboarding/mobileUI/LawAgentSignUpMobile'
 import LoanOfficerSignUpMobile from '@/components/onboarding/mobileUI/LoanOfficerSignUpMobile'
@@ -107,6 +108,14 @@ const Page = ({ params }) => {
       setComponents(comps.filter(Boolean))
     }
   }, [userType])
+
+  // Ensure branding variables are applied on mount (uses stored branding or fetches if needed)
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    forceApplyBranding().catch((err) =>
+      console.error('Error applying branding on onboarding load:', err),
+    )
+  }, [])
   // registerDetails  {"serviceID":[102],"focusAreaId":[406],"userType":4,"userTypeTitle":"InsuranceAgent","areaFocusTitle":"What area of insurance do you focus on?","otherFocusArea":""}
   function getComponentToRender() {
     //console.log;
@@ -305,7 +314,7 @@ const Page = ({ params }) => {
     <ErrorBoundary>
       <div
         // style={backgroundImage}
-        className="overflow-hidden flex flex-row justify-center items-center h-[100svh]"
+        className="relative overflow-hidden flex flex-row justify-center items-center h-[100svh]"
       >
         {windowSize > 640 && (
           <div
@@ -317,53 +326,55 @@ const Page = ({ params }) => {
               height: '100%',
               objectFit: 'cover',
               // Don't override backgroundColor - let BackgroundVideo handle it
-              zIndex: -1, // Ensure the video stays behind content
+              zIndex: 0, // keep video behind overlay/content
             }}
           >
             <BackgroundVideo />
           </div>
         )}
-        <CurrentComp
-          handleContinue={handleContinue}
-          handleBack={handleBack}
-          handleSalesAgentContinue={handleSalesAgentContinue}
-          handleSolarAgentContinue={handleSolarAgentContinue}
-          handleInsuranceContinue={handleInsuranceContinue}
-          handleMarketerAgentContinue={handleMarketerAgentContinue}
-          handleWebsiteAgentContinue={handleWebsiteAgentContinue}
-          handleRecruiterAgentContinue={handleRecruiterAgentContinue}
-          handleTaxAgentContinue={handleTaxAgentContinue}
-          handleSalesAgentBack={handleBack}
-          handleSolarAgentBack={handleBack}
-          handleInsuranceBack={handleBack}
-          handleMarketerAgentBack={handleBack}
-          handleWebsiteAgentBack={handleBack}
-          handleRecruiterAgentBack={handleBack}
-          handleTaxAgentBack={handleBack}
-          //move other agents to wait list
-          handleWaitList={handleWaitList}
-          handleDetails={handleDetails}
-          userDetails={userDetails}
-          setCongratsPopup={setCongratsPopup}
-          handleUserTypeChange={handleUserTypeChange}
-          handleShowRedirectPopup={() => {
-            setShowredirectPopup(true)
-          }}
-        />
-        <Modal
-          open={congratsPopup}
-          // onClose={() => setAddKYCQuestion(false)}
-          closeAfterTransition
-          BackdropProps={{
-            timeout: 1000,
-            sx: {
-              backgroundColor: '#00000020',
-              ////backdropFilter: "blur(5px)"
-            },
-          }}
-        >
-          <Congrats />
-        </Modal>
+        <div className="relative z-20 flex w-full justify-center">
+          <CurrentComp
+            handleContinue={handleContinue}
+            handleBack={handleBack}
+            handleSalesAgentContinue={handleSalesAgentContinue}
+            handleSolarAgentContinue={handleSolarAgentContinue}
+            handleInsuranceContinue={handleInsuranceContinue}
+            handleMarketerAgentContinue={handleMarketerAgentContinue}
+            handleWebsiteAgentContinue={handleWebsiteAgentContinue}
+            handleRecruiterAgentContinue={handleRecruiterAgentContinue}
+            handleTaxAgentContinue={handleTaxAgentContinue}
+            handleSalesAgentBack={handleBack}
+            handleSolarAgentBack={handleBack}
+            handleInsuranceBack={handleBack}
+            handleMarketerAgentBack={handleBack}
+            handleWebsiteAgentBack={handleBack}
+            handleRecruiterAgentBack={handleBack}
+            handleTaxAgentBack={handleBack}
+            //move other agents to wait list
+            handleWaitList={handleWaitList}
+            handleDetails={handleDetails}
+            userDetails={userDetails}
+            setCongratsPopup={setCongratsPopup}
+            handleUserTypeChange={handleUserTypeChange}
+            handleShowRedirectPopup={() => {
+              setShowredirectPopup(true)
+            }}
+          />
+          <Modal
+            open={congratsPopup}
+            // onClose={() => setAddKYCQuestion(false)}
+            closeAfterTransition
+            BackdropProps={{
+              timeout: 1000,
+              sx: {
+                backgroundColor: '#00000020',
+                ////backdropFilter: "blur(5px)"
+              },
+            }}
+          >
+            <Congrats />
+          </Modal>
+        </div>
       </div>
     </ErrorBoundary>
   )

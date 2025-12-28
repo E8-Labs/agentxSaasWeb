@@ -9,14 +9,20 @@ interface NotificationCustomizationData {
   customEmailBody?: string;
   customEmailCTA?: string;
   isActive?: boolean;
+  isNotificationEnabled?: boolean;
 }
 
 /**
  * Get all notification types with metadata and customization status
  */
-export const getAllNotificationCustomizations = async () => {
+export const getAllNotificationCustomizations = async (userId?: number) => {
   try {
-    const response = await axios.get(Apis.getAllNotificationCustomizations, {
+    let apiUrl = Apis.getAllNotificationCustomizations
+    if (userId) {
+      apiUrl += `?userId=${userId}`
+    }
+    
+    const response = await axios.get(apiUrl, {
       headers: {
         Authorization: "Bearer " + AuthToken(),
         "Content-Type": "application/json",
@@ -39,17 +45,19 @@ export const getAllNotificationCustomizations = async () => {
 /**
  * Get a specific notification customization
  */
-export const getNotificationCustomization = async (notificationType: string) => {
+export const getNotificationCustomization = async (notificationType: string, userId?: number) => {
   try {
-    const response = await axios.get(
-      `${Apis.getNotificationCustomization}/${notificationType}`,
-      {
-        headers: {
-          Authorization: "Bearer " + AuthToken(),
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    let apiUrl = `${Apis.getNotificationCustomization}/${notificationType}`
+    if (userId) {
+      apiUrl += `?userId=${userId}`
+    }
+    
+    const response = await axios.get(apiUrl, {
+      headers: {
+        Authorization: "Bearer " + AuthToken(),
+        "Content-Type": "application/json",
+      },
+    });
 
     if (response.data.success) {
       console.log("getNotificationCustomization response:", response.data);
@@ -69,12 +77,18 @@ export const getNotificationCustomization = async (notificationType: string) => 
  */
 export const createOrUpdateNotificationCustomization = async (
   notificationType: string,
-  data: NotificationCustomizationData
+  data: NotificationCustomizationData,
+  userId?: number
 ) => {
   try {
+    const requestData: NotificationCustomizationData & { userId?: number } = { ...data }
+    if (userId) {
+      requestData.userId = userId
+    }
+    
     const response = await axios.post(
       `${Apis.createNotificationCustomization}/${notificationType}`,
-      data,
+      requestData,
       {
         headers: {
           Authorization: "Bearer " + AuthToken(),
@@ -99,17 +113,19 @@ export const createOrUpdateNotificationCustomization = async (
 /**
  * Delete notification customization (revert to defaults)
  */
-export const deleteNotificationCustomization = async (notificationType: string) => {
+export const deleteNotificationCustomization = async (notificationType: string, userId?: number) => {
   try {
-    const response = await axios.delete(
-      `${Apis.deleteNotificationCustomization}/${notificationType}`,
-      {
-        headers: {
-          Authorization: "Bearer " + AuthToken(),
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    let apiUrl = `${Apis.deleteNotificationCustomization}/${notificationType}`
+    if (userId) {
+      apiUrl += `?userId=${userId}`
+    }
+    
+    const response = await axios.delete(apiUrl, {
+      headers: {
+        Authorization: "Bearer " + AuthToken(),
+        "Content-Type": "application/json",
+      },
+    });
 
     if (response.data.success) {
       console.log("deleteNotificationCustomization response:", response.data);
@@ -127,11 +143,16 @@ export const deleteNotificationCustomization = async (notificationType: string) 
 /**
  * Toggle notification customization active status
  */
-export const toggleNotificationCustomization = async (notificationType: string) => {
+export const toggleNotificationCustomization = async (notificationType: string, userId?: number) => {
   try {
+    const requestData: any = {}
+    if (userId) {
+      requestData.userId = userId
+    }
+    
     const response = await axios.patch(
       `${Apis.toggleNotificationCustomization}/${notificationType}/toggle`,
-      {},
+      requestData,
       {
         headers: {
           Authorization: "Bearer " + AuthToken(),
@@ -158,12 +179,18 @@ export const toggleNotificationCustomization = async (notificationType: string) 
  */
 export const previewNotificationTemplate = async (
   notificationType: string,
-  data: NotificationCustomizationData
+  data: NotificationCustomizationData,
+  userId?: number
 ) => {
   try {
+    const requestData: NotificationCustomizationData & { userId?: number } = { ...data }
+    if (userId) {
+      requestData.userId = userId
+    }
+    
     const response = await axios.post(
       `${Apis.previewNotificationTemplate}/${notificationType}/preview`,
-      data,
+      requestData,
       {
         headers: {
           Authorization: "Bearer " + AuthToken(),
@@ -181,6 +208,78 @@ export const previewNotificationTemplate = async (
     }
   } catch (error: any) {
     console.error("previewNotificationTemplate error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Toggle notification enable/disable status
+ */
+export const toggleNotificationEnabled = async (notificationType: string, userId?: number) => {
+  try {
+    const requestData: any = {}
+    if (userId) {
+      requestData.userId = userId
+    }
+    
+    const response = await axios.patch(
+      `${Apis.toggleNotificationCustomization}/${notificationType}/toggle-enabled`,
+      requestData,
+      {
+        headers: {
+          Authorization: "Bearer " + AuthToken(),
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.data.success) {
+      console.log("toggleNotificationEnabled response:", response.data);
+      return response.data;
+    } else {
+      console.error("toggleNotificationEnabled error:", response.data);
+      throw new Error(response.data.message || "Failed to toggle notification enabled status");
+    }
+  } catch (error: any) {
+    console.error("toggleNotificationEnabled error:", error);
+    throw error;
+  }
+};
+
+/**
+ * Set notification enable/disable status explicitly
+ */
+export const setNotificationEnabled = async (
+  notificationType: string,
+  isNotificationEnabled: boolean,
+  userId?: number
+) => {
+  try {
+    const requestData: any = { isNotificationEnabled }
+    if (userId) {
+      requestData.userId = userId
+    }
+    
+    const response = await axios.patch(
+      `${Apis.toggleNotificationCustomization}/${notificationType}/set-enabled`,
+      requestData,
+      {
+        headers: {
+          Authorization: "Bearer " + AuthToken(),
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (response.data.success) {
+      console.log("setNotificationEnabled response:", response.data);
+      return response.data;
+    } else {
+      console.error("setNotificationEnabled error:", response.data);
+      throw new Error(response.data.message || "Failed to set notification enabled status");
+    }
+  } catch (error: any) {
+    console.error("setNotificationEnabled error:", error);
     throw error;
   }
 };

@@ -1,6 +1,7 @@
 'use client'
 
 import { ChevronLeft, ChevronRight, X, Download, Paperclip } from 'lucide-react'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
 import axios from 'axios'
 import DOMPurify from 'dompurify'
 import moment from 'moment'
@@ -21,6 +22,8 @@ import { toast } from 'sonner'
 import voicesList from '@/components/createagent/Voices'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
+import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
+import { Modal, Box } from '@mui/material'
 
 const Messages = () => {
   const [threads, setThreads] = useState([])
@@ -44,9 +47,11 @@ const Messages = () => {
   const [ccInput, setCcInput] = useState('')
   const [bccInput, setBccInput] = useState('')
   const [hasMoreMessages, setHasMoreMessages] = useState(true)
-  const [messageOffset, setMessageOffset] = useState(0)
+  const [messageOffset, setMessageOffset] = useState(0) // Offset of the oldest message currently loaded
+  const [loadingOlderMessages, setLoadingOlderMessages] = useState(false)
   const messagesEndRef = useRef(null)
   const messagesContainerRef = useRef(null)
+  const messagesTopRef = useRef(null)
   const richTextEditorRef = useRef(null)
   const [showNewMessageModal, setShowNewMessageModal] = useState(false)
   const [phoneNumbers, setPhoneNumbers] = useState([])
@@ -66,6 +71,14 @@ const Messages = () => {
   const [openEmailDetailId, setOpenEmailDetailId] = useState(null)
   const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
   const [replyToMessage, setReplyToMessage] = useState(null)
+  const [searchValue, setSearchValue] = useState('')
+  const threadsRequestIdRef = useRef(0)
+  
+  // Filter state
+  const [showFilterModal, setShowFilterModal] = useState(false)
+  const [selectedTeamMemberIds, setSelectedTeamMemberIds] = useState([]) // Temporary selection in modal
+  const [appliedTeamMemberIds, setAppliedTeamMemberIds] = useState([]) // Actually applied filter
+  const [filterTeamMembers, setFilterTeamMembers] = useState([])
 
   // Close email detail popover when clicking outside
   useEffect(() => {
@@ -100,26 +113,60 @@ const Messages = () => {
         return String(val)
       }
 
-      return {
-        from:
-          ensureString(
+      const isOutbound = message.direction === 'outbound'
+
+      // For outgoing messages: from = sender (user/agent), to = recipient (lead)
+      // For incoming messages: from = sender (lead), to = recipient (user/agent)
+      let fromEmail = ''
+      let toEmail = ''
+
+      if (isOutbound) {
+        // Outgoing: from is the sender (user/agent email), to is the recipient (lead email)
+        fromEmail = ensureString(
+          message.fromEmail ||
             message.from ||
-              message.sender ||
-              message.senderEmail ||
-              message.metadata?.from ||
-              getHeader('from') ||
-              // fallback to lead email (treat the thread lead as sender for inbound)
-              selectedThread?.lead?.email,
-          ) || 'Unknown sender',
-        to: ensureString(
-          message.to ||
-            message.toEmail ||
+            message.sender ||
+            message.senderEmail ||
+            message.metadata?.from ||
+            getHeader('from') ||
+            userData?.user?.email ||
+            ''
+        )
+        toEmail = ensureString(
+          message.toEmail ||
+            message.to ||
             message.receiverEmail ||
             message.metadata?.to ||
             getHeader('to') ||
-            // fallback to current user email if available
-            userData?.user?.email,
-        ),
+            selectedThread?.lead?.email ||
+            ''
+        )
+      } else {
+        // Incoming: from is the sender (lead email), to is the recipient (user/agent email)
+        fromEmail = ensureString(
+          message.fromEmail ||
+            message.from ||
+            message.sender ||
+            message.senderEmail ||
+            message.metadata?.from ||
+            getHeader('from') ||
+            selectedThread?.lead?.email ||
+            ''
+        )
+        toEmail = ensureString(
+          message.toEmail ||
+            message.to ||
+            message.receiverEmail ||
+            message.metadata?.to ||
+            getHeader('to') ||
+            userData?.user?.email ||
+            ''
+        )
+      }
+
+      return {
+        from: fromEmail || 'Unknown sender',
+        to: toEmail || 'Unknown recipient',
         cc: ensureString(message.metadata?.cc || message.cc || getHeader('cc')),
         subject: ensureString(message.subject || getHeader('subject')),
         date: message.createdAt ? moment(message.createdAt).format('MMM D, YYYY, h:mm A') : '',
@@ -307,57 +354,182 @@ const Messages = () => {
   }
 
   // Fetch threads
-  const fetchThreads = useCallback(async () => {
+  const fetchThreads = useCallback(async (searchQuery = '', teamMemberIdsFilter = []) => {
+    console.log('fetchThreads is called')
+    const requestId = ++threadsRequestIdRef.current
     try {
       setLoading(true)
+      // Clear threads immediately when starting a new fetch to prevent showing stale data
+      // Only clear if there's a search query (to avoid flicker on initial load)
+      if (searchQuery && searchQuery.trim()) {
+        setThreads([])
+      }
+      
       const localData = localStorage.getItem('User')
-      if (!localData) return
+      if (!localData) {
+        setThreads([])
+        return
+      }
 
       const userData = JSON.parse(localData)
       const token = userData.token
 
+      const params = {}
+      if (searchQuery && searchQuery.trim()) {
+        params.search = searchQuery.trim()
+      }
+      // Add teamMemberIds to query if filter is active
+      if (teamMemberIdsFilter && teamMemberIdsFilter.length > 0) {
+        params.teamMemberIds = teamMemberIdsFilter.join(',')
+      }
+
       const response = await axios.get(Apis.getMessageThreads, {
+        params,
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       })
+      console.log("Api path is ", Apis.getMessageThreads)
+      console.log("params is ", params)
+      console.log("response is ", response)
 
-      if (response.data?.status && response.data?.data) {
+      // Ignore responses for stale requests so older calls can't overwrite newer results
+      if (requestId !== threadsRequestIdRef.current) {
+        console.log('requestId is not the current requestId, returning')
+        return
+      }
+
+      if (response.data?.status && Array.isArray(response.data?.data)) {
+        console.log('response.data.data is:', response.data.data)
         // Sort by lastMessageAt descending
         const sortedThreads = response.data.data.sort((a, b) => {
           const dateA = new Date(a.lastMessageAt || a.createdAt)
           const dateB = new Date(b.lastMessageAt || b.createdAt)
           return dateB - dateA
         })
+        console.log('sortedThreads is:', sortedThreads)
         setThreads(sortedThreads)
+      } else {
+        // Clear threads if no valid response or empty results
+        setThreads([])
       }
     } catch (error) {
       console.error('Error fetching threads:', error)
+      // Clear threads on error only if this is the latest request
+      if (requestId === threadsRequestIdRef.current) {
+        setThreads([])
+      }
     } finally {
-      setLoading(false)
+      // Only clear loading state for the latest request
+      if (requestId === threadsRequestIdRef.current) {
+        setLoading(false)
+      }
     }
   }, [])
 
   // Fetch messages for a thread
   const fetchMessages = useCallback(
-    async (threadId, offset = 0, append = false) => {
+    async (threadId, offset = null, append = false) => {
       if (!threadId) return
 
       try {
-        setMessagesLoading(true)
+        if (append) {
+          setLoadingOlderMessages(true)
+        } else {
+          setMessagesLoading(true)
+        }
+        
         const localData = localStorage.getItem('User')
         if (!localData) return
 
         const userData = JSON.parse(localData)
         const token = userData.token
 
+        let actualOffset = offset
+        
+        // For initial load, fetch a larger batch to get the most recent messages
+        if (!append && offset === null) {
+          // Fetch a large batch to get the most recent messages
+          // We'll take the last 30 from the fetched batch
+          const response = await axios.get(
+            `${Apis.getMessagesForThread}/${threadId}/messages`,
+            {
+              params: {
+                limit: 500, // Fetch a large batch to ensure we get recent messages
+                offset: 0,
+              },
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          )
+
+          if (response.data?.status && response.data?.data) {
+            const allMessages = response.data.data
+            // Take the last 30 messages (most recent)
+            const fetchedMessages = allMessages.slice(-MESSAGES_PER_PAGE)
+            // Calculate the offset of the oldest message we're showing
+            // If we fetched 500 and took last 30, the oldest is at offset 470 (if there are 500+ messages)
+            // If we fetched less than 500, it means we got all messages, so offset is 0
+            const oldestMessageOffset = allMessages.length >= 500 
+              ? Math.max(0, allMessages.length - MESSAGES_PER_PAGE)
+              : 0
+            
+            // Debug: Log messages with attachments and metadata structure
+            fetchedMessages.forEach((msg) => {
+              console.log(`🔍 Message ${msg.id} (${msg.messageType}):`, {
+                hasMetadata: !!msg.metadata,
+                metadataType: typeof msg.metadata,
+                hasAttachments: !!msg.metadata?.attachments,
+                attachmentsCount: msg.metadata?.attachments?.length || 0,
+                metadataKeys: msg.metadata ? Object.keys(msg.metadata) : [],
+              })
+              if (msg.metadata?.attachments && msg.metadata.attachments.length > 0) {
+                console.log(
+                  `📎 Message ${msg.id} has ${msg.metadata.attachments.length} attachments:`,
+                  msg.metadata.attachments,
+                )
+              } else if (msg.metadata && !msg.metadata.attachments) {
+                console.log(`⚠️ Message ${msg.id} has metadata but no attachments:`, msg.metadata)
+              }
+            })
+            
+            // Set messages (newest at bottom)
+            setMessages(fetchedMessages)
+            
+            // Check if there are more older messages
+            // If we got exactly 500, there might be more. If less, we got all messages.
+            setHasMoreMessages(allMessages.length >= 500)
+            setMessageOffset(oldestMessageOffset)
+            
+            // Scroll to bottom after loading
+            setTimeout(() => {
+              if (messagesEndRef.current) {
+                messagesEndRef.current.scrollIntoView({ behavior: 'auto' })
+              }
+            }, 100)
+            
+            setMessagesLoading(false)
+            return
+          }
+        }
+        
+        // For loading older messages (append = true)
+        if (append && actualOffset !== null) {
+          // Calculate offset for older messages (before current oldest)
+          actualOffset = Math.max(0, actualOffset - MESSAGES_PER_PAGE)
+        } else if (actualOffset === null) {
+          actualOffset = 0
+        }
+
         const response = await axios.get(
           `${Apis.getMessagesForThread}/${threadId}/messages`,
           {
             params: {
               limit: MESSAGES_PER_PAGE,
-              offset: offset,
+              offset: actualOffset,
             },
             headers: {
               Authorization: `Bearer ${token}`,
@@ -367,7 +539,6 @@ const Messages = () => {
         )
 
         if (response.data?.status && response.data?.data) {
-          // API returns messages in ASC order, but we want them in DESC for display (newest at bottom)
           const fetchedMessages = response.data.data
           
           // Debug: Log messages with attachments and metadata structure
@@ -390,8 +561,27 @@ const Messages = () => {
           })
           
           if (append) {
-            // Prepend older messages
+            // Store scroll position before prepending
+            const container = messagesContainerRef.current
+            const scrollHeight = container?.scrollHeight || 0
+            const scrollTop = container?.scrollTop || 0
+            
+            // Prepend older messages at the top
             setMessages((prev) => [...fetchedMessages, ...prev])
+            
+            // Restore scroll position after prepending (maintain scroll position)
+            setTimeout(() => {
+              if (container) {
+                const newScrollHeight = container.scrollHeight
+                const heightDifference = newScrollHeight - scrollHeight
+                container.scrollTop = scrollTop + heightDifference
+              }
+            }, 0)
+            
+            // Update offset to the oldest message now loaded
+            setMessageOffset(actualOffset)
+            // Check if there are more older messages
+            setHasMoreMessages(actualOffset > 0 && fetchedMessages.length === MESSAGES_PER_PAGE)
           } else {
             // Set messages (newest at bottom)
             setMessages(fetchedMessages)
@@ -401,16 +591,20 @@ const Messages = () => {
                 messagesEndRef.current.scrollIntoView({ behavior: 'auto' })
               }
             }, 100)
+            
+            // Check if there are more messages
+            setHasMoreMessages(fetchedMessages.length === MESSAGES_PER_PAGE)
+            setMessageOffset(actualOffset + fetchedMessages.length)
           }
-
-          // Check if there are more messages
-          setHasMoreMessages(fetchedMessages.length === MESSAGES_PER_PAGE)
-          setMessageOffset(offset + fetchedMessages.length)
         }
       } catch (error) {
         console.error('Error fetching messages:', error)
       } finally {
-        setMessagesLoading(false)
+        if (append) {
+          setLoadingOlderMessages(false)
+        } else {
+          setMessagesLoading(false)
+        }
       }
     },
     []
@@ -418,15 +612,16 @@ const Messages = () => {
 
   // Load older messages when scrolling to top
   const handleScroll = useCallback(() => {
-    if (!messagesContainerRef.current || messagesLoading || !hasMoreMessages) {
+    if (!messagesContainerRef.current || messagesLoading || loadingOlderMessages || !hasMoreMessages) {
       return
     }
 
     const container = messagesContainerRef.current
-    if (container.scrollTop === 0 && selectedThread) {
+    // Load when near the top (within 100px)
+    if (container.scrollTop <= 100 && selectedThread) {
       fetchMessages(selectedThread.id, messageOffset, true)
     }
-  }, [messagesLoading, hasMoreMessages, selectedThread, messageOffset, fetchMessages])
+  }, [messagesLoading, loadingOlderMessages, hasMoreMessages, selectedThread, messageOffset, fetchMessages])
 
   // Mark thread as read
   const markThreadAsRead = useCallback(async (threadId) => {
@@ -461,10 +656,16 @@ const Messages = () => {
     setMessageOffset(0)
     setHasMoreMessages(true)
     setMessages([])
-    fetchMessages(thread.id, 0, false)
+    fetchMessages(thread.id, null, false) // null means initial load
     if (thread.unreadCount > 0) {
       markThreadAsRead(thread.id)
     }
+    
+    // Clear email timeline state when switching threads
+    setEmailTimelineSubject(null)
+    setEmailTimelineMessages([])
+    setEmailTimelineLeadId(null)
+    setReplyToMessage(null)
     
     // Set composer data based on current mode
     const receiverEmail = thread.receiverEmail || thread.lead?.email || ''
@@ -581,7 +782,30 @@ const Messages = () => {
     if (thread.receiverPhoneNumber) {
       return thread.receiverPhoneNumber.slice(-1)
     }
+    if (thread.receiverEmail) {
+      return thread.receiverEmail.charAt(0).toUpperCase()
+    }
     return 'L'
+  }
+
+  // Get display name for thread (full name, not just initial)
+  const getThreadDisplayName = (thread) => {
+    // Try lead name first
+    if (thread.lead?.firstName) {
+      const lastName = thread.lead?.lastName ? ` ${thread.lead.lastName}` : ''
+      return `${thread.lead.firstName}${lastName}`
+    }
+    if (thread.lead?.name) {
+      return thread.lead.name
+    }
+    // Fallback to email or phone if lead is null
+    if (thread.receiverEmail) {
+      return thread.receiverEmail
+    }
+    if (thread.receiverPhoneNumber) {
+      return thread.receiverPhoneNumber
+    }
+    return 'Unknown Contact'
   }
 
   // Get most recent message type
@@ -606,9 +830,46 @@ const Messages = () => {
     if (!content || typeof window === 'undefined') return content
     if (typeof content !== 'string') return content
     
+    // Extract plain text from HTML if needed for pattern matching
     let text = content
+    if (typeof document !== 'undefined' && content.includes('<')) {
+      try {
+        const tempDiv = document.createElement('div')
+        tempDiv.innerHTML = content
+        text = tempDiv.textContent || tempDiv.innerText || content
+      } catch (e) {
+        // If HTML parsing fails, use original content
+        text = content
+      }
+    }
     
-    // Pattern 1: "On [date] [time] [sender] wrote:" and everything after
+    // Pattern 1: "Replying to [subject] [sender]" - Gmail style
+    // Match patterns like "Replying to test Noah Nega Technical Developer"
+    // This pattern indicates the start of quoted/signature content
+    const replyingToPattern = /Replying\s+to\s+[^\n]+/i
+    const replyingToMatch = text.match(replyingToPattern)
+    if (replyingToMatch) {
+      const matchIndex = text.indexOf(replyingToMatch[0])
+      // If there's content before "Replying to", that's the actual reply
+      if (matchIndex > 0) {
+        text = text.substring(0, matchIndex).trim()
+      } else {
+        // "Replying to" is at the start - check if there's actual reply content
+        // Look for the pattern and see what comes after
+        const afterHeader = text.substring(replyingToMatch[0].length).trim()
+        // If what follows is clearly quoted content (quotes, phone, URLs), remove everything
+        if (afterHeader.match(/^["'].*["']|^\(?\d{3}\)?|^www\.|^http/i)) {
+          // This is all quoted/signature content, return empty
+          text = ''
+        } else {
+          // Might have some content, but "Replying to" header should be removed
+          // The actual reply would be before this, so if it's at start, there's no reply
+          text = ''
+        }
+      }
+    }
+    
+    // Pattern 2: "On [date] [time] [sender] wrote:" and everything after
     // Match patterns like "On Fri, Nov 28, 2025 at 7:18 AM Tech Connect wrote:"
     const onDatePattern = /On\s+\w+,\s+\w+\s+\d+,\s+\d+\s+at\s+\d+:\d+\s+(?:AM|PM)\s+[^:]+:\s*/i
     const onDateMatch = text.match(onDatePattern)
@@ -619,7 +880,7 @@ const Messages = () => {
       }
     }
     
-    // Pattern 2: Remove lines starting with ">" (quoted lines)
+    // Pattern 3: Remove lines starting with ">" (quoted lines)
     if (text.includes('>')) {
       const lines = text.split('\n')
       const cleanedLines = []
@@ -640,12 +901,83 @@ const Messages = () => {
       text = cleanedLines.join('\n').trim()
     }
     
-    // Pattern 3: Remove "-----Original Message-----" and everything after
+    // Pattern 4: Remove "-----Original Message-----" and everything after
     const originalMessagePattern = /-----Original Message-----/i
     if (text.match(originalMessagePattern)) {
       const index = text.toLowerCase().indexOf('-----original message-----')
       if (index > 0) {
         text = text.substring(0, index).trim()
+      }
+    }
+    
+    // Pattern 5: Remove signature blocks and quoted content (phone numbers, URLs, quotes, etc.)
+    // Look for patterns like phone numbers, URLs, quoted text, or common signature indicators
+    const lines = text.split('\n')
+    const cleanedLines = []
+    let foundSignature = false
+    
+    // Common signature indicators
+    const signaturePatterns = [
+      /^[\s]*\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/, // Phone numbers like (408) 679.9068
+      /^[\s]*(www\.|http:\/\/|https:\/\/)/i, // URLs
+      /^[\s]*Best\s+regards/i,
+      /^[\s]*Sincerely/i,
+      /^[\s]*Thanks/i,
+      /^[\s]*Regards/i,
+    ]
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      const trimmedLine = line.trim()
+      
+      // Skip empty lines if we haven't found signature yet
+      if (!trimmedLine && !foundSignature) {
+        cleanedLines.push(line)
+        continue
+      }
+      
+      // Check if this line matches a signature pattern
+      const isSignatureLine = signaturePatterns.some(pattern => pattern.test(trimmedLine))
+      
+      // Check if line contains quoted text in quotes (like "Don't postpone...")
+      // This often indicates quoted content from the original email
+      const isQuotedText = trimmedLine.match(/^["'].*["']$/) && trimmedLine.length > 15
+      
+      // Check if line looks like a standalone quote (starts and ends with quotes)
+      if (isQuotedText) {
+        foundSignature = true
+        break
+      }
+      
+      if (isSignatureLine) {
+        foundSignature = true
+        break
+      }
+      
+      // If we haven't found signature yet, keep the line
+      if (!foundSignature) {
+        cleanedLines.push(line)
+      }
+    }
+    
+    text = cleanedLines.join('\n').trim()
+    
+    // Pattern 6: Remove content after common email separators
+    const separators = [
+      /^From:.*$/m,
+      /^Sent:.*$/m,
+      /^To:.*$/m,
+      /^Subject:.*$/m,
+      /^Date:.*$/m,
+    ]
+    
+    for (const separator of separators) {
+      const match = text.match(separator)
+      if (match) {
+        const index = text.indexOf(match[0])
+        if (index > 0) {
+          text = text.substring(0, index).trim()
+        }
       }
     }
     
@@ -813,7 +1145,13 @@ const Messages = () => {
         )
 
         if (response.data?.status) {
-          toast.success('Message sent successfully')
+          toast.success('Message sent successfully', {
+            style: {
+              width: 'fit-content',
+              maxWidth: '400px',
+              whiteSpace: 'nowrap',
+            },
+          })
           // Reset composer
           setComposerData({
             to: selectedThread.receiverPhoneNumber || '',
@@ -826,8 +1164,8 @@ const Messages = () => {
 
           // Refresh messages and threads
           setTimeout(() => {
-            fetchMessages(selectedThread.id, 0, false)
-            fetchThreads()
+            fetchMessages(selectedThread.id, null, false)
+            fetchThreads(searchValue || "", appliedTeamMemberIds)
           }, 500)
         } else {
           toast.error('Failed to send message')
@@ -840,7 +1178,42 @@ const Messages = () => {
         // Find the most recent message in the thread to use as replyToMessageId
         // This ensures proper Gmail threading with In-Reply-To and References headers
         let replyToMessageId = null
-        const emailMessages = messages.filter(msg => msg.messageType === 'email' && msg.subject)
+        
+        // Use emailTimelineMessages if available (from Load More or subject click), otherwise use messages from thread
+        let emailMessages = emailTimelineMessages.length > 0 
+          ? emailTimelineMessages 
+          : messages.filter(msg => msg.messageType === 'email' && msg.subject)
+        
+        // If we have emailTimelineSubject but no emailTimelineMessages, try to fetch them
+        if (emailTimelineSubject && emailTimelineMessages.length === 0 && selectedThread?.leadId) {
+          try {
+            const localData = localStorage.getItem('User')
+            if (localData) {
+              const userData = JSON.parse(localData)
+              const token = userData.token
+              
+              const response = await axios.get(Apis.getEmailsBySubject, {
+                params: {
+                  leadId: selectedThread.leadId,
+                  subject: emailTimelineSubject,
+                },
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+              })
+              
+              if (response.data?.status && response.data?.data) {
+                emailMessages = response.data.data
+                console.log(`📧 Fetched ${emailMessages.length} emails by subject for threading`)
+              }
+            }
+          } catch (error) {
+            console.error('Error fetching emails by subject:', error)
+            // Fallback to messages from thread
+            emailMessages = messages.filter(msg => msg.messageType === 'email' && msg.subject)
+          }
+        }
         
         // If subject is empty, try to get subject from thread context
         if (!emailSubject || emailSubject.trim() === '') {
@@ -849,6 +1222,7 @@ const Messages = () => {
             emailSubject = emailTimelineSubject
           } else if (emailMessages.length > 0) {
             // Use the most recent email's subject (normalized)
+            // emailTimelineMessages are sorted oldest to newest, regular messages are oldest to newest
             const mostRecentEmail = emailMessages[emailMessages.length - 1]
             emailSubject = normalizeSubject(mostRecentEmail.subject)
           }
@@ -857,7 +1231,7 @@ const Messages = () => {
           emailSubject = normalizeSubject(emailSubject)
         }
         
-        // If we have email messages in the thread, find the most recent one that matches the subject
+        // If we have email messages, find the most recent one that matches the subject
         // This ensures Gmail threads the email correctly by using the correct message for reply headers
         if (emailMessages.length > 0 && emailSubject) {
           // Filter messages that match the normalized subject (for proper threading)
@@ -894,6 +1268,9 @@ const Messages = () => {
         // Add replyToMessageId if we found one (for proper Gmail threading)
         if (replyToMessageId) {
           formData.append('replyToMessageId', replyToMessageId.toString())
+          console.log(`📧 Sending email with replyToMessageId: ${replyToMessageId} for subject: ${emailSubject}`)
+        } else {
+          console.warn(`⚠️ No replyToMessageId found for subject: ${emailSubject}. Email may create a new thread. Available messages: ${emailMessages.length}`)
         }
         // Join CC and BCC arrays into comma-separated strings
         const ccString = ccEmails.join(', ')
@@ -921,7 +1298,13 @@ const Messages = () => {
         )
 
         if (response.data?.status) {
-          toast.success('Email sent successfully')
+          toast.success('Email sent successfully', {
+            style: {
+              width: 'fit-content',
+              maxWidth: '400px',
+              whiteSpace: 'nowrap',
+            },
+          })
           // Reset composer but preserve subject if we're in an email thread context
           // Prioritize emailTimelineSubject (set when Load More or subject is clicked)
           const preservedSubject = emailTimelineSubject || 
@@ -945,8 +1328,8 @@ const Messages = () => {
 
           // Refresh messages and threads
           setTimeout(() => {
-            fetchMessages(selectedThread.id, 0, false)
-            fetchThreads()
+            fetchMessages(selectedThread.id, null, false)
+            fetchThreads(searchValue || "", appliedTeamMemberIds)
           }, 500)
         } else {
           toast.error('Failed to send email')
@@ -1099,7 +1482,7 @@ const Messages = () => {
       setMessageOffset(0)
       setHasMoreMessages(true)
       setMessages([])
-      fetchMessages(firstThread.id, 0, false)
+      fetchMessages(firstThread.id, null, false)
       if (firstThread.unreadCount > 0) {
         markThreadAsRead(firstThread.id)
       }
@@ -1133,11 +1516,11 @@ const Messages = () => {
           })
 
           if (response.data?.status && response.data?.data) {
-            // Sort by date descending (newest first)
+            // Sort by date ascending (oldest first) - like a chat conversation
             const sortedMessages = [...response.data.data].sort((a, b) => {
               const dateA = new Date(a.createdAt)
               const dateB = new Date(b.createdAt)
-              return dateB - dateA
+              return dateA - dateB
             })
             setEmailTimelineMessages(sortedMessages)
           } else {
@@ -1194,11 +1577,11 @@ const Messages = () => {
           }
         }
 
-        // Sort by date descending (newest first)
+        // Sort by date ascending (oldest first) - like a chat conversation
         allEmailMessages.sort((a, b) => {
           const dateA = new Date(a.createdAt)
           const dateB = new Date(b.createdAt)
-          return dateB - dateA
+          return dateA - dateB
         })
 
         setEmailTimelineMessages(allEmailMessages)
@@ -1218,12 +1601,140 @@ const Messages = () => {
     }
   }, [showEmailTimeline, emailTimelineLeadId, emailTimelineSubject, fetchEmailTimeline])
 
-  // Initial load
+  // Initial load for phone numbers and email accounts
   useEffect(() => {
-    fetchThreads()
     fetchPhoneNumbers()
     fetchEmailAccounts()
-  }, [fetchThreads, fetchPhoneNumbers, fetchEmailAccounts])
+  }, [fetchPhoneNumbers, fetchEmailAccounts])
+
+  // Handle search with debounce and initial load
+  useEffect(() => {
+    // Clear threads immediately when search value changes (before debounce)
+    // This prevents showing stale threads while the new search is loading
+    if (searchValue && searchValue.trim()) {
+      setThreads([])
+    }
+    
+    const timeoutId = setTimeout(() => {
+      // Fetch threads with search query and team member filter (only use applied filter)
+      fetchThreads(searchValue || '', appliedTeamMemberIds)
+    }, 300) // 300ms debounce
+
+    return () => clearTimeout(timeoutId)
+  }, [searchValue, appliedTeamMemberIds, fetchThreads])
+  
+  // Fetch team members on mount
+  useEffect(() => {
+    const getMyTeam = async () => {
+      try {
+        let response = await getTeamsList()
+        if (response) {
+          const filterMembers = []
+          if (response.admin) {
+            filterMembers.push({
+              id: response.admin.id,
+              name: response.admin.name,
+              email: response.admin.email,
+            })
+          }
+          if (response.data && response.data.length > 0) {
+            for (const t of response.data) {
+              if (t.status == 'Accepted' && t.invitedUser) {
+                filterMembers.push({
+                  id: t.invitedUser.id,
+                  name: t.invitedUser.name,
+                  email: t.invitedUser.email,
+                })
+              }
+            }
+          }
+          setFilterTeamMembers(filterMembers)
+        }
+      } catch (error) {
+        console.error('Error fetching team members:', error)
+      }
+    }
+    getMyTeam()
+  }, [])
+  
+  // Handler for team member filter selection
+  const handleTeamMemberFilterToggle = (memberId) => {
+    setSelectedTeamMemberIds((prev) => {
+      if (prev.includes(memberId)) {
+        return prev.filter((id) => id !== memberId)
+      } else {
+        return [...prev, memberId]
+      }
+    })
+  }
+  
+  // Handler to apply filter
+  const handleApplyFilter = () => {
+    const newAppliedIds = [...selectedTeamMemberIds]
+    setAppliedTeamMemberIds(newAppliedIds) // Apply the selected filters
+    setShowFilterModal(false)
+    // Pass the IDs directly instead of relying on state
+    fetchThreads(searchValue || '', newAppliedIds)
+  }
+  
+  // Handler to clear filter
+  const handleClearFilter = () => {
+    setSelectedTeamMemberIds([])
+    setAppliedTeamMemberIds([])
+    setShowFilterModal(false)
+    // Pass empty array directly instead of relying on state
+    fetchThreads(searchValue || '', [])
+  }
+  
+  // When opening the filter modal, sync selectedTeamMemberIds with appliedTeamMemberIds
+  const handleOpenFilterModal = () => {
+    setSelectedTeamMemberIds([...appliedTeamMemberIds])
+    setShowFilterModal(true)
+  }
+
+  // Delete thread handler
+  const handleDeleteThread = useCallback(async (leadId, threadId) => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+
+      const userData = JSON.parse(localData)
+      const token = userData.token
+
+      // Delete the thread (not the lead)
+      const response = await axios.delete(
+        `${Apis.deleteThread}/${threadId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
+      if (response.data?.status) {
+        toast.success('Thread deleted successfully', {
+          style: {
+            width: 'fit-content',
+            maxWidth: '400px',
+            whiteSpace: 'nowrap',
+          },
+        })
+        // Refresh threads
+        fetchThreads(searchValue, appliedTeamMemberIds)
+        // Clear selected thread if it was deleted
+        if (selectedThread?.id === threadId) {
+          setSelectedThread(null)
+          setMessages([])
+        }
+      } else {
+        toast.error(response.data?.message || 'Failed to delete thread')
+      }
+    } catch (error) {
+      console.error('Error deleting thread:', error)
+      toast.error(error.response?.data?.message || 'Error deleting thread')
+    }
+  }, [searchValue, selectedThread, fetchThreads])
 
   // Setup scroll listener
   useEffect(() => {
@@ -1260,8 +1771,14 @@ const Messages = () => {
           onSelectThread={handleThreadSelect}
           onNewMessage={() => setShowNewMessageModal(true)}
           getLeadName={getLeadName}
+          getThreadDisplayName={getThreadDisplayName}
           getRecentMessageType={getRecentMessageType}
           formatUnreadCount={formatUnreadCount}
+          onDeleteThread={handleDeleteThread}
+          searchValue={searchValue}
+          onSearchChange={setSearchValue}
+          onFilterClick={handleOpenFilterModal}
+          selectedTeamMemberIdsCount={appliedTeamMemberIds.length}
         />
 
         {/* Right Side - Messages View */}
@@ -1269,22 +1786,24 @@ const Messages = () => {
           {selectedThread ? (
             <>
               {/* Messages Header */}
-              <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white">
+              {/* <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white">
                 <div>
                   <h2 className="text-lg font-semibold text-black">
                     {selectedThread.lead?.firstName || selectedThread.lead?.name || 'Unknown Lead'}
                   </h2>
                   <p className="text-sm text-gray-500 mt-0.5">Click here for more info</p>
                 </div>
-              </div>
+              </div> */}
 
               {/* Messages Container */}
               <ConversationView
                 selectedThread={selectedThread}
                 messages={messages}
                 messagesLoading={messagesLoading}
+                loadingOlderMessages={loadingOlderMessages}
                 messagesContainerRef={messagesContainerRef}
                 messagesEndRef={messagesEndRef}
+                messagesTopRef={messagesTopRef}
                 sanitizeHTML={sanitizeHTML}
                 getLeadName={getLeadName}
                 getAgentAvatar={getAgentAvatar}
@@ -1373,7 +1892,7 @@ const Messages = () => {
           // Refresh threads after sending (even if partial success)
           if (result.sent > 0) {
             setTimeout(() => {
-              fetchThreads()
+              fetchThreads(searchValue || "", appliedTeamMemberIds)
             }, 1000)
           }
         }}
@@ -1500,8 +2019,10 @@ const Messages = () => {
         onClose={() => {
           setShowEmailTimeline(false)
           setEmailTimelineLeadId(null)
-          setEmailTimelineSubject(null)
-          setEmailTimelineMessages([])
+          // Keep emailTimelineSubject and emailTimelineMessages so we can use them for threading
+          // when sending from the main composer. They'll be cleared when a new thread is selected.
+          // setEmailTimelineSubject(null)
+          // setEmailTimelineMessages([])
           setReplyToMessage(null)
         }}
         leadId={emailTimelineLeadId}
@@ -1534,6 +2055,110 @@ const Messages = () => {
         showEmailTempPopup={false}
         setSelectedGoogleAccount={() => {}}
       />
+
+      {/* Filter Modal for Team Members */}
+      <Modal
+        open={showFilterModal}
+        onClose={() => setShowFilterModal(false)}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: '#00000020',
+          },
+        }}
+      >
+        <Box
+          className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh] rounded-[13px]"
+          sx={{
+            height: 'auto',
+            bgcolor: 'transparent',
+            p: 0,
+            mx: 'auto',
+            my: '50vh',
+            transform: 'translateY(-55%)',
+            borderRadius: '13px',
+            border: 'none',
+            outline: 'none',
+            overflow: 'hidden',
+          }}
+        >
+          <div className="flex flex-col w-full">
+            <div
+              className="w-full rounded-[13px] overflow-hidden"
+              style={{
+                backgroundColor: '#ffffff',
+                padding: 20,
+                paddingInline: 30,
+                borderRadius: '13px',
+              }}
+            >
+              <div className="flex flex-row items-center justify-between mb-4">
+                <div style={{ fontWeight: '700', fontSize: 22 }}>
+                  Filter
+                </div>
+                <CloseBtn onClick={() => setShowFilterModal(false)} />
+              </div>
+              
+              <div
+                className="mt-4"
+                style={{
+                  maxHeight: '400px',
+                  overflowY: 'auto',
+                  border: '1px solid #00000020',
+                  borderRadius: '13px',
+                  padding: '10px',
+                }}
+              >
+                {filterTeamMembers.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    No team members available
+                  </div>
+                ) : (
+                  filterTeamMembers.map((member) => (
+                    <div
+                      key={member.id}
+                      className="flex flex-row items-center gap-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer"
+                      onClick={() => handleTeamMemberFilterToggle(member.id)}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedTeamMemberIds.includes(member.id)}
+                        onChange={() => handleTeamMemberFilterToggle(member.id)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                      />
+                      <div className="flex flex-col flex-1">
+                        <span className="font-medium text-gray-900">
+                          {member.name}
+                        </span>
+                        {member.email && (
+                          <span className="text-sm text-gray-500">
+                            {member.email}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+              
+              <div className="w-full mt-4">
+                <button
+                  onClick={handleApplyFilter}
+                  className="bg-purple h-[50px] rounded-xl text-white w-full"
+                  style={{
+                    fontWeight: '600',
+                    fontSize: 16,
+                  }}
+                >
+                  Apply Filter
+                </button>
+              </div>
+            </div>
+          </div>
+        </Box>
+      </Modal>
     </div>
     </>
   )

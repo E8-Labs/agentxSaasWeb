@@ -28,8 +28,8 @@ import { requestToken } from "@/components/firbase";
 import { initializeApp } from "firebase/app";
 import { UpdateProfile } from "@/components/apis/UpdateProfile";
 
-import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
+import { getStripe } from "@/lib/stripe";
 import AddCardDetails from "@/components/createagent/addpayment/AddCardDetails";
 import { HowtoVideos, PersistanceKeys, userType } from "@/constants/Constants";
 import { logout } from "@/utilities/UserUtility";
@@ -51,12 +51,9 @@ import moment from "moment";
 import AppLogo from "@/components/common/AppLogo";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
+import { hexToHsl, calculateIconFilter } from "@/utilities/colorUtils";
 
-let stripePublickKey =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production"
-    ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY;
-const stripePromise = loadStripe(stripePublickKey);
+const stripePromise = getStripe();
 
 // Plans will now be loaded dynamically from API
 //banner
@@ -112,6 +109,83 @@ const ProfileNav = () => {
   const [loading, setLoading] = useState(false);
   const [localUser, setLocalUser] = useState(null);
   
+  // Custom domain detection and branding
+  const [isCustomDomain, setIsCustomDomain] = useState(false);
+  const [agencyBranding, setAgencyBranding] = useState(null);
+
+  // Custom domain detection and branding application
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    // Check if current domain is a custom domain (not dev.assignx.ai or app.assignx.ai)
+    const hostname = window.location.hostname
+    const isCustom = hostname !== 'dev.assignx.ai' && hostname !== 'app.assignx.ai'
+    setIsCustomDomain(isCustom)
+
+    // Get agency branding from localStorage
+    const storedBranding = localStorage.getItem('agencyBranding')
+    if (storedBranding) {
+      try {
+        const brandingData = JSON.parse(storedBranding)
+        setAgencyBranding(brandingData)
+
+        // Apply branding CSS variables if it's a custom domain
+        if (isCustom && brandingData) {
+          try {
+            const primaryColor = brandingData.primaryColor || '#7902DF'
+            const secondaryColor = brandingData.secondaryColor || '#8B5CF6'
+            const primaryHsl = hexToHsl(primaryColor)
+            const secondaryHsl = hexToHsl(secondaryColor)
+
+            document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+            document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
+            document.documentElement.style.setProperty('--primary', primaryHsl)
+            document.documentElement.style.setProperty('--secondary', secondaryHsl)
+
+            const iconFilter = calculateIconFilter(primaryColor)
+            document.documentElement.style.setProperty('--icon-filter', iconFilter)
+            
+            // Add class to body for CSS-based icon filtering
+            document.body.classList.add('custom-domain-branding')
+          } catch (error) {
+            console.log('Error applying branding styles:', error)
+          }
+        }
+      } catch (error) {
+        console.log('Error parsing agencyBranding from localStorage:', error)
+      }
+    }
+
+    // Listen for branding updates
+    const handleBrandingUpdate = (event) => {
+      const updatedBranding = event.detail
+      if (updatedBranding) {
+        setAgencyBranding(updatedBranding)
+        if (isCustom) {
+          try {
+            const primaryColor = updatedBranding.primaryColor || '#7902DF'
+            const primaryHsl = hexToHsl(primaryColor)
+            document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+            const iconFilter = calculateIconFilter(primaryColor)
+            document.documentElement.style.setProperty('--icon-filter', iconFilter)
+            
+            // Ensure body has the class for CSS-based icon filtering
+            if (!document.body.classList.contains('custom-domain-branding')) {
+              document.body.classList.add('custom-domain-branding')
+            }
+          } catch (error) {
+            console.log('Error applying branding styles:', error)
+          }
+        }
+      }
+    }
+
+    window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    }
+  }, [])
 
 
 
@@ -1408,6 +1482,11 @@ const ProfileNav = () => {
                         height={24}
                         width={24}
                         alt="icon"
+                        style={
+                          pathname !== item.href && isCustomDomain && agencyBranding
+                            ? { filter: 'var(--icon-filter, none)' }
+                            : {}
+                        }
                       />
                     </div>
                     <div

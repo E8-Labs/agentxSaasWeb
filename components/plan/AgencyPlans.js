@@ -1,7 +1,7 @@
 import { Box, CircularProgress, Modal, Tooltip } from '@mui/material'
 import { FalloutShelter } from '@phosphor-icons/react/dist/ssr'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -25,13 +25,11 @@ import CloseBtn from '../globalExtras/CloseBtn'
 import SelectYearlypopup from './SelectYearlypopup'
 import AppLogo from '@/components/common/AppLogo'
 import { Checkbox } from '../ui/checkbox'
+import { logout } from '@/utilities/UserUtility'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 //code for add card
-let stripePublickKey =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-    ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-const stripePromise = loadStripe(stripePublickKey)
+const stripePromise = getStripe()
 
 function AgencyPlans({
   isFrom,
@@ -416,29 +414,40 @@ function AgencyPlans({
             if (isFrom === 'addPlan') {
               console.log('call handleCloseModal')
               handleCloseModal(response.data.message)
-            } else if (isFrom === 'page') {
+              return
+            }
+            
+            // Determine redirect path
+            let redirectPath = '/agency/dashboard'
+            if (isFrom === 'page') {
               // For mobile agencies, redirect to continue to desktop screen
               if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
                 console.log('Mobile agency - redirecting to continue to desktop screen')
-                setIsRedirecting(true)
-                router.push('/createagent/desktop')
+                redirectPath = '/createagent/desktop'
               } else {
                 console.log('Desktop agency - redirecting to dashboard')
-                setIsRedirecting(true)
-                router.push('/agency/dashboard')
+                redirectPath = '/agency/dashboard'
               }
             } else {
               // For mobile agencies, redirect to continue to desktop screen
               if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
                 console.log('Mobile agency - redirecting to continue to desktop screen')
-                setIsRedirecting(true)
-                router.push('/createagent/desktop')
+                redirectPath = '/createagent/desktop'
               } else {
                 console.log('Desktop agency - redirecting to verify')
-                setIsRedirecting(true)
-                router.push('/agency/verify')
+                redirectPath = '/agency/verify'
               }
             }
+            
+            // Use window.location.href for hard redirect to ensure clean page reload
+            // This prevents DOM cleanup errors during navigation
+            // Don't set state before redirect - it causes React cleanup errors during navigation
+            console.log('✅ Subscription successful, redirecting to:', redirectPath)
+            // Use setTimeout to ensure redirect happens in next event loop, avoiding React cleanup conflicts
+            setTimeout(() => {
+              window.location.href = redirectPath
+            }, 0)
+            return
           } else if (response.data.status === false) {
             // Check if this is a subscription payment failure (not renewal)
             const isSubscriptionFailure =
@@ -574,9 +583,8 @@ function AgencyPlans({
           <div className="flex-1 overflow-y-auto px-4 pt-4 pb-40 min-h-0">
             <div className="w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
               {/* Header */}
-              <div className="bg-brand-primary px-6 py-8">
-                <h1 className="text-2xl font-bold text-white mb-2">Order Summary</h1>
-                <p className="text-white/80 text-sm">Choose your plan and continue</p>
+              <div className="bg-white px-6 py-1">
+                <h1 className="text-2xl font-bold text-black">Select a plan</h1>
               </div>
 
               {/* Content */}
@@ -717,7 +725,12 @@ function AgencyPlans({
           </div>
 
           {/* Fixed Bottom Section with Continue Button */}
-          <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50 safe-area-inset-bottom">
+          <div 
+            className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50" 
+            style={{ 
+              paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom, 0px))',
+            }}
+          >
             <div className="max-w-md mx-auto px-6 pt-4 pb-6 space-y-3">
               {/* Terms and Conditions */}
               <p className="text-xs text-center text-gray-500">
@@ -838,8 +851,23 @@ function AgencyPlans({
               alt="logo"
             />
 
-            <div className={`w-[100%]`}>
-              <ProgressBar value={100} />
+            <div className={`w-[100%] flex flex-row items-center gap-2`}>
+              <div className="flex-1">
+                <ProgressBar value={100} />
+              </div>
+              {/* Logout button right in front of progress line */}
+              <button
+                onClick={() => logout('User clicked logout from plans page')}
+                className="px-3 py-1.5 text-sm text-gray-500 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors flex-shrink-0"
+                style={{
+                  fontSize: '13px',
+                  fontWeight: '400',
+                  color: '#6b7280',
+                  backgroundColor: '#f3f4f6',
+                }}
+              >
+                Logout
+              </button>
             </div>
           </div>
         )}
@@ -868,8 +896,6 @@ function AgencyPlans({
               <span>😉</span>
             </div>
           </div>
-
-
         </div>
         <div className="flex flex-col items-end w-full mt-6">
           <div className="flex flex-row items-center justify-end gap-2 px-2 me-[33px] md:me-[7px]  w-auto">
@@ -1002,19 +1028,7 @@ function AgencyPlans({
                               alt="*"
                             />
                           ) : (
-                            <div
-                              className="icon-brand-primary"
-                              style={{
-                                '--icon-mask-image': `url('/svgIcons/power.svg')`,
-                              }}
-                            >
-                              <Image
-                                src="/svgIcons/power.svg"
-                                height={24}
-                                width={24}
-                                alt="*"
-                              />
-                            </div>
+                            renderBrandedIcon('/svgIcons/power.svg', 24, 24)
                           )}
 
                           <div
@@ -1032,21 +1046,7 @@ function AgencyPlans({
                               alt="*"
                             />
                           ) : (
-                            <div
-                              className="icon-brand-primary"
-                              style={{
-                                width: '20px',
-                                height: '20px',
-                                '--icon-mask-image': `url('/svgIcons/enterArrow.svg')`,
-                              }}
-                            >
-                              <Image
-                                src="/svgIcons/enterArrow.svg"
-                                height={20}
-                                width={20}
-                                alt="*"
-                              />
-                            </div>
+                            renderBrandedIcon('/svgIcons/enterArrow.svg', 20, 20)
                           )}
                         </div>
                       ) : (
@@ -1063,8 +1063,10 @@ function AgencyPlans({
 
                         {/* Pricing */}
                         <div className="flex flex-row items-center gap-2">
-                          <span className="text-4xl mt-4 font-semibold bg-gradient-to-l from-brand-primary to-brand-primary/40 bg-clip-text text-transparent">
+                          <span className="text-4xl mt-4 font-semibold text-brand-primary  bg-clip-text ">
+                            ${formatDecimalValue(getMonthlyPrice(item))}
                           </span>
+                          
                         </div>
 
                         <div

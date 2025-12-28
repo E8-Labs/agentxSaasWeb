@@ -147,7 +147,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
           const parsedUser = JSON.parse(userData)
           setIsSubaccount(
             parsedUser?.user?.userRole === 'AgencySubAccount' ||
-              parsedUser?.userRole === 'AgencySubAccount',
+            parsedUser?.userRole === 'AgencySubAccount',
           )
         }
       } catch (error) {
@@ -602,23 +602,65 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
           localStorage.removeItem('AddCadenceDetails')
           // router.push("/dashboard/leads");
           let isFromAgencyOrAdmin = null
-          const FromAgencyOrAdmin = localStorage.getItem(
+          const isFromAdminOrAgency = localStorage.getItem(
             PersistanceKeys.isFromAdminOrAgency,
           )
-          if (FromAgencyOrAdmin) {
-            const R = JSON.parse(FromAgencyOrAdmin)
-            isFromAgencyOrAdmin = R
+          isFromAgencyOrAdmin = isFromAdminOrAgency
+          const returnUrl = localStorage.getItem(
+            PersistanceKeys.returnUrlAfterAgentCreation,
+          )
+
+          //If the agency/admin is creating the agent, send the event to the parent window
+          //and close this tab else route to the dashboard/myAgentX
+          if (isFromAdminOrAgency) {
+            // Parse the stored data to get subaccount info
+            let subaccountData = null
+            try {
+              const parsed = JSON.parse(isFromAdminOrAgency)
+              subaccountData = parsed?.subAccountData
+            } catch (error) {
+              console.log('Error parsing isFromAdminOrAgency:', error)
+            }
+
+            // Send event to parent window (opener) that agent was created
+            if (window.opener && subaccountData) {
+              try {
+                window.opener.postMessage(
+                  {
+                    type: 'AGENT_CREATED',
+                    userId: subaccountData.id,
+                    agentId: mainAgentId,
+                  },
+                  '*', // In production, specify the exact origin
+                )
+                console.log('Sent AGENT_CREATED event to parent window')
+              } catch (error) {
+                console.log('Error sending message to parent window:', error)
+              }
+            }
+
+            // Clean up the stored data
+            localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
+            localStorage.removeItem(PersistanceKeys.returnUrlAfterAgentCreation)
+
+            // Close the tab after a short delay to allow message to be sent
+            setTimeout(() => {
+              window.close()
+            }, 500)
           }
-          console.log('Is from agency or admin', isFromAgencyOrAdmin)
-          if (isFromAgencyOrAdmin?.isFromAgency === 'admin') {
-            router.push('/admin')
-            localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
-          } else if (isFromAgencyOrAdmin?.isFromAgency === 'subaccount') {
-            router.push('/agency/dashboard/subAccounts') //agency
-            localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
-          } else {
+          else{
             router.push('/dashboard/myAgentX')
           }
+          // console.log('Is from agency or admin', isFromAgencyOrAdmin)
+          // if (isFromAgencyOrAdmin?.isFromAgency === 'admin') {
+          //   router.push('/admin')
+          //   localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
+          // } else if (isFromAgencyOrAdmin?.isFromAgency === 'subaccount') {
+          //   router.push('/agency/dashboard/subAccounts') //agency
+          //   localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
+          // } else {
+          //   router.push('/dashboard/myAgentX')
+          // }
         } else {
           // setLoader(false);
         }
@@ -778,8 +820,8 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       style={{ width: '100%' }}
       className="overflow-y-none flex flex-row justify-center items-center"
     >
-      <div className="bg-white rounded-2xl w-10/12 h-[91vh] py-4 flex flex-col justify-between">
-        <div>
+      <div className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative">
+        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
           {/* header with title centered vertically */}
           <div className="relative w-full flex-shrink-0">
             <Header />
@@ -825,8 +867,8 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
           </div>
           <div
             ref={containerRef}
-            className="flex flex-col items-center px-4 w-full overflow-auto h-[68vh]"
-            style={{ 
+            className="flex flex-col items-center px-4 w-full"
+            style={{
               scrollbarWidth: 'none',
             }}
           >
@@ -933,10 +975,13 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
               </div> */}
               <div
                 style={{ fontSize: 24, fontWeight: '700' }}
-                className="flex flex-row items-center center w-full justify-between"
+                className="flex flex-row items-center center w-full"
               >
                 <div>{AgentDetails?.name} Script</div>
-                <div>
+              </div>
+              <div className="flex flex-row items-center justify-between w-full">
+                <div style={styles.headingStyle} className="">Greeting</div>
+                <div className="">
                   <button
                     className="flex flex-row items-center gap-2 h-[43px] rounded-md bg-brand-primary text-white px-4"
                     style={{
@@ -955,18 +1000,21 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                   </button>
                 </div>
               </div>
-              <div style={styles.headingStyle}>Greeting</div>
-              {loadingAgentDetails ? (
-                <ScriptLoader height={50} />
-              ) : (
-                <GreetingTagInput
-                  greetTag={greetingTagInput}
-                  kycsList={kycsData}
-                  uniqueColumns={uniqueColumns}
-                  tagValue={setGreetingTagInput}
-                  scrollOffset={scrollOffset}
-                />
-              )}
+
+              <div className="relative w-full">
+
+                {loadingAgentDetails ? (
+                  <ScriptLoader height={50} />
+                ) : (
+                  <GreetingTagInput
+                    greetTag={greetingTagInput}
+                    kycsList={kycsData}
+                    uniqueColumns={uniqueColumns}
+                    tagValue={setGreetingTagInput}
+                    scrollOffset={scrollOffset}
+                  />
+                )}
+              </div>
 
               {/* <MentionsInputTest /> <TagInput /> */}
 
@@ -1168,7 +1216,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                           uniqueColumns={uniqueColumns}
                           tagValue={setObjective}
                           scrollOffset={scrollOffset}
-                          // showSaveChangesBtn={showSaveChangesBtn}
+                        // showSaveChangesBtn={showSaveChangesBtn}
                         />
 
                         {/* <DynamicDropdown /> */}
@@ -1198,14 +1246,18 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
         {/* Modal for video */}
 
-        <div>
-          <div>{/* <ProgressBar value={33} /> */}</div>
-
-          <Footer
-            handleContinue={handleNextClick}
-            handleBack={handleBack}
-            registerLoader={loader}
-          />
+        {/* Fixed Footer */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+          <div className="px-4 pt-3 pb-2">
+            <ProgressBar value={100} />
+          </div>
+          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
+            <Footer
+              handleContinue={handleNextClick}
+              handleBack={handleBack}
+              registerLoader={loader}
+            />
+          </div>
         </div>
       </div>
     </div>

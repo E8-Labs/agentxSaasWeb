@@ -17,6 +17,7 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 
+import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../leads/AgentSelectSnackMessage'
@@ -31,6 +32,7 @@ const EmbedModal = ({
   agentSmartRefill,
   selectedUser,
   agent,
+  onAgentUpdate, // Callback to update parent's agent state
 }) => {
   const [buttonLabel, setButtonLabel] = useState('Get Help')
   const [requireForm, setRequireForm] = useState(false)
@@ -71,15 +73,23 @@ const EmbedModal = ({
         AuthToken = UserDetails.token
       }
 
-      let apiUrl = 'https://apimyagentx.com/agentxtest/api/leads/getSheets?type=manual'
+      let apiUrl = `${Apis.getSheets}?type=manual`
       if (selectedUser?.id) {
         apiUrl += `&userId=${selectedUser.id}`
       }
 
+      console.log('🔧 EMBED-MODAL - Fetching smartlists from:', apiUrl)
+
       const response = await axios.get(apiUrl, {
         headers: {
+          'Content-Type': 'application/json',
           Authorization: `Bearer ${AuthToken}`,
         },
+      })
+
+      console.log('🔧 EMBED-MODAL - Smartlists fetched:', {
+        count: response.data?.data?.length || 0,
+        smartlists: response.data?.data?.map(s => ({ id: s.id, name: s.sheetName })) || [],
       })
 
       if (
@@ -88,13 +98,64 @@ const EmbedModal = ({
         response.data.data.length > 0
       ) {
         setSmartLists(response.data.data)
-        // Use agent's smartListId if available, otherwise use agentSmartRefill or first item
+        
+        // Always try to set the selected smartlist from agent data after fetching
+        // This ensures it's set even if the list was just created
         const smartListIdToSet =
-          agent?.smartListId || agentSmartRefill || response.data.data[0].id
-        setSelectedSmartList(smartListIdToSet)
+          agent?.smartListIdForEmbed || // NEW: Check embed-specific field first
+          agent?.smartListId || // Legacy fallback
+          agentSmartRefill || 
+          null
+        
+        if (smartListIdToSet) {
+          // Convert to number for comparison (list IDs are numbers)
+          const smartListIdNum = Number(smartListIdToSet)
+          
+          // Verify the smartlist exists in the fetched list
+          const smartListExists = response.data.data.some(
+            (list) => Number(list.id) === smartListIdNum
+          )
+          
+          if (smartListExists) {
+            // Use the actual ID from the list to ensure type consistency
+            const matchingList = response.data.data.find(
+              (list) => Number(list.id) === smartListIdNum
+            )
+            setSelectedSmartList(matchingList.id)
+            console.log('🔧 EMBED-MODAL - Set selected smartlist:', {
+              requestedId: smartListIdToSet,
+              setId: matchingList.id,
+              found: true,
+              listName: matchingList.sheetName,
+            })
+          } else {
+            console.warn('🔧 EMBED-MODAL - Smartlist ID not found in fetched list:', {
+              requestedId: smartListIdToSet,
+              requestedIdType: typeof smartListIdToSet,
+              availableIds: response.data.data.map(s => ({ id: s.id, type: typeof s.id, name: s.sheetName })),
+            })
+            // Still set it in case it's a timing issue - convert to number
+            setSelectedSmartList(smartListIdNum)
+          }
+        } else if (requireForm && response.data.data.length > 0) {
+          // If form is required but no smartlist ID, select first one
+          setSelectedSmartList(response.data.data[0].id)
+          console.log('🔧 EMBED-MODAL - No smartlist ID from agent, selected first one:', {
+            id: response.data.data[0].id,
+            name: response.data.data[0].sheetName,
+          })
+        }
+      } else {
+        console.warn('🔧 EMBED-MODAL - No smartlists found in response')
       }
     } catch (error) {
-      console.error('Error fetching smart lists:', error)
+      console.error('🔧 EMBED-MODAL - Error fetching smart lists:', error)
+      showSnackbar(
+        '',
+        error.response?.data?.message ||
+          'Failed to fetch smart lists. Please try again.',
+        SnackbarTypes.Error,
+      )
     } finally {
       setLoading(false)
     }
@@ -109,38 +170,49 @@ const EmbedModal = ({
       if (agent.supportButtonAvatar) {
         setLogoPreview(agent.supportButtonAvatar)
       }
-      if (agent.smartListEnabled) {
-        setRequireForm(agent.smartListEnabled)
-        // Fetch smart lists if form is required
-        fetchSmartLists()
-      } else if (agent.smartListId) {
-        setSelectedSmartList(agent.smartListId)
-      }
-    } else if (open && !agent) {
-      // Reset to defaults when modal opens without agent data
-      setButtonLabel('Get Help')
-      setLogoPreview(null)
-      setRequireForm(false)
-      setSelectedSmartList('')
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, agent])
+      // Check embed-specific smartlist settings
+      // IMPORTANT: Prioritize new fields, only use legacy if new fields don't exist
+      const hasNewFields = 
+        agent.smartListEnabledForEmbed !== undefined || 
+        agent.smartListIdForEmbed !== undefined
 
-  // Initialize with existing agent data when modal opens
-  useEffect(() => {
-    if (open && agent) {
-      if (agent.supportButtonText) {
-        setButtonLabel(agent.supportButtonText)
+      let embedSmartListEnabled = false
+      let embedSmartListId = null
+
+      if (hasNewFields) {
+        // New fields exist - use them exclusively (ignore legacy fields)
+        embedSmartListEnabled = agent.smartListEnabledForEmbed ?? false
+        embedSmartListId = agent.smartListIdForEmbed || null
+        console.log('🔍 EmbedModal - Using NEW embed-specific fields:', {
+          smartListEnabledForEmbed: embedSmartListEnabled,
+          smartListIdForEmbed: embedSmartListId,
+        })
+      } else {
+        // No new fields - fallback to legacy (for backward compatibility before migration)
+        embedSmartListEnabled = agent.smartListEnabled ?? false
+        embedSmartListId = agent.smartListId || null
+        console.warn('⚠️ EmbedModal - Using LEGACY fields (migration may not have run):', {
+          smartListEnabled: embedSmartListEnabled,
+          smartListId: embedSmartListId,
+        })
       }
-      if (agent.supportButtonAvatar) {
-        setLogoPreview(agent.supportButtonAvatar)
-      }
-      if (agent.smartListEnabled) {
-        setRequireForm(agent.smartListEnabled)
-        // Fetch smart lists if form is required
+
+      if (embedSmartListEnabled) {
+        setRequireForm(true)
+        // Always fetch smart lists when form is required - this ensures we have the latest list
+        // The fetchSmartLists function will set the selectedSmartList after fetching
         fetchSmartLists()
-      } else if (agent.smartListId) {
-        setSelectedSmartList(agent.smartListId)
+      } else if (embedSmartListId) {
+        // Has smartlist ID but not enabled - fetch lists and set the ID but don't enable form
+        fetchSmartLists()
+        setSelectedSmartList(embedSmartListId)
+        setRequireForm(false)
+      } else {
+        // No smartlist configured
+        setRequireForm(false)
+        setSelectedSmartList('')
+        // Still fetch lists so they're available if user enables the toggle
+        fetchSmartLists()
       }
     } else if (open && !agent) {
       // Reset to defaults when modal opens without agent data
@@ -150,7 +222,7 @@ const EmbedModal = ({
       setSelectedSmartList('')
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, agent])
+  }, [open, agent, agent?.smartListIdForEmbed, agent?.smartListEnabledForEmbed])
 
   const handleToggleChange = (event) => {
     setRequireForm(event.target.checked)
@@ -202,6 +274,19 @@ const EmbedModal = ({
       }
       formData.append('supportButtonText', buttonLabel)
       formData.append('smartListEnabled', requireForm.toString())
+      formData.append('agentType', 'embed') // Specify agent type for embed agents
+      // Also pass smartListId if available, so updateSupportButton can set it
+      if (selectedSmartList) {
+        formData.append('smartListId', selectedSmartList)
+      }
+      
+      console.log('🔧 EMBED-MODAL - updateSupportButton payload:', {
+        agentId,
+        supportButtonText: buttonLabel,
+        smartListEnabled: requireForm,
+        agentType: 'embed',
+        smartListId: selectedSmartList || 'none',
+      })
 
       console.log('🔧 EMBED-MODAL - Support button settings:', {
         agentId,
@@ -249,6 +334,7 @@ const EmbedModal = ({
       const payload = {
         agentId: agentId,
         smartListId: selectedSmartList,
+        agentType: 'embed', // Specify agent type for embed agents
       }
 
       if (selectedUser?.id) {
@@ -270,6 +356,22 @@ const EmbedModal = ({
 
       if (response.data?.status === true) {
         console.log('🔧 EMBED-MODAL - Smart list attached successfully')
+        // Update local agent state if agent prop is provided
+        if (agent && selectedSmartList) {
+          const updatedAgent = {
+            ...agent,
+            smartListIdForEmbed: selectedSmartList,
+            smartListEnabledForEmbed: true,
+          }
+          console.log('🔧 EMBED-MODAL - Updated local agent state:', {
+            smartListIdForEmbed: updatedAgent.smartListIdForEmbed,
+            smartListEnabledForEmbed: updatedAgent.smartListEnabledForEmbed,
+          })
+          // Notify parent to update agent state
+          if (onAgentUpdate) {
+            onAgentUpdate(updatedAgent)
+          }
+        }
         return true
       } else {
         throw new Error(response.data?.message || 'Failed to attach smart list')
@@ -568,12 +670,13 @@ const EmbedModal = ({
                   ) : smartLists.length > 0 ? (
                     <FormControl className="w-full h-[50px]">
                       <Select
-                        value={selectedSmartList}
+                        value={selectedSmartList || ''}
                         onChange={(e) => {
                           e.stopPropagation()
                           setSelectedSmartList(e.target.value)
                         }}
                         onClick={(e) => e.stopPropagation()}
+                        displayEmpty
                         sx={{
                           height: '48px',
                           borderRadius: '13px',

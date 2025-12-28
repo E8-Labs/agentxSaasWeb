@@ -78,7 +78,7 @@ input[type="date"]::-moz-datetime-edit-year-field {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
     /* Agency branding colors - defaults to purple (#7902DF) */
-    /* These will be overridden by ThemeProvider when agency colors are set */
+    /* These are overridden server-side in layout.js when agency colors are set */
     --brand-primary: 270 75% 50%; /* Default purple: #7902DF */
     --brand-secondary: 270 60% 60%; /* Default lighter purple variant */
   }
@@ -114,8 +114,44 @@ input[type="date"]::-moz-datetime-edit-year-field {
     @apply border-border;
   }
 
+  html {
+    background-color: hsl(var(--background, 0 0% 100%)) !important;
+    background: hsl(var(--background, 0 0% 100%)) !important;
+  }
+
   body {
     @apply bg-background text-foreground;
+    background-color: hsl(var(--background, 0 0% 100%)) !important;
+    background: hsl(var(--background, 0 0% 100%)) !important;
+  }
+
+  #__next {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    min-height: 100vh;
+  }
+
+  /* Ensure all layout wrappers have white background */
+  .flex.flex-col.w-full:not(.sms-note-container) {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+  }
+
+  /* Prevent any black space at top - ensure body and html are white */
+  html, body {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+  }
+
+  /* Ensure no black backgrounds on any fixed elements at top */
+  [class*="fixed"][class*="top-0"] {
+    background-color: transparent !important;
+  }
+
+  /* Service banner should be purple, not black */
+  .bg-purple {
+    background-color: #7902DF !important;
+    background: #7902DF !important;
   }
 
   /* ✅ Remove number input spinner arrows */
@@ -211,9 +247,20 @@ input,
 textarea {
   -webkit-user-modify: read-write-plaintext-only;
   -webkit-appearance: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  background-clip: padding-box;
   autocorrect: off;
   autocomplete: off;
   spellcheck: false;
+}
+
+/* Safari can add an inset border/shadow on focus */
+input:focus,
+textarea:focus,
+select:focus {
+  -webkit-box-shadow: none;
+  box-shadow: none;
 }
 
 /* Custom scrollbar styles for feature lists */
@@ -303,6 +350,33 @@ a.text-red:hover {
 [data-sonner-toaster][data-position="top-center"] [data-sonner-toast] {
   margin-left: auto !important;
   margin-right: auto !important;
+}
+
+/* Prevent text wrapping in Sonner toasts - fit content */
+[data-sonner-toast] {
+  white-space: nowrap !important;
+  width: fit-content !important;
+  max-width: fit-content !important;
+  min-width: fit-content !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  flex-shrink: 0 !important;
+}
+
+[data-sonner-toast] > div {
+  white-space: nowrap !important;
+  flex-shrink: 0 !important;
+  width: fit-content !important;
+}
+
+[data-sonner-toast] [data-title],
+[data-sonner-toast] [data-description] {
+  white-space: nowrap !important;
+  display: inline-block !important;
+  flex-shrink: 0 !important;
+  width: fit-content !important;
+  max-width: none !important;
 }
 
 /* Sonner Toast Icon Colors - Target all possible icon containers */
@@ -413,6 +487,132 @@ a.text-red:hover {
 .icon-brand-filter {
   filter: var(--icon-filter);
   transition: filter 0.2s ease-in-out;
+}
+
+/* Responsive Drawer Styles - Ensures styles work in production */
+.responsive-drawer-paper {
+  width: 100% !important;
+  max-width: 100vw !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  height: 100vh !important;
+}
+
+@media (min-width: 600px) {
+  .responsive-drawer-paper {
+    width: 85% !important;
+    max-width: 500px !important;
+    border-radius: 20px !important;
+    margin: 1% !important;
+    height: 96.5vh !important;
+  }
+}
+
+@media (min-width: 900px) {
+  .responsive-drawer-paper {
+    width: 70% !important;
+    max-width: 600px !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  .responsive-drawer-paper {
+    width: 50% !important;
+    max-width: 700px !important;
+  }
+}
+
+@media (min-width: 1536px) {
+  .responsive-drawer-paper {
+    width: 40% !important;
+    max-width: 800px !important;
+  }
+}
+
+/* Additional breakpoints for specific viewport sizes */
+@media (max-width: 1600px) {
+  .responsive-drawer-paper {
+    max-width: 650px !important;
+  }
+}
+
+@media (max-width: 1440px) {
+  .responsive-drawer-paper {
+    max-width: 600px !important;
+  }
+}
+
+@media (max-width: 1200px) {
+  .responsive-drawer-paper {
+    max-width: 550px !important;
+  }
+}
+
+/* Responsive Modal Styles for AdminAgentX */
+.responsive-agent-modal {
+  width: 100vw !important;
+  max-width: 100vw !important;
+  top: 0 !important;
+  right: 0 !important;
+  border-radius: 0 !important;
+  padding: 16px !important;
+  height: 100vh !important;
+}
+
+@media (min-width: 600px) {
+  .responsive-agent-modal {
+    width: 85vw !important;
+    max-width: 550px !important;
+    top: 14px !important;
+    right: 25px !important;
+    border-radius: 5px !important;
+    padding: 24px !important;
+    height: 95vh !important;
+  }
+}
+
+@media (min-width: 900px) {
+  .responsive-agent-modal {
+    width: 70vw !important;
+    max-width: 650px !important;
+  }
+}
+
+@media (min-width: 1200px) {
+  .responsive-agent-modal {
+    width: 50vw !important;
+    max-width: 750px !important;
+  }
+}
+
+@media (max-width: 1600px) {
+  .responsive-agent-modal {
+    max-width: 650px !important;
+  }
+}
+
+@media (max-width: 1440px) {
+  .responsive-agent-modal {
+    max-width: 600px !important;
+  }
+}
+
+@media (max-width: 1200px) {
+  .responsive-agent-modal {
+    max-width: 550px !important;
+  }
+}
+
+/* Lock icon with transparent fill and brand color stroke */
+.lock-icon-outline svg {
+  color: hsl(var(--brand-primary));
+}
+
+.lock-icon-outline svg path {
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 1.5;
+  color: hsl(var(--brand-primary));
 }
 
 

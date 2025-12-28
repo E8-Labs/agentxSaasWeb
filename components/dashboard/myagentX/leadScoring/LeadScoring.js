@@ -315,20 +315,20 @@ function LeadScoring({
               </FormControl>
 
               <div className="w-full mt-4 flex flex-col items-center justify-center">
-                <div className="w-6/12">
+                <div className="w-auto">
                   <VideoCard
                     duration={(() => {
-                      const tutorial = getTutorialByType(HowToVideoTypes.Scoring)
-                      return tutorial?.description || '1:47'
+                      const tutorial = getTutorialByType(HowToVideoTypes.LeadScoring)
+                      return tutorial?.description || '06:13'
                     })()}
-                    width="80"
+                    width="70"
                     height="100"
                     horizontal={false}
                     playVideo={() => {
                       setIntroVideoModal(true)
                     }}
                     title={
-                      getTutorialByType(HowToVideoTypes.Scoring)?.title ||
+                      getTutorialByType(HowToVideoTypes.LeadScoring)?.title ||
                       'Learn how to add Scoring'
                     }
 
@@ -338,12 +338,12 @@ function LeadScoring({
                     open={introVideoModal}
                     onClose={() => setIntroVideoModal(false)}
                     videoTitle={
-                      getTutorialByType(HowToVideoTypes.Scoring)?.title ||
+                      getTutorialByType(HowToVideoTypes.LeadScoring)?.title ||
                       'Learn how to add Scoring'
                     }
                     videoUrl={
-                      getVideoUrlByType(HowToVideoTypes.Scoring) ||
-                      HowtoVideos.Scoring
+                      getVideoUrlByType(HowToVideoTypes.LeadScoring) ||
+                      HowtoVideos.LeadScoring
                     }
                   />
                 </div>

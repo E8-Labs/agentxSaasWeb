@@ -16,6 +16,9 @@ import { Input } from '@/components/ui/input'
 import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
 import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
 import UpgardView from '@/constants/UpgardView'
+import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
+import { Paperclip } from 'lucide-react'
+import { FormControl, MenuItem, Select } from '@mui/material'
 
 // Helper function to get brand primary color as hex
 const getBrandPrimaryHex = () => {
@@ -84,6 +87,10 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
   const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
   const [phoneDropdownOpen, setPhoneDropdownOpen] = useState(false)
   const [emailDropdownOpen, setEmailDropdownOpen] = useState(false)
+  const [uniqueColumns, setUniqueColumns] = useState([])
+  const [selectedVariable, setSelectedVariable] = useState('')
+  const [selectedSubjectVariable, setSelectedSubjectVariable] = useState('')
+  const [attachments, setAttachments] = useState([])
   const richTextEditorRef = useRef(null)
   const searchTimeoutRef = useRef(null)
   const leadSearchRef = useRef(null)
@@ -322,6 +329,75 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
     }
   }, [open])
 
+  // Fetch unique columns for variables
+  const fetchUniqueColumns = async () => {
+    try {
+      const user = getUserLocalData()
+      const userId = user?.user?.id
+      const defaultColumns = [
+        '{First Name}',
+        '{Last Name}',
+        '{Email}',
+        '{Phone}',
+        '{Address}',
+      ]
+      
+      let res = await getUniquesColumn(userId)
+      
+      if (res && Array.isArray(res)) {
+        const mergedColumns = [
+          ...defaultColumns,
+          ...res.filter((col) => !defaultColumns.includes(col)),
+        ]
+        setUniqueColumns(mergedColumns)
+      } else {
+        setUniqueColumns(defaultColumns)
+      }
+    } catch (error) {
+      console.error('Error fetching unique columns:', error)
+      setUniqueColumns([
+        '{First Name}',
+        '{Last Name}',
+        '{Email}',
+        '{Phone}',
+        '{Address}',
+      ])
+    }
+  }
+
+  // Handle file attachment
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files)
+    const maxSizeInBytes = 10 * 1024 * 1024 // 10MB
+    const maxAttachments = 5
+
+    if (attachments.length + files.length > maxAttachments) {
+      toast.error(`Maximum ${maxAttachments} attachments allowed`)
+      return
+    }
+
+    const currentTotalSize = attachments.reduce(
+      (total, file) => total + file.size,
+      0,
+    )
+
+    const newFilesTotalSize = files.reduce(
+      (total, file) => total + file.size,
+      0,
+    )
+
+    if (currentTotalSize + newFilesTotalSize > maxSizeInBytes) {
+      toast.error("File size can't be more than 10MB")
+      return
+    }
+
+    setAttachments((prev) => [...prev, ...files])
+  }
+
+  const removeAttachment = (index) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index))
+  }
+
   // Initial load
   useEffect(() => {
     if (open) {
@@ -330,6 +406,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
         fetchPhoneNumbers()
       } else {
         fetchEmailAccounts()
+        fetchUniqueColumns()
       }
     }
   }, [open, selectedMode])
@@ -361,6 +438,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
       setShowBCC(false)
       setPhoneDropdownOpen(false)
       setEmailDropdownOpen(false)
+      setAttachments([])
+      setSelectedVariable('')
     }
   }, [open])
 
@@ -469,6 +548,13 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
             formData.append('bcc', bccEmails.join(','))
           }
 
+          // Add attachments if any
+          if (attachments && attachments.length > 0) {
+            attachments.forEach((file) => {
+              formData.append('attachments', file)
+            })
+          }
+
           const response = await axios.post(Apis.sendEmailToLead, formData, {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -545,6 +631,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
           maxHeight: '90vh',
           display: 'flex',
           flexDirection: 'column',
+          overflow: 'visible', // Allow tooltips to escape modal bounds
+          zIndex: 1300, // Ensure modal is above other content
         }}
       >
         {/* Header */}
@@ -554,7 +642,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto overflow-x-visible p-4 space-y-4" style={{ position: 'relative' }}>
           {/* Mode Tabs */}
           <div className="flex items-center justify-between border-b">
             <div className="flex items-center gap-6">
@@ -725,7 +813,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                     className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                     style={{ height: '42px' }}
                   >
-                    Connect Gmail
+                        Connect Email
                   </button>
                   ) : (
                     <>
@@ -735,11 +823,16 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                         className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
                         style={{ height: '42px' }}
                       >
-                        <span className="text-sm text-gray-700 truncate">
-                          {selectedEmailAccount
-                            ? emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))?.email || emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))?.name || 'Select email account'
-                            : 'Select email account'}
-                        </span>
+                          <span className="text-sm text-gray-700 truncate">
+                            {selectedEmailAccount
+                              ? (() => {
+                                  const account = emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))
+                                  if (!account) return 'Select email account'
+                                  const providerLabel = account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider || ''
+                                  return `${account.email || account.name || account.displayName}${providerLabel ? ` (${providerLabel})` : ''}`
+                                })()
+                              : 'Select email account'}
+                          </span>
                         <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                       </button>
                       {emailDropdownOpen && (
@@ -758,7 +851,14 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                                 selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
                               }`}
                             >
-                              {account.email || account.name}
+                                <div className="flex items-center justify-between">
+                                  <span>{account.email || account.name || account.displayName}</span>
+                                  {account.provider && (
+                                    <span className="text-xs text-gray-500 ml-2">
+                                      {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
+                                    </span>
+                                  )}
+                                </div>
                             </button>
                           ))}
                           <div className="border-t border-gray-200 p-2">
@@ -786,7 +886,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
               <label className="text-sm font-medium whitespace-nowrap">To:</label>
               <div className="relative flex-1 min-w-0">
                 {/* Tag Input Container */}
-                <div className="flex flex-wrap items-center gap-2 px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto" style={{ height: '42px', minHeight: '42px' }}>
+                <div className="flex flex-wrap items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto" style={{ height: '42px', minHeight: '42px' }}>
                   {/* Selected Lead Tags */}
                   {selectedLeads.map((lead) => (
                     <div
@@ -820,6 +920,12 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                     }}
                     placeholder={selectedLeads.length === 0 ? "Search leads..." : ""}
                     className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                    style={{ 
+                      height: '100%',
+                      lineHeight: '42px',
+                      padding: 0,
+                      verticalAlign: 'middle'
+                    }}
                   />
                 </div>
                 
@@ -917,15 +1023,92 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                   onChange={(e) => setEmailSubject(e.target.value)}
                   placeholder="Email subject"
                   className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
-                  style={{ height: '42px' }}
+                  style={{ height: '42px', maxWidth: 'calc(100% - 200px)' }}
                 />
+                {/* Variables dropdown for subject */}
+                {uniqueColumns && uniqueColumns.length > 0 && (
+                  <FormControl size="small" sx={{ minWidth: 150 }}>
+                    <Select
+                      value={selectedSubjectVariable}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        setSelectedSubjectVariable('')
+                        if (value) {
+                          const variableText = value.startsWith('{') && value.endsWith('}')
+                            ? value
+                            : `{${value}}`
+                          setEmailSubject((prev) => prev + variableText)
+                        }
+                      }}
+                      displayEmpty
+                      sx={{
+                        fontSize: '0.875rem',
+                        height: '42px',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#d1d5db',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--brand-primary))',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--brand-primary))',
+                        },
+                      }}
+                    >
+                      <MenuItem value="" disabled>
+                        <em>Variables</em>
+                      </MenuItem>
+                      {uniqueColumns.map((variable, index) => {
+                        const displayText = variable.startsWith('{') && variable.endsWith('}')
+                          ? variable
+                          : `{${variable}}`
+                        return (
+                          <MenuItem key={index} value={variable}>
+                            {displayText}
+                          </MenuItem>
+                        )
+                      })}
+                    </Select>
+                  </FormControl>
+                )}
               </div>
             </>
           )}
 
           {/* Message Body */}
           <div>
-            <label className="text-sm font-medium mb-2 block">Message:</label>
+            <div className="flex items-center justify-between mb-2">
+              <label className="text-sm font-medium block">Message:</label>
+              {/* Attachment button - moved from footer to main content area */}
+              {selectedMode === 'email' && (
+                <div className="flex items-center gap-2">
+                  <label className="cursor-pointer">
+                    <button
+                      type="button"
+                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200 flex items-center justify-center"
+                      onClick={() => document.getElementById('new-message-attachment-input')?.click()}
+                    >
+                      <Paperclip size={20} className="text-gray-600 hover:text-brand-primary" />
+                    </button>
+                    <input
+                      id="new-message-attachment-input"
+                      type="file"
+                      accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                      multiple
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                  </label>
+                  
+                  {/* Show attachment count if any */}
+                  {attachments && attachments.length > 0 && (
+                    <span className="text-sm text-gray-600">
+                      {attachments.length} file{attachments.length > 1 ? 's' : ''}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
             {selectedMode === 'email' ? (
               <RichTextEditor
                 ref={richTextEditorRef}
@@ -933,6 +1116,52 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                 onChange={setMessageBody}
                 placeholder="Type your message..."
                 availableVariables={[]}
+                toolbarPosition="bottom"
+                customToolbarElement={
+                  uniqueColumns && uniqueColumns.length > 0 ? (
+                    <FormControl size="small" sx={{ minWidth: 150 }}>
+                      <Select
+                        value={selectedVariable}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          setSelectedVariable('')
+                          if (value && richTextEditorRef.current) {
+                            richTextEditorRef.current.insertVariable(value)
+                          }
+                        }}
+                        displayEmpty
+                        sx={{
+                          fontSize: '0.875rem',
+                          height: '32px',
+                          backgroundColor: 'white',
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#d1d5db',
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'hsl(var(--brand-primary))',
+                          },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'hsl(var(--brand-primary))',
+                          },
+                        }}
+                      >
+                        <MenuItem value="" disabled>
+                          <em>Variables</em>
+                        </MenuItem>
+                        {uniqueColumns.map((variable, index) => {
+                          const displayText = variable.startsWith('{') && variable.endsWith('}')
+                            ? variable
+                            : `{${variable}}`
+                          return (
+                            <MenuItem key={index} value={variable}>
+                              {displayText}
+                            </MenuItem>
+                          )
+                        })}
+                      </Select>
+                    </FormControl>
+                  ) : null
+                }
               />
             ) : (
               <textarea
@@ -955,49 +1184,50 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
 
         {/* Footer with char count, credits, and send button */}
         {!shouldShowUpgradeView && (
-          <div className="flex items-center justify-end gap-4 p-4 border-t bg-gray-50">
-            {selectedMode === 'email' && (
-              <div className="flex-1 text-sm text-gray-500">
-                {selectedLeads.length} lead{selectedLeads.length !== 1 ? 's' : ''} selected
-              </div>
-            )}
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              {selectedMode === 'sms' && (
-                <>
-                  <span>
-                    {messageBody.length}/{SMS_CHAR_LIMIT} char
-                  </span>
-                  <span className="text-gray-300">|</span>
-                  <span>
-                    {Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left
-                  </span>
-                </>
-              )}
+          <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50">
+            <div className="flex items-center gap-2">
+              {/* Left side of footer is now empty - Variables and Attachment moved */}
             </div>
-            <button
-              onClick={handleSend}
-              disabled={
-                sending ||
-                selectedLeads.length === 0 ||
-                !messageBody.trim() ||
-                (selectedMode === 'email' && !emailSubject.trim()) ||
-                (selectedMode === 'sms' && !selectedPhoneNumber) ||
-                (selectedMode === 'email' && !selectedEmailAccount)
-              }
-              className="px-6 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
-            >
-              {sending ? (
-                <>
-                  <CircularProgress size={16} className="text-white" />
-                  Sending...
-                </>
-              ) : (
-                <>
-                  Send
-                  <PaperPlaneTilt size={16} />
-                </>
-              )}
-            </button>
+            
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-sm text-gray-500">
+                {selectedMode === 'sms' && (
+                  <>
+                    <span>
+                      {messageBody.length}/{SMS_CHAR_LIMIT} char
+                    </span>
+                    <span className="text-gray-300">|</span>
+                    <span>
+                      {Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left
+                    </span>
+                  </>
+                )}
+              </div>
+              <button
+                onClick={handleSend}
+                disabled={
+                  sending ||
+                  selectedLeads.length === 0 ||
+                  !messageBody.trim() ||
+                  (selectedMode === 'email' && !emailSubject.trim()) ||
+                  (selectedMode === 'sms' && !selectedPhoneNumber) ||
+                  (selectedMode === 'email' && !selectedEmailAccount)
+                }
+                className="px-6 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+              >
+                {sending ? (
+                  <>
+                    <CircularProgress size={16} className="text-white" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    Send
+                    <PaperPlaneTilt size={16} />
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         )}
       </Box>

@@ -117,6 +117,10 @@ export function SupportWidget({
 
     try {
       let path = `${Apis.getUserByAgentVapiId}/${assistantId}`
+      // Add agentType query parameter for embed agents
+      if (isEmbed) {
+        path += '?agentType=embed'
+      }
       console.log('api path of agent is', path)
 
       const response = await axios.get(path)
@@ -286,7 +290,7 @@ export function SupportWidget({
 
       // Call POST API to get assistant overrides (matching web-agent format)
       const response = await axios.post(
-        `${Apis.getUserByAgentVapiIdWithLeadDetails}/${assistantId}`,
+        `${Apis.getUserByAgentVapiIdWithLeadDetails}/${assistantId}?agentType=embed`,
         {
           lead_details: leadDetails,
         },

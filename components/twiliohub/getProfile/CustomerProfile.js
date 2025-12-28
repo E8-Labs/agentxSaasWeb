@@ -15,6 +15,7 @@ import ShowRequestStatus from '../twilioExtras/ShowRequestStatus'
 import ShowResubmitBtn from '../twilioExtras/ShowResubmitBtn'
 import TwilioProfileToolTip from '../twilioExtras/TwilioProfileToolTip'
 import LockDetailsView from './LockDetailsView'
+import { Play } from 'lucide-react'
 
 const CustomerProfile = ({
   twilioHubData,
@@ -71,7 +72,7 @@ const CustomerProfile = ({
         <div>
           {!twilioHubData && !isFromAgency && (
             <button
-              className="bg-purple text-white h-[49px] w-[150px] rounded-lg"
+              className="bg-brand-primary text-white h-[49px] w-[150px] rounded-lg"
               style={{ fontSize: 15, fontWeight: '500' }}
               onClick={() => {
                 setShowAddTwilio(true)
@@ -120,14 +121,20 @@ const CustomerProfile = ({
           >
             Learn more about Twilio Trust Hub
           </button>
-          <Image
+          <Play size={18} 
+          weight='bold'
+          className="text-brand-primary"
+          
+          style={{ color: 'hsl(var(--brand-primary))' }}
+          />
+          {/* <Image
             src="/otherAssets/playIcon.jpg"
             alt="info"
             width={10}
             height={10}
             className="cursor-pointer"
             onClick={() => setIntroVideoModal2(true)}
-          />
+          /> */}
         </div>
       </div>
       {/* Intro modal */}

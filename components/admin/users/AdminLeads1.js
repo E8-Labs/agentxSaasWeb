@@ -34,6 +34,7 @@ import EnrichModal from '@/components/dashboard/leads/EnrichModal'
 import TagsInput from '@/components/dashboard/leads/TagsInput'
 import ConfirmPerplexityModal from '@/components/dashboard/leads/extras/CofirmPerplexityModal'
 import CloseBtn, { CloseBtn2 } from '@/components/globalExtras/CloseBtn'
+import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
 import FileUpload from '@/components/test/FileUpload'
 import ReadFile from '@/components/test/ReadFile'
 import { HowToVideoTypes, HowtoVideos } from '@/constants/Constants'
@@ -120,6 +121,9 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
   const [isEnrichToggle, setIsEnrichToggle] = useState(false)
   const [userDetails, setUserDetails] = useState(null)
 
+  // Unique columns from all sheets
+  const [uniqueColumns, setUniqueColumns] = useState([])
+
   useEffect(() => {
     const getUserDetails = async () => {
       if (selectedUser?.id) {
@@ -143,12 +147,34 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
       setNewColumnsObtained([])
       setDefaultColumns({ ...LeadDefaultColumns })
       setDefaultColumnsArray([...LeadDefaultColumnsArray])
+      setUniqueColumns([])
       // defaultColumns = LeadDefaultColumns;
       // defaultColumnsArray = LeadDefaultColumnsArray;
 
       //console.log;
     }
   }, [ShowUploadLeadModal])
+
+  // Fetch unique columns when upload modal opens
+  useEffect(() => {
+    const fetchUniqueColumns = async () => {
+      if (ShowUploadLeadModal && selectedUser?.id) {
+        try {
+          const columns = await getUniquesColumn(selectedUser.id)
+          if (columns && Array.isArray(columns)) {
+            setUniqueColumns(columns)
+          } else {
+            setUniqueColumns([])
+          }
+        } catch (error) {
+          console.error('Error fetching unique columns:', error)
+          setUniqueColumns([])
+        }
+      }
+    }
+
+    fetchUniqueColumns()
+  }, [ShowUploadLeadModal, selectedUser?.id])
 
   useEffect(() => {
     //console.log;
@@ -833,15 +859,47 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
       (col) => col.matchedColumn !== null,
     ).map((col) => col.matchedColumn.dbName)
 
+    // Extract already used custom column names (UserFacingName)
+    const usedCustomColumnNames = NewColumnsObtained.filter(
+      (col) => col.UserFacingName !== null && col.matchedColumn === null,
+    ).map((col) => col.UserFacingName.toLowerCase())
+
+    // Get default column UserFacingNames for comparison
+    const defaultColumnNames = Object.values(LeadDefaultColumns).map(
+      (col) => col.UserFacingName.toLowerCase(),
+    )
+
     // Find default columns that were NOT matched
-    const columnsNotMatched = allDefaultDbNames
+    const defaultColumnsNotMatched = allDefaultDbNames
       .filter((dbName) => !matchedDbNames.includes(dbName))
       .map((dbName) =>
         Object.values(LeadDefaultColumns).find((col) => col.dbName === dbName),
       )
 
+    // Process unique columns: filter out duplicates and already used ones
+    const availableUniqueColumns = uniqueColumns
+      .filter((colName) => {
+        if (!colName || typeof colName !== 'string') return false
+        const normalizedName = colName.trim().toLowerCase()
+        // Exclude if it's a default column name
+        if (defaultColumnNames.includes(normalizedName)) return false
+        // Exclude if it's already used as a custom column
+        if (usedCustomColumnNames.includes(normalizedName)) return false
+        return true
+      })
+      .map((colName) => ({
+        UserFacingName: colName.trim(),
+        isUniqueColumn: true, // Flag to identify unique columns
+      }))
+
+    // Combine default and unique columns
+    const allAvailableColumns = [
+      ...defaultColumnsNotMatched,
+      ...availableUniqueColumns,
+    ]
+
     //console.log;
-    return columnsNotMatched
+    return allAvailableColumns
   }
 
   //code to add new sheet list
@@ -978,7 +1036,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                     </div>
                   )}
               </div>
-              <div className={`flex flex-row items-start justify-start bg-blue mt-3 w-full px-4`}>
+              <div className={`flex flex-row items-center  justify-center mt-3 w-full px-4`}>
                 <div className="w-full max-w-[710px] relative" style={{ aspectRatio: '710/100' }}>
                   <Image
                     src={'/assets/placeholder.png'}
@@ -991,13 +1049,13 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
               </div>
               <div className="flex flex-col items-center justify-center">
                 <div
-                  className="mt-12 ms-8 text-center"
+                  className="mt-2 ms-8 text-center"
                   style={{ fontSize: 30, fontWeight: '700' }}
                 >
                   {`Looks like you don't have any leads yet`}
                 </div>
 
-                <div className="w-full flex flex-row gap-6 justify-center mt-10 gap-4">
+                <div className="w-full flex flex-row gap-6 justify-center mt-4 gap-4">
                   <div className="">
                     <button
                       className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
@@ -1032,12 +1090,12 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                   </div>
                 </div>
                 <div className="flex flex-col items-center justify-center">
-                  <div
+                  {/* <div
                     className="mt-12 ms-8 text-center"
                     style={{ fontSize: 30, fontWeight: '700' }}
                   >
                     {`Looks like you don't have any leads yet`}
-                  </div>
+                  </div> */}
 
                   <div
                     style={{
@@ -1679,25 +1737,58 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
             elevation: 1, // This will remove the shadow
             style: {
               boxShadow: '0px 2px 5px rgba(0, 0, 0, 0.3)',
+              maxHeight: '400px',
+              overflowY: 'auto',
             },
           }}
         >
           <div className="w-[170px]" style={styles.paragraph}>
             <div>
               <div className="flex flex-col text-start">
-                {GetDefaultColumnsNotMatched().map((item, index) => {
-                  return (
-                    <button
-                      className="text-start hover:bg-[hsl(var(--brand-primary) / 0.1)] p-2"
-                      key={index}
-                      onClick={() => {
-                        ChangeColumnName(item.UserFacingName)
-                      }}
-                    >
-                      {item.UserFacingName}
-                    </button>
-                  )
-                })}
+                {GetDefaultColumnsNotMatched()
+                  .filter((item) => !item.isUniqueColumn)
+                  .map((item, index) => {
+                    return (
+                      <button
+                        className="text-start hover:bg-[hsl(var(--brand-primary) / 0.1)] p-2"
+                        key={`default-${index}`}
+                        onClick={() => {
+                          ChangeColumnName(item.UserFacingName)
+                        }}
+                      >
+                        {item.UserFacingName}
+                      </button>
+                    )
+                  })}
+              </div>
+              {GetDefaultColumnsNotMatched().filter((item) => item.isUniqueColumn)
+                .length > 0 && (
+                <>
+                  <div
+                    className="text-xs text-gray-500 px-2 py-1 mt-1"
+                    style={{ fontSize: 12, fontWeight: '600' }}
+                  >
+                    Custom Columns
+                  </div>
+                  <div className="flex flex-col text-start">
+                    {GetDefaultColumnsNotMatched()
+                      .filter((item) => item.isUniqueColumn)
+                      .map((item, index) => {
+                        return (
+                          <button
+                            className="text-start hover:bg-[hsl(var(--brand-primary) / 0.1)] p-2"
+                            key={`unique-${index}`}
+                            onClick={() => {
+                              ChangeColumnName(item.UserFacingName)
+                            }}
+                          >
+                            {item.UserFacingName}
+                          </button>
+                        )
+                      })}
+                  </div>
+                </>
+              )}
               </div>
             </div>
             <button
@@ -1708,7 +1799,6 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
             >
               Add New column
             </button>
-          </div>
         </Popover>
 
         {/* Modal to update header */}

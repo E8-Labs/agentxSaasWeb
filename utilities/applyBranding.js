@@ -3,11 +3,122 @@ import { hexToHsl, calculateIconFilter } from '@/utilities/colorUtils'
 import { UserRole } from '@/constants/UserRole'
 
 /**
+ * Check if server already applied branding via SSR
+ * Returns true if we should skip client-side branding application
+ */
+const isServerBrandingApplied = () => {
+  if (typeof document === 'undefined') return false
+  return document.documentElement.dataset.brandingApplied === 'server'
+}
+
+/**
+ * Set branding cookie for server-side access
+ * This ensures middleware can read branding on subsequent requests
+ */
+export const setBrandingCookie = (branding) => {
+  if (typeof document === 'undefined') return
+  try {
+    const value = encodeURIComponent(JSON.stringify(branding))
+    document.cookie = `agencyBranding=${value}; path=/; max-age=${60 * 60 * 24}; samesite=lax`
+    console.log('🍪 [setBrandingCookie] Cookie updated with branding')
+  } catch (e) {
+    console.error('❌ [setBrandingCookie] Error setting cookie:', e)
+    // Silent fail - cookie setting is best effort
+  }
+}
+
+/**
+ * Apply branding styles to the document
+ * Sets CSS variables for colors and icon filter
+ */
+const applyBrandingStyles = (branding) => {
+  if (typeof document === 'undefined') return
+  try {
+    const primaryColor = branding.primaryColor || '#7902DF'
+    const secondaryColor = branding.secondaryColor || '#8B5CF6'
+
+    // Convert hex to HSL
+    const primaryHsl = hexToHsl(primaryColor)
+    const secondaryHsl = hexToHsl(secondaryColor)
+
+    // Set CSS variables immediately
+    document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+    document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
+    document.documentElement.style.setProperty('--primary', primaryHsl)
+    document.documentElement.style.setProperty('--secondary', secondaryHsl)
+
+    // Calculate and set icon filter
+    const iconFilter = calculateIconFilter(primaryColor)
+    document.documentElement.style.setProperty('--icon-filter', iconFilter)
+    
+    console.log('✅ [applyBrandingStyles] Branding styles applied:', {
+      primaryColor,
+      secondaryColor,
+    })
+  } catch (error) {
+    console.error('❌ [applyBrandingStyles] Error applying styles:', error)
+  }
+}
+
+/**
+ * Update branding cookie and apply branding immediately
+ * This is the main function to call when branding is updated
+ * @param {Object} branding - The branding object to apply
+ * @param {boolean} skipServerCheck - If true, skip server branding check
+ * @returns {boolean} - Returns true if branding was applied
+ */
+export const updateBrandingCookieAndApply = (branding, skipServerCheck = false) => {
+  if (typeof window === 'undefined') return false
+
+  // Skip if server already applied branding (unless explicitly skipped)
+  if (!skipServerCheck && isServerBrandingApplied()) {
+    console.log('✅ [updateBrandingCookieAndApply] Server already applied branding, skipping client-side application')
+    // Still update cookie for consistency
+    setBrandingCookie(branding)
+    return true
+  }
+
+  if (!branding || typeof branding !== 'object' || Object.keys(branding).length === 0) {
+    console.warn('⚠️ [updateBrandingCookieAndApply] Invalid branding object')
+    return false
+  }
+
+  try {
+    // Update localStorage
+    localStorage.setItem('agencyBranding', JSON.stringify(branding))
+    console.log('💾 [updateBrandingCookieAndApply] Updated localStorage with branding')
+
+    // Update cookie
+    setBrandingCookie(branding)
+
+    // Apply branding styles immediately
+    applyBrandingStyles(branding)
+
+    // Dispatch event for any components listening for branding updates
+    window.dispatchEvent(
+      new CustomEvent('agencyBrandingUpdated', { detail: branding })
+    )
+    console.log('📢 [updateBrandingCookieAndApply] Dispatched agencyBrandingUpdated event')
+
+    return true
+  } catch (error) {
+    console.error('❌ [updateBrandingCookieAndApply] Error updating branding:', error)
+    return false
+  }
+}
+
+/**
  * Apply agency branding after registration or login
  * Extracts branding from response data, stores it, and dispatches event
  */
 export const applyBrandingFromResponse = (responseData) => {
   if (typeof window === 'undefined') return false
+
+  // Skip if server already applied branding
+  if (isServerBrandingApplied()) {
+    console.log('✅ [applyBranding] Server already applied branding, skipping client-side application')
+    return true
+  }
 
   try {
     // Extract branding from various possible locations in response
@@ -23,47 +134,12 @@ export const applyBrandingFromResponse = (responseData) => {
 
     // If branding found, store and dispatch
     if (agencyBranding && typeof agencyBranding === 'object' && Object.keys(agencyBranding).length > 0) {
-      console.log('✅ [applyBranding] Found branding in response, applying...', agencyBranding)
-      localStorage.setItem('agencyBranding', JSON.stringify(agencyBranding))
-      
-      // Apply branding immediately by directly setting CSS variables
-      if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-        try {
-          const primaryColor = agencyBranding.primaryColor || '#7902DF'
-          const secondaryColor = agencyBranding.secondaryColor || '#8B5CF6'
-          
-          // Convert hex to HSL
-          const primaryHsl = hexToHsl(primaryColor)
-          const secondaryHsl = hexToHsl(secondaryColor)
-          
-          // Set CSS variables immediately
-          document.documentElement.style.setProperty('--brand-primary', primaryHsl)
-          document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
-          document.documentElement.style.setProperty('--primary', primaryHsl)
-          document.documentElement.style.setProperty('--secondary', secondaryHsl)
-          
-          // Calculate and set icon filter
-          const iconFilter = calculateIconFilter(primaryColor)
-          document.documentElement.style.setProperty('--icon-filter', iconFilter)
-          
-          console.log('✅ [applyBranding] Applied branding CSS variables immediately')
-        } catch (error) {
-          console.error('Error applying branding CSS variables:', error)
-        }
-        
-        // Also dispatch event for ThemeProvider to handle any additional logic
-        window.dispatchEvent(
-          new CustomEvent('agencyBrandingUpdated', { detail: agencyBranding })
-        )
-        console.log('✅ [applyBranding] Dispatched agencyBrandingUpdated event')
-      }
-      
-      return true
+      // Use the centralized function to update cookie and apply branding
+      return updateBrandingCookieAndApply(agencyBranding)
     }
     
     return false
   } catch (error) {
-    console.error('Error applying branding from response:', error)
     return false
   }
 }
@@ -74,6 +150,11 @@ export const applyBrandingFromResponse = (responseData) => {
  */
 export const fetchAndApplyBranding = async () => {
   if (typeof window === 'undefined') return false
+
+  // Skip if server already applied branding
+  if (isServerBrandingApplied()) {
+    return true
+  }
 
   try {
     const userData = localStorage.getItem('User')
@@ -89,68 +170,49 @@ export const fetchAndApplyBranding = async () => {
     const isAgency = userRole === 'Agency'
 
     if (!isSubaccount && !isAgency) {
-      console.log('ℹ️ [applyBranding] User is not subaccount/agency, skipping branding fetch. userRole:', userRole)
       return false // Not an agency or subaccount, no branding to apply
     }
-    
-    console.log('🔍 [applyBranding] User is subaccount/agency, fetching branding. userRole:', userRole)
 
-    console.log('🔄 [applyBranding] Fetching branding from API...')
-    const response = await fetch(Apis.getAgencyBranding, {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-        'Content-Type': 'application/json',
-      },
-    })
+    // Add timeout to prevent hanging on network errors
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000) // 5 second timeout
 
-    if (response.ok) {
-      const data = await response.json()
-      if (data?.status === true && data?.data?.branding) {
-        const branding = data.data.branding
-        console.log('✅ [applyBranding] Fetched branding from API, applying...')
-        
-        localStorage.setItem('agencyBranding', JSON.stringify(branding))
-        
-        // Apply branding immediately by directly setting CSS variables
-        if (typeof document !== 'undefined') {
-          try {
-            const primaryColor = branding.primaryColor || '#7902DF'
-            const secondaryColor = branding.secondaryColor || '#8B5CF6'
-            
-            // Convert hex to HSL
-            const primaryHsl = hexToHsl(primaryColor)
-            const secondaryHsl = hexToHsl(secondaryColor)
-            
-            // Set CSS variables immediately
-            document.documentElement.style.setProperty('--brand-primary', primaryHsl)
-            document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
-            document.documentElement.style.setProperty('--primary', primaryHsl)
-            document.documentElement.style.setProperty('--secondary', secondaryHsl)
-            
-            // Calculate and set icon filter
-            const iconFilter = calculateIconFilter(primaryColor)
-            document.documentElement.style.setProperty('--icon-filter', iconFilter)
-            
-            console.log('✅ [applyBranding] Applied branding CSS variables from API')
-          } catch (error) {
-            console.error('Error applying branding CSS variables from API:', error)
-          }
+    try {
+      const response = await fetch(Apis.getAgencyBranding, {
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+      })
+
+      clearTimeout(timeoutId)
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data?.status === true && data?.data?.branding) {
+          const branding = data.data.branding
+          // Use the centralized function to update cookie and apply branding
+          return updateBrandingCookieAndApply(branding)
         }
-        
-        // Dispatch event to trigger ThemeProvider update
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(
-            new CustomEvent('agencyBrandingUpdated', { detail: branding })
-          )
-        }
-        
-        return true
       }
+
+      return false
+    } catch (fetchError) {
+      clearTimeout(timeoutId)
+      // Silently handle CORS errors and network failures - don't block the page
+      if (fetchError.name === 'AbortError') {
+        console.warn('[fetchAndApplyBranding] API timeout - continuing without branding')
+      } else if (fetchError.message?.includes('CORS') || fetchError.message?.includes('Failed to fetch')) {
+        console.warn('[fetchAndApplyBranding] CORS error - continuing without branding:', fetchError.message)
+      } else {
+        console.warn('[fetchAndApplyBranding] Error fetching branding - continuing without branding:', fetchError)
+      }
+      return false
     }
-    
-    return false
   } catch (error) {
-    console.error('Error fetching branding from API:', error)
+    // Silently handle all errors - don't block the page
+    console.warn('[fetchAndApplyBranding] Unexpected error - continuing without branding:', error)
     return false
   }
 }
@@ -171,14 +233,10 @@ export const forceApplyBranding = async (responseData = null) => {
       }
     }
 
-    // Small delay to ensure localStorage User is set before fetching
-    await new Promise(resolve => setTimeout(resolve, 200))
-
     // If not in response, fetch from API
     const fetched = await fetchAndApplyBranding()
     return fetched
   } catch (error) {
-    console.error('Error in forceApplyBranding:', error)
     return false
   }
 }

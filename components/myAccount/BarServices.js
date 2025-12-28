@@ -8,7 +8,7 @@ import {
   TextField,
 } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import moment from 'moment'
 import Image from 'next/image'
@@ -27,11 +27,7 @@ import AgentSelectSnackMessage, {
 } from '../dashboard/leads/AgentSelectSnackMessage'
 import XBarConfirmationModal from './XBarConfirmationModal'
 
-let stripePublickKey =
-  process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-    ? process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY_LIVE
-    : process.env.NEXT_PUBLIC_REACT_APP_STRIPE_PUBLISHABLE_KEY
-const stripePromise = loadStripe(stripePublickKey)
+const stripePromise = getStripe()
 
 function BarServices() {
   //stroes user cards list
@@ -75,6 +71,8 @@ function BarServices() {
   const [role, setRole] = useState('')
   const [isSubaccount, setIsSubaccount] = useState(false)
   const [textColor, setTextColor] = useState('#fff') // Default to white text
+  const [xbarTitle, setXbarTitle] = useState('X Bar Services') // Default title
+  const xbarDescription = "We'll help you launch the right way, integrating your systems and optimizing everything for success from day one. Get faster results, close more deals, and do it all at a price that fits your budget."
 
   useEffect(() => {
     let screenWidth = 1000
@@ -130,6 +128,109 @@ function BarServices() {
   useEffect(() => {
     getProfile()
     getCardsList()
+    
+    // Fetch branding from API and update xbar title
+    const fetchBrandingAndUpdateTitle = async () => {
+      try {
+        const localData = localStorage.getItem('User')
+        let authToken = null
+
+        if (localData) {
+          const userData = JSON.parse(localData)
+          authToken = userData.token
+        }
+
+        if (authToken) {
+          try {
+            const response = await axios.get(Apis.getAgencyBranding, {
+              headers: {
+                Authorization: `Bearer ${authToken}`,
+                'Content-Type': 'application/json',
+              },
+            })
+
+            if (response?.data?.status === true && response?.data?.data?.branding) {
+              const branding = response.data.data.branding
+              
+              // Update localStorage with fresh branding data
+              localStorage.setItem('agencyBranding', JSON.stringify(branding))
+              
+              // Update xbar title if available
+              if (branding?.xbarTitle) {
+                console.log('✅ [BarServices] Fetched xbarTitle from API:', branding.xbarTitle)
+                setXbarTitle(branding.xbarTitle)
+                return
+              }
+            }
+          } catch (error) {
+            console.log('⚠️ [BarServices] Error fetching branding from API:', error)
+            // Fall through to localStorage check
+          }
+        }
+      } catch (error) {
+        console.log('❌ [BarServices] Error in fetchBrandingAndUpdateTitle:', error)
+      }
+      
+      // Fallback: Get Xbar title from localStorage
+      const getXbarTitle = () => {
+        try {
+          const storedBranding = localStorage.getItem('agencyBranding')
+          if (storedBranding) {
+            const branding = JSON.parse(storedBranding)
+            if (branding?.xbarTitle) {
+              setXbarTitle(branding.xbarTitle)
+              return
+            }
+          }
+          // Fallback: check user data
+          const userData = localStorage.getItem('User')
+          if (userData) {
+            const parsedUser = JSON.parse(userData)
+            const branding = parsedUser?.user?.agencyBranding || parsedUser?.agencyBranding
+            if (branding?.xbarTitle) {
+              setXbarTitle(branding.xbarTitle)
+              return
+            }
+          }
+        } catch (error) {
+          console.log('Error getting xbar title from branding:', error)
+        }
+        // Default title
+        setXbarTitle('X Bar Services')
+      }
+      
+      getXbarTitle()
+    }
+    
+    // Fetch branding on mount
+    fetchBrandingAndUpdateTitle()
+    
+    // Listen for branding updates
+    const handleBrandingUpdate = (event) => {
+      if (event?.detail?.xbarTitle) {
+        console.log('✅ [BarServices] Setting xbarTitle from event:', event.detail.xbarTitle)
+        setXbarTitle(event.detail.xbarTitle)
+        // Also update localStorage
+        const storedBranding = localStorage.getItem('agencyBranding')
+        if (storedBranding) {
+          try {
+            const branding = JSON.parse(storedBranding)
+            const updatedBranding = { ...branding, xbarTitle: event.detail.xbarTitle }
+            localStorage.setItem('agencyBranding', JSON.stringify(updatedBranding))
+          } catch (error) {
+            console.error('Error updating localStorage from event:', error)
+          }
+        }
+      } else {
+        // Fallback: re-fetch from localStorage
+        fetchBrandingAndUpdateTitle()
+      }
+    }
+    window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    }
     
     // Calculate text color based on background for subaccounts
     if (typeof window !== 'undefined') {
@@ -388,7 +489,7 @@ function BarServices() {
               textOverflow: 'ellipsis',
             }}
           >
-            X Bar Services
+            {xbarTitle}
           </div>
           <div
             className=" "
@@ -401,7 +502,7 @@ function BarServices() {
               textOverflow: 'ellipsis',
             }}
           >
-            {` Account > XBar Services`}
+            {` Account > ${xbarTitle}`}
           </div>
         </div>
         <div
@@ -426,7 +527,7 @@ function BarServices() {
                 marginBottom: '10px',
               }}
             >
-              X Bar Services
+              {xbarTitle}
             </div>
             <p
               style={{
@@ -436,12 +537,7 @@ function BarServices() {
                 width: '90%',
               }}
             >
-              {`This is like the Apple Genius Bar but better. Get up and running
-              the right way. We'll work alongside to set up your entire AI sales
-              system. This can include integrating your systems, ensuring
-              everything is optimized for success from the start. See results
-              faster and start closing more deals with confidence—all at
-              affordable rates to meet you where you are.`}
+              {xbarDescription}
             </p>
             <div className="flex flex-row justify-between mt-2">
               <div></div>
@@ -621,6 +717,7 @@ function BarServices() {
       <XBarConfirmationModal
         plan={getPlanFromId()}
         open={showConfirmationModal}
+        xbarTitle={xbarTitle}
         onClose={() => {
           setShowConfirmationModal(false)
         }}

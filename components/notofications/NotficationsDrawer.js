@@ -7,6 +7,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
+import { MessageSquare } from 'lucide-react'
 
 import { NotificationTypes } from '@/constants/NotificationTypes'
 import { getSupportUrlFor } from '@/utilities/UserUtility'
@@ -75,6 +76,34 @@ function NotficationsDrawer({ close }) {
           maskMode: 'alpha',
           transition: 'background-color 0.2s ease-in-out',
           flexShrink: 0,
+        }}
+      />
+    )
+  }
+
+  // Function to render Lucide icon with branding color
+  const renderBrandedLucideIcon = (IconComponent, size = 22) => {
+    if (typeof window === 'undefined') {
+      return <IconComponent size={size} />
+    }
+
+    // Get brand color from CSS variable
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')
+
+    // Use brand color or fallback to default purple
+    const iconColor = brandColor && brandColor.trim()
+      ? `hsl(${brandColor.trim()})`
+      : 'hsl(270 75% 50%)' // Default purple
+
+    return (
+      <IconComponent
+        size={size}
+        style={{
+          color: iconColor,
+          stroke: iconColor,
+          flexShrink: 0,
+          transition: 'color 0.2s ease-in-out, stroke 0.2s ease-in-out',
         }}
       />
     )
@@ -337,6 +366,8 @@ function NotficationsDrawer({ close }) {
       return renderBrandedIcon('/svgIcons/pause.svg', 22, 22)
     } else if (item.type === NotificationTypes.AccountResumed) {
       return renderBrandedIcon('/svgIcons/resume.svg', 22, 22)
+    } else if (item.type === NotificationTypes.LeadReplied) {
+      return renderBrandedLucideIcon(MessageSquare, 22)
     }
 
     //2Listings

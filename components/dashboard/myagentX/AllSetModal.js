@@ -3,6 +3,7 @@ import { ArrowUpRight, Copy, X } from '@phosphor-icons/react'
 import Image from 'next/image'
 import React, { useState } from 'react'
 
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 
 import AgentSelectSnackMessage, {
@@ -27,6 +28,29 @@ const AllSetModal = ({
     type: SnackbarTypes.Error,
   })
 
+  // Determine agent type label based on fetureType and isEmbedFlow
+  const getAgentTypeLabel = () => {
+    if (isEmbedFlow || fetureType === 'embed') {
+      return 'Embed Agent'
+    } else if (fetureType === 'webhook') {
+      return 'Webhook Agent'
+    } else if (fetureType === 'webagent') {
+      return 'Browser Agent'
+    } else {
+      // Default fallback - should not happen in normal flow
+      return 'Browser Agent'
+    }
+  }
+
+  // Debug: Log fetureType when modal opens or fetureType changes
+  React.useEffect(() => {
+    if (open) {
+      console.log('🔧 AllSetModal - Modal opened with fetureType:', fetureType)
+      console.log('🔧 AllSetModal - isEmbedFlow:', isEmbedFlow)
+      console.log('🔧 AllSetModal - Will show:', getAgentTypeLabel())
+    }
+  }, [open, fetureType, isEmbedFlow])
+
   const showSnackbar = (title, message, type = SnackbarTypes.Success) => {
     setSnackbar({
       isVisible: true,
@@ -44,11 +68,21 @@ const AllSetModal = ({
     try {
       await navigator.clipboard.writeText(embedCode)
       setCodeCopied(true)
-      showSnackbar('Success', 'Code Copied!', SnackbarTypes.Success)
+      // Reset snackbar state first to ensure it shows again on subsequent clicks
+      // This ensures the toast component resets its internal state (lastMessageRef)
+      hideSnackbar()
+      // Use a small delay to ensure state reset completes before showing new snackbar
+      // This allows the useEffect in AgentSelectSnackMessage to reset lastMessageRef
+      setTimeout(() => {
+        showSnackbar('Success', 'Embed code copied', SnackbarTypes.Success)
+      }, 100)
       setTimeout(() => setCodeCopied(false), 2000)
     } catch (error) {
       console.error('Failed to copy code:', error)
-      showSnackbar('Error', 'Failed to copy code', SnackbarTypes.Error)
+      hideSnackbar()
+      setTimeout(() => {
+        showSnackbar('Error', 'Failed to copy embed code', SnackbarTypes.Error)
+      }, 100)
     }
   }
   return (
@@ -99,19 +133,16 @@ const AllSetModal = ({
             component="h2"
             sx={{ fontWeight: 'bold' }}
           >
-            {agentName.slice(0, 20)} {agentName.length > 20 ? '...' : ''} |{' '}
-            {`${fetureType === 'webhook' ? 'Webhook Agent' : 'Browser Agent'}`}
+            {agentName.slice(0, 20)} {agentName.length > 20 ? '...' : ''} | {getAgentTypeLabel()}
           </Typography>
           <CloseBtn onClick={onClose} />
         </Box>
 
         {/* Animated Orb */}
         <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-          <Image
-            src="/agentXOrb.gif"
+          <AgentXOrb
+            size={120}
             alt="AgentX Orb"
-            width={120}
-            height={120}
           />
         </Box>
 
@@ -142,13 +173,13 @@ const AllSetModal = ({
               <div className="w-3 h-3 bg-green-500 rounded-full"></div>
             </div>
             <Typography variant="body1" className="text-green-600 font-medium">
-              Code Copied!
+              Embed code copied!
             </Typography>
           </Box>
         )}
 
         {/* Button */}
-        {isEmbedFlow ? (
+        {isEmbedFlow || fetureType === 'embed' ? (
           <button
             className="w-full py-3 px-4 border border-gray-300 text-purple bg-white rounded-lg font-medium hover:bg-purple hover:text-white hover:border-purple flex items-center justify-center"
             onClick={handleCopyCode}
@@ -156,14 +187,20 @@ const AllSetModal = ({
             Copy Embed Code
             <Copy size={16} className="ml-2" />
           </button>
+        ) : fetureType === 'webagent' ? (
+          <button
+            className="w-full py-3 px-4 border border-gray-300 text-purple bg-white rounded-lg font-medium hover:bg-purple hover:text-white hover:border-purple"
+            onClick={onOpenAgent}
+          >
+            Open agent in new tab
+            <ArrowUpRight size={16} className="ml-2 inline" />
+          </button>
         ) : (
           <button
             className="w-full py-3 px-4 border border-gray-300 text-purple bg-white rounded-lg font-medium hover:bg-purple hover:text-white hover:border-purple"
-            onClick={fetureType === 'webagent' ? onOpenAgent : onCopyUrl}
+            onClick={onCopyUrl}
           >
-            {fetureType === 'webagent'
-              ? 'Open agent in new tab'
-              : 'Copy Webhook Url'}
+            Copy Webhook Url
             <ArrowUpRight size={16} className="ml-2 inline" />
           </button>
         )}

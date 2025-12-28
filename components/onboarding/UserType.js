@@ -259,25 +259,20 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
 
   return (
     <div
-      style={{ width: '100%', backgroundColor: 'transparent' }}
-      className="overflow-y-none flex flex-row justify-center items-center"
+      style={{ width: '100%' }}
+      className="overflow-y-none flex flex-row justify-center items-center "
     >
       <div
-        className="bg-white sm:rounded-2xl flex flex-col justify-between w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4"
-        style={{ scrollbarWidth: 'none' }}
-        //className='bg-white sm:rounded-2xl w-full sm:mx-2 sm:w-10/12 h-[100%] sm:h-[90%] py-4 flex flex-col' style={{ scrollbarWidth: "none" }}
+        className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative"
+        style={{ scrollbarWidth: 'none' }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
       >
-        <div
-          className={`h-[90svh] sm:h-[80svh] `}
-          //84svh
-        >
-          {/* header */}
-          <div className="w-full h-[10%]">
+        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
+          {/* header84svh */}
+          <div className="h-[10%]">
             <Header />
           </div>
-
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[90%]">
+          <div className="flex flex-col items-center px-4 w-full h-[100%]">
             <div
               className="mt-4 w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: 'center' }}
@@ -295,7 +290,7 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
             </div>
 
             <div
-              className="flex flex-wrap md:w-11/12 sm:w-full lg:w-7/12 mt-8 h-[80%] overflow-auto scrollbar-track-transparent scrollbar-thin"
+              className="flex flex-wrap md:w-11/12 sm:w-full lg:w-7/12 mt-8 h-[80%]  overflow-auto scrollbar-track-transparent scrollbar-thin"
               style={{
                 scrollbarColor: 'hsl(var(--brand-primary, 270 75% 50%)) transparent',
               }}
@@ -402,12 +397,12 @@ const UserType = ({ handleContinue, DefaultData, handleUserTypeChange }) => {
           </div>
         </div>
 
-        <div className=" h-[10%] flex flex-col justify-end w-full ">
-          <div>
+        {/* Fixed Footer */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+          <div className="px-4 pt-3 pb-2">
             <ProgressBar value={value} />
           </div>
-
-          <div className="mb-4" style={{ height: '35px' }}>
+          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
             <Footer
               handleContinue={handleNext}
               donotShowBack={true}

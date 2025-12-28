@@ -57,7 +57,7 @@ function AdminProfileData({ selectedUser, from }) {
       id: 6,
       heading: 'Bar Services',
       subHeading: 'Our version of the genius bar',
-      icon: '/assets/X.svg',
+      icon: '/svgIcons/agentXIcon.svg',
     },
   ]
 

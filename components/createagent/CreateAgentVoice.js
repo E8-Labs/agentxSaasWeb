@@ -36,6 +36,113 @@ const CreateAgentVoice = ({ handleBack, user }) => {
   const [audio, setAudio] = useState(null)
 
   const [showNoAudioModal, setShowNoAudioModal] = useState(null)
+  const [shouldShowGradient, setShouldShowGradient] = useState(false)
+  const [gradientBackground, setGradientBackground] = useState(null)
+
+  // Function to get brand primary color from CSS variable
+  const getBrandColor = () => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') return 'hsl(270, 75%, 50%)'
+    try {
+      const computedColor = getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim()
+      if (computedColor) {
+        if (computedColor.startsWith('hsl')) {
+          return computedColor
+        } else {
+          return `hsl(${computedColor})`
+        }
+      }
+    } catch (error) {
+      console.log('Error getting brand color:', error)
+    }
+    return 'hsl(270, 75%, 50%)'
+  }
+
+  // Function to create gradient string
+  const getGradientString = (brandColor) => {
+    const hslMatch = brandColor.match(/hsl\(([^)]+)\)/)
+    if (hslMatch) {
+      let hslValues = hslMatch[1].trim()
+      if (!hslValues.includes(',')) {
+        const parts = hslValues.split(/\s+/)
+        hslValues = parts.join(', ')
+      }
+      const baseColor = `hsl(${hslValues})`
+      const colorWithOpacity = `hsla(${hslValues}, 0.4)`
+      const gradientType = process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
+        ? 'linear-gradient(to bottom left'
+        : 'radial-gradient(circle at top right'
+      return `${gradientType}, ${baseColor} 0%, ${colorWithOpacity} 100%)`
+    }
+    const gradientType = process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
+      ? 'linear-gradient(to bottom left'
+      : 'radial-gradient(circle at top right'
+    return `${gradientType}, hsl(270, 75%, 50%) 0%, hsla(270, 75%, 50%, 0.4) 100%)`
+  }
+
+  // Check if user is subaccount or agency and set gradient
+  useEffect(() => {
+    const checkUserRole = () => {
+      if (typeof window === 'undefined') return false
+      
+      const userData = localStorage.getItem('User')
+      if (userData) {
+        try {
+          const parsedUser = JSON.parse(userData)
+          const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+          if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
+            return true
+          }
+        } catch (error) {
+          console.log('Error parsing User data:', error)
+        }
+      }
+      
+      const localUser = localStorage.getItem('LocalStorageUser')
+      if (localUser) {
+        try {
+          const parsed = JSON.parse(localUser)
+          const userRole = parsed?.user?.userRole || parsed?.userRole
+          if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
+            return true
+          }
+        } catch (error) {
+          console.log('Error parsing LocalStorageUser:', error)
+        }
+      }
+      
+      const subAccountData = localStorage.getItem('SubaccoutDetails')
+      if (subAccountData) {
+        try {
+          const parsed = JSON.parse(subAccountData)
+          if (parsed) {
+            return true
+          }
+        } catch (error) {
+          console.log('Error parsing SubaccoutDetails:', error)
+        }
+      }
+      
+      return false
+    }
+
+    const initGradient = () => {
+      const isSubaccountOrAgency = checkUserRole()
+      if (isSubaccountOrAgency) {
+        const brandColor = getBrandColor()
+        const gradientStr = getGradientString(brandColor)
+        setShouldShowGradient(true)
+        setGradientBackground(gradientStr)
+      } else {
+        setShouldShowGradient(false)
+        setGradientBackground(null)
+      }
+    }
+
+    initGradient()
+    const timeout = setTimeout(initGradient, 500)
+    
+    return () => clearTimeout(timeout)
+  }, [isSubaccount])
 
   useEffect(() => {
     setVoices(voicesList)
@@ -132,22 +239,51 @@ const CreateAgentVoice = ({ handleBack, user }) => {
           // }
 
           // Check if we came from admin/agency and have a return URL
-          const isFromAdminOrAgency = localStorage.getItem(
-            PersistanceKeys.isFromAdminOrAgency,
-          )
-          const returnUrl = localStorage.getItem(
-            PersistanceKeys.returnUrlAfterAgentCreation,
-          )
+          // const isFromAdminOrAgency = localStorage.getItem(
+          //   PersistanceKeys.isFromAdminOrAgency,
+          // )
+          // const returnUrl = localStorage.getItem(
+          //   PersistanceKeys.returnUrlAfterAgentCreation,
+          // )
 
-          if (isFromAdminOrAgency && returnUrl) {
-            // Clean up the stored data
-            localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
-            localStorage.removeItem(PersistanceKeys.returnUrlAfterAgentCreation)
-            // Redirect back to the saved URL
-            window.location.href = returnUrl
-          } else {
+          // if (isFromAdminOrAgency) {
+          //   // Parse the stored data to get subaccount info
+          //   let subaccountData = null
+          //   try {
+          //     const parsed = JSON.parse(isFromAdminOrAgency)
+          //     subaccountData = parsed?.subAccountData
+          //   } catch (error) {
+          //     console.log('Error parsing isFromAdminOrAgency:', error)
+          //   }
+
+          //   // Send event to parent window (opener) that agent was created
+          //   if (window.opener && subaccountData) {
+          //     try {
+          //       window.opener.postMessage(
+          //         {
+          //           type: 'AGENT_CREATED',
+          //           userId: subaccountData.id,
+          //           agentId: mainAgentId,
+          //         },
+          //         '*', // In production, specify the exact origin
+          //       )
+          //       console.log('Sent AGENT_CREATED event to parent window')
+          //     } catch (error) {
+          //       console.log('Error sending message to parent window:', error)
+          //     }
+          //   }
+
+          //   // Clean up the stored data
+          //   localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
+          //   localStorage.removeItem(PersistanceKeys.returnUrlAfterAgentCreation)
+
+          //   // Close the tab after a short delay to allow message to be sent
+          //   setTimeout(() => {
+          //     window.close()
+          //   }, 500)
+          // } else {
             router.push('/pipeline')
-          }
+          // }
 
           localStorage.removeItem('claimNumberData')
         } else {
@@ -225,7 +361,8 @@ const CreateAgentVoice = ({ handleBack, user }) => {
   }
 
   const getImageHeight = (item) => {
-    console.log('item is', item.name)
+    // console.log('item is', item.name)
+    return 45
     if (item.name === 'Ava') {
       return 50
     } else if (item.name === 'Zane') {
@@ -251,6 +388,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
     return 70
   }
   const getImageWidth = (item) => {
+    return 45
     if (item.name === 'Ava') {
       return 50
     } else if (item.name === 'Zane') {
@@ -277,6 +415,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
   }
 
   const addMarginTop = (item) => {
+    return 0
     if (item.name === 'Trinity') {
       return 5
     } else if (item.name === 'Dax') {
@@ -299,6 +438,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
   }
 
   const addMariginLeft = (item) => {
+    return 0
     if (item.name === 'Niko') {
       return 4
     } else if (item.name === 'Lex') {
@@ -315,15 +455,21 @@ const CreateAgentVoice = ({ handleBack, user }) => {
 
   return (
     <div
-      style={{ width: '100%' }}
-      className="overflow-y-hidden flex flex-row justify-center items-center"
+      style={{
+        width: '100%',
+        minHeight: '100vh',
+        ...(shouldShowGradient && gradientBackground ? { background: gradientBackground } : {}),
+      }}
+      className={`overflow-y-hidden flex flex-row justify-center items-center ${shouldShowGradient ? '' : 'bg-brand-primary'}`}
     >
-      <div className="bg-white rounded-2xl w-10/12 h-[90vh] py-4 flex flex-col justify-between">
-        <div className="flex flex-col h-[90svh]">
+      <div className="bg-white rounded-2xl w-10/12 h-[100%] sm:h-[95%] py-4 flex flex-col relative">
+        <div className="h-[95svh] sm:h-[92svh] overflow-hidden pb-24">
           {/* header */}
-          <Header />
+          <div className="h-[10%]">
+            <Header />
+          </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full">
+          <div className="flex flex-col items-center px-4 w-full h-[95%]">
             <div
               className="w-11/12 md:text-4xl text-lg font-[700] mt-6"
               style={{
@@ -333,9 +479,9 @@ const CreateAgentVoice = ({ handleBack, user }) => {
             >
               Choose a voice for {agentDetails?.name}
             </div>
-            <div className="w-full flex flex-row justify-center">
+            <div className="w-full flex flex-row  justify-center min-h-0">
               <div
-                className="pt-8 w-6/12 gap-1 flex flex-col h-[580px] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
+                className="pt-8 pb-8 w-full max-w-2xl gap-1 flex flex-col flex overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
                 style={{ scrollbarWidth: 'none' }}
               >
                 {voices.map((item, index) => (
@@ -377,8 +523,8 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                           style={{
                             // backgroundColor:'red',
                             borderRadius: '50%',
-                            marginTop: addMarginTop(item),
-                            marginLeft: addMariginLeft(item),
+                            // marginTop: addMarginTop(item),
+                            // marginLeft: addMariginLeft(item),
                           }}
                           alt="*"
                         />
@@ -410,12 +556,21 @@ const CreateAgentVoice = ({ handleBack, user }) => {
                     </div>
                     <div className="flex flex-row items-center gap-4">
                       <div>
-                        <Image
-                          src={'/assets/voice.png'}
-                          height={15}
-                          width={23}
-                          alt="*"
-                        />
+                        <svg
+                          width="23"
+                          height="15"
+                          viewBox="0 0 23 15"
+                          fill="none"
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="text-brand-primary"
+                          style={{ color: 'hsl(var(--brand-primary))' }}
+                        >
+                          <rect x="0" y="10" width="3" height="5" rx="1.5" fill="currentColor" />
+                          <rect x="5" y="7" width="3" height="8" rx="1.5" fill="currentColor" />
+                          <rect x="10" y="4" width="3" height="11" rx="1.5" fill="currentColor" />
+                          <rect x="15" y="6" width="3" height="9" rx="1.5" fill="currentColor" />
+                          {/* <rect x="20" y="9" width="3" height="6" rx="1.5" fill="currentColor" /> */}
+                        </svg>
                       </div>
                       {item.preview ? (
                         <div>
@@ -535,17 +690,19 @@ const CreateAgentVoice = ({ handleBack, user }) => {
           </Box>
         </Modal>
 
-        <div className="flex flex-col h-[7svh] ">
-          <div className="">
+        {/* Fixed Footer */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+          <div className="px-4 pt-3 pb-2">
             <ProgressBar value={33} />
           </div>
-
-          <Footer
-            handleContinue={handleContinue}
-            handleBack={handleBack}
-            registerLoader={voicesLoader}
-            shouldContinue={shouldContinue}
-          />
+          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
+            <Footer
+              handleContinue={handleContinue}
+              handleBack={handleBack}
+              registerLoader={voicesLoader}
+              shouldContinue={shouldContinue}
+            />
+          </div>
         </div>
       </div>
     </div>

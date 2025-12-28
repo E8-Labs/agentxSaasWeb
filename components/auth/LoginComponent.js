@@ -19,6 +19,7 @@ import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import AppLogo from '@/components/common/AppLogo'
 import SendVerificationCode from '@/components/onboarding/services/AuthVerification/AuthService'
 import SnackMessages from '@/components/onboarding/services/AuthVerification/SnackMessages'
@@ -29,6 +30,9 @@ import {
 import { Progress } from '@/components/ui/progress'
 import { PersistanceKeys, setUserType, userType } from '@/constants/Constants'
 import { setCookie } from '@/utilities/cookies'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
+import { forceApplyBranding } from '@/utilities/applyBranding'
+import { hexToHsl, calculateIconFilter } from '@/utilities/colorUtils'
 
 import ShootingStarLoading from '../animations/ShootingStarLoading'
 import getProfileDetails from '../apis/GetProfile'
@@ -144,6 +148,25 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 JSON.stringify(brandingData),
               )
               setAgencyBranding(brandingData)
+              
+              // Apply branding CSS variables
+              if (typeof document !== 'undefined') {
+                try {
+                  const primaryColor = brandingData.primaryColor || '#7902DF'
+                  const secondaryColor = brandingData.secondaryColor || '#8B5CF6'
+                  const primaryHsl = hexToHsl(primaryColor)
+                  const secondaryHsl = hexToHsl(secondaryColor)
+                  document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+                  document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
+                  document.documentElement.style.setProperty('--primary', primaryHsl)
+                  document.documentElement.style.setProperty('--secondary', secondaryHsl)
+                  const iconFilter = calculateIconFilter(primaryColor)
+                  document.documentElement.style.setProperty('--icon-filter', iconFilter)
+                } catch (error) {
+                  console.log('Error applying branding styles:', error)
+                }
+              }
+              
               console.log(
                 '✅ [LoginComponent] Fetched fresh branding from API:',
                 brandingData,
@@ -157,6 +180,39 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         return false
       }
 
+      // Helper function to apply branding CSS variables
+      const applyBrandingStyles = (brandingData) => {
+        if (!brandingData || typeof document === 'undefined') return
+        
+        try {
+          const primaryColor = brandingData.primaryColor || '#7902DF'
+          const secondaryColor = brandingData.secondaryColor || '#8B5CF6'
+
+          // Convert hex to HSL
+          const primaryHsl = hexToHsl(primaryColor)
+          const secondaryHsl = hexToHsl(secondaryColor)
+
+          // Set CSS variables immediately
+          document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+          document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
+          document.documentElement.style.setProperty('--primary', primaryHsl)
+          document.documentElement.style.setProperty('--secondary', secondaryHsl)
+
+          // Calculate and set icon filter
+          const iconFilter = calculateIconFilter(primaryColor)
+          document.documentElement.style.setProperty('--icon-filter', iconFilter)
+          
+          console.log('✅ [LoginComponent] Applied branding CSS variables:', {
+            primaryColor,
+            secondaryColor,
+            primaryHsl,
+            secondaryHsl
+          })
+        } catch (error) {
+          console.log('Error applying branding styles:', error)
+        }
+      }
+
       // First, check localStorage for immediate display (works for both assignx and custom domains)
       const storedBranding = localStorage.getItem('agencyBranding')
       if (storedBranding) {
@@ -165,9 +221,22 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           setAgencyBranding(brandingData)
           console.log('✅ [LoginComponent] Using branding from localStorage:', brandingData)
 
+          // Apply branding styles if it's a custom domain
+          if (!isAssignx && brandingData) {
+            applyBrandingStyles(brandingData)
+          }
+
           // For custom domains, still fetch from API in background to ensure latest data
           if (!isAssignx) {
-            fetchFromAPI()
+            fetchFromAPI().then((fetched) => {
+              if (fetched) {
+                const updatedBranding = JSON.parse(localStorage.getItem('agencyBranding'))
+                if (updatedBranding) {
+                  setAgencyBranding(updatedBranding)
+                  applyBrandingStyles(updatedBranding)
+                }
+              }
+            })
           }
           return
         } catch (error) {
@@ -178,6 +247,12 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       // For custom domains, fetch from API if no localStorage branding found
       if (!isAssignx) {
         const fetched = await fetchFromAPI()
+        if (fetched) {
+          const brandingData = JSON.parse(localStorage.getItem('agencyBranding'))
+          if (brandingData) {
+            applyBrandingStyles(brandingData)
+          }
+        }
         // Set domain type determined after checking for branding
         setDomainTypeDetermined(true)
       } else {
@@ -201,6 +276,28 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         // document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
         localStorage.setItem('agencyBranding', JSON.stringify(updatedBranding))
         setAgencyBranding(updatedBranding)
+        
+        // Apply branding styles if it's a custom domain
+        if (!isAssignxDomain) {
+          const applyBrandingStyles = (brandingData) => {
+            if (!brandingData || typeof document === 'undefined') return
+            try {
+              const primaryColor = brandingData.primaryColor || '#7902DF'
+              const secondaryColor = brandingData.secondaryColor || '#8B5CF6'
+              const primaryHsl = hexToHsl(primaryColor)
+              const secondaryHsl = hexToHsl(secondaryColor)
+              document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+              document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
+              document.documentElement.style.setProperty('--primary', primaryHsl)
+              document.documentElement.style.setProperty('--secondary', secondaryHsl)
+              const iconFilter = calculateIconFilter(primaryColor)
+              document.documentElement.style.setProperty('--icon-filter', iconFilter)
+            } catch (error) {
+              console.log('Error applying branding styles:', error)
+            }
+          }
+          applyBrandingStyles(updatedBranding)
+        }
       }
     }
 
@@ -210,6 +307,34 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
     }
   }, [])
+
+  // Apply branding CSS variables when agencyBranding is set and it's a custom domain
+  useEffect(() => {
+    if (!agencyBranding || isAssignxDomain || typeof document === 'undefined') return
+
+    try {
+      const primaryColor = agencyBranding.primaryColor || '#7902DF'
+      const secondaryColor = agencyBranding.secondaryColor || '#8B5CF6'
+      const primaryHsl = hexToHsl(primaryColor)
+      const secondaryHsl = hexToHsl(secondaryColor)
+
+      document.documentElement.style.setProperty('--brand-primary', primaryHsl)
+      document.documentElement.style.setProperty('--brand-secondary', secondaryHsl)
+      document.documentElement.style.setProperty('--primary', primaryHsl)
+      document.documentElement.style.setProperty('--secondary', secondaryHsl)
+
+      const iconFilter = calculateIconFilter(primaryColor)
+      document.documentElement.style.setProperty('--icon-filter', iconFilter)
+
+      console.log('✅ [LoginComponent] Applied branding CSS variables on custom domain:', {
+        primaryColor,
+        secondaryColor,
+        hostname: typeof window !== 'undefined' ? window.location.hostname : 'N/A'
+      })
+    } catch (error) {
+      console.log('Error applying branding styles:', error)
+    }
+  }, [agencyBranding, isAssignxDomain])
 
   useEffect(() => {
     //console.log;
@@ -539,11 +664,13 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     }
   }
 
-  //focus the first input field
+  // focus the first verification input when popup opens (after portal mounts)
   useEffect(() => {
-    if (showVerifyPopup && verifyInputRef.current[0]) {
-      verifyInputRef.current[0].focus()
-    }
+    if (!showVerifyPopup) return
+    const focusTimer = setTimeout(() => {
+      verifyInputRef.current[0]?.focus()
+    }, 50)
+    return () => clearTimeout(focusTimer)
   }, [showVerifyPopup])
 
   //code to show verify popup
@@ -625,7 +752,10 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000)
             if (typeof document !== 'undefined') {
               setCookie(response.data.data.user, document, twoHoursFromNow)
-              router.push('/onboarding/WaitList')
+              // Use window.location.href for hard redirect to ensure clean page reload
+              console.log('✅ Login successful (waitlist), redirecting to: /onboarding/WaitList')
+              window.location.href = '/onboarding/WaitList'
+              return
             }
           } else {
             // //console.log;
@@ -766,123 +896,67 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000)
             if (typeof document !== 'undefined') {
               setCookie(response.data.data.user, document, twoHoursFromNow)
-              router.push('/onboarding/WaitList')
+              // Use window.location.href for hard redirect to ensure clean page reload
+              console.log('✅ Login successful (waitlist), redirecting to: /onboarding/WaitList')
+              window.location.href = '/onboarding/WaitList'
+              return
             }
           } else {
-            // //console.log;
-            // let routeTo = ""
-
             localStorage.setItem('User', JSON.stringify(response.data.data))
 
-            // Extract and store agency branding immediately after login
-            // This ensures branding is applied right away without requiring a page refresh
-            const userData = response.data.data
-            
-            // Use applyBrandingFromResponse utility which handles extraction, storage, and event dispatch
-            import('@/utilities/applyBranding').then(({ applyBrandingFromResponse, forceApplyBranding }) => {
-              // First try to apply from response
-              const applied = applyBrandingFromResponse(response.data)
-              
-              if (!applied) {
-                // If not in response, check if user is subaccount/agency and fetch from API
-                const authToken = userData?.token || userData?.user?.token
-                const userRole = userData?.user?.userRole || userData?.userRole
-                
-                console.log('🔍 [LoginComponent] Branding not in response, checking user role:', {
-                  userRole,
-                  isSubaccount: userRole === 'AgencySubAccount',
-                  isAgency: userRole === 'Agency',
-                  hasToken: !!authToken,
-                })
-                
-                if (authToken && (userRole === 'AgencySubAccount' || userRole === 'Agency')) {
-                  // Use forceApplyBranding which tries response first, then API
-                  // Small delay to ensure localStorage User is set
-                  setTimeout(() => {
-                    forceApplyBranding().then((fetched) => {
-                      if (fetched) {
-                        console.log('✅ [LoginComponent] Successfully applied branding from API')
-                      } else {
-                        console.log('⚠️ [LoginComponent] Could not fetch branding from API')
-                      }
-                    })
-                  }, 100)
-                } else {
-                  console.log('ℹ️ [LoginComponent] User is not subaccount/agency, skipping branding fetch')
-                }
-              } else {
-                console.log('✅ [LoginComponent] Successfully applied branding from login response')
-              }
-            }).catch(err => {
-              console.error('Error importing applyBranding utility:', err)
-              // Fallback to manual extraction
-              const agencyBranding =
-                userData?.user?.agencyBranding ||
-                userData?.agencyBranding ||
-                userData?.user?.agency?.agencyBranding
-
-              if (agencyBranding) {
-                localStorage.setItem('agencyBranding', JSON.stringify(agencyBranding))
-                if (typeof window !== 'undefined') {
-                  window.dispatchEvent(new CustomEvent('agencyBrandingUpdated', { detail: agencyBranding }))
-                }
-              }
-            })
-
-            //set cokie on locastorage to run middle ware
+            // Set user cookie for middleware
             if (typeof document !== 'undefined') {
-              // //console.log;
-
               setCookie(response.data.data.user, document)
               let w = innerWidth
+              
+              // Determine redirect path
+              let redirectPath = '/dashboard/myAgentX'
+              
               if (w < 540) {
-                // //console.log;
-                router.push('/createagent/desktop')
+                redirectPath = '/createagent/desktop'
               } else if (w > 540) {
-                // //console.log;
-
                 if (redirect) {
-                  router.push(redirect)
+                  redirectPath = redirect
                 } else {
                   console.log('user role is', response.data.data.user.userRole)
-                  // return
                   if (response.data.data.user.userType == 'admin') {
-                    router.push('/admin')
+                    redirectPath = '/admin'
                   } else if (
                     response.data.data.user.userRole == 'AgencySubAccount'
                   ) {
                     if (response.data.data.user.plan) {
-                      router.push('/dashboard')
+                      redirectPath = '/dashboard'
                     } else {
-                      router.push('/subaccountInvite/subscribeSubAccountPlan')
+                      redirectPath = '/subaccountInvite/subscribeSubAccountPlan'
                     }
                   } else if (
                     response.data.data.user.userRole == 'Agency' ||
                     response.data.data.user.agencyTeammember === true
                   ) {
-                    router.push('/agency/dashboard')
+                    redirectPath = '/agency/dashboard'
                   } else {
-                    router.push('/dashboard/myAgentX')
+                    redirectPath = '/dashboard/myAgentX'
                   }
-                  return
-                  // if (data.data.user.userType == "admin") {
-                  //   router.push("/admin");
-                  // }
-
-                  // else {
-                  //   router.push("/dashboard/leads");
-                  // }
                 }
               }
-            } else {
-              // //console.log;
+
+              // Use window.location.href for hard redirect to ensure clean page reload
+              // This prevents DOM cleanup errors during navigation
+              console.log('✅ Login successful, redirecting to:', redirectPath)
+              window.location.href = redirectPath
+              return
             }
+
+            // For non-agency users, redirect immediately
+            window.location.href = redirectPath
+            return
           }
         } else {
           setLoginLoader(false)
         }
       } else {
         // console.error("Login failed:", data.error);
+        setLoginLoader(false)
       }
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -893,6 +967,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       } else {
         console.error('General error while login api:', error)
       }
+      setLoginLoader(false)
     }
   }
 
@@ -1135,12 +1210,10 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 width={260}
                 alt="avtr"
               />
-              {/* Hide orb gif if agency has logo (for subaccounts) */}
-              {!agencyBranding?.logoUrl && (
-                <Image
-                  src={'/agentXOrb.gif'}
-                  height={69}
-                  width={69}
+              {/* Hide orb gif if agency has logo (for subaccounts) or if it's a custom domain */}
+              {!agencyBranding?.logoUrl && isAssignxDomain && (
+                <AgentXOrb
+                  size={69}
                   alt="gif"
                 />
               )}
@@ -1302,10 +1375,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 className="flex-shrink-0 outline-none"
                 onClick={() => {
                   if (typeof window !== 'undefined') {
-                    window.open(
-                      'https://www.myagentx.com/terms-and-condition',
-                      '_blank',
-                    )
+                    const { termsUrl } = getPolicyUrls()
+                    window.open(termsUrl, '_blank')
                   }
                 }}
               >
@@ -1315,10 +1386,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 className="flex-shrink-0 outline-none"
                 onClick={() => {
                   if (typeof window !== 'undefined') {
-                    window.open(
-                      'https://www.myagentx.com/terms-and-condition',
-                      '_blank',
-                    )
+                    const { privacyUrl } = getPolicyUrls()
+                    window.open(privacyUrl, '_blank')
                   }
                 }}
               >
@@ -1338,10 +1407,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 className="flex-shrink-0 outline-none"
                 onClick={() => {
                   if (typeof window !== 'undefined') {
-                    window.open(
-                      'https://www.myagentx.com/terms-and-condition',
-                      '_blank',
-                    )
+                    const { termsUrl } = getPolicyUrls()
+                    window.open(termsUrl, '_blank')
                   }
                 }}
               >
@@ -1351,10 +1418,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 className="flex-shrink-0 outline-none"
                 onClick={() => {
                   if (typeof window !== 'undefined') {
-                    window.open(
-                      'https://www.myagentx.com/terms-and-condition',
-                      '_blank',
-                    )
+                    const { privacyUrl } = getPolicyUrls()
+                    window.open(privacyUrl, '_blank')
                   }
                 }}
               >
@@ -1435,6 +1500,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                     className=" focus:outline-none focus:ring-0"
                     key={index}
                     ref={(el) => (verifyInputRef.current[index] = el)}
+                    autoFocus={index === 0}
                     type="tel"
                     inputMode="numeric"
                     // type="tel"

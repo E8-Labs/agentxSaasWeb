@@ -28,6 +28,7 @@ import { setCookie } from '@/utilities/cookies'
 import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
 import { getLocalLocation } from '../services/apisServices/ApiService'
+import { Input } from '@/components/ui/input'
 
 // import VerificationCodeInput from '../test/VerificationCodeInput';
 
@@ -458,8 +459,56 @@ const LoanOfficerSignUp = ({
           } else {
             // //console.log;
             // handleContinue();
+            
+            // CRITICAL: Redirect FIRST, before showing popup
+            // This ensures redirect happens even if popup blocks execution
+            console.log('✅ Registration successful, redirecting to: /createagent')
+            
+            // Redirect immediately - don't wait for anything
+            const performRedirect = () => {
+              try {
+                console.log('🔄 Attempting redirect to /createagent')
+                window.location.href = '/createagent'
+              } catch (error) {
+                console.error('❌ Error with window.location.href:', error)
+                try {
+                  window.location.replace('/createagent')
+                } catch (replaceError) {
+                  console.error('❌ Error with window.location.replace:', replaceError)
+                  try {
+                    window.open('/createagent', '_self')
+                  } catch (openError) {
+                    console.error('❌ All redirect methods failed:', openError)
+                  }
+                }
+              }
+            }
+            
+            // Execute redirect immediately (synchronous)
+            performRedirect()
+            
+            // Show popup AFTER redirect is initiated (non-blocking)
             handleShowRedirectPopup()
-            router.push('/createagent')
+            
+            // Fallback: Force redirect after 200ms if still on onboarding page
+            setTimeout(() => {
+              const currentPath = window.location.pathname
+              if (currentPath === '/onboarding' || currentPath.includes('/onboarding')) {
+                console.warn('⚠️ Still on onboarding page after 200ms, forcing redirect')
+                window.location.replace('/createagent')
+              }
+            }, 200)
+            
+            // Final fallback: Force redirect after 800ms
+            setTimeout(() => {
+              const currentPath = window.location.pathname
+              if (currentPath === '/onboarding' || currentPath.includes('/onboarding')) {
+                console.warn('⚠️ Still on onboarding page after 800ms, forcing redirect with replace')
+                window.location.replace('/createagent')
+              }
+            }, 800)
+
+            return
 
             // setCongratsPopup(true);
           }
@@ -575,14 +624,14 @@ const LoanOfficerSignUp = ({
       style={{ width: '100%' }}
       className="overflow-y-hidden flex flex-row justify-center items-center"
     >
-      <div className="bg-white rounded-2xl mx-2 w-full md:w-10/12 max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
-        <div className="h-[82svh]">
+      <div className="flex flex-col bg-white rounded-2xl mx-2 w-full md:w-10/12 h-[100%] sm:h-[95%] py-4 relative">
+        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24 scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
           {/* header */}
           <div className="h-[10%]">
             <Header />
           </div>
           {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[90%]">
+          <div className="flex flex-col items-center px-4 w-full h-[95%]">
             <div
               className="mt-6 w-11/12 md:text-4xl text-lg font-[600]"
               style={{ textAlign: 'center' }}
@@ -594,7 +643,7 @@ const LoanOfficerSignUp = ({
               style={{ scrollbarWidth: 'none' }}
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>
-              <input
+              <Input
                 placeholder="Name"
                 className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -653,7 +702,7 @@ const LoanOfficerSignUp = ({
                 </div>
               </div>
 
-              <input
+              <Input
                 placeholder="Email address"
                 autoComplete="off"
                 autoCorrect="off"
@@ -821,7 +870,7 @@ const LoanOfficerSignUp = ({
               <div style={styles.headingStyle} className="mt-6">
                 Where do you primarily serve clients?
               </div>
-              <input
+              <Input
                 placeholder="Specific cities, counties, or regions"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -835,7 +884,7 @@ const LoanOfficerSignUp = ({
                 Name of the mortgage lender, bank, or brokerage you work with,
                 if any.
               </div>
-              <input
+              <Input
                 placeholder="Name"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -876,7 +925,7 @@ const LoanOfficerSignUp = ({
                         {item.title}
                       </button>
                       {ClientType === 'Other (type here)' && item.id === 6 && (
-                        <input
+                        <Input
                           placeholder="Type here"
                           className=" w-full border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                           style={{ ...styles.inputStyle, marginTop: '8px' }}
@@ -947,7 +996,7 @@ const LoanOfficerSignUp = ({
                         style={{ display: 'flex', gap: '8px' }}
                       >
                         {Array.from({ length }).map((_, index) => (
-                          <input
+                          <Input
                             key={index}
                             ref={(el) => (verifyInputRef.current[index] = el)}
                             // type="text"
@@ -973,10 +1022,8 @@ const LoanOfficerSignUp = ({
                               height: '40px',
                               textAlign: 'center',
                               fontSize: '20px',
-                              border: '1px solid #ccc',
-                              borderRadius: '5px',
                             }}
-                            className=" focus:outline-none focus:ring-0"
+                            className="focus:outline-none focus:ring-0"
                           />
                         ))}
                       </div>
@@ -1026,17 +1073,19 @@ const LoanOfficerSignUp = ({
           </div>
         </div>
 
-        <div className="h-[10%]">
-          <div>
+        {/* Fixed Footer */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+          <div className="px-4 pt-3 pb-2">
             <ProgressBar value={80} />
           </div>
-
-          <Footer
-            handleContinue={handleVerifyPopup}
-            handleBack={handleSolarAgentBack}
-            registerLoader={registerLoader}
-            shouldContinue={shouldContinue}
-          />
+          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
+            <Footer
+              handleContinue={handleVerifyPopup}
+              handleBack={handleSolarAgentBack}
+              registerLoader={registerLoader}
+              shouldContinue={shouldContinue}
+            />
+          </div>
         </div>
       </div>
     </div>

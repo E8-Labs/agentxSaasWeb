@@ -63,6 +63,9 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
   const [showCalendarUpgradeModal, setShowCalendarUpgradeModal] =
     useState(false)
 
+  //leads upgrade modal
+  const [showLeadsUpgradeModal, setShowLeadsUpgradeModal] = useState(false)
+
   // Check calendar plan capabilities
   const checkCalendarPlanCapabilities = () => {
     console.log('checkCalendarPlanCapabilities')
@@ -71,6 +74,22 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
     if (!user) return true
 
     return user?.planCapabilities?.allowCalendarIntegration
+  }
+
+  // Check leads plan capabilities
+  const checkLeadsPlanCapabilities = () => {
+    const user = userDetails?.user || reduxUser
+    if (!user) return true
+    
+    const userRole = user?.userRole || reduxUser?.userRole
+    const maxLeads = user?.planCapabilities?.maxLeads ?? reduxUser?.planCapabilities?.maxLeads
+    
+    // For AgentX users, check if maxLeads > 0
+    if (userRole === 'AgentX') {
+      return maxLeads > 0
+    }
+    
+    return true
   }
 
   const getChecklist = () => {
@@ -286,6 +305,16 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
                       } else {
                         setShowCalendarUpgradeModal(true)
                       }
+                    } else if (item.label === 'Upload leads') {
+                      if (checkLeadsPlanCapabilities()) {
+                        const D = {
+                          status: true,
+                        }
+                        localStorage.setItem('isFromCheckList', JSON.stringify(D))
+                        router.push(item.route)
+                      } else {
+                        setShowLeadsUpgradeModal(true)
+                      }
                     } else if (item.label === 'Claim a number') {
                       setShowClaimPopup(true)
                     } else {
@@ -386,6 +415,19 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
           }}
           title="Unlock Calendar Access"
           subTitle="Upgrade to add more Calendars"
+          buttonTitle="No Thanks"
+        />
+      )}
+
+      {/* Code for leads upgrade modal */}
+      {showLeadsUpgradeModal && (
+        <UpgradeModal
+          open={showLeadsUpgradeModal}
+          handleClose={() => {
+            setShowLeadsUpgradeModal(false)
+          }}
+          title="Unlock Leads Access"
+          subTitle="Upgrade to add more Leads"
           buttonTitle="No Thanks"
         />
       )}

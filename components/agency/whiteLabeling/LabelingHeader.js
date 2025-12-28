@@ -6,19 +6,9 @@ const LabelingHeader = ({ img, title, description }) => {
     <div
       className="w-full h-[152px] rounded-lg p-4 relative overflow-hidden"
       style={{
-        backgroundImage: "url('/agencyIcons/plansBannerBg.png')",
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        background: `linear-gradient(135deg, hsl(var(--brand-primary)), hsl(var(--brand-primary) / 0.8))`,
       }}
     >
-      {/* Brand Color Overlay */}
-      <div
-        className="absolute inset-0 rounded-lg"
-        style={{
-          backgroundColor: 'hsl(var(--brand-primary) / 0.8)',
-          mixBlendMode: 'multiply',
-        }}
-      />
       {/* Content */}
       <div className="relative z-10">
         <Image

@@ -1,10 +1,32 @@
 'use client'
 
+import { Box, Modal } from '@mui/material'
+import { Elements } from '@stripe/react-stripe-js'
 import { ArrowDown, Check, Zap } from 'lucide-react'
+import Image from 'next/image'
 import { useState } from 'react'
+
+import { getStripe } from '@/lib/stripe'
+import UserAddCard from '@/components/userPlans/UserAddCardModal'
 
 export default function TestPlansPage() {
   const [billingCycle, setBillingCycle] = useState('monthly')
+  const [showAddCardModal, setShowAddCardModal] = useState(false)
+  
+  // State for UserAddCard props
+  const [credentialsErr, setCredentialsErr] = useState(false)
+  const [addCardFailure, setAddCardFailure] = useState(false)
+  const [addCardSuccess, setAddCardSuccess] = useState(false)
+  const [addCardErrtxt, setAddCardErrtxt] = useState('')
+  const [selectedPlan, setSelectedPlan] = useState(null)
+
+  const stripePromise = getStripe()
+
+  const handleClose = async (data) => {
+    console.log('Card added details:', data)
+    setShowAddCardModal(false)
+    // Handle any post-card-addition logic here
+  }
 
   const plans = [
     {
@@ -201,6 +223,10 @@ export default function TestPlansPage() {
               </div>
 
               <button
+                onClick={() => {
+                  setSelectedPlan(plan)
+                  setShowAddCardModal(true)
+                }}
                 className={`w-full py-3 rounded-lg font-medium mb-6 transition-colors ${
                   plan.bestValue
                     ? 'bg-white text-purple-600 hover:bg-gray-100'
@@ -237,6 +263,70 @@ export default function TestPlansPage() {
           ))}
         </div>
       </div>
+
+      {/* UserAddCard Modal */}
+      <Modal
+        open={showAddCardModal}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: '#00000020',
+            backdropFilter: 'blur(15px)',
+          },
+        }}
+        onClose={() => setShowAddCardModal(false)}
+      >
+        <Box
+          className="flex lg:w-9/12 sm:w-full w-full justify-center items-center border-none"
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            bgcolor: 'transparent',
+            border: 'none',
+            outline: 'none',
+          }}
+        >
+          <div className="flex flex-row justify-center w-full">
+            <div
+              className="w-full border-white"
+              style={{
+                backgroundColor: '#ffffff',
+                padding: 0,
+                borderRadius: '13px',
+              }}
+            >
+              <div className="flex flex-row justify-end w-full items-center pe-5 pt-5">
+                <button onClick={() => setShowAddCardModal(false)}>
+                  <Image
+                    src={'/assets/crossIcon.png'}
+                    height={40}
+                    width={40}
+                    alt="close"
+                  />
+                </button>
+              </div>
+              <Elements stripe={stripePromise}>
+                <UserAddCard
+                  handleClose={handleClose}
+                  selectedPlan={selectedPlan}
+                  isFrom=""
+                  setCredentialsErr={setCredentialsErr}
+                  setAddCardFailure={setAddCardFailure}
+                  setAddCardSuccess={setAddCardSuccess}
+                  setAddCardErrtxt={setAddCardErrtxt}
+                  credentialsErr={credentialsErr}
+                  addCardFailure={addCardFailure}
+                  addCardSuccess={addCardSuccess}
+                  addCardErrtxt={addCardErrtxt}
+                />
+              </Elements>
+            </div>
+          </div>
+        </Box>
+      </Modal>
     </div>
   )
 }

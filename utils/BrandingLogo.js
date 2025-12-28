@@ -19,6 +19,7 @@ function BrandingLogo() {
                     height={29}
                     width={200}
                     alt="agency logo"
+                    unoptimized={true}
                 />
             ) : (
                 <Image

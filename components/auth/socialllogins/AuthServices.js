@@ -5,9 +5,12 @@ import { connectGmailAccount } from '@/components/pipeline/TempleteServices'
 export const GoogleOAuth = ({
   setLoginLoader,
   setShowSnack,
+  setShowSnackBar, // Accept both names for compatibility
   setShowEmailTempPopup,
   selectedUser,
 }) => {
+  // Use setShowSnack if provided, otherwise fall back to setShowSnackBar
+  const showSnackHandler = setShowSnack || setShowSnackBar
   const NEXT_PUBLIC_GOOGLE_CLIENT_ID =
     process.env.NEXT_PUBLIC_APP_GOOGLE_CLIENT_ID
   const REDIRECT_URI = process.env.NEXT_PUBLIC_APP_REDIRECT_URI
@@ -62,11 +65,13 @@ export const GoogleOAuth = ({
             // setSelectedGoogleAccount(res.data.data)
             // setShowEmailTempPopup(true)
           } else {
-            setShowSnack({
-              message: res.data.message,
-              type: SnackbarTypes.Error,
-              isVisible: true,
-            })
+            if (showSnackHandler) {
+              showSnackHandler({
+                message: res.data.message,
+                type: SnackbarTypes.Error,
+                isVisible: true,
+              })
+            }
             return null
           }
           // onClose()

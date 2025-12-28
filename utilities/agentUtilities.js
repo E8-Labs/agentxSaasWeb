@@ -3,6 +3,7 @@ import Image from 'next/image'
 
 import voicesList from '@/components/createagent/Voices'
 import { models } from '@/constants/Constants'
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 
 export const getAgentImage = (item) => {
   //// //console.log;
@@ -79,16 +80,7 @@ export const getAgentImage = (item) => {
   // Fallback image
   return (
     <div className="rounded-full flex flex-row items-center justify-center">
-      <Image
-        src="/agentXOrb.gif"
-        height={42}
-        width={42}
-        className="rounded-full"
-        alt="*"
-        style={{
-          margin: '18px',
-        }}
-      />
+      <AgentXOrb size={42} style={{ margin: '18px' }} />
     </div>
   )
 }
@@ -224,28 +216,49 @@ export const getAgentsListImage = (
     )
     //// //console.log;
     if (selectedVoice && selectedVoice.img) {
+      // Use container dimensions for voice images to prevent overflow
+      const containerHeight = imgHeight || 45
+      const containerWidth = imgWidth || 45
+      
+      // Manual sizing for Axel and Max - same approach as user side
+      // Their images are naturally larger, so we manually reduce their dimensions
+      let imageHeight = containerHeight
+      let imageWidth = containerWidth
+      
+      if (selectedVoice.name === 'Axel') {
+        // Axel: Use smaller dimensions to match other agents' visual size
+        // Based on user side: height=28, width=28 (for 45px container, scale proportionally)
+        imageHeight = 28
+        imageWidth = 28
+      } else if (selectedVoice.name === 'Max') {
+        // Max: Use smaller dimensions to match other agents' visual size
+        // Based on user side: height=26, width=32 (for 45px container, scale proportionally)
+        imageHeight = 26
+        imageWidth = 32
+      }
+      
       return (
-        // <div className="bg-white rounded-full h-[43px] flex flex-row items-center justify-center">
         <div
           className="flex flex-row items-center justify-center"
           style={{
-            height: '45px',
-            width: '45px',
+            height: `${containerHeight}px`,
+            width: `${containerWidth}px`,
             borderRadius: '50%',
             backgroundColor: 'white',
+            overflow: 'hidden', // Ensure image doesn't overflow container
           }}
         >
           <Image
             src={selectedVoice.img}
-            height={height}
-            width={width}
+            height={imageHeight}
+            width={imageWidth}
             alt="*"
             className="rounded-full"
-            style={
-              {
-                // margin: "5px"
-              }
-            }
+            style={{
+              height: `${imageHeight}px`,
+              width: `${imageWidth}px`,
+              objectFit: 'cover', // Use cover to fill container while maintaining aspect ratio
+            }}
           />
         </div>
       )
@@ -257,7 +270,7 @@ export const getAgentsListImage = (
     <div
       className={`h-[${height}] w-[${width}] rounded-full flex flex-row items-center justify-center`}
     >
-      <Image src="/agentXOrb.gif" height={height} width={width} alt="*" />
+      <AgentXOrb width={height} height={width} />
     </div>
   )
 }
@@ -347,6 +360,20 @@ export const getAgentProfileImage = (subAgent) => {
     )
     // //console.log;
     if (selectedVoice && selectedVoice.img) {
+      // Manual sizing for Axel and Max - same approach as user side
+      let imageHeight = 62
+      let imageWidth = 62
+      
+      if (selectedVoice.name === 'Axel') {
+        // Axel: Scale down proportionally for 62px container
+        imageHeight = 38
+        imageWidth = 38
+      } else if (selectedVoice.name === 'Max') {
+        // Max: Scale down proportionally for 62px container
+        imageHeight = 36
+        imageWidth = 44
+      }
+      
       return (
         <div
           className="flex flex-row items-center justify-center"
@@ -355,19 +382,20 @@ export const getAgentProfileImage = (subAgent) => {
             width: '62px',
             borderRadius: '50%',
             backgroundColor: 'white',
+            overflow: 'hidden', // Ensure image doesn't overflow container
           }}
         >
           <Image
             src={selectedVoice.img}
-            height={62}
-            width={62}
+            height={imageHeight}
+            width={imageWidth}
             alt="*"
             className="rounded-full"
-            style={
-              {
-                // margin: "5px"
-              }
-            }
+            style={{
+              height: `${imageHeight}px`,
+              width: `${imageWidth}px`,
+              objectFit: 'cover',
+            }}
           />
         </div>
       )
@@ -377,16 +405,7 @@ export const getAgentProfileImage = (subAgent) => {
   // Fallback image
   return (
     <div className="rounded-full flex flex-row items-center justify-center">
-      <Image
-        src="/agentXOrb.gif"
-        height={42}
-        width={42}
-        className="rounded-full"
-        alt="*"
-        style={{
-          margin: '18px',
-        }}
-      />
+      <AgentXOrb size={42} style={{ margin: '18px' }} />
     </div>
   )
 }

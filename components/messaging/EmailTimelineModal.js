@@ -14,6 +14,21 @@ import { Input } from '@/components/ui/input'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
 
+// Helper function to check if HTML body has actual text content
+const hasTextContent = (html) => {
+  if (!html) return false
+  // Create a temporary div to parse HTML
+  if (typeof document !== 'undefined') {
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = html
+    const textContent = tempDiv.textContent || tempDiv.innerText || ''
+    return textContent.trim().length > 0
+  }
+  // Fallback for SSR: strip HTML tags and check
+  const textOnly = html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim()
+  return textOnly.length > 0
+}
+
 const EmailTimelineModal = ({
   open,
   onClose,
@@ -120,9 +135,8 @@ const EmailTimelineModal = ({
         setReplySubject('')
       }
       
-      // Format quoted message content
-      const quotedContent = formatQuotedMessage(replyToMessage)
-      setReplyBody(quotedContent)
+      // Keep reply body blank - user will type their own reply
+      setReplyBody('')
       
       // Focus the editor after a short delay
       setTimeout(() => {
@@ -151,10 +165,21 @@ const EmailTimelineModal = ({
 
   const handleSend = async () => {
     // Use reply subject if in reply mode, otherwise use timeline subject
-    const emailSubject = replyToMessage ? replySubject : (subject || '')
+    // If replySubject is empty but we're in reply mode, regenerate it from replyToMessage
+    let emailSubject = replyToMessage ? replySubject : (subject || '')
+    if (replyToMessage && !emailSubject && replyToMessage.subject) {
+      emailSubject = formatReplySubject(replyToMessage.subject)
+      setReplySubject(emailSubject) // Save it for next time
+    }
     
-    if (!replyBody.trim() || !selectedEmailAccount || !leadId || !emailSubject) {
-      toast.error('Please fill in all required fields')
+    if (!hasTextContent(replyBody) || !selectedEmailAccount || !leadId || !emailSubject) {
+      toast.error('Please fill in all required fields', {
+        style: {
+          width: 'fit-content',
+          maxWidth: '400px',
+          whiteSpace: 'nowrap',
+        },
+      })
       return
     }
 
@@ -162,7 +187,13 @@ const EmailTimelineModal = ({
       setSending(true)
       const localData = localStorage.getItem('User')
       if (!localData) {
-        toast.error('Please log in')
+        toast.error('Please log in', {
+          style: {
+            width: 'fit-content',
+            maxWidth: '400px',
+            whiteSpace: 'nowrap',
+          },
+        })
         return
       }
 
@@ -188,10 +219,21 @@ const EmailTimelineModal = ({
       })
 
       if (response.data?.status) {
-        toast.success('Email sent successfully')
+        toast.success('Email sent successfully', {
+          style: {
+            width: 'fit-content',
+            maxWidth: '400px',
+            whiteSpace: 'nowrap',
+          },
+        })
+        // Clear reply body but keep subject and email for next reply
         setReplyBody('')
-        setReplyToEmail('')
-        setReplySubject('')
+        // Don't clear replySubject - keep it for subsequent replies in the same thread
+        // Only regenerate if it's empty (shouldn't happen, but safety check)
+        if (!replySubject && replyToMessage?.subject) {
+          setReplySubject(formatReplySubject(replyToMessage.subject))
+        }
+        // Don't clear replyToEmail either - keep it for subsequent replies
         if (onSendSuccess) {
           await onSendSuccess()
         }
@@ -199,11 +241,23 @@ const EmailTimelineModal = ({
           fetchThreads()
         }
       } else {
-        toast.error(response.data?.message || 'Failed to send email')
+        toast.error(response.data?.message || 'Failed to send email', {
+          style: {
+            width: 'fit-content',
+            maxWidth: '400px',
+            whiteSpace: 'nowrap',
+          },
+        })
       }
     } catch (error) {
       console.error('Error sending email:', error)
-      toast.error(error.response?.data?.message || 'Failed to send email')
+      toast.error(error.response?.data?.message || 'Failed to send email', {
+        style: {
+          width: 'fit-content',
+          maxWidth: '400px',
+          whiteSpace: 'nowrap',
+        },
+      })
     } finally {
       setSending(false)
     }
@@ -281,13 +335,13 @@ const EmailTimelineModal = ({
         },
       }}
     >
-      <div className="flex flex-col w-full h-full py-2 px-5 rounded-xl">
+      <div className="flex flex-col w-full h-full py-1 px-4 rounded-xl">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b">
+        <div className="flex items-center justify-between pb-2 border-b">
           <div>
             <h2 className="text-xl font-semibold">{subject || 'Email Timeline'}</h2>
             {replyToMessage && (
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-500 mt-0.5">
                 Replying to {getReplySenderName()}
               </p>
             )}
@@ -296,7 +350,7 @@ const EmailTimelineModal = ({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto py-4">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden py-2">
           {loading ? (
             <div className="flex items-center justify-center h-full">
               <div className="text-center">
@@ -309,7 +363,7 @@ const EmailTimelineModal = ({
               <p className="text-gray-500">No emails found</p>
             </div>
           ) : (
-            <div className="space-y-6 pb-4">
+            <div className="space-y-3 pb-2">
               {messages.map((message, index) => {
                 const showDateSeparator =
                   index === 0 ||
@@ -321,7 +375,7 @@ const EmailTimelineModal = ({
                 return (
                   <React.Fragment key={message.id}>
                     {showDateSeparator && (
-                      <div className="flex items-center justify-center my-6">
+                      <div className="flex items-center justify-center my-3">
                         <div className="border-t border-gray-200 flex-1"></div>
                         <span className="px-4 text-xs text-gray-400">
                           {moment(message.createdAt).format('MMMM DD, YYYY')}
@@ -329,60 +383,94 @@ const EmailTimelineModal = ({
                         <div className="border-t border-gray-200 flex-1"></div>
                       </div>
                     )}
-                    <div className="flex items-start gap-3">
-                      {/* Avatar */}
-                      <div className="relative flex-shrink-0">
-                        <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
-                          {senderName.charAt(0).toUpperCase()}
-                        </div>
-                        <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
-                          <Image
-                            src="/messaging/email message type icon.svg"
-                            width={16}
-                            height={16}
-                            alt="Email"
-                            className="object-contain"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Message Content */}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold text-sm">{senderName}</span>
-                          <span className="text-xs text-gray-500">
-                            {moment(message.createdAt).format('h:mm A')}
-                          </span>
-                        </div>
-
-                        {message.subject && (
-                          <div className="font-semibold mb-2 text-sm">
-                            Subject: {message.subject}
+                    <div className="flex flex-col w-full">
+                      <div
+                        className={`flex items-start gap-3 w-full ${message.direction === 'outbound' ? 'justify-end' : 'justify-start'}`}
+                      >
+                        {message.direction !== 'outbound' && (
+                          <div className="relative flex-shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
+                              {senderName.charAt(0).toUpperCase()}
+                            </div>
+                            <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                              <Image
+                                src="/messaging/email message type icon.svg"
+                                width={16}
+                                height={16}
+                                alt="Email"
+                                className="object-contain"
+                              />
+                            </div>
                           </div>
                         )}
 
-                        <div className="bg-gray-100 rounded-lg px-4 py-3 mb-2">
-                          <div className="text-sm text-gray-700 whitespace-pre-wrap">
-                            {htmlToPlainText(message.content || '')}
+                        <div className="flex flex-col max-w-[80%] min-w-[240px]">
+                          <div
+                            className={`px-4 py-3 rounded-2xl ${
+                              message.direction === 'outbound' ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-800'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-2 mb-2">
+                              <span className="font-semibold text-sm">{senderName}</span>
+                              <span className={`text-xs ${message.direction === 'outbound' ? 'text-white' : 'text-gray-600'}`}>
+                                {moment(message.createdAt).format('h:mm A')}
+                              </span>
+                            </div>
+
+                            <div className={`text-sm whitespace-pre-wrap ${message.direction === 'outbound' ? 'text-white' : 'text-gray-800'}`}>
+                              {htmlToPlainText(message.content || '')}
+                            </div>
+
+                            {message.metadata?.attachments && message.metadata.attachments.length > 0 && (
+                              <div className="flex flex-col gap-1 mt-3">
+                                {message.metadata.attachments.map((attachment, idx) => (
+                                  <div
+                                    key={idx}
+                                    className={`flex items-center gap-2 text-sm ${
+                                      message.direction === 'outbound' ? 'text-white' : 'text-brand-primary'
+                                    }`}
+                                  >
+                                    <Paperclip size={14} />
+                                    <span className="underline">
+                                      {attachment.originalName || attachment.fileName || `Attachment ${idx + 1}`}
+                                    </span>
+                                    {attachment.size && (
+                                      <span
+                                        className={`text-xs ${
+                                          message.direction === 'outbound' ? 'text-white/70' : 'text-gray-500'
+                                        }`}
+                                      >
+                                        ({formatFileSize(attachment.size)})
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
 
-                        {/* Attachments */}
-                        {message.metadata?.attachments && message.metadata.attachments.length > 0 && (
-                          <div className="flex flex-col gap-2 mt-2">
-                            {message.metadata.attachments.map((attachment, idx) => (
-                              <div key={idx} className="flex items-center gap-2 text-sm text-brand-primary">
-                                <Paperclip size={14} />
-                                <span className="underline">
-                                  {attachment.originalName || attachment.fileName || `Attachment ${idx + 1}`}
-                                </span>
-                                {attachment.size && (
-                                  <span className="text-xs text-gray-500">
-                                    ({formatFileSize(attachment.size)})
-                                  </span>
-                                )}
-                              </div>
-                            ))}
+                        {message.direction === 'outbound' && (
+                          <div className="flex-shrink-0">
+                            {(() => {
+                              const avatarLetter = senderName.charAt(0).toUpperCase()
+                              return (
+                                <div className="relative">
+                                  <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
+                                    {avatarLetter}
+                                  </div>
+                                  <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                                    <Image
+                                      src="/messaging/email message type icon.svg"
+                                      width={16}
+                                      height={16}
+                                      alt="Email"
+                                      className="object-contain"
+                                    />
+                                  </div>
+                                </div>
+                              )
+                            })()}
                           </div>
                         )}
                       </div>
@@ -396,8 +484,8 @@ const EmailTimelineModal = ({
 
         {/* Reply Composer */}
         {messages && messages.length > 0 && subject && leadId && (
-          <div className="border-t pt-4 mt-4 bg-white">
-            <div className="space-y-3">
+          <div className="border-t pt-2 mt-2 bg-white">
+            <div className="space-y-2">
             
               {/* Subject field - show when in reply mode */}
               {replyToMessage && (
@@ -413,47 +501,48 @@ const EmailTimelineModal = ({
               )}
 
               {/* Message body */}
-              <div className="border border-gray-200 rounded-lg">
+              <div className="relative">
                 <RichTextEditor
                   ref={richTextEditorRef}
                   value={replyBody}
                   onChange={(content) => setReplyBody(content)}
                   placeholder="Type your message..."
+                  toolbarPosition="bottom"
                   className="min-h-[80px]"
                 />
-              </div>
-
-              {/* Send button */}
-              <div className="flex items-center justify-end gap-4">
-                <button
-                  onClick={handleSend}
-                  disabled={sending || !replyBody.trim() || !selectedEmailAccount}
-                  className={`px-6 py-2 rounded-lg text-white font-medium transition-colors flex items-center gap-2 ${
-                    sending || !replyBody.trim() || !selectedEmailAccount
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-brand-primary hover:bg-brand-primary/90'
-                  }`}
-                >
-                  {sending ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>Sending...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span>Send</span>
-                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                          d="M1.5 8.5L14.5 1.5M14.5 1.5L9.5 14.5M14.5 1.5L1.5 8.5L6.5 11.5"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </>
-                  )}
-                </button>
+                
+                {/* Overlapping send button above toolbar */}
+                <div className="absolute bottom-[2px] right-0 flex items-center gap-2 z-10 pr-2">
+                  <button
+                    onClick={handleSend}
+                    disabled={sending || !hasTextContent(replyBody) || !selectedEmailAccount}
+                    className={`px-4 py-2 rounded-lg text-white text-sm font-medium transition-colors flex items-center gap-2 ${
+                      sending || !hasTextContent(replyBody) || !selectedEmailAccount
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-brand-primary hover:bg-brand-primary/90'
+                    }`}
+                  >
+                    {sending ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <span>Sending...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>Send</span>
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path
+                            d="M1.5 8.5L14.5 1.5M14.5 1.5L9.5 14.5M14.5 1.5L1.5 8.5L6.5 11.5"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                          />
+                        </svg>
+                      </>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -464,4 +553,3 @@ const EmailTimelineModal = ({
 }
 
 export default EmailTimelineModal
-

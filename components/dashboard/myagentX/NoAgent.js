@@ -8,6 +8,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../leads/AgentSelectSnackMessage'
 import { PersistanceKeys } from '@/constants/Constants'
+import { useUser } from '@/hooks/redux-hooks'
 
 function NoAgent({
   showBtn = true,
@@ -23,6 +24,7 @@ function NoAgent({
   })
 
   const router = useRouter()
+  const { user: reduxUser } = useUser()
 
   const handleAddNewAgent = () => {
     if (selectedUser) {
@@ -32,11 +34,49 @@ function NoAgent({
         }
         localStorage.setItem('fromDashboard', JSON.stringify(data))
         
-        // If coming from admin/agency, save context and return URL
-        if (from === 'Admin' || from === 'Agency') {
+        // Check if current logged-in user is Admin or Agency
+        let isAdminOrAgency = false
+        
+        // Check from Redux first
+        if (reduxUser) {
+          const userType = reduxUser?.userType
+          const userRole = reduxUser?.userRole
+          isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
+          console.log('NoAgent handleAddNewAgent - Redux user check:', { userType, userRole, isAdminOrAgency })
+        }
+        
+        // Fallback to localStorage if Redux doesn't have the data
+        if (!isAdminOrAgency && typeof window !== 'undefined') {
+          try {
+            const localUserData = localStorage.getItem('User')
+            if (localUserData) {
+              const parsedUser = JSON.parse(localUserData)
+              const userType = parsedUser?.user?.userType || parsedUser?.userType
+              const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+              isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
+              console.log('NoAgent handleAddNewAgent - localStorage user check:', { userType, userRole, isAdminOrAgency })
+            }
+          } catch (error) {
+            console.log('Error parsing localStorage User data:', error)
+          }
+        }
+        
+        // If coming from admin/agency or current user is admin/agency, save context and return URL
+        const fromLower = from?.toLowerCase()
+        if (isAdminOrAgency || fromLower === 'admin' || fromLower === 'agency') {
+          // Determine if it's from agency
+          let isFromAgencyValue = false
+          if (fromLower === 'agency') {
+            isFromAgencyValue = true
+          } else if (isAdminOrAgency) {
+            // Check if current logged-in user is Agency (not Admin)
+            const currentUserRole = reduxUser?.userRole || (typeof window !== 'undefined' && localStorage.getItem('User') ? JSON.parse(localStorage.getItem('User'))?.user?.userRole : null)
+            isFromAgencyValue = currentUserRole === 'Agency'
+          }
+          
           const d = {
             subAccountData: selectedUser,
-            isFromAgency: from === 'Agency',
+            isFromAgency: isFromAgencyValue,
           }
           localStorage.setItem(
             PersistanceKeys.isFromAdminOrAgency,
@@ -51,10 +91,15 @@ function NoAgent({
               currentUrl,
             )
           }
+          
+          // Open in new tab for Admin or Agency
+          console.log('NoAgent - Opening /createagent in new tab (user is Admin or Agency)')
+          window.open('/createagent', '_blank')
+        } else {
+          // router.push("/createagent");
+          console.log('NoAgent - Opening /createagent in same tab')
+          window.location.href = '/createagent'
         }
-        
-        // router.push("/createagent");
-        window.location.href = '/createagent'
       } else {
         console.log('Donot route')
         setShowSnack({

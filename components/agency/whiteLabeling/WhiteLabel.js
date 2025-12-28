@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
 import getProfileDetails from '@/components/apis/GetProfile'
@@ -24,8 +24,9 @@ import NotificationConfig from './WhiteLabelingCustomNotifications/NotificationC
 import CancellationRefundConfig from './CancellationRefundConfig'
 import AppLogo from '@/components/common/AppLogo'
 
-const WhiteLabel = () => {
+const WhiteLabel = ({ selectedAgency }) => {
   const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   const [selectedWhiteLabelTabs, setSelectedWhiteLabelTabs] = useState(1)
 
@@ -44,12 +45,19 @@ const WhiteLabel = () => {
   // Fetch local data for Copy Agency Link
   useEffect(() => {
     getLocalData()
-  }, [])
+  }, [selectedAgency])
 
   const getLocalData = (retries = 5, delay = 300) => {
     let attempt = 0
 
     const tryFetch = () => {
+      // If selectedAgency is provided (admin view), use it; otherwise use localStorage
+      if (selectedAgency) {
+        setAgencyData(selectedAgency)
+        console.log('✅ Using selectedAgency data for admin view')
+        return
+      }
+      
       let data = localStorage.getItem('User')
       if (data) {
         let u = JSON.parse(data)
@@ -125,12 +133,25 @@ const WhiteLabel = () => {
     }
     const tabId = item.id
     setSelectedWhiteLabelTabs(tabId)
-    // Update URL without page reload
-    const newSearchParams = new URLSearchParams(searchParams)
-    newSearchParams.set('tab', tabId.toString())
-    router.push(`/agency/dashboard/whitelabel?${newSearchParams.toString()}`, {
-      scroll: false,
-    })
+    
+    // If in admin mode (selectedAgency provided), update URL query params without navigation
+    // to avoid triggering agency layout which causes hydration errors
+    if (selectedAgency) {
+      const newSearchParams = new URLSearchParams(searchParams)
+      newSearchParams.set('tab', tabId.toString())
+      // Use router.replace with current pathname to update URL without full navigation
+      // This prevents Next.js from loading the agency layout inside admin layout
+      router.replace(`${pathname}?${newSearchParams.toString()}`, {
+        scroll: false,
+      })
+    } else {
+      // Normal agency user flow - navigate to agency whitelabel route
+      const newSearchParams = new URLSearchParams(searchParams)
+      newSearchParams.set('tab', tabId.toString())
+      router.push(`/agency/dashboard/whitelabel?${newSearchParams.toString()}`, {
+        scroll: false,
+      })
+    }
   }
 
   const WhiteLabelTabs = [
@@ -203,63 +224,64 @@ const WhiteLabel = () => {
         <div className="w-[80%] h-full px-4 pt-4 overflow-auto scrollbar-hidden">
           {selectedWhiteLabelTabs === 1 && (
             <div className="w-full h-full">
-              <BrandConfig />
+              <BrandConfig selectedAgency={selectedAgency} />
             </div>
           )}
           {selectedWhiteLabelTabs === 2 && (
             <div className="w-full h-full">
-              <DomainConfig />
+              <DomainConfig selectedAgency={selectedAgency} />
             </div>
           )}
           {selectedWhiteLabelTabs === 3 && (
             <div className="w-full h-full">
-              <EmailConfig />
+              <EmailConfig selectedAgency={selectedAgency} />
             </div>
           )}
           {selectedWhiteLabelTabs === 4 && (
             <div className="w-full h-full">
-              <NotificationConfig />
+              <NotificationConfig selectedAgency={selectedAgency} />
             </div>
           )}
           {selectedWhiteLabelTabs === 5 && (
             <div className="w-full h-full">
-              <TutorialConfig />
+              <TutorialConfig selectedAgency={selectedAgency} />
             </div>
           )}
           {selectedWhiteLabelTabs === 6 && (
             <div className="w-full h-full">
-              <SupportWidgetConfig />
+              <SupportWidgetConfig selectedAgency={selectedAgency} />
             </div>
           )}
           {selectedWhiteLabelTabs === 7 && (
             <div className="w-full h-full">
-              <UPSell />
+              <UPSell selectedAgency={selectedAgency} />
             </div>
           )}
           {selectedWhiteLabelTabs === 8 && (
             <div className="w-full h-full">
-              <PrivacyConfig />
+              <PrivacyConfig selectedAgency={selectedAgency} />
             </div>
           )}
           {selectedWhiteLabelTabs === 9 && (
             <div className="w-full h-full">
-              <TermsConfig />
+              <TermsConfig selectedAgency={selectedAgency} />
             </div>
           )}
           {selectedWhiteLabelTabs === 10 && (
             <div className="w-full h-full">
-              <CancellationRefundConfig />
+              <CancellationRefundConfig selectedAgency={selectedAgency} />
             </div>
           )}
         </div>
 
         {/* Copy Agency Link - Fixed Overlay Panel */}
         <div
-          className="fixed right-4 bg-gray-100 shadow-lg rounded-lg"
+          className="fixed right-4 shadow-lg rounded-lg"
           style={{
             zIndex: 10,
             top: 'calc(10svh + 16px)',
             width: '420px',
+            backgroundColor: 'hsl(var(--brand-primary))',
           }}
         >
           <div className="w-full flex flex-row items-center justify-between px-4 py-4 gap-4">
@@ -277,21 +299,20 @@ const WhiteLabel = () => {
                   style={{
                     fontSize: '16px',
                     fontWeight: 'bold',
-                    color: '#000',
+                    color: '#ffffff',
                   }}
                 >
                   Agency Link
                 </div>
                 <div
-                  style={{ fontSize: '12px', fontWeight: '400', color: '#666' }}
+                  style={{ fontSize: '12px', fontWeight: '400', color: '#ffffffcc' }}
                 >
                   Use this link to sign up users
                 </div>
               </div>
             </div>
             <button
-              className="flex flex-row items-center justify-center gap-2 rounded-lg px-4 py-2 transition-colors flex-shrink-0"
-              style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.1)' }}
+              className="flex flex-row items-center justify-center gap-2 rounded-lg px-4 py-2 transition-colors flex-shrink-0 bg-white hover:bg-gray-50"
               onClick={async () => {
                 if (!reduxUser?.twilio?.twilAuthToken) {
                   setShowSnackMessage({
@@ -314,14 +335,12 @@ const WhiteLabel = () => {
                   setShowCopyLinkWarning(true)
                   upgradeProfile()
                 } else {
-                  await copyAgencyOnboardingLink({ setLinkCopied, reduxUser })
+                  await copyAgencyOnboardingLink({ setLinkCopied, reduxUser, selectedAgency })
                 }
               }}
             >
               <div
-                className="icon-brand-primary"
                 style={{
-                  '--icon-mask-image': `url(/assets/copyIconPurple.png)`,
                   width: '16px',
                   height: '16px',
                 }}
@@ -334,8 +353,7 @@ const WhiteLabel = () => {
                 />
               </div>
               <div
-                className="text-brand-primary"
-                style={{ fontSize: '14px', fontWeight: '500' }}
+                style={{ fontSize: '14px', fontWeight: '500', color: 'hsl(var(--brand-primary))' }}
               >
                 {linkCopied ? 'Link Copied' : 'Copy Link'}
               </div>
@@ -352,7 +370,7 @@ const WhiteLabel = () => {
             setShowCopyLinkWarning(false)
           }}
           handleCopyLink={async () => {
-            await copyAgencyOnboardingLink({ setLinkCopied, reduxUser })
+            await copyAgencyOnboardingLink({ setLinkCopied, reduxUser, selectedAgency })
             setTimeout(() => {
               setShowCopyLinkWarning(false)
             }, 500)

@@ -431,11 +431,11 @@ const PipelineStages = ({
     if (agentDetails && agentDetails != 'undefined') {
       const agentData = JSON.parse(agentDetails)
       // //console.log;
-      if (agentData.agents?.length > 1) {
+      if (agentData?.agents?.length > 1) {
         // //console.log;
         setIsInboundAgent(false)
       } else {
-        if (agentData.agents[0]?.agentType === 'inbound') {
+        if (agentData?.agents?.[0]?.agentType === 'inbound') {
           setIsInboundAgent(true)
         } else {
           setIsInboundAgent(false)

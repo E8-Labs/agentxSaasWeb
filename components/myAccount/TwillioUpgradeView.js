@@ -1,5 +1,5 @@
 import { Elements } from '@stripe/react-stripe-js'
-import { loadStripe } from '@stripe/stripe-js'
+import { getStripe } from '@/lib/stripe'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
@@ -8,7 +8,7 @@ import AgentSelectSnackMessage from '../dashboard/leads/AgentSelectSnackMessage'
 import UpgradePlan from '../userPlans/UpgradePlan'
 
 // Initialize Stripe
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
+const stripePromise = getStripe()
 
 function TwillioUpgradeView({ title }) {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)

@@ -91,6 +91,29 @@ function CalendarModal(props) {
     console.log('- GHL OAuth Success:', ghlOauthSuccess)
     console.log('- Location ID:', locationId)
 
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: 'debug-session',
+        runId: 'pre-fix',
+        hypothesisId: 'H2',
+        location: 'components/dashboard/myagentX/CalenderModal.js:popup-detect',
+        message: 'CalendarModal popup detection ran',
+        data: {
+          searchKeys: Array.from(qs.keys()).slice(0, 20),
+          hasCode: Boolean(code),
+          hasError: Boolean(error),
+          ghlOauthSuccess: ghlOauthSuccess || null,
+          hasLocationId: Boolean(locationId),
+          hasOpener: Boolean(window.opener),
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {})
+    // #endregion agent log
+
     // If this window was opened by another window (popup case)
     if (window.opener) {
       // Case 1: Direct OAuth callback with code/error (normal flow)
@@ -131,6 +154,22 @@ function CalendarModal(props) {
     setStatus('Connected! Loading calendars...')
 
     try {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: 'debug-session',
+          runId: 'pre-fix',
+          hypothesisId: 'H3',
+          location: 'components/dashboard/myagentX/CalenderModal.js:handleGHLSuccess',
+          message: 'handleGHLSuccess invoked',
+          data: { hasLocationId: Boolean(locationId), viewWillOpen: true },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {})
+      // #endregion agent log
+
       const calRes = await fetch(`/api/ghl/calendars/`)
       if (!calRes.ok) {
         setStatus(`Failed to load calendars (${calRes.status})`)
@@ -169,6 +208,28 @@ function CalendarModal(props) {
       if (!type || (type !== 'GHL_OAUTH_CODE' && type !== 'GHL_OAUTH_SUCCESS')) {
         return
       }
+
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sessionId: 'debug-session',
+          runId: 'pre-fix',
+          hypothesisId: 'H2',
+          location: 'components/dashboard/myagentX/CalenderModal.js:onMessage',
+          message: 'CalendarModal received postMessage',
+          data: {
+            origin: e.origin,
+            type,
+            hasCode: Boolean(code),
+            hasError: Boolean(error),
+            hasLocationId: Boolean(locationId),
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {})
+      // #endregion agent log
       
       // Handle direct OAuth code from popup (normal flow)
       if (type === 'GHL_OAUTH_CODE') {
@@ -240,6 +301,15 @@ function CalendarModal(props) {
     getGHLENVVariables()
   }, [])
 
+  // Reset all calendar type states when modal opens to always show selection view first
+  useEffect(() => {
+    if (open) {
+      setShowAddNewCalender(false)
+      setShowAddNewGoogleCalender(false)
+      setShowAddNewGHLCalender(false)
+    }
+  }, [open])
+
   const getGHLENVVariables = () => {
     const ghlVariables = {
       NEXT_PUBLIC_GHL_CLIENT_ID: process.env.NEXT_PUBLIC_GHL_CLIENT_ID,
@@ -258,8 +328,7 @@ function CalendarModal(props) {
   const startGHLAuthPopup = useCallback(async () => {
     const currentPath = window.location.origin + window.location.pathname
     
-    // Use existing approved redirect URI (no approval needed)
-    // Use /dashboard/myAgentX which is already approved in GHL console
+    // Use /dashboard/myAgentX as the OAuth redirect landing page
     const isProduction = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     const GHL_REDIRECT_URI = isProduction
       ? 'https://app.assignx.ai/dashboard/myAgentX'
@@ -296,9 +365,10 @@ function CalendarModal(props) {
     console.log('- Is custom domain/subdomain:', isCustomDomain)
     console.log('- Domain to use:', domainToUse)
 
-    // Generate state parameter if we have a domain to redirect back to
+    // Generate state parameter (provider signal). Keep it even if agencyId is missing,
+    // because middleware relies on `state.provider` to route the callback correctly.
     let stateParam = null
-    if (domainToUse && agencyId) {
+    if (domainToUse) {
       stateParam = generateOAuthState({
         agencyId,
         customDomain: domainToUse,
@@ -344,6 +414,28 @@ function CalendarModal(props) {
       'https://marketplace.gohighlevel.com/oauth/chooselocation?' +
       params.toString()
     console.log('GHL Check 3', authUrl)
+
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: 'debug-session',
+        runId: 'pre-fix',
+        hypothesisId: 'H4',
+        location: 'components/dashboard/myagentX/CalenderModal.js:startGHLAuthPopup',
+        message: 'Starting GHL OAuth popup',
+        data: {
+          currentPath,
+          GHL_REDIRECT_URI,
+          authUrlPrefix: authUrl.slice(0, 180), // avoid huge logs
+          hasState: Boolean(stateParam),
+          scopeLen: scope?.length || 0,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {})
+    // #endregion agent log
     // Open a centered popup
     const w = 520
     const h = 650
@@ -434,9 +526,10 @@ function CalendarModal(props) {
     // This ensures state is always generated and popup context is preserved
     const domainToUse = currentHostname
 
-    // Generate state parameter if we have a domain to redirect back to
+    // Generate state parameter (provider signal). Keep it even if agencyId is missing,
+    // because middleware relies on `state.provider` to route the callback correctly.
     let stateParam = null
-    if (domainToUse && agencyId) {
+    if (domainToUse) {
       stateParam = generateOAuthState({
         agencyId,
         customDomain: domainToUse,
@@ -867,7 +960,7 @@ function CalendarModal(props) {
                   style={{
                     fontWeight: '600',
                     fontSize: 16,
-                    backgroundColor: !isEnabled() ? '#00000020' : '#7902DF',
+                    backgroundColor: !isEnabled() ? '#00000020' : 'hsl(var(--brand-primary))',
                     color: !isEnabled() ? '#000000' : '',
                   }}
                   onClick={() => {
@@ -1134,7 +1227,7 @@ function CalendarModal(props) {
                   style={{
                     fontWeight: '600',
                     fontSize: 16,
-                    backgroundColor: !isEnabled() ? '#00000020' : '#7902DF',
+                    backgroundColor: !isEnabled() ? '#00000020' : 'hsl(var(--brand-primary))',
                     color: !isEnabled() ? '#000000' : '',
                   }}
                   onClick={() => {
@@ -1353,7 +1446,7 @@ function CalendarModal(props) {
                   style={{
                     fontWeight: '600',
                     fontSize: 16,
-                    backgroundColor: !isEnabled(true) ? '#00000020' : '#7902DF',
+                    backgroundColor: !isEnabled(true) ? '#00000020' : 'hsl(var(--brand-primary))',
                     color: !isEnabled(true) ? '#000000' : '',
                   }}
                   onClick={() => {

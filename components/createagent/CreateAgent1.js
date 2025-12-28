@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Modal, Popover } from '@mui/material'
+import { Box, CircularProgress, Modal, Popover, Tooltip } from '@mui/material'
 import { Elements } from '@stripe/react-stripe-js'
 import { loadStripe } from '@stripe/stripe-js'
 import axios from 'axios'
@@ -35,10 +35,16 @@ import IntroVideoModal from './IntroVideoModal'
 // Removed Google Maps imports for simple string input
 import VideoCard from './VideoCard'
 
-const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
+const CreateAgent1 = ({
+  handleContinue,
+  handleSkipAddPayment,
+  isSubaccountContext = false,
+  isAgencyContext = false,
+}) => {
   // Removed Google Maps API key - no longer needed
   const router = useRouter()
   const bottomRef = useRef()
+  const scrollAreaRef = useRef(null)
   const [loaderModal, setLoaderModal] = useState(false)
   const [shouldContinue, setShouldContinue] = useState(true)
   const [toggleClick, setToggleClick] = useState(false)
@@ -75,6 +81,9 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
 
   const [user, setUser] = useState(null)
   const [isSubaccount, setIsSubaccount] = useState(false)
+  const [isAgencyCreatingForSubaccount, setIsAgencyCreatingForSubaccount] = useState(false)
+  const [hasAgencyLogo, setHasAgencyLogo] = useState(false)
+  const [isCustomDomain, setIsCustomDomain] = useState(false)
 
   const [showUnclockModal, setShowUnclockModal] = useState(false)
   const [modalDesc, setModalDesc] = useState(null)
@@ -83,6 +92,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
   const [pendingAgentSelection, setPendingAgentSelection] = useState(null) // Track what selection was attempted
   const [hasAgreedToExtraCost, setHasAgreedToExtraCost] = useState(false) // Track if user agreed to pay extra
+  const [userInitiallyHadPlan, setUserInitiallyHadPlan] = useState(false) // Track if user initially had a plan
 
   // Redux state
   const { user: reduxUser, setUser: setReduxUser } = useUser()
@@ -92,18 +102,82 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   // Removed address picker modal - no longer needed
 
   useEffect(() => {
+    // Clear pipeline cadence data when creating a new agent
+    localStorage.removeItem('AddCadenceDetails')
     refreshUserData()
     getSelectedUser()
+    
+    // Track if user initially had a plan (to prevent redirect after upgrade)
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          const hasPlan = parsedUser?.user?.plan !== null && parsedUser?.user?.plan?.price !== 0
+          setUserInitiallyHadPlan(hasPlan)
+          console.log('🔍 [CREATE-AGENT] User initially had plan:', hasPlan)
+        }
+      } catch (error) {
+        console.log('Error checking initial plan status:', error)
+      }
+    }
+    
+    // Check if custom domain
+    if (typeof window !== 'undefined') {
+      const hostname = window.location.hostname
+      const isCustom = hostname !== 'app.assignx.ai' && hostname !== 'dev.assignx.ai'
+      setIsCustomDomain(isCustom)
+    }
+    
     // Check if user is subaccount
     if (typeof window !== 'undefined') {
       try {
         const userData = localStorage.getItem('User')
         if (userData) {
           const parsedUser = JSON.parse(userData)
-          setIsSubaccount(
-            parsedUser?.user?.userRole === 'AgencySubAccount' ||
-              parsedUser?.userRole === 'AgencySubAccount',
-          )
+          const isSub = parsedUser?.user?.userRole === 'AgencySubAccount' ||
+            parsedUser?.userRole === 'AgencySubAccount'
+          setIsSubaccount(isSub)
+          
+          // Check if current user is Agency and creating agent for subaccount
+          const isAgency = parsedUser?.user?.userRole === 'Agency' || parsedUser?.userRole === 'Agency'
+          if (isAgency) {
+            const fromAdminOrAgency = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+            if (fromAdminOrAgency) {
+              try {
+                const parsed = JSON.parse(fromAdminOrAgency)
+                if (parsed?.subAccountData) {
+                  setIsAgencyCreatingForSubaccount(true)
+                }
+              } catch (error) {
+                console.log('Error parsing isFromAdminOrAgency:', error)
+              }
+            }
+          }
+          
+          // Check if agency has branding logo
+          let branding = null
+          const storedBranding = localStorage.getItem('agencyBranding')
+          if (storedBranding) {
+            try {
+              branding = JSON.parse(storedBranding)
+            } catch (error) {
+              console.log('Error parsing agencyBranding from localStorage:', error)
+            }
+          }
+          
+          // Also check user data for agencyBranding
+          if (parsedUser?.user?.agencyBranding) {
+            branding = parsedUser.user.agencyBranding
+          } else if (parsedUser?.agencyBranding) {
+            branding = parsedUser.agencyBranding
+          } else if (parsedUser?.user?.agency?.agencyBranding) {
+            branding = parsedUser.user.agency.agencyBranding
+          }
+          
+          // Set hasAgencyLogo if logoUrl exists
+          const hasLogo = branding?.logoUrl
+          setHasAgencyLogo(hasLogo)
         }
       } catch (error) {
         console.log('Error parsing user data:', error)
@@ -125,6 +199,45 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   useEffect(() => {
     setAddress(address?.label)
   }, [addressSelected])
+
+  // Listen for branding updates to update title position
+  useEffect(() => {
+    const handleBrandingUpdate = () => {
+      if (typeof window !== 'undefined') {
+        try {
+          const userData = localStorage.getItem('User')
+          if (userData) {
+            const parsedUser = JSON.parse(userData)
+            let branding = null
+            const storedBranding = localStorage.getItem('agencyBranding')
+            if (storedBranding) {
+              try {
+                branding = JSON.parse(storedBranding)
+              } catch (error) {
+                console.log('Error parsing agencyBranding:', error)
+              }
+            }
+            if (parsedUser?.user?.agencyBranding) {
+              branding = parsedUser.user.agencyBranding
+            } else if (parsedUser?.agencyBranding) {
+              branding = parsedUser.agencyBranding
+            } else if (parsedUser?.user?.agency?.agencyBranding) {
+              branding = parsedUser.user.agency.agencyBranding
+            }
+            const hasLogo = branding?.logoUrl
+            setHasAgencyLogo(hasLogo)
+          }
+        } catch (error) {
+          console.log('Error updating branding:', error)
+        }
+      }
+    }
+
+    window.addEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    return () => {
+      window.removeEventListener('agencyBrandingUpdated', handleBrandingUpdate)
+    }
+  }, [])
 
   useEffect(() => {
     let userData = localStorage.getItem(PersistanceKeys.LocalStorageUser)
@@ -158,8 +271,13 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       let d = JSON.parse(userData)
       setUser(d)
     }
-    if (showOtherObjective && bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: 'smooth' })
+    if (showOtherObjective && scrollAreaRef.current) {
+      // IMPORTANT: only scroll the inner scroll area (not the window)
+      // so we don't "jump" the page and hide the title.
+      scrollAreaRef.current.scrollTo({
+        top: scrollAreaRef.current.scrollHeight,
+        behavior: 'smooth',
+      })
     }
   }, [showOtherObjective])
 
@@ -197,6 +315,45 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       setShowOtherObjective('')
       setOtherObjVal('')
     }
+  }
+
+  // Branded icon renderer (same mask-image approach as notifications drawer)
+  const renderBrandedIcon = (iconPath, size = 30, isSelected = false) => {
+    if (!iconPath) return null
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return <Image src={iconPath} height={size} width={size} alt="*" />
+    }
+
+    const brandVar = getComputedStyle(document.documentElement)
+      .getPropertyValue('--brand-primary')
+      .trim()
+
+    const selectedColor = brandVar ? `hsl(${brandVar})` : 'hsl(270 75% 50%)'
+    const unselectedColor = '#000000'
+
+    return (
+      <div
+        style={{
+          width: size,
+          height: size,
+          minWidth: size,
+          minHeight: size,
+          backgroundColor: isSelected ? selectedColor : unselectedColor,
+          WebkitMaskImage: `url(${iconPath})`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(${iconPath})`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          transition: 'background-color 0.2s ease-in-out',
+          flexShrink: 0,
+        }}
+      />
+    )
   }
 
   const AgentObjective = [
@@ -301,37 +458,158 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
   ]
 
   function canShowObjectives() {
+    // If agency/admin is creating agent for another user (subaccount), check that user's type
     const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
-    let FromAdminOrAgency = null
+    let targetUserType = null
+    
     if (U) {
-      const Data = JSON.parse(U)
-      FromAdminOrAgency = Data.subAccountData
+      try {
+        const Data = JSON.parse(U)
+        // Check if there's subAccountData (when agency/admin creates for subaccount)
+        if (Data.subAccountData) {
+          targetUserType = Data.subAccountData?.userType || Data.subAccountData?.user?.userType
+        }
+        // Also check selectedUser state as fallback
+        if (!targetUserType && selectedUser) {
+          targetUserType = selectedUser?.userType || selectedUser?.user?.userType
+        }
+      } catch (error) {
+        console.log('Error parsing isFromAdminOrAgency:', error)
+      }
     }
-    // console.log("U_Ser type is", FromAdminOrAgency);
-    if (
-      (FromAdminOrAgency &&
-        FromAdminOrAgency?.userType &&
-        FromAdminOrAgency?.userType == UserTypes.RealEstateAgent) ||
-      (user && user.user.userType == UserTypes.RealEstateAgent)
-    ) {
-      return true
-    } else {
+    
+    // If we have a target user type (agency/admin creating for another user), use that
+    if (targetUserType) {
+      return targetUserType === UserTypes.RealEstateAgent
+    }
+    
+    // Otherwise, check the logged-in user's type (normal user or subaccount creating for themselves)
+    if (user && user.user && user.user.userType) {
+      return user.user.userType === UserTypes.RealEstateAgent
+    }
+    
+    // Fallback: check redux user
+    if (reduxUser && reduxUser.userType) {
+      return reduxUser.userType === UserTypes.RealEstateAgent
+    }
+    
+    return false
+  }
+
+  // Helper function to check if user has payment methods
+  const hasPaymentMethod = () => {
+    try {
+      // First check localStorage (primary source)
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        const userData = JSON.parse(localData)
+        const cards = userData?.user?.cards || userData?.data?.user?.cards
+        if (Array.isArray(cards) && cards.length > 0) {
+          return true
+        }
+      }
+      // Fallback to Redux user data (check both reduxUser.cards and reduxUser.user.cards)
+      if (
+        reduxUser?.cards &&
+        Array.isArray(reduxUser.cards) &&
+        reduxUser.cards.length > 0
+      ) {
+        return true
+      }
+      if (
+        reduxUser?.user?.cards &&
+        Array.isArray(reduxUser.user.cards) &&
+        reduxUser.user.cards.length > 0
+      ) {
+        return true
+      }
+      // Also check user state
+      if (
+        user?.user?.cards &&
+        Array.isArray(user.user.cards) &&
+        user.user.cards.length > 0
+      ) {
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error('Error checking payment methods:', error)
       return false
     }
   }
 
   function canContinue() {
-    if (!user) {
+    // If agency/admin is creating agent for another user (subaccount), check that user's type
+    const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+    let targetUserType = null
+    
+    if (U) {
+      try {
+        const Data = JSON.parse(U)
+        // Check if there's subAccountData (when agency/admin creates for subaccount)
+        if (Data.subAccountData) {
+          targetUserType = Data.subAccountData?.userType || Data.subAccountData?.user?.userType
+        }
+        // Also check selectedUser state as fallback
+        if (!targetUserType && selectedUser) {
+          targetUserType = selectedUser?.userType || selectedUser?.user?.userType
+        }
+      } catch (error) {
+        console.log('Error parsing isFromAdminOrAgency:', error)
+      }
+    }
+    
+    // Determine which user type to check
+    let userTypeToCheck = null
+    if (targetUserType) {
+      // Use target user type (agency/admin creating for another user)
+      userTypeToCheck = targetUserType
+    } else if (user && user.user && user.user.userType) {
+      // Use logged-in user's type (normal user or subaccount creating for themselves)
+      userTypeToCheck = user.user.userType
+    } else if (reduxUser && reduxUser.userType) {
+      // Fallback: check redux user
+      userTypeToCheck = reduxUser.userType
+    }
+    
+    if (!userTypeToCheck) {
       return false
     }
-    // console.log("Details ", {
-    //   agentName,
-    //   agentRole,
-    //   agentObjective,
-    //   InBoundCalls,
-    //   OutBoundCalls,
-    // });
-    if (user.user.userType == UserTypes.RealEstateAgent) {
+    
+    // Check if user has a paid plan (not free) and if they have a payment method
+    // For subaccounts (when agency/admin creates for another user), check the subaccount's data
+    let currentUserData = null
+    if (selectedUser?.subAccountData) {
+      // Use subaccount data when creating agent for subaccount
+      currentUserData = { user: selectedUser.subAccountData }
+    } else {
+      // Use logged-in user data
+      currentUserData = reduxUser || user
+    }
+    
+    const hasPlan = currentUserData?.user?.plan !== null && currentUserData?.user?.plan?.price !== 0
+    const isFreePlan = !hasPlan || currentUserData?.user?.plan?.price === 0
+    
+    // If user has a paid plan, they must have a payment method to continue
+    if (hasPlan && !isFreePlan) {
+      // For subaccounts, check their payment methods
+      let hasPM = false
+      if (selectedUser?.subAccountData) {
+        const subaccountCards = selectedUser.subAccountData?.cards || selectedUser.subAccountData?.user?.cards
+        hasPM = Array.isArray(subaccountCards) && subaccountCards.length > 0
+      } else {
+        hasPM = hasPaymentMethod()
+      }
+      
+      if (!hasPM) {
+        console.log('🚫 [CREATE-AGENT] User has paid plan but no payment method - cannot continue')
+        return false
+      }
+    }
+    
+    // Check requirements based on user type
+    if (userTypeToCheck === UserTypes.RealEstateAgent) {
+      // Real estate agents need: name, role, objective, and call type
       if (
         agentName &&
         agentRole &&
@@ -343,6 +621,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
         return false
       }
     } else {
+      // Other user types need: name, role, and call type (no objective required)
       if (agentName && agentRole && (InBoundCalls || OutBoundCalls)) {
         return true
       }
@@ -691,6 +970,25 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
         },
       })
 
+      // Check HTTP status code first
+      if (response.status !== 200) {
+        setLoaderModal(false)
+        setBuildAgentLoader(false)
+        setIsVisible(true)
+        
+        if (response.status === 401) {
+          setSnackMessage('Unauthorized. Please log in again.')
+          setMsgType(SnackbarTypes.Error)
+        } else if (response.status === 403) {
+          setSnackMessage('Access forbidden. You do not have permission to create agents.')
+          setMsgType(SnackbarTypes.Error)
+        } else {
+          setSnackMessage(`Agent creation failed! (Status: ${response.status})`)
+          setMsgType(SnackbarTypes.Error)
+        }
+        return
+      }
+
       if (response) {
         // //console.log;
         setIsVisible(true)
@@ -717,7 +1015,133 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           window.dispatchEvent(
             new CustomEvent('UpdateCheckList', { detail: { update: true } }),
           )
-          handleContinue()
+          
+          // Check if user has a plan - if they just subscribed (initially had no plan),
+          // skip the UserPlans step to prevent redirect to plans screen
+          // Check from multiple sources to ensure we have the latest data
+          let hasPlan = false
+          try {
+            // First check localStorage (most up-to-date after subscription)
+            const localUserData = localStorage.getItem('User')
+            if (localUserData) {
+              const parsedUser = JSON.parse(localUserData)
+              const plan = parsedUser?.user?.plan
+              // Consider user has plan if plan exists and is not null
+              // Check both plan existence and planId to be more robust
+              hasPlan = plan !== null && plan !== undefined && (plan.planId !== null || plan.id !== null)
+              console.log('🔍 [CREATE-AGENT] Plan check from localStorage:', {
+                plan,
+                planId: plan?.planId,
+                id: plan?.id,
+                price: plan?.price,
+                hasPlan
+              })
+            }
+            
+            // Check selectedUser.subAccountData for subaccounts (if from admin/agency flow)
+            if (!hasPlan && selectedUser?.subAccountData) {
+              const subAccountPlan = selectedUser.subAccountData?.plan
+              hasPlan = subAccountPlan !== null && 
+                       subAccountPlan !== undefined && 
+                       (subAccountPlan.planId !== null || subAccountPlan.id !== null)
+              console.log('🔍 [CREATE-AGENT] Plan check from selectedUser.subAccountData:', {
+                plan: subAccountPlan,
+                planId: subAccountPlan?.planId,
+                id: subAccountPlan?.id,
+                price: subAccountPlan?.price,
+                hasPlan
+              })
+            }
+            
+            // Fallback to Redux or local state if localStorage doesn't have plan info
+            if (!hasPlan) {
+              const currentUserData = selectedUser?.subAccountData || reduxUser || user
+              const plan = currentUserData?.user?.plan || currentUserData?.plan
+              hasPlan = plan !== null && 
+                       plan !== undefined && 
+                       (plan.planId !== null || plan.id !== null)
+              console.log('🔍 [CREATE-AGENT] Plan check from Redux/state:', {
+                plan,
+                planId: plan?.planId,
+                id: plan?.id,
+                price: plan?.price,
+                hasPlan
+              })
+            }
+          } catch (error) {
+            console.error('Error checking plan status:', error)
+            // On error, default to normal flow
+            hasPlan = false
+          }
+          
+          // Check if we should skip UserPlans step
+          // This prevents redirect to plans screen after subscribing and creating agent
+          // Check localStorage flag FIRST (most reliable indicator that user just subscribed)
+          let skipFlag = null
+          try {
+            skipFlag = localStorage.getItem('skipUserPlansAfterSubscription')
+          } catch (error) {
+            console.error('Error reading skipUserPlansAfterSubscription from localStorage:', error)
+          }
+          
+          // Also check all localStorage keys to debug
+          console.log('🔍 [CREATE-AGENT] localStorage check:', {
+            skipFlag,
+            skipFlagType: typeof skipFlag,
+            skipFlagStrict: skipFlag === 'true',
+            allKeys: Object.keys(localStorage).filter(key => key.includes('skip') || key.includes('plan') || key.includes('User'))
+          })
+          
+          // Priority order:
+          // 1. localStorage flag (most reliable - set immediately after subscription)
+          // 2. User has a plan (if they have any plan, they shouldn't see UserPlans)
+          // 3. User has plan AND initially didn't have one (just subscribed)
+          const shouldSkipUserPlans = 
+            String(skipFlag) === 'true' ||  // Convert to string for strict comparison
+            hasPlan ||              // If user has any plan, skip UserPlans
+            (hasPlan && !userInitiallyHadPlan) // Backup check
+          
+          console.log('🔍 [CREATE-AGENT] Checking if should skip UserPlans:', {
+            hasPlan,
+            userInitiallyHadPlan,
+            skipFlag,
+            skipFlagString: String(skipFlag),
+            skipFlagCheck: String(skipFlag) === 'true',
+            shouldSkipUserPlans,
+            condition1: String(skipFlag) === 'true',
+            condition2: hasPlan,
+            condition3: hasPlan && !userInitiallyHadPlan,
+            finalDecision: shouldSkipUserPlans ? 'SKIP' : 'SHOW'
+          })
+          
+          if (shouldSkipUserPlans) {
+            console.log('✅ [CREATE-AGENT] Skipping UserPlans step to avoid redirect')
+            // Clear the flag after using it
+            try {
+              localStorage.removeItem('skipUserPlansAfterSubscription')
+            } catch (error) {
+              console.error('Error removing skipUserPlansAfterSubscription from localStorage:', error)
+            }
+            // Use handleSkipAddPayment to skip UserPlans step (increments by 2 instead of 1)
+            // This ensures we skip UserPlans even if the parent's components array wasn't updated
+            handleSkipAddPayment()
+          } else {
+            console.log('ℹ️ [CREATE-AGENT] Proceeding normally - will show UserPlans')
+            console.log('⚠️ [CREATE-AGENT] DEBUG - Why not skipping:', {
+              skipFlag,
+              skipFlagString: String(skipFlag),
+              skipFlagCheck: String(skipFlag) === 'true',
+              hasPlan,
+              userInitiallyHadPlan,
+              allConditions: {
+                flag: String(skipFlag) === 'true',
+                hasPlanCheck: hasPlan,
+                backup: hasPlan && !userInitiallyHadPlan
+              }
+            })
+            // User doesn't have plan, so they need to see UserPlans
+            handleContinue()
+          }
           // }
         } else if (response.data.status === false) {
           setSnackMessage('Agent creation failed!')
@@ -729,6 +1153,31 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
       // console.error("Error occured in build agent api is: ----", error);
       setLoaderModal(false)
       setBuildAgentLoader(false)
+      setIsVisible(true)
+      
+      // Handle axios error responses
+      if (error.response) {
+        const statusCode = error.response.status
+        if (statusCode === 401) {
+          setSnackMessage('Unauthorized. Please log in again.')
+          setMsgType(SnackbarTypes.Error)
+        } else if (statusCode === 403) {
+          setSnackMessage('Access forbidden. You do not have permission to create agents.')
+          setMsgType(SnackbarTypes.Error)
+        } else {
+          const errorMessage = error.response.data?.message || error.response.data?.error || `Agent creation failed! (Status: ${statusCode})`
+          setSnackMessage(errorMessage)
+          setMsgType(SnackbarTypes.Error)
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        setSnackMessage('Network error. Please check your connection and try again.')
+        setMsgType(SnackbarTypes.Error)
+      } else {
+        // Something else happened
+        setSnackMessage('An unexpected error occurred. Please try again.')
+        setMsgType(SnackbarTypes.Error)
+      }
     } finally {
     }
   }
@@ -801,14 +1250,22 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
     },
   }
 
+  const isAgencyUser =
+    user?.user?.userRole === 'Agency' || user?.userRole === 'Agency'
+  const useTransparentBackground =
+    isSubaccount || isAgencyUser || isSubaccountContext || isAgencyContext
+
   return (
     <div
       style={{ width: '100%' }}
       className="overflow-y-hidden flex flex-row justify-center items-center  w-full"
     >
       <div
-        className=" sm:rounded-2xl w-full md:w-10/12 h-[90vh] flex flex-col items-center"
-        style={{ scrollbarWidth: 'none', backgroundColor: '#ffffff' }} // overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+        className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative"
+        style={{
+          scrollbarWidth: 'none',
+          backgroundColor: useTransparentBackground ? 'transparent' : '#ffffff',
+        }}
       >
         <AgentSelectSnackMessage
           message={snackMessage}
@@ -821,7 +1278,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           }}
         />
 
-        <div className="w-full h-[90%]">
+        <div className="h-[95svh] sm:h-[92svh] overflow-hidden flex flex-col">
           {/* Video card */}
 
           <IntroVideoModal
@@ -841,7 +1298,7 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           <div className="h-[10%]">
             <Header />
           </div>
-          {/* Body */}
+          {/* Video */}
           <div
             className="-ml-4 lg:flex hidden  xl:w-[280px] lg:w-[280px]"
             style={{
@@ -870,20 +1327,25 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
               }
             />
           </div>
-          <div className="flex flex-col items-center px-4 w-full h-[90%]">
+          <div className="flex flex-col items-center px-4 w-full flex-1 min-h-0">
             <button
               className="w-11/12 md:text-4xl text-lg font-[700] mt-6"
               style={{
                 textAlign: 'center',
-                marginTop: isSubaccount ? '-40px' : undefined,
+                // Move title up when orb is hidden (same logic as Header component)
+                // Orb is hidden when: custom domain OR (subaccount with logo) OR (agency creating for subaccount)
+                marginTop: (isCustomDomain || (isSubaccount && hasAgencyLogo) || isAgencyCreatingForSubaccount) ? '-40px' : undefined,
               }}
               // onClick={handleContinue}
             >
               Get started with your AI agent
             </button>
-            <div className="w-full flex flex-col  items-center max-h-[90%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+            <div
+              ref={scrollAreaRef}
+              className="w-full flex flex-col items-center flex-1 min-h-0 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-40"
+            >
               <div
-                className="mt-8 w-6/12  gap-4 flex flex-col  px-2"
+                className="mt-8 w-6/12  gap-4 flex flex-col  px-2 "
                 style={{ scrollbarWidth: 'none' }}
               >
                 <div className="w-[95%] flex flex-row items-center justify-between">
@@ -965,8 +1427,44 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   maxLength={40}
                 />
 
-                <div className="mt-2" style={styles.headingStyle}>
+                <div
+                  className="mt-2 flex flex-row items-center gap-2"
+                  style={styles.headingStyle}
+                >
                   {`What's this AI agent's task?`}
+                  <Tooltip
+                    title="Inbound and Outbound calls need to be handled by different agents."
+                    arrow
+                    placement="top"
+                    componentsProps={{
+                      tooltip: {
+                        sx: {
+                          backgroundColor: '#ffffff',
+                          color: '#333',
+                          fontSize: '13px',
+                          padding: '10px 15px',
+                          borderRadius: '8px',
+                          boxShadow: '0px 4px 10px rgba(0,0,0,0.2)',
+                          maxWidth: '300px',
+                        },
+                      },
+                      arrow: {
+                        sx: {
+                          color: '#ffffff',
+                        },
+                      },
+                    }}
+                  >
+                    <div style={{ cursor: 'pointer' }}>
+                      <Image
+                        src={'/svgIcons/infoIcon.svg'}
+                        height={20}
+                        width={20}
+                        alt="info"
+                        style={{ filter: 'brightness(0)' }}
+                      />
+                    </div>
+                  </Tooltip>
                 </div>
 
                 <div className="sm:flex sm:flex-row items-center gap-4">
@@ -1044,10 +1542,6 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                   </div>
                 </div>
 
-                <div className="mt-1 text-[13px] text-gray-500 font-[500]">
-                  {`*Inbound and Outbound calls need to be handled by different agents.`}
-                </div>
-
                 <div className="mt-2" style={styles.headingStyle}>
                   {`What's this AI agent's title?`}
                 </div>
@@ -1099,20 +1593,10 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                               item.id === toggleClick ? 'hsl(var(--brand-primary) / 0.1)' : '',
                           }}
                         >
-                          {item.id === toggleClick ? (
-                            <Image
-                              src={item.focusIcn}
-                              height={30}
-                              width={30}
-                              alt="*"
-                            />
-                          ) : (
-                            <Image
-                              src={item.unFocusIcon}
-                              height={30}
-                              width={30}
-                              alt="*"
-                            />
+                          {renderBrandedIcon(
+                            item.focusIcn || item.unFocusIcon,
+                            30,
+                            item.id === toggleClick,
                           )}
                           <div className="mt-8" style={styles.headingTitle}>
                             {item.title}
@@ -1168,6 +1652,15 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                         console.log(
                           'User data refreshed successfully after upgrade',
                         )
+                        
+                        // IMPORTANT: If user initially didn't have a plan, don't redirect them anywhere
+                        // They should stay on the create agent page after upgrading
+                        if (!userInitiallyHadPlan) {
+                          console.log('✅ [CREATE-AGENT] User initially had no plan - staying on create agent page after upgrade')
+                          // Update the flag since they now have a plan
+                          setUserInitiallyHadPlan(true)
+                        }
+                        
                         // If there was a pending selection, apply it now with the new plan limits
                         if (pendingAgentSelection) {
                           console.log(
@@ -1281,6 +1774,45 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
                           console.log(
                             'User data refreshed successfully after upgrade',
                           )
+                          
+                          // IMPORTANT: If user initially didn't have a plan, don't redirect them anywhere
+                          // They should stay on the create agent page after upgrading
+                          if (!userInitiallyHadPlan) {
+                            console.log('✅ [CREATE-AGENT] User initially had no plan - staying on create agent page after upgrade')
+                            // Store a flag in localStorage to skip UserPlans step after agent creation
+                            // This ensures we skip UserPlans even if parent page's components array wasn't updated
+                            // IMPORTANT: Set this BEFORE updating userInitiallyHadPlan state
+                            try {
+                              localStorage.setItem('skipUserPlansAfterSubscription', 'true')
+                              const flagCheck = localStorage.getItem('skipUserPlansAfterSubscription')
+                              console.log('✅ [CREATE-AGENT] Set skipUserPlansAfterSubscription flag in localStorage:', {
+                                set: 'true',
+                                retrieved: flagCheck,
+                                match: flagCheck === 'true'
+                              })
+                              // Verify it was set correctly
+                              if (flagCheck !== 'true') {
+                                console.error('❌ [CREATE-AGENT] Flag was not set correctly!')
+                                // Try setting it again
+                                localStorage.setItem('skipUserPlansAfterSubscription', 'true')
+                              }
+                            } catch (error) {
+                              console.error('❌ [CREATE-AGENT] Error setting localStorage flag:', error)
+                            }
+                            
+                            // Update the flag since they now have a plan (do this AFTER setting localStorage)
+                            setUserInitiallyHadPlan(true)
+                            
+                            // Dispatch custom event to notify parent page that plan was subscribed
+                            // This allows parent to potentially re-evaluate components array
+                            window.dispatchEvent(
+                              new CustomEvent('planSubscribed', {
+                                detail: { hasPlan: true }
+                              })
+                            )
+                            console.log('✅ [CREATE-AGENT] Dispatched planSubscribed event')
+                          }
+                          
                           // If there was a pending selection, apply it now with the new plan limits
                           if (pendingAgentSelection) {
                             console.log(
@@ -1365,17 +1897,19 @@ const CreateAgent1 = ({ handleContinue, handleSkipAddPayment }) => {
           </div>
         </div>
 
-        <div className="w-full h-[10%] ">
-          <div>
+        {/* Fixed Footer */}
+        <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-100">
+          <div className="px-4 pt-3 pb-2">
             <ProgressBar value={33} />
           </div>
-
-          <Footer
-            handleContinue={handleBuildAgent}
-            donotShowBack={true}
-            registerLoader={buildAgentLoader}
-            shouldContinue={!canContinue()}
-          />
+          <div className="flex items-center justify-between w-full " style={{ minHeight: '50px' }}>
+            <Footer
+              handleContinue={handleBuildAgent}
+              donotShowBack={true}
+              registerLoader={buildAgentLoader}
+              shouldContinue={!canContinue()}
+            />
+          </div>
         </div>
       </div>
 

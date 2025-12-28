@@ -61,19 +61,27 @@ export const PersistanceKeys = {
   FeedbackFormUrl: process.env.NEXT_PUBLIC_REACT_APP_FeedbackFormUrl,
   HireTeamUrl: process.env.NEXT_PUBLIC_REACT_APP_HireTeamUrl,
   BillingSupportUrl: process.env.NEXT_PUBLIC_REACT_APP_BillingSupportUrl,
+  // Agency Support URLs
+  AgencySkoolUrl: 'https://www.skool.com/agentx',
+  AgencyPartnerUrl: 'https://set.myagentx.com/widget/bookings/assignx-gameplan-session',
+  AgencyBillingSupportUrl: 'https://forms.clickup.com/8691504/f/897tg-14437/N7OCXKEV9N8ST83P9D',
+  AgencySupportTicketUrl: 'https://forms.clickup.com/8691504/f/897tg-14237/Z94ZMZJ4UJ4W8B9MHK',
   // LocalStoredAgentsList
 }
 export const HowtoVideos = {
-  Calendar: process.env.NEXT_PUBLIC_REACT_APP_Calendar,
-  GettingStarted: process.env.NEXT_PUBLIC_REACT_APP_GettingStarted,
-  KycQuestions: process.env.NEXT_PUBLIC_REACT_APP_KycQuestions,
-  Leads: process.env.NEXT_PUBLIC_REACT_APP_Leads,
-  LetsTalkDigits: process.env.NEXT_PUBLIC_REACT_APP_LetsTalkDigits,
-  Pipeline: process.env.NEXT_PUBLIC_REACT_APP_Pipeline,
-  script: process.env.NEXT_PUBLIC_REACT_APP_script,
-  Tools: process.env.NEXT_PUBLIC_REACT_APP_MCPTool,
-  WalkthroughWatched: process.env.NEXT_PUBLIC_REACT_APP_WalkthroughWatched,
-  TwilioTrustHub: process.env.NEXT_PUBLIC_REACT_APP_TwilioTrustHub,
+  Calendar: process.env.NEXT_PUBLIC_REACT_APP_Calendar || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Calendar_Integration_Video_B_AgentX_155_2025_Reupload',
+  GettingStarted: process.env.NEXT_PUBLIC_REACT_APP_GettingStarted || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Getting_Started_Video_B_AgentX_155_2025_Reupload',
+  KycQuestions: process.env.NEXT_PUBLIC_REACT_APP_KycQuestions || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_KYC_Video_B_AgentX_155_2025_Reupload',
+  Leads: process.env.NEXT_PUBLIC_REACT_APP_Leads || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Leads_Upload_Video_B_AgentX_155_2025_Reupload',
+  LetsTalkDigits: process.env.NEXT_PUBLIC_REACT_APP_LetsTalkDigits || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Lets_Talk_Digits_Video_B_AgentX_155_2025_Reupload',
+  Pipeline: process.env.NEXT_PUBLIC_REACT_APP_Pipeline || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Pipeline_Stages_B_AgentX_155_2025_Reupload',
+  script: process.env.NEXT_PUBLIC_REACT_APP_script || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Script_B_AgentX_155_2025_Reupload',
+  LeadScoring:
+    process.env.NEXT_PUBLIC_REACT_APP_LeadScoring ||
+    'https://apimyagentx.com/agentx/uploads/howtos/howtos_Lead_Scoring_Video_B_AgentX_155_2025_Reupload',
+  Tools: process.env.NEXT_PUBLIC_REACT_APP_MCPTool || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Mcp_Tools_Video_B_AgentX_155_2025_Reupload',
+  WalkthroughWatched: process.env.NEXT_PUBLIC_REACT_APP_WalkthroughWatched || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Assignx_Intro_Video_B_AgentX_155_2025_Reupload',
+  TwilioTrustHub: process.env.NEXT_PUBLIC_REACT_APP_TwilioTrustHub || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Twilio_Trusthub_B_AgentX_155_2025_Reupload',
 }
 
 export const HowToVideoTypes = {
@@ -89,6 +97,7 @@ export const HowToVideoTypes = {
   Calendar: 'Calendar',
   Walkthrough: 'Walkthrough',
   Script: 'Script',
+  LeadScoring: 'LeadScoring',
   Generic: 'Generic',
 }
 

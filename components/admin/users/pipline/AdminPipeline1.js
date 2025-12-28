@@ -53,13 +53,15 @@ import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 import RearrangeStages from '@/components/pipeline/RearrangeStages'
 import { PersistanceKeys } from '@/constants/Constants'
-import { getAgentsListImage } from '@/utilities/agentUtilities'
+import { getAgentsListImage, getLeadProfileImage } from '@/utilities/agentUtilities'
+import ScoringProgress from '@/components/ui/ScoringProgress'
 import {
   GetFormattedDateString,
   GetFormattedTimeString,
 } from '@/utilities/utility'
 
 import AdminLeadDetails from '../AdminLeadDetails'
+import PipelineLoading from '@/components/dashboardPipeline/PipelineLoading'
 
 const AdminPipeline1 = ({ selectedUser }) => {
   const bottomRef = useRef()
@@ -92,6 +94,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
   const stageId = StageAnchorel ? 'stageAnchor' : undefined
 
   const [initialLoader, setInitialLoader] = useState(false)
+  const [pipelineDetailLoader, setPipelineDetailLoader] = useState(false)
 
   const [SelectedPipeline, setSelectedPipeline] = useState(null)
   let selectedPipelineIndex = useRef(0)
@@ -1999,11 +2002,16 @@ const AdminPipeline1 = ({ selectedUser }) => {
           <CircularProgress size={35} />
         </div>
       ) : (
-        <div className="flex flex-col items-center w-full">
-          <div
-            className="w-[95%] flex flex-col items-start overflow-x-auto h-screen mt-8"
-            style={{ scrollbarWidth: 'none' }}
-          >
+        <>
+          {pipelineDetailLoader ? (
+            <PipelineLoading fullScreen={false} />
+          ) : (
+            <div className="flex flex-col items-center w-full">
+              <div
+                className="w-[95%] flex flex-col items-start overflow-x-auto  h-[85vh] mt-8
+            scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+            "
+              >
             <div className="flex flex-row items-center gap-4"></div>
 
             <div className="flex flex-row items-start gap-2">
@@ -2304,11 +2312,11 @@ const AdminPipeline1 = ({ selectedUser }) => {
                       .length > 0 && (
                       <div
                         id={`scrollableDiv-${stage.id}`}
-                        className="flex flex-col gap-4 mt-4 h-[45vh] overflow-auto   rounded-xl"
+                        className="relative flex flex-col gap-4 mt-4 h-[75vh] overflow-y-auto rounded-xl"
                         style={{
                           scrollbarWidth: 'none',
                           borderWidth: 1,
-                          borderRadius: '12',
+                          borderRadius: '12px',
                           borderStyle: 'solid',
                           borderColor: '#00000010',
                         }}
@@ -2366,56 +2374,73 @@ const AdminPipeline1 = ({ selectedUser }) => {
                             (lead) => lead.lead.stage === stage.id,
                           ).map((lead, leadIndex) => (
                             <div
-                              className="p-3 h-full"
-                              style={{ width: '300px', height: 200 }}
+                              className="px-3 pt-2 mt-4 h-full"
+                              style={{ width: '300px', height: 'auto' }}
                               key={leadIndex}
                             >
                               <div className="border rounded-xl px-4 py-2 h-full">
-                                <button
-                                  className="flex flex-row items-center gap-3"
-                                  onClick={() => {
-                                    // console.log(
-                                    //   "Selected lead details are:",
-                                    //   lead
-                                    // );
-                                    setShowDetailsModal(true)
-                                    setSelectedLeadsDetails(lead.lead)
-                                    setPipelineId(lead.lead.pipeline.id)
-                                    setNoteDetails(lead.lead.notes)
-                                  }}
-                                >
-                                  {/* T is center aligned */}
-                                  <div
-                                    className="bg-black text-white rounded-full flex flex-row item-center justify-center"
-                                    style={{ height: '27px', width: '27px' }}
+                                <div className="flex flex-row items-center justify-between w-full">
+                                  <button
+                                    className="flex flex-row items-center gap-3"
+                                    onClick={() => {
+                                      // console.log(
+                                      //   "Selected lead details are:",
+                                      //   lead
+                                      // );
+                                      setShowDetailsModal(true)
+                                      setSelectedLeadsDetails(lead.lead)
+                                      setPipelineId(lead.lead.pipeline.id)
+                                      setNoteDetails(lead.lead.notes)
+                                    }}
                                   >
-                                    {lead.lead.firstName.slice(0, 1)}
-                                  </div>
-                                  <div style={styles.paragraph}>
-                                    {lead.lead.firstName}
-                                  </div>
-                                </button>
-                                <div className="flex flex-row items-center justify-between w-full mt-2">
+                                    {/* Lead profile picture with initials fallback */}
+                                    {getLeadProfileImage(lead.lead, 27, 27)}
+                                    <div style={styles.paragraph}>
+                                      {lead.lead.firstName}
+                                    </div>
+                                  </button>
+                                  {/* show results on hover */}
+                                  {lead.lead.scoringDetails &&
+                                    lead.lead.scoringDetails?.questions
+                                      ?.length > 0 && (
+                                      <ScoringProgress
+                                        value={
+                                          lead.lead.scoringDetails
+                                            ?.totalScore
+                                        }
+                                        maxValue={10}
+                                        questions={
+                                          lead.lead.scoringDetails
+                                            ?.questions
+                                        }
+                                        showTooltip={true}
+                                        tooltipTitle="Results"
+                                      />
+                                    )}
+                                </div>
+                                <div className="flex flex-row items-center justify-between w-full mt-1">
                                   <div
                                     className="text-[#00000060]"
                                     style={styles.agentName}
                                   >
                                     {(lead?.lead?.email
-                                      ? lead?.lead?.email?.slice(0, 10) + '...'
+                                      ? lead?.lead?.email?.slice(0, 10) +
+                                        '...'
                                       : '') || ''}
                                   </div>
-                                  <div className="flex flex-row items-center gap-4">
-                                    <Image
-                                      src={'/assets/colorCircle.png'}
-                                      height={24}
-                                      width={24}
-                                      alt="*"
-                                    />
+                                  <div className="flex flex-row items-center gap-0.5">
+                                    {getAgentsListImage(
+                                      lead.agent?.agents[0]?.agentType ===
+                                        'outbound'
+                                        ? lead.agent?.agents[0]
+                                        : lead.agent?.agents[1],
+                                      24,
+                                      24,
+                                    )}
                                     <div
                                       className="text-brand-primary underline"
                                       style={styles.agentName}
                                     >
-                                      {/* lead.agent.name */}
                                       {lead.agent?.agents[0]?.agentType ===
                                       'outbound'
                                         ? lead.agent?.agents[0]?.name
@@ -2476,19 +2501,14 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                   </div>
                                 )}
 
-                                <div className="w-full flex flex-row items-center justify-between mt-12">
+                                <div className="w-full flex flex-row items-center justify-between">
                                   {lead?.lead?.teamsAssigned?.length > 0 ? (
                                     <LeadTeamsAssignedList
                                       users={lead?.lead?.teamsAssigned}
                                       maxVisibleUsers={1}
                                     />
                                   ) : (
-                                    <Image
-                                      src={'/assets/manIcon.png'}
-                                      height={32}
-                                      width={32}
-                                      alt="*"
-                                    />
+                                    <div className="w-8 h-8" />
                                   )}
                                   {/* <div className="flex flex-row items-center gap-3">
                                                                         <div className="text-brand-primary bg-brand-primary/10 px-4 py-2 rounded-3xl rounded-lg">
@@ -2510,21 +2530,24 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                             // </div>
                                             <div
                                               key={index}
-                                              className="flex flex-row items-center gap-2 bg-brand-primary10 px-2 py-1 rounded-lg"
+                                              className="flex flex-row items-center gap-2 px-2 py-1 rounded-lg"
+                                              style={{
+                                                backgroundColor: 'hsl(var(--brand-primary) / 0.15)',
+                                                maxWidth: 'fit-content',
+                                              }}
                                             >
                                               <div
-                                                className="text-brand-primary" //1C55FF10
+                                                className="text-brand-primary"
+                                                style={{
+                                                  fontSize: 13,
+                                                  maxWidth: '12ch',
+                                                  wordBreak: 'break-word',
+                                                  overflowWrap: 'break-word',
+                                                  whiteSpace: 'normal',
+                                                  lineHeight: '1.2',
+                                                }}
                                               >
-                                                {tagVal.length > 2 ? (
-                                                  <div>
-                                                    {tagVal.slice(0, 6)}
-                                                    {'...'}
-                                                  </div>
-                                                ) : (
-                                                  <div style={{ fontsize: 13 }}>
-                                                    {tagVal}
-                                                  </div>
-                                                )}
+                                                {tagVal}
                                               </div>
                                               {DelTagLoader &&
                                               lead.lead.id === DelTagLoader ? (
@@ -2599,7 +2622,9 @@ const AdminPipeline1 = ({ selectedUser }) => {
               </div>
             </div>
           </div>
-        </div>
+            </div>
+          )}
+        </>
       )}
 
       {/* code for delete pipeline modal */}
@@ -4143,3 +4168,4 @@ const AdminPipeline1 = ({ selectedUser }) => {
 }
 
 export default AdminPipeline1
+

@@ -13,6 +13,7 @@ const getDefaultVideoUrl = (videoType) => {
     [HowToVideoTypes.AgentConfiguration]: HowtoVideos.KycQuestions,
     [HowToVideoTypes.CRMIntegration]: HowtoVideos.Pipeline,
     [HowToVideoTypes.Script]: HowtoVideos.script,
+    [HowToVideoTypes.LeadScoring]: HowtoVideos.LeadScoring,
     [HowToVideoTypes.PhoneNumbers]: HowtoVideos.LetsTalkDigits,
     [HowToVideoTypes.Tools]: HowtoVideos.Tools,
     [HowToVideoTypes.TwilioTrustHub]: HowtoVideos.TwilioTrustHub,
@@ -56,8 +57,13 @@ const getDefaultTutorial = (videoType) => {
     },
     [HowToVideoTypes.Script]: {
       title: 'Learn about creating a script',
-      description: '6:10',
+      description: '13:56',
       videoUrl: HowtoVideos.script,
+    },
+    [HowToVideoTypes.LeadScoring]: {
+      title: 'Learn about lead scoring',
+      description: '06:13',
+      videoUrl: HowtoVideos.LeadScoring,
     },
     [HowToVideoTypes.PhoneNumbers]: {
       title: 'Learn about phone numbers',
@@ -80,7 +86,7 @@ const getDefaultTutorial = (videoType) => {
       videoUrl: HowtoVideos.Calendar,
     },
     [HowToVideoTypes.Walkthrough]: {
-      title: 'Welcome to AgentX',
+      title: 'Welcome to AssignX',
       description: '05:02',
       videoUrl: HowtoVideos.WalkthroughWatched,
     },
@@ -169,7 +175,7 @@ export const getTutorialVideos = () => {
       {
         id: 6,
         title: 'Learn about creating a script',
-        description: '6:10',
+        description: '13:56',
         videoUrl: HowtoVideos.script,
         enabled: true,
         videoType: HowToVideoTypes.Script,
@@ -213,11 +219,20 @@ export const getTutorialVideos = () => {
       },
       {
         id: 11,
-        title: 'Welcome to AgentX',
+        title: 'Welcome to AssignX',
         description: '05:02',
         videoUrl: HowtoVideos.WalkthroughWatched,
         enabled: true,
         videoType: HowToVideoTypes.Walkthrough,
+        thumbnailSrc: '/assets/youtubeplay.png',
+      },
+      {
+        id: 12,
+        title: 'Learn about lead scoring',
+        description: '06:13',
+        videoUrl: HowtoVideos.LeadScoring,
+        enabled: true,
+        videoType: HowToVideoTypes.LeadScoring,
         thumbnailSrc: '/assets/youtubeplay.png',
       },
     ]

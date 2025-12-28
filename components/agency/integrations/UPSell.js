@@ -14,7 +14,20 @@ import { UpSellPhone } from '@/components/onboarding/extras/StickyModals'
 
 import LabelingHeader from '../whiteLabeling/LabelingHeader'
 
-const UPSell = () => {
+const UPSell = ({ selectedAgency }) => {
+  const UPSELL_COSTS = {
+    phone: 1.15,
+    dnc: 0.03,
+    enrichment: 0.05,
+  }
+
+  const toNumber = (v) => {
+    const n = typeof v === 'number' ? v : parseFloat(v)
+    return Number.isFinite(n) ? n : 0
+  }
+
+  const formatMoney = (n) => toNumber(n).toFixed(2)
+
   //settings data
   const [settingsData, setSettingsData] = useState(null)
   //snack msg
@@ -57,18 +70,6 @@ const UPSell = () => {
   const [dncCalculatorResult, setDncCalculatorResult] = useState(null)
   const [enrichmentCalculatorResult, setEnrichmentCalculatorResult] =
     useState(null)
-  const [calculatorLoading, setCalculatorLoading] = useState({
-    phone: false,
-    dnc: false,
-    enrichment: false,
-  })
-
-  // Debounce timers for calculator
-  const calculatorTimers = React.useRef({
-    phone: null,
-    dnc: null,
-    enrichment: null,
-  })
 
   //warning messages for less price
   // setSnackBannerMsg(`Price per credit cannot be less than $ ${agencyPlanCost.toFixed(2)}`);
@@ -81,84 +82,36 @@ const UPSell = () => {
   useEffect(() => {
     getUserSettings()
     getLocalData()
+  }, [selectedAgency])
 
-    // Cleanup timers on unmount
-    return () => {
-      Object.values(calculatorTimers.current).forEach((timer) => {
-        if (timer) clearTimeout(timer)
-      })
-    }
-  }, [])
-
-  // Calculate earnings using calculator API
+  // Calculate net revenue locally (no fees): user price - your cost
   const calculateEarnings = async (productType, price, from) => {
-    if (!price || price <= 0 || isNaN(parseFloat(price))) {
-      // Clear calculator result if price is invalid
-      if (from === 'phonePrice') {
-        setPhoneCalculatorResult(null)
-      } else if (from === 'dncPrice') {
-        setDncCalculatorResult(null)
-      } else if (from === 'enrichmentPrice') {
-        setEnrichmentCalculatorResult(null)
-      }
+    const numericPrice = toNumber(price)
+    if (!numericPrice || numericPrice <= 0) {
+      if (from === 'phonePrice') setPhoneCalculatorResult(null)
+      else if (from === 'dncPrice') setDncCalculatorResult(null)
+      else if (from === 'enrichmentPrice') setEnrichmentCalculatorResult(null)
       return
     }
 
-    try {
-      // Set loading state
-      setCalculatorLoading((prev) => ({ ...prev, [productType]: true }))
+    const cost = UPSELL_COSTS[productType] ?? 0
+    const agencyNetAmount = formatMoney(numericPrice - cost)
+    const calculatorData = { agencyNetAmount }
 
-      const token = AuthToken()
-      if (!token) return
-
-      console.log('Calculation api url ', Apis.agencyCalculator)
-      console.log('productType is', productType)
-      console.log('price is', parseFloat(price))
-      console.log('quantity is', 1)
-      const response = await axios.post(
-        Apis.agencyCalculator,
-        {
-          productType: productType,
-          price: parseFloat(price),
-          quantity: 1,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        },
-      )
-
-      if (response?.data?.status && response?.data?.data) {
-        const calculatorData = response.data.data
-
-        // Update the appropriate calculator result
-        console.log('calculatorData for service is', calculatorData)
-        if (from === 'phonePrice') {
-          setPhoneCalculatorResult(calculatorData)
-        } else if (from === 'dncPrice') {
-          setDncCalculatorResult(calculatorData)
-        } else if (from === 'enrichmentPrice') {
-          setEnrichmentCalculatorResult(calculatorData)
-        }
-      }
-    } catch (error) {
-      console.error(`Error calculating earnings for ${productType}:`, error)
-    } finally {
-      setCalculatorLoading((prev) => ({ ...prev, [productType]: false }))
-    }
+    if (from === 'phonePrice') setPhoneCalculatorResult(calculatorData)
+    else if (from === 'dncPrice') setDncCalculatorResult(calculatorData)
+    else if (from === 'enrichmentPrice') setEnrichmentCalculatorResult(calculatorData)
   }
 
   //low price detector
   const checkPrice = (price, from) => {
     // enrichment : 0.05
     // dnc : 0.03
-    // phone price: 1.15
+    // phone price: 1.50
     if (from === 'phonePrice') {
-      if (price < 1.15) {
+      if (price < 1.50) {
         setSnackBannerMsg(
-          `Upsell Price cannot be less than $ ${(1.15).toFixed(2)}`,
+          `Upsell Price cannot be less than $ ${(1.50).toFixed(2)}`,
         )
         setSnackBannerMsgType(SnackbarTypes.Warning)
       } else {
@@ -184,7 +137,7 @@ const UPSell = () => {
       }
     }
 
-    // Calculate earnings when price changes (with debounce)
+    // Calculate earnings locally when price changes
     if (price > 0) {
       const productType =
         from === 'phonePrice'
@@ -193,15 +146,7 @@ const UPSell = () => {
             ? 'dnc'
             : 'enrichment'
 
-      // Clear existing timer
-      if (calculatorTimers.current[productType]) {
-        clearTimeout(calculatorTimers.current[productType])
-      }
-
-      // Set new timer to debounce API call
-      calculatorTimers.current[productType] = setTimeout(() => {
-        calculateEarnings(productType, price, from)
-      }, 500) // 500ms debounce
+      calculateEarnings(productType, price, from)
     }
   }
 
@@ -209,7 +154,13 @@ const UPSell = () => {
   const getUserSettings = async () => {
     try {
       setInitialLoader(true)
-      const ApiPath = Apis.userSettings
+      let ApiPath = Apis.userSettings
+      
+      // Add userId parameter if selectedAgency is provided (admin view)
+      if (selectedAgency?.id) {
+        ApiPath += `?userId=${selectedAgency.id}`
+      }
+      
       const Auth = AuthToken()
       const response = await axios.get(ApiPath, {
         headers: {
@@ -316,6 +267,18 @@ const UPSell = () => {
   //user settings api
   const handleUserSettings = async (from) => {
     try {
+      // Validate phone price before saving
+      if (from === 'phonePrice') {
+        const price = parseFloat(phonePrice)
+        if (isNaN(price) || price < 1.50) {
+          setShowSnackMessage(
+            `Phone price must be at least $1.50. Please enter a valid price.`,
+          )
+          setShowSnackType(SnackbarTypes.Error)
+          return
+        }
+      }
+
       const Auth = AuthToken()
       const ApiPath = Apis.userSettings
       // const ApiData = userSettingDataUpgrade(from);
@@ -325,6 +288,12 @@ const UPSell = () => {
       } else {
         ApiData = userSettingDataUpgrade(from)
       }
+      
+      // Add userId if selectedAgency is provided (admin view)
+      if (selectedAgency?.id) {
+        ApiData.userId = selectedAgency.id
+      }
+      
       console.log('Api data sending in user setting api is', ApiData)
       const response = await axios.put(ApiPath, ApiData, {
         headers: {
@@ -554,7 +523,7 @@ const UPSell = () => {
                             marginTop: 4,
                           }}
                         >
-                          per number after fees
+                          per number
                         </div>
                       </div>
                     )}
@@ -593,7 +562,12 @@ const UPSell = () => {
                           onClick={() => {
                             handleUserSettings('phonePrice')
                           }}
-                          className={`w-[10%] bg-brand-primary text-white h-[40px] rounded-xl`}
+                          disabled={
+                            !phonePrice ||
+                            parseFloat(phonePrice) < 1.50 ||
+                            isNaN(parseFloat(phonePrice))
+                          }
+                          className={`w-[10%] bg-brand-primary text-white h-[40px] rounded-xl disabled:opacity-50 disabled:cursor-not-allowed`}
                           style={{ fontSize: '15px', fontWeight: '500' }}
                         >
                           Save
@@ -628,17 +602,8 @@ const UPSell = () => {
                             marginTop: 4,
                           }}
                         >
-                          per number after fees
+                          per number
                         </div>
-                      </div>
-                    )}
-                    {calculatorLoading.phone && (
-                      <div
-                        className="flex flex-row items-center gap-2 text-gray-500"
-                        style={{ fontSize: 12 }}
-                      >
-                        <CircularProgress size={14} />
-                        <span>Calculating...</span>
                       </div>
                     )}
                   </div>
@@ -744,7 +709,7 @@ const UPSell = () => {
                             marginTop: 4,
                           }}
                         >
-                          per check after fees
+                          per check
                         </div>
                       </div>
                     )}
@@ -818,17 +783,8 @@ const UPSell = () => {
                             marginTop: 4,
                           }}
                         >
-                          per check after fees
+                          per check
                         </div>
-                      </div>
-                    )}
-                    {calculatorLoading.dnc && (
-                      <div
-                        className="flex flex-row items-center gap-2 text-gray-500"
-                        style={{ fontSize: 12 }}
-                      >
-                        <CircularProgress size={14} />
-                        <span>Calculating...</span>
                       </div>
                     )}
                   </div>
@@ -939,7 +895,7 @@ const UPSell = () => {
                             marginTop: 4,
                           }}
                         >
-                          per enrichment after fees
+                          per enrichment
                         </div>
                       </div>
                     )}
@@ -1013,17 +969,8 @@ const UPSell = () => {
                             marginTop: 4,
                           }}
                         >
-                          per enrichment after fees
+                          per enrichment
                         </div>
-                      </div>
-                    )}
-                    {calculatorLoading.enrichment && (
-                      <div
-                        className="flex flex-row items-center gap-2 text-gray-500"
-                        style={{ fontSize: 12 }}
-                      >
-                        <CircularProgress size={14} />
-                        <span>Calculating...</span>
                       </div>
                     )}
                   </div>

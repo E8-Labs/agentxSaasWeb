@@ -37,10 +37,11 @@ const LogoCropper = ({
     }
   }, [open])
 
-  // Max dimensions for final cropped image (navbar display constraints)
-  // Final image will be resized to fit within these while maintaining 4:1 aspect ratio
-  const MAX_WIDTH = 120
-  const MAX_HEIGHT = 32
+  // Max dimensions for final cropped image (3x resolution for retina/high-DPI displays)
+  // Final image will be resized to fit within these while maintaining 3:1 aspect ratio
+  // 400px width with 3:1 aspect ratio = 133px height (400/3 = 133.33, rounded to 133)
+  const MAX_WIDTH = 400
+  const MAX_HEIGHT = 133
 
   const onCropChange = useCallback((crop) => {
     setCrop(crop)
@@ -71,43 +72,34 @@ const LogoCropper = ({
       throw new Error('No 2d context')
     }
 
-    // Calculate scale to fit max dimensions while maintaining aspect ratio
+    // Calculate scale from displayed image to natural image size
     const scaleX = image.naturalWidth / image.width
     const scaleY = image.naturalHeight / image.height
 
+    // Get the cropped area in natural image coordinates
     const cropWidth = pixelCrop.width * scaleX
     const cropHeight = pixelCrop.height * scaleY
 
-    // Calculate final dimensions maintaining aspect ratio
-    let finalWidth = cropWidth
-    let finalHeight = cropHeight
+    // Always output exactly MAX_WIDTH x MAX_HEIGHT (360x96) for consistent 3x retina resolution
+    // The cropper enforces 3:1 aspect ratio, so we can safely scale to exact dimensions
+    const finalOutputWidth = MAX_WIDTH
+    const finalOutputHeight = MAX_HEIGHT
 
-    // Scale down if exceeds max dimensions
-    if (finalWidth > MAX_WIDTH) {
-      const ratio = MAX_WIDTH / finalWidth
-      finalWidth = MAX_WIDTH
-      finalHeight = finalHeight * ratio
-    }
+    canvas.width = finalOutputWidth
+    canvas.height = finalOutputHeight
 
-    if (finalHeight > MAX_HEIGHT) {
-      const ratio = MAX_HEIGHT / finalHeight
-      finalHeight = MAX_HEIGHT
-      finalWidth = finalWidth * ratio
-    }
-
-    canvas.width = finalWidth
-    canvas.height = finalHeight
-
+    // Draw the cropped portion of the image, scaled to fill the entire output canvas
+    // This ensures we always get exactly 360x96 output
     ctx.drawImage(
       image,
-      pixelCrop.x * scaleX,
-      pixelCrop.y * scaleY,
-      cropWidth,
-      cropHeight,
-      0,
-      0,
-      finalWidth,
-      finalHeight,
+      pixelCrop.x * scaleX,  // Source X in natural image coordinates
+      pixelCrop.y * scaleY,  // Source Y in natural image coordinates
+      cropWidth,              // Source width in natural image coordinates
+      cropHeight,             // Source height in natural image coordinates
+      0,                      // Destination X (start of canvas)
+      0,                      // Destination Y (start of canvas)
+      finalOutputWidth,       // Destination width (always 360)
+      finalOutputHeight,      // Destination height (always 96)
     )
 
     return new Promise((resolve) => {
@@ -193,8 +185,7 @@ const LogoCropper = ({
           <div className="flex flex-col gap-4">
             <div className="text-lg font-semibold">Crop Your Logo</div>
             <div className="text-sm text-gray-600">
-              Recommended: 600 × 200 px upload. Final display: Max 120px width ×
-              32px height (3:1 aspect ratio)
+              Recommended: 600 × 200 px upload. Final crop: 400px width × 133px height (3x resolution for retina displays). Display: Max 120px width × 32px height (3:1 aspect ratio)
             </div>
 
             <div

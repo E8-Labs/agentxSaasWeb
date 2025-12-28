@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
 import { getStripeLink } from '@/components/onboarding/services/apisServices/ApiService'
+import { getBrandPrimaryHex, getBrandPrimaryHsl } from '@/utilities/colorUtils'
 
 const AgencyWalkThrough = ({ open, onClose }) => {
   const router = useRouter()
@@ -12,6 +13,14 @@ const AgencyWalkThrough = ({ open, onClose }) => {
   const [loader, setLoader] = useState(false)
   const [videoLoading, setVideoLoading] = useState(false)
   const [playedVideos, setPlayedVideos] = useState(new Set())
+
+  // Get brand color for checkmark icons
+  const getBrandColor = () => {
+    if (typeof window === 'undefined') return 'hsl(270 75% 50%)'
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')?.trim()
+    return brandColor && brandColor.length >= 3 ? `hsl(${brandColor})` : 'hsl(270 75% 50%)'
+  }
 
   const modalStyles = {
     position: 'fixed',
@@ -152,7 +161,7 @@ const AgencyWalkThrough = ({ open, onClose }) => {
                   Watch these short video tutorials to properly setup your
                   agency.{' '}
                   <span
-                    className="text-purple cursor-pointer hover:underline"
+                    className="text-brand-primary cursor-pointer hover:underline"
                     onClick={() => {
                       window.open(skoolItem?.route, '_blank')
                     }}
@@ -183,8 +192,11 @@ const AgencyWalkThrough = ({ open, onClose }) => {
                   {/* Vertical connecting line */}
                   {checklist.length > 1 && (
                     <div
-                      className="absolute left-2.5 top-6 h-[16vh] w-0.5 z-0"
-                      style={{ backgroundColor: '#7902DF' }}
+                      className="absolute left-2.5 top-6 w-0.5 z-0"
+                      style={{
+                        backgroundColor: getBrandPrimaryHex(),
+                        height: `${(checklist.length - 1) * 56}px`, // 56px per item (24px icon + 24px gap + 8px spacing)
+                      }}
                     />
                   )}
 
@@ -201,23 +213,53 @@ const AgencyWalkThrough = ({ open, onClose }) => {
                         {/* Circular icon container */}
                         <div className="relative flex-shrink-0 border-3 z-10">
                           {/* Checkmark or empty state */}
-                          <div className="rounded-full">
-                            <Image
-                              src={
-                                isPlayed
-                                  ? '/otherAssets/checked.png'
-                                  : '/otherAssets/unChecked.jpg'
-                              }
-                              alt="Completed"
-                              height={24}
-                              width={24}
-                              className="object-contain"
+                          {isPlayed ? (
+                            <div
+                              className="rounded-full relative flex items-center justify-center"
                               style={{
+                                width: 24,
+                                height: 24,
+                                minWidth: 24,
+                                minHeight: 24,
+                                backgroundColor: getBrandColor(),
                                 border: '5px solid #fff',
                                 borderRadius: '50%',
+                                transition: 'background-color 0.2s ease-in-out',
+                              }}
+                            >
+                              {/* White checkmark overlay */}
+                              <svg
+                                width="12"
+                                height="12"
+                                viewBox="0 0 12 12"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                style={{ position: 'absolute', zIndex: 1 }}
+                              >
+                                <path
+                                  d="M10 3L4.5 8.5L2 6"
+                                  stroke="white"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                />
+                              </svg>
+                            </div>
+                          ) : (
+                            <div
+                              className="rounded-full"
+                              style={{
+                                width: 24,
+                                height: 24,
+                                minWidth: 24,
+                                minHeight: 24,
+                                backgroundColor: 'hsl(0 0% 80%)',
+                                border: '5px solid #fff',
+                                borderRadius: '50%',
+                                transition: 'background-color 0.2s ease-in-out',
                               }}
                             />
-                          </div>
+                          )}
                         </div>
 
                         {/* Label */}
@@ -240,7 +282,7 @@ const AgencyWalkThrough = ({ open, onClose }) => {
                   <button
                     onClick={handleNext}
                     disabled={loader}
-                    className="w-full bg-purple text-white rounded-lg py-3 px-4 font-semibold text-base mt-4 hover:bg-purple/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full bg-brand-primary text-white rounded-lg py-3 px-4 font-semibold text-base mt-4 hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {loader ? (
                       <>
@@ -289,9 +331,8 @@ const AgencyWalkThrough = ({ open, onClose }) => {
                     {/* Join Community Button */}
                     <button
                       onClick={() => handleJoinCommunity(skoolItem?.route)}
-                      className="w-full bg-purple text-white rounded-lg py-4 px-6 font-semibold text-lg hover:bg-purple/90 transition-colors"
+                      className="w-full bg-brand-primary text-white rounded-lg py-4 px-6 font-semibold text-lg hover:bg-brand-primary/90 transition-colors"
                       style={{
-                        backgroundColor: '#7902DF',
                         maxWidth: '400px',
                       }}
                     >

@@ -6,20 +6,23 @@ import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
+import { updateBrandingCookieAndApply } from '@/utilities/applyBranding'
 
 import LabelingHeader from './LabelingHeader'
 import LogoCropper from './LogoCropper'
 import UploadImageButton from './UploadImageButton'
 import WhiteLAbelTooltTip from './WhiteLAbelTooltTip'
 
-const BrandConfig = () => {
+const BrandConfig = ({ selectedAgency }) => {
   //tool tip
   const Logo1Tip =
-    'Recommended upload: 600 × 200 px (max 2MB). Final display: Max 120px width × 32px height. Logo will be cropped to fit.'
+    'Recommended upload: 600 × 200 px (max 2MB). Final crop: 400px × 133px (3x resolution for retina displays). Display: Max 120px width × 32px height. Logo will be cropped to fit.'
   const FaviconTip = 'Image should be maximum 512kb and should be square'
 
   const [logoPreview, setLogoPreview] = useState(null)
   const [faviconPreview, setFaviconPreview] = useState(null)
+  const [faviconText, setFaviconText] = useState('')
+  const [xbarTitle, setXbarTitle] = useState('')
   const [primaryColor, setPrimaryColor] = useState('#7902DF')
   const [secondaryColor, setSecondaryColor] = useState('#8B5CF6')
 
@@ -44,14 +47,15 @@ const BrandConfig = () => {
   const [originalValues, setOriginalValues] = useState({
     logoUrl: null,
     faviconUrl: null,
+    faviconText: '',
     primaryColor: '#7902DF',
     secondaryColor: '#8B5CF6',
   })
 
-  // Fetch branding data on mount
+  // Fetch branding data on mount or when selectedAgency changes
   useEffect(() => {
     fetchBrandingData()
-  }, [])
+  }, [selectedAgency])
 
   const fetchBrandingData = async () => {
     try {
@@ -74,7 +78,13 @@ const BrandConfig = () => {
         return
       }
 
-      const response = await axios.get(Apis.getAgencyBranding, {
+      // Add userId parameter if selectedAgency is provided (admin view)
+      let apiUrl = Apis.getAgencyBranding
+      if (selectedAgency?.id) {
+        apiUrl += `?userId=${selectedAgency.id}`
+      }
+
+      const response = await axios.get(apiUrl, {
         headers: {
           Authorization: `Bearer ${authToken}`,
           'Content-Type': 'application/json',
@@ -97,11 +107,21 @@ const BrandConfig = () => {
         if (branding.faviconUrl) {
           setFaviconPreview(branding.faviconUrl)
         }
+        // Set favicon text if exists
+        if (branding.faviconText) {
+          setFaviconText(branding.faviconText)
+        }
+        // Set xbar title if exists
+        if (branding.xbarTitle) {
+          setXbarTitle(branding.xbarTitle)
+        }
 
         // Store original values - use defaults if no branding exists
         setOriginalValues({
           logoUrl: branding.logoUrl || null,
           faviconUrl: branding.faviconUrl || null,
+          faviconText: branding.faviconText || '',
+          xbarTitle: branding.xbarTitle || '',
           primaryColor: branding.primaryColor || defaultPrimary,
           secondaryColor: branding.secondaryColor || defaultSecondary,
         })
@@ -111,9 +131,13 @@ const BrandConfig = () => {
         const defaultSecondary = '#8B5CF6'
         setPrimaryColor(defaultPrimary)
         setSecondaryColor(defaultSecondary)
+        setFaviconText('')
+        setXbarTitle('')
         setOriginalValues({
           logoUrl: null,
           faviconUrl: null,
+          faviconText: '',
+          xbarTitle: '',
           primaryColor: defaultPrimary,
           secondaryColor: defaultSecondary,
         })
@@ -126,9 +150,13 @@ const BrandConfig = () => {
         const defaultSecondary = '#8B5CF6'
         setPrimaryColor(defaultPrimary)
         setSecondaryColor(defaultSecondary)
+        setFaviconText('')
+        setXbarTitle('')
         setOriginalValues({
           logoUrl: null,
           faviconUrl: null,
+          faviconText: '',
+          xbarTitle: '',
           primaryColor: defaultPrimary,
           secondaryColor: defaultSecondary,
         })
@@ -270,7 +298,12 @@ const BrandConfig = () => {
       (faviconPreview !== null && originalValues.faviconUrl === null) ||
       (faviconPreview === null && originalValues.faviconUrl !== null)
 
-    return colorsChanged || logoChanged || faviconChanged
+    // Check if favicon text has changed
+    const faviconTextChanged = faviconText !== originalValues.faviconText
+    // Check if xbar title has changed
+    const xbarTitleChanged = xbarTitle !== originalValues.xbarTitle
+
+    return colorsChanged || logoChanged || faviconChanged || faviconTextChanged || xbarTitleChanged
   }
 
   //reset all the values to original and save defaults
@@ -284,6 +317,8 @@ const BrandConfig = () => {
     setSecondaryColor(defaultSecondary)
     setLogoPreview(originalValues.logoUrl)
     setFaviconPreview(originalValues.faviconUrl)
+    setFaviconText(originalValues.faviconText)
+    setXbarTitle(originalValues.xbarTitle)
     setLogoFile(null)
     setFaviconFile(null)
 
@@ -301,6 +336,11 @@ const BrandConfig = () => {
         const colorsData = {
           primaryColor: defaultPrimary,
           secondaryColor: defaultSecondary,
+        }
+        
+        // Add userId if selectedAgency is provided (admin view)
+        if (selectedAgency?.id) {
+          colorsData.userId = selectedAgency.id
         }
 
         await axios.put(Apis.updateAgencyBrandingColors, colorsData, {
@@ -322,7 +362,7 @@ const BrandConfig = () => {
 
         setShowSnackMessage({
           type: SnackbarTypes.Success,
-          message: 'Brand colors reset to defaults',
+          message: 'Brand colors reset to default',
           isVisible: true,
         })
       }
@@ -342,6 +382,11 @@ const BrandConfig = () => {
 
     const formData = new FormData()
     formData.append('logo', logoFile)
+    
+    // Add userId if selectedAgency is provided (admin view)
+    if (selectedAgency?.id) {
+      formData.append('userId', selectedAgency.id)
+    }
 
     try {
       const response = await axios.post(Apis.uploadBrandingLogo, formData, {
@@ -367,6 +412,11 @@ const BrandConfig = () => {
 
     const formData = new FormData()
     formData.append('favicon', faviconFile)
+    
+    // Add userId if selectedAgency is provided (admin view)
+    if (selectedAgency?.id) {
+      formData.append('userId', selectedAgency.id)
+    }
 
     try {
       const response = await axios.post(Apis.uploadBrandingFavicon, formData, {
@@ -445,6 +495,11 @@ const BrandConfig = () => {
           primaryColor: primaryColor,
           secondaryColor: secondaryColor,
         }
+        
+        // Add userId if selectedAgency is provided (admin view)
+        if (selectedAgency?.id) {
+          colorsData.userId = selectedAgency.id
+        }
 
         await axios.put(Apis.updateAgencyBrandingColors, colorsData, {
           headers: {
@@ -452,6 +507,52 @@ const BrandConfig = () => {
             'Content-Type': 'application/json',
           },
         })
+      }
+
+      // Update favicon text if changed
+      if (faviconText !== originalValues.faviconText) {
+        const companyData = {
+          faviconText: faviconText,
+        }
+        
+        // Add userId if selectedAgency is provided (admin view)
+        if (selectedAgency?.id) {
+          companyData.userId = selectedAgency.id
+        }
+
+        const response = await axios.put(Apis.updateAgencyBrandingCompany, companyData, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+        })
+
+        if (!response?.data?.status) {
+          throw new Error(response?.data?.message || 'Failed to update favicon text')
+        }
+      }
+
+      // Update xbar title if changed
+      if (xbarTitle !== originalValues.xbarTitle) {
+        const companyData = {
+          xbarTitle: xbarTitle,
+        }
+        
+        // Add userId if selectedAgency is provided (admin view)
+        if (selectedAgency?.id) {
+          companyData.userId = selectedAgency.id
+        }
+
+        const response = await axios.put(Apis.updateAgencyBrandingCompany, companyData, {
+          headers: {
+            Authorization: `Bearer ${authToken}`,
+            'Content-Type': 'application/json',
+          },
+        })
+
+        if (!response?.data?.status) {
+          throw new Error(response?.data?.message || 'Failed to update xbar title')
+        }
       }
 
       // Store the uploaded faviconUrl before fetchBrandingData might overwrite it
@@ -462,6 +563,8 @@ const BrandConfig = () => {
       setOriginalValues({
         logoUrl: uploadedLogoUrl,
         faviconUrl: uploadedFaviconUrl,
+        faviconText: faviconText,
+        xbarTitle: xbarTitle,
         primaryColor: primaryColor,
         secondaryColor: secondaryColor,
       })
@@ -470,16 +573,26 @@ const BrandConfig = () => {
       setLogoFile(null)
       setFaviconFile(null)
 
-      setShowSnackMessage({
-        type: SnackbarTypes.Success,
-        message: 'Branding settings saved successfully',
-        isVisible: true,
-      })
-
       // Refresh data to get latest from server
-      await fetchBrandingData()
+      try {
+        await fetchBrandingData()
+      } catch (error) {
+        console.error('Error refreshing branding data after save:', error)
+        // Continue even if refresh fails - save was successful
+      }
 
-      // Update cookie and localStorage with new branding so login page shows it immediately
+      // Show success snackbar after all updates and refresh complete
+      // Use setTimeout to ensure it shows even if state updates are batched
+      setTimeout(() => {
+        console.log('✅ [BrandConfig] Setting success snackbar')
+        setShowSnackMessage({
+          type: SnackbarTypes.Success,
+          message: 'Branding settings saved successfully',
+          isVisible: true,
+        })
+      }, 100)
+
+      // Update cookie and apply branding immediately
       if (typeof window !== 'undefined') {
         // Fetch fresh branding data to get all fields including companyName
         try {
@@ -503,6 +616,9 @@ const BrandConfig = () => {
               // Use uploaded values if fresh response is missing them (race condition protection)
               faviconUrl: freshBranding.faviconUrl || uploadedFaviconUrl,
               logoUrl: freshBranding.logoUrl || uploadedLogoUrl,
+              // Explicitly include xbarTitle and faviconText from current state (they were just saved)
+              xbarTitle: freshBranding.xbarTitle || xbarTitle,
+              faviconText: freshBranding.faviconText || faviconText,
             }
             
             console.log('📦 [BrandConfig] Fresh branding from API:', {
@@ -513,42 +629,28 @@ const BrandConfig = () => {
               primaryColor: freshBranding.primaryColor,
             })
 
-            // Update cookie and localStorage with complete branding data
-            const cookieValue = encodeURIComponent(
-              JSON.stringify(finalBranding),
-            )
-            // document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
-            localStorage.setItem(
-              'agencyBranding',
-              JSON.stringify(finalBranding),
-            )
-            console.log('💾 [BrandConfig] Updated localStorage with branding')
-
-            // Dispatch custom event to notify other components (like LoginComponent)
-            window.dispatchEvent(
-              new CustomEvent('agencyBrandingUpdated', {
-                detail: finalBranding,
-              }),
-            )
-
-            console.log(
-              '✅ [BrandConfig] Updated cookie and localStorage with fresh branding data, event dispatched',
-            )
+            // Update cookie and apply branding immediately using centralized function
+            const applied = updateBrandingCookieAndApply(finalBranding, true)
+            if (applied) {
+              console.log('✅ [BrandConfig] Branding cookie updated and applied immediately')
+            } else {
+              console.warn('⚠️ [BrandConfig] Failed to update branding cookie')
+            }
           } else {
             console.warn('⚠️ [BrandConfig] Fresh branding response invalid:', freshResponse?.data)
             // Fallback to uploaded values
             const fallbackBranding = {
               logoUrl: uploadedLogoUrl,
               faviconUrl: uploadedFaviconUrl,
+              faviconText: faviconText,
+              xbarTitle: xbarTitle,
               primaryColor: primaryColor,
               secondaryColor: secondaryColor,
             }
-            localStorage.setItem('agencyBranding', JSON.stringify(fallbackBranding))
-            window.dispatchEvent(
-              new CustomEvent('agencyBrandingUpdated', {
-                detail: fallbackBranding,
-              }),
-            )
+            const applied = updateBrandingCookieAndApply(fallbackBranding, true)
+            if (applied) {
+              console.log('✅ [BrandConfig] Fallback branding cookie updated and applied')
+            }
           }
         } catch (error) {
           console.error(
@@ -559,6 +661,8 @@ const BrandConfig = () => {
           const updatedBranding = {
             logoUrl: uploadedLogoUrl,
             faviconUrl: uploadedFaviconUrl,
+            faviconText: faviconText,
+            xbarTitle: xbarTitle,
             primaryColor: primaryColor,
             secondaryColor: secondaryColor,
           }
@@ -567,21 +671,10 @@ const BrandConfig = () => {
             logoUrl: updatedBranding.logoUrl,
             primaryColor: updatedBranding.primaryColor,
           })
-          const cookieValue = encodeURIComponent(
-            JSON.stringify(updatedBranding),
-          )
-          // document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
-          localStorage.setItem(
-            'agencyBranding',
-            JSON.stringify(updatedBranding),
-          )
-          console.log('💾 [BrandConfig] Updated localStorage with fallback branding')
-          window.dispatchEvent(
-            new CustomEvent('agencyBrandingUpdated', {
-              detail: updatedBranding,
-            }),
-          )
-          console.log('✅ [BrandConfig] Fallback branding event dispatched')
+          const applied = updateBrandingCookieAndApply(updatedBranding, true)
+          if (applied) {
+            console.log('✅ [BrandConfig] Fallback branding cookie updated and applied')
+          }
         }
       }
     } catch (error) {
@@ -679,6 +772,29 @@ const BrandConfig = () => {
             <UploadImageButton
               onFileSelect={handleFaviconUpload}
               preview={faviconPreview}
+            />
+          </div>
+
+          {/* Favicon Text Input */}
+          <div className="self-stretch inline-flex justify-between items-center gap-[3px]">
+            <div className="inline-flex flex-col justify-start items-start">
+              <div className="inline-flex justify-start items-center gap-[3px]">
+                <div className="text-black text-base font-normal leading-normal">
+                  Xbar title
+                </div>
+              </div>
+            </div>
+
+            <input
+              type="text"
+              value={xbarTitle}
+              onChange={(e) => setXbarTitle(e.target.value)}
+              placeholder="Enter xbar title"
+              className="w-64 px-3 py-2 border border-neutral-900/10 rounded-[10px] outline-none focus:outline-none focus:ring-0 focus:border-brand-primary text-black text-base font-normal"
+              style={{
+                fontSize: '15px',
+                fontWeight: '500',
+              }}
             />
           </div>
 
