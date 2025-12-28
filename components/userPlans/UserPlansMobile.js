@@ -14,7 +14,7 @@ import {
 } from '@/constants/teamTypes/TeamTypes'
 import { useUser } from '@/hooks/redux-hooks'
 
-import { formatFractional2 } from '../agency/plan/AgencyUtilities'
+import { formatDecimalValue } from '../agency/agencyServices/CheckAgencyData'
 import LoaderAnimation from '../animations/LoaderAnimation'
 import Apis from '../apis/Apis'
 import getProfileDetails from '../apis/GetProfile'
@@ -29,6 +29,9 @@ import {
   getTotalPrice,
 } from './UserPlanServices'
 import { getPolicyUrls } from '@/utils/getPolicyUrls'
+import { Checkbox } from '../ui/checkbox'
+import FeatureLine from './FeatureLine'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 function UserPlansMobile({
   handleContinue,
@@ -65,6 +68,19 @@ function UserPlansMobile({
     },
   ])
 
+
+  const durationSaving = [
+    {
+      id: 2,
+      title: 'save 20%',
+    },
+    {
+      id: 3,
+      title: 'save 30%',
+    },
+  ]
+
+
   const [selectedDuration, setSelectedDuration] = useState(duration[0])
 
   const [monthlyPlans, setMonthlyPlans] = useState([])
@@ -78,6 +94,8 @@ function UserPlansMobile({
   const [shouldAutoSubscribe, setShouldAutoSubscribe] = useState(false)
   const [errorMsg, setErrorMsg] = useState(null)
   const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Error)
+  const [loading, setLoading] = useState(false)
+  const [showPlanDetails, setShowPlanDetails] = useState(false)
 
   // Helper function to check if user has payment methods
   const hasPaymentMethod = () => {
@@ -148,19 +166,19 @@ function UserPlansMobile({
     if (obj === null || obj === undefined) {
       return obj
     }
-    
+
     // Remove common non-serializable properties
     if (typeof obj === 'object') {
       // Check if it's an array
       if (Array.isArray(obj)) {
         return obj.map(cleanNonSerializable)
       }
-      
+
       // Check if it's a Date
       if (obj instanceof Date) {
         return obj.toISOString()
       }
-      
+
       // Check if it has non-serializable properties (like AxiosHeaders)
       if (obj.constructor && obj.constructor.name !== 'Object' && obj.constructor.name !== 'Array') {
         // If it's a class instance (like AxiosHeaders), convert to plain object
@@ -170,7 +188,7 @@ function UserPlansMobile({
           return null
         }
       }
-      
+
       // Recursively clean object properties
       const cleaned = {}
       for (const key in obj) {
@@ -182,7 +200,7 @@ function UserPlansMobile({
       }
       return cleaned
     }
-    
+
     return obj
   }
 
@@ -192,7 +210,7 @@ function UserPlansMobile({
       if (response && response.data && response.data.status === true) {
         // Extract only the user data, not the full axios response
         const userData = response.data.data
-        
+
         // Get token from localStorage to maintain the token
         let token = null
         const localData = localStorage.getItem('User')
@@ -200,16 +218,16 @@ function UserPlansMobile({
           const localDetails = JSON.parse(localData)
           token = localDetails.token
         }
-        
+
         // Clean any non-serializable values from user data
         const cleanedUserData = cleanNonSerializable(userData)
-        
+
         // Format data for Redux
         const cleanUserData = {
           token: token,
           user: cleanedUserData,
         }
-        
+
         setReduxUser(cleanUserData)
         return true
       }
@@ -245,7 +263,7 @@ function UserPlansMobile({
           const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
             typeof navigator !== 'undefined' ? navigator.userAgent : ''
           )
-          
+
           // For mobile users (all types including agencies), redirect to continue to desktop screen
           if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
             router.push('/createagent/desktop')
@@ -303,13 +321,13 @@ function UserPlansMobile({
       if (response) {
         if (response.data.status === true) {
           await refreshUserData()
-          
+
           setAddPaymentPopUp(false)
           setShouldAutoSubscribe(false)
-          
+
           // Determine redirect path
           let redirectPath = null
-          
+
           if (from === 'dashboard') {
             redirectPath = '/dashboard'
           } else {
@@ -319,7 +337,7 @@ function UserPlansMobile({
             const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
               typeof navigator !== 'undefined' ? navigator.userAgent : ''
             )
-            
+
             // For mobile users (all types including agencies), redirect to continue to desktop screen
             if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
               redirectPath = '/createagent/desktop'
@@ -335,7 +353,7 @@ function UserPlansMobile({
               }
             }
           }
-          
+
           // Use window.location.href for hard redirect to ensure clean page reload
           // This prevents DOM cleanup errors during navigation
           if (redirectPath) {
@@ -355,8 +373,10 @@ function UserPlansMobile({
   }
 
   const getPlans = async () => {
-    let plansList = await getUserPlans(isFrom, selectedUser)
-    
+    setLoading(true)
+    try {
+      let plansList = await getUserPlans(isFrom, selectedUser)
+
     if (plansList && plansList.length > 0) {
       const monthly = []
       const quarterly = []
@@ -428,6 +448,11 @@ function UserPlansMobile({
         setSelectedPlan(yearly[0])
       }
     }
+    } catch (error) {
+      console.error('Error getting plans:', error)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const getCurrentPlans = () => {
@@ -474,7 +499,7 @@ function UserPlansMobile({
 
   const currentPlans = getCurrentPlans()
   const monthlyPrice = selectedPlan ? getMonthlyPrice(selectedPlan) : 0
-  
+
   // Check if user has a current plan (for first-time subscription check)
   const getCurrentUserPlan = () => {
     try {
@@ -488,10 +513,10 @@ function UserPlansMobile({
     }
     return null
   }
-  
+
   const currentUserPlan = getCurrentUserPlan()
   const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-  
+
   // Calculate total price - show $0 if plan has trial and it's first-time subscription
   let totalPrice = 0
   if (selectedPlan) {
@@ -502,13 +527,13 @@ function UserPlansMobile({
       totalPrice = getTotalPrice(selectedPlan)
     }
   }
-  
+
   // Calculate next charge date - if trial and first-time, show trial end date, otherwise use normal calculation
   let nextChargeDate = null
   if (selectedPlan) {
     const hasTrial = selectedPlan?.hasTrial === true
     const trialDays = selectedPlan?.trialValidForDays || 0
-    
+
     if (hasTrial && isFirstTimeSubscription && trialDays > 0) {
       // For trial plans on first-time subscription, next charge date is when trial ends
       const trialEndDate = new Date()
@@ -525,306 +550,296 @@ function UserPlansMobile({
   }
 
   return (
-    <div className="h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50 relative overflow-hidden flex flex-col">
-      {/* Background blur effect */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-        <div className="absolute -left-1/4 -top-1/4 w-96 h-96 bg-purple-200 rounded-full opacity-20 blur-3xl"></div>
-        <div className="absolute -right-1/4 -bottom-1/4 w-96 h-96 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
-      </div>
-
-      {/* Scrollable Container */}
+    <div className="h-screen bg-gradient-to-br from-brand-primary/40 via-white to-brand-primary/40 relative overflow-hidden flex flex-col w-full">
       <div className="relative z-10 flex-1 flex flex-col overflow-hidden min-h-0">
         {/* Main Card - Scrollable */}
         <div className="flex-1 overflow-y-auto px-4 pt-4 pb-40 min-h-0">
-          <div className="w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
-            {/* Header */}
-            <div className="bg-white px-6 py-4">
-              <h1 className="text-2xl font-bold text-black pt-2">Select a plan</h1>
-            </div>
+      <div className="w-full flex flex-col items-center  overflow-hidden">
+        <h1 className="text-2xl font-bold text-black pt-2">Get an AI AaaS Agency</h1>
 
-            {/* Content */}
-            <div className="px-6 py-6 space-y-6">
-          {/* Duration Selector - Horizontally Scrollable */}
-          {duration.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-thin scrollbar-thumb-brand-primary scrollbar-track-transparent">
-              <div className="flex gap-2 min-w-max">
-                {duration.map((dur) => (
+        <div className="text-sm text-gray-500">
+          Gets more done than coffee. Cheaper too.<span className="text-black">😉</span>
+        </div>
+
+
+
+        {/* Content */}
+        <div className="px-6 py-6 space-y-6">
+
+
+          <div className="flex flex-col items-end w-full mt-2">
+            <div className="flex flex-row items-center justify-end gap-5 px-2 me-[0px] md:me-[7px]  w-auto">
+              {durationSaving.map((item) => {
+                const matchingDuration = duration.find(d => d.id === item.id)
+                return (
                   <button
-                    key={dur.id}
-                    onClick={() => setSelectedDuration(dur)}
-                    className={`flex-shrink-0 py-2.5 px-4 rounded-xl font-semibold text-sm transition-all whitespace-nowrap ${
-                      selectedDuration.id === dur.id
-                        ? 'bg-brand-primary text-white shadow-lg'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
+                    key={item.id}
+                    className={
+                      `px-2 py-1 rounded-tl-lg rounded-tr-lg font-semibold text-[13px] ${selectedDuration.id === item.id ? 'text-white bg-brand-primary outline-none border-none' : 'text-muted-foreground'}`
+                    }
+                    onClick={() => {
+                      if (matchingDuration) {
+                        setSelectedDuration(matchingDuration);
+                        getCurrentPlans();
+                      }
+                    }}
                   >
-                    {dur.title}
-                    {dur.save && (
-                      <span className="ml-1 text-xs opacity-90">({dur.save})</span>
-                    )}
+                    {item.title}
+                  </button>
+                )
+              })}
+            </div>
+            <div className="w-full flex md:w-auto flex-col items-center md:items-end justify-center md:justify-end">
+              <div
+                className="border flex flex-row items-center bg-neutral-100 px-2 gap-[8px] rounded-full py-1.5 w-[90%] md:w-auto justify-center md:justify-start"
+              >
+                {duration?.map((item) => (
+                  <button
+                    key={item.id}
+                    className={
+                      `px-4 py-1 rounded-full ${selectedDuration.id === item.id ? 'text-white bg-brand-primary outline-none border-none shadow-md shadow-brand-primary/50' : 'text-foreground'}`
+                    }
+                    onClick={() => {
+                      setSelectedDuration(item);
+                      getCurrentPlans();
+                    }}
+                  >
+                    {item.title}
                   </button>
                 ))}
               </div>
             </div>
-          )}
+          </div>
+
+
 
           {/* Plan Selection */}
-          {currentPlans.length > 0 && (
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <CircularProgress size={35} />
+            </div>
+          ) : currentPlans.length > 0 ? (
             <div className="space-y-3">
-              <label className="text-sm font-semibold text-gray-700">
-                Select Plan
-              </label>
-              {currentPlans.map((plan) => (
+              {currentPlans.map((plan, index) => (
                 <div
                   key={plan.id}
                   onClick={() => handlePlanSelect(plan)}
-                  className={`relative p-4 rounded-xl border-2 transition-all cursor-pointer ${
-                    selectedPlan?.id === plan.id
-                      ? 'border-brand-primary bg-brand-primary/5'
-                      : 'border-gray-200 hover:border-brand-primary/30'
-                  }`}
+                  className={`p-2 pb-4 rounded-xl border-2 transition-all cursor-pointer ${selectedPlan?.id === plan.id
+                    ? 'border-none bg-gradient-to-b from-brand-primary to-brand-primary/40 rounded-lg'
+                    : 'border-gray-200 hover:border-brand-primary/30'
+                    } h-auto
+                     
+                    
+                    ` }
                 >
-                  {/* Trial Badge - Top Right Corner */}
-                  {isFrom === 'SubAccount' && plan?.hasTrial === true && plan?.trialValidForDays && (
-                    <div className="absolute top-2 right-2 bg-brand-primary text-white text-xs font-semibold px-2 py-1 rounded-md shadow-sm">
-                      {plan.trialValidForDays} Day Trial
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-bold text-lg text-gray-900">
-                          {plan.name || plan.title}
-                        </h3>
-                        {selectedPlan?.id === plan.id && (
-                          <div className="w-5 h-5 rounded-full bg-brand-primary flex items-center justify-center">
-                            <svg
-                              className="w-3 h-3 text-white"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={3}
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
+                  <div className="flex items-center flex-col">
+                    {
+                      plan.tag && (
+
+                        <div className="flex flex-row items-center gap-2 pb-1">
+                          {
+                            selectedPlan?.id === plan.id ? (
+                              <Image src="/svgIcons/powerWhite.svg" height={24} width={24} alt="*" />
+                            ) : (
+                              renderBrandedIcon('/svgIcons/power.svg', 24, 24)
+                            )
+                          }
+                          <div className={`text-base font-bold ${selectedPlan?.id === plan.id ? 'text-white' : 'text-brand-primary'}`}>
+                            {plan.tag}
                           </div>
-                        )}
-                      </div>
-                      <p className="text-sm text-gray-600 mt-1">
-                        {plan.details || plan.description || plan.planDescription}
-                      </p>
-                      <div className="flex items-baseline gap-2 mt-2">
-                        {isFrom === 'SubAccount' && plan?.originalPrice > 0 && (
-                          <span className="text-gray-400 line-through text-sm">
-                            ${formatFractional2(plan?.originalPrice)}
+                          {
+                            selectedPlan?.id === plan.id ? (
+                              <Image src="/svgIcons/enterArrowWhite.svg" height={20} width={20} alt="*" />
+                            ) : (
+                              renderBrandedIcon('/svgIcons/enterArrow.svg', 20, 20)
+                            )
+                          }
+                        </div>
+                      )
+                    }
+                    <div className="flex-1 flex flex-col items-center w-full bg-white rounded-lg">
+                      <div className="flex items-center flex-col gap-2 w-full">
+                        <h3 className="font-bold text-2xl text-black capitalize mt-2">
+                          {plan.title}
+                        </h3>
+
+
+                        <div className="flex items-baseline gap-2 mt-4">
+                          <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-primary to-brand-primary">
+                            ${formatDecimalValue(getMonthlyPrice(plan))}
                           </span>
-                        )}
-                        <span className="text-2xl font-bold text-gray-900">
-                          ${formatFractional2(plan.discountedPrice || 0)}
-                        </span>
-                        <span className="text-sm text-gray-500">
-                          /{selectedDuration.title.toLowerCase()}
-                        </span>
+                        </div>
+
+                        <div className="flex items-baseline gap-2 mt-1">
+                          <span className="text-sm text-gray-500 capitalize">
+                            {plan.planDescription}
+                          </span>
+                        </div>
                       </div>
+
+                      {/* Continue Button */}
+                      <button
+                        onClick={handleContinueClick}
+                        disabled={!selectedPlan || subscribeLoader}
+                        className={`w-[90%] py-3 mt-4 rounded-xl font-regular text-white text-base transition-all ${!selectedPlan || subscribeLoader && selectedPlan?.id === plan.id
+                          ? 'bg-gray-300 cursor-not-allowed'
+                          : 'bg-brand-primary hover:opacity-90 shadow-lg active:scale-98'
+                          }`}
+                      >
+                        {subscribeLoader && selectedPlan?.id === plan.id ? (
+                          <div className="flex items-center justify-center gap-2">
+                            <CircularProgress size={20} color="inherit" />
+                            <span>Processing...</span>
+                          </div>
+                        ) : (
+                          'Get Started'
+                        )}
+                      </button>
+                      {plan.id === selectedPlan?.id && !showPlanDetails && (
+                        <button className=" mt-4 mb-4"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setShowPlanDetails(true)
+                          }}
+                        >
+                          <div className="flex flex-row items-center gap-2">
+                            <span className="text-sm text-brand-primary capitalize underline">
+                              Show Plan Details
+                            </span>
+                            {renderBrandedIcon('/svgIcons/downArrow.svg', 20, 20)}
+                          </div>
+                        </button>
+                      )}
+                      {plan.id === selectedPlan?.id && showPlanDetails && (
+                        <button className=" mt-4 mb-4"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setShowPlanDetails(false)
+                          }}
+                        >
+                          <div className="flex flex-row items-center gap-2">
+                            <span className="text-sm text-brand-primary capitalize underline">
+                              Hide Plan Details
+                            </span>
+                            {renderBrandedIcon('/svgIcons/downArrow.svg', 20, 20)}
+                          </div>
+                        </button>
+                      )}
+
+
+                      {
+                        showPlanDetails && plan.id === selectedPlan?.id && (
+
+                          <div className="flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0">
+                            <div className="flex flex-col items-start w-full flex-1 pr-2">
+                              {index > 0 && (
+                                <div className="w-full mb-3 flex-shrink-0">
+                                  <div className="text-sm font-semibold text-foreground mb-2 text-left">
+                                    Everything in{' '}
+                                    {getCurrentPlans()[index - 1]?.title}, and:
+                                  </div>
+                                </div>
+                              )}
+
+                              {Array.isArray(plan?.features) &&
+                                plan?.features?.map((feature) => (
+                                  <div
+                                    key={feature.text}
+                                    className="flex flex-row items-start gap-3 mb-3 w-full"
+                                  >
+                                    <Checkbox
+                                      checked={true}
+                                      className="!rounded-full h-4 w-4 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                                    />
+                                    <FeatureLine
+                                      text={feature.text}
+                                      info={feature.subtext}
+                                      max={16}
+                                      min={10}
+                                      gap={6}
+                                      iconSize={16}
+                                    />
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                        )
+                      }
                     </div>
                   </div>
                 </div>
               ))}
             </div>
+          ) : (
+            <div className="text-center py-8 text-gray-500">No plans available</div>
           )}
 
-          {/* Order Summary */}
-          {selectedPlan && (
-            <div className="bg-gray-50 rounded-xl p-4 space-y-3 relative">
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold text-gray-900">Plan Details</h3>
-                {isFrom === 'SubAccount' && selectedPlan?.hasTrial === true && selectedPlan?.trialValidForDays && (
-                  <span className="bg-brand-primary text-white text-xs font-semibold px-2 py-1 rounded-md">
-                    {selectedPlan.trialValidForDays} Day Trial
-                  </span>
-                )}
-              </div>
-              
-              <div className="flex justify-between items-center">
-                <div>
-                  <p className="font-medium text-gray-900">
-                    {selectedPlan.name || selectedPlan.title}
-                  </p>
-                  <p className="text-sm text-gray-600 capitalize">
-                    {selectedDuration.title} Subscription
-                  </p>
-                </div>
-                <p className="font-semibold text-gray-900">
-                  ${formatFractional2(selectedPlan.discountedPrice || 0)}
-                </p>
-              </div>
-
-              <div className="border-t border-gray-200 pt-3 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Total Billed Monthly</span>
-                  <span className="font-semibold text-gray-900">
-                    ${formatFractional2(monthlyPrice)}
-                  </span>
-                </div>
-                {nextChargeDate && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Next Charge Date</span>
-                    <span className="font-semibold text-gray-900">
-                      {nextChargeDate}
-                    </span>
-                  </div>
-                )}
-              </div>
-
-              {/* Payment Method Icons */}
-              {/* <div className="pt-3 border-t border-gray-200">
-                <p className="text-xs text-gray-500 mb-2">Accepted Payment Methods</p>
-                <div className="flex gap-2">
-                  <div className="bg-white px-3 py-1.5 rounded border border-gray-200">
-                    <span className="text-xs font-semibold text-blue-600">VISA</span>
-                  </div>
-                  <div className="bg-white px-3 py-1.5 rounded border border-gray-200">
-                    <span className="text-xs font-semibold text-red-500">MC</span>
-                  </div>
-                  <div className="bg-white px-3 py-1.5 rounded border border-gray-200">
-                    <span className="text-xs font-semibold text-blue-500">AMEX</span>
-                  </div>
-                  <div className="bg-white px-3 py-1.5 rounded border border-gray-200">
-                    <span className="text-xs font-semibold text-orange-500">DISCOVER</span>
-                  </div>
-                </div>
-              </div> */}
-            </div>
-          )}
-
-          {/* Total Due */}
-          {selectedPlan && (
-            <div className="bg-brand-primary rounded-xl p-4 text-white">
-              <div className="flex items-baseline justify-between">
-                <div>
-                  <p className="text-3xl font-bold">${formatFractional2(totalPrice)}</p>
-                  <p className="text-sm text-purple-100 mt-1">Due Today</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-            </div>
-          </div>
-        </div>
-
-        {/* Fixed Bottom Section with Continue Button */}
-        <div 
-          className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50"
-          style={{ 
-            paddingBottom: `calc(1.5rem + env(safe-area-inset-bottom, 0px))`,
-          }}
-        >
-          <div className="max-w-md mx-auto px-6 pt-4 pb-2 space-y-3">
-            {/* Terms and Conditions */}
-            <p className="text-xs text-center text-gray-500">
-              By continuing you agree to{' '}
-              <span
-                onClick={() => {
-                  const { termsUrl } = getPolicyUrls()
-                  if (termsUrl) {
-                    window.open(termsUrl, '_blank')
-                  }
-                }}
-                className="text-brand-primary font-semibold hover:text-brand-primary/80 underline transition-colors duration-200 cursor-pointer"
-              >
-                Terms & Conditions
-              </span>
-            </p>
-            
-            {/* Continue Button */}
-            <button
-              onClick={handleContinueClick}
-              disabled={!selectedPlan || subscribeLoader}
-              className={`w-full py-4 rounded-xl font-bold text-white text-lg transition-all ${
-                !selectedPlan || subscribeLoader
-                  ? 'bg-gray-300 cursor-not-allowed'
-                  : 'bg-brand-primary hover:opacity-90 shadow-lg active:scale-98'
-              }`}
-            >
-              {subscribeLoader ? (
-                <div className="flex items-center justify-center gap-2">
-                  <CircularProgress size={20} color="inherit" />
-                  <span>Processing...</span>
-                </div>
-              ) : (
-                'Continue'
-              )}
-            </button>
-          </div>
         </div>
       </div>
+    </div>
 
-      {/* Add Payment Modal */}
-      <Modal
-        open={addPaymentPopUp}
-        onClose={() => {
-          setAddPaymentPopUp(false)
-          setShouldAutoSubscribe(false)
-        }}
-        className="flex items-center justify-center p-0"
-        sx={{
-          '& .MuiBackdrop-root': {
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            backdropFilter: 'blur(4px)',
-          },
-        }}
-      >
-        <Box
+        {/* Add Payment Modal */}
+        <Modal
+          open={addPaymentPopUp}
+          onClose={() => {
+            setAddPaymentPopUp(false)
+            setShouldAutoSubscribe(false)
+          }}
+          className="flex items-center justify-center p-0"
           sx={{
-            position: 'absolute',
-            top: { xs: 0, sm: '50%' },
-            left: { xs: 0, sm: '50%' },
-            transform: { xs: 'none', sm: 'translate(-50%, -50%)' },
-            width: '100%',
-            maxWidth: { xs: '100%', sm: '500px' },
-            height: { xs: '100vh', sm: 'auto' },
-            maxHeight: { xs: '100vh', sm: '90vh' },
-            bgcolor: 'background.paper',
-            borderRadius: { xs: '0', sm: '16px' },
-            boxShadow: 24,
-            p: 0,
-            overflow: { xs: 'hidden', sm: 'auto' },
-            display: 'flex',
-            flexDirection: 'column',
-            paddingBottom: { xs: 'env(safe-area-inset-bottom, 0px)', sm: 0 },
+            '& .MuiBackdrop-root': {
+              backgroundColor: 'rgba(0, 0, 0, 0.5)',
+              backdropFilter: 'blur(4px)',
+            },
           }}
         >
-          <Elements stripe={stripePromise}>
-            <UserAddCard
-              handleClose={handleClose}
-              togglePlan={selectedPlan}
-              isFrom={isFrom}
-              selectedUser={selectedUser}
-              selectedPlan={selectedPlan}
-              setAddCardFailure={() => {}}
-              setAddCardSuccess={() => {}}
-              setAddCardErrtxt={() => {}}
-              addCardFailure={false}
-              addCardSuccess={false}
-              addCardErrtxt=""
-            />
-          </Elements>
-        </Box>
-      </Modal>
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '100%',
+              maxWidth: { xs: '100%', sm: '500px' },
+              height: { xs: '100vh', sm: 'auto' },
+              maxHeight: { xs: '100vh', sm: '90vh' },
+              bgcolor: 'background.paper',
+              borderRadius: { xs: '0', sm: '16px' },
+              boxShadow: 24,
+              p: 0,
+              overflow: 'auto',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+            key="payment-modal"
+          >
+            <Elements stripe={stripePromise} key="stripe-elements">
+              <UserAddCard
+                key="user-add-card"
+                handleClose={handleClose}
+                togglePlan={selectedPlan}
+                isFrom={isFrom}
+                selectedUser={selectedUser}
+                selectedPlan={selectedPlan}
+                setAddCardFailure={() => { }}
+                setAddCardSuccess={() => { }}
+                setAddCardErrtxt={() => { }}
+                addCardFailure={false}
+                addCardSuccess={false}
+                addCardErrtxt=""
+              />
+            </Elements>
+          </Box>
+        </Modal>
 
-      {/* Error Snackbar */}
-      <AgentSelectSnackMessage
-        isVisible={errorMsg !== null}
-        message={errorMsg}
-        hide={() => setErrorMsg(null)}
-        type={snackMsgType}
-      />
+        {/* Error Snackbar */}
+        <AgentSelectSnackMessage
+          isVisible={errorMsg !== null}
+          message={errorMsg}
+          hide={() => setErrorMsg(null)}
+          type={snackMsgType}
+        />
+      </div>
     </div>
   )
 }

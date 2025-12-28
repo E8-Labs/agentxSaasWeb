@@ -235,7 +235,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       >
         <div className="flex items-center justify-between p-6 border-b">
           <div>
-            <h2 className="text-xl font-semibold">Request Mailgun Email</h2>
+            <h2 className="text-xl font-semibold">Setup your email</h2>
             <p className="text-sm text-gray-500 mt-1">Choose how you want to set up your email address</p>
           </div>
           <button
@@ -503,7 +503,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
                       <AlertCircle className="text-gray-400 mx-auto mb-3" size={32} />
                       <p className="text-sm text-gray-600 mb-1">No parent domains available</p>
                       <p className="text-xs text-gray-500">
-                        Ask your agency admin to set up a domain, or use the "Setup Custom Domain" tab to create your own.
+                      Contact your admin to get your email setup
                       </p>
                     </div>
                   )}
@@ -523,8 +523,8 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
                           Setup Your Own Custom Domain
                         </p>
                         <p className="text-xs text-purple-700">
-                          Connect your own domain (e.g., <span className="font-mono">mail.yourdomain.com</span>) with your Mailgun account. 
-                          You'll need your Mailgun API key and access to your domain's DNS settings.
+                        Connect your own domain(eg. mail.yourdomain.com). 
+                        You'll need access to your domain's DNS settings. 
                         </p>
                       </div>
                     </div>

@@ -61,10 +61,10 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
         setDnsRecords(dnsRecordsData)
         setMailgunIntegrationId(response.data.data.id)
         setStep(2)
-        toast.success('Domain added to Mailgun. Please configure DNS records.')
-        
+        toast.success('Domain added to Mailgun.')
+
         if (dnsRecordsData.length === 0) {
-          toast.warning('No DNS records returned. The domain may need manual configuration.')
+          toast.warning('No DNS records returned.')
         }
       } else {
         toast.error(response.data?.message || 'Failed to create Mailgun integration')
@@ -105,7 +105,7 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
             onSuccess()
           }
         } else {
-          toast.warning('Domain verification pending. Please ensure DNS records are configured correctly.')
+          toast.warning('Domain verification pending.')
         }
       } else {
         toast.error(response.data?.message || 'Failed to verify domain')
@@ -126,8 +126,8 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
   if (!open) return null
 
   const modalContent = (
-    <div 
-      className="fixed inset-0 bg-black/50 flex items-center justify-center" 
+    <div
+      className="fixed inset-0 bg-black/50 flex items-center justify-center"
       style={{ zIndex: 100001 }}
       onClick={(e) => {
         // Only close if clicking the backdrop, not the modal content
@@ -136,7 +136,7 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
         }
       }}
     >
-      <div 
+      <div
         className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
@@ -223,7 +223,7 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
                           DNS Records Not Available Yet
                         </p>
                         <p className="text-xs text-yellow-700 mt-1">
-                          Mailgun may need a few moments to generate DNS records for your domain. 
+                          Mailgun may need a few moments to generate DNS records for your domain.
                           You can find the DNS records in your Mailgun dashboard:
                         </p>
                         <ol className="text-xs text-yellow-700 mt-2 ml-4 list-decimal space-y-1">
@@ -246,34 +246,34 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
                     const recordValue = record.value || record.recordValue || ''
                     const priority = record.priority || record.priorityValue
                     const displayValue = priority ? `${priority} ${recordValue}` : recordValue
-                    
+
                     return (
                       <div
                         key={index}
                         className="border border-gray-200 rounded-lg p-4"
                       >
                         <div className="flex items-center justify-between mb-2">
-                          <div className="flex-1">
-                            <p className="font-medium text-sm">
-                              {recordName === '@' ? 'Root Domain' : recordName}
-                            </p>
+                          <div className="flex-1 flex flex-row gap-2">
                             <p className="text-xs text-gray-500 mt-1">
-                              Type: {recordType}
+                              Type: {recordType} 
                               {priority && ` | Priority: ${priority}`}
+                            </p>
+                            <p className="font-medium text-sm">
+                              {recordName === '@' ? ' | Root Domain' : ' | ' + recordName}
+                            </p>
+
+
+                            <p className="text-sm font-mono break-all ">
+                            {' | '}Worth: {(displayValue).slice(0, 20) || 'No value provided'}
                             </p>
                           </div>
                           <button
                             onClick={() => copyToClipboard(displayValue)}
-                            className="text-gray-400 hover:text-gray-600 ml-2"
+                            className="text-gray-400 hover:text-gray-600 ml-2 flex items-center justify-center"
                             title="Copy to clipboard"
                           >
                             <Copy size={16} />
                           </button>
-                        </div>
-                        <div className="bg-gray-50 rounded p-2 mt-2">
-                          <p className="text-sm font-mono break-all">
-                            {displayValue || 'No value provided'}
-                          </p>
                         </div>
                       </div>
                     )
@@ -283,8 +283,8 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
 
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
                 <p className="text-sm text-blue-900">
-                  <strong>Note:</strong> After adding DNS records, wait a few minutes for DNS propagation. 
-                  If verification doesn't work immediately, you may need to manually trigger verification 
+                  <strong>Note:</strong> After adding DNS records, wait a few minutes for DNS propagation.
+                  If verification doesn't work immediately, you may need to manually trigger verification
                   in your Mailgun dashboard by clicking "Check DNS settings" first, then try verifying here again.
                 </p>
               </div>
@@ -325,7 +325,7 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
   if (typeof window !== 'undefined') {
     return createPortal(modalContent, document.body)
   }
-  
+
   return modalContent
 }
 

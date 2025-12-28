@@ -388,15 +388,10 @@ export const UpgradeTag = ({
     <div
       className={`items-center gap-2 p-2 rounded-lg text-[12px] cursor-pointer transition-colors ${className}`}
       style={{
-        backgroundColor: `${brandColor}10`,
+        backgroundColor: `${brandColor}/20`,
         color: brandColor,
       }}
-      onMouseEnter={(e) => {
-        e.currentTarget.style.backgroundColor = `${brandColor}20`
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.backgroundColor = `${brandColor}10`
-      }}
+   
       onClick={onClick}
     >
       {requestFeature ? 'Request Feature' : 'Upgrade'}

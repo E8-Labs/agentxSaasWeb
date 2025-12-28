@@ -27,6 +27,7 @@ import AppLogo from '@/components/common/AppLogo'
 import { Checkbox } from '../ui/checkbox'
 import { logout } from '@/utilities/UserUtility'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
+import FeatureLine from '../userPlans/FeatureLine'
 
 //code for add card
 const stripePromise = getStripe()
@@ -96,6 +97,10 @@ function AgencyPlans({
   const [subscriptionPaymentFailed, setSubscriptionPaymentFailed] =
     useState(false)
   const [failedPlanId, setFailedPlanId] = useState(null)
+
+  const [showPlanDetails, setShowPlanDetails] = useState(false)
+  const [tooltipOpen, setTooltipOpen] = useState(false)
+
 
   useEffect(() => {
     getPlans()
@@ -416,7 +421,7 @@ function AgencyPlans({
               handleCloseModal(response.data.message)
               return
             }
-            
+
             // Determine redirect path
             let redirectPath = '/agency/dashboard'
             if (isFrom === 'page') {
@@ -438,7 +443,7 @@ function AgencyPlans({
                 redirectPath = '/agency/verify'
               }
             }
-            
+
             // Use window.location.href for hard redirect to ensure clean page reload
             // This prevents DOM cleanup errors during navigation
             // Don't set state before redirect - it causes React cleanup errors during navigation
@@ -571,51 +576,64 @@ function AgencyPlans({
 
     return (
       <div className="h-screen bg-gradient-to-br from-brand-primary/40 via-white to-brand-primary/40 relative overflow-hidden flex flex-col w-full">
-        {/* Background blur effect */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
-          <div className="absolute -left-1/4 -top-1/4 w-96 h-96 bg-purple-200 rounded-full opacity-20 blur-3xl"></div>
-          <div className="absolute -right-1/4 -bottom-1/4 w-96 h-96 bg-blue-200 rounded-full opacity-20 blur-3xl"></div>
-        </div>
-
-        {/* Scrollable Container */}
         <div className="relative z-10 flex-1 flex flex-col overflow-hidden min-h-0">
           {/* Main Card - Scrollable */}
           <div className="flex-1 overflow-y-auto px-4 pt-4 pb-40 min-h-0">
-            <div className="w-full max-w-md mx-auto bg-white rounded-3xl shadow-2xl overflow-hidden">
-              {/* Header */}
-              <div className="bg-white px-6 py-1">
-                <h1 className="text-2xl font-bold text-black">Select a plan</h1>
+            <div className="w-full flex flex-col items-center  overflow-hidden">
+              <h1 className="text-2xl font-bold text-black pt-2">Get an AI AaaS Agency</h1>
+
+              <div className="text-sm text-gray-500">
+                Gets more done than coffee. Cheaper too.<span className="text-black">😉</span>
               </div>
+
+
 
               {/* Content */}
               <div className="px-6 py-6 space-y-6">
-                {/* Duration Selector - Horizontally Scrollable */}
-                {duration.length > 1 && (
-                  <div className="flex gap-2 overflow-x-auto pb-2 -mx-2 px-2 scrollbar-hide">
-                    <div className="flex gap-2 min-w-max">
-                      {duration.map((dur) => (
+
+
+                <div className="flex flex-col items-end w-full mt-2">
+                  <div className="flex flex-row items-center justify-end gap-5 px-2 me-[0px] md:me-[7px]  w-auto">
+                    {durationSaving.map((item) => {
+                      return (
                         <button
-                          key={dur.id}
+                          key={item.id}
+                          className={
+                            `px-2 py-1 rounded-tl-lg rounded-tr-lg font-semibold text-[13px] ${selectedDuration.id === item.id ? 'text-white bg-brand-primary outline-none border-none' : 'text-muted-foreground'}`
+                          }
                           onClick={() => {
-                            setSelectedDuration(dur)
-                            setSelectedPlan(null)
+                            setSelectedDuration(item);
+                            getCurrentPlans();
                           }}
-                          className={`flex-shrink-0 py-2.5 px-4 rounded-xl font-semibold text-sm transition-all whitespace-nowrap ${selectedDuration.id === dur.id
-                              ? 'bg-brand-primary text-white shadow-lg'
-                              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                            }`}
                         >
-                          {dur.title}
-                          {durationSaving.find(s => s.id === dur.id) && (
-                            <span className="ml-1 text-xs opacity-90">
-                              ({durationSaving.find(s => s.id === dur.id).title})
-                            </span>
-                          )}
+                          {item.title}
+                        </button>
+                      )
+                    })}
+                  </div>
+                  <div className="w-full flex md:w-auto flex-col items-center md:items-end justify-center md:justify-end">
+                    <div
+                      className="border flex flex-row items-center bg-neutral-100 px-2 gap-[8px] rounded-full py-1.5 w-[90%] md:w-auto justify-center md:justify-start"
+                    >
+                      {duration?.map((item) => (
+                        <button
+                          key={item.id}
+                          className={
+                            `px-4 py-1 rounded-full ${selectedDuration.id === item.id ? 'text-white bg-brand-primary outline-none border-none shadow-md shadow-brand-primary/50' : 'text-foreground'}`
+                          }
+                          onClick={() => {
+                            setSelectedDuration(item);
+                            getCurrentPlans();
+                          }}
+                        >
+                          {item.title}
                         </button>
                       ))}
                     </div>
                   </div>
-                )}
+                </div>
+
+
 
                 {/* Plan Selection */}
                 {loading ? (
@@ -624,140 +642,156 @@ function AgencyPlans({
                   </div>
                 ) : currentPlans.length > 0 ? (
                   <div className="space-y-3">
-                    <label className="text-sm font-semibold text-gray-700">
-                      Select Plan
-                    </label>
-                    {currentPlans.map((plan) => (
+                    {currentPlans.map((plan, index) => (
                       <div
                         key={plan.id}
                         onClick={() => handlePlanSelect(plan)}
-                        className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${selectedPlan?.id === plan.id
-                            ? 'border-brand-primary bg-brand-primary/5'
-                            : 'border-gray-200 hover:border-brand-primary/30'
-                          }`}
+                        className={`p-2 pb-4 rounded-xl border-2 transition-all cursor-pointer ${selectedPlan?.id === plan.id
+                          ? 'border-none bg-gradient-to-b from-brand-primary to-brand-primary/40 rounded-lg'
+                          : 'border-gray-200 hover:border-brand-primary/30'
+                          } h-auto
+                           
+                          
+                          ` }
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <h3 className="font-bold text-lg text-gray-900 capitalize">
+                        <div className="flex items-center flex-col">
+                          {
+                            plan.tag && (
+
+                              <div className="flex flex-row items-center gap-2 pb-1">
+                                {
+                                  selectedPlan?.id === plan.id ? (
+                                    <Image src="/svgIcons/powerWhite.svg" height={24} width={24} alt="*" />
+                                  ) : (
+                                    renderBrandedIcon('/svgIcons/power.svg', 24, 24)
+                                  )
+                                }
+                                <div className={`text-base font-bold ${selectedPlan?.id === plan.id ? 'text-white' : 'text-brand-primary'}`}>
+                                  {plan.tag}
+                                </div>
+                                {
+                                  selectedPlan?.id === plan.id ? (
+                                    <Image src="/svgIcons/enterArrowWhite.svg" height={20} width={20} alt="*" />
+                                  ) : (
+                                    renderBrandedIcon('/svgIcons/enterArrow.svg', 20, 20)
+                                  )
+                                }
+                              </div>
+                            )
+                          }
+                          <div className="flex-1 flex flex-col items-center w-full bg-white rounded-lg">
+                            <div className="flex items-center flex-col gap-2 w-full">
+                              <h3 className="font-bold text-2xl text-black capitalize mt-2">
                                 {plan.title}
                               </h3>
-                              {selectedPlan?.id === plan.id && (
-                                <div className="w-5 h-5 rounded-full bg-brand-primary flex items-center justify-center">
-                                  <svg
-                                    className="w-3 h-3 text-white"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      strokeWidth={3}
-                                      d="M5 13l4 4L19 7"
-                                    />
-                                  </svg>
+
+
+                              <div className="flex items-baseline gap-2 mt-4">
+                                <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-primary to-brand-primary">
+                                  ${formatDecimalValue(getMonthlyPrice(plan))}
+                                </span>
+                              </div>
+
+                              <div className="flex items-baseline gap-2 mt-1">
+                                <span className="text-sm text-gray-500 capitalize">
+                                  {plan.planDescription}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Continue Button */}
+                            <button
+                              onClick={handleContinueClick}
+                              disabled={!selectedPlan || subPlanLoader}
+                              className={`w-[90%] py-3 mt-4 rounded-xl font-regular text-white text-base transition-all ${!selectedPlan || subPlanLoader && selectedPlan?.id === plan.id
+                                ? 'bg-gray-300 cursor-not-allowed'
+                                : 'bg-brand-primary hover:opacity-90 shadow-lg active:scale-98'
+                                }`}
+                            >
+                              {subPlanLoader && selectedPlan?.id === plan.id ? (
+                                <div className="flex items-center justify-center gap-2">
+                                  <CircularProgress size={20} color="inherit" />
+                                  <span>Processing...</span>
                                 </div>
+                              ) : (
+                                'Get Started'
                               )}
-                            </div>
-                            <div className="flex items-baseline gap-2 mt-2">
-                              <span className="text-2xl font-bold text-gray-900">
-                                ${formatDecimalValue(getMonthlyPrice(plan))}
-                              </span>
-                              <span className="text-sm text-gray-500">
-                                /{selectedDuration.title.toLowerCase()}
-                              </span>
-                            </div>
+                            </button>
+                      {!showPlanDetails &&(
+                            <button className=" mt-4 mb-4"
+                              onClick={() => {
+                                setShowPlanDetails(!showPlanDetails)
+                              }}
+                            >
+                              <div className="flex flex-row items-center gap-2">
+                                <span className="text-sm text-brand-primary capitalize underline">
+                                  {showPlanDetails && plan.id === selectedPlan?.id ? 'Hide Plan Details' : 'Show Plan Details'}
+                                </span>
+
+                                {
+                                  showPlanDetails && plan.id === selectedPlan?.id ? (
+                                    renderBrandedIcon('/svgIcons/downArrow.svg', 20, 20)
+                                  ) : (
+                                    renderBrandedIcon('/svgIcons/downArrow.svg', 20, 20)
+                                  )
+                                }
+                              </div>
+                            </button>
+                          )}
+
+
+                            {
+                              showPlanDetails && plan.id === selectedPlan?.id && (
+
+                                <div className="flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0">
+                                  <div className="flex flex-col items-start w-full flex-1 pr-2">
+                                    {index > 0 && (
+                                      <div className="w-full mb-3 flex-shrink-0">
+                                        <div className="text-sm font-semibold text-foreground mb-2 text-left">
+                                          Everything in{' '}
+                                          {getCurrentPlans()[index - 1]?.title}, and:
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {Array.isArray(plan?.features) &&
+                                      plan?.features?.map((feature) => (
+                                        <div
+                                          key={feature.text}
+                                          className="flex flex-row items-start gap-3 mb-3 w-full"
+                                        >
+                                          <Checkbox
+                                            checked={true}
+                                            className="!rounded-full h-4 w-4 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                                          />
+                                          <FeatureLine
+                                            text={feature.text}
+                                            info={feature.subtext}
+                                            max={16}
+                                            min={10}
+                                            gap={6}
+                                            iconSize={16}
+                                          />
+                                        </div>
+                                      ))}
+                                  </div>
+                                </div>
+                              )
+                            }
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-center py-8 text-gray-500">
-                    No plans available
-                  </div>
+                  <div className="text-center py-8 text-gray-500">No plans available</div>
                 )}
 
-                {/* Order Summary */}
-                {selectedPlan && (
-                  <div className="bg-gray-50 rounded-xl p-4 space-y-3">
-                    <h3 className="font-semibold text-gray-900 mb-3">Plan Details</h3>
-
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <p className="font-medium text-gray-900 capitalize">
-                          {selectedPlan.title}
-                        </p>
-                        <p className="text-sm text-gray-600 capitalize">
-                          {selectedDuration.title} Subscription
-                        </p>
-                      </div>
-                      <p className="font-semibold text-gray-900">
-                        ${formatDecimalValue(getMonthlyPrice(selectedPlan))}
-                      </p>
-                    </div>
-
-                    <div className="border-t border-gray-200 pt-3">
-                      <div className="flex justify-between text-sm">
-                        <span className="text-gray-600">Total Billed</span>
-                        <span className="font-semibold text-gray-900">
-                          ${formatDecimalValue(totalPrice)}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Total Due */}
-                {selectedPlan && (
-                  <div className="bg-brand-primary rounded-xl p-4 text-white">
-                    <div className="flex items-baseline justify-between">
-                      <div>
-                        <p className="text-3xl font-bold">${formatDecimalValue(totalPrice)}</p>
-                        <p className="text-sm text-purple-100 mt-1">Due Today</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
 
-          {/* Fixed Bottom Section with Continue Button */}
-          <div 
-            className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50" 
-            style={{ 
-              paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom, 0px))',
-            }}
-          >
-            <div className="max-w-md mx-auto px-6 pt-4 pb-6 space-y-3">
-              {/* Terms and Conditions */}
-              <p className="text-xs text-center text-gray-500">
-                By continuing you agree to{' '}
-                <span className="text-brand-primary font-semibold">Terms & Conditions</span>
-              </p>
 
-              {/* Continue Button */}
-              <button
-                onClick={handleContinueClick}
-                disabled={!selectedPlan || subPlanLoader}
-                className={`w-full py-4 rounded-xl font-bold text-white text-lg transition-all ${!selectedPlan || subPlanLoader
-                    ? 'bg-gray-300 cursor-not-allowed'
-                    : 'bg-brand-primary hover:opacity-90 shadow-lg active:scale-98'
-                  }`}
-              >
-                {subPlanLoader ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <CircularProgress size={20} color="inherit" />
-                    <span>Processing...</span>
-                  </div>
-                ) : (
-                  'Continue'
-                )}
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Add Payment Modal */}
@@ -811,7 +845,7 @@ function AgencyPlans({
           hide={() => setErrorMsg(null)}
           type={snackMsgType}
         />
-      </div>
+      </div >
     )
   }
 
@@ -1018,36 +1052,18 @@ function AgencyPlans({
                     <div className="pb-2">
                       {item.tag ? (
                         <div className=" flex flex-row items-center gap-2">
-                          {(selectedPlan?.id === item.id ||
-                            hoverPlan?.id === item.id) &&
-                            (!isCurrentPlan || currentUserPlan?.status === 'cancelled') ? (
-                            <Image
-                              src="/svgIcons/powerWhite.svg"
-                              height={24}
-                              width={24}
-                              alt="*"
-                            />
-                          ) : (
+                          {
                             renderBrandedIcon('/svgIcons/power.svg', 24, 24)
-                          )}
+                          }
 
                           <div
-                            className={`text-base font-bold ${selectedPlan?.id === item.id || hoverPlan?.id === item.id && (!isCurrentPlan || currentUserPlan?.status === 'cancelled') ? 'text-white' : 'text-brand-primary'}`}
+                            className={`text-base font-bold text-brand-primary`}
                           >
                             {item.tag}
                           </div>
-                          {(selectedPlan?.id === item.id ||
-                            hoverPlan?.id === item.id) &&
-                            (!isCurrentPlan || currentUserPlan?.status === 'cancelled') ? (
-                            <Image
-                              src="/svgIcons/enterArrowWhite.svg"
-                              height={20}
-                              width={20}
-                              alt="*"
-                            />
-                          ) : (
+                          {
                             renderBrandedIcon('/svgIcons/enterArrow.svg', 20, 20)
-                          )}
+                          }
                         </div>
                       ) : (
                         <div className="h-[4vh]"></div>
@@ -1066,7 +1082,7 @@ function AgencyPlans({
                           <span className="text-4xl mt-4 font-semibold text-brand-primary  bg-clip-text ">
                             ${formatDecimalValue(getMonthlyPrice(item))}
                           </span>
-                          
+
                         </div>
 
                         <div

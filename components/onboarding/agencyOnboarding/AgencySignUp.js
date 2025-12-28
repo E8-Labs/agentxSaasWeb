@@ -90,8 +90,12 @@ const AgencySignUp = ({
   const [locationLoader, setLocationLoader] = useState(false)
   const [shouldContinue, setShouldContinue] = useState(true)
 
+  const [resetLoader, setResetLoader] = useState(false)
+
   //congrats popup for small size screens
   const [congratsPopup, setCongratsPopup] = useState(false)
+
+  const [showResetBtn, setShowResetBtn] = useState(false)
 
   const sizeList = [
     { id: 1, label: '1-10', min: 1, max: 10 },
@@ -292,11 +296,45 @@ const AgencySignUp = ({
     }
   }
 
+  const resetAccount = async () => {
+    try {
+      setShowVerifyPopup(false)
+      setResetLoader(true)
+      const response = await axios.post(Apis.deleteProfileForAgencyRegistration, {
+        phone: userPhoneNumber,
+        verificationCode: VerifyCode.join(''),
+      })
+
+      if(response.data.status === true){
+       await checkPhoneNumber(userPhoneNumber)
+        setShowResetBtn(false)
+        setIsVisible(true)
+        setResponse(response.data)
+      }else{
+        setErrMessage(response.data.message)
+        setIsVisible(true)
+        setResponse(response.data)
+      }
+    } catch (error) {
+      setResetLoader(false)
+      console.error('Error occured in reset account api is: ', error)
+    }
+    finally{
+      setResetLoader(false)
+    }
+  }
+
   //code for number verification
   const handleVerifyCode = () => {
     console.log('verify code is: ', VerifyCode)
     setPhoneVerifiedSuccessSnack(true)
-    handleRegister()
+
+    if(showResetBtn){
+      resetAccount()
+    }else{
+      handleRegister()
+    }
+    // handleRegister()
   }
   //   console.log('````````````')
 
@@ -495,6 +533,9 @@ const AgencySignUp = ({
           // //console.log;
           setCheckPhoneResponse(response.data)
         } else {
+          if (response.data.message.includes('Taken')) {
+            setShowResetBtn(true)
+          }
           setCheckPhoneResponse(response.data)
         }
       }
@@ -778,7 +819,7 @@ const AgencySignUp = ({
                   </div>
                 </div>
 
-                <div style={{ marginTop: '8px' }}>
+                <div className={`w-full flex flex-row items-center gap-2`} style={{ marginTop: '8px' }}>
                   <PhoneInput
                     ref={(el) => (inputsFields.current[2] = el)}
                     containerClass="phone-input-container"
@@ -831,6 +872,20 @@ const AgencySignUp = ({
                       }
                     }}
                   />
+                  {
+
+                    showResetBtn && (
+                      resetLoader ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                      <button className="bg-brand-primary text-white px-4 py-2 rounded-md whitespace-nowrap"
+                        onClick={() => handleVerifyPopup()  }
+                        >
+                          Reset Account
+                        </button>
+                      )
+                    )
+                  }
                 </div>
 
                 <div style={styles.headingStyle} className="mt-4">{`Agency Name`}</div>
@@ -1177,7 +1232,7 @@ const AgencySignUp = ({
                               const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
                                 typeof navigator !== 'undefined' ? navigator.userAgent : ''
                               )
-                              
+
                               // For agencies, always go to plans step first
                               // After subscribing to a plan, then redirect to desktop
                               router.push('/agency/onboarding?step=2')
@@ -1236,7 +1291,7 @@ const AgencySignUp = ({
               </div>
               <div
                 className="relative inline-flex flex-col items-center  w-[25vw] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl z-10" //absolute bottom-10 right-0 sm:right-40
-                // className="w-[531px] h-[481px] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl"
+              // className="w-[531px] h-[481px] bg-gradient-to-b from-white/50 to-white rounded-2xl shadow-[0px_76px_63.29999923706055px_-21px_rgba(0,0,0,0.05)] border border-white backdrop-blur-xl"
               >
                 <div className="inline-flex flex-col items-start w-full px-6">
                   <div

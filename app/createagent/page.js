@@ -181,6 +181,8 @@ const Page = () => {
                 BuildAgentName,
                 BuildAgentTask,
                 BuildAgentObjective,
+                UserPlansMobile,
+
 
                 // CreatAgent3,
                 // CreateAgent4,

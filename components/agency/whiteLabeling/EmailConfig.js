@@ -30,7 +30,7 @@ const EmailConfig = ({ selectedAgency }) => {
   const [loading, setLoading] = useState(true)
   const [connecting, setConnecting] = useState(false)
   const [showSnack, setShowSnack] = useState(null)
-  
+
   // Mailgun state
   const [mailgunIntegrations, setMailgunIntegrations] = useState([])
   const [loadingMailgun, setLoadingMailgun] = useState(true)
@@ -58,13 +58,13 @@ const EmailConfig = ({ selectedAgency }) => {
     try {
       setLoading(true)
       const token = AuthToken()
-      
+
       // Add userId parameter if selectedAgency is provided (admin view)
       let apiUrl = Apis.agencyMailAccount
       if (selectedAgency?.id) {
         apiUrl += `?userId=${selectedAgency.id}`
       }
-      
+
       const response = await axios.get(apiUrl, {
         headers: {
           Authorization: 'Bearer ' + token,
@@ -95,8 +95,8 @@ const EmailConfig = ({ selectedAgency }) => {
 
     // Also check if current hostname is a custom domain or subdomain
     const currentHostname = typeof window !== 'undefined' ? window.location.hostname : null
-    const isCustomDomain = currentHostname && 
-      !currentHostname.includes('app.assignx.ai') && 
+    const isCustomDomain = currentHostname &&
+      !currentHostname.includes('app.assignx.ai') &&
       !currentHostname.includes('dev.assignx.ai') &&
       !currentHostname.includes('localhost') &&
       !currentHostname.includes('127.0.0.1')
@@ -205,7 +205,7 @@ const EmailConfig = ({ selectedAgency }) => {
     try {
       setLoadingMailgun(true)
       const token = AuthToken()
-      
+
       const response = await axios.get(Apis.listMailgunIntegrations, {
         headers: {
           Authorization: 'Bearer ' + token,
@@ -230,7 +230,7 @@ const EmailConfig = ({ selectedAgency }) => {
     try {
       setVerifyingDomain(integrationId)
       const token = AuthToken()
-      
+
       const response = await axios.post(
         Apis.verifyMailgunDomain,
         { mailgunIntegrationId: integrationId },
@@ -277,7 +277,7 @@ const EmailConfig = ({ selectedAgency }) => {
     try {
       setLoadingMailgun(true)
       const token = AuthToken()
-      
+
       const response = await axios.delete(
         `${Apis.deleteMailgunIntegration}/${integrationId}`,
         {
@@ -617,14 +617,14 @@ const EmailConfig = ({ selectedAgency }) => {
               <div className="w-full">
                 <div className="flex flex-row items-center justify-between mb-4">
                   <div className="text-start" style={styles.semiBoldHeading}>
-                    Mailgun Domains
+                    Mailgun Emails
                   </div>
                   <button
                     onClick={() => setShowMailgunSetup(true)}
                     className="flex items-center gap-2 bg-brand-primary text-white rounded-lg px-4 py-2 font-medium text-sm hover:bg-brand-primary/90 transition-colors"
                   >
                     <Plus size={16} />
-                    Add Domain
+                    Connect Mailgun
                   </button>
                 </div>
 
@@ -635,7 +635,7 @@ const EmailConfig = ({ selectedAgency }) => {
                 ) : mailgunIntegrations.length === 0 ? (
                   <div className="w-full p-4 border border-gray-200 rounded-lg bg-gray-50 text-center">
                     <div className="text-start mb-4" style={styles.small}>
-                      No Mailgun domains configured. Add a domain to allow users to request email addresses on your custom domain.
+                      Configure Mailgun to give your subaccounts the ability to send and receive mass emails.
                     </div>
                   </div>
                 ) : (
@@ -666,15 +666,15 @@ const EmailConfig = ({ selectedAgency }) => {
                                   integration.verificationStatus === 'verified'
                                     ? 'text-green-600 font-medium'
                                     : integration.verificationStatus === 'failed'
-                                    ? 'text-red-600 font-medium'
-                                    : 'text-yellow-600 font-medium'
+                                      ? 'text-red-600 font-medium'
+                                      : 'text-yellow-600 font-medium'
                                 }
                               >
                                 {integration.verificationStatus === 'verified'
                                   ? 'Verified'
                                   : integration.verificationStatus === 'failed'
-                                  ? 'Verification Failed'
-                                  : 'Pending Verification'}
+                                    ? 'Verification Failed'
+                                    : 'Pending Verification'}
                               </span>
                             </div>
                             {integration.verifiedAt && (

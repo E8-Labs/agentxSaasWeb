@@ -340,7 +340,7 @@ const LeadDetails = ({
           // Filter duplicates before adding
           const existingIds = (prevData.teamsAssigned || []).map(u => u.id || u.invitedUserId)
           const itemId = item.id || item.invitedUserId
-          
+
           // Only add if not already assigned
           if (!existingIds.includes(itemId)) {
             return {
@@ -1099,10 +1099,10 @@ const LeadDetails = ({
   const showColor = (item) => {
     let color =
       callStatusColors[
-        Object.keys(callStatusColors).find(
-          (key) =>
-            key.toLowerCase() === (item?.callOutcome || '').toLowerCase(),
-        )
+      Object.keys(callStatusColors).find(
+        (key) =>
+          key.toLowerCase() === (item?.callOutcome || '').toLowerCase(),
+      )
       ] || '#000'
 
     return color
@@ -1112,7 +1112,7 @@ const LeadDetails = ({
     console.log('item.communication', item.communicationType)
     // Check if it's a dialer call (callOrigin === 'Dialer' or isWebCall === false for calls)
     const isDialerCall = item.callOrigin === 'Dialer' || (item.communicationType === 'call' && item.isWebCall === false)
-    
+
     if (item.communicationType == 'sms') {
       return '/otherAssets/smsIcon.png'
     } else if (item.communicationType == 'email') {
@@ -1330,19 +1330,19 @@ const LeadDetails = ({
   const formatObjections = (objectionsJson) => {
     if (!objectionsJson) return 'None'
     try {
-      const objections = typeof objectionsJson === 'string' 
-        ? JSON.parse(objectionsJson) 
+      const objections = typeof objectionsJson === 'string'
+        ? JSON.parse(objectionsJson)
         : objectionsJson
-      
+
       // Handle "None" string
       if (typeof objections === 'string' && objections.toLowerCase() === 'none') {
         return 'None'
       }
-      
+
       if (!Array.isArray(objections) || objections.length === 0) {
         return 'None'
       }
-      
+
       return objections
         .filter((obj) => obj && obj !== 'None' && obj !== 'none')
         .map((obj, idx) => {
@@ -1370,8 +1370,8 @@ const LeadDetails = ({
   const formatNextSteps = (nextStepsJson) => {
     if (!nextStepsJson) return 'No next steps'
     try {
-      const nextSteps = typeof nextStepsJson === 'string' 
-        ? JSON.parse(nextStepsJson) 
+      const nextSteps = typeof nextStepsJson === 'string'
+        ? JSON.parse(nextStepsJson)
         : nextStepsJson
       if (!Array.isArray(nextSteps) || nextSteps.length === 0) {
         return 'No next steps'
@@ -1448,10 +1448,10 @@ const LeadDetails = ({
     const callSummary = item.callSummary
     const summaryText = callSummary?.callSummary || null
     const hasSummary = summaryText && summaryText.trim()
-    
+
     // Use summary if available, otherwise fallback to transcript
     const displayText = hasSummary ? summaryText : (item.transcript || 'No summary or transcript available')
-    
+
     return (
       <div className="flex flex-col">
         {/* Top row: Duration, Play button, and Icons (Sentiment, Temp, Next Steps) */}
@@ -1479,10 +1479,10 @@ const LeadDetails = ({
                 height: 35,
               }}
             >
-              <Image 
-                src={'/assets/play.png'} 
-                height={35} 
-                width={35} 
+              <Image
+                src={'/assets/play.png'}
+                height={35}
+                width={35}
                 alt="Play recording"
                 style={{
                   filter: 'hue-rotate(0deg) saturate(1) brightness(1)',
@@ -1490,7 +1490,7 @@ const LeadDetails = ({
               />
             </button>
           </div>
-          
+
           {/* Top right icons: Sentiment, Temperature, Next Steps */}
           <div className="flex flex-row items-center gap-3">
             {callSummary?.prospectSentiment && (
@@ -1521,7 +1521,7 @@ const LeadDetails = ({
                 </div>
               </Tooltip>
             )}
-            
+
             {callSummary?.leadTemperature && (
               <Tooltip
                 title={`Lead Temperature: ${callSummary.leadTemperature}`}
@@ -1550,7 +1550,7 @@ const LeadDetails = ({
                 </div>
               </Tooltip>
             )}
-            
+
             {callSummary?.nextSteps && (
               <Tooltip
                 title={
@@ -1635,7 +1635,7 @@ const LeadDetails = ({
                 },
               }}
             >
-              <button 
+              <button
                 onClick={() => handleCopy(item.callId)}
                 style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
               >
@@ -1845,7 +1845,7 @@ const LeadDetails = ({
                             ) : (
                               <div
                                 className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                // onClick={() => handleToggleClick(item.id)}
+                              // onClick={() => handleToggleClick(item.id)}
                               >
                                 {selectedLeadsDetails?.firstName?.slice(0, 1) ||
                                   '-'}
@@ -1853,7 +1853,7 @@ const LeadDetails = ({
                             )}
                             <div
                               className="truncate"
-                              // onClick={() => handleToggleClick(item.id)}
+                            // onClick={() => handleToggleClick(item.id)}
                             >
                               {selectedLeadsDetails?.firstName}{' '}
                               {selectedLeadsDetails?.lastName}
@@ -1891,39 +1891,47 @@ const LeadDetails = ({
                                 {/* Email Option */}
                                 {(selectedLeadsDetails?.email ||
                                   selectedLeadsDetails?.emails?.length > 0) && (
-                                  <MenuItem
-                                    onClick={() => {
-                                      setSendActionAnchor(null)
-                                      if (googleAccounts.length === 0) {
-                                        setShowAuthSelectionPopup(true)
-                                      } else {
-                                        setShowEmailModal(true)
-                                      }
-                                    }}
-                                    disabled={sendEmailLoader}
-                                  >
-                                    <div className="flex flex-row items-center gap-2 w-full">
-                                      <Mail
-                                        size={20}
-                                        color="#000000"
-                                      />
-                                      <span>Email</span>
-                                    </div>
-                                  </MenuItem>
-                                )}
+                                    <MenuItem
+                                      onClick={() => {
+                                        setSendActionAnchor(null)
+                                        if (googleAccounts.length === 0) {
+                                          setShowAuthSelectionPopup(true)
+                                        } else {
+                                          setShowEmailModal(true)
+                                        }
+                                      }}
+                                      disabled={sendEmailLoader}
+                                    >
+                                      <div className="flex flex-row items-center gap-2 w-full">
+                                        <Mail
+                                          size={20}
+                                          color="#000000"
+                                        />
+                                        <span>Email</span>
+
+                                        {(!userLocalData?.planCapabilities
+                                          ?.allowEmails
+                                        ) && (
+                                            <UpgradeTagWithModal
+                                              reduxUser={userLocalData}
+                                              setReduxUser={setUserLocalData}
+                                            />
+                                        )}
+                                      </div>
+                                    </MenuItem>
+                                  )}
                                 {/* Text Option */}
                                 {selectedLeadsDetails?.phone && (
                                   <MenuItem
                                     onClick={() => {
+                                      if (sendSMSLoader ||
+                                        !userLocalData?.planCapabilities
+                                          ?.allowTextMessages ||
+                                        phoneNumbers.length == 0) return
                                       setSendActionAnchor(null)
                                       setShowSMSModal(true)
                                     }}
-                                    disabled={
-                                      sendSMSLoader ||
-                                      !userLocalData?.planCapabilities
-                                        ?.allowTextMessages ||
-                                      phoneNumbers.length == 0
-                                    }
+
                                   >
                                     <div className="flex flex-row items-center gap-2 w-full">
                                       <MessageSquare
@@ -1934,14 +1942,11 @@ const LeadDetails = ({
                                       {(!userLocalData?.planCapabilities
                                         ?.allowTextMessages ||
                                         phoneNumbers.length == 0) && (
-                                        <Image
-                                          src="/otherAssets/starsIcon2.png"
-                                          height={16}
-                                          width={16}
-                                          alt="upgrade"
-                                          className="ml-auto"
-                                        />
-                                      )}
+                                          <UpgradeTagWithModal
+                                            reduxUser={userLocalData}
+                                            setReduxUser={setUserLocalData}
+                                          />
+                                        )}
                                     </div>
                                   </MenuItem>
                                 )}
@@ -1993,63 +1998,62 @@ const LeadDetails = ({
                           {/* Email Field */}
                           {(selectedLeadsDetails?.email ||
                             selectedLeadsDetails?.emails?.length > 0) && (
-                            <div className="flex flex-row items-center gap-2">
-                              <Mail
-                                size={16}
-                                color="#000000"
-                              />
-                              <div style={styles.heading2}>
-                                {selectedLeadsDetails?.email ? (
-                                  selectedLeadsDetails?.email
-                                ) : (
-                                  <div>
-                                    {selectedLeadsDetails?.emails
-                                      ?.slice(0, 1)
-                                      .map((email, emailIndex) => {
-                                        return (
-                                          <div
-                                            key={emailIndex}
-                                            className="flex flex-row items-center gap-2"
-                                          >
+                              <div className="flex flex-row items-center gap-2">
+                                <Mail
+                                  size={16}
+                                  color="#000000"
+                                />
+                                <div style={styles.heading2}>
+                                  {selectedLeadsDetails?.email ? (
+                                    selectedLeadsDetails?.email
+                                  ) : (
+                                    <div>
+                                      {selectedLeadsDetails?.emails
+                                        ?.slice(0, 1)
+                                        .map((email, emailIndex) => {
+                                          return (
                                             <div
-                                              className="flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]"
-                                              style={styles.paragraph}
+                                              key={emailIndex}
+                                              className="flex flex-row items-center gap-2"
                                             >
-                                              <Image
-                                                src={'/assets/power.png'}
-                                                height={9}
-                                                width={7}
-                                                alt="*"
-                                              />
-                                              <div>
-                                                <span className="text-brand-primary">
-                                                  New
-                                                </span>{' '}
-                                                {email.email}
+                                              <div
+                                                className="flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]"
+                                                style={styles.paragraph}
+                                              >
+                                                <Image
+                                                  src={'/assets/power.png'}
+                                                  height={9}
+                                                  width={7}
+                                                  alt="*"
+                                                />
+                                                <div>
+                                                  <span className="text-brand-primary">
+                                                    New
+                                                  </span>{' '}
+                                                  {email.email}
+                                                </div>
                                               </div>
-                                            </div>
-                                            <button
-                                              className="text-brand-primary underline"
-                                              onClick={() => {
-                                                setShowAllEmails(true)
-                                              }}
-                                            >
-                                              {selectedLeadsDetails?.emails
-                                                ?.length > 1
-                                                ? `+${
-                                                    selectedLeadsDetails?.emails
-                                                      ?.length - 1
+                                              <button
+                                                className="text-brand-primary underline"
+                                                onClick={() => {
+                                                  setShowAllEmails(true)
+                                                }}
+                                              >
+                                                {selectedLeadsDetails?.emails
+                                                  ?.length > 1
+                                                  ? `+${selectedLeadsDetails?.emails
+                                                    ?.length - 1
                                                   }`
-                                                : ''}
-                                            </button>
-                                          </div>
-                                        )
-                                      })}
-                                  </div>
-                                )}
+                                                  : ''}
+                                              </button>
+                                            </div>
+                                          )
+                                        })}
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          )}
+                            )}
                           <div>
                             {selectedLeadsDetails?.email && (
                               <div className="flex flex-row w-full justify-end">
@@ -2086,10 +2090,9 @@ const LeadDetails = ({
                                         >
                                           {selectedLeadsDetails?.emails
                                             ?.length > 1
-                                            ? `+${
-                                                selectedLeadsDetails?.emails
-                                                  ?.length - 1
-                                              }`
+                                            ? `+${selectedLeadsDetails?.emails
+                                              ?.length - 1
+                                            }`
                                             : ''}
                                         </button>
                                       </div>
@@ -2141,7 +2144,7 @@ const LeadDetails = ({
                                 {selectedLeadsDetails?.tags.length > 0 ? (
                                   <div
                                     className="text-end flex flex-row items-center gap-2 "
-                                    // style={styles.paragraph}
+                                  // style={styles.paragraph}
                                   >
                                     {
                                       // selectedLeadsDetails?.tags?.map.slice(0, 1)
@@ -2153,7 +2156,7 @@ const LeadDetails = ({
                                               key={index}
                                               className="flex flex-row items-center gap-2"
                                             >
-                                              <div 
+                                              <div
                                                 className="flex flex-row items-center gap-2 px-2 py-1 rounded-lg"
                                                 style={{
                                                   backgroundColor: 'hsl(var(--brand-primary) / 0.1)'
@@ -2165,7 +2168,7 @@ const LeadDetails = ({
                                                   {tag}
                                                 </div>
                                                 {DelTagLoader &&
-                                                tag.includes(DelTagLoader) ? (
+                                                  tag.includes(DelTagLoader) ? (
                                                   <div>
                                                     <CircularProgress
                                                       size={15}
@@ -2201,12 +2204,12 @@ const LeadDetails = ({
                                     >
                                       {selectedLeadsDetails?.tags.length >
                                         2 && (
-                                        <div className="text-brand-primary underline">
-                                          +
-                                          {selectedLeadsDetails?.tags.length -
-                                            2}
-                                        </div>
-                                      )}
+                                          <div className="text-brand-primary underline">
+                                            +
+                                            {selectedLeadsDetails?.tags.length -
+                                              2}
+                                          </div>
+                                        )}
                                     </button>
                                   </div>
                                 ) : (
@@ -2338,10 +2341,10 @@ const LeadDetails = ({
                         </div>
                       )}
 
-                    <div className="flex w-full">
-                      {getExtraColumsCount(columnsLength) >= 1 && (
-                        <div className="flex flex-col mt-2 rounded-xl p-2 w-full max-w-full overflow-hidden">
-                          <div className="flex w-full ">
+                      <div className="flex w-full">
+                        {getExtraColumsCount(columnsLength) >= 1 && (
+                          <div className="flex flex-col mt-2 rounded-xl p-2 w-full max-w-full overflow-hidden">
+                            <div className="flex w-full ">
                               {showCustomVariables && (
                                 <div className="flex flex-col mt-4 gap-1 w-full max-w-full overflow-hidden">
                                   {leadColumns.map((column, index) => {
@@ -2379,39 +2382,39 @@ const LeadDetails = ({
                                             column,
                                             selectedLeadsDetails,
                                           ) && (
-                                            <div className="flex items-end justify-end min-w-[120px]">
-                                              <button
-                                                style={{
-                                                  fontWeight: '600',
-                                                  fontSize: 15,
-                                                }}
-                                                onClick={() => {
-                                                  setExpandedCustomFields(
-                                                    (prevFields) =>
-                                                      prevFields.includes(
-                                                        column?.title,
-                                                      )
-                                                        ? prevFields.filter(
+                                              <div className="flex items-end justify-end min-w-[120px]">
+                                                <button
+                                                  style={{
+                                                    fontWeight: '600',
+                                                    fontSize: 15,
+                                                  }}
+                                                  onClick={() => {
+                                                    setExpandedCustomFields(
+                                                      (prevFields) =>
+                                                        prevFields.includes(
+                                                          column?.title,
+                                                        )
+                                                          ? prevFields.filter(
                                                             (field) =>
                                                               field !==
                                                               column?.title,
                                                           )
-                                                        : [
+                                                          : [
                                                             ...prevFields,
                                                             column?.title,
                                                           ],
+                                                    )
+                                                  }}
+                                                  className="text-black underline w-[120px]"
+                                                >
+                                                  {expandedCustomFields.includes(
+                                                    column?.title,
                                                   )
-                                                }}
-                                                className="text-black underline w-[120px]"
-                                              >
-                                                {expandedCustomFields.includes(
-                                                  column?.title,
-                                                )
-                                                  ? 'Read Less'
-                                                  : 'Read More'}
-                                              </button>
-                                            </div>
-                                          )}
+                                                    ? 'Read Less'
+                                                    : 'Read More'}
+                                                </button>
+                                              </div>
+                                            )}
                                         </div>
                                       </div>
                                     )
@@ -2560,7 +2563,7 @@ const LeadDetails = ({
                                         key={index}
                                         className="flex flex-row items-center gap-2"
                                       >
-                                        <div 
+                                        <div
                                           className="flex flex-row items-center gap-2 px-2 py-1 rounded-lg"
                                           style={{
                                             backgroundColor: 'hsl(var(--brand-primary) / 0.1)'
@@ -2572,7 +2575,7 @@ const LeadDetails = ({
                                             {tag}
                                           </div>
                                           {DelTagLoader &&
-                                          tag.includes(DelTagLoader) ? (
+                                            tag.includes(DelTagLoader) ? (
                                             <div>
                                               <CircularProgress size={15} />
                                             </div>
@@ -2646,7 +2649,7 @@ const LeadDetails = ({
                               ) : (
                                 <div
                                   className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                  // onClick={() => handleToggleClick(item.id)}
+                                // onClick={() => handleToggleClick(item.id)}
                                 >
                                   {myTeamAdmin?.name?.slice(0, 1)}
                                 </div>
@@ -2687,9 +2690,9 @@ const LeadDetails = ({
                                     ) : (
                                       <div
                                         className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                        // onClick={() =>
-                                        //   handleToggleClick(item.id)
-                                        // }
+                                      // onClick={() =>
+                                      //   handleToggleClick(item.id)
+                                      // }
                                       >
                                         {item?.name?.slice(0, 1)}
                                       </div>
@@ -2740,16 +2743,14 @@ const LeadDetails = ({
                             backgroundColor: showPerplexityDetails
                               ? 'hsl(var(--brand-primary))'
                               : '#000000',
-                            WebkitMaskImage: `url(${
-                              showPerplexityDetails
-                                ? '/svgIcons/sparklesPurple.svg'
-                                : '/svgIcons/sparkles.svg'
-                            })`,
-                            maskImage: `url(${
-                              showPerplexityDetails
-                                ? '/svgIcons/sparklesPurple.svg'
-                                : '/svgIcons/sparkles.svg'
-                            })`,
+                            WebkitMaskImage: `url(${showPerplexityDetails
+                              ? '/svgIcons/sparklesPurple.svg'
+                              : '/svgIcons/sparkles.svg'
+                              })`,
+                            maskImage: `url(${showPerplexityDetails
+                              ? '/svgIcons/sparklesPurple.svg'
+                              : '/svgIcons/sparkles.svg'
+                              })`,
                             WebkitMaskSize: 'contain',
                             maskSize: 'contain',
                             WebkitMaskRepeat: 'no-repeat',
@@ -2790,16 +2791,14 @@ const LeadDetails = ({
                             backgroundColor: showKYCDetails
                               ? 'hsl(var(--brand-primary))'
                               : '#000000',
-                            WebkitMaskImage: `url(${
-                              showKYCDetails
-                                ? '/svgIcons/selectedKycIcon.svg'
-                                : '/svgIcons/unselectedKycIcon.svg'
-                            })`,
-                            maskImage: `url(${
-                              showKYCDetails
-                                ? '/svgIcons/selectedKycIcon.svg'
-                                : '/svgIcons/unselectedKycIcon.svg'
-                            })`,
+                            WebkitMaskImage: `url(${showKYCDetails
+                              ? '/svgIcons/selectedKycIcon.svg'
+                              : '/svgIcons/unselectedKycIcon.svg'
+                              })`,
+                            maskImage: `url(${showKYCDetails
+                              ? '/svgIcons/selectedKycIcon.svg'
+                              : '/svgIcons/unselectedKycIcon.svg'
+                              })`,
                             WebkitMaskSize: 'contain',
                             maskSize: 'contain',
                             WebkitMaskRepeat: 'no-repeat',
@@ -2842,16 +2841,14 @@ const LeadDetails = ({
                             backgroundColor: showAcitivityDetails
                               ? 'hsl(var(--brand-primary))'
                               : '#000000',
-                            WebkitMaskImage: `url(${
-                              showAcitivityDetails
-                                ? '/svgIcons/selectedActivityIcon.svg'
-                                : '/svgIcons/unselectedActivityIcon.svg'
-                            })`,
-                            maskImage: `url(${
-                              showAcitivityDetails
-                                ? '/svgIcons/selectedActivityIcon.svg'
-                                : '/svgIcons/unselectedActivityIcon.svg'
-                            })`,
+                            WebkitMaskImage: `url(${showAcitivityDetails
+                              ? '/svgIcons/selectedActivityIcon.svg'
+                              : '/svgIcons/unselectedActivityIcon.svg'
+                              })`,
+                            maskImage: `url(${showAcitivityDetails
+                              ? '/svgIcons/selectedActivityIcon.svg'
+                              : '/svgIcons/unselectedActivityIcon.svg'
+                              })`,
                             WebkitMaskSize: 'contain',
                             maskSize: 'contain',
                             WebkitMaskRepeat: 'no-repeat',
@@ -2892,16 +2889,14 @@ const LeadDetails = ({
                             backgroundColor: showNotesDetails
                               ? 'hsl(var(--brand-primary))'
                               : '#000000',
-                            WebkitMaskImage: `url(${
-                              showNotesDetails
-                                ? '/svgIcons/selectedNotesIcon.svg'
-                                : '/svgIcons/unselectedNotesIcon.svg'
-                            })`,
-                            maskImage: `url(${
-                              showNotesDetails
-                                ? '/svgIcons/selectedNotesIcon.svg'
-                                : '/svgIcons/unselectedNotesIcon.svg'
-                            })`,
+                            WebkitMaskImage: `url(${showNotesDetails
+                              ? '/svgIcons/selectedNotesIcon.svg'
+                              : '/svgIcons/unselectedNotesIcon.svg'
+                              })`,
+                            maskImage: `url(${showNotesDetails
+                              ? '/svgIcons/selectedNotesIcon.svg'
+                              : '/svgIcons/unselectedNotesIcon.svg'
+                              })`,
                             WebkitMaskSize: 'contain',
                             maskSize: 'contain',
                             WebkitMaskRepeat: 'no-repeat',
@@ -2927,7 +2922,7 @@ const LeadDetails = ({
                     <div style={{ paddingInline: 0 }}>
                       {showPerplexityDetails &&
                         (selectedLeadsDetails &&
-                        selectedLeadsDetails.enrichData ? (
+                          selectedLeadsDetails.enrichData ? (
                           <Perplexity
                             selectedLeadsDetails={selectedLeadsDetails}
                           />
@@ -3008,11 +3003,11 @@ const LeadDetails = ({
                                           }}
                                         >
                                           {item.question &&
-                                          typeof item.question === 'string'
+                                            typeof item.question === 'string'
                                             ? item.question
-                                                .split('ylz8ibb4uykg29mogltl')
-                                                .join('')
-                                                .trim()
+                                              .split('ylz8ibb4uykg29mogltl')
+                                              .join('')
+                                              .trim()
                                             : ''}
                                         </div>
                                         <div
@@ -3437,33 +3432,33 @@ const LeadDetails = ({
 
                                                   {item.callOutcome !==
                                                     'No Answer' && (
-                                                    <div>
-                                                      {isExpandedActivity.includes(
-                                                        item.id,
-                                                      ) ? (
-                                                        <div>
-                                                          <CaretUp
-                                                            size={17}
-                                                            weight="bold"
-                                                          />
-                                                        </div>
-                                                      ) : (
-                                                        <div>
-                                                          <CaretDown
-                                                            size={17}
-                                                            weight="bold"
-                                                          />
-                                                        </div>
-                                                      )}
-                                                    </div>
-                                                  )}
+                                                      <div>
+                                                        {isExpandedActivity.includes(
+                                                          item.id,
+                                                        ) ? (
+                                                          <div>
+                                                            <CaretUp
+                                                              size={17}
+                                                              weight="bold"
+                                                            />
+                                                          </div>
+                                                        ) : (
+                                                          <div>
+                                                            <CaretDown
+                                                              size={17}
+                                                              weight="bold"
+                                                            />
+                                                          </div>
+                                                        )}
+                                                      </div>
+                                                    )}
                                                 </button>
                                               </div>
                                               {isExpandedActivity.includes(
                                                 item.id,
                                               ) &&
                                                 (item.status === 'voicemail' ||
-                                                item.callOutcome ===
+                                                  item.callOutcome ===
                                                   'Voicemail' ? (
                                                   <div className="border rounded mt-2 w-full p-4">
                                                     <button
@@ -3516,15 +3511,15 @@ const LeadDetails = ({
                                                     >
                                                       {item.communicationType ===
                                                         'sms' ||
-                                                      item.communicationType ==
+                                                        item.communicationType ==
                                                         'email'
                                                         ? emailSmsTranscript(
-                                                            item,
-                                                          )
+                                                          item,
+                                                        )
                                                         : callTranscript(
-                                                            item,
-                                                            initialText,
-                                                          )}
+                                                          item,
+                                                          initialText,
+                                                        )}
 
                                                     </div>
                                                   </>

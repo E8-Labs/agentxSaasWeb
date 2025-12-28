@@ -390,6 +390,8 @@ const Apis = {
   markThreadAsRead: `${BasePath}api/user/messaging/threads`,
   deleteThread: `${BasePath}api/user/messaging/threads`,
   getEmailsBySubject: `${BasePath}api/user/messaging/emails-by-subject`,
+  deleteProfileForAgencyRegistration: `${BasePath}api/user/deleteProfileForAgencyRegistration
+`,
 }
 
 export default Apis

@@ -11,7 +11,7 @@ import { useRouter } from 'next/navigation'
 import Apis from '@/components/apis/Apis'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
-import { getUserLocalData } from '@/components/constants/constants'
+import { getUserLocalData, UpgradeTagWithModal } from '@/components/constants/constants'
 import { Input } from '@/components/ui/input'
 import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
 import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
@@ -19,6 +19,7 @@ import UpgardView from '@/constants/UpgardView'
 import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
 import { Paperclip } from 'lucide-react'
 import { FormControl, MenuItem, Select } from '@mui/material'
+import { useUser } from '@/hooks/redux-hooks'
 
 // Helper function to get brand primary color as hex
 const getBrandPrimaryHex = () => {
@@ -31,31 +32,31 @@ const getBrandPrimaryHex = () => {
       const h = parseInt(hslMatch[1]) / 360
       const s = parseInt(hslMatch[2]) / 100
       const l = parseInt(hslMatch[3]) / 100
-      
+
       const c = (1 - Math.abs(2 * l - 1)) * s
       const x = c * (1 - Math.abs(((h * 6) % 2) - 1))
       const m = l - c / 2
-      
+
       let r = 0, g = 0, b = 0
-      
-      if (0 <= h && h < 1/6) {
+
+      if (0 <= h && h < 1 / 6) {
         r = c; g = x; b = 0
-      } else if (1/6 <= h && h < 2/6) {
+      } else if (1 / 6 <= h && h < 2 / 6) {
         r = x; g = c; b = 0
-      } else if (2/6 <= h && h < 3/6) {
+      } else if (2 / 6 <= h && h < 3 / 6) {
         r = 0; g = c; b = x
-      } else if (3/6 <= h && h < 4/6) {
+      } else if (3 / 6 <= h && h < 4 / 6) {
         r = 0; g = x; b = c
-      } else if (4/6 <= h && h < 5/6) {
+      } else if (4 / 6 <= h && h < 5 / 6) {
         r = x; g = 0; b = c
-      } else if (5/6 <= h && h < 1) {
+      } else if (5 / 6 <= h && h < 1) {
         r = c; g = 0; b = x
       }
-      
+
       r = Math.round((r + m) * 255)
       g = Math.round((g + m) * 255)
       b = Math.round((b + m) * 255)
-      
+
       return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
     }
   }
@@ -101,6 +102,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
   // Plan capabilities
   const { planCapabilities } = usePlanCapabilities()
 
+  const { user: reduxUser, setUser: setReduxUser } = useUser()
+
   // SMS character limit
   const SMS_CHAR_LIMIT = 160
 
@@ -131,7 +134,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
     // Get brand color from CSS variable
     const root = document.documentElement
     const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')
-    
+
     // Use brand color when active, muted gray when inactive
     const iconColor = isActive
       ? `hsl(${brandColor.trim() || '270 75% 50%'})`
@@ -171,10 +174,10 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
     const updateBrandColor = () => {
       setBrandPrimaryColor(getBrandPrimaryHex())
     }
-    
+
     updateBrandColor()
     window.addEventListener('agencyBrandingUpdated', updateBrandColor)
-    
+
     return () => {
       window.removeEventListener('agencyBrandingUpdated', updateBrandColor)
     }
@@ -341,9 +344,9 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
         '{Phone}',
         '{Address}',
       ]
-      
+
       let res = await getUniquesColumn(userId)
-      
+
       if (res && Array.isArray(res)) {
         const mergedColumns = [
           ...defaultColumns,
@@ -611,652 +614,650 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
 
   return (
     <>
-    <Modal
-      open={open}
-      onClose={onClose}
-      aria-labelledby="new-message-modal"
-      aria-describedby="new-message-description"
-    >
-      <Box
-        sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: { xs: '90%', sm: '80%', md: '600px', lg: '700px' },
-          bgcolor: 'background.paper',
-          borderRadius: 2,
-          boxShadow: 24,
-          p: 0,
-          maxHeight: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'visible', // Allow tooltips to escape modal bounds
-          zIndex: 1300, // Ensure modal is above other content
-        }}
+      <Modal
+        open={open}
+        onClose={onClose}
+        aria-labelledby="new-message-modal"
+        aria-describedby="new-message-description"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
-          <h2 className="text-xl font-semibold">New Message</h2>
-          <CloseBtn onClick={onClose} />
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto overflow-x-visible p-4 space-y-4" style={{ position: 'relative' }}>
-          {/* Mode Tabs */}
-          <div className="flex items-center justify-between border-b">
-            <div className="flex items-center gap-6">
-              <button
-                onClick={() => {
-                  setSelectedMode('sms')
-                  if (canSendSMS) {
-                    fetchPhoneNumbers()
-                  }
-                }}
-                className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative cursor-pointer ${
-                  selectedMode === 'sms'
-                    ? 'text-brand-primary'
-                    : 'text-gray-600'
-                }`}
-              >
-                {renderBrandedIcon(
-                  '/messaging/sms toggle.png',
-                  20,
-                  20,
-                  selectedMode === 'sms',
-                )}
-                <span>SMS</span>
-                {selectedMode === 'sms' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
-                )}
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedMode('email')
-                  fetchEmailAccounts()
-                }}
-                className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${
-                  selectedMode === 'email'
-                    ? 'text-brand-primary'
-                    : 'text-gray-600'
-                }`}
-              >
-                {renderBrandedIcon(
-                  '/messaging/email toggle.png',
-                  20,
-                  20,
-                  selectedMode === 'email',
-                )}
-                <span>Email</span>
-                {selectedMode === 'email' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
-                )}
-              </button>
-            </div>
-            {/* CC and BCC buttons for Email mode - on top right */}
-            {selectedMode === 'email' && (
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <button
-                  onClick={() => setShowCC(!showCC)}
-                  className={`px-3 py-1 text-xs rounded transition-colors ${
-                    showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Cc
-                </button>
-                <button
-                  onClick={() => setShowBCC(!showBCC)}
-                  className={`px-3 py-1 text-xs rounded transition-colors ${
-                    showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  Bcc
-                </button>
-              </div>
-            )}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: { xs: '90%', sm: '80%', md: '600px', lg: '700px' },
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            boxShadow: 24,
+            p: 0,
+            maxHeight: '90vh',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'visible', // Allow tooltips to escape modal bounds
+            zIndex: 1300, // Ensure modal is above other content
+          }}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b">
+            <h2 className="text-xl font-semibold">New Message</h2>
+            <CloseBtn onClick={onClose} />
           </div>
 
-          {/* Upgrade View for SMS Tab */}
-          {shouldShowUpgradeView ? (
-            <div className="py-8">
-              <UpgardView
-                title="Unlock Text Messages"
-                subTitle="Upgrade to unlock this feature and start sending SMS messages to your leads."
-                userData={userData}
-                onUpgradeSuccess={(updatedUserData) => {
-                  // Refresh user data after upgrade
-                  if (updatedUserData) {
-                    setUserData({ user: updatedUserData })
-                  }
-                }}
-                setShowSnackMsg={() => {}}
-              />
-            </div>
-          ) : (
-            <>
-          {/* From and To Fields - Same Line */}
-          <div className="flex items-center gap-4" ref={leadSearchRef}>
-            {/* From Field */}
-            <div className="flex items-center gap-2 flex-1">
-              <label className="text-sm font-medium whitespace-nowrap">From:</label>
-              {selectedMode === 'sms' ? (
-                <div className="flex-1 relative" ref={phoneDropdownRef}>
-                  <button
-                    type="button"
-                    onClick={() => setPhoneDropdownOpen(!phoneDropdownOpen)}
-                    className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
-                    style={{ height: '42px' }}
-                  >
-                    <span className="text-sm text-gray-700 truncate">
-                      {selectedPhoneNumber
-                        ? phoneNumbers.find((p) => p.id === parseInt(selectedPhoneNumber))?.phone || 'Select phone number'
-                        : 'Select phone number'}
-                    </span>
-                    <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                  </button>
-                  {phoneDropdownOpen && (
-                    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
-                      {phoneNumbers.length === 0 ? (
-                        <div className="p-3">
-                          <button
-                            onClick={() => {
-                              router.push('/dashboard/myAccount?tab=7')
-                              setPhoneDropdownOpen(false)
-                            }}
-                            className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
-                          >
-                            <Plus className="w-4 h-4" />
-                            Get A2P Number
-                          </button>
-                        </div>
-                      ) : (
-                        <>
-                          {phoneNumbers.map((phone) => (
-                            <button
-                              key={phone.id}
-                              type="button"
-                              onClick={() => {
-                                const phoneObj = phoneNumbers.find((p) => p.id === phone.id)
-                                setSelectedPhoneNumber(phone.id.toString())
-                                setSelectedPhoneNumberObj(phoneObj)
-                                setPhoneDropdownOpen(false)
-                              }}
-                              className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${
-                                selectedPhoneNumber === phone.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                              }`}
-                            >
-                              {phone.phone}
-                            </button>
-                          ))}
-                          <div className="border-t border-gray-200 p-2">
-                            <button
-                              onClick={() => {
-                                router.push('/dashboard/myAccount?tab=7')
-                                setPhoneDropdownOpen(false)
-                              }}
-                              className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
-                            >
-                              <Plus className="w-4 h-4" />
-                              Get A2P Verified Number
-                            </button>
-                          </div>
-                        </>
-                      )}
-                    </div>
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto overflow-x-visible p-4 space-y-4" style={{ position: 'relative' }}>
+            {/* Mode Tabs */}
+            <div className="flex items-center justify-between border-b">
+              <div className="flex items-center gap-6">
+                <button
+                  onClick={() => {
+                    setSelectedMode('sms')
+                    if (canSendSMS) {
+                      fetchPhoneNumbers()
+                    }
+                  }}
+                  className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative cursor-pointer ${selectedMode === 'sms'
+                    ? 'text-brand-primary'
+                    : 'text-gray-600'
+                    }`}
+                >
+                  {renderBrandedIcon(
+                    '/messaging/sms toggle.png',
+                    20,
+                    20,
+                    selectedMode === 'sms',
                   )}
-                </div>
-              ) : (
-                <div className="flex-1 relative" ref={emailDropdownRef}>
-                  {emailAccounts.length === 0 ? (
+                  <span>SMS</span>
+                  {selectedMode === 'sms' && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
+                  )}
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedMode('email')
+                    fetchEmailAccounts()
+                  }}
+                  className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${selectedMode === 'email'
+                    ? 'text-brand-primary'
+                    : 'text-gray-600'
+                    }`}
+                >
+                  {renderBrandedIcon(
+                    '/messaging/email toggle.png',
+                    20,
+                    20,
+                    selectedMode === 'email',
+                  )}
+                  <span>Email</span>
+                  {selectedMode === 'email' && (
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
+                  )}
+                </button>
+              </div>
+              {/* CC and BCC buttons for Email mode - on top right */}
+              {selectedMode === 'email' && (
+                <div className="flex items-center gap-2 flex-shrink-0">
                   <button
-                    onClick={() => setShowAuthSelectionPopup(true)}
-                    className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
-                    style={{ height: '42px' }}
+                    onClick={() => setShowCC(!showCC)}
+                    className={`px-3 py-1 text-xs rounded transition-colors ${showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
                   >
-                        Connect Email
+                    Cc
                   </button>
-                  ) : (
-                    <>
+                  <button
+                    onClick={() => setShowBCC(!showBCC)}
+                    className={`px-3 py-1 text-xs rounded transition-colors ${showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }`}
+                  >
+                    Bcc
+                  </button>
+                </div>
+              )}
+            </div>
+
+
+            <>
+              {/* From and To Fields - Same Line */}
+              <div className="flex items-center gap-4" ref={leadSearchRef}>
+                {/* From Field */}
+                <div className="flex items-center gap-2 flex-1">
+                  <label className="text-sm font-medium whitespace-nowrap">From:</label>
+                  {selectedMode === 'sms' ? (
+                    <div className="flex-1 relative" ref={phoneDropdownRef}>
                       <button
                         type="button"
-                        onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
+                        onClick={() => setPhoneDropdownOpen(!phoneDropdownOpen)}
                         className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
                         style={{ height: '42px' }}
                       >
-                          <span className="text-sm text-gray-700 truncate">
-                            {selectedEmailAccount
-                              ? (() => {
+                        <span className="text-sm text-gray-700 truncate">
+                          {selectedPhoneNumber
+                            ? phoneNumbers.find((p) => p.id === parseInt(selectedPhoneNumber))?.phone || 'Select phone number'
+                            : 'Select phone number'}
+                        </span>
+                        <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                      </button>
+                      {phoneDropdownOpen && (
+                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                          {phoneNumbers.length === 0 ? (
+                            <div className="p-3 flex flex-row gap-2 items-center justify-center">
+                              <button
+                                onClick={() => {
+                                  router.push('/dashboard/myAccount?tab=5')
+                                  setPhoneDropdownOpen(false)
+                                }}
+                                className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
+                              >
+                                Select Phone Number
+                              </button>
+                              {
+                                (!reduxUser?.planCapabilities?.allowTextMessages ||
+                                  phoneNumbers.length == 0) && (
+
+                                  <UpgradeTagWithModal
+                                    reduxUser={reduxUser}
+                                    setReduxUser={setReduxUser}
+                                  />
+
+                                )}
+                            </div>
+                          ) : (
+                            <>
+                              {phoneNumbers.map((phone) => (
+                                <button
+                                  key={phone.id}
+                                  type="button"
+                                  onClick={() => {
+                                    const phoneObj = phoneNumbers.find((p) => p.id === phone.id)
+                                    setSelectedPhoneNumber(phone.id.toString())
+                                    setSelectedPhoneNumberObj(phoneObj)
+                                    setPhoneDropdownOpen(false)
+                                  }}
+                                  className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedPhoneNumber === phone.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                                    }`}
+                                >
+                                  {phone.phone}
+                                </button>
+                              ))}
+                              <div className="border-t border-gray-200 p-2">
+                                <button
+                                  onClick={() => {
+                                    router.push('/dashboard/myAccount?tab=7')
+                                    setPhoneDropdownOpen(false)
+                                  }}
+                                  className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                  Get A2P Verified Number
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex-1 relative" ref={emailDropdownRef}>
+                      {emailAccounts.length === 0 ? (
+                        <div className="flex flex-row gap-2 items-center justify-center">
+                        <button
+                          onClick={() => setShowAuthSelectionPopup(true)}
+                          className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                          style={{ height: '42px' }}
+                        >
+                          Connect Email
+                        </button>
+
+                        !reduxUser?.planCapabilities?.allowEmails ||
+                          emailAccounts.length == 0 && (
+                            <UpgradeTagWithModal
+                              reduxUser={reduxUser}
+                              setReduxUser={setReduxUser}
+                            />
+                          )
+                        </div>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
+                            className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
+                            style={{ height: '42px' }}
+                          >
+                            <span className="text-sm text-gray-700 truncate">
+                              {selectedEmailAccount
+                                ? (() => {
                                   const account = emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))
                                   if (!account) return 'Select email account'
                                   const providerLabel = account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider || ''
                                   return `${account.email || account.name || account.displayName}${providerLabel ? ` (${providerLabel})` : ''}`
                                 })()
-                              : 'Select email account'}
-                          </span>
-                        <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                      </button>
-                      {emailDropdownOpen && (
-                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
-                          {emailAccounts.map((account) => (
-                            <button
-                              key={account.id}
-                              type="button"
-                              onClick={() => {
-                                const accountObj = emailAccounts.find((a) => a.id === account.id)
-                                setSelectedEmailAccount(account.id.toString())
-                                setSelectedEmailAccountObj(accountObj)
-                                setEmailDropdownOpen(false)
-                              }}
-                              className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${
-                                selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                              }`}
-                            >
-                                <div className="flex items-center justify-between">
-                                  <span>{account.email || account.name || account.displayName}</span>
-                                  {account.provider && (
-                                    <span className="text-xs text-gray-500 ml-2">
-                                      {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
-                                    </span>
-                                  )}
-                                </div>
-                            </button>
-                          ))}
-                          <div className="border-t border-gray-200 p-2">
-                            <button
-                              onClick={() => {
-                                setShowAuthSelectionPopup(true)
-                                setEmailDropdownOpen(false)
-                              }}
-                              className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
-                            >
-                              <Plus className="w-4 h-4" />
-                             Connect Email
-                            </button>
-                          </div>
-                        </div>
+                                : 'Select email account'}
+                            </span>
+                            <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                          </button>
+                          {emailDropdownOpen && (
+                            <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                              {emailAccounts.map((account) => (
+                                <button
+                                  key={account.id}
+                                  type="button"
+                                  onClick={() => {
+                                    const accountObj = emailAccounts.find((a) => a.id === account.id)
+                                    setSelectedEmailAccount(account.id.toString())
+                                    setSelectedEmailAccountObj(accountObj)
+                                    setEmailDropdownOpen(false)
+                                  }}
+                                  className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                                    }`}
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <span>{account.email || account.name || account.displayName}</span>
+                                    {account.provider && (
+                                      <span className="text-xs text-gray-500 ml-2">
+                                        {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
+                                      </span>
+                                    )}
+                                  </div>
+                                </button>
+                              ))}
+                              <div className="border-t border-gray-200 p-2">
+                                <button
+                                  onClick={() => {
+                                    setShowAuthSelectionPopup(true)
+                                    setEmailDropdownOpen(false)
+                                  }}
+                                  className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                  Connect Email
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </>
                       )}
-                    </>
+                    </div>
                   )}
                 </div>
-              )}
-            </div>
 
-            {/* To Field */}
-            <div className="flex items-center gap-2 flex-1">
-              <label className="text-sm font-medium whitespace-nowrap">To:</label>
-              <div className="relative flex-1 min-w-0">
-                {/* Tag Input Container */}
-                <div className="flex flex-wrap items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto" style={{ height: '42px', minHeight: '42px' }}>
-                  {/* Selected Lead Tags */}
-                  {selectedLeads.map((lead) => (
-                    <div
-                      key={lead.id}
-                      className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
-                    >
-                      <span className="text-gray-700">
-                        {lead.firstName || lead.name || 'Lead'} {lead.lastName || ''}
-                        {lead.smartListName && (
-                          <span className="ml-1 text-brand-primary">• {lead.smartListName}</span>
-                        )}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => removeLead(lead.id)}
-                        className="text-gray-500 hover:text-gray-700 ml-1"
-                      >
-                        <X size={14} weight="bold" />
-                      </button>
-                    </div>
-                  ))}
-                  {/* Search Input */}
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onFocus={() => {
-                      if (searchQuery.trim()) {
-                        setShowLeadList(true)
-                      }
-                    }}
-                    placeholder={selectedLeads.length === 0 ? "Search leads..." : ""}
-                    className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
-                    style={{ 
-                      height: '100%',
-                      lineHeight: '42px',
-                      padding: 0,
-                      verticalAlign: 'middle'
-                    }}
-                  />
-                </div>
-                
-                {/* Leads List Dropdown - Only show when searching and list is visible */}
-                {showLeadList && searchQuery.trim() && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border-[0.5px] border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                    {loading ? (
-                      <div className="p-4 text-center">
-                        <CircularProgress size={24} />
-                      </div>
-                    ) : filteredLeads.length === 0 ? (
-                      <div className="p-4 text-center text-gray-500 text-sm">
-                        No leads found
-                      </div>
-                    ) : (
-                      filteredLeads.map((lead) => {
-                        const isSelected = selectedLeads.find((l) => l.id === lead.id)
-                        return (
-                          <div
-                            key={lead.id}
-                            onClick={() => toggleLeadSelection(lead)}
-                            className={`p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${
-                              isSelected ? 'bg-brand-primary/5' : ''
-                            }`}
+                {/* To Field */}
+                <div className="flex items-center gap-2 flex-1">
+                  <label className="text-sm font-medium whitespace-nowrap">To:</label>
+                  <div className="relative flex-1 min-w-0">
+                    {/* Tag Input Container */}
+                    <div className="flex flex-wrap items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto" style={{ height: '42px', minHeight: '42px' }}>
+                      {/* Selected Lead Tags */}
+                      {selectedLeads.map((lead) => (
+                        <div
+                          key={lead.id}
+                          className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
+                        >
+                          <span className="text-gray-700">
+                            {lead.firstName || lead.name || 'Lead'} {lead.lastName || ''}
+                            {lead.smartListName && (
+                              <span className="ml-1 text-brand-primary">• {lead.smartListName}</span>
+                            )}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeLead(lead.id)}
+                            className="text-gray-500 hover:text-gray-700 ml-1"
                           >
-                            <div className="flex items-center justify-between">
-                              <div className="flex-1">
-                                <div className="font-medium text-sm">
-                                  {lead.firstName || lead.name || 'Unknown'} {lead.lastName || ''}
-                                </div>
-                                <div className="text-xs text-gray-500 mt-1">
-                                  {selectedMode === 'sms'
-                                    ? lead.phone || 'No phone'
-                                    : lead.email || 'No email'}
-                                  {lead.smartListName && (
-                                    <span className="ml-2 text-brand-primary">
-                                      • {lead.smartListName}
-                                    </span>
+                            <X size={14} weight="bold" />
+                          </button>
+                        </div>
+                      ))}
+                      {/* Search Input */}
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onFocus={() => {
+                          if (searchQuery.trim()) {
+                            setShowLeadList(true)
+                          }
+                        }}
+                        placeholder={selectedLeads.length === 0 ? "Search leads..." : ""}
+                        className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                        style={{
+                          height: '100%',
+                          lineHeight: '42px',
+                          padding: 0,
+                          verticalAlign: 'middle'
+                        }}
+                      />
+                    </div>
+
+                    {/* Leads List Dropdown - Only show when searching and list is visible */}
+                    {showLeadList && searchQuery.trim() && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border-[0.5px] border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                        {loading ? (
+                          <div className="p-4 text-center">
+                            <CircularProgress size={24} />
+                          </div>
+                        ) : filteredLeads.length === 0 ? (
+                          <div className="p-4 text-center text-gray-500 text-sm">
+                            No leads found
+                          </div>
+                        ) : (
+                          filteredLeads.map((lead) => {
+                            const isSelected = selectedLeads.find((l) => l.id === lead.id)
+                            return (
+                              <div
+                                key={lead.id}
+                                onClick={() => toggleLeadSelection(lead)}
+                                className={`p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${isSelected ? 'bg-brand-primary/5' : ''
+                                  }`}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div className="flex-1">
+                                    <div className="font-medium text-sm">
+                                      {lead.firstName || lead.name || 'Unknown'} {lead.lastName || ''}
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1">
+                                      {selectedMode === 'sms'
+                                        ? lead.phone || 'No phone'
+                                        : lead.email || 'No email'}
+                                      {lead.smartListName && (
+                                        <span className="ml-2 text-brand-primary">
+                                          • {lead.smartListName}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  {isSelected && (
+                                    <div className="w-5 h-5 rounded-full bg-brand-primary flex items-center justify-center">
+                                      <Check size={14} className="text-white" />
+                                    </div>
                                   )}
                                 </div>
                               </div>
-                              {isSelected && (
-                                <div className="w-5 h-5 rounded-full bg-brand-primary flex items-center justify-center">
-                                  <Check size={14} className="text-white" />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      })
+                            )
+                          })
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Email Fields */}
-          {selectedMode === 'email' && (
-            <>
-              {/* CC and BCC on same line when both are shown */}
-              {(showCC || showBCC) && (
-                <div className="flex items-center gap-4">
-                  {showCC && (
-                    <div className="flex items-center gap-2 flex-1">
-                      <label className="text-sm font-medium whitespace-nowrap">Cc:</label>
-                  <Input
-                    value={cc}
-                    onChange={(e) => setCC(e.target.value)}
-                    placeholder="Add CC recipients"
-                    className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
-                    style={{ height: '42px', minHeight: '42px' }}
-                  />
-                    </div>
-                  )}
-                  {showBCC && (
-                    <div className="flex items-center gap-2 flex-1">
-                      <label className="text-sm font-medium whitespace-nowrap">Bcc:</label>
-                  <Input
-                    value={bcc}
-                    onChange={(e) => setBCC(e.target.value)}
-                    placeholder="Add BCC recipients"
-                    className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
-                    style={{ height: '42px', minHeight: '42px' }}
-                  />
-                    </div>
-                  )}
                 </div>
-              )}
-
-              <div className="flex items-center gap-2">
-                <label className="text-sm font-medium w-16">Subject:</label>
-                <Input
-                  value={emailSubject}
-                  onChange={(e) => setEmailSubject(e.target.value)}
-                  placeholder="Email subject"
-                  className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
-                  style={{ height: '42px', maxWidth: 'calc(100% - 200px)' }}
-                />
-                {/* Variables dropdown for subject */}
-                {uniqueColumns && uniqueColumns.length > 0 && (
-                  <FormControl size="small" sx={{ minWidth: 150 }}>
-                    <Select
-                      value={selectedSubjectVariable}
-                      onChange={(e) => {
-                        const value = e.target.value
-                        setSelectedSubjectVariable('')
-                        if (value) {
-                          const variableText = value.startsWith('{') && value.endsWith('}')
-                            ? value
-                            : `{${value}}`
-                          setEmailSubject((prev) => prev + variableText)
-                        }
-                      }}
-                      displayEmpty
-                      sx={{
-                        fontSize: '0.875rem',
-                        height: '42px',
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#d1d5db',
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'hsl(var(--brand-primary))',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'hsl(var(--brand-primary))',
-                        },
-                      }}
-                    >
-                      <MenuItem value="" disabled>
-                        <em>Variables</em>
-                      </MenuItem>
-                      {uniqueColumns.map((variable, index) => {
-                        const displayText = variable.startsWith('{') && variable.endsWith('}')
-                          ? variable
-                          : `{${variable}}`
-                        return (
-                          <MenuItem key={index} value={variable}>
-                            {displayText}
-                          </MenuItem>
-                        )
-                      })}
-                    </Select>
-                  </FormControl>
-                )}
               </div>
-            </>
-          )}
 
-          {/* Message Body */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="text-sm font-medium block">Message:</label>
-              {/* Attachment button - moved from footer to main content area */}
+              {/* Email Fields */}
               {selectedMode === 'email' && (
-                <div className="flex items-center gap-2">
-                  <label className="cursor-pointer">
-                    <button
-                      type="button"
-                      className="p-2 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200 flex items-center justify-center"
-                      onClick={() => document.getElementById('new-message-attachment-input')?.click()}
-                    >
-                      <Paperclip size={20} className="text-gray-600 hover:text-brand-primary" />
-                    </button>
-                    <input
-                      id="new-message-attachment-input"
-                      type="file"
-                      accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                      multiple
-                      className="hidden"
-                      onChange={handleFileChange}
+                <>
+                  {/* CC and BCC on same line when both are shown */}
+                  {(showCC || showBCC) && (
+                    <div className="flex items-center gap-4">
+                      {showCC && (
+                        <div className="flex items-center gap-2 flex-1">
+                          <label className="text-sm font-medium whitespace-nowrap">Cc:</label>
+                          <Input
+                            value={cc}
+                            onChange={(e) => setCC(e.target.value)}
+                            placeholder="Add CC recipients"
+                            className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
+                            style={{ height: '42px', minHeight: '42px' }}
+                          />
+                        </div>
+                      )}
+                      {showBCC && (
+                        <div className="flex items-center gap-2 flex-1">
+                          <label className="text-sm font-medium whitespace-nowrap">Bcc:</label>
+                          <Input
+                            value={bcc}
+                            onChange={(e) => setBCC(e.target.value)}
+                            placeholder="Add BCC recipients"
+                            className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
+                            style={{ height: '42px', minHeight: '42px' }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium w-16">Subject:</label>
+                    <Input
+                      value={emailSubject}
+                      onChange={(e) => setEmailSubject(e.target.value)}
+                      placeholder="Email subject"
+                      className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
+                      style={{ height: '42px', maxWidth: 'calc(100% - 200px)' }}
                     />
-                  </label>
-                  
-                  {/* Show attachment count if any */}
-                  {attachments && attachments.length > 0 && (
-                    <span className="text-sm text-gray-600">
-                      {attachments.length} file{attachments.length > 1 ? 's' : ''}
-                    </span>
+                    {/* Variables dropdown for subject */}
+                    {uniqueColumns && uniqueColumns.length > 0 && (
+                      <FormControl size="small" sx={{ minWidth: 150 }}>
+                        <Select
+                          value={selectedSubjectVariable}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            setSelectedSubjectVariable('')
+                            if (value) {
+                              const variableText = value.startsWith('{') && value.endsWith('}')
+                                ? value
+                                : `{${value}}`
+                              setEmailSubject((prev) => prev + variableText)
+                            }
+                          }}
+                          displayEmpty
+                          sx={{
+                            fontSize: '0.875rem',
+                            height: '42px',
+                            '& .MuiOutlinedInput-notchedOutline': {
+                              borderColor: '#d1d5db',
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'hsl(var(--brand-primary))',
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                              borderColor: 'hsl(var(--brand-primary))',
+                            },
+                          }}
+                        >
+                          <MenuItem value="" disabled>
+                            <em>Variables</em>
+                          </MenuItem>
+                          {uniqueColumns.map((variable, index) => {
+                            const displayText = variable.startsWith('{') && variable.endsWith('}')
+                              ? variable
+                              : `{${variable}}`
+                            return (
+                              <MenuItem key={index} value={variable}>
+                                {displayText}
+                              </MenuItem>
+                            )
+                          })}
+                        </Select>
+                      </FormControl>
+                    )}
+                  </div>
+                </>
+              )}
+
+              {/* Message Body */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium block">Message:</label>
+                  {/* Attachment button - moved from footer to main content area */}
+                  {selectedMode === 'email' && (
+                    <div className="flex items-center gap-2">
+                      <label className="cursor-pointer">
+                        <button
+                          type="button"
+                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200 flex items-center justify-center"
+                          onClick={() => document.getElementById('new-message-attachment-input')?.click()}
+                        >
+                          <Paperclip size={20} className="text-gray-600 hover:text-brand-primary" />
+                        </button>
+                        <input
+                          id="new-message-attachment-input"
+                          type="file"
+                          accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                          multiple
+                          className="hidden"
+                          onChange={handleFileChange}
+                        />
+                      </label>
+
+                      {/* Show attachment count if any */}
+                      {attachments && attachments.length > 0 && (
+                        <span className="text-sm text-gray-600">
+                          {attachments.length} file{attachments.length > 1 ? 's' : ''}
+                        </span>
+                      )}
+                    </div>
                   )}
                 </div>
-              )}
-            </div>
-            {selectedMode === 'email' ? (
-              <RichTextEditor
-                ref={richTextEditorRef}
-                value={messageBody}
-                onChange={setMessageBody}
-                placeholder="Type your message..."
-                availableVariables={[]}
-                toolbarPosition="bottom"
-                customToolbarElement={
-                  uniqueColumns && uniqueColumns.length > 0 ? (
-                    <FormControl size="small" sx={{ minWidth: 150 }}>
-                      <Select
-                        value={selectedVariable}
-                        onChange={(e) => {
-                          const value = e.target.value
-                          setSelectedVariable('')
-                          if (value && richTextEditorRef.current) {
-                            richTextEditorRef.current.insertVariable(value)
-                          }
-                        }}
-                        displayEmpty
-                        sx={{
-                          fontSize: '0.875rem',
-                          height: '32px',
-                          backgroundColor: 'white',
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: '#d1d5db',
-                          },
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'hsl(var(--brand-primary))',
-                          },
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'hsl(var(--brand-primary))',
-                          },
-                        }}
-                      >
-                        <MenuItem value="" disabled>
-                          <em>Variables</em>
-                        </MenuItem>
-                        {uniqueColumns.map((variable, index) => {
-                          const displayText = variable.startsWith('{') && variable.endsWith('}')
-                            ? variable
-                            : `{${variable}}`
-                          return (
-                            <MenuItem key={index} value={variable}>
-                              {displayText}
+                {selectedMode === 'email' ? (
+                  <RichTextEditor
+                    ref={richTextEditorRef}
+                    value={messageBody}
+                    onChange={setMessageBody}
+                    placeholder="Type your message..."
+                    availableVariables={[]}
+                    toolbarPosition="bottom"
+                    customToolbarElement={
+                      uniqueColumns && uniqueColumns.length > 0 ? (
+                        <FormControl size="small" sx={{ minWidth: 150 }}>
+                          <Select
+                            value={selectedVariable}
+                            onChange={(e) => {
+                              const value = e.target.value
+                              setSelectedVariable('')
+                              if (value && richTextEditorRef.current) {
+                                richTextEditorRef.current.insertVariable(value)
+                              }
+                            }}
+                            displayEmpty
+                            sx={{
+                              fontSize: '0.875rem',
+                              height: '32px',
+                              backgroundColor: 'white',
+                              '& .MuiOutlinedInput-notchedOutline': {
+                                borderColor: '#d1d5db',
+                              },
+                              '&:hover .MuiOutlinedInput-notchedOutline': {
+                                borderColor: 'hsl(var(--brand-primary))',
+                              },
+                              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                borderColor: 'hsl(var(--brand-primary))',
+                              },
+                            }}
+                          >
+                            <MenuItem value="" disabled>
+                              <em>Variables</em>
                             </MenuItem>
-                          )
-                        })}
-                      </Select>
-                    </FormControl>
-                  ) : null
-                }
-              />
-            ) : (
-              <textarea
-                value={messageBody}
-                onChange={(e) => {
-                  // Enforce max 160 characters for SMS
-                  if (e.target.value.length <= SMS_CHAR_LIMIT) {
-                    setMessageBody(e.target.value)
-                  }
-                }}
-                placeholder="Type your message..."
-                maxLength={SMS_CHAR_LIMIT}
-                className="w-full px-3 py-2 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[120px]"
-              />
-            )}
-          </div>
-            </>
-          )}
-        </div>
-
-        {/* Footer with char count, credits, and send button */}
-        {!shouldShowUpgradeView && (
-          <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50">
-            <div className="flex items-center gap-2">
-              {/* Left side of footer is now empty - Variables and Attachment moved */}
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                {selectedMode === 'sms' && (
-                  <>
-                    <span>
-                      {messageBody.length}/{SMS_CHAR_LIMIT} char
-                    </span>
-                    <span className="text-gray-300">|</span>
-                    <span>
-                      {Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left
-                    </span>
-                  </>
+                            {uniqueColumns.map((variable, index) => {
+                              const displayText = variable.startsWith('{') && variable.endsWith('}')
+                                ? variable
+                                : `{${variable}}`
+                              return (
+                                <MenuItem key={index} value={variable}>
+                                  {displayText}
+                                </MenuItem>
+                              )
+                            })}
+                          </Select>
+                        </FormControl>
+                      ) : null
+                    }
+                  />
+                ) : (
+                  <textarea
+                    value={messageBody}
+                    onChange={(e) => {
+                      // Enforce max 160 characters for SMS
+                      if (e.target.value.length <= SMS_CHAR_LIMIT) {
+                        setMessageBody(e.target.value)
+                      }
+                    }}
+                    placeholder="Type your message..."
+                    maxLength={SMS_CHAR_LIMIT}
+                    className="w-full px-3 py-2 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[120px]"
+                  />
                 )}
               </div>
-              <button
-                onClick={handleSend}
-                disabled={
-                  sending ||
-                  selectedLeads.length === 0 ||
-                  !messageBody.trim() ||
-                  (selectedMode === 'email' && !emailSubject.trim()) ||
-                  (selectedMode === 'sms' && !selectedPhoneNumber) ||
-                  (selectedMode === 'email' && !selectedEmailAccount)
-                }
-                className="px-6 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
-              >
-                {sending ? (
-                  <>
-                    <CircularProgress size={16} className="text-white" />
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    Send
-                    <PaperPlaneTilt size={16} />
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        )}
-      </Box>
-    </Modal>
+            </>
 
-    {/* Auth Selection Popup for Gmail Connection - Outside main Modal */}
-    <AuthSelectionPopup
-      open={showAuthSelectionPopup}
-      onClose={() => setShowAuthSelectionPopup(false)}
-      onSuccess={() => {
-        fetchEmailAccounts()
-        setShowAuthSelectionPopup(false)
-      }}
-      setShowEmailTempPopup={() => {}}
-      showEmailTempPopup={false}
-      setSelectedGoogleAccount={(account) => {
-        if (account) {
-          setSelectedEmailAccount(account.id)
-          setSelectedEmailAccountObj(account)
-          setEmailAccounts((prev) => {
-            const exists = prev.find((a) => a.id === account.id)
-            if (exists) return prev
-            return [...prev, account]
-          })
-        }
-      }}
-      selectedUser={getSelectedUser()}
-    />
-  </>
+          </div>
+
+          {/* Footer with char count, credits, and send button */}
+          {!shouldShowUpgradeView && (
+            <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50">
+              <div className="flex items-center gap-2">
+                {/* Left side of footer is now empty - Variables and Attachment moved */}
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 text-sm text-gray-500">
+                  {selectedMode === 'sms' && (
+                    <>
+                      <span>
+                        {messageBody.length}/{SMS_CHAR_LIMIT} char
+                      </span>
+                      <span className="text-gray-300">|</span>
+                      <span>
+                        {Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left
+                      </span>
+                    </>
+                  )}
+                </div>
+                <button
+                  onClick={handleSend}
+                  disabled={
+                    sending ||
+                    selectedLeads.length === 0 ||
+                    !messageBody.trim() ||
+                    (selectedMode === 'email' && !emailSubject.trim()) ||
+                    (selectedMode === 'sms' && !selectedPhoneNumber) ||
+                    (selectedMode === 'email' && !selectedEmailAccount)
+                  }
+                  className="px-6 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+                >
+                  {sending ? (
+                    <>
+                      <CircularProgress size={16} className="text-white" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      Send
+                      <PaperPlaneTilt size={16} />
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+        </Box>
+      </Modal>
+
+      
+
+      {/* Auth Selection Popup for Gmail Connection - Outside main Modal */}
+      <AuthSelectionPopup
+        open={showAuthSelectionPopup}
+        onClose={() => setShowAuthSelectionPopup(false)}
+        onSuccess={() => {
+          fetchEmailAccounts()
+          setShowAuthSelectionPopup(false)
+        }}
+        setShowEmailTempPopup={() => { }}
+        showEmailTempPopup={false}
+        setSelectedGoogleAccount={(account) => {
+          if (account) {
+            setSelectedEmailAccount(account.id)
+            setSelectedEmailAccountObj(account)
+            setEmailAccounts((prev) => {
+              const exists = prev.find((a) => a.id === account.id)
+              if (exists) return prev
+              return [...prev, account]
+            })
+          }
+        }}
+        selectedUser={getSelectedUser()}
+      />
+    </>
   )
 }
 
