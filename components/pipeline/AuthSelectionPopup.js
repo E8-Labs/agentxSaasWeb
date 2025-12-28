@@ -45,9 +45,10 @@ function AuthSelectionPopup({
   const [selectedAccount, setSelectedAccount] = useState(null)
   const [loginLoader, setLoginLoader] = useState(false)
   const [delLoader, setDelLoader] = useState(null)
-
+  const [showGmailConfirmationPopup, setShowGmailConfirmationPopup] = useState(false)
   //google calendar click
   const handleGoogleOAuthClick = async () => {
+    setShowGmailConfirmationPopup(false)
     const NEXT_PUBLIC_GOOGLE_CLIENT_ID =
       process.env.NEXT_PUBLIC_APP_GOOGLE_CLIENT_ID
     const REDIRECT_URI = process.env.NEXT_PUBLIC_APP_REDIRECT_URI
@@ -57,8 +58,8 @@ function AuthSelectionPopup({
 
     // Also check if current hostname is a custom domain or subdomain
     const currentHostname = typeof window !== 'undefined' ? window.location.hostname : null
-    const isCustomDomain = currentHostname && 
-      !currentHostname.includes('app.assignx.ai') && 
+    const isCustomDomain = currentHostname &&
+      !currentHostname.includes('app.assignx.ai') &&
       !currentHostname.includes('dev.assignx.ai') &&
       !currentHostname.includes('localhost') &&
       !currentHostname.includes('127.0.0.1')
@@ -172,143 +173,175 @@ function AuthSelectionPopup({
     onClose()
   }
 
+  const handleGmailConfirmationPopup = () => {
+    setShowGmailConfirmationPopup(true)
+  }
+
+  const handleGmailConfirmationPopupClose = () => {
+    setShowGmailConfirmationPopup(false)
+  }
+
   return (
-    <Modal open={open} onClose={onClose}>
-      <Box
-        className="w-full h-full py-4 flex items-center justify-center"
-        sx={{ ...styles.modalsStyle }}
-      >
-        <div className="flex flex-col w-3/12  px-8 py-6 bg-white max-h-[70vh] rounded-2xl">
-          <AgentSelectSnackMessage
-            type={showSnack.type}
-            message={showSnack.message}
-            isVisible={showSnack.isVisible}
-            hide={() => {
-              setShowSnack({
-                message: '',
-                isVisible: false,
-                type: SnackbarTypes.Success,
-              })
-            }}
-          />
-          <div className="flex flex-row items-center justify-between w-full">
-            <div className="text-[18px] font-[700] ">
-              Login to Email Account
+    <div>
+      <Modal open={open} onClose={onClose}>
+        <Box
+          className="w-full h-full py-4 flex items-center justify-center"
+          sx={{ ...styles.modalsStyle }}
+        >
+          <div className="flex flex-col w-3/12  px-8 py-6 bg-white max-h-[70vh] rounded-2xl">
+            <AgentSelectSnackMessage
+              type={showSnack.type}
+              message={showSnack.message}
+              isVisible={showSnack.isVisible}
+              hide={() => {
+                setShowSnack({
+                  message: '',
+                  isVisible: false,
+                  type: SnackbarTypes.Success,
+                })
+              }}
+            />
+            <div className="flex flex-row items-center justify-between w-full">
+              <div className="text-[18px] font-[700] ">
+                Login to Email Account
+              </div>
+              <CloseBtn onClick={onClose} />
             </div>
-            <CloseBtn onClick={onClose} />
-          </div>
 
-          {gmailAccounts?.length > 0 && (
-            <FormControl>
-              <Select
-                Select
-                value={selectedAccount || ''}
-                onChange={(e) => handleSelect(e)}
-                displayEmpty
-                renderValue={(selected) =>
-                  selected?.name || (
-                    <div style={{ color: '#aaa' }}>Select Account</div>
-                  )
-                }
-                sx={{
-                  border: '2px',
-                  '&:hover': {
-                    border: 'none', // Same border on hover
-                  },
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    border: 'none', // Remove the default outline
-                  },
-                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    border: 'none', // Remove outline on focus
-                  },
-                  '&.MuiSelect-select': {
-                    py: 0, // Optional padding adjustments
-                  },
-                }}
-                MenuProps={{
-                  PaperProps: {
-                    style: {
-                      maxHeight: '30vh', // Limit dropdown height
-                      overflow: 'auto', // Enable scrolling in dropdown
-                      scrollbarWidth: 'none',
-                      // borderRadius: "10px"
+            {gmailAccounts?.length > 0 && (
+              <FormControl>
+                <Select
+                  Select
+                  value={selectedAccount || ''}
+                  onChange={(e) => handleSelect(e)}
+                  displayEmpty
+                  renderValue={(selected) =>
+                    selected?.name || (
+                      <div style={{ color: '#aaa' }}>Select Account</div>
+                    )
+                  }
+                  sx={{
+                    border: '2px',
+                    '&:hover': {
+                      border: 'none', // Same border on hover
                     },
-                  },
-                }}
-              >
-                {accountLoader ? (
-                  <CircularProgress size={20} />
-                ) : gmailAccounts?.length > 0 ? (
-                  gmailAccounts?.map((item, index) => (
-                    <MenuItem
-                      key={index}
-                      // className="hover:bg-[#402FFF10]"
-                      value={item}
-                    >
-                      <div className="flex w-full flex-row items-center justify-between">
-                        <div className="flex flex-row items-center gap-2 max-w-[80%]">
-                          <div className="text-[15] font-[500]">
-                            {item.displayName}
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      border: 'none', // Remove the default outline
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      border: 'none', // Remove outline on focus
+                    },
+                    '&.MuiSelect-select': {
+                      py: 0, // Optional padding adjustments
+                    },
+                  }}
+                  MenuProps={{
+                    PaperProps: {
+                      style: {
+                        maxHeight: '30vh', // Limit dropdown height
+                        overflow: 'auto', // Enable scrolling in dropdown
+                        scrollbarWidth: 'none',
+                        // borderRadius: "10px"
+                      },
+                    },
+                  }}
+                >
+                  {accountLoader ? (
+                    <CircularProgress size={20} />
+                  ) : gmailAccounts?.length > 0 ? (
+                    gmailAccounts?.map((item, index) => (
+                      <MenuItem
+                        key={index}
+                        // className="hover:bg-[#402FFF10]"
+                        value={item}
+                      >
+                        <div className="flex w-full flex-row items-center justify-between">
+                          <div className="flex flex-row items-center gap-2 max-w-[80%]">
+                            <div className="text-[15] font-[500]">
+                              {item.displayName}
+                            </div>
+                            <div className="text-[13] font-[500]  text-[#00000070]">
+                              {`(${item.email})`}
+                            </div>
                           </div>
-                          <div className="text-[13] font-[500]  text-[#00000070]">
-                            {`(${item.email})`}
-                          </div>
+
+                          {delLoader?.id === item.id ? (
+                            <CircularProgress size={20} />
+                          ) : (
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                handleDelete(item)
+                              }}
+                              className="ml-2"
+                            >
+                              <Image
+                                src={'/otherAssets/delIcon.png'}
+                                alt="*"
+                                height={16}
+                                width={16}
+                              />
+                            </button>
+                          )}
                         </div>
+                      </MenuItem>
+                    ))
+                  ) : (
+                    <div className="ml-2">No account found</div>
+                  )}
+                </Select>
+              </FormControl>
+            )}
 
-                        {delLoader?.id === item.id ? (
-                          <CircularProgress size={20} />
-                        ) : (
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault()
-                              e.stopPropagation()
-                              handleDelete(item)
-                            }}
-                            className="ml-2"
-                          >
-                            <Image
-                              src={'/otherAssets/delIcon.png'}
-                              alt="*"
-                              height={16}
-                              width={16}
-                            />
-                          </button>
-                        )}
-                      </div>
-                    </MenuItem>
-                  ))
-                ) : (
-                  <div className="ml-2">No account found</div>
-                )}
-              </Select>
-            </FormControl>
-          )}
+            {loginLoader ? (
+              <div className="h-50 w-full flex items-center justify-center flex-col">
+                <div> Loading...</div>
+                <CircularProgress size={30} />
+              </div>
+            ) : (
+              <div className="flex flex-col gap-6 w-full items-center mt-7">
+                <button
+                  onClick={handleGmailConfirmationPopup}
+                  className="disabled:opacity-60"
+                >
+                  <Image
+                    src={'/otherAssets/gmailIcon.png'}
+                    height={90}
+                    width={90}
+                    alt="*"
+                  />
+                </button>
 
-          {loginLoader ? (
-            <div className="h-50 w-full flex items-center justify-center flex-col">
-              <div> Loading...</div>
-              <CircularProgress size={30} />
+                <div className="text-[15px] font-[400]">Gmail</div>
+              </div>
+            )}
+          </div>
+        </Box>
+      </Modal>
+
+      <Modal open={showGmailConfirmationPopup} onClose={handleGmailConfirmationPopupClose}>
+        <Box className="w-full h-full py-4 flex items-center justify-center" sx={{ ...styles.modalsStyle }}>
+          <div className="flex flex-col w-3/12  px-8 py-6 bg-white max-h-[70vh] rounded-2xl">
+            <div className="flex flex-row items-center justify-between w-full">
+              <div className=""></div>
+              <CloseBtn onClick={handleGmailConfirmationPopupClose} />
             </div>
-          ) : (
             <div className="flex flex-col gap-6 w-full items-center mt-7">
-              <button
-                onClick={handleGoogleOAuthClick}
-                className="disabled:opacity-60"
-              >
-                <Image
-                  src={'/otherAssets/gmailIcon.png'}
-                  height={90}
-                  width={90}
-                  alt="*"
-                />
-              </button>
+              <div className="text-[15px] font-[400]">
+                Due to Gmail security, you'll be able to send gmails from here but you won't receive replies here on assignX. Instead, those replies will be sent to your Gmail inbox.
+              </div>
 
-              <div className="text-[15px] font-[400]">Gmail</div>
+              <button className="bg-brand-primary text-white px-4 py-2 rounded-md" onClick={handleGoogleOAuthClick}>
+                Continue
+              </button>
             </div>
-          )}
-        </div>
-      </Box>
-    </Modal>
+          </div>
+        </Box>
+      </Modal>
+    </div>
+
+
   )
 }
 

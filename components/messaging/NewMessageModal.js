@@ -770,7 +770,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                               className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
                             >
                               <Plus className="w-4 h-4" />
-                              Connect New Gmail
+                             Connect Email
                             </button>
                           </div>
                         </div>

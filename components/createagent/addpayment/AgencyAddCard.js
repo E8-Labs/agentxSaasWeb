@@ -622,7 +622,7 @@ const AgencyAddCard = ({
               </div>
             </div>
             )}
-            <div className="flex w-full flex-col items-start mt-4">
+            <div className="flex w-full flex-col mt-4">
               <div
                 style={{
                   fontWeight: '400',

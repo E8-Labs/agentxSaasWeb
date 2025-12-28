@@ -148,11 +148,74 @@ function UserPlansMobile({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // Helper function to remove non-serializable values from objects
+  const cleanNonSerializable = (obj) => {
+    if (obj === null || obj === undefined) {
+      return obj
+    }
+    
+    // Remove common non-serializable properties
+    if (typeof obj === 'object') {
+      // Check if it's an array
+      if (Array.isArray(obj)) {
+        return obj.map(cleanNonSerializable)
+      }
+      
+      // Check if it's a Date
+      if (obj instanceof Date) {
+        return obj.toISOString()
+      }
+      
+      // Check if it has non-serializable properties (like AxiosHeaders)
+      if (obj.constructor && obj.constructor.name !== 'Object' && obj.constructor.name !== 'Array') {
+        // If it's a class instance (like AxiosHeaders), convert to plain object
+        try {
+          return JSON.parse(JSON.stringify(obj))
+        } catch {
+          return null
+        }
+      }
+      
+      // Recursively clean object properties
+      const cleaned = {}
+      for (const key in obj) {
+        if (key === 'headers' || key === 'config' || key === 'request') {
+          // Skip axios-specific non-serializable properties
+          continue
+        }
+        cleaned[key] = cleanNonSerializable(obj[key])
+      }
+      return cleaned
+    }
+    
+    return obj
+  }
+
   const refreshUserData = async () => {
     try {
-      const userProfile = await getProfileDetails()
-      if (userProfile) {
-        setReduxUser(userProfile)
+      const response = await getProfileDetails()
+      if (response && response.data && response.data.status === true) {
+        // Extract only the user data, not the full axios response
+        const userData = response.data.data
+        
+        // Get token from localStorage to maintain the token
+        let token = null
+        const localData = localStorage.getItem('User')
+        if (localData) {
+          const localDetails = JSON.parse(localData)
+          token = localDetails.token
+        }
+        
+        // Clean any non-serializable values from user data
+        const cleanedUserData = cleanNonSerializable(userData)
+        
+        // Format data for Redux
+        const cleanUserData = {
+          token: token,
+          user: cleanedUserData,
+        }
+        
+        setReduxUser(cleanUserData)
         return true
       }
       return false
