@@ -554,7 +554,7 @@ const AdminLeadDetails = ({
         // setNoteDetails()
         if (response.data.status === true) {
           setShowAddNotes(false)
-          setNoteDetails([...noteDetails, response.data.data])
+          setNoteDetails([response.data.data, ...noteDetails])
           setddNotesValue('')
         }
       }

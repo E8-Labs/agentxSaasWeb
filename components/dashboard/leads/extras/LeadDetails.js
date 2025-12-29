@@ -51,6 +51,7 @@ import {
   MessageSquare,
   Pencil,
   Trash2,
+  MoreVertical,
   Copy,
   Meh,
   ListChecks,
@@ -198,6 +199,8 @@ const LeadDetails = ({
   const [deleteNoteId, setDeleteNoteId] = useState(null)
   const [deleteNoteLoader, setDeleteNoteLoader] = useState(false)
   const [showDeleteNoteConfirm, setShowDeleteNoteConfirm] = useState(false)
+  const [noteMenuAnchor, setNoteMenuAnchor] = useState(null)
+  const [selectedNoteForMenu, setSelectedNoteForMenu] = useState(null)
 
   // Email functionality states
   const [showEmailModal, setShowEmailModal] = useState(false)
@@ -703,7 +706,7 @@ const LeadDetails = ({
         // setNoteDetails()
         if (response.data.status === true) {
           setShowAddNotes(false)
-          setNoteDetails([...noteDetails, response.data.data])
+          setNoteDetails([response.data.data, ...noteDetails])
           setddNotesValue('')
         }
       }
@@ -1946,9 +1949,9 @@ const LeadDetails = ({
                                         color="#000000"
                                       />
                                       <span>Text</span>
-                                      {(!userLocalData?.planCapabilities
-                                        ?.allowTextMessages ||
-                                        phoneNumbers.length == 0) && (
+                                      {/* Show upgrade button only if allowTextMessages is false */}
+                                      {!userLocalData?.planCapabilities
+                                        ?.allowTextMessages && (
                                           <span
                                             className="rounded px-1"
                                             style={{
@@ -1960,6 +1963,41 @@ const LeadDetails = ({
                                               setReduxUser={setUserLocalData}
                                             />
                                           </span>
+                                        )}
+                                      {/* Show info icon with tooltip if allowTextMessages is true but no phone numbers */}
+                                      {userLocalData?.planCapabilities
+                                        ?.allowTextMessages &&
+                                        phoneNumbers.length == 0 && (
+                                          <Tooltip
+                                            title="No phone numbers available. Please add an A2P number to send text messages."
+                                            arrow
+                                            placement="top"
+                                            componentsProps={{
+                                              tooltip: {
+                                                sx: {
+                                                  backgroundColor: '#ffffff',
+                                                  color: '#333',
+                                                  fontSize: '14px',
+                                                  padding: '10px 15px',
+                                                  borderRadius: '8px',
+                                                  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                                },
+                                              },
+                                              arrow: {
+                                                sx: {
+                                                  color: '#ffffff',
+                                                },
+                                              },
+                                            }}
+                                          >
+                                            <Image
+                                              src="/agencyIcons/InfoIcon.jpg"
+                                              alt="info"
+                                              width={16}
+                                              height={16}
+                                              className="cursor-pointer rounded-full"
+                                            />
+                                          </Tooltip>
                                         )}
                                     </div>
                                   </MenuItem>
@@ -3103,29 +3141,73 @@ const LeadDetails = ({
                                           )}
                                         </div>
                                         <div className="flex flex-row items-center gap-2">
-                                          {/* Edit/Delete buttons - only show for manual notes */}
+                                          {/* 3-dot menu - only show for manual notes */}
                                           {item.type === 'manual' && (
                                             <>
                                               <button
-                                                onClick={() => {
-                                                  setEditingNote(item)
-                                                  setEditNoteValue(item.note)
+                                                onClick={(e) => {
+                                                  setNoteMenuAnchor(e.currentTarget)
+                                                  setSelectedNoteForMenu(item)
                                                 }}
                                                 className="p-1 hover:bg-gray-100 rounded"
                                                 style={{ cursor: 'pointer' }}
                                               >
-                                                <Pencil size={16} color="#6b7280" />
+                                                <MoreVertical size={16} color="#6b7280" />
                                               </button>
-                                              <button
-                                                onClick={() => {
-                                                  setDeleteNoteId(item.id)
-                                                  setShowDeleteNoteConfirm(true)
+                                              <Menu
+                                                anchorEl={noteMenuAnchor}
+                                                open={Boolean(noteMenuAnchor)}
+                                                onClose={() => {
+                                                  setNoteMenuAnchor(null)
+                                                  setSelectedNoteForMenu(null)
                                                 }}
-                                                className="p-1 hover:bg-gray-100 rounded"
-                                                style={{ cursor: 'pointer' }}
+                                                anchorOrigin={{
+                                                  vertical: 'bottom',
+                                                  horizontal: 'right',
+                                                }}
+                                                transformOrigin={{
+                                                  vertical: 'top',
+                                                  horizontal: 'right',
+                                                }}
                                               >
-                                                <Trash2 size={16} color="#ef4444" />
-                                              </button>
+                                                <MenuItem
+                                                  onClick={() => {
+                                                    if (selectedNoteForMenu) {
+                                                      setEditingNote(selectedNoteForMenu)
+                                                      setEditNoteValue(selectedNoteForMenu.note)
+                                                    }
+                                                    setNoteMenuAnchor(null)
+                                                    setSelectedNoteForMenu(null)
+                                                  }}
+                                                  sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 1,
+                                                  }}
+                                                >
+                                                  <Pencil size={16} color="#6b7280" />
+                                                  <span>Edit</span>
+                                                </MenuItem>
+                                                <MenuItem
+                                                  onClick={() => {
+                                                    if (selectedNoteForMenu) {
+                                                      setDeleteNoteId(selectedNoteForMenu.id)
+                                                      setShowDeleteNoteConfirm(true)
+                                                    }
+                                                    setNoteMenuAnchor(null)
+                                                    setSelectedNoteForMenu(null)
+                                                  }}
+                                                  sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 1,
+                                                    color: '#ef4444',
+                                                  }}
+                                                >
+                                                  <Trash2 size={16} color="#ef4444" />
+                                                  <span>Delete</span>
+                                                </MenuItem>
+                                              </Menu>
                                             </>
                                           )}
                                           {/* Call Summary Icons - COMMENTED OUT: Moved to Activity tab
