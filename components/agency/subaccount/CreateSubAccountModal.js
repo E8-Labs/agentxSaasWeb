@@ -218,6 +218,27 @@ export default function CreateSubAccountModal({
 
   const [allowTwillio, setAllowTwillio] = useState(false)
   const [isInternalAccount, setIsInternalAccount] = useState(false)
+  const [hasInternalAccount, setHasInternalAccount] = useState(false)
+
+  // Check if agency already has an internal account
+  useEffect(() => {
+    try {
+      const userData = localStorage.getItem('User')
+      if (userData) {
+        const parsedUser = JSON.parse(userData)
+        const agencyProfile = parsedUser?.user
+        const hasInternal = agencyProfile?.hasInternalAccount || false
+        setHasInternalAccount(hasInternal)
+        
+        // If agency already has an internal account, disable the toggle
+        if (hasInternal) {
+          setIsInternalAccount(false)
+        }
+      }
+    } catch (error) {
+      console.error('Error checking hasInternalAccount:', error)
+    }
+  }, [])
 
   //show sell seats modal
   useEffect(() => {
@@ -620,12 +641,19 @@ export default function CreateSubAccountModal({
             <Switch
               checked={isInternalAccount}
               onChange={(e) => setIsInternalAccount(e.target.checked)}
+              disabled={hasInternalAccount}
               sx={{
                 '& .MuiSwitch-switchBase.Mui-checked': {
                   color: 'white',
                 },
                 '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
                   backgroundColor: 'hsl(var(--brand-primary))',
+                },
+                '& .MuiSwitch-switchBase.Mui-disabled': {
+                  color: 'rgba(0, 0, 0, 0.26)',
+                },
+                '& .MuiSwitch-switchBase.Mui-disabled + .MuiSwitch-track': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.12)',
                 },
               }}
             />

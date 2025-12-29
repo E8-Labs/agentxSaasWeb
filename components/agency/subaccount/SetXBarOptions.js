@@ -120,6 +120,12 @@ export default function SetXBarOptions({
           if (localData) {
             let D = JSON.parse(localData)
             D.user.checkList.checkList.subaccountAdded = true
+            
+            // Update hasInternalAccount if an internal account was created
+            if (formData.isInternalAccount) {
+              D.user.hasInternalAccount = true
+            }
+            
             localStorage.setItem('User', JSON.stringify(D))
           }
           window.dispatchEvent(

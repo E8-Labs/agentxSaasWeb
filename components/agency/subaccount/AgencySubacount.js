@@ -447,6 +447,26 @@ function AgencySubacount({ selectedAgency }) {
         console.log('Response of del account apis is', response)
         if (response.data) {
           console.log('Response of del account apis is', response.data)
+          
+          // Check if the deleted subaccount was an internal account
+          // Use selectedItem which contains the full subaccount object
+          if (selectedItem?.isInternalAccount) {
+            // Update localStorage to set hasInternalAccount to false
+            const localData = localStorage.getItem('User')
+            if (localData) {
+              try {
+                const parsedData = JSON.parse(localData)
+                if (parsedData.user) {
+                  parsedData.user.hasInternalAccount = false
+                  localStorage.setItem('User', JSON.stringify(parsedData))
+                  console.log('Updated hasInternalAccount to false in localStorage')
+                }
+              } catch (error) {
+                console.error('Error updating hasInternalAccount in localStorage:', error)
+              }
+            }
+          }
+          
           setShowSnackMessage('Sub account deleted')
           setDelLoader(false)
           setShowDelConfirmationPopup(false)
