@@ -24,6 +24,7 @@ import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/l
 import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 import { Modal, Box } from '@mui/material'
+import { useUser } from '@/hooks/redux-hooks'
 
 const Messages = () => {
   const [threads, setThreads] = useState([])
@@ -79,6 +80,9 @@ const Messages = () => {
   const [selectedTeamMemberIds, setSelectedTeamMemberIds] = useState([]) // Temporary selection in modal
   const [appliedTeamMemberIds, setAppliedTeamMemberIds] = useState([]) // Actually applied filter
   const [filterTeamMembers, setFilterTeamMembers] = useState([])
+
+
+  const { user: reduxUser, setUser: setReduxUser,planCapabilities } = useUser()
 
   // Close email detail popover when clicking outside
   useEffect(() => {
@@ -1762,6 +1766,7 @@ const Messages = () => {
         time={4000}
         hide={() => setSnackbar({ ...snackbar, isVisible: false })}
       />
+      
       <div className="w-full h-screen flex flex-row bg-white">
         {/* Left Sidebar - Thread List */}
         <ThreadsList
