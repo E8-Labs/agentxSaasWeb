@@ -3,7 +3,7 @@
 // //console.log;
 
 let BasePath =
-  process.env.NEXT_PUBLIC_BASE_API_URL ||
+  // process.env.NEXT_PUBLIC_BASE_API_URL ||
   (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     ? 'https://apimyagentx.com/agentx/'
     : 'https://apimyagentx.com/agentxtest/')
@@ -250,11 +250,10 @@ const Apis = {
   createMailgunSubdomain: `${BasePath}api/mailgun/subdomain`,
   verifyMailgunDomain: `${BasePath}api/mailgun/verify-domain`,
   listMailgunIntegrations: `${BasePath}api/mailgun/integrations`,
-  createMailgunSubdomain: `${BasePath}api/mailgun/subdomain`,
-  getAvailableDomains: `${BasePath}api/mailgun/available-domains`,
   getAvailableDomains: `${BasePath}api/mailgun/available-domains`,
   getMailgunIntegration: `${BasePath}api/mailgun/integration`,
   updateMailgunIntegration: `${BasePath}api/mailgun/integration`,
+  fetchFreshDnsRecords: `${BasePath}api/mailgun/integration`,
   deleteMailgunIntegration: `${BasePath}api/mailgun/integration`,
   requestMailgunEmail: `${BasePath}api/mail/request-mailgun-email`,
   assignMailgunEmail: `${BasePath}api/mail/assign-mailgun-email`,

@@ -119,7 +119,7 @@ const CustomerProfile = ({
               setIntroVideoModal2(true)
             }}
           >
-            Learn more about Twilio Trust Hub
+            {isFromAgency ? ' Learn how to connect Twilio and use the video link shared with you.' : 'Learn more about Twilio Trust Hub'}
           </button>
           <Play size={18} 
           weight='bold'
