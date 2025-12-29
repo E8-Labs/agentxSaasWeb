@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { X, Check, AlertCircle, Plus, Settings, RefreshCw, Eye } from 'lucide-react'
+import { X, Check, AlertCircle, Plus, Settings, RefreshCw, Eye, Trash2, CheckCircle2, Clock } from 'lucide-react'
 import axios from 'axios'
 import { toast } from 'sonner'
 import Apis from '@/components/apis/Apis'
@@ -36,6 +36,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
   const [createdDomainIntegration, setCreatedDomainIntegration] = useState(null)
   const [verifyingDomain, setVerifyingDomain] = useState(false)
   const [viewingDnsRecords, setViewingDnsRecords] = useState(null)
+  const [deletingDomain, setDeletingDomain] = useState(false)
 
   useEffect(() => {
     if (open) {
@@ -108,19 +109,21 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
           setAgencyHasMailgun(agencyIntegrations.length > 0)
         }
         
-        // For subaccounts, show all their domains (verified and pending)
-        // For others, only show verified and active domains
+        // For first tab: Only show verified domains that can be used for email creation
+        // For subaccounts: agency's verified domains + subaccount's own verified domains
+        // For others: only verified and active domains
         let availableIntegrations
         if (isSubaccount) {
-          // Subaccounts can see: agency's verified domains + their own domains (verified or pending, regardless of isActive)
+          // Subaccounts can see: agency's verified domains + their own verified domains
           availableIntegrations = allIntegrations.filter(
             (integration) => 
               // Agency's verified domains
               (integration.ownerType === 'agency' && 
                integration.verificationStatus === 'verified' && 
                integration.isActive) ||
-              // Or subaccount's own domains (show all, including pending ones with isActive: false)
-              (integration.ownerType === 'subaccount')
+              // Or subaccount's own verified domains (only verified ones for email creation)
+              (integration.ownerType === 'subaccount' && 
+               integration.verificationStatus === 'verified')
           )
         } else {
           // For non-subaccounts, only show verified and active
@@ -335,11 +338,13 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       )
 
       if (response.data?.status) {
-        const integration = response.data.data
-        setCreatedDomainIntegration(integration)
-        toast.success('Domain created! Please add the DNS records below.')
-        // Refresh integrations list
+        toast.success('Domain created successfully!')
+        // Clear the form
+        setCustomDomain('')
+        // Refresh integrations list to show the new domain in the list
         await fetchMailgunIntegrations()
+        // Clear createdDomainIntegration so it shows in the list instead
+        setCreatedDomainIntegration(null)
       } else {
         toast.error(response.data?.message || 'Failed to create domain')
       }
@@ -348,6 +353,47 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       toast.error(error.response?.data?.message || 'Failed to create domain')
     } finally {
       setCreatingDomain(false)
+    }
+  }
+
+  // Handle domain deletion
+  const handleDeleteDomain = async (integrationId, domainName) => {
+    if (!window.confirm(`Are you sure you want to delete the domain "${domainName}"? This action cannot be undone.`)) {
+      return
+    }
+
+    setDeletingDomain(true)
+    try {
+      const userData = getUserLocalData()
+      const token = userData?.token
+
+      const response = await axios.delete(
+        `${Apis.deleteMailgunIntegration}/${integrationId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
+      if (response.data?.status) {
+        toast.success('Domain deleted successfully')
+        // Refresh integrations list
+        await fetchMailgunIntegrations()
+        // Clear created domain integration if it was deleted
+        if (createdDomainIntegration?.id === integrationId) {
+          setCreatedDomainIntegration(null)
+          setCustomDomain('')
+        }
+      } else {
+        toast.error(response.data?.message || 'Failed to delete domain')
+      }
+    } catch (error) {
+      console.error('Error deleting domain:', error)
+      toast.error(error.response?.data?.message || 'Failed to delete domain')
+    } finally {
+      setDeletingDomain(false)
     }
   }
 
@@ -372,18 +418,19 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       if (response.data?.status) {
         if (response.data.data.verified) {
           toast.success('Domain verified successfully!')
-          setCreatedDomainIntegration(null)
+          // Refresh integrations to update the list
           await fetchMailgunIntegrations()
-          // Switch to existing tab to select the verified domain
-          setActiveTab('existing')
+          // Clear created domain integration so it shows in the domain list
+          setCreatedDomainIntegration(null)
+          setCustomDomain('')
+          // Optionally switch to existing tab to select the verified domain
+          // setActiveTab('existing')
         } else {
           toast.warning('Domain verification pending. Please check DNS records.')
-        }
-        // Update created domain integration with fresh data
-        if (createdDomainIntegration?.id === integrationId) {
-          const allIntegrations = await fetchMailgunIntegrations()
-          const updated = allIntegrations.find(i => i.id === integrationId)
-          if (updated) {
+          // Update created domain integration with fresh data
+          await fetchMailgunIntegrations()
+          const updated = allMailgunIntegrations.find(i => i.id === integrationId)
+          if (updated && createdDomainIntegration?.id === integrationId) {
             setCreatedDomainIntegration(updated)
           }
         }
@@ -777,167 +824,138 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
                       </div>
 
                       {isSubaccount ? (
-                        // Subaccount: Show inline form
-                        !createdDomainIntegration ? (
-                      <>
-                        <div>
-                          <Label htmlFor="customDomain" className="text-sm font-medium text-gray-700">
-                            Domain
-                          </Label>
-                          <input
-                            id="customDomain"
-                            type="text"
-                            placeholder="mail.yourdomain.com"
-                            value={customDomain}
-                            onChange={(e) => setCustomDomain(e.target.value.toLowerCase().trim())}
-                            className="mt-2 h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                            autoComplete="off"
-                            autoFocus
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              e.target.focus()
-                            }}
-                            onFocus={(e) => {
-                              e.stopPropagation()
-                            }}
-                          />
-                          <p className="text-xs text-gray-500 mt-1.5">
-                            Enter your email subdomain (e.g., mail.yourdomain.com)
-                          </p>
-                        </div>
+                        // Subaccount: Show domain management list
+                        <>
+                          {/* List of connected domains */}
+                          {(() => {
+                            const subaccountDomains = allMailgunIntegrations.filter(
+                              (integration) => integration.ownerType === 'subaccount'
+                            )
 
-                        <div className="flex justify-end gap-3 pt-4 border-t">
-                          <Button variant="outline" onClick={onClose} type="button">
-                            Cancel
-                          </Button>
-                          <Button
-                            type="button"
-                            onClick={handleCreateCustomDomain}
-                            disabled={creatingDomain || !customDomain}
-                            className="bg-purple-600 hover:bg-purple-700"
-                          >
-                            {creatingDomain ? 'Creating...' : 'Create Domain'}
-                          </Button>
-                        </div>
-                      </>
-                    ) : (
-                    <>
-                      {/* Show DNS Records and Domain Details */}
-                      <div className="space-y-4">
-                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                          <div className="flex items-start gap-2">
-                            <AlertCircle className="text-blue-600 mt-0.5" size={20} />
-                            <div className="flex-1">
-                              <p className="text-sm font-medium text-blue-900 mb-1">
-                                Domain Created Successfully
-                              </p>
-                              <p className="text-xs text-blue-700">
-                                Add the DNS records below to your domain registrar to verify your domain.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Domain Details */}
-                        <div className="border border-gray-200 rounded-lg p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <div>
-                              <p className="text-sm font-semibold text-gray-900">
-                                {createdDomainIntegration.domain}
-                              </p>
-                              <p className="text-xs text-gray-500 mt-1">
-                                Status: <span className={`font-medium ${
-                                  createdDomainIntegration.verificationStatus === 'verified'
-                                    ? 'text-green-600'
-                                    : createdDomainIntegration.verificationStatus === 'failed'
-                                    ? 'text-red-600'
-                                    : 'text-amber-600'
-                                }`}>
-                                  {createdDomainIntegration.verificationStatus === 'verified'
-                                    ? 'Verified'
-                                    : createdDomainIntegration.verificationStatus === 'failed'
-                                    ? 'Verification Failed'
-                                    : 'Pending Verification'}
-                                </span>
-                              </p>
-                            </div>
-                            <Button
-                              variant="outline"
-                              onClick={() => setViewingDnsRecords(createdDomainIntegration)}
-                              className="border-purple-600 text-purple-600 hover:bg-purple-50"
-                            >
-                              <Eye size={16} className="mr-2" />
-                              View DNS Records
-                            </Button>
-                          </div>
-
-                          {/* Show DNS Records Inline if available */}
-                          {createdDomainIntegration.dnsRecords && 
-                           Array.isArray(createdDomainIntegration.dnsRecords) && 
-                           createdDomainIntegration.dnsRecords.length > 0 && (
-                            <div className="mt-4 pt-4 border-t border-gray-200">
-                              <p className="text-xs font-medium text-gray-700 mb-2">
-                                DNS Records to Add:
-                              </p>
-                              <div className="space-y-2">
-                                {createdDomainIntegration.dnsRecords.slice(0, 3).map((record, idx) => {
-                                  const recordType = record.recordType || record.type || 'TXT'
-                                  const recordName = record.name || '@'
-                                  const recordValue = record.value || ''
-                                  const displayName = recordName === '@' ? createdDomainIntegration.domain : recordName
-                                  
-                                  return (
-                                    <div key={idx} className="text-xs bg-gray-50 p-2 rounded border border-gray-200">
-                                      <div className="flex items-center gap-2">
-                                        <span className="font-medium text-gray-700">{recordType}</span>
-                                        <span className="text-gray-600">{displayName}</span>
-                                        <span className="text-gray-500 font-mono text-[10px] truncate flex-1">
-                                          {recordValue.length > 50 ? `${recordValue.substring(0, 50)}...` : recordValue}
-                                        </span>
-                                      </div>
+                            return (
+                              <div className="space-y-4">
+                                {subaccountDomains.length > 0 ? (
+                                  <>
+                                    <div className="space-y-3">
+                                      {subaccountDomains.map((integration) => (
+                                        <div
+                                          key={integration.id}
+                                          className="border border-gray-200 rounded-lg p-4 hover:border-purple-300 transition-colors"
+                                        >
+                                          <div className="flex items-center justify-between">
+                                            <div className="flex-1">
+                                              <div className="flex items-center gap-2 mb-2">
+                                                <p className="text-sm font-semibold text-gray-900">
+                                                  {integration.domain}
+                                                </p>
+                                                {integration.verificationStatus === 'verified' ? (
+                                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-green-100 text-green-700">
+                                                    <CheckCircle2 size={12} />
+                                                    Verified
+                                                  </span>
+                                                ) : integration.verificationStatus === 'failed' ? (
+                                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-red-100 text-red-700">
+                                                    <AlertCircle size={12} />
+                                                    Failed
+                                                  </span>
+                                                ) : (
+                                                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium bg-amber-100 text-amber-700">
+                                                    <Clock size={12} />
+                                                    Pending
+                                                  </span>
+                                                )}
+                                              </div>
+                                              <p className="text-xs text-gray-500">
+                                                {integration.verificationStatus === 'verified'
+                                                  ? 'Ready to create email addresses'
+                                                  : 'Add DNS records to verify this domain'}
+                                              </p>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                              <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setViewingDnsRecords(integration)}
+                                                className="border-purple-600 text-purple-600 hover:bg-purple-50"
+                                              >
+                                                <Eye size={14} className="mr-1" />
+                                                DNS
+                                              </Button>
+                                              {integration.verificationStatus !== 'verified' && (
+                                                <Button
+                                                  variant="outline"
+                                                  size="sm"
+                                                  onClick={() => handleVerifyDomain(integration.id)}
+                                                  disabled={verifyingDomain}
+                                                  className="border-green-600 text-green-600 hover:bg-green-50"
+                                                >
+                                                  {verifyingDomain ? 'Verifying...' : 'Verify'}
+                                                </Button>
+                                              )}
+                                              <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => handleDeleteDomain(integration.id, integration.domain)}
+                                                disabled={deletingDomain}
+                                                className="border-red-600 text-red-600 hover:bg-red-50"
+                                              >
+                                                <Trash2 size={14} className="mr-1" />
+                                                Delete
+                                              </Button>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      ))}
                                     </div>
-                                  )
-                                })}
-                                {createdDomainIntegration.dnsRecords.length > 3 && (
-                                  <p className="text-xs text-gray-500 italic">
-                                    + {createdDomainIntegration.dnsRecords.length - 3} more records. Click "View DNS Records" to see all.
-                                  </p>
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </div>
+                                  </>
+                                ) : null}
 
-                        {/* Action Buttons */}
-                        <div className="flex justify-end gap-3 pt-4 border-t">
-                          {createdDomainIntegration.verificationStatus !== 'verified' && (
-                            <Button
-                              type="button"
-                              onClick={() => handleVerifyDomain(createdDomainIntegration.id)}
-                              disabled={verifyingDomain}
-                              className="bg-purple-600 hover:bg-purple-700"
-                            >
-                              {verifyingDomain ? 'Verifying...' : 'Verify Domain'}
-                            </Button>
-                          )}
-                          {createdDomainIntegration.verificationStatus === 'verified' && (
-                            <Button
-                              type="button"
-                              onClick={() => {
-                                setCreatedDomainIntegration(null)
-                                setCustomDomain('')
-                                setActiveTab('existing')
-                                fetchMailgunIntegrations()
-                              }}
-                              className="bg-purple-600 hover:bg-purple-700"
-                            >
-                              Continue to Email Setup
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                    </>
-                  )
+                                {/* Add new domain form */}
+                                {!createdDomainIntegration ? (
+                                  <div className="border-t pt-4">
+                                    <p className="text-sm font-medium text-gray-700 mb-3">
+                                      {subaccountDomains.length > 0 ? 'Connect Another Domain' : 'Connect Your Domain'}
+                                    </p>
+                                    <div>
+                                      <Label htmlFor="customDomain" className="text-sm font-medium text-gray-700">
+                                        Domain
+                                      </Label>
+                                      <input
+                                        id="customDomain"
+                                        type="text"
+                                        placeholder="mail.yourdomain.com"
+                                        value={customDomain}
+                                        onChange={(e) => setCustomDomain(e.target.value.toLowerCase().trim())}
+                                        className="mt-2 h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                        autoComplete="off"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          e.target.focus()
+                                        }}
+                                        onFocus={(e) => {
+                                          e.stopPropagation()
+                                        }}
+                                      />
+                                      <p className="text-xs text-gray-500 mt-1.5">
+                                        Enter your email subdomain (e.g., mail.yourdomain.com)
+                                      </p>
+                                    </div>
+                                    <div className="flex justify-end gap-3 pt-4">
+                                      <Button
+                                        type="button"
+                                        onClick={handleCreateCustomDomain}
+                                        disabled={creatingDomain || !customDomain}
+                                        className="bg-purple-600 hover:bg-purple-700"
+                                      >
+                                        {creatingDomain ? 'Creating...' : 'Create Domain'}
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : null}
+                              </div>
+                            )
+                          })()}
+                        </>
                       ) : (
                         // Non-subaccount: Show "Start Domain Setup" button (original behavior)
                         <div className="text-center py-6">
