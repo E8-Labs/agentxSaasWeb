@@ -586,9 +586,11 @@ const CreateAgent1 = ({
       // Use logged-in user data
       currentUserData = reduxUser || user
     }
+    console.log('[CREATE-AGENT] currentUserData plan is', currentUserData)
+    let plan = currentUserData?.user?.plan || currentUserData?.plan
     
-    const hasPlan = currentUserData?.user?.plan !== null && currentUserData?.user?.plan?.price !== 0
-    const isFreePlan = !hasPlan || currentUserData?.user?.plan?.price === 0
+    const hasPlan = plan !== null && plan?.price !== 0
+    const isFreePlan = !hasPlan || plan?.price === 0
     
     // If user has a paid plan, they must have a payment method to continue
     if (hasPlan && !isFreePlan) {
