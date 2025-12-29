@@ -307,7 +307,7 @@ const MessageComposer = ({
                               className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
                             >
                               <Plus className="w-4 h-4" />
-                              Get A2P Number
+                              Select Phone Number
                             </button>
                           </div>
                         ) : (

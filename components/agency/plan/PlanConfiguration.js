@@ -80,6 +80,7 @@ export default function PlanConfiguration({
     apiKey: false,
     voicemail: false,
     allowTextMessages: false,
+    allowEmails: false,
     twilio: false,
     sendText: false,
     allowTrial: false,
@@ -96,6 +97,7 @@ export default function PlanConfiguration({
     apiKey: false,
     voicemail: false,
     allowTextMessages: false,
+    allowEmails: false,
     twilio: false,
     allowTrial: true,
     allowTeamSeats: false,
@@ -161,6 +163,11 @@ export default function PlanConfiguration({
       stateKey: 'allowTextMessages',
     },
     {
+      label: 'Emails',
+      tooltip: 'Enable email messaging capabilities for agents. Allow sending and receiving emails.',
+      stateKey: 'allowEmails',
+    },
+    {
       label: 'Lead Scoring',
       tooltip:
         'Enable lead scoring to automatically rate and prioritize leads based on their behavior and engagement.',
@@ -202,6 +209,7 @@ export default function PlanConfiguration({
         apiKey: false,
         voicemail: false,
         allowTextMessages: false,
+        allowEmails: false,
         twilio: false,
         sendText: false,
         allowTrial: false,
@@ -435,6 +443,10 @@ export default function PlanConfiguration({
           dynamicFeatures?.allowVoicemailSettings ||
           false,
         allowTextMessages: finalAllowTextMessagesValue,
+        allowEmails:
+          dynamicFeatures?.allowEmails ||
+          dynamicFeatures?.allowEmailMessages ||
+          false,
         twilio: finalTwilioValue,
         sendText:
           dynamicFeatures?.sendText ||
@@ -568,6 +580,7 @@ export default function PlanConfiguration({
     formData.append('allowAPIKey', features.apiKey)
     formData.append('allowVoicemail', features.voicemail)
     formData.append('allowTextMessages', features.allowTextMessages)
+    formData.append('allowEmails', features.allowEmails)
     formData.append('allowTwilio', features.twilio)
     formData.append('allowTrial', features.allowTrial)
     formData.append('allowLeadSource', features.allowLeadSource)

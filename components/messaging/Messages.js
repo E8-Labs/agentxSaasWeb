@@ -82,7 +82,11 @@ const Messages = () => {
   const [filterTeamMembers, setFilterTeamMembers] = useState([])
 
 
-  const { user: reduxUser, setUser: setReduxUser,planCapabilities } = useUser()
+  const { user: reduxUser, setUser: setReduxUser, planCapabilities } = useUser()
+console.log("reduxUser is ", reduxUser)
+console.log("planCapabilities is ", reduxUser?.planCapabilities)
+  // Check if user has access to messaging features
+  const hasMessagingAccess = reduxUser?.planCapabilities?.allowEmails === true || planCapabilities?.allowTextMessages === true
 
   // Close email detail popover when clicking outside
   useEffect(() => {
@@ -1755,6 +1759,52 @@ const Messages = () => {
       messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
     }
   }, [messages])
+
+  // If user doesn't have access to emails or text messages, show empty state
+  if (!hasMessagingAccess) {
+    return (
+      <div className="w-full h-screen flex flex-col items-center justify-center bg-white">
+        <Image
+          src={'/otherAssets/noTemView.png'}
+          height={280}
+          width={240}
+          alt="No messaging access"
+        />
+        
+        <div className="w-full flex flex-col items-center -mt-12 gap-4">
+          <div style={{ fontWeight: '700', fontSize: 22 }}>
+            Unlock Messaging
+          </div>
+          <div style={{ fontWeight: '400', fontSize: 15 }}>
+            Upgrade your plan to send and receive emails and text messages
+          </div>
+        </div>
+        
+        <div className="">
+          <button
+            className="rounded-lg text-white bg-brand-primary mt-8"
+            style={{
+              fontWeight: '500',
+              fontSize: '16',
+              height: '50px',
+              width: '173px',
+            }}
+            onClick={() => {
+              // Navigate to dashboard where user can access plans
+              const userRole = reduxUser?.userRole
+              if (userRole === 'Agency') {
+                window.location.href = '/agency/dashboard'
+              } else {
+                window.location.href = '/dashboard'
+              }
+            }}
+          >
+            Upgrade Plan
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <>

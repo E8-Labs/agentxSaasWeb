@@ -1912,10 +1912,17 @@ const LeadDetails = ({
                                         {(!userLocalData?.planCapabilities
                                           ?.allowEmails
                                         ) && (
-                                            <UpgradeTagWithModal
-                                              reduxUser={userLocalData}
-                                              setReduxUser={setUserLocalData}
-                                            />
+                                            <span
+                                              className="rounded px-1"
+                                              style={{
+                                                backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                              }}
+                                            >
+                                              <UpgradeTagWithModal
+                                                reduxUser={userLocalData}
+                                                setReduxUser={setUserLocalData}
+                                              />
+                                            </span>
                                         )}
                                       </div>
                                     </MenuItem>
@@ -1942,10 +1949,17 @@ const LeadDetails = ({
                                       {(!userLocalData?.planCapabilities
                                         ?.allowTextMessages ||
                                         phoneNumbers.length == 0) && (
-                                          <UpgradeTagWithModal
-                                            reduxUser={userLocalData}
-                                            setReduxUser={setUserLocalData}
-                                          />
+                                          <span
+                                            className="rounded px-1"
+                                            style={{
+                                              backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                            }}
+                                          >
+                                            <UpgradeTagWithModal
+                                              reduxUser={userLocalData}
+                                              setReduxUser={setUserLocalData}
+                                            />
+                                          </span>
                                         )}
                                     </div>
                                   </MenuItem>
