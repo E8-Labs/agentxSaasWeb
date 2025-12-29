@@ -122,6 +122,7 @@ const Apis = {
   deleteTeamMember: `${BasePath}api/team/deleteTeamMember`,
   updateProfileApi: `${BasePath}api/user/updateProfile`,
   AssignLeadToTeam: `${BasePath}api/team/assignLeadToTeam`,
+  unassignLeadFromTeam: `${BasePath}api/team/unassignLeadFromTeam`,
 
   delNumber: `${BasePath}api/agent/deletePhoneNumber`,
   calcelPlanReason: `${BasePath}api/user/addCancelPlanReason`,

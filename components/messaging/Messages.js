@@ -696,7 +696,18 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
   // Handle CC email input
   const handleCcInputChange = (e) => {
     const value = e.target.value
-    setCcInput(value)
+    // Check if input contains comma (likely pasted multiple emails or typed with comma)
+    if (value.includes(',')) {
+      const emails = value.split(',').map(email => email.trim()).filter(email => email)
+      emails.forEach(email => {
+        if (isValidEmail(email) && !ccEmails.includes(email)) {
+          setCcEmails(prev => [...prev, email])
+        }
+      })
+      setCcInput('')
+    } else {
+      setCcInput(value)
+    }
   }
 
   const handleCcInputPaste = (e) => {
@@ -726,9 +737,19 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
         }
         setCcInput('')
       }
-    } else if (e.key === 'Backspace' && ccInput === '' && ccEmails.length > 0) {
+    } else if (e.key === 'Backspace' && !ccInput && ccEmails.length > 0) {
       // Remove last email if backspace pressed on empty input
       setCcEmails(ccEmails.slice(0, -1))
+    }
+  }
+
+  const handleCcInputBlur = () => {
+    if (ccInput.trim()) {
+      const email = ccInput.trim().replace(/[, ]+$/, '') // Remove trailing comma/space
+      if (email && isValidEmail(email) && !ccEmails.includes(email)) {
+        setCcEmails([...ccEmails, email])
+      }
+      setCcInput('')
     }
   }
 
@@ -739,7 +760,18 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
   // Handle BCC email input
   const handleBccInputChange = (e) => {
     const value = e.target.value
-    setBccInput(value)
+    // Check if input contains comma (likely pasted multiple emails or typed with comma)
+    if (value.includes(',')) {
+      const emails = value.split(',').map(email => email.trim()).filter(email => email)
+      emails.forEach(email => {
+        if (isValidEmail(email) && !bccEmails.includes(email)) {
+          setBccEmails(prev => [...prev, email])
+        }
+      })
+      setBccInput('')
+    } else {
+      setBccInput(value)
+    }
   }
 
   const handleBccInputPaste = (e) => {
@@ -769,9 +801,19 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
         }
         setBccInput('')
       }
-    } else if (e.key === 'Backspace' && bccInput === '' && bccEmails.length > 0) {
+    } else if (e.key === 'Backspace' && !bccInput && bccEmails.length > 0) {
       // Remove last email if backspace pressed on empty input
       setBccEmails(bccEmails.slice(0, -1))
+    }
+  }
+
+  const handleBccInputBlur = () => {
+    if (bccInput.trim()) {
+      const email = bccInput.trim().replace(/[, ]+$/, '') // Remove trailing comma/space
+      if (email && isValidEmail(email) && !bccEmails.includes(email)) {
+        setBccEmails([...bccEmails, email])
+      }
+      setBccInput('')
     }
   }
 
@@ -1710,8 +1752,11 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
       const token = userData.token
 
       // Delete the thread (not the lead)
-      const response = await axios.delete(
-        `${Apis.deleteThread}/${threadId}`,
+
+      let path = `${Apis.deleteThread}/${threadId}`
+
+      console.log('path is ', path)
+      const response = await axios.delete(path,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -1721,12 +1766,10 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
       )
 
       if (response.data?.status) {
-        toast.success('Thread deleted successfully', {
-          style: {
-            width: 'fit-content',
-            maxWidth: '400px',
-            whiteSpace: 'nowrap',
-          },
+        setSnackbar({
+          isVisible: true,
+          message: response.data?.message || 'Thread deleted successfully',
+          type: SnackbarTypes.Success,
         })
         // Refresh threads
         fetchThreads(searchValue, appliedTeamMemberIds)
@@ -1736,11 +1779,19 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
           setMessages([])
         }
       } else {
-        toast.error(response.data?.message || 'Failed to delete thread')
+       setSnackbar({
+          isVisible: true,
+          message: response.data?.message || 'Failed to delete thread',
+          type: SnackbarTypes.Error,
+        })
       }
     } catch (error) {
       console.error('Error deleting thread:', error)
-      toast.error(error.response?.data?.message || 'Error deleting thread')
+      setSnackbar({
+        isVisible: true,
+        message: error.response?.data?.message || 'Error deleting thread',
+        type: SnackbarTypes.Error,
+      })
     }
   }, [searchValue, selectedThread, fetchThreads])
 
@@ -1896,12 +1947,14 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
                 handleCcInputChange={handleCcInputChange}
                 handleCcInputKeyDown={handleCcInputKeyDown}
                 handleCcInputPaste={handleCcInputPaste}
+                handleCcInputBlur={handleCcInputBlur}
                 removeCcEmail={removeCcEmail}
                 bccEmails={bccEmails}
                 bccInput={bccInput}
                 handleBccInputChange={handleBccInputChange}
                 handleBccInputKeyDown={handleBccInputKeyDown}
                 handleBccInputPaste={handleBccInputPaste}
+                handleBccInputBlur={handleBccInputBlur}
                 removeBccEmail={removeBccEmail}
                 phoneNumbers={phoneNumbers}
                 selectedPhoneNumber={selectedPhoneNumber}

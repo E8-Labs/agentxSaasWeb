@@ -83,12 +83,14 @@ const MessageComposer = ({
   handleCcInputChange,
   handleCcInputKeyDown,
   handleCcInputPaste,
+  handleCcInputBlur,
   removeCcEmail,
   bccEmails,
   bccInput,
   handleBccInputChange,
   handleBccInputKeyDown,
   handleBccInputPaste,
+  handleBccInputBlur,
   removeBccEmail,
   phoneNumbers,
   selectedPhoneNumber,
@@ -473,8 +475,9 @@ const MessageComposer = ({
                           onChange={handleCcInputChange}
                           onKeyDown={handleCcInputKeyDown}
                           onPaste={handleCcInputPaste}
+                          onBlur={handleCcInputBlur}
                           placeholder={ccEmails.length === 0 ? 'Add CC recipients' : ''}
-                          className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                          className="flex-1 h-full min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
                         />
                       </div>
                     </div>
@@ -500,8 +503,9 @@ const MessageComposer = ({
                           onChange={handleBccInputChange}
                           onKeyDown={handleBccInputKeyDown}
                           onPaste={handleBccInputPaste}
+                          onBlur={handleBccInputBlur}
                           placeholder={bccEmails.length === 0 ? 'Add BCC recipients' : ''}
-                          className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                          className="flex-1 h-full min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
                         />
                       </div>
                     </div>

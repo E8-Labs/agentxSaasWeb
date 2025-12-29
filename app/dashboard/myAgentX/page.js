@@ -4069,7 +4069,7 @@ function Page() {
       mx: 'auto',
       my: '50vh',
       transform: 'translateY(-50%)',
-      borderRadius: 2,
+      borderRadius: '20px',
       border: 'none',
       outline: 'none',
     },
@@ -6858,7 +6858,7 @@ function Page() {
         }}
       >
         <Box
-          className="w-10/12 h-[90%] sm:w-[760px] p-8 rounded-[15px]"
+          className="w-10/12 h-[90%] sm:w-[760px] p-8 rounded-xl"
           sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
         >
           <div style={{ width: '100%' }}>

@@ -2779,7 +2779,7 @@ const Pipeline1 = () => {
                                       </div>
                                     )}
 
-                                    <div className="w-full flex flex-row items-center justify-between">
+                                    <div className="w-full flex flex-row items-center">
                                       <LeadTeamsAssignedList
                                         users={lead?.lead?.teamsAssigned || []}
                                         compactMode={true}
@@ -2791,17 +2791,9 @@ const Pipeline1 = () => {
                                           setNoteDetails(lead.lead.notes || [])
                                         }}
                                       />
-                                      {/* <div className="flex flex-row items-center gap-3">
-                                                                            <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
-                                                                                Tag
-                                                                            </div>
-                                                                            <div className="text-purple bg-[#1C55FF10] px-4 py-2 rounded-3xl rounded-lg">
-                                                                                Tag
-                                                                            </div>
-                                                                        </div> */}
-
+                                     
                                       {lead.lead.tags.length > 0 ? (
-                                        <div className="flex flex-row items-center gap-1">
+                                        <div className="flex flex-row items-center gap-1 whitespace-nowrap">
                                           {lead?.lead?.tags
                                             .slice(0, 1)
                                             .map((tagVal, index) => {
@@ -2811,20 +2803,16 @@ const Pipeline1 = () => {
                                                 // </div>
                                                 <div
                                                   key={index}
-                                                  className="flex flex-row items-center gap-2 px-2 py-1 rounded-lg"
-                                                  style={{
-                                                    backgroundColor: 'hsl(var(--brand-primary) / 0.15)',
-                                                    maxWidth: 'fit-content',
-                                                  }}
+                                                  className="flex items-center gap-1 px-2 py-1 whitespace-nowrap bg-gray-100 rounded-full text-sm"
                                                 >
                                                   <div
-                                                    className="text-brand-primary"
+                                                    className="text-black"
                                                     style={{
                                                       fontSize: 13,
                                                       maxWidth: '12ch',
-                                                      wordBreak: 'break-word',
-                                                      overflowWrap: 'break-word',
-                                                      whiteSpace: 'normal',
+                                                      whiteSpace: 'nowrap',
+                                                      overflow: 'hidden',
+                                                      textOverflow: 'ellipsis',
                                                       lineHeight: '1.2',
                                                     }}
                                                   >
@@ -2878,7 +2866,7 @@ const Pipeline1 = () => {
                                                       <X
                                                         size={15}
                                                         weight="bold"
-                                                        color="hsl(var(--brand-primary))"
+                                                        color="#000000"
                                                       />
                                                     </button>
                                                   )}

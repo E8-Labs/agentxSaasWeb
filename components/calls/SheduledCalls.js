@@ -798,12 +798,12 @@ function SheduledCalls({ user }) {
                                                 //// //console.log
                                                 setColor(true)
                                                 setShowConfirmationPopup(
-                                                  'resume Calls',
+                                                  'resume',
                                                 )
                                               } else {
                                                 //// //console.log
                                                 setShowConfirmationPopup(
-                                                  'pause Calls',
+                                                  'pause',
                                                 )
                                                 setColor(false)
                                               }
@@ -811,8 +811,8 @@ function SheduledCalls({ user }) {
                                             }}
                                           >
                                             {SelectedItem?.status == 'Paused'
-                                              ? 'Run Calls'
-                                              : 'Pause Calls'}
+                                              ? 'Run'
+                                              : 'Pause'}
                                           </button>
                                         )}
                                       </div>

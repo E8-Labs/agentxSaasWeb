@@ -65,7 +65,7 @@ import getProfileDetails from '@/components/apis/GetProfile'
 import { TranscriptViewer } from '@/components/calls/TranscriptViewer'
 import { UpgradeTagWithModal } from '@/components/constants/constants'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
-import { AssignTeamMember } from '@/components/onboarding/services/apisServices/ApiService'
+import { AssignTeamMember, UnassignTeamMember } from '@/components/onboarding/services/apisServices/ApiService'
 import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
 // import EmailTempletePopup from "../../pipeline/EmailTempletePopup";
 import EmailTempletePopup from '@/components/pipeline/EmailTempletePopup'
@@ -365,6 +365,47 @@ const LeadDetails = ({
     } finally {
       setGlobalLoader(false)
       handleClosePopup()
+    }
+  }
+
+  //function to unassign lead from team member
+  const handleUnassignLeadFromTeammember = async (userId) => {
+    try {
+      setGlobalLoader(true)
+      console.log('Unassigning user with ID:', userId)
+      
+      let ApiData = {
+        leadId: selectedLeadsDetails.id,
+        teamMemberUserId: userId,
+      }
+      
+      console.log('Api data to send in unassign api is', ApiData)
+      
+      let response = await UnassignTeamMember(ApiData)
+      
+      if (response && response.data && response.data.status === true) {
+        // Remove the user from the assigned list
+        setSelectedLeadsDetails((prevData) => {
+          return {
+            ...prevData,
+            teamsAssigned: (prevData.teamsAssigned || []).filter(
+              (user) => (user.id !== userId && user.invitedUserId !== userId)
+            ),
+          }
+        })
+        setShowSuccessSnack(response.data.message || 'Team member unassigned successfully')
+        setShowSuccessSnack2(true)
+      } else if (response && response.data && response.data.status === false) {
+        // Show error message if unassignment failed
+        setShowErrorSnack(response.data.message || 'Failed to unassign team member')
+        setShowErrorSnack2(true)
+      }
+    } catch (error) {
+      console.error('Error occurred in unassign lead from team member:', error)
+      setShowErrorSnack('Failed to unassign team member. Please try again.')
+      setShowErrorSnack2(true)
+    } finally {
+      setGlobalLoader(false)
     }
   }
 
@@ -2209,13 +2250,10 @@ const LeadDetails = ({
                                               className="flex flex-row items-center gap-2"
                                             >
                                               <div
-                                                className="flex flex-row items-center gap-2 px-2 py-1 rounded-lg"
-                                                style={{
-                                                  backgroundColor: 'hsl(var(--brand-primary) / 0.1)'
-                                                }}
+                                                className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
                                               >
                                                 <div
-                                                  className="text-brand-primary" //1C55FF10
+                                                  className="text-black" //1C55FF10
                                                 >
                                                   {tag}
                                                 </div>
@@ -2235,7 +2273,7 @@ const LeadDetails = ({
                                                     <X
                                                       size={15}
                                                       weight="bold"
-                                                      color="hsl(var(--brand-primary))"
+                                                      color="#000000"
                                                     />
                                                   </button>
                                                 )}
@@ -2256,7 +2294,7 @@ const LeadDetails = ({
                                     >
                                       {selectedLeadsDetails?.tags.length >
                                         2 && (
-                                          <div className="text-brand-primary underline">
+                                          <div className="text-black underline">
                                             +
                                             {selectedLeadsDetails?.tags.length -
                                               2}
@@ -2353,6 +2391,9 @@ const LeadDetails = ({
                               users={selectedLeadsDetails?.teamsAssigned || []}
                               onAssignClick={(event) => {
                                 handleShowPopup(event)
+                              }}
+                              onRemoveClick={(userId) => {
+                                handleUnassignLeadFromTeammember(userId)
                               }}
                             />
                           )}

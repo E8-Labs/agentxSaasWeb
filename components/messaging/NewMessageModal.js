@@ -17,7 +17,7 @@ import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
 import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
 import UpgardView from '@/constants/UpgardView'
 import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
-import { Paperclip } from 'lucide-react'
+import { Paperclip, X as XIcon } from 'lucide-react'
 import { FormControl, MenuItem, Select } from '@mui/material'
 import { useUser } from '@/hooks/redux-hooks'
 
@@ -81,8 +81,10 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
   const [emailSubject, setEmailSubject] = useState('')
   const [showCC, setShowCC] = useState(false)
   const [showBCC, setShowBCC] = useState(false)
-  const [cc, setCC] = useState('')
-  const [bcc, setBCC] = useState('')
+  const [ccEmails, setCcEmails] = useState([])
+  const [bccEmails, setBccEmails] = useState([])
+  const [ccInput, setCcInput] = useState('')
+  const [bccInput, setBccInput] = useState('')
   const [userData, setUserData] = useState(null)
   const [showLeadList, setShowLeadList] = useState(false)
   const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
@@ -428,6 +430,140 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // Email validation helper
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email.trim())
+  }
+
+  // Handle CC email input
+  const handleCcInputChange = (e) => {
+    const value = e.target.value
+    // Check if input contains comma (likely pasted multiple emails or typed with comma)
+    if (value.includes(',')) {
+      const emails = value.split(',').map(email => email.trim()).filter(email => email)
+      emails.forEach(email => {
+        if (isValidEmail(email) && !ccEmails.includes(email)) {
+          setCcEmails(prev => [...prev, email])
+        }
+      })
+      setCcInput('')
+    } else {
+      setCcInput(value)
+    }
+  }
+
+  const handleCcInputPaste = (e) => {
+    e.preventDefault()
+    const pastedText = e.clipboardData.getData('text')
+    const emails = pastedText.split(/[,\s]+/).filter(email => email.trim() && isValidEmail(email.trim()))
+    const newEmails = emails.filter(email => !ccEmails.includes(email.trim()))
+    if (newEmails.length > 0) {
+      setCcEmails([...ccEmails, ...newEmails.map(e => e.trim())])
+    }
+    // Set remaining text as input if there's invalid content
+    const remaining = pastedText.split(/[,\s]+/).filter(email => email.trim() && !isValidEmail(email.trim())).join(' ')
+    if (remaining.trim()) {
+      setCcInput(remaining)
+    } else {
+      setCcInput('')
+    }
+  }
+
+  const handleCcInputKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ',' || (e.key === ' ' && ccInput.trim())) {
+      e.preventDefault()
+      const email = ccInput.trim().replace(/[, ]+$/, '') // Remove trailing comma/space
+      if (email && isValidEmail(email)) {
+        if (!ccEmails.includes(email)) {
+          setCcEmails([...ccEmails, email])
+        }
+        setCcInput('')
+      }
+    } else if (e.key === 'Backspace' && !ccInput && ccEmails.length > 0) {
+      // Remove last email if backspace pressed on empty input
+      setCcEmails(ccEmails.slice(0, -1))
+    }
+  }
+
+  const handleCcInputBlur = () => {
+    if (ccInput.trim()) {
+      const email = ccInput.trim().replace(/[, ]+$/, '') // Remove trailing comma/space
+      if (email && isValidEmail(email) && !ccEmails.includes(email)) {
+        setCcEmails([...ccEmails, email])
+      }
+      setCcInput('')
+    }
+  }
+
+  const removeCcEmail = (emailToRemove) => {
+    setCcEmails(ccEmails.filter((email) => email !== emailToRemove))
+  }
+
+  // Handle BCC email input
+  const handleBccInputChange = (e) => {
+    const value = e.target.value
+    // Check if input contains comma (likely pasted multiple emails or typed with comma)
+    if (value.includes(',')) {
+      const emails = value.split(',').map(email => email.trim()).filter(email => email)
+      emails.forEach(email => {
+        if (isValidEmail(email) && !bccEmails.includes(email)) {
+          setBccEmails(prev => [...prev, email])
+        }
+      })
+      setBccInput('')
+    } else {
+      setBccInput(value)
+    }
+  }
+
+  const handleBccInputPaste = (e) => {
+    e.preventDefault()
+    const pastedText = e.clipboardData.getData('text')
+    const emails = pastedText.split(/[,\s]+/).filter(email => email.trim() && isValidEmail(email.trim()))
+    const newEmails = emails.filter(email => !bccEmails.includes(email.trim()))
+    if (newEmails.length > 0) {
+      setBccEmails([...bccEmails, ...newEmails.map(e => e.trim())])
+    }
+    // Set remaining text as input if there's invalid content
+    const remaining = pastedText.split(/[,\s]+/).filter(email => email.trim() && !isValidEmail(email.trim())).join(' ')
+    if (remaining.trim()) {
+      setBccInput(remaining)
+    } else {
+      setBccInput('')
+    }
+  }
+
+  const handleBccInputKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ',' || (e.key === ' ' && bccInput.trim())) {
+      e.preventDefault()
+      const email = bccInput.trim().replace(/[, ]+$/, '') // Remove trailing comma/space
+      if (email && isValidEmail(email)) {
+        if (!bccEmails.includes(email)) {
+          setBccEmails([...bccEmails, email])
+        }
+        setBccInput('')
+      }
+    } else if (e.key === 'Backspace' && !bccInput && bccEmails.length > 0) {
+      // Remove last email if backspace pressed on empty input
+      setBccEmails(bccEmails.slice(0, -1))
+    }
+  }
+
+  const handleBccInputBlur = () => {
+    if (bccInput.trim()) {
+      const email = bccInput.trim().replace(/[, ]+$/, '') // Remove trailing comma/space
+      if (email && isValidEmail(email) && !bccEmails.includes(email)) {
+        setBccEmails([...bccEmails, email])
+      }
+      setBccInput('')
+    }
+  }
+
+  const removeBccEmail = (emailToRemove) => {
+    setBccEmails(bccEmails.filter((email) => email !== emailToRemove))
+  }
+
   // Reset when modal closes
   useEffect(() => {
     if (!open) {
@@ -435,8 +571,10 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
       setSearchQuery('')
       setMessageBody('')
       setEmailSubject('')
-      setCC('')
-      setBCC('')
+      setCcEmails([])
+      setBccEmails([])
+      setCcInput('')
+      setBccInput('')
       setShowCC(false)
       setShowBCC(false)
       setPhoneDropdownOpen(false)
@@ -524,17 +662,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
             }
           }
 
-          // Parse CC and BCC emails (comma-separated)
-          const parseEmailList = (emailString) => {
-            if (!emailString || !emailString.trim()) return []
-            return emailString
-              .split(',')
-              .map((email) => email.trim())
-              .filter((email) => email.length > 0)
-          }
-
-          const ccEmails = parseEmailList(cc)
-          const bccEmails = parseEmailList(bcc)
+          // Use CC and BCC email arrays directly
 
           // Use FormData to match the API expectations (even without attachments)
           const formData = new FormData()
@@ -799,22 +927,24 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                   ) : (
                     <div className="flex-1 relative" ref={emailDropdownRef}>
                       {emailAccounts.length === 0 ? (
-                        <div className="flex flex-row gap-2 items-center justify-center">
-                        <button
-                          onClick={() => setShowAuthSelectionPopup(true)}
-                          className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
-                          style={{ height: '42px' }}
-                        >
-                          Connect Email
-                        </button>
 
-                        !reduxUser?.planCapabilities?.allowEmails ||
-                          emailAccounts.length == 0 && (
-                            <UpgradeTagWithModal
-                              reduxUser={reduxUser}
-                              setReduxUser={setReduxUser}
-                            />
-                          )
+                        <div className="flex flex-row gap-2 items-center justify-center">
+                          <button
+                            onClick={() => setShowAuthSelectionPopup(true)}
+                            className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                            style={{ height: '42px' }}
+                          >
+                            Connect Email
+                          </button>
+                          {
+                            (!reduxUser?.planCapabilities?.allowEmails
+                             ) && (
+                              <UpgradeTagWithModal
+                                reduxUser={reduxUser}
+                                setReduxUser={setReduxUser}
+                              />
+                            )
+                          }
                         </div>
                       ) : (
                         <>
@@ -987,29 +1117,95 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                 <>
                   {/* CC and BCC on same line when both are shown */}
                   {(showCC || showBCC) && (
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-start gap-4">
                       {showCC && (
-                        <div className="flex items-center gap-2 flex-1">
-                          <label className="text-sm font-medium whitespace-nowrap">Cc:</label>
-                          <Input
-                            value={cc}
-                            onChange={(e) => setCC(e.target.value)}
-                            placeholder="Add CC recipients"
-                            className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
-                            style={{ height: '42px', minHeight: '42px' }}
-                          />
+                        <div className="flex items-start gap-2 flex-1 w-full">
+                          <label className="text-sm font-medium whitespace-nowrap pt-2">Cc:</label>
+                          <div className="relative flex-1 min-w-0">
+                            {/* Tag Input Container */}
+                            <div 
+                              className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary"
+                              style={{ minHeight: '42px' }}
+                            >
+                              {/* CC Email Tags */}
+                              {ccEmails.map((email, index) => (
+                                <div
+                                  key={`cc-${index}-${email}`}
+                                  className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
+                                >
+                                  <span className="text-gray-700">{email}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeCcEmail(email)}
+                                    className="text-gray-500 hover:text-gray-700 ml-1"
+                                  >
+                                    <XIcon size={14} weight="bold" />
+                                  </button>
+                                </div>
+                              ))}
+                              {/* CC Input */}
+                              <input
+                                type="text"
+                                value={ccInput}
+                                onChange={handleCcInputChange}
+                                onKeyDown={handleCcInputKeyDown}
+                                onPaste={handleCcInputPaste}
+                                onBlur={handleCcInputBlur}
+                                placeholder={ccEmails.length === 0 ? "Add CC recipients" : ""}
+                                className="flex-1 h-full min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                                style={{ 
+                                  height: '100%',
+                                  minHeight: '24px',
+                                  padding: 0,
+                                }}
+                              />
+                            </div>
+                          </div>
                         </div>
                       )}
                       {showBCC && (
-                        <div className="flex items-center gap-2 flex-1">
-                          <label className="text-sm font-medium whitespace-nowrap">Bcc:</label>
-                          <Input
-                            value={bcc}
-                            onChange={(e) => setBCC(e.target.value)}
-                            placeholder="Add BCC recipients"
-                            className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
-                            style={{ height: '42px', minHeight: '42px' }}
-                          />
+                        <div className="flex items-start gap-2 flex-1 w-full">
+                          <label className="text-sm font-medium whitespace-nowrap pt-2">Bcc:</label>
+                          <div className="relative flex-1 min-w-0">
+                            {/* Tag Input Container */}
+                            <div 
+                              className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary"
+                              style={{ minHeight: '42px' }}
+                            >
+                              {/* BCC Email Tags */}
+                              {bccEmails.map((email, index) => (
+                                <div
+                                  key={`bcc-${index}-${email}`}
+                                  className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
+                                >
+                                  <span className="text-gray-700">{email}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeBccEmail(email)}
+                                    className="text-gray-500 hover:text-gray-700 ml-1"
+                                  >
+                                    <XIcon size={14} weight="bold" />
+                                  </button>
+                                </div>
+                              ))}
+                              {/* BCC Input */}
+                              <input
+                                type="text"
+                                value={bccInput}
+                                onChange={handleBccInputChange}
+                                onKeyDown={handleBccInputKeyDown}
+                                onPaste={handleBccInputPaste}
+                                onBlur={handleBccInputBlur}
+                                placeholder={bccEmails.length === 0 ? "Add BCC recipients" : ""}
+                                className="flex-1 h-full min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                                style={{ 
+                                  height: '100%',
+                                  minHeight: '24px',
+                                  padding: 0,
+                                }}
+                              />
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -1232,7 +1428,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
         </Box>
       </Modal>
 
-      
+
 
       {/* Auth Selection Popup for Gmail Connection - Outside main Modal */}
       <AuthSelectionPopup

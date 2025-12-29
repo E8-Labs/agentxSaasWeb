@@ -706,20 +706,20 @@ function SheduledCalls({ user }) {
                         if (SelectedItem?.status == 'Paused') {
                           //// //console.log
                           setColor(true)
-                          setShowConfirmationPopup('resume Calls')
+                          setShowConfirmationPopup('resume')
                         } else {
                           //// //console.log
-                          setShowConfirmationPopup('pause Calls')
+                          setShowConfirmationPopup('pause')
                           setColor(false)
                         }
                         // //console.log
                       }}
                     >
                       {SelectedItem?.status == 'Paused'
-                        ? 'Run Calls'
+                        ? 'Run'
                         : SelectedItem?.status == 'Completed'
                           ? ''
-                          : 'Pause Calls'}
+                          : 'Pause'}
                     </button>
                   )}
                 </div>
@@ -1316,12 +1316,7 @@ export const ShowConfirmationPopup = ({
               </div> */}
 
               <div className="flex flex-row items-center justify-center gap-2 -mt-1">
-                <Image
-                  src={'/assets/warningFill.png'}
-                  height={18}
-                  width={18}
-                  alt="*"
-                />
+             
                 <p
                   className="text-black"
                   style={{
@@ -1329,7 +1324,7 @@ export const ShowConfirmationPopup = ({
                     fontWeight: '600',
                   }}
                 >
-                  Are you sure you want to {showConfirmationPopuup}
+                  Are you sure you want to {showConfirmationPopuup} compaign?
                 </p>
               </div>
             </div>

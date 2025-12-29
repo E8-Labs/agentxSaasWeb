@@ -55,6 +55,37 @@ export const AssignTeamMember = async (ApiData,selectedUser) => {
   }
 }
 
+//api call to unassign lead from team member
+export const UnassignTeamMember = async (ApiData) => {
+  try {
+    let AuthToken = null
+    const localData = localStorage.getItem('User')
+    if (localData) {
+      const Data = JSON.parse(localData)
+      AuthToken = Data.token
+    }
+
+    console.log('Api data sending in unassign lead from team api is', ApiData)
+
+    const ApiPath = Apis.unassignLeadFromTeam
+
+    const response = await axios.post(ApiPath, ApiData, {
+      headers: {
+        Authorization: 'Bearer ' + AuthToken,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (response) {
+      console.log('Response of unassign lead from team is', response)
+      return response
+    }
+  } catch (error) {
+    console.error("Error occurred in unassign lead from team member api is", error)
+    throw error
+  }
+}
+
 //api call to check the phone number availability
 export const checkPhoneNumber = async (value) => {
   try {

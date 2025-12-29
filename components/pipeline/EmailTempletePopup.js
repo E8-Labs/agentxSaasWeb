@@ -191,17 +191,30 @@ function EmailTempletePopup({
       const details = await getTempleteDetails(template)
       console.log('details', details)
       if (details) {
+        // Preserve current visibility state before updating
+        const wasBCCVisible = showBCC
+        const wasCCVisible = showCC
+        
         setTempName(details.templateName || '')
         setSubject(details.subject || '')
         setBody(details.content || '')
         setccEmails(details.ccEmails || [])
         setBccEmails(details.bccEmails || [])
         setAttachments(details.attachments || [])
-        // Show CC/BCC fields if they have values
+        
+        // Show CC field if it has values OR if it was already visible
         if (details.ccEmails && details.ccEmails.length > 0) {
           setShowCC(true)
+        } else if (wasCCVisible) {
+          // Preserve CC visibility if it was already shown
+          setShowCC(true)
         }
+        
+        // Show BCC field if it has values OR if it was already visible
         if (details.bccEmails && details.bccEmails.length > 0) {
+          setShowBCC(true)
+        } else if (wasBCCVisible) {
+          // Preserve BCC visibility if it was already shown (even if now empty)
           setShowBCC(true)
         }
       }
@@ -258,9 +271,15 @@ function EmailTempletePopup({
   // Handle CC input change - support pasting multiple emails
   const handleCcInputChange = (e) => {
     const value = e.target.value
-    // Check if input contains comma (likely pasted multiple emails)
-    if (value.includes(',')) {
-      const emails = value.split(',').map(email => email.trim()).filter(email => email)
+    // Check if input contains comma or space (likely pasted multiple emails)
+    if (value.includes(',') || value.includes(' ')) {
+      // Split by comma first, then by space, and flatten
+      const emails = value
+        .split(',')
+        .flatMap(part => part.split(' '))
+        .map(email => email.trim())
+        .filter(email => email)
+      
       emails.forEach(email => {
         if (emailRegex.test(email) && !ccEmails.includes(email)) {
           setccEmails(prev => [...prev, email])
@@ -276,9 +295,15 @@ function EmailTempletePopup({
   // Handle BCC input change - support pasting multiple emails
   const handleBccInputChange = (e) => {
     const value = e.target.value
-    // Check if input contains comma (likely pasted multiple emails)
-    if (value.includes(',')) {
-      const emails = value.split(',').map(email => email.trim()).filter(email => email)
+    // Check if input contains comma or space (likely pasted multiple emails)
+    if (value.includes(',') || value.includes(' ')) {
+      // Split by comma first, then by space, and flatten
+      const emails = value
+        .split(',')
+        .flatMap(part => part.split(' '))
+        .map(email => email.trim())
+        .filter(email => email)
+      
       emails.forEach(email => {
         if (emailRegex.test(email) && !bccEmails.includes(email)) {
           setBccEmails(prev => [...prev, email])
@@ -293,7 +318,7 @@ function EmailTempletePopup({
 
   // Handle CC input key events
   const handleCcInputKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ',') {
+    if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
       e.preventDefault()
       if (ccEmailInput.trim()) {
         addCcEmail(ccEmailInput)
@@ -306,7 +331,7 @@ function EmailTempletePopup({
 
   // Handle BCC input key events
   const handleBccInputKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ',') {
+    if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
       e.preventDefault()
       if (bccEmailInput.trim()) {
         addBccEmail(bccEmailInput)
@@ -401,6 +426,10 @@ function EmailTempletePopup({
 
   const handleSelect = (t) => {
     console.log('t', t)
+    // Preserve current visibility state before updating
+    const wasBCCVisible = showBCC
+    const wasCCVisible = showCC
+    
     setSelectedTemp(t)
     setTempName(t.templateName || '')
     setSubject(t.subject || '')
@@ -408,11 +437,20 @@ function EmailTempletePopup({
     setccEmails(t.ccEmails || [])
     setBccEmails(t.bccEmails || [])
     setAttachments(t.attachments || [])
-    // Show CC/BCC fields if they have values
+    
+    // Show CC field if it has values OR if it was already visible
     if (t.ccEmails && t.ccEmails.length > 0) {
       setShowCC(true)
+    } else if (wasCCVisible) {
+      // Preserve CC visibility if it was already shown
+      setShowCC(true)
     }
+    
+    // Show BCC field if it has values OR if it was already visible
     if (t.bccEmails && t.bccEmails.length > 0) {
+      setShowBCC(true)
+    } else if (wasBCCVisible) {
+      // Preserve BCC visibility if it was already shown (even if now empty)
       setShowBCC(true)
     }
 
@@ -1403,15 +1441,7 @@ function EmailTempletePopup({
           {/* Footer - Sticky at bottom */}
           <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50 flex-shrink-0">
             <div className="flex items-center gap-2">
-              {/* Cancel button - Only show for pipeline email, positioned on left */}
-              {!isLeadEmail && (
-                <button 
-                  className="text-[#6b7280] outline-none h-[50px] px-4"
-                  onClick={onClose}
-                >
-                  Cancel
-                </button>
-              )}
+            
               
               {/* Attachment button - Only show for lead email */}
               {isLeadEmail && (
