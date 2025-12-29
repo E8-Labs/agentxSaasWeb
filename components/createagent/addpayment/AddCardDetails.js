@@ -186,7 +186,13 @@ const AddCardDetails = ({
       ////console.log;
     }
 
-    const res = await fetch(Apis.createSetupIntent, {
+    // Include userId in query string if selectedUser is provided
+    let setupIntentUrl = Apis.createSetupIntent
+    if (selectedUser) {
+      setupIntentUrl = `${Apis.createSetupIntent}?userId=${selectedUser.id}`
+    }
+    
+    const res = await fetch(setupIntentUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -228,7 +234,9 @@ const AddCardDetails = ({
       // Step 3: Send payment method ID to backend to attach to customer
 
       let requestBody = null
-      if (fromAdmin) {
+      // Include userId if selectedUser is provided (preferred approach)
+      // fromAdmin flag is kept for backward compatibility but selectedUser is required for it to work
+      if (selectedUser) {
         requestBody = {
           source: id,
           inviteCode: inviteCode,

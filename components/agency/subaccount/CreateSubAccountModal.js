@@ -217,6 +217,7 @@ export default function CreateSubAccountModal({
   const [isSmartRefill, setIsSmartRefill] = useState(true)
 
   const [allowTwillio, setAllowTwillio] = useState(false)
+  const [isInternalAccount, setIsInternalAccount] = useState(false)
 
   //show sell seats modal
   useEffect(() => {
@@ -246,15 +247,16 @@ export default function CreateSubAccountModal({
       validEmail === 'Invalid' ||
       (emailCheckResponse && emailCheckResponse.status === false)
 
-    // Check for phone errors
+    // Check for phone errors (skip if internal account)
     const hasPhoneError =
-      errorMessage === 'Invalid' ||
-      (checkPhoneResponse && checkPhoneResponse.status === false)
+      !isInternalAccount &&
+      (errorMessage === 'Invalid' ||
+        (checkPhoneResponse && checkPhoneResponse.status === false))
 
     if (
       subAccountName?.trim() === '' ||
       userEmail?.trim() === '' ||
-      userPhoneNumber?.trim() === '' ||
+      (!isInternalAccount && userPhoneNumber?.trim() === '') ||
       selectedUserType?.trim() === '' ||
       fullName?.trim() === '' ||
       hasEmailError ||
@@ -276,6 +278,7 @@ export default function CreateSubAccountModal({
     emailCheckResponse,
     errorMessage,
     checkPhoneResponse,
+    isInternalAccount,
   ])
 
   useEffect(() => {
@@ -290,6 +293,7 @@ export default function CreateSubAccountModal({
       setFullName('')
       setSeats('')
       setAlowSellSeats(false)
+      setIsInternalAccount(false)
       // setIsSmartRefill(false);
     }
     if (formData) {
@@ -301,6 +305,7 @@ export default function CreateSubAccountModal({
       setFullName(formData.fullName)
       setSeats(formData.seats)
       setIsSmartRefill(formData.isSmartRefill)
+      setIsInternalAccount(formData.isInternalAccount || false)
       setAlowSellSeats(false)
       setErrorMessage('')
       setValidEmail('')
@@ -558,6 +563,7 @@ export default function CreateSubAccountModal({
       seats: seats,
       isSmartRefill: isSmartRefill,
       allowSubaccountTwilio: allowTwillio,
+      isInternalAccount: isInternalAccount,
     }
 
     // console.log(fromData);
@@ -607,7 +613,24 @@ export default function CreateSubAccountModal({
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
             Create SubAccount
           </h2>
-          <CloseBtn onClick={onClose} />
+          <div className="flex items-center gap-2">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Internal Account?
+            </label>
+            <Switch
+              checked={isInternalAccount}
+              onChange={(e) => setIsInternalAccount(e.target.checked)}
+              sx={{
+                '& .MuiSwitch-switchBase.Mui-checked': {
+                  color: 'white',
+                },
+                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                  backgroundColor: 'hsl(var(--brand-primary))',
+                },
+              }}
+            />
+            <CloseBtn onClick={onClose} />
+          </div>
         </div>
 
         <div style={styles.headings}>Sub Account Name</div>
@@ -726,60 +749,74 @@ export default function CreateSubAccountModal({
             <div className="flex flex-row items-center justify-between">
               <div style={styles.inputs}>Phone Number</div>
               <div className="">
-                {locationLoader && (
-                  <p
-                    className="text-black"
-                    style={{ ...styles.errmsg, height: '20px' }}
-                  >
-                    Getting location ...
-                  </p>
-                )}
-                {errorMessage ? (
+                {isInternalAccount ? (
                   <p
                     style={{
                       ...styles.errmsg,
-                      color: errorMessage && 'red',
+                      color: 'gray',
                       height: '20px',
                     }}
                   >
-                    {errorMessage}
+                    Not required for internal accounts
                   </p>
                 ) : (
-                  <div>
-                    {phoneNumberLoader ? (
+                  <>
+                    {locationLoader && (
+                      <p
+                        className="text-black"
+                        style={{ ...styles.errmsg, height: '20px' }}
+                      >
+                        Getting location ...
+                      </p>
+                    )}
+                    {errorMessage ? (
                       <p
                         style={{
                           ...styles.errmsg,
-                          color: 'black',
+                          color: errorMessage && 'red',
                           height: '20px',
                         }}
                       >
-                        Checking ...
+                        {errorMessage}
                       </p>
                     ) : (
                       <div>
-                        {checkPhoneResponse ? (
+                        {phoneNumberLoader ? (
                           <p
                             style={{
                               ...styles.errmsg,
-                              color:
-                                checkPhoneResponse.status === true
-                                  ? 'green'
-                                  : 'red',
+                              color: 'black',
                               height: '20px',
                             }}
                           >
-                            {checkPhoneResponse?.message
-                              ?.slice(0, 1)
-                              .toUpperCase() +
-                              checkPhoneResponse?.message?.slice(1)}
+                            Checking ...
                           </p>
                         ) : (
-                          <div />
+                          <div>
+                            {checkPhoneResponse ? (
+                              <p
+                                style={{
+                                  ...styles.errmsg,
+                                  color:
+                                    checkPhoneResponse.status === true
+                                      ? 'green'
+                                      : 'red',
+                                  height: '20px',
+                                }}
+                              >
+                                {checkPhoneResponse?.message
+                                  ?.slice(0, 1)
+                                  .toUpperCase() +
+                                  checkPhoneResponse?.message?.slice(1)}
+                              </p>
+                            ) : (
+                              <div />
+                            )}
+                          </div>
                         )}
                       </div>
                     )}
-                  </div>
+                  </>
                 )}
               </div>
             </div>
@@ -791,9 +828,13 @@ export default function CreateSubAccountModal({
                 value={userPhoneNumber}
                 onChange={handlePhoneNumberChange}
                 placeholder={
-                  locationLoader ? 'Loading location ...' : 'Enter Phone Number'
+                  isInternalAccount
+                    ? 'Internal Account - Phone not required'
+                    : locationLoader
+                      ? 'Loading location ...'
+                      : 'Enter Phone Number'
                 }
-                disabled={loading} // Disable input if still loading
+                disabled={loading || isInternalAccount} // Disable input if still loading or internal account
                 style={{ borderRadius: '7px' }}
                 inputStyle={{
                   width: '100%',

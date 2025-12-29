@@ -117,6 +117,24 @@ function AdminAgencyDetails() {
   // Use agencies directly (no client-side filtering needed)
   const filteredAgencies = agencies
 
+
+  function GetAgencyPlan(agency){
+    if(agency.plan){
+      if(agency.plan.status === 'active'){
+        return agency.plan.title
+      }
+      else if(agency.plan.status === 'cancelled'){
+        return 'Cancelled'
+      }
+      else{
+        return 'No plan'
+      }
+    }
+    else{
+      return 'No plan'
+    }
+  }
+
   return (
     <div className="w-full items-start">
       <div className="py-4 px-10 flex flex-row items-center gap-4">
@@ -198,7 +216,7 @@ function AdminAgencyDetails() {
                     <div style={styles.text2}>{item.subAccountsCount}</div>
                   </div>
                   <div className="w-1/12">
-                    <div style={styles.text2}>{item.plan.title}</div>
+                    <div style={styles.text2}>{GetAgencyPlan(item)}</div>
                   </div>
                   <div className="w-1/12">
                     <div style={styles.text2}>

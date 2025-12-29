@@ -95,6 +95,7 @@ export default function SetXBarOptions({
         xbarPlans: selectedXBarPlans,
         smartRefill: formData.isSmartRefill,
         allowSubaccountTwilio: formData.allowSubaccountTwilio,
+        isInternalAccount: formData.isInternalAccount || false,
       }
       if (selectedAgency) {
         ApiData = {

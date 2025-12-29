@@ -35,6 +35,7 @@ import {
 } from '@/components/onboarding/extras/SmartRefillapi'
 import AgencyPlans from '@/components/plan/AgencyPlans'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
+import UpgradePlanForUserFromAdminAgency from '@/components/userPlans/UpgradePlanForUserFromAdminAgency'
 import UserPlans from '@/components/userPlans/UserPlans'
 import { useUser } from '@/hooks/redux-hooks'
 import { GetFormattedDateString } from '@/utilities/utility'
@@ -174,32 +175,39 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
   // }, [currentPlan, plans])
 
   useEffect(() => {
-    if (!currentPlan) return
+    // If there's a current plan, set the duration based on the plan
+    if (currentPlan) {
+      //current plan id is
+      console.log('Current plan id is', selectedPlan)
 
-    //current plan id is
-    console.log('Current plan id is', selectedPlan)
+      // Check inside monthly plans
+      if (monthlyPlans.some((p) => p.id === currentPlan)) {
+        console.log('Should select the 0 index')
+        setSelectedDuration({ id: 1, title: 'Monthly' })
+        getCurrentPlans({ id: 1, title: 'Monthly' })
+      }
+      // Check inside quarterly plans
+      else if (quaterlyPlans.some((p) => p.id === currentPlan)) {
+        console.log('Should select the 2 index')
+        setSelectedDuration({ id: 2, title: 'Quarterly' })
+        getCurrentPlans({ id: 2, title: 'Quarterly' })
+      }
+      // Check inside yearly plans
+      else if (yearlyPlans.some((p) => p.id === currentPlan)) {
+        console.log('Should select the 3 index')
+        setSelectedDuration({ id: 3, title: 'Yearly' })
+        getCurrentPlans({ id: 3, title: 'Yearly' })
+      }
 
-    // Check inside monthly plans
-    if (monthlyPlans.some((p) => p.id === currentPlan)) {
-      console.log('Should select the 0 index')
-      setSelectedDuration({ id: 1, title: 'Monthly' })
-      getCurrentPlans({ id: 1, title: 'Monthly' })
+      sequenceIdDetecter()
+    } else {
+      // If no current plan, set Monthly as default if monthly plans are available
+      if (monthlyPlans.length > 0 && (Array.isArray(selectedDuration) || !selectedDuration?.id || selectedDuration.id !== 1)) {
+        console.log('No current plan, setting Monthly as default')
+        setSelectedDuration({ id: 1, title: 'Monthly' })
+      }
     }
-    // Check inside quarterly plans
-    else if (quaterlyPlans.some((p) => p.id === currentPlan)) {
-      console.log('Should select the 2 index')
-      setSelectedDuration({ id: 2, title: 'Quarterly' })
-      getCurrentPlans({ id: 2, title: 'Quarterly' })
-    }
-    // Check inside yearly plans
-    else if (yearlyPlans.some((p) => p.id === currentPlan)) {
-      console.log('Should select the 3 index')
-      setSelectedDuration({ id: 3, title: 'Yearly' })
-      getCurrentPlans({ id: 3, title: 'Yearly' })
-    }
-
-    sequenceIdDetecter()
-  }, [currentPlan, plans])
+  }, [currentPlan, plans, monthlyPlans, quaterlyPlans, yearlyPlans])
 
   //cancel plan reasons
   const cancelPlanReasons = [
@@ -350,6 +358,12 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
         setMonthlyPlans(monthly)
         setQuaterlyPlans(quarterly)
         setYearlyPlans(yearly)
+        
+        // Set Monthly as default if no current plan exists and monthly plans are available
+        if (!currentPlan && monthly.length > 0 && (Array.isArray(selectedDuration) || !selectedDuration?.id)) {
+          setSelectedDuration({ id: 1, title: 'Monthly' })
+        }
+        
         setInitialLoader(false)
         setInitialLoader(false)
       }
@@ -930,22 +944,36 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
     console.log('Toggle plan id is', selectedPlan)
     console.log('Current plan sequence id is', currentPlanSequenceId)
 
+    // If no plan is selected, don't show button
+    if (!selectedPlan || !togglePlan) {
+      return ''
+    }
+
+    // If there's no current plan (new subscription), show Subscribe
+    if (!currentPlan || !userLocalData?.plan) {
+      // Don't show if the selected plan is already the current plan (shouldn't happen, but safety check)
+      if (selectedPlan?.id === currentPlan) {
+        return ''
+      }
+      return 'Subscribe'
+    }
+
     // If plan is cancelled
     if (
       userLocalData?.plan?.status === 'cancelled' ||
       currentPlanDetails?.status === 'cancelled'
     ) {
-      // If no plan is selected, hide the button (return empty string)
-      if (!selectedPlan || !togglePlan || selectedPlan?.id === currentPlan) {
+      // If the selected plan is the same as current plan, hide the button
+      if (selectedPlan?.id === currentPlan) {
         return ''
       }
       // If a plan is selected while current plan is cancelled, show Upgrade
       return 'Upgrade'
     }
 
-    // If no plan is selected, don't show button
-    if (!selectedPlan || !togglePlan) {
-      return ''
+    // If selected plan is the same as current plan, show Cancel Subscription
+    if (selectedPlan?.id === currentPlan) {
+      return 'Cancel Subscription'
     }
 
     // check if selected togglePlan is higher id than currentPlan → Upgrade
@@ -1434,7 +1462,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
         ))}
       </RadioGroup>
 
-      {userLocalData?.plan && planTitleTag() && (
+      {planTitleTag() && (
         <div className="w-full flex flex-row items-center justify-center">
           {subscribePlanLoader ? (
             <div className="w-9/12 mt-8 flex flex-row items-center justify-center h-[50px]">
@@ -1512,8 +1540,9 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
       )}
 
       {/* Upgrade plans modal */}
-      <Elements stripe={stripePromise}>
-        <UpgradePlan
+      {selectedUser ? (
+        // Use new component when agency is viewing subaccount
+        <UpgradePlanForUserFromAdminAgency
           from={'SubAccount'}
           selectedPlan={selectedPlan}
           setSelectedPlan={setSelectedPlan}
@@ -1537,7 +1566,35 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
           plan={selectedPlan}
           currentFullPlan={currentPlanDetails}
         />
-      </Elements>
+      ) : (
+        // Use original component when subaccount views their own plans
+        <Elements stripe={stripePromise}>
+          <UpgradePlan
+            from={'SubAccount'}
+            selectedPlan={selectedPlan}
+            setSelectedPlan={setSelectedPlan}
+            open={showUpgradeModal}
+            selectedUser={selectedUser}
+            allPlans={plans}
+            handleClose={async (upgradeResult) => {
+              console.log('selectedPlan in subaccount', selectedPlan)
+              setShowUpgradeModal(false)
+
+              // If upgrade was successful, refresh profile and state
+              if (upgradeResult) {
+                // setSuccessSnack("Upgraded to " + selectedPlan.title + " Plan");
+                console.log(
+                  '🔄 [NEW-BILLING] Upgrade successful, refreshing profile...',
+                  upgradeResult,
+                )
+                getProfile()
+              }
+            }}
+            plan={selectedPlan}
+            currentFullPlan={currentPlanDetails}
+          />
+        </Elements>
+      )}
 
       {/* Plans details */}
       <Modal
@@ -1703,6 +1760,8 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                   getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={handleClose}
                   togglePlan={''}
+                  selectedUser={selectedUser}
+                  fromAdmin={false}
                   // handleSubLoader={handleSubLoader} handleBuilScriptContinue={handleBuilScriptContinue}
                 />
               </Elements>

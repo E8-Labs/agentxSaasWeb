@@ -212,17 +212,25 @@ const CardForm = ({
  * UpgradePlanContent - Internal component that handles the actual upgrade plan UI and logic
  * 
  * This is the main content component that contains all the business logic for plan selection,
- * payment method management, and subscription processing. It's wrapped by the UpgradePlan
+ * payment method management, and subscription processing. It's wrapped by the UpgradePlanForUserFromAdminAgency
  * component which provides Stripe Elements context.
  * 
+ * KEY DIFFERENCES FROM UpgradePlan's UpgradePlanContent:
+ * - getPlans(): ALWAYS uses Apis.getSubAccountPlans?userId={selectedUser.id} when selectedUser is provided
+ * - getCurrentUserPlan(): Fetches from API via AdminGetProfileDetails(selectedUser.id), NOT localStorage
+ * - getCardsList(): Always includes ?userId={selectedUser.id} when selectedUser is provided
+ * - handleAddCard(): Creates SetupIntent with ?userId={selectedUser.id} and includes userId in addCard request body
+ * - handleSubscribePlan(): Always includes userId in subscription request body
+ * - All operations target the selectedUser (subaccount), not the logged-in agency/admin user
+ * 
  * KEY FUNCTIONS:
- * - getPlans(): Fetches available plans using getUserPlans() helper (endpoint determined by 'from' prop)
- * - getCurrentUserPlan(): Reads current plan from localStorage (for logged-in user)
- * - getCardsList(): Fetches payment methods (adds ?userId if selectedUser provided)
- * - handleAddCard(): Adds new payment method via Stripe SetupIntent
- * - handleSubscribePlan(): Processes subscription with selected plan and payment method
- * - getButtonText(): Determines button label (Subscribe/Upgrade/Downgrade/Cancel) based on plan comparison
- * - isPlanCurrent(): Checks if selected plan is the user's current active plan
+ * - getPlans(): Fetches available plans for subaccount using Apis.getSubAccountPlans?userId={selectedUser.id}
+ * - getCurrentUserPlan(): Fetches subaccount's current plan via AdminGetProfileDetails(selectedUser.id)
+ * - getCardsList(): Fetches subaccount's payment methods with ?userId={selectedUser.id}
+ * - handleAddCard(): Adds payment method to subaccount's Stripe customer (includes userId in all requests)
+ * - handleSubscribePlan(): Subscribes the subaccount to selected plan (includes userId in request)
+ * - getButtonText(): Determines button label based on subaccount's current plan vs selected plan
+ * - isPlanCurrent(): Checks if selected plan matches subaccount's current active plan
  */
 function UpgradePlanContent({
   open,
@@ -469,10 +477,12 @@ function UpgradePlanContent({
   useEffect(() => {
     if (open) {
       // Ensure currentUserPlan is set when modal opens
-      getCurrentUserPlan()
-      initializePlans()
+      // getCurrentUserPlan is now async, so we need to await it
+      getCurrentUserPlan().then(() => {
+        initializePlans()
+      })
     }
-  }, [open])
+  }, [open, selectedUser])
 
   useEffect(() => {
     console.log('usercurrentplanselected is', currentSelectedPlan)
@@ -590,7 +600,8 @@ function UpgradePlanContent({
       // Load plans and wait for completion
       const plansData = await getPlans()
       getCardsList()
-      getCurrentUserPlan()
+      // getCurrentUserPlan is now async and called in useEffect
+      await getCurrentUserPlan()
 
       console.log('plansData in initializePlans', plansData)
 
@@ -686,7 +697,22 @@ function UpgradePlanContent({
     }
   }
 
-  const getCurrentUserPlan = () => {
+  const getCurrentUserPlan = async () => {
+    // If selectedUser is provided, fetch their profile instead of using localStorage
+    if (selectedUser) {
+      try {
+        const user = await AdminGetProfileDetails(selectedUser.id)
+        if (user && user.plan) {
+          console.log('Current user plan from selectedUser profile:', user.plan)
+          setCurrentUserPlan(user.plan)
+          return user.plan
+        }
+      } catch (error) {
+        console.error('Error fetching selectedUser profile:', error)
+      }
+    }
+    
+    // Fallback to localStorage for backward compatibility
     const localData = localStorage.getItem('User')
     if (localData) {
       const userData = JSON.parse(localData)
@@ -703,7 +729,31 @@ function UpgradePlanContent({
   }, [duration])
 
   const getPlans = async () => {
-    let plansList = await getUserPlans(from, selectedUser)
+    // For agency viewing subaccount, always use getSubAccountPlans with userId
+    let plansList = null
+    if (selectedUser) {
+      try {
+        const token = AuthToken()
+        const apiPath = `${Apis.getSubAccountPlans}?userId=${selectedUser.id}`
+        const response = await axios.get(apiPath, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        if (response && response.data && response.data.status === true) {
+          plansList = response.data.data.monthlyPlans || response.data.data
+          console.log('Plans fetched for selectedUser:', plansList)
+        }
+      } catch (error) {
+        console.error('Error fetching plans for selectedUser:', error)
+      }
+    }
+    
+    // Fallback to original getUserPlans if no selectedUser or if fetch failed
+    if (!plansList) {
+      plansList = await getUserPlans(from, selectedUser)
+    }
+    
     if (plansList) {
       console.log('Plans list found is', plansList)
       const monthly = []
@@ -1075,7 +1125,13 @@ function UpgradePlanContent({
       return
     }
 
-    const res = await fetch(Apis.createSetupIntent, {
+    // Include userId in query string if selectedUser is provided
+    let setupIntentUrl = Apis.createSetupIntent
+    if (selectedUser) {
+      setupIntentUrl = `${Apis.createSetupIntent}?userId=${selectedUser.id}`
+    }
+    
+    const res = await fetch(setupIntentUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -1108,6 +1164,11 @@ function UpgradePlanContent({
       let requestBody = {
         source: paymentMethodId,
         inviteCode: inviteCode,
+      }
+      
+      // Include userId if selectedUser is provided
+      if (selectedUser) {
+        requestBody.userId = selectedUser.id
       }
 
       const addCardRes = await fetch(Apis.addCard, {
@@ -1355,13 +1416,10 @@ function UpgradePlanContent({
   const getButtonText = () => {
     if (!currentSelectedPlan) return 'Select a Plan'
 
-    // Check user's plan status from userLocalData (not currentFullPlan which is from DB)
-    // currentFullPlan comes from database plan list and doesn't have status field
-    // getUserLocalData() returns the user object directly, so access plan directly
-    // Also check currentUserPlan state which is set from localStorage
-    const UserLocalData = getUserLocalData()
-    const planStatus = UserLocalData?.plan?.status || currentUserPlan?.status
-    console.log('🔍 [getButtonText] UserLocalData:', UserLocalData)
+    // Check user's plan status from currentUserPlan state
+    // When selectedUser is provided, currentUserPlan is set from AdminGetProfileDetails
+    // Otherwise, it's from localStorage
+    const planStatus = currentUserPlan?.status
     console.log('🔍 [getButtonText] currentUserPlan:', currentUserPlan)
     console.log('🔍 [getButtonText] currentSelectedPlan:', currentSelectedPlan)
     console.log('🔍 [getButtonText] currentFullPlan:', currentFullPlan)
@@ -2339,67 +2397,77 @@ const elementOptions = {
 }
 
 /**
- * UpgradePlan Component
+ * UpgradePlanForUserFromAdminAgency Component
  * 
  * PURPOSE:
- * This component is used for regular users (including subaccounts viewing their own plans) to upgrade,
- * downgrade, or subscribe to plans. It handles the full subscription flow including payment method
- * management, plan selection, and subscription processing.
+ * This component is specifically designed for agency users or admins managing subscriptions for their subaccounts.
+ * It ensures that all API calls, plan fetching, and profile data are scoped to the selectedUser (subaccount),
+ * not the logged-in agency/admin user.
  * 
  * WHEN TO USE:
- * - When a regular user wants to upgrade/downgrade their plan
- * - When a subaccount views their own plans and payment screen (selectedUser is null/undefined)
- * - When a user needs to subscribe to a new plan
- * - When a user needs to manage their payment methods
+ * - When an agency user is viewing/managing a subaccount's plans and payment screen
+ * - When an admin is managing a subaccount's subscription
+ * - When selectedUser prop is provided (indicating we're managing another user's subscription)
+ * - When you need to ensure all operations target the subaccount, not the agency admin
  * 
  * WHERE IT'S USED:
- * - SubAccountPlansAndPayments.js (when selectedUser is NOT provided - subaccount viewing own plans)
- * - Other user-facing plan management screens
+ * - SubAccountPlansAndPayments.js (when selectedUser IS provided - agency viewing subaccount)
+ * - AdminAgencyDetails.js (when managing subaccount subscriptions)
+ * - Any admin/agency interface managing subaccount plans
  * 
- * KEY DIFFERENCES FROM UpgradePlanForUserFromAdminAgency:
- * - Uses getUserPlans() which may resolve to different API endpoints based on user role
- * - Gets current plan from localStorage (getUserLocalData())
- * - Designed for self-service plan management
+ * KEY DIFFERENCES FROM UpgradePlan:
+ * - ALWAYS uses Apis.getSubAccountPlans with userId query parameter when selectedUser is provided
+ * - Fetches current plan from selectedUser's profile via AdminGetProfileDetails() API, not localStorage
+ * - All payment method operations include userId parameter
+ * - SetupIntent creation includes userId to ensure payment method is attached to correct customer
+ * - Subscription API calls include userId to subscribe the subaccount, not the agency
  * 
  * PROPS:
  * @param {boolean} open - Controls the visibility of the modal. When true, modal is displayed.
  * @param {Function} handleClose - Callback function called when modal is closed. Receives upgradeResult (boolean) 
- *                                 indicating if subscription was successful.
+ *                                 indicating if subscription was successful. Parent should refresh subaccount profile.
  * @param {Object} plan - Legacy prop, the currently selected plan object (deprecated, use selectedPlan instead).
- * @param {Object} currentFullPlan - The user's current active plan details from the database. Used for 
+ * @param {Object} currentFullPlan - The selectedUser's current active plan details from the database. Used for 
  *                                   comparison to determine if selected plan is upgrade/downgrade/same.
  * @param {Object|null} selectedPlan - Pre-selected plan from previous screen. If provided, this plan will 
  *                                     be automatically selected when modal opens. Default: null.
  * @param {Function|null} setSelectedPlan - Callback to update the selected plan in parent component. Default: null.
- * @param {string} from - Context identifier indicating where the component is being used from. 
- *                        Values: 'User', 'SubAccount', 'agency'. Used to determine which API endpoints to call.
+ * @param {string} from - Context identifier. Typically 'SubAccount' when used for subaccount management.
  *                        Default: 'User'.
- * @param {Object|null} selectedUser - User object when an admin/agency is managing another user's subscription.
- *                                     When null/undefined, component operates for the logged-in user.
- *                                     IMPORTANT: If selectedUser is provided, consider using UpgradePlanForUserFromAdminAgency instead.
- *                                     Default: null.
+ * @param {Object} selectedUser - REQUIRED. The subaccount user object being managed. Must have an 'id' property.
+ *                               All operations (plan fetching, payment methods, subscriptions) will target this user.
+ *                               Structure: { id: number, name: string, email: string, ... }
  * 
  * DATA FLOW:
- * 1. Component opens -> initializePlans() fetches available plans using getUserPlans()
- * 2. getCurrentUserPlan() reads current plan from localStorage
- * 3. User selects plan and payment method
- * 4. handleSubscribePlan() processes subscription with selected plan and payment method
- * 5. On success, handleClose(true) is called to notify parent component
+ * 1. Component opens -> initializePlans() fetches plans using Apis.getSubAccountPlans?userId={selectedUser.id}
+ * 2. getCurrentUserPlan() fetches selectedUser's profile via AdminGetProfileDetails(selectedUser.id)
+ * 3. getCardsList() fetches payment methods with ?userId={selectedUser.id}
+ * 4. User selects plan and payment method
+ * 5. handleAddCard() creates SetupIntent with ?userId={selectedUser.id} and adds card with userId in body
+ * 6. handleSubscribePlan() processes subscription with userId in request body
+ * 7. On success, handleClose(true) is called and parent should refresh subaccount profile
  * 
  * API ENDPOINTS USED:
- * - getUserPlans() -> Determines endpoint based on 'from' prop and user role (getPlans, getSubAccountPlans, etc.)
- * - Apis.getCardsList -> Fetches user's payment methods
- * - Apis.createSetupIntent -> Creates Stripe setup intent for new payment methods
- * - Apis.addCard -> Adds new payment method
- * - Apis.subscribePlan or Apis.subAgencyAndSubAccountPlans -> Processes subscription
+ * - Apis.getSubAccountPlans?userId={selectedUser.id} -> Fetches plans available for the subaccount
+ * - AdminGetProfileDetails(selectedUser.id) -> Fetches subaccount's current plan and profile
+ * - Apis.getCardsList?userId={selectedUser.id} -> Fetches subaccount's payment methods
+ * - Apis.createSetupIntent?userId={selectedUser.id} -> Creates Stripe setup intent for subaccount's customer
+ * - Apis.addCard (with userId in body) -> Adds payment method to subaccount's Stripe customer
+ * - Apis.subAgencyAndSubAccountPlans (with userId in body) -> Subscribes the subaccount to selected plan
  * 
  * STATE MANAGEMENT:
- * - Plans are fetched and stored in monthlyPlans, quaterlyPlans, yearlyPlans
- * - Current user plan is stored in currentUserPlan (from localStorage)
+ * - Plans are fetched and stored in monthlyPlans, quaterlyPlans, yearlyPlans (for the subaccount)
+ * - Current user plan is stored in currentUserPlan (from selectedUser's profile API, not localStorage)
  * - Selected plan is stored in currentSelectedPlan
- * - Payment methods are stored in cards array
+ * - Payment methods are stored in cards array (subaccount's payment methods)
+ * 
+ * IMPORTANT NOTES:
+ * - selectedUser prop is REQUIRED for this component to work correctly
+ * - Never uses localStorage for current plan - always fetches from API
+ * - All Stripe operations target the subaccount's customer, not the agency's customer
+ * - Component ensures payment methods are attached to correct Stripe customer (subaccount's)
  */
-function UpgradePlan({
+function UpgradePlanForUserFromAdminAgency({
   open,
   handleClose,
   plan,
@@ -2444,4 +2512,4 @@ function UpgradePlan({
   )
 }
 
-export default UpgradePlan
+export default UpgradePlanForUserFromAdminAgency
