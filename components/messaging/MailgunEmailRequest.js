@@ -15,6 +15,7 @@ import ViewDnsRecordsModal from './ViewDnsRecordsModal'
 
 const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
   const [mailgunIntegrations, setMailgunIntegrations] = useState([])
+  const [allMailgunIntegrations, setAllMailgunIntegrations] = useState([]) // Store all integrations for checking pending domains
   const [availableDomains, setAvailableDomains] = useState([]) // For subdomain creation
   const [selectedIntegrationId, setSelectedIntegrationId] = useState('')
   const [emailPrefix, setEmailPrefix] = useState('')
@@ -60,10 +61,26 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       setSubdomainPrefix('')
       setSelectedParentDomainId('')
       setCustomDomain('')
-      setCreatedDomainIntegration(null)
+      // Don't reset createdDomainIntegration here - let fetchMailgunIntegrations set it if there's an existing pending domain
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
+
+  // When switching to custom tab, check for existing pending domain
+  useEffect(() => {
+    if (activeTab === 'custom' && isSubaccount && !createdDomainIntegration) {
+      const pendingSubaccountDomain = allMailgunIntegrations.find(
+        (integration) => 
+          integration.ownerType === 'subaccount' && 
+          integration.verificationStatus !== 'verified'
+      )
+      if (pendingSubaccountDomain) {
+        setCreatedDomainIntegration(pendingSubaccountDomain)
+        setCustomDomain(pendingSubaccountDomain.domain)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab, isSubaccount, allMailgunIntegrations])
 
   const fetchMailgunIntegrations = async () => {
     setFetchingIntegrations(true)
@@ -91,13 +108,51 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
           setAgencyHasMailgun(agencyIntegrations.length > 0)
         }
         
-        const verifiedIntegrations = allIntegrations.filter(
-          (integration) => integration.verificationStatus === 'verified' && integration.isActive
-        )
-        setMailgunIntegrations(verifiedIntegrations)
-        if (verifiedIntegrations.length > 0 && !selectedIntegrationId) {
-          setSelectedIntegrationId(verifiedIntegrations[0].id.toString())
+        // For subaccounts, show all their domains (verified and pending)
+        // For others, only show verified and active domains
+        let availableIntegrations
+        if (isSubaccount) {
+          // Subaccounts can see: agency's verified domains + their own domains (verified or pending, regardless of isActive)
+          availableIntegrations = allIntegrations.filter(
+            (integration) => 
+              // Agency's verified domains
+              (integration.ownerType === 'agency' && 
+               integration.verificationStatus === 'verified' && 
+               integration.isActive) ||
+              // Or subaccount's own domains (show all, including pending ones with isActive: false)
+              (integration.ownerType === 'subaccount')
+          )
+        } else {
+          // For non-subaccounts, only show verified and active
+          availableIntegrations = allIntegrations.filter(
+            (integration) => integration.verificationStatus === 'verified' && integration.isActive
+          )
         }
+        
+        setMailgunIntegrations(availableIntegrations)
+        if (availableIntegrations.length > 0 && !selectedIntegrationId) {
+          // Prefer verified domains, but select first available if none verified
+          const verified = availableIntegrations.find(i => i.verificationStatus === 'verified')
+          setSelectedIntegrationId((verified || availableIntegrations[0]).id.toString())
+        }
+        
+        // Store all integrations for later use
+        setAllMailgunIntegrations(allIntegrations)
+        
+        // For subaccounts, check if there's a pending domain they created
+        // If so, set it as createdDomainIntegration so it shows in the "Setup Custom Domain" tab
+        if (isSubaccount && !createdDomainIntegration) {
+          const pendingSubaccountDomain = allIntegrations.find(
+            (integration) => 
+              integration.ownerType === 'subaccount' && 
+              integration.verificationStatus !== 'verified'
+          )
+          if (pendingSubaccountDomain) {
+            setCreatedDomainIntegration(pendingSubaccountDomain)
+            setCustomDomain(pendingSubaccountDomain.domain)
+          }
+        }
+        
         return allIntegrations
       }
       return []
@@ -442,10 +497,12 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
                       <AlertCircle className="text-blue-600 mx-auto mb-3" size={32} />
                       <p className="text-sm font-medium text-blue-900 mb-2">
-                        No verified domains available
+                        No domains available
                       </p>
                       <p className="text-sm text-blue-700 mb-4">
-                        Switch to another tab to create a subdomain or set up your own custom domain.
+                        {isSubaccount 
+                          ? 'Switch to "Setup Custom Domain" tab to connect your own domain.'
+                          : 'Switch to another tab to create a subdomain or set up your own custom domain.'}
                       </p>
                     </div>
                   ) : (
@@ -460,15 +517,46 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
                           onChange={(e) => setSelectedIntegrationId(e.target.value)}
                           className="mt-2 w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white text-sm"
                         >
-                          {mailgunIntegrations.map((integration) => (
-                            <option key={integration.id} value={integration.id.toString()}>
-                              {integration.domain}
-                            </option>
-                          ))}
+                          {mailgunIntegrations.map((integration) => {
+                            const isVerified = integration.verificationStatus === 'verified'
+                            const statusText = isVerified ? '✓ Verified' : '⏳ Pending'
+                            return (
+                              <option key={integration.id} value={integration.id.toString()}>
+                                {integration.domain} - {statusText}
+                              </option>
+                            )
+                          })}
                         </select>
                         <p className="text-xs text-gray-500 mt-1.5">
-                          Choose from available verified domains
+                          {selectedIntegration?.verificationStatus === 'verified' 
+                            ? 'Choose from available domains' 
+                            : 'Pending domains need verification before use'}
                         </p>
+                        {selectedIntegration && selectedIntegration.verificationStatus !== 'verified' && (
+                          <div className="mt-3 bg-amber-50 border border-amber-200 rounded-lg p-3">
+                            <div className="flex items-start gap-2">
+                              <AlertCircle className="text-amber-600 mt-0.5 flex-shrink-0" size={16} />
+                              <div className="flex-1">
+                                <p className="text-xs font-medium text-amber-900 mb-1">
+                                  Domain verification pending
+                                </p>
+                                <p className="text-xs text-amber-700 mb-2">
+                                  This domain needs to be verified before you can create email addresses.
+                                </p>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setViewingDnsRecords(selectedIntegration)}
+                                  className="text-xs h-7 border-amber-300 text-amber-700 hover:bg-amber-100"
+                                >
+                                  <Eye size={14} className="mr-1" />
+                                  View DNS Records
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       <div>
@@ -539,8 +627,14 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
                         </Button>
                         <Button 
                           onClick={handleRequestEmail} 
-                          disabled={loading || !emailPrefix || !selectedIntegrationId}
+                          disabled={
+                            loading || 
+                            !emailPrefix || 
+                            !selectedIntegrationId ||
+                            selectedIntegration?.verificationStatus !== 'verified'
+                          }
                           className="bg-purple-600 hover:bg-purple-700"
+                          title={selectedIntegration?.verificationStatus !== 'verified' ? 'Domain must be verified before creating email addresses' : ''}
                         >
                           {loading ? 'Creating...' : 'Create Email'}
                         </Button>
