@@ -105,7 +105,7 @@ const CreateAgent1 = ({
     // Clear pipeline cadence data when creating a new agent
     localStorage.removeItem('AddCadenceDetails')
     refreshUserData()
-    getSelectedUser()
+    getTargetUser()
     
     // Track if user initially had a plan (to prevent redirect after upgrade)
     if (typeof window !== 'undefined') {
@@ -185,7 +185,7 @@ const CreateAgent1 = ({
     }
   }, [])
 
-  const getSelectedUser = () => {
+  const getTargetUser = () => {
     let U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
     console.log('selected user in localstorage is', U)
     if (U) {
@@ -538,6 +538,24 @@ const CreateAgent1 = ({
     }
   }
 
+
+  // function getTargetUser(){
+  //   const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+  //   let targetUser = null
+
+  //   if(U){
+  //     // Admin or agency is trying to create agent for another user
+  //     const Data = JSON.parse(U)
+  //     if(Data.subAccountData){
+  //       targetUserType = Data.subAccountData || Data.subAccountData?.user
+  //     }
+  //     if(!targetUser && selectedUser){
+  //       targetUserType = selectedUser?.userType || selectedUser?.user?.userType
+  //     }
+  //     return targetUserType
+  //   }
+  // }
+
   function canContinue() {
     // If agency/admin is creating agent for another user (subaccount), check that user's type
     const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
@@ -586,9 +604,9 @@ const CreateAgent1 = ({
       // Use logged-in user data
       currentUserData = reduxUser || user
     }
-    console.log('[CREATE-AGENT] currentUserData plan is', currentUserData)
+    console.log('[CREATE-AGENT] currentUserData data is', currentUserData)
     let plan = currentUserData?.user?.plan || currentUserData?.plan
-    
+    console.log('[CREATE-AGENT] currentUserData plan is', plan)
     const hasPlan = plan !== null && plan?.price !== 0
     const isFreePlan = !hasPlan || plan?.price === 0
     
@@ -868,7 +886,14 @@ const CreateAgent1 = ({
 
   //code for creating agent api
   const handleBuildAgent = async () => {
-    if (reduxUser?.plan && !isPlanActive(reduxUser?.plan)) {
+    console.log("Redux user in creating agent is ", reduxUser)
+    let user = null;
+    if(selectedUser){
+      user = selectedUser.subAccountData;
+    }else{
+      user = reduxUser;
+    }
+    if (user?.plan && !isPlanActive(user?.plan)) {
       setSnackMessage('Your plan is paused. Activate to create agents')
       setIsVisible(true)
       setMsgType(SnackbarTypes.Error)

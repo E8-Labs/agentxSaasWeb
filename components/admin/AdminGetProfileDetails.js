@@ -35,7 +35,7 @@ const AdminGetProfileDetails = async (id) => {
         const DataT = response.data.data
         localStorage.setItem('AdminProfileData', JSON.stringify(DataT))
         // //console.log;
-        localStorage.setItem('User', JSON.stringify(localDetails))
+        // localStorage.setItem('User', JSON.stringify(localDetails))
         return response.data.data
       } else {
         //console.log;
