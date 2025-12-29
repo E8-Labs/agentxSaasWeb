@@ -22,7 +22,7 @@ import Header from '@/components/onboarding/Header'
 import ProgressBar from '@/components/onboarding/ProgressBar'
 import { PersistanceKeys } from '@/constants/Constants'
 import { clearAgencyUUID, getAgencyUUIDForAPI } from '@/utilities/AgencyUtility'
-import { GetCampaigneeNameIfAvailable } from '@/utilities/UserUtility'
+import { GetCampaigneeNameIfAvailable, clearLogoutFlag } from '@/utilities/UserUtility'
 import { setCookie } from '@/utilities/cookies'
 import { forceApplyBranding } from '@/utilities/applyBranding'
 
@@ -364,6 +364,10 @@ const SignUpForm = ({
             '[DEBUG] Registration successful, starting affiliate tracking...',
           )
           localStorage.removeItem(PersistanceKeys.RegisterDetails)
+          
+          // CRITICAL: Clear logout flag on successful registration
+          clearLogoutFlag()
+          
           localStorage.setItem('User', JSON.stringify(response.data.data))
 
           if (typeof document !== 'undefined') {

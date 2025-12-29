@@ -36,6 +36,26 @@ export const useUser = () => {
 
   // Initialize Redux from localStorage if Redux is empty but localStorage has data
   useEffect(() => {
+    // CRITICAL: Don't auto-initialize if user just logged out
+    if (typeof window !== 'undefined') {
+      // Check URL parameter
+      const urlParams = new URLSearchParams(window.location.search)
+      const logoutParam = urlParams.get('logout')
+      
+      // Check sessionStorage logout flag (more persistent)
+      const logoutFlag = typeof sessionStorage !== 'undefined' 
+        ? sessionStorage.getItem('_logout_flag') 
+        : null
+      
+      if (logoutParam || logoutFlag) {
+        console.log('🚪 [REDUX-HOOKS] Logout detected, skipping Redux initialization', {
+          logoutParam: !!logoutParam,
+          logoutFlag: !!logoutFlag
+        })
+        return
+      }
+    }
+    
     if (!user && !token) {
       try {
         const localStorageData = localStorage.getItem('User')

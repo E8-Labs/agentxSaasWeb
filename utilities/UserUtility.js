@@ -13,6 +13,18 @@ export const getSupportUrlFor = (user) => {
   return PersistanceKeys.SupportWebinarUrl
 }
 
+/**
+ * Clear the logout flag from sessionStorage
+ * This should be called after successful login or registration
+ * to allow the user to be authenticated
+ */
+export function clearLogoutFlag() {
+  if (typeof sessionStorage !== 'undefined') {
+    sessionStorage.removeItem('_logout_flag')
+    console.log('✅ Logout flag cleared')
+  }
+}
+
 export function logout(reason = 'Unknown reason') {
   // Log the logout event with timestamp and reason
   const timestamp = new Date().toISOString()
@@ -26,7 +38,16 @@ export function logout(reason = 'Unknown reason') {
       PersistanceKeys.LocalStorageUserLocation,
     )
     
-    // Clear all localStorage
+    // CRITICAL: Clear Redux persist storage key (redux-persist stores data in localStorage)
+    // This key is set by redux-persist configuration (usually 'persist:root')
+    try {
+      localStorage.removeItem('persist:root')
+      console.log('✅ Redux persist storage cleared')
+    } catch (error) {
+      console.warn('Could not clear Redux persist storage:', error)
+    }
+    
+    // Clear all localStorage (this will also clear any remaining User data)
     localStorage.clear()
     
     // Restore only user location (non-authentication data)
@@ -51,7 +72,16 @@ export function logout(reason = 'Unknown reason') {
       sessionStorage.clear()
     }
     
-    // Force redirect to home page with cache busting
+    // CRITICAL: Set a persistent logout flag in sessionStorage
+    // This flag persists for the browser session and prevents auto-login
+    // even if localStorage gets repopulated by another script/tab/extension
+    if (typeof sessionStorage !== 'undefined') {
+      sessionStorage.setItem('_logout_flag', Date.now().toString())
+      console.log('✅ Logout flag set in sessionStorage')
+    }
+    
+    // Force redirect to home page with logout parameter to prevent auto-login
+    // The logout parameter will be checked by LoginComponent to skip auto-login
     window.location.href = '/?logout=' + Date.now()
   }
 }

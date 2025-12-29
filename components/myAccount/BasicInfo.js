@@ -1019,15 +1019,9 @@ function BasicInfo() {
             className="text-red text-start mt-4 bg-[#FF4E4E40] px-3 py-1 rounded-3xl"
             style={{ fontWeight: '600', fontSize: 17 }}
             onClick={() => {
-              localStorage.clear()
-              // localStorage.removeItem("User");
-              // localStorage.removeItem("localAgentDetails");
-              if (typeof document !== 'undefined') {
-                document.cookie =
-                  'User=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT'
-              }
-              // router.push("/");
-              window.location.href = '/'
+              // Use the centralized logout function to ensure proper cleanup
+              const { logout } = require('@/utilities/UserUtility')
+              logout('User clicked logout button in BasicInfo')
             }}
           >
             Log Out

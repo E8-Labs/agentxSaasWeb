@@ -33,6 +33,8 @@ import { getAgencyCustomDomain } from '@/utils/getAgencyCustomDomain'
 import { useUser } from '@/hooks/redux-hooks'
 import getProfileDetails from '@/components/apis/GetProfile'
 import SimpleUpgradeView from '@/components/common/SimpleUpgradeView'
+import UpgradePlan from '@/components/userPlans/UpgradePlan'
+import { getStripe } from '@/lib/stripe'
 
 function Page() {
   const [showKeysBox, setshowKeysBox] = useState(false)
@@ -59,6 +61,7 @@ function Page() {
 
   // Upgrade modal states
   const { user: reduxUser, setUser: setReduxUser } = useUser()
+  const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
 
   useEffect(() => {
     getMyApiKeys()
@@ -403,16 +406,40 @@ function Page() {
               <button
                 className="w-full"
                 onClick={() => {
-                  setshowKeysBox(!showKeysBox)
+                  // Only open dropdown if user has API access
+                  if (shouldShowAPIKeys) {
+                    setshowKeysBox(!showKeysBox)
+                  } else {
+                    // Open upgrade modal if no access
+                    setShowUpgradePlanModal(true)
+                  }
                 }}
               >
                 <div className="flex flex-row items-center justify-between ">
                   <div> API Keys</div>
-                  {showKeysBox ? (
-                    <CaretUp size={20} />
-                  ) : (
-                    <CaretDown size={20} />
-                  )}
+                  <div className="flex flex-row items-center gap-2">
+                    {!shouldShowAPIKeys && (
+                      <span
+                        className="px-2 py-1 rounded text-xs font-medium cursor-pointer text-brand-primary"
+                        style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.1)' }}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setShowUpgradePlanModal(true)
+                        }}
+                      >
+                        Upgrade
+                      </span>
+                    )}
+                    {shouldShowAPIKeys && (
+                      <>
+                        {showKeysBox ? (
+                          <CaretUp size={20} />
+                        ) : (
+                          <CaretDown size={20} />
+                        )}
+                      </>
+                    )}
+                  </div>
                 </div>
               </button>
 
@@ -511,15 +538,6 @@ function Page() {
                 </div>
               )}
 
-              {showKeysBox && !shouldShowAPIKeys && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white border rounded-lg shadow-lg z-50 p-4 max-h-[600px] overflow-y-auto">
-                  <SimpleUpgradeView
-                    title="Unlock API Access"
-                    subTitle="Upgrade your plan to access API keys and integrate with your favorite tools"
-                    onUpgradeSuccess={refreshUserData}
-                  />
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -687,6 +705,22 @@ function Page() {
 
         <div></div>
       </div>
+
+      {/* UpgradePlan Modal */}
+      <Elements stripe={getStripe()}>
+        <UpgradePlan
+          open={showUpgradePlanModal}
+          handleClose={async (upgradeResult) => {
+            setShowUpgradePlanModal(false)
+            if (upgradeResult) {
+              await refreshUserData()
+            }
+          }}
+          plan={null}
+          currentFullPlan={reduxUser?.user?.plan || reduxUser?.plan}
+          setSelectedPlan={() => {}}
+        />
+      </Elements>
     </div>
   )
 }

@@ -367,6 +367,11 @@ const BasicDetails = ({
             )
           }
           localStorage.removeItem(PersistanceKeys.RegisterDetails)
+          
+          // CRITICAL: Clear logout flag on successful registration
+          const { clearLogoutFlag } = require('@/utilities/UserUtility')
+          clearLogoutFlag()
+          
           localStorage.setItem('User', JSON.stringify(response.data.data))
           //set cokie on locastorage to run middle ware
           // document.cookie = `User=${encodeURIComponent(

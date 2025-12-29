@@ -30,6 +30,7 @@ import {
 import { Progress } from '@/components/ui/progress'
 import { PersistanceKeys, setUserType, userType } from '@/constants/Constants'
 import { setCookie } from '@/utilities/cookies'
+import { clearLogoutFlag } from '@/utilities/UserUtility'
 import { getPolicyUrls } from '@/utils/getPolicyUrls'
 import { forceApplyBranding } from '@/utilities/applyBranding'
 import { hexToHsl, calculateIconFilter } from '@/utilities/colorUtils'
@@ -376,6 +377,31 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         return
       }
 
+      // CRITICAL: Check for logout flag in sessionStorage (persists for browser session)
+      // This prevents auto-login even if localStorage gets repopulated after logout
+      const logoutFlag = typeof sessionStorage !== 'undefined' 
+        ? sessionStorage.getItem('_logout_flag') 
+        : null
+      
+      // CRITICAL: If user just logged out (either via URL param or sessionStorage flag), skip auto-login
+      const logoutParam = searchParams.get('logout')
+      if (logoutParam || logoutFlag) {
+        console.log('🚪 Logout detected, skipping auto-login and clearing any remaining data', {
+          logoutParam: !!logoutParam,
+          logoutFlag: !!logoutFlag
+        })
+        // Clear any remaining localStorage data (safety check)
+        localStorage.removeItem('User')
+        // Clear Redux persist storage
+        try {
+          localStorage.removeItem('persist:root')
+        } catch (e) {
+          console.warn('Could not clear Redux persist storage:', e)
+        }
+        setIsCheckingAuth(false)
+        return
+      }
+
       const localData = localStorage.getItem('User')
       if (localData) {
         try {
@@ -411,6 +437,10 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             setIsCheckingAuth(false)
             return
           }
+
+          // CRITICAL: Profile is valid - clear logout flag since token is verified
+          // This allows auto-login to proceed since the token is confirmed valid
+          clearLogoutFlag()
 
           // Profile is valid, update local data and route
           const updatedData = JSON.parse(
@@ -497,7 +527,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     }
 
     checkAuthStatus()
-  }, [])
+  }, [searchParams, pathname])
 
   //get location
   const getLocation2 = async () => {
@@ -761,6 +791,9 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             // //console.log;
             // let routeTo = ""
 
+            // CRITICAL: Clear logout flag on successful login
+            clearLogoutFlag()
+
             localStorage.setItem('User', JSON.stringify(response.data.data))
 
             // Extract and store agency branding immediately after login
@@ -902,6 +935,9 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               return
             }
           } else {
+            // CRITICAL: Clear logout flag on successful login
+            clearLogoutFlag()
+
             localStorage.setItem('User', JSON.stringify(response.data.data))
 
             // Set user cookie for middleware

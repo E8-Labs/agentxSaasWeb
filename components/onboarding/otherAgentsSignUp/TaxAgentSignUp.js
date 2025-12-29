@@ -346,6 +346,10 @@ const TaxAgentSignUp = ({
           console.log(
             '[DEBUG] Registration successful, starting affiliate tracking...',
           )
+          // CRITICAL: Clear logout flag on successful registration
+          const { clearLogoutFlag } = require('@/utilities/UserUtility')
+          clearLogoutFlag()
+          
           localStorage.setItem('User', JSON.stringify(response.data.data))
 
           if (typeof document !== 'undefined') {

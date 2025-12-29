@@ -355,6 +355,10 @@ const SalesDevAgent = ({
         //console.log;
         // //console.log;
         if (response.data.status === true) {
+          // CRITICAL: Clear logout flag on successful registration
+          const { clearLogoutFlag } = require('@/utilities/UserUtility')
+          clearLogoutFlag()
+          
           localStorage.setItem('User', JSON.stringify(response.data.data))
           //console.log;
           try {
