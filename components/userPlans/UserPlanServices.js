@@ -125,15 +125,22 @@ export const getUserPlans = async (from, selectedUser) => {
     const teamSub =
       isTeamMember(UserLocalData) && isSubaccountTeamMember(UserLocalData)
 
-    if (isAgency || teamAgency) {
+
+    if ((from === 'agency' || from === 'Agency')) {
+      console.log('get plans for agency',from,isAgency,teamAgency)
+      path = Apis.getPlansForAgency
+    } else if (from === 'SubAccount') {
+      console.log('get plans for subaccount',from,isSubAccount,teamSub)
+      path = Apis.getSubAccountPlans
+    }
+    else if (isAgency || teamAgency) {
+      console.log('get plans for agency',from,isAgency,teamAgency)
       path = Apis.getPlansForAgency
     } else if (isSubAccount || teamSub) {
-      path = Apis.getSubAccountPlans
-    } else if ((from === 'agency' || from === 'Agency') && (isAgency || teamAgency)) {
-      path = Apis.getPlansForAgency
-    } else if (from === 'SubAccount' && (isSubAccount || teamSub)) {
+      console.log('get plans for subaccount',from,isSubAccount,teamSub)
       path = Apis.getSubAccountPlans
     } else {
+      console.log('get plans for user',from)
       path = Apis.getPlans
     }
 
@@ -506,7 +513,7 @@ export const getNextChargeDate = (selectedPlan, fromDate = new Date()) => {
     // Check if plan has trial and add trial days first
     const hasTrial = selectedPlan?.hasTrial === true
     const trialDays = selectedPlan?.trialValidForDays || 0
-    
+
     if (hasTrial && trialDays > 0) {
       // Add trial days to the base date
       nextDate.setDate(nextDate.getDate() + trialDays)

@@ -15,7 +15,7 @@ export const DurationView = ({
   return (
     <div className="flex flex-col items-end plan-duration-container justify-end">
       {/* Discount labels row */}
-      {reduxUser?.userRole !== 'AgencySubAccount' && (
+      {reduxUser?.userRole !== 'AgencySubAccount' || from !== 'SubAccount' && (
         <div className="flex flex-row items-center justify-end gap-2 px-2 mt-2 me-[7px]">
           {duration?.map(
             (item) =>

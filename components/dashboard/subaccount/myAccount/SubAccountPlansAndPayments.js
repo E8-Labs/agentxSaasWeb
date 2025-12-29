@@ -1189,7 +1189,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
 
       {/* Code for Smart Refill */}
 
-      <SmartRefillCard />
+      <SmartRefillCard selectedUser={selectedUser} />
 
       {/* code for current plans available */}
 

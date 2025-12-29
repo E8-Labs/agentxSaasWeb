@@ -716,6 +716,7 @@ function UpgradePlanContent({
         UserLocalData?.userRole === 'AgencySubAccount'
       ) {
         console.log('Current plan upgrade type is subaccount')
+        plansList = plansList?.monthlyPlans || plansList
         plansList?.forEach((plan) => {
           switch (plan.billingCycle) {
             case 'monthly':

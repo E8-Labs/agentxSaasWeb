@@ -81,7 +81,7 @@ function BillingHistory({ selectedUser }) {
 
       let ApiPath = `${Apis.getTransactionDetails}?transactionId=${transactionId}`
       if (selectedUser) {
-        ApiPath = ApiPath + `?userId=${selectedUser.id}`
+        ApiPath = ApiPath + `&userId=${selectedUser.id}`
       }
       console.log('Api path for transaction details is', ApiPath)
 

@@ -407,6 +407,7 @@ export const UpgradeTagWithModal = ({
   externalTrigger = false,
   onModalClose,
   requestFeature = false,
+  selectedUser = null,
 }) => {
   const [showUpgradeModal, setShowUpgradeModal] = React.useState(false)
   const [showUnlockPremiumFeaturesPopup, setShowUnlockPremiumFeaturesPopup] =
@@ -414,6 +415,8 @@ export const UpgradeTagWithModal = ({
   // Import necessary components dynamically to avoid circular dependencies
   const getProfileDetails = require('@/components/apis/GetProfile').default
   const UpgradePlan = require('@/components/userPlans/UpgradePlan').default
+
+  let from = reduxUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : ''
 
   // Function to refresh user data after plan upgrade
   const refreshUserData = async () => {
@@ -505,6 +508,8 @@ export const UpgradeTagWithModal = ({
         setSelectedPlan={() => {
           console.log('setSelectedPlan is called')
         }}
+        selectedUser = {selectedUser}
+        from={from}
       />
     </>
   )

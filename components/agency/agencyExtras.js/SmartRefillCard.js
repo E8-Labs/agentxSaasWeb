@@ -25,20 +25,39 @@ const SmartRefillCard = ({
   const [isSubaccount, setIsSubaccount] = useState(false)
   const [textColor, setTextColor] = useState('#fff')
 
+  const [userData, setUserData] = useState(null)
+
   useEffect(() => {
     selectRefillOption()
-    
+
+
+    const getUserData = async () => {
+      let user = null
+      if (selectedUser) {
+        user = await AdminGetProfileDetails(selectedUser.id)
+        console.log('user data is', user)
+      }
+      setUserData(user)
+    }
+
+    getUserData()
+
     // Check if user is subaccount and calculate text color
     if (typeof window !== 'undefined') {
       try {
-        const userData = localStorage.getItem('User')
-        if (userData) {
-          const parsedUser = JSON.parse(userData)
-          const isSub = 
+        const data = localStorage.getItem('User')
+        if (data) {
+          const parsedUser = JSON.parse(data)
+          const isSub =
             parsedUser?.user?.userRole === 'AgencySubAccount' ||
-            parsedUser?.userRole === 'AgencySubAccount'
+            userData?.userRole === 'AgencySubAccount'
+
+          console.log('selectedUser', userData)
+
+
+          console.log('isSub', isSub)
           setIsSubaccount(isSub)
-          
+
           if (isSub) {
             // Calculate text color based on background
             const brandPrimary = getComputedStyle(document.documentElement)
@@ -119,10 +138,10 @@ const SmartRefillCard = ({
     <div
       className="w-full flex flex-row items-center mt-4 p-2 rounded-3xl"
       style={{
-        backgroundImage: isSubaccount 
+        backgroundImage: isSubaccount
           ? (process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
-              ? `linear-gradient(to bottom left, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`
-              : `radial-gradient(circle at top right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`)
+            ? `linear-gradient(to bottom left, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`
+            : `radial-gradient(circle at top right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`)
           : 'url(/svgIcons/cardBg.svg)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',

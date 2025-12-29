@@ -1394,15 +1394,13 @@ const AdminLeadDetails = ({
                                   {selectedLeadsDetails?.phone && (
                                     <MenuItem
                                       onClick={() => {
+                                        if (sendSMSLoader ||
+                                          !userLocalData?.planCapabilities
+                                            ?.allowTextMessages ||
+                                          phoneNumbers.length == 0) return
                                         setSendActionAnchor(null)
                                         setShowSMSModal(true)
                                       }}
-                                      disabled={
-                                        sendSMSLoader ||
-                                        !userLocalData?.planCapabilities
-                                          ?.allowTextMessages ||
-                                        phoneNumbers.length == 0
-                                      }
                                       sx={{
                                         opacity: (!userLocalData?.planCapabilities
                                           ?.allowTextMessages ||
@@ -1423,12 +1421,9 @@ const AdminLeadDetails = ({
                                         {(!userLocalData?.planCapabilities
                                           ?.allowTextMessages ||
                                           phoneNumbers.length == 0) && (
-                                          <Image
-                                            src="/otherAssets/starsIcon2.png"
-                                            height={16}
-                                            width={16}
-                                            alt="upgrade"
-                                            className="ml-auto"
+                                          <UpgradeTagWithModal
+                                            reduxUser={userLocalData}
+                                            setReduxUser={setUserLocalData}
                                           />
                                         )}
                                       </div>

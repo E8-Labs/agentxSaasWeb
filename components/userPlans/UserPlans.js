@@ -458,7 +458,8 @@ function UserPlans({
       let freePlan = null
       console.log('Status f is from is', fromValue)
       // Handle both SubAccount plans (with duration) and normal plans (with billingCycle)
-      const plansToProcess = fromValue === 'SubAccount' ? plansList : filteredPlans
+      let plansToProcess = fromValue === 'SubAccount' ? plansList : filteredPlans
+      plansToProcess = plansToProcess?.monthlyPlans || plansToProcess
       plansToProcess?.forEach((plan) => {
         // SubAccount plans use 'duration', normal plans use 'billingCycle'
         const cycle = plan.duration || plan.billingCycle
