@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { X, Check, AlertCircle, Plus, Settings } from 'lucide-react'
+import { X, Check, AlertCircle, Plus, Settings, RefreshCw, Eye } from 'lucide-react'
 import axios from 'axios'
 import { toast } from 'sonner'
 import Apis from '@/components/apis/Apis'
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import MailgunDomainSetup from './MailgunDomainSetup'
+import ViewDnsRecordsModal from './ViewDnsRecordsModal'
 
 const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
   const [mailgunIntegrations, setMailgunIntegrations] = useState([])
@@ -25,19 +26,43 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
   const [selectedParentDomainId, setSelectedParentDomainId] = useState('')
   const [creatingSubdomain, setCreatingSubdomain] = useState(false)
   const [showDomainSetup, setShowDomainSetup] = useState(false)
+  
+  // For subaccount custom domain setup
+  const [isSubaccount, setIsSubaccount] = useState(false)
+  const [agencyHasMailgun, setAgencyHasMailgun] = useState(true) // Check if agency has Mailgun connected
+  const [customDomain, setCustomDomain] = useState('')
+  const [creatingDomain, setCreatingDomain] = useState(false)
+  const [createdDomainIntegration, setCreatedDomainIntegration] = useState(null)
+  const [verifyingDomain, setVerifyingDomain] = useState(false)
+  const [viewingDnsRecords, setViewingDnsRecords] = useState(null)
 
   useEffect(() => {
     if (open) {
+      // Check if user is subaccount
+      const userData = getUserLocalData()
+      let isSub = false
+      if (userData?.user) {
+        const userRole = userData.user.userRole || userData.userRole
+        isSub = userRole === 'AgencySubAccount'
+        setIsSubaccount(isSub)
+      }
+      
+      // Reset agency Mailgun check
+      setAgencyHasMailgun(true)
+      
       fetchMailgunIntegrations()
       fetchAvailableDomains()
       // Reset form state when modal opens
       setEmailPrefix('')
       setDisplayName('')
       setSelectedIntegrationId('')
-      setActiveTab('existing')
+      setActiveTab('existing') // Always start with existing tab
       setSubdomainPrefix('')
       setSelectedParentDomainId('')
+      setCustomDomain('')
+      setCreatedDomainIntegration(null)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
 
   const fetchMailgunIntegrations = async () => {
@@ -54,17 +79,32 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       })
 
       if (response.data?.status) {
-        const verifiedIntegrations = response.data.data.filter(
+        const allIntegrations = response.data.data || []
+        
+        // For subaccounts, check if agency has Mailgun connected
+        if (isSubaccount) {
+          const agencyIntegrations = allIntegrations.filter(
+            (integration) => integration.ownerType === 'agency' && 
+                           integration.verificationStatus === 'verified' && 
+                           integration.isActive
+          )
+          setAgencyHasMailgun(agencyIntegrations.length > 0)
+        }
+        
+        const verifiedIntegrations = allIntegrations.filter(
           (integration) => integration.verificationStatus === 'verified' && integration.isActive
         )
         setMailgunIntegrations(verifiedIntegrations)
         if (verifiedIntegrations.length > 0 && !selectedIntegrationId) {
           setSelectedIntegrationId(verifiedIntegrations[0].id.toString())
         }
+        return allIntegrations
       }
+      return []
     } catch (error) {
       console.error('Error fetching Mailgun integrations:', error)
       toast.error('Failed to fetch available domains')
+      return []
     } finally {
       setFetchingIntegrations(false)
     }
@@ -208,6 +248,101 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
     }
   }
 
+  // Handle subaccount custom domain creation
+  const handleCreateCustomDomain = async () => {
+    if (!customDomain) {
+      toast.error('Please enter a domain')
+      return
+    }
+
+    // Validate domain format
+    const domainRegex = /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+    if (!domainRegex.test(customDomain)) {
+      toast.error('Invalid domain format')
+      return
+    }
+
+    setCreatingDomain(true)
+    try {
+      const userData = getUserLocalData()
+      const token = userData?.token
+
+      // For subaccounts, don't send API key - backend will use agency's
+      const response = await axios.post(
+        Apis.createMailgunIntegration,
+        { domain: customDomain },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
+      if (response.data?.status) {
+        const integration = response.data.data
+        setCreatedDomainIntegration(integration)
+        toast.success('Domain created! Please add the DNS records below.')
+        // Refresh integrations list
+        await fetchMailgunIntegrations()
+      } else {
+        toast.error(response.data?.message || 'Failed to create domain')
+      }
+    } catch (error) {
+      console.error('Error creating custom domain:', error)
+      toast.error(error.response?.data?.message || 'Failed to create domain')
+    } finally {
+      setCreatingDomain(false)
+    }
+  }
+
+  // Handle domain verification
+  const handleVerifyDomain = async (integrationId) => {
+    setVerifyingDomain(true)
+    try {
+      const userData = getUserLocalData()
+      const token = userData?.token
+
+      const response = await axios.post(
+        Apis.verifyMailgunDomain,
+        { mailgunIntegrationId: integrationId },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
+      if (response.data?.status) {
+        if (response.data.data.verified) {
+          toast.success('Domain verified successfully!')
+          setCreatedDomainIntegration(null)
+          await fetchMailgunIntegrations()
+          // Switch to existing tab to select the verified domain
+          setActiveTab('existing')
+        } else {
+          toast.warning('Domain verification pending. Please check DNS records.')
+        }
+        // Update created domain integration with fresh data
+        if (createdDomainIntegration?.id === integrationId) {
+          const allIntegrations = await fetchMailgunIntegrations()
+          const updated = allIntegrations.find(i => i.id === integrationId)
+          if (updated) {
+            setCreatedDomainIntegration(updated)
+          }
+        }
+      } else {
+        toast.error(response.data?.message || 'Failed to verify domain')
+      }
+    } catch (error) {
+      console.error('Error verifying domain:', error)
+      toast.error(error.response?.data?.message || 'Failed to verify domain')
+    } finally {
+      setVerifyingDomain(false)
+    }
+  }
+
   const selectedIntegration = mailgunIntegrations.find(
     (integration) => integration.id.toString() === selectedIntegrationId
   )
@@ -236,7 +371,14 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
         <div className="flex items-center justify-between p-6 border-b">
           <div>
             <h2 className="text-xl font-semibold">Setup your email</h2>
-            <p className="text-sm text-gray-500 mt-1">Choose how you want to set up your email address</p>
+            <p className="text-sm text-gray-500 mt-1">
+              {isSubaccount && !agencyHasMailgun
+                ? 'Contact your admin to get your email setup'
+                : isSubaccount
+                ? 'Connect your own domain to set up your email address'
+                : 'Choose how you want to set up your email address'
+              }
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -247,51 +389,49 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
           </button>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="border-b border-gray-200 px-6">
-          <div className="flex gap-1 -mb-px">
-            <button
-              type="button"
-              onClick={() => setActiveTab('existing')}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'existing'
-                  ? 'border-purple-600 text-purple-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Use Existing Domain
-            </button>
-            {/* Commented out for now */}
-            {/* <button
-              type="button"
-              onClick={() => setActiveTab('subdomain')}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'subdomain'
-                  ? 'border-purple-600 text-purple-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Create Subdomain
-            </button> */}
-            <button
-              type="button"
-              onClick={() => setActiveTab('custom')}
-              className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === 'custom'
-                  ? 'border-purple-600 text-purple-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Setup Custom Domain
-            </button>
+        {/* Tab Navigation - Hide for subaccounts if agency doesn't have Mailgun */}
+        {!(isSubaccount && !agencyHasMailgun) && (
+          <div className="border-b border-gray-200 px-6">
+            <div className="flex gap-1 -mb-px">
+              <button
+                type="button"
+                onClick={() => setActiveTab('existing')}
+                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === 'existing'
+                    ? 'border-purple-600 text-purple-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Use Existing Domain
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('custom')}
+                className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                  activeTab === 'custom'
+                    ? 'border-purple-600 text-purple-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Setup Custom Domain
+              </button>
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="p-6 space-y-4">
           {fetchingIntegrations ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
               <p className="text-gray-500 mt-4">Loading available domains...</p>
+            </div>
+          ) : isSubaccount && !agencyHasMailgun ? (
+            // Show message if subaccount and agency doesn't have Mailgun
+            <div className="text-center py-8">
+              <AlertCircle className="text-gray-400 mx-auto mb-4" size={48} />
+              <p className="text-sm text-gray-600">
+                Contact your admin to get your email setup
+              </p>
             </div>
           ) : (
             <>
@@ -513,40 +653,219 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
               {/* Tab 3: Setup Custom Domain */}
               {activeTab === 'custom' && (
                 <div className="space-y-4">
-                  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                    <div className="flex items-start gap-3">
-                      <div className="bg-purple-100 rounded-full p-2">
-                        <Settings className="text-purple-600" size={20} />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-purple-900 mb-1">
-                          Setup Your Own Custom Domain
-                        </p>
-                        <p className="text-xs text-purple-700">
-                        Connect your own domain(eg. mail.yourdomain.com). 
-                        You'll need access to your domain's DNS settings. 
-                        </p>
-                      </div>
+                  {isSubaccount && !agencyHasMailgun ? (
+                    // Subaccount with no agency Mailgun: Show message
+                    <div className="text-center py-8">
+                      <AlertCircle className="text-gray-400 mx-auto mb-4" size={48} />
+                      <p className="text-sm text-gray-600">
+                        Contact your admin to get your email setup
+                      </p>
                     </div>
-                  </div>
+                  ) : (
+                    <>
+                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                        <div className="flex items-start gap-3">
+                          <div className="bg-purple-100 rounded-full p-2">
+                            <Settings className="text-purple-600" size={20} />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-purple-900 mb-1">
+                              Setup Your Own Custom Domain
+                            </p>
+                            <p className="text-xs text-purple-700">
+                              {isSubaccount 
+                                ? "Connect your own domain (e.g., mail.yourdomain.com). You'll need access to your domain's DNS settings."
+                                : "Connect your own domain(eg. mail.yourdomain.com). You'll need access to your domain's DNS settings."
+                              }
+                            </p>
+                          </div>
+                        </div>
+                      </div>
 
-                  <div className="text-center py-6">
-                    <Settings className="text-gray-400 mx-auto mb-4" size={48} />
-                    <p className="text-sm font-medium text-gray-900 mb-2">
-                      Ready to set up your custom domain?
-                    </p>
-                    <p className="text-xs text-gray-500 mb-6">
-                      We'll guide you through the process step by step
-                    </p>
-                    <Button
-                      type="button"
-                      onClick={() => setShowDomainSetup(true)}
-                      className="bg-purple-600 hover:bg-purple-700"
-                    >
-                      <Settings size={16} className="mr-2" />
-                      Start Domain Setup
-                    </Button>
-                  </div>
+                      {isSubaccount ? (
+                        // Subaccount: Show inline form
+                        !createdDomainIntegration ? (
+                      <>
+                        <div>
+                          <Label htmlFor="customDomain" className="text-sm font-medium text-gray-700">
+                            Domain
+                          </Label>
+                          <input
+                            id="customDomain"
+                            type="text"
+                            placeholder="mail.yourdomain.com"
+                            value={customDomain}
+                            onChange={(e) => setCustomDomain(e.target.value.toLowerCase().trim())}
+                            className="mt-2 h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                            autoComplete="off"
+                            autoFocus
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              e.target.focus()
+                            }}
+                            onFocus={(e) => {
+                              e.stopPropagation()
+                            }}
+                          />
+                          <p className="text-xs text-gray-500 mt-1.5">
+                            Enter your email subdomain (e.g., mail.yourdomain.com)
+                          </p>
+                        </div>
+
+                        <div className="flex justify-end gap-3 pt-4 border-t">
+                          <Button variant="outline" onClick={onClose} type="button">
+                            Cancel
+                          </Button>
+                          <Button
+                            type="button"
+                            onClick={handleCreateCustomDomain}
+                            disabled={creatingDomain || !customDomain}
+                            className="bg-purple-600 hover:bg-purple-700"
+                          >
+                            {creatingDomain ? 'Creating...' : 'Create Domain'}
+                          </Button>
+                        </div>
+                      </>
+                    ) : (
+                    <>
+                      {/* Show DNS Records and Domain Details */}
+                      <div className="space-y-4">
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <div className="flex items-start gap-2">
+                            <AlertCircle className="text-blue-600 mt-0.5" size={20} />
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-blue-900 mb-1">
+                                Domain Created Successfully
+                              </p>
+                              <p className="text-xs text-blue-700">
+                                Add the DNS records below to your domain registrar to verify your domain.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Domain Details */}
+                        <div className="border border-gray-200 rounded-lg p-4">
+                          <div className="flex items-center justify-between mb-3">
+                            <div>
+                              <p className="text-sm font-semibold text-gray-900">
+                                {createdDomainIntegration.domain}
+                              </p>
+                              <p className="text-xs text-gray-500 mt-1">
+                                Status: <span className={`font-medium ${
+                                  createdDomainIntegration.verificationStatus === 'verified'
+                                    ? 'text-green-600'
+                                    : createdDomainIntegration.verificationStatus === 'failed'
+                                    ? 'text-red-600'
+                                    : 'text-amber-600'
+                                }`}>
+                                  {createdDomainIntegration.verificationStatus === 'verified'
+                                    ? 'Verified'
+                                    : createdDomainIntegration.verificationStatus === 'failed'
+                                    ? 'Verification Failed'
+                                    : 'Pending Verification'}
+                                </span>
+                              </p>
+                            </div>
+                            <Button
+                              variant="outline"
+                              onClick={() => setViewingDnsRecords(createdDomainIntegration)}
+                              className="border-purple-600 text-purple-600 hover:bg-purple-50"
+                            >
+                              <Eye size={16} className="mr-2" />
+                              View DNS Records
+                            </Button>
+                          </div>
+
+                          {/* Show DNS Records Inline if available */}
+                          {createdDomainIntegration.dnsRecords && 
+                           Array.isArray(createdDomainIntegration.dnsRecords) && 
+                           createdDomainIntegration.dnsRecords.length > 0 && (
+                            <div className="mt-4 pt-4 border-t border-gray-200">
+                              <p className="text-xs font-medium text-gray-700 mb-2">
+                                DNS Records to Add:
+                              </p>
+                              <div className="space-y-2">
+                                {createdDomainIntegration.dnsRecords.slice(0, 3).map((record, idx) => {
+                                  const recordType = record.recordType || record.type || 'TXT'
+                                  const recordName = record.name || '@'
+                                  const recordValue = record.value || ''
+                                  const displayName = recordName === '@' ? createdDomainIntegration.domain : recordName
+                                  
+                                  return (
+                                    <div key={idx} className="text-xs bg-gray-50 p-2 rounded border border-gray-200">
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-medium text-gray-700">{recordType}</span>
+                                        <span className="text-gray-600">{displayName}</span>
+                                        <span className="text-gray-500 font-mono text-[10px] truncate flex-1">
+                                          {recordValue.length > 50 ? `${recordValue.substring(0, 50)}...` : recordValue}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  )
+                                })}
+                                {createdDomainIntegration.dnsRecords.length > 3 && (
+                                  <p className="text-xs text-gray-500 italic">
+                                    + {createdDomainIntegration.dnsRecords.length - 3} more records. Click "View DNS Records" to see all.
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex justify-end gap-3 pt-4 border-t">
+                          {createdDomainIntegration.verificationStatus !== 'verified' && (
+                            <Button
+                              type="button"
+                              onClick={() => handleVerifyDomain(createdDomainIntegration.id)}
+                              disabled={verifyingDomain}
+                              className="bg-purple-600 hover:bg-purple-700"
+                            >
+                              {verifyingDomain ? 'Verifying...' : 'Verify Domain'}
+                            </Button>
+                          )}
+                          {createdDomainIntegration.verificationStatus === 'verified' && (
+                            <Button
+                              type="button"
+                              onClick={() => {
+                                setCreatedDomainIntegration(null)
+                                setCustomDomain('')
+                                setActiveTab('existing')
+                                fetchMailgunIntegrations()
+                              }}
+                              className="bg-purple-600 hover:bg-purple-700"
+                            >
+                              Continue to Email Setup
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </>
+                  )
+                      ) : (
+                        // Non-subaccount: Show "Start Domain Setup" button (original behavior)
+                        <div className="text-center py-6">
+                          <Settings className="text-gray-400 mx-auto mb-4" size={48} />
+                          <p className="text-sm font-medium text-gray-900 mb-2">
+                            Ready to set up your custom domain?
+                          </p>
+                          <p className="text-xs text-gray-500 mb-6">
+                            We'll guide you through the process step by step
+                          </p>
+                          <Button
+                            type="button"
+                            onClick={() => setShowDomainSetup(true)}
+                            className="bg-purple-600 hover:bg-purple-700"
+                          >
+                            <Settings size={16} className="mr-2" />
+                            Start Domain Setup
+                          </Button>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
               )}
             </>
@@ -554,17 +873,31 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
         </div>
       </div>
       
-      {/* Mailgun Domain Setup Modal */}
-      <MailgunDomainSetup
-        open={showDomainSetup}
-        onClose={() => setShowDomainSetup(false)}
-        onSuccess={() => {
-          setShowDomainSetup(false)
-          // Refresh the integrations list after domain is created
-          fetchMailgunIntegrations()
-          toast.success('Domain setup completed! You can now request an email address.')
-        }}
-      />
+      {/* Mailgun Domain Setup Modal - Only for non-subaccounts */}
+      {!isSubaccount && (
+        <MailgunDomainSetup
+          open={showDomainSetup}
+          onClose={() => setShowDomainSetup(false)}
+          onSuccess={() => {
+            setShowDomainSetup(false)
+            // Refresh the integrations list after domain is created
+            fetchMailgunIntegrations()
+            toast.success('Domain setup completed! You can now request an email address.')
+          }}
+        />
+      )}
+
+      {/* View DNS Records Modal */}
+      {viewingDnsRecords && (
+        <ViewDnsRecordsModal
+          open={!!viewingDnsRecords}
+          onClose={() => setViewingDnsRecords(null)}
+          domain={viewingDnsRecords.domain}
+          dnsRecords={viewingDnsRecords.dnsRecords}
+          verificationStatus={viewingDnsRecords.verificationStatus}
+          mailgunIntegrationId={viewingDnsRecords.id}
+        />
+      )}
     </div>
   )
 

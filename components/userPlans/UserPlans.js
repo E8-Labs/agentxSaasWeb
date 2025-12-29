@@ -1006,15 +1006,7 @@ function UserPlans({
                     <div className="pb-2">
                       {item.status ? (
                         <div className=" flex flex-row items-center gap-2">
-                          {selectedPlan?.id === item.id ||
-                          (hoverPlan?.id === item.id && !isDisabled) ? (
-                            <Image
-                              src="/svgIcons/powerWhite.svg"
-                              height={24}
-                              width={24}
-                              alt="*"
-                            />
-                          ) : (
+                          {(
                             renderBrandedIcon('/svgIcons/power.svg', 24, 24)
                           )}
 
@@ -1022,22 +1014,14 @@ function UserPlans({
                             className={`text-base font-semibold ${
                               selectedPlan?.id === item.id ||
                               (hoverPlan?.id === item.id && !isDisabled)
-                                ? 'text-white'
+                                ? 'text-brand-primary'
                                 : 'text-brand-primary'
                             }`}
                             style={{}}
                           >
                             {item.status}
                           </div>
-                          {selectedPlan?.id === item.id ||
-                          (hoverPlan?.id === item.id && !isDisabled) ? (
-                            <Image
-                              src="/svgIcons/enterArrowWhite.svg"
-                              height={20}
-                              width={20}
-                              alt="*"
-                            />
-                          ) : (
+                          {(
                             renderBrandedIcon('/svgIcons/enterArrow.svg', 20, 20)
                           )}
                         </div>

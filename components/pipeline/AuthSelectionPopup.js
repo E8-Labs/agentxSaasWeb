@@ -369,7 +369,7 @@ function AuthSelectionPopup({
               </div>
 
 
-              <button className="bg-brand-primary text-white px-4 py-2 rounded-md"
+              <button className="bg-brand-primary text-white px-4 py-2 rounded-md w-7/12"
               onClick={() => {
                 setShowGmailConfirmationPopup(false)
                 handleGoogleOAuthClick()

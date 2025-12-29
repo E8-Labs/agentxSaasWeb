@@ -311,6 +311,8 @@ const AdminMailgunIntegration = () => {
           onClose={() => setViewingDnsRecords(null)}
           domain={viewingDnsRecords.domain}
           dnsRecords={viewingDnsRecords.dnsRecords}
+          verificationStatus={viewingDnsRecords.verificationStatus}
+          mailgunIntegrationId={viewingDnsRecords.id}
         />
       )}
 

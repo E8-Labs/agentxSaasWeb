@@ -7,7 +7,7 @@ import {
 } from '@mui/material'
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import { CheckCircle, XCircle, AlertCircle, Plus, Trash2 } from 'lucide-react'
+import { CheckCircle, XCircle, AlertCircle, Plus, Trash2, Eye } from 'lucide-react'
 
 import Apis from '../../apis/Apis'
 import AgentSelectSnackMessage, {
@@ -23,6 +23,7 @@ import LabelingHeader from './LabelingHeader'
 import { generateOAuthState } from '@/utils/oauthState'
 import { getAgencyCustomDomain } from '@/utils/getAgencyCustomDomain'
 import MailgunDomainSetup from '../../messaging/MailgunDomainSetup'
+import ViewDnsRecordsModal from '../../messaging/ViewDnsRecordsModal'
 
 const EmailConfig = ({ selectedAgency }) => {
   // Mail account state
@@ -36,6 +37,7 @@ const EmailConfig = ({ selectedAgency }) => {
   const [loadingMailgun, setLoadingMailgun] = useState(true)
   const [showMailgunSetup, setShowMailgunSetup] = useState(false)
   const [verifyingDomain, setVerifyingDomain] = useState(null)
+  const [viewingDnsRecords, setViewingDnsRecords] = useState(null)
 
   // Commented out: Sender Details state variables
   // const [profileName, setProfileName] = useState('')
@@ -684,6 +686,20 @@ const EmailConfig = ({ selectedAgency }) => {
                             )}
                           </div>
                           <div className="flex flex-row items-center gap-2">
+                            <Button
+                              variant="outlined"
+                              onClick={() => setViewingDnsRecords(integration)}
+                              sx={{
+                                textTransform: 'none',
+                                borderRadius: '8px',
+                                px: 2,
+                                borderColor: 'hsl(var(--brand-primary))',
+                                color: 'hsl(var(--brand-primary))',
+                              }}
+                            >
+                              <Eye size={16} className="mr-2" />
+                              View DNS Records
+                            </Button>
                             {integration.verificationStatus !== 'verified' && (
                               <Button
                                 variant="outlined"
@@ -741,6 +757,18 @@ const EmailConfig = ({ selectedAgency }) => {
               })
             }}
           />
+
+          {/* View DNS Records Modal */}
+          {viewingDnsRecords && (
+            <ViewDnsRecordsModal
+              open={!!viewingDnsRecords}
+              onClose={() => setViewingDnsRecords(null)}
+              domain={viewingDnsRecords.domain}
+              dnsRecords={viewingDnsRecords.dnsRecords}
+              verificationStatus={viewingDnsRecords.verificationStatus}
+              mailgunIntegrationId={viewingDnsRecords.id}
+            />
+          )}
         </>
       )}
 
