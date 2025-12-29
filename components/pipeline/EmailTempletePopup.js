@@ -914,18 +914,7 @@ function EmailTempletePopup({
                 </div>
               </div>
 
-              {/* To Field - Only show for lead email */}
-              {isLeadEmail && (
-                <div className="flex items-center gap-2 flex-1">
-                  <label className="text-sm font-medium whitespace-nowrap">To:</label>
-                  <Input
-                    value={leadEmail || ''}
-                    readOnly
-                    className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary bg-gray-50"
-                    style={{ height: '42px' }}
-                  />
-                </div>
-              )}
+              {/* To Field - Hidden for lead email (email is auto-filled from lead) */}
             </div>
 
             {/* CC and BCC fields - shown when toggled - Tag-based design */}
@@ -1037,11 +1026,10 @@ function EmailTempletePopup({
               </div>
             )}
 
-            {!isLeadEmail && (
-              <div className="flex items-center gap-2 flex-1">
-                <label className="text-[15px] font-[400] text-black whitespace-nowrap">
-                  Template Name
-                </label>
+            {/* Template Selection - Show for both pipeline and lead emails */}
+            <div className="flex items-center gap-2">
+              {/* Template Name field - Only show for pipeline emails (not lead emails) */}
+              {!isLeadEmail && (
                 <Input
                   placeholder="Template Name"
                   value={tempName || ''}
@@ -1052,79 +1040,155 @@ function EmailTempletePopup({
                   className="flex-1 h-[42px] border rounded-lg focus-visible:ring-1 focus-visible:ring-black focus-visible:border-black"
                   style={{ height: '42px' }}
                 />
-                {/* Select Template dropdown next to Template Name field */}
+              )}
+              {/* Select Template dropdown - Show for both pipeline and lead emails */}
+              {isLeadEmail ? (
+                <>
+                  <label className="text-sm font-medium whitespace-nowrap">Template:</label>
+                  <div className="flex-1">
+                    <FormControl size="small" fullWidth sx={{ minWidth: 180 }}>
+                      <Select
+                        value={selectedTemp || ''}
+                        onChange={(e) => handleSelect(e.target.value)}
+                        displayEmpty
+                        renderValue={(selected) =>
+                          selected?.templateName || (
+                            <div style={{ color: '#aaa' }}>Select Template</div>
+                          )
+                        }
+                        sx={{
+                          fontSize: '0.875rem',
+                          height: '42px',
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#d1d5db',
+                          },
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'hsl(var(--brand-primary))',
+                          },
+                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            borderColor: 'hsl(var(--brand-primary))',
+                          },
+                        }}
+                        MenuProps={{
+                          PaperProps: {
+                            style: {
+                              maxHeight: '30vh',
+                              overflow: 'auto',
+                              scrollbarWidth: 'none',
+                            },
+                          },
+                        }}
+                      >
+                        {templetes?.length > 0 ? (
+                          templetes?.map((item, index) =>
+                            detailsLoader?.id === item.id ? (
+                              <CircularProgress key={item.id} size={20} />
+                            ) : (
+                              <MenuItem
+                                key={index}
+                                value={item}
+                              >
+                                <div className="flex flex-row items-center gap-2 w-full">
+                                  <div className="text-[15] font-[500] flex-1 truncate min-w-0">
+                                    {item.templateName}
+                                  </div>
+                                  {delTempLoader?.id === item.id ? (
+                                    <CircularProgress size={20} className="flex-shrink-0" />
+                                  ) : (
+                                    <button
+                                      onClick={(e) => {
+                                        e.preventDefault()
+                                        handleDelete(e, item)
+                                      }}
+                                      className="text-brand-primary hover:text-brand-primary/80 transition-colors flex-shrink-0 ml-2"
+                                    >
+                                      <Trash2 size={16} />
+                                    </button>
+                                  )}
+                                </div>
+                              </MenuItem>
+                            ),
+                          )
+                        ) : (
+                          <div className="ml-2">No template found</div>
+                        )}
+                      </Select>
+                    </FormControl>
+                  </div>
+                </>
+              ) : (
                 <div className="flex-1">
                   <FormControl size="small" fullWidth sx={{ minWidth: 180 }}>
-                  <Select
-                    value={selectedTemp || ''}
-                    onChange={(e) => handleSelect(e.target.value)}
-                    displayEmpty
-                    renderValue={(selected) =>
-                      selected?.templateName || (
-                        <div style={{ color: '#aaa' }}>Select Template</div>
-                      )
-                    }
-                    sx={{
-                      fontSize: '0.875rem',
-                      height: '42px',
-                      '& .MuiOutlinedInput-notchedOutline': {
-                        borderColor: '#d1d5db',
-                      },
-                      '&:hover .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'hsl(var(--brand-primary))',
-                      },
-                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                        borderColor: 'hsl(var(--brand-primary))',
-                      },
-                    }}
-                    MenuProps={{
-                      PaperProps: {
-                        style: {
-                          maxHeight: '30vh',
-                          overflow: 'auto',
-                          scrollbarWidth: 'none',
+                    <Select
+                      value={selectedTemp || ''}
+                      onChange={(e) => handleSelect(e.target.value)}
+                      displayEmpty
+                      renderValue={(selected) =>
+                        selected?.templateName || (
+                          <div style={{ color: '#aaa' }}>Select Template</div>
+                        )
+                      }
+                      sx={{
+                        fontSize: '0.875rem',
+                        height: '42px',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#d1d5db',
                         },
-                      },
-                    }}
-                  >
-                    {templetes?.length > 0 ? (
-                      templetes?.map((item, index) =>
-                        detailsLoader?.id === item.id ? (
-                          <CircularProgress key={item.id} size={20} />
-                        ) : (
-                          <MenuItem
-                            key={index}
-                            value={item}
-                          >
-                            <div className="flex flex-row items-center gap-2 w-full">
-                              <div className="text-[15] font-[500] flex-1 truncate min-w-0">
-                                {item.templateName}
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--brand-primary))',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--brand-primary))',
+                        },
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          style: {
+                            maxHeight: '30vh',
+                            overflow: 'auto',
+                            scrollbarWidth: 'none',
+                          },
+                        },
+                      }}
+                    >
+                      {templetes?.length > 0 ? (
+                        templetes?.map((item, index) =>
+                          detailsLoader?.id === item.id ? (
+                            <CircularProgress key={item.id} size={20} />
+                          ) : (
+                            <MenuItem
+                              key={index}
+                              value={item}
+                            >
+                              <div className="flex flex-row items-center gap-2 w-full">
+                                <div className="text-[15] font-[500] flex-1 truncate min-w-0">
+                                  {item.templateName}
+                                </div>
+                                {delTempLoader?.id === item.id ? (
+                                  <CircularProgress size={20} className="flex-shrink-0" />
+                                ) : (
+                                  <button
+                                    onClick={(e) => {
+                                      e.preventDefault()
+                                      handleDelete(e, item)
+                                    }}
+                                    className="text-brand-primary hover:text-brand-primary/80 transition-colors flex-shrink-0 ml-2"
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                )}
                               </div>
-                              {delTempLoader?.id === item.id ? (
-                                <CircularProgress size={20} className="flex-shrink-0" />
-                              ) : (
-                                <button
-                                  onClick={(e) => {
-                                    e.preventDefault()
-                                    handleDelete(e, item)
-                                  }}
-                                  className="text-brand-primary hover:text-brand-primary/80 transition-colors flex-shrink-0 ml-2"
-                                >
-                                  <Trash2 size={16} />
-                                </button>
-                              )}
-                            </div>
-                          </MenuItem>
-                        ),
-                      )
-                    ) : (
-                      <div className="ml-2">No template found</div>
-                    )}
-                  </Select>
+                            </MenuItem>
+                          ),
+                        )
+                      ) : (
+                        <div className="ml-2">No template found</div>
+                      )}
+                    </Select>
                   </FormControl>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* Subject Field - Unified design with Variables dropdown */}
             <div className="flex items-center gap-2">
