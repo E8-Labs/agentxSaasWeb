@@ -28,6 +28,7 @@ import { Checkbox } from '../ui/checkbox'
 import { logout } from '@/utilities/UserUtility'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import FeatureLine from '../userPlans/FeatureLine'
+import SignupHeaderMobile from '../onboarding/mobileUI/SignupHeaderMobile'
 
 //code for add card
 const stripePromise = getStripe()
@@ -575,25 +576,28 @@ function AgencyPlans({
     const totalPrice = selectedPlan ? getTotalPrice(selectedPlan) : 0
 
     return (
-      <div className="h-screen bg-gradient-to-br from-brand-primary/40 via-white to-brand-primary/40 relative overflow-hidden flex flex-col w-full">
-        <div className="relative z-10 flex-1 flex flex-col overflow-hidden min-h-0">
+      <div className="h-screen overflow-hidden flex flex-col w-full">
+        <div className="relative z-10 flex-1 flex flex-col overflow-hidden h-screen">
           {/* Main Card - Scrollable */}
-          <div className="flex-1 overflow-y-auto px-4 pt-4 pb-40 min-h-0">
-            <div className="w-full flex flex-col items-center  overflow-hidden">
-              <h1 className="text-2xl font-bold text-black pt-2">Get an AI AaaS Agency</h1>
+          
+            <div className="w-full flex h-full flex-col items-center  overflow-hidden">
 
-              <div className="text-sm text-gray-500">
-                Gets more done than coffee. Cheaper too.<span className="text-black">😉</span>
-              </div>
-
+              <SignupHeaderMobile title="Get an AI AaaS Agency" description="Gets more done than coffee. Cheaper too." />
 
 
               {/* Content */}
-              <div className="px-6 py-6 space-y-6">
+              <div
+              style={{
+                position: 'absolute',
+                top: '20vh',
+                left: '50%',
+                transform: 'translateX(-50%)',
+              }}
+              className="px-6 h-[70vh] overflow-y-auto w-[90%] bg-white rounded-xl p-2 mt-2 ">
 
 
                 <div className="flex flex-col items-end w-full mt-2">
-                  <div className="flex flex-row items-center justify-end gap-5 px-2 me-[0px] md:me-[7px]  w-auto">
+                  <div className="flex mt-3 flex-row items-center justify-end gap-5 px-2 me-[0px] md:me-[7px]  w-auto">
                     {durationSaving.map((item) => {
                       return (
                         <button
@@ -792,7 +796,7 @@ function AgencyPlans({
           </div>
 
 
-        </div>
+
 
         {/* Add Payment Modal */}
         <Modal

@@ -28,6 +28,7 @@ import { clearAgencyUUID, getAgencyUUIDForAPI } from '@/utilities/AgencyUtility'
 import { GetCampaigneeNameIfAvailable } from '@/utilities/UserUtility'
 import { setCookie } from '@/utilities/cookies'
 import { forceApplyBranding } from '@/utilities/applyBranding'
+import SignupHeaderMobile from '../mobileUI/SignupHeaderMobile'
 
 const AgencySignupMobile = ({
   handleContinue,
@@ -325,7 +326,7 @@ const AgencySignupMobile = ({
           // CRITICAL: Clear logout flag on successful registration
           const { clearLogoutFlag } = require('@/utilities/UserUtility')
           clearLogoutFlag()
-          
+
           localStorage.setItem('User', JSON.stringify(response.data.data))
 
           if (typeof document !== 'undefined') {
@@ -465,403 +466,409 @@ const AgencySignupMobile = ({
   return (
     <div
       style={{ width: '100%', scrollbarWidth: 'none' }}
-      className="overflow-y-auto flex flex-col justify-center items-center h-[100svh]"
+      className="flex flex-col justify-center items-center h-[screen]"
     >
-      <div className="flex flex-col bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[90%] sm:max-h-[90%] py-4 overflow-hidden scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
-        <div className="h-[90svh] sm:h-[82svh]">
-          {/* header */}
-          <div className="h-[8%]">
-            <Header />
-          </div>
-          {/* Body */}
-          <div className="flex flex-col items-center px-4 w-full h-[92%]">
-            <div
-              className="mt-2 w-11/12 md:text-4xl text-lg font-[600]"
-              style={{ textAlign: 'center' }}
-            >
-              Create Your AI Agency
-            </div>
-            <div
-              className="mt-4 sm:mt-8 w-full md:w-10/12 lg:w-6/12 flex flex-col max-h-[90%] sm:max-h-[85%] overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2"
-              style={{ scrollbarWidth: 'none' }}
-            >
-              <div style={styles.headingStyle}>{`What's your full name`}</div>
-              <Input
-                autoComplete="off"
-                autoCorrect="off"
-                spellCheck="false"
-                enterKeyHint="done"
-                placeholder="Name"
-                className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px]"
-                ref={(el) => (inputsFields.current[0] = el)}
-                style={{
-                  ...styles.inputStyle,
-                  marginTop: '8px',
-                  border: '1px solid #00000020',
-                }}
-                value={userName}
-                onChange={(e) => {
-                  const input = e.target.value
-                  const formattedName = input
-                    .split(' ')
-                    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                    .join(' ')
+      <div className="flex flex-col items-center h-full w-full">
+        <SignupHeaderMobile title="Create Your AI Agency" />
+    
+        <div style={{
+          position: 'absolute',
+          top: '20vh',
+          left: '50%',
+          transform: 'translateX(-50%)',
 
-                  setUserName(formattedName)
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === 'Done') {
-                    inputsFields.current[1]?.focus()
-                  }
-                }}
-              />
+        }} className=" w-[90%] bg-white h-[78vh] rounded-xl p-2 mt-2 ">
 
-              <div className="flex flex-row items-center w-full justify-between mt-6">
-                <div style={styles.headingStyle}>
-                  {`What's your email address`}
-                </div>
-                <div>
-                  {emailLoader ? (
-                    <p style={{ ...styles.errmsg, color: 'black' }}>
-                      Checking ...
-                    </p>
-                  ) : (
-                    <div>
-                      {emailCheckResponse ? (
-                        <p
-                          style={{
-                            ...styles.errmsg,
-                            color:
-                              emailCheckResponse.status === true
-                                ? 'green'
-                                : 'red',
-                          }}
-                        >
-                          {emailCheckResponse.message
-                            .slice(0, 1)
-                            .toUpperCase() +
-                            emailCheckResponse.message.slice(1)}
-                        </p>
-                      ) : (
-                        <div />
-                      )}
-                    </div>
-                  )}
-                  <div style={{ ...styles.errmsg, color: 'red' }}>
-                    {validEmail}
-                  </div>
-                </div>
-              </div>
+          <div className="flex flex-col items-center justify-center">
 
-              <Input
-                ref={(el) => (inputsFields.current[1] = el)}
-                autoComplete="off"
-                autoCorrect="off"
-                spellCheck="false"
-                enterKeyHint="done"
-                placeholder="Email address"
-                className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px]"
-                style={{
-                  ...styles.inputStyle,
-                  marginTop: '8px',
-                  border: '1px solid #00000020',
-                }}
-                value={userEmail}
-                onChange={(e) => {
-                  let value = e.target.value
-                  setUserEmail(value)
+          <Image src="/agentxOrb.gif" alt="Agency Onboarding Background"
+            width={100} height={100} />
 
-                  if (timerRef.current) {
-                    clearTimeout(timerRef.current)
-                  }
+            <div className="flex flex-col items-center px-4 w-full h-[92%]">
 
-                  setEmailCheckResponse(null)
-
-                  if (!value) {
-                    setValidEmail('')
-                    return
-                  }
-
-                  if (!validateEmail(value)) {
-                    setValidEmail('Invalid')
-                  } else {
-                    if (value) {
-                      timerRef.current = setTimeout(() => {
-                        checkEmail(value)
-                      }, 300)
-                    } else {
-                      setEmailCheckResponse(null)
-                      setValidEmail('')
-                    }
-                  }
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === 'Done') {
-                    inputsFields.current[2]?.focus()
-                  }
-                }}
-              />
-
-              <div className="flex flex-row items-center justify-between w-full mt-6">
-                <div style={styles.headingStyle}>
-                  {`What's your phone number`}
-                </div>
-                <div>
-                  {locationLoader && (
-                    <p
-                      className="text-purple"
-                      style={{ ...styles.errmsg, height: '20px' }}
-                    >
-                      Getting location ...
-                    </p>
-                  )}
-                  {errorMessage ? (
-                    <p
-                      style={{
-                        ...styles.errmsg,
-                        color: errorMessage && 'red',
-                        height: '20px',
-                      }}
-                    >
-                      {errorMessage}
-                    </p>
-                  ) : (
-                    <div>
-                      {phoneNumberLoader ? (
-                        <p
-                          style={{
-                            ...styles.errmsg,
-                            color: 'black',
-                            height: '20px',
-                          }}
-                        >
-                          Checking ...
-                        </p>
-                      ) : (
-                        <div>
-                          {checkPhoneResponse ? (
-                            <p
-                              style={{
-                                ...styles.errmsg,
-                                color:
-                                  checkPhoneResponse.status === true
-                                    ? 'green'
-                                    : 'red',
-                                height: '20px',
-                              }}
-                            >
-                              {checkPhoneResponse.message
-                                .slice(0, 1)
-                                .toUpperCase() +
-                                checkPhoneResponse.message.slice(1)}
-                            </p>
-                          ) : (
-                            <div />
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div style={{ marginTop: '8px' }}>
-                <PhoneInput
-                  ref={(el) => (inputsFields.current[2] = el)}
-                  containerClass="phone-input-container"
-                  className="outline-none bg-white focus:ring-0"
-                  country={'us'}
-                  onlyCountries={['us', 'ca', 'mx']}
-                  disableDropdown={false}
-                  countryCodeEditable={false}
-                  disableCountryCode={false}
-                  value={userPhoneNumber}
-                  onChange={handlePhoneNumberChange}
-                  placeholder={
-                    locationLoader
-                      ? 'Loading location ...'
-                      : 'Enter Phone Number'
-                  }
-                  disabled={loading}
+              <div
+                className="mt-4 sm:mt-8 w-full md:w-10/12 lg:w-6/12 flex flex-col max-h-[90%] sm:max-h-[85%] overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2"
+                style={{ scrollbarWidth: 'none' }}
+              >
+                <div style={styles.headingStyle}>{`What's your full name`}</div>
+                <Input
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck="false"
+                  enterKeyHint="done"
+                  placeholder="Name"
+                  className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px]"
+                  ref={(el) => (inputsFields.current[0] = el)}
                   style={{
-                    borderRadius: '7px',
+                    ...styles.inputStyle,
+                    marginTop: '8px',
                     border: '1px solid #00000020',
-                    outline: 'none',
-                    boxShadow: 'none',
                   }}
-                  inputStyle={{
-                    width: '100%',
-                    borderWidth: '0px',
-                    backgroundColor: 'transparent',
-                    paddingTop: '20px',
-                    paddingBottom: '20px',
-                    outline: 'none',
-                    boxShadow: 'none',
+                  value={userName}
+                  onChange={(e) => {
+                    const input = e.target.value
+                    const formattedName = input
+                      .split(' ')
+                      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                      .join(' ')
+
+                    setUserName(formattedName)
                   }}
-                  buttonStyle={{
-                    border: 'none',
-                    backgroundColor: 'transparent',
-                    outline: 'none',
-                  }}
-                  dropdownStyle={{
-                    maxHeight: '150px',
-                    overflowY: 'auto',
-                  }}
-                  defaultMask={loading ? 'Loading...' : undefined}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === 'Done') {
-                      inputsFields.current[3]?.focus()
+                      inputsFields.current[1]?.focus()
                     }
                   }}
                 />
-              </div>
 
-              <div style={styles.headingStyle} className="mt-6">
-                Agency Name
-              </div>
-              <Input
-                ref={(el) => (inputsFields.current[3] = el)}
-                autoComplete="off"
-                autoCorrect="off"
-                spellCheck="false"
-                enterKeyHint="done"
-                placeholder="Agency Name"
-                className="w-full border rounded px-3 py-2.5 focus:border-black transition-colors"
-                style={{
-                  ...styles.inputStyle,
-                  marginTop: '8px',
-                  border: '1px solid #00000020',
-                }}
-                value={company}
-                onChange={(e) => {
-                  setCompany(e.target.value)
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === 'Done') {
-                    inputsFields.current[4]?.focus()
-                  }
-                }}
-              />
+                <div className="flex flex-row items-center w-full justify-between mt-6">
+                  <div style={styles.headingStyle}>
+                    {`What's your email address`}
+                  </div>
+                  <div>
+                    {emailLoader ? (
+                      <p style={{ ...styles.errmsg, color: 'black' }}>
+                        Checking ...
+                      </p>
+                    ) : (
+                      <div>
+                        {emailCheckResponse ? (
+                          <p
+                            style={{
+                              ...styles.errmsg,
+                              color:
+                                emailCheckResponse.status === true
+                                  ? 'green'
+                                  : 'red',
+                            }}
+                          >
+                            {emailCheckResponse.message
+                              .slice(0, 1)
+                              .toUpperCase() +
+                              emailCheckResponse.message.slice(1)}
+                          </p>
+                        ) : (
+                          <div />
+                        )}
+                      </div>
+                    )}
+                    <div style={{ ...styles.errmsg, color: 'red' }}>
+                      {validEmail}
+                    </div>
+                  </div>
+                </div>
 
-              <div style={styles.headingStyle} className="mt-6 mb-2">
-                Agency Size
-              </div>
-              <FormControl fullWidth>
-                <Select
-                  value={size?.label || ''}
-                  onChange={handleChangeSize}
-                  displayEmpty
-                  renderValue={(selected) => {
-                    if (!selected) {
-                      return <div style={{ color: '#aaa' }}>Select size</div>
-                    }
-                    return selected
-                  }}
-                  sx={{
-                    height: '40px',
+                <Input
+                  ref={(el) => (inputsFields.current[1] = el)}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck="false"
+                  enterKeyHint="done"
+                  placeholder="Email address"
+                  className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px]"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
                     border: '1px solid #00000020',
-                    '&:hover': {
+                  }}
+                  value={userEmail}
+                  onChange={(e) => {
+                    let value = e.target.value
+                    setUserEmail(value)
+
+                    if (timerRef.current) {
+                      clearTimeout(timerRef.current)
+                    }
+
+                    setEmailCheckResponse(null)
+
+                    if (!value) {
+                      setValidEmail('')
+                      return
+                    }
+
+                    if (!validateEmail(value)) {
+                      setValidEmail('Invalid')
+                    } else {
+                      if (value) {
+                        timerRef.current = setTimeout(() => {
+                          checkEmail(value)
+                        }, 300)
+                      } else {
+                        setEmailCheckResponse(null)
+                        setValidEmail('')
+                      }
+                    }
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === 'Done') {
+                      inputsFields.current[2]?.focus()
+                    }
+                  }}
+                />
+
+                <div className="flex flex-row items-center justify-between w-full mt-6">
+                  <div style={styles.headingStyle}>
+                    {`What's your phone number`}
+                  </div>
+                  <div>
+                    {locationLoader && (
+                      <p
+                        className="text-purple"
+                        style={{ ...styles.errmsg, height: '20px' }}
+                      >
+                        Getting location ...
+                      </p>
+                    )}
+                    {errorMessage ? (
+                      <p
+                        style={{
+                          ...styles.errmsg,
+                          color: errorMessage && 'red',
+                          height: '20px',
+                        }}
+                      >
+                        {errorMessage}
+                      </p>
+                    ) : (
+                      <div>
+                        {phoneNumberLoader ? (
+                          <p
+                            style={{
+                              ...styles.errmsg,
+                              color: 'black',
+                              height: '20px',
+                            }}
+                          >
+                            Checking ...
+                          </p>
+                        ) : (
+                          <div>
+                            {checkPhoneResponse ? (
+                              <p
+                                style={{
+                                  ...styles.errmsg,
+                                  color:
+                                    checkPhoneResponse.status === true
+                                      ? 'green'
+                                      : 'red',
+                                  height: '20px',
+                                }}
+                              >
+                                {checkPhoneResponse.message
+                                  .slice(0, 1)
+                                  .toUpperCase() +
+                                  checkPhoneResponse.message.slice(1)}
+                              </p>
+                            ) : (
+                              <div />
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '8px' }}>
+                  <PhoneInput
+                    ref={(el) => (inputsFields.current[2] = el)}
+                    containerClass="phone-input-container"
+                    className="outline-none bg-white focus:ring-0"
+                    country={'us'}
+                    onlyCountries={['us', 'ca', 'mx']}
+                    disableDropdown={false}
+                    countryCodeEditable={false}
+                    disableCountryCode={false}
+                    value={userPhoneNumber}
+                    onChange={handlePhoneNumberChange}
+                    placeholder={
+                      locationLoader
+                        ? 'Loading location ...'
+                        : 'Enter Phone Number'
+                    }
+                    disabled={loading}
+                    style={{
+                      borderRadius: '7px',
                       border: '1px solid #00000020',
-                    },
-                    '& .MuiOutlinedInput-notchedOutline': {
+                      outline: 'none',
+                      boxShadow: 'none',
+                    }}
+                    inputStyle={{
+                      width: '100%',
+                      borderWidth: '0px',
+                      backgroundColor: 'transparent',
+                      paddingTop: '20px',
+                      paddingBottom: '20px',
+                      outline: 'none',
+                      boxShadow: 'none',
+                    }}
+                    buttonStyle={{
                       border: 'none',
-                    },
-                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                      border: 'none',
-                    },
-                    '&.MuiSelect-select': {
-                      py: 0,
+                      backgroundColor: 'transparent',
+                      outline: 'none',
+                    }}
+                    dropdownStyle={{
+                      maxHeight: '150px',
+                      overflowY: 'auto',
+                    }}
+                    defaultMask={loading ? 'Loading...' : undefined}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === 'Done') {
+                        inputsFields.current[3]?.focus()
+                      }
+                    }}
+                  />
+                </div>
+
+                <div style={styles.headingStyle} className="mt-6">
+                  Agency Name
+                </div>
+                <Input
+                  ref={(el) => (inputsFields.current[3] = el)}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck="false"
+                  enterKeyHint="done"
+                  placeholder="Agency Name"
+                  className="w-full border rounded px-3 py-2.5 focus:border-black transition-colors"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: '1px solid #00000020',
+                  }}
+                  value={company}
+                  onChange={(e) => {
+                    setCompany(e.target.value)
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === 'Done') {
+                      inputsFields.current[4]?.focus()
+                    }
+                  }}
+                />
+
+                <div style={styles.headingStyle} className="mt-6 mb-2">
+                  Agency Size
+                </div>
+                <FormControl fullWidth>
+                  <Select
+                    value={size?.label || ''}
+                    onChange={handleChangeSize}
+                    displayEmpty
+                    renderValue={(selected) => {
+                      if (!selected) {
+                        return <div style={{ color: '#aaa' }}>Select size</div>
+                      }
+                      return selected
+                    }}
+                    sx={{
                       height: '40px',
-                    },
-                  }}
-                  MenuProps={{
-                    PaperProps: {
-                      style: {
-                        maxHeight: '30vh',
-                        overflow: 'auto',
-                        scrollbarWidth: 'none',
+                      border: '1px solid #00000020',
+                      '&:hover': {
+                        border: '1px solid #00000020',
                       },
-                    },
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        border: 'none',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        border: 'none',
+                      },
+                      '&.MuiSelect-select': {
+                        py: 0,
+                        height: '40px',
+                      },
+                    }}
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: '30vh',
+                          overflow: 'auto',
+                          scrollbarWidth: 'none',
+                        },
+                      },
+                    }}
+                  >
+                    {sizeList.map((item) => (
+                      <MenuItem
+                        key={item.id}
+                        value={item.label}
+                        sx={{
+                          backgroundColor:
+                            size?.id === item.id ? '#7902DF10' : 'transparent',
+                          '&.Mui-selected': {
+                            backgroundColor: '#7902DF10',
+                          },
+                          '&:hover': {
+                            backgroundColor: '#7902DF10',
+                          },
+                        }}
+                      >
+                        {item.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+
+                <div style={styles.headingStyle} className="mt-6">
+                  Website (optional)
+                </div>
+                <Input
+                  ref={(el) => (inputsFields.current[4] = el)}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck="false"
+                  enterKeyHint="done"
+                  placeholder="Website"
+                  className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px] w-full"
+                  style={{
+                    ...styles.inputStyle,
+                    marginTop: '8px',
+                    border: '1px solid #00000020',
                   }}
-                >
-                  {sizeList.map((item) => (
-                    <MenuItem
-                      key={item.id}
-                      value={item.label}
-                      sx={{
-                        backgroundColor:
-                          size?.id === item.id ? '#7902DF10' : 'transparent',
-                        '&.Mui-selected': {
-                          backgroundColor: '#7902DF10',
-                        },
-                        '&:hover': {
-                          backgroundColor: '#7902DF10',
-                        },
-                      }}
-                    >
-                      {item.label}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
+                  value={website}
+                  onChange={(e) => {
+                    setWebsite(e.target.value)
+                  }}
+                />
 
-              <div style={styles.headingStyle} className="mt-6">
-                Website (optional)
+                <SnackMessages
+                  message={response.message}
+                  isVisible={isVisible}
+                  setIsVisible={(visible) => {
+                    setIsVisible(visible)
+                  }}
+                  success={response.status}
+                />
               </div>
-              <Input
-                ref={(el) => (inputsFields.current[4] = el)}
-                autoComplete="off"
-                autoCorrect="off"
-                spellCheck="false"
-                enterKeyHint="done"
-                placeholder="Website"
-                className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px] w-full"
-                style={{
-                  ...styles.inputStyle,
-                  marginTop: '8px',
-                  border: '1px solid #00000020',
-                }}
-                value={website}
-                onChange={(e) => {
-                  setWebsite(e.target.value)
-                }}
-              />
-
-              <SnackMessages
-                message={response.message}
-                isVisible={isVisible}
-                setIsVisible={(visible) => {
-                  setIsVisible(visible)
-                }}
-                success={response.status}
-              />
             </div>
           </div>
         </div>
-      </div>
-      <div className="h-[10%] w-full flex flex-col justify-end pb-4">
-        <div className="w-full px-4 flex flex-row justify-end items-center pt-4">
-          {registerLoader ? (
-            <CircularProgress size={35} />
-          ) : (
-            <button
-              disabled={shouldContinue}
-              className={`rounded-lg ${shouldContinue ? 'bg-gray-300' : 'bg-purple text-white'}`}
-              style={{
-                fontWeight: '700',
-                fontSize: '16',
-                color: shouldContinue ? '#000000' : '#ffffff',
-                height: '40px',
-                width: '100px',
-                cursor: shouldContinue ? 'not-allowed' : 'pointer',
-              }}
-              onClick={handleVerifyPopup}
-            >
-              Continue
-            </button>
-          )}
+        <div className="h-[10%] w-full flex flex-col justify-end pb-4">
+          <div className="w-full px-4 flex flex-row justify-end items-center pt-4">
+            {registerLoader ? (
+              <CircularProgress size={35} />
+            ) : (
+              <button
+                disabled={shouldContinue}
+                className={`rounded-lg ${shouldContinue ? 'bg-gray-300' : 'bg-purple text-white'}`}
+                style={{
+                  fontWeight: '700',
+                  fontSize: '16',
+                  color: shouldContinue ? '#000000' : '#ffffff',
+                  height: '40px',
+                  width: '100px',
+                  cursor: shouldContinue ? 'not-allowed' : 'pointer',
+                }}
+                onClick={handleVerifyPopup}
+              >
+                Continue
+              </button>
+            )}
+          </div>
         </div>
       </div>
+
 
       {/* Modal for verify number */}
       <Modal

@@ -91,22 +91,25 @@ function Page() {
   }
   return (
     <div className="flex flex-col w-full items-center justify-center py-2 overflow-y-auto">
-      <div
-        className="flex w-full px-4 flex-row items-center justify-start gap-2 mt-2 sm:rounded-2xl sm:mx-2 w-full md:w-11/12 h-[10%]"
-        style={{ backgroundColor: '' }}
-      >
-        <AppLogo
-          height={30}
-          width={130}
-          alt="logo"
-        />
-        {/* /assets/agentX.png */}
+      {
+        !isMobile && (
 
-        <div className="w-[100%]">
-          <ProgressBar value={currentIndex > 1 ? 100 : 50} />
-        </div>
-      </div>
+          <div
+            className="flex w-full px-4 flex-row items-center justify-start gap-2 mt-2 sm:rounded-2xl sm:mx-2 w-full md:w-11/12 h-[10%]"
+            style={{ backgroundColor: '' }}
+          >
+            <AppLogo
+              height={30}
+              width={130}
+              alt="logo"
+            />
+            {/* /assets/agentX.png */}
 
+            <div className="w-[100%]">
+              <ProgressBar value={currentIndex > 1 ? 100 : 50} />
+            </div>
+          </div>
+        )}
       {currentIndex > 1 ? (
         <AgencyPlans isMobile={isMobile} />
       ) : isMobile ? (
