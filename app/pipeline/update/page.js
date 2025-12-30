@@ -211,6 +211,13 @@ const Page = () => {
         mainAgentId = Data.id
       }
 
+      let targetUserId = null
+      const targetUser = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+      if (targetUser) {
+        const targetUserData = JSON.parse(targetUser)
+        targetUserId = targetUserData.subAccountData.id
+      }
+
       // Use Redux token instead of localStorage
       let AuthToken = token
       if (!AuthToken) {
@@ -225,10 +232,13 @@ const Page = () => {
       console.log('Cadence is ', cadence)
       console.log('Main agent', mainAgentId)
 
-      const ApiData = {
+      let ApiData = {
         pipelineId: cadence.pipelineID,
         mainAgentId: mainAgentId,
         cadence: cadence.cadenceDetails,
+      }
+      if (targetUserId) {
+        ApiData.userId = targetUserId
       }
       console.log('ApiData is ', ApiData)
       // return

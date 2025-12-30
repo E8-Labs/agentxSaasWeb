@@ -156,8 +156,8 @@ const PipelineStages = ({
       let data = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
       if (data) {
         let user = JSON.parse(data)
-        console.log('user', user)
-        setTargetUser(user)
+        console.log('target user is from admin or agency', user)
+        setTargetUser(user.subAccountData)
       }
     }
     getTargetUser()
