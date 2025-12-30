@@ -220,7 +220,7 @@ export default function AddMonthlyPlan({
         text: item.label,
       }))
 
-    console.log('Yalla yalla habibi core features', coreFeatures)
+    console.log('core features', coreFeatures)
 
     const extraFeatures = []
 
@@ -435,7 +435,7 @@ export default function AddMonthlyPlan({
 
   //sets the addition data
   const setFeaturesData = () => {
-    console.log('Yalla yalla')
+    // console.log('Yalla yalla')
     setCustomFeatures(configurationData?.customFeatures || [])
     const dynamicFeatures = configurationData?.features
     setFeatures({
