@@ -429,6 +429,7 @@ function AgencyPlans({
 
             // Determine redirect path
             let redirectPath = '/agency/dashboard'
+            setIsRedirecting(true)
             if (isFrom === 'page') {
               // For mobile agencies, redirect to continue to desktop screen
               if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
@@ -596,6 +597,7 @@ function AgencyPlans({
                   setShowPlanSummary(false)
                   setAddPaymentPopUp(true)
                 }}
+                isRedirecting={isRedirecting}
               />
             ) : (
               <PlansListMobile

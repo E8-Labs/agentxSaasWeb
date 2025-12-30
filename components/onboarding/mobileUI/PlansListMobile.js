@@ -38,15 +38,15 @@ function PlansListMobile({
                 }}
                 className="px-6 h-[75vh] overflow-y-auto w-[90%] bg-white rounded-xl p-2 mt-2  shadow-2xl"
             >
-                <div className="flex flex-col items-end w-full mt-2">
-                    <div className="flex mt-3 flex-row items-center justify-end gap-5 px-2 me-[0px] md:me-[7px] w-auto">
+                <div className="flex flex-col items-end w-full mt-2 mb-2">
+                    <div className="flex mt-3 flex-row items-center justify-end gap-5 px-2 me-[15px] md:me-[7px] w-full">
                         {durationSaving.map((item) => {
                             return (
                                 <button
                                     key={item.id}
                                     className={`px-2 py-1 rounded-tl-lg rounded-tr-lg font-semibold text-[13px] ${selectedDuration.id === item.id
-                                            ? 'text-white bg-brand-primary outline-none border-none'
-                                            : 'text-muted-foreground'
+                                        ? 'text-white bg-brand-primary outline-none border-none'
+                                        : 'text-muted-foreground'
                                         }`}
                                     onClick={() => {
                                         onDurationChange(item)
@@ -64,8 +64,8 @@ function PlansListMobile({
                                 <button
                                     key={item.id}
                                     className={`px-4 py-1 rounded-full ${selectedDuration.id === item.id
-                                            ? 'text-white bg-brand-primary outline-none border-none shadow-md shadow-brand-primary/50'
-                                            : 'text-foreground'
+                                        ? 'text-white bg-brand-primary outline-none border-none shadow-md shadow-brand-primary/50'
+                                        : 'text-foreground'
                                         }`}
                                     onClick={() => {
                                         onDurationChange(item)
@@ -91,8 +91,8 @@ function PlansListMobile({
                                 key={plan.id}
                                 onClick={() => onPlanSelect(plan)}
                                 className={`p-2 pb-4 rounded-xl border-2 transition-all cursor-pointer ${selectedPlan?.id === plan.id
-                                        ? 'border-none bg-gradient-to-b from-brand-primary to-brand-primary/40 rounded-lg'
-                                        : 'border-gray-200 hover:border-brand-primary/30'
+                                    ? 'border-none bg-gradient-to-b from-brand-primary to-brand-primary/40 rounded-lg'
+                                    : 'border-gray-200 hover:border-brand-primary/30'
                                     } h-auto`}
                             >
                                 <div className="flex items-center flex-col">
@@ -110,8 +110,8 @@ function PlansListMobile({
                                             )}
                                             <div
                                                 className={`text-base font-bold ${selectedPlan?.id === plan.id
-                                                        ? 'text-white'
-                                                        : 'text-brand-primary'
+                                                    ? 'text-white'
+                                                    : 'text-brand-primary'
                                                     }`}
                                             >
                                                 {plan.tag}
@@ -165,29 +165,6 @@ function PlansListMobile({
                                                 'Get Started'
                                             )}
                                         </button>
-                                        {!showPlanDetails && (
-                                            <button
-                                                className="mt-4 mb-4"
-                                                onClick={(e) => {
-                                                    e.stopPropagation()
-                                                    onShowPlanDetails(plan)
-                                                }}
-                                            >
-                                                <div className="flex flex-row items-center gap-2">
-                                                    <span className="text-sm text-brand-primary capitalize underline">
-                                                        {showPlanDetails && plan.id === selectedPlan?.id
-                                                            ? 'Hide Plan Details'
-                                                            : 'Show Plan Details'}
-                                                    </span>
-
-                                                    {showPlanDetails && plan.id === selectedPlan?.id ? (
-                                                        renderBrandedIcon('/svgIcons/downArrow.svg', 20, 20)
-                                                    ) : (
-                                                        renderBrandedIcon('/svgIcons/downArrow.svg', 20, 20)
-                                                    )}
-                                                </div>
-                                            </button>
-                                        )}
 
                                         {showPlanDetails && plan.id === selectedPlan?.id && (
                                             <div className="flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0">
@@ -224,6 +201,29 @@ function PlansListMobile({
                                                 </div>
                                             </div>
                                         )}
+
+
+                                        <button
+                                            className="mt-4 mb-4"
+                                            onClick={(e) => {
+                                                e.stopPropagation()
+                                                onShowPlanDetails(plan)
+                                            }}
+                                        >
+                                            <div className="flex flex-row items-center gap-2">
+                                                <span className="text-sm text-brand-primary capitalize underline">
+                                                    {showPlanDetails && plan.id === selectedPlan?.id
+                                                        ? 'Hide Plan Details'
+                                                        : 'Show Plan Details'}
+                                                </span>
+
+                                                {showPlanDetails && plan.id === selectedPlan?.id ? (
+                                                    renderBrandedIcon('/svgIcons/downArrow.svg', 20, 20)
+                                                ) : (
+                                                    renderBrandedIcon('/svgIcons/downArrow.svg', 20, 20)
+                                                )}
+                                            </div>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
