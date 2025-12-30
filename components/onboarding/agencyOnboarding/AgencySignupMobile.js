@@ -481,9 +481,7 @@ const AgencySignupMobile = ({
 
           <div className="flex flex-col items-center justify-center">
 
-            <Image src="/agentxOrb.gif" alt="Agency Onboarding Background"
-              width={100} height={100} />
-
+            <AgentXOrb size={100} />
             <div className="flex flex-col items-center px-4 w-full h-[92%]">
 
               <div

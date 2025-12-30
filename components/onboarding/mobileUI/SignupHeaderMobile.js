@@ -6,7 +6,14 @@ function SignupHeaderMobile({
     description,
 }) {
     return (
-        <div className="bg-gradient-to-b from-purple-500 to-blue-500 h-[40vh] w-[100vw]">
+        <div className="bg-gradient-to-b from-purple-500 to-blue-500 h-[40vh] w-[100vw]"
+        style={{
+            backgroundImage: 'url(/svgIcons/mobileSignupBg.png)',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+        }}
+        >
             <div className="p-3">
                 <Image src="/svgIcons/whiteAssignxLogo.svg" alt="Agency Onboarding Background"
                     width={100} height={100} />
