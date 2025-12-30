@@ -221,27 +221,30 @@ function NotficationsDrawer({ close }) {
   }
 
   function giveFeedback() {
-    // Get user data from localStorage
+    // Always use the ClickUp form URL for feedback
+    // For agency users, they can configure their own URL via agencySettings.giveFeedbackUrl
+    // For main users, always use MainUserFeedbackUrl
     const userData = localStorage.getItem('User')
-    let feedbackUrl = PersistanceKeys.MainUserFeedbackUrl // Default to main user URL
+    let feedbackUrl = PersistanceKeys.MainUserFeedbackUrl // Default to ClickUp form URL
 
     if (userData) {
       try {
         const user = JSON.parse(userData)
-        // Check agency settings first (for subaccounts)
-        if (user?.user?.agencySettings?.giveFeedbackUrl) {
+        // Only use agency feedback URL if it's explicitly set (for agency users/subaccounts)
+        // Skip userSettings.giveFeedbackUrl to ensure main users always get the ClickUp form
+        if (
+          user?.user?.agencySettings?.giveFeedbackUrl &&
+          user.user.agencySettings.giveFeedbackUrl.trim() !== '' &&
+          !user.user.agencySettings.giveFeedbackUrl.includes('forms.gle')
+        ) {
           feedbackUrl = user.user.agencySettings.giveFeedbackUrl
-        }
-        // Then check user's own settings
-        else if (user?.user?.userSettings?.giveFeedbackUrl) {
-          feedbackUrl = user.user.userSettings.giveFeedbackUrl
         }
       } catch (error) {
         console.error('Error parsing user data for feedback URL:', error)
       }
     }
 
-    // If it's an external URL, open in new tab, otherwise use router
+    // Always open the feedback URL in a new tab
     if (feedbackUrl.startsWith('http://') || feedbackUrl.startsWith('https://')) {
       window.open(feedbackUrl, '_blank')
     } else {
