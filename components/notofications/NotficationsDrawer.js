@@ -221,24 +221,29 @@ function NotficationsDrawer({ close }) {
   }
 
   function giveFeedback() {
-    // Always use the ClickUp form URL for feedback
-    // For agency users, they can configure their own URL via agencySettings.giveFeedbackUrl
-    // For main users, always use MainUserFeedbackUrl
+    // Logic:
+    // - For agency subaccounts: Use URL from agencySettings.giveFeedbackUrl if available
+    // - For main accounts and agency accounts: Always use MainUserFeedbackUrl (ClickUp form)
     const userData = localStorage.getItem('User')
     let feedbackUrl = PersistanceKeys.MainUserFeedbackUrl // Default to ClickUp form URL
 
     if (userData) {
       try {
         const user = JSON.parse(userData)
-        // Only use agency feedback URL if it's explicitly set (for agency users/subaccounts)
-        // Skip userSettings.giveFeedbackUrl to ensure main users always get the ClickUp form
-        if (
-          user?.user?.agencySettings?.giveFeedbackUrl &&
-          user.user.agencySettings.giveFeedbackUrl.trim() !== '' &&
-          !user.user.agencySettings.giveFeedbackUrl.includes('forms.gle')
-        ) {
-          feedbackUrl = user.user.agencySettings.giveFeedbackUrl
+        const userRole = user?.user?.userRole || user?.userRole
+        
+        // Only for subaccounts: use agency feedback URL if available
+        if (userRole === 'AgencySubAccount') {
+          if (
+            user?.user?.agencySettings?.giveFeedbackUrl &&
+            user.user.agencySettings.giveFeedbackUrl.trim() !== '' &&
+            !user.user.agencySettings.giveFeedbackUrl.includes('forms.gle')
+          ) {
+            feedbackUrl = user.user.agencySettings.giveFeedbackUrl
+          }
         }
+        // For main accounts (AgentX) and agency accounts (Agency), always use MainUserFeedbackUrl
+        // This ensures they get the ClickUp form URL
       } catch (error) {
         console.error('Error parsing user data for feedback URL:', error)
       }
