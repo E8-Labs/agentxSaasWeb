@@ -92,6 +92,9 @@ const Page = () => {
   // console.log("Rendering step:", index, components[index]);
 
   useEffect(() => {
+
+    localStorage.removeItem("AddCadenceDetails")
+    console.log('Cleared AddCadenceDetails from local storage')
     // Wait for page to be ready and React to finish hydration
     const readyTimer1 = setTimeout(() => {
       setPageReady(true)

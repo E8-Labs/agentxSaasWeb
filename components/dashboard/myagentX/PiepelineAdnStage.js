@@ -134,6 +134,119 @@ const PipelineAndStage = ({
     },
   }
 
+  const handleUpdateCadence = () => {
+
+    localStorage.setItem('selectedUser', JSON.stringify(selectedUser))
+    setShowConfirmationPopup(false)
+    console.log('selectedAgent.id', selectedAgent.id)
+    console.log('selectedAgent.mainAgentId', selectedAgent.mainAgentId)
+
+    // Store agent details for pipeline update page
+    if (mainAgent?.id) {
+      localStorage.setItem('agentDetails', JSON.stringify({ id: mainAgent.id }))
+    }
+
+    // Store cadence data in the format expected by Pipeline1.js
+    if (agentCadence.length > 0 && mainAgent?.pipeline?.id) {
+      const cadenceDetails = agentCadence.map((stage) => ({
+        stage: stage.cadence.stage?.id,
+        calls: stage.calls.map((call) => ({
+          id: call.id,
+          waitTimeDays: call.waitTimeDays || 0,
+          waitTimeHours: call.waitTimeHours || 0,
+          waitTimeMinutes: call.waitTimeMinutes || 0,
+          communicationType: call.communicationType || 'call',
+          // Include template data if present
+          ...(call.templateId && { templateId: call.templateId }),
+          ...(call.templateName && { templateName: call.templateName }),
+          ...(call.subject && { subject: call.subject }),
+          ...(call.content && { content: call.content }),
+          // Include smsPhoneNumberId for SMS cadence calls
+          ...(call.smsPhoneNumberId && { smsPhoneNumberId: call.smsPhoneNumberId }),
+          // Include emailAccountId for email cadence calls (for consistency)
+          ...(call.emailAccountId && { emailAccountId: call.emailAccountId }),
+        })),
+        moveToStage: stage.cadence.moveToStage?.id || null,
+      }))
+
+      const cadenceData = {
+        pipelineID: mainAgent.pipeline.id,
+        cadenceDetails: cadenceDetails,
+      }
+
+      localStorage.setItem('AddCadenceDetails', JSON.stringify(cadenceData))
+      console.log('Stored cadence data for pipeline update:', cadenceData)
+    }
+    else {
+      //clear AddCadenceDetails from local storage
+      localStorage.removeItem('AddCadenceDetails')
+      console.log('Cleared AddCadenceDetails from local storage')
+    }
+
+    if (selectedUser) {
+      // Helper function to check if user is admin or agency
+      const isAdminOrAgency = () => {
+        if (typeof window === 'undefined') return false
+        try {
+          const userData = localStorage.getItem('User')
+          if (userData) {
+            const parsedUser = JSON.parse(userData)
+            const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+            const userType = parsedUser?.user?.userType || parsedUser?.userType
+            return userRole === 'Admin' || userType === 'admin' || userRole === 'Agency'
+          }
+        } catch (error) {
+          console.error('Error checking user role:', error)
+        }
+        return false
+      }
+
+      // Read existing state object (may already have restoreState from tab/agent selection)
+      let existingData = null
+      try {
+        const storedData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+        if (storedData) {
+          existingData = JSON.parse(storedData)
+          console.log('existingData is', existingData)
+        }
+      } catch (error) {
+        console.error('Error reading existing state:', error)
+      }
+
+      let u = {
+        subAccountData: selectedUser,
+        isFrom: from,
+      }
+
+      // If user is admin/agency, add/update restoreState with selectedUserId
+      if (isAdminOrAgency()) {
+        if (!u.restoreState) {
+          u.restoreState = {}
+        }
+        // Preserve existing restoreState if it exists
+        if (existingData?.restoreState) {
+          u.restoreState = {
+            ...existingData.restoreState,
+            selectedUserId: selectedUser.id,
+          }
+        } else {
+          u.restoreState = {
+            selectedUserId: selectedUser.id,
+            selectedTabName: null,
+            selectedAgentId: null,
+          }
+        }
+      }
+
+      localStorage.setItem(
+        PersistanceKeys.isFromAdminOrAgency,
+        JSON.stringify(u),
+      )
+    }
+    // router.push("/pipeline/update");
+    window.location.href = '/pipeline/update'
+  }
+
   return (
     <div>
       <AgentSelectSnackMessage
@@ -173,73 +286,7 @@ const PipelineAndStage = ({
               fontSize: 15,
             }}
             onClick={() => {
-              console.log('mainAgent details passed are', mainAgent)
-              // return;
-              localStorage.setItem(
-                PersistanceKeys.LocalSavedAgentDetails,
-                JSON.stringify(mainAgent),
-              )
-              localStorage.setItem(
-                PersistanceKeys.selectedUser,
-                JSON.stringify(selectedUser),
-              )
-              
-              // Store agent details for pipeline update page
-              if (mainAgent?.id) {
-                localStorage.setItem('agentDetails', JSON.stringify({ id: mainAgent.id }))
-              }
-              
-              // Store cadence data in the format expected by Pipeline1.js
-              if (agentCadence.length > 0 && mainAgent?.pipeline?.id) {
-                const cadenceDetails = agentCadence.map((stage) => ({
-                  stage: stage.cadence.stage?.id,
-                  calls: stage.calls.map((call) => ({
-                    id: call.id,
-                    waitTimeDays: call.waitTimeDays || 0,
-                    waitTimeHours: call.waitTimeHours || 0,
-                    waitTimeMinutes: call.waitTimeMinutes || 0,
-                    communicationType: call.communicationType || 'call',
-                    // Include template data if present
-                    ...(call.templateId && { templateId: call.templateId }),
-                    ...(call.templateName && { templateName: call.templateName }),
-                    ...(call.subject && { subject: call.subject }),
-                    ...(call.content && { content: call.content }),
-                    // Include smsPhoneNumberId for SMS cadence calls
-                    ...(call.smsPhoneNumberId && { smsPhoneNumberId: call.smsPhoneNumberId }),
-                    // Include emailAccountId for email cadence calls (for consistency)
-                    ...(call.emailAccountId && { emailAccountId: call.emailAccountId }),
-                  })),
-                  moveToStage: stage.cadence.moveToStage?.id || null,
-                }))
-                
-                const cadenceData = {
-                  pipelineID: mainAgent.pipeline.id,
-                  cadenceDetails: cadenceDetails,
-                }
-                
-                localStorage.setItem('AddCadenceDetails', JSON.stringify(cadenceData))
-                console.log('Stored cadence data for pipeline update:', cadenceData)
-              }
-              
-              localStorage.setItem(PersistanceKeys.isFromAdminOrAgency, JSON.stringify({ subAccountData: selectedUser,}))
-
-              if (agentCadence.length === 0) {
-                // router.push("/pipeline/update");
-                window.location.href = '/pipeline/update'
-                return
-              }
-              setShowConfirmationPopup(true)
-              // if ((mainAgent.currentOngoingCadence || 0) > 0) {
-              //   setMessage({
-              //     message:
-              //       "This agent is assigned to leads, can’t update at this time.",
-              //     type: SnackbarTypes.Warning,
-              //   });
-              //   return;
-              // }
-              //console.log;
-
-              // router.push("/pipeline/update");
+              handleUpdateCadence()
             }}
           >
             Update
@@ -250,109 +297,7 @@ const PipelineAndStage = ({
           showConfirmationPopuup={showConfirmationPopup}
           setShowConfirmationPopup={setShowConfirmationPopup}
           onContinue={() => {
-            localStorage.setItem('selectedUser', JSON.stringify(selectedUser))
-            setShowConfirmationPopup(false)
-            console.log('selectedAgent.id', selectedAgent.id)
-            console.log('selectedAgent.mainAgentId', selectedAgent.mainAgentId)
-            
-            // Store agent details for pipeline update page
-            if (mainAgent?.id) {
-              localStorage.setItem('agentDetails', JSON.stringify({ id: mainAgent.id }))
-            }
-            
-            // Store cadence data in the format expected by Pipeline1.js
-            if (agentCadence.length > 0 && mainAgent?.pipeline?.id) {
-              const cadenceDetails = agentCadence.map((stage) => ({
-                stage: stage.cadence.stage?.id,
-                calls: stage.calls.map((call) => ({
-                  id: call.id,
-                  waitTimeDays: call.waitTimeDays || 0,
-                  waitTimeHours: call.waitTimeHours || 0,
-                  waitTimeMinutes: call.waitTimeMinutes || 0,
-                  communicationType: call.communicationType || 'call',
-                  // Include template data if present
-                  ...(call.templateId && { templateId: call.templateId }),
-                  ...(call.templateName && { templateName: call.templateName }),
-                  ...(call.subject && { subject: call.subject }),
-                  ...(call.content && { content: call.content }),
-                  // Include smsPhoneNumberId for SMS cadence calls
-                  ...(call.smsPhoneNumberId && { smsPhoneNumberId: call.smsPhoneNumberId }),
-                  // Include emailAccountId for email cadence calls (for consistency)
-                  ...(call.emailAccountId && { emailAccountId: call.emailAccountId }),
-                })),
-                moveToStage: stage.cadence.moveToStage?.id || null,
-              }))
-              
-              const cadenceData = {
-                pipelineID: mainAgent.pipeline.id,
-                cadenceDetails: cadenceDetails,
-              }
-              
-              localStorage.setItem('AddCadenceDetails', JSON.stringify(cadenceData))
-              console.log('Stored cadence data for pipeline update:', cadenceData)
-            }
-            
-            if (selectedUser) {
-              // Helper function to check if user is admin or agency
-              const isAdminOrAgency = () => {
-                if (typeof window === 'undefined') return false
-                try {
-                  const userData = localStorage.getItem('User')
-                  if (userData) {
-                    const parsedUser = JSON.parse(userData)
-                    const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
-                    const userType = parsedUser?.user?.userType || parsedUser?.userType
-                    return userRole === 'Admin' || userType === 'admin' || userRole === 'Agency'
-                  }
-                } catch (error) {
-                  console.error('Error checking user role:', error)
-                }
-                return false
-              }
-
-              // Read existing state object (may already have restoreState from tab/agent selection)
-              let existingData = null
-              try {
-                const storedData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
-                if (storedData) {
-                  existingData = JSON.parse(storedData)
-                }
-              } catch (error) {
-                console.error('Error reading existing state:', error)
-              }
-
-              let u = {
-                subAccountData: selectedUser,
-                isFrom: from,
-              }
-
-              // If user is admin/agency, add/update restoreState with selectedUserId
-              if (isAdminOrAgency()) {
-                if (!u.restoreState) {
-                  u.restoreState = {}
-                }
-                // Preserve existing restoreState if it exists
-                if (existingData?.restoreState) {
-                  u.restoreState = {
-                    ...existingData.restoreState,
-                    selectedUserId: selectedUser.id,
-                  }
-                } else {
-                  u.restoreState = {
-                    selectedUserId: selectedUser.id,
-                    selectedTabName: null,
-                    selectedAgentId: null,
-                  }
-                }
-              }
-
-              localStorage.setItem(
-                PersistanceKeys.isFromAdminOrAgency,
-                JSON.stringify(u),
-              )
-            }
-            // router.push("/pipeline/update");
-            window.location.href = '/pipeline/update'
+            handleUpdateCadence()
           }}
         />
         {initialLoader ? (

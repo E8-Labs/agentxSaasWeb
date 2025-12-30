@@ -217,6 +217,9 @@ const AgencySignUp = ({
   //code for verify number popup
 
   const handleVerifyPopup = async () => {
+    if (shouldContinue) {
+      return
+    }
     // let response = await SendVerificationCode(userPhoneNumber, true);
     try {
       setShowVerifyPopup(true)
