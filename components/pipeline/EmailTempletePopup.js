@@ -768,6 +768,11 @@ function EmailTempletePopup({
       attachments: attachments,
       templateName: tempName,
     }
+    
+    // Add userId if selectedUser is provided (for agency/admin creating templates for subaccounts)
+    if (selectedUser?.id) {
+      data.userId = selectedUser.id
+    }
 
     // Check if template content has been modified from the selected template
     const hasTemplateChanges =

@@ -95,6 +95,11 @@ export const createTemplete = async (data) => {
     // }
     // if(data.content){
     formdata.append('content', data.content)
+    
+    // Add userId if provided (for agency/admin creating templates for subaccounts)
+    if (data.userId) {
+      formdata.append('userId', data.userId)
+    }
 
     // If data.attachments is an array of files
     if (data.attachments && Array.isArray(data.attachments)) {
@@ -160,6 +165,11 @@ export const updateTemplete = async (data, tempId) => {
     // }
     // if(data.content){
     formdata.append('content', data.content)
+    
+    // Add userId if provided (for agency/admin updating templates for subaccounts)
+    if (data.userId) {
+      formdata.append('userId', data.userId)
+    }
     if (data.attachments && Array.isArray(data.attachments)) {
       data.attachments.forEach((file) => {
         formdata.append('attachments', file)
