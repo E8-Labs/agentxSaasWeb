@@ -149,6 +149,20 @@ const PipelineStages = ({
   const [gmailAccounts, setGmailAccounts] = useState([])
   const [accountLoader, setAccountLoader] = useState(false)
 
+  const [targetUser, setTargetUser] = useState(null)
+
+  useEffect(() => {
+    const getTargetUser = () =>{
+      let data = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+      if (data) {
+        let user = JSON.parse(data)
+        console.log('user', user)
+        setTargetUser(user)
+      }
+    }
+    getTargetUser()
+  }, [userData])
+
   const ACTIONS = [
     {
       value: 'email',
@@ -1824,6 +1838,7 @@ const PipelineStages = ({
                 setSelectedGoogleAccount(account)
               }}
               selectedGoogleAccount={selectedGoogleAccount}
+              selectedUser={targetUser}
               onGoogleAccountChange={(account) => {
                 console.log(
                   `PipelineStages: onGoogleAccountChange called with: ${account}`,
@@ -1854,6 +1869,7 @@ const PipelineStages = ({
               }}
               phoneNumbers={phoneNumbers}
               phoneLoading={phoneLoading}
+              selectedUser={targetUser}
               addRow={(templateData) =>
                 addRow(selectedIndex, selectedType, templateData)
               }

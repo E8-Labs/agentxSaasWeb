@@ -4,13 +4,16 @@ import { AuthToken } from '../agency/plan/AuthDetails'
 import Apis from '../apis/Apis'
 import { Scopes } from '../dashboard/myagentX/Scopes'
 
-export const getTempletes = async (type) => {
+export const getTempletes = async (type, userId = null) => {
   try {
     let token = AuthToken()
     // console.log('token', token)
     let path = Apis.templets
     if (type) {
       path = path + '?communicationType=' + type
+    }
+    if (userId) {
+      path = path + '&userId=' + userId
     }
     console.log('path', path)
 
@@ -55,11 +58,12 @@ export const getA2PNumbers = async (id) => {
   }
 }
 
-export const getTempleteDetails = async (temp) => {
+export const getTempleteDetails = async (temp, userId = null) => {
   try {
     let token = AuthToken()
     // console.log('token', token)
     let path = `${Apis.templets}/${temp.templateId}`
+
     console.log('path', path)
 
     const response = await axios.get(path, {
@@ -95,6 +99,11 @@ export const createTemplete = async (data) => {
     // }
     // if(data.content){
     formdata.append('content', data.content)
+    
+    // Add userId if provided (for agency/admin creating templates for subaccounts)
+    if (data.userId) {
+      formdata.append('userId', data.userId)
+    }
 
     // If data.attachments is an array of files
     if (data.attachments && Array.isArray(data.attachments)) {
@@ -110,6 +119,10 @@ export const createTemplete = async (data) => {
     if (data.ccEmails && Array.isArray(data.ccEmails)) {
       // Ensure it's a proper JSON array string
       formdata.append('ccEmails', JSON.stringify(data.ccEmails))
+    }
+    if (data.bccEmails && Array.isArray(data.bccEmails)) {
+      // Ensure it's a proper JSON array string
+      formdata.append('bccEmails', JSON.stringify(data.bccEmails))
     }
     for (let pair of formdata.entries()) {
       console.log(pair[0] + ':', pair[1])
@@ -156,6 +169,11 @@ export const updateTemplete = async (data, tempId) => {
     // }
     // if(data.content){
     formdata.append('content', data.content)
+    
+    // Add userId if provided (for agency/admin updating templates for subaccounts)
+    if (data.userId) {
+      formdata.append('userId', data.userId)
+    }
     if (data.attachments && Array.isArray(data.attachments)) {
       data.attachments.forEach((file) => {
         formdata.append('attachments', file)
@@ -168,6 +186,10 @@ export const updateTemplete = async (data, tempId) => {
     if (data.ccEmails && Array.isArray(data.ccEmails)) {
       // Ensure it's a proper JSON array string
       formdata.append('ccEmails', JSON.stringify(data.ccEmails))
+    }
+    if (data.bccEmails && Array.isArray(data.bccEmails)) {
+      // Ensure it's a proper JSON array string
+      formdata.append('bccEmails', JSON.stringify(data.bccEmails))
     }
     for (let pair of formdata.entries()) {
       console.log(pair[0] + ':', pair[1])

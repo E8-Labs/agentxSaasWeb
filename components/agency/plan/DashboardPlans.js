@@ -2,9 +2,10 @@ import { Box, CircularProgress, Menu, MenuItem, Modal } from '@mui/material'
 import axios from 'axios'
 import moment from 'moment'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import Apis from '@/components/apis/Apis'
+import getProfileDetails from '@/components/apis/GetProfile'
 import { copyAgencyOnboardingLink } from '@/components/constants/constants'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
@@ -58,6 +59,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
 
   //agencyp plan cost
   const [agencyPlanCost, setAgencyPlanCost] = useState('')
+  const fetchingCostRef = useRef(false) // Prevent multiple simultaneous fetches
 
   const [delLoading, setDelLoading] = useState(false)
   //search bar
@@ -122,6 +124,63 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
       }
     }
   }, [selectedAgency])
+
+  // Fetch agency plan cost if not available - fixes intermittent $0.00 issue
+  useEffect(() => {
+    // Reset fetch flag when cost becomes available
+    if (agencyPlanCost && Number(agencyPlanCost) > 0) {
+      fetchingCostRef.current = false
+      return
+    }
+
+    const fetchAgencyCostIfMissing = async () => {
+      console.log('fetching agency cost if missing')
+      // Only fetch if cost is missing or zero, and we're not already fetching
+      if ((!agencyPlanCost || Number(agencyPlanCost) === 0) && !fetchingCostRef.current) {
+        fetchingCostRef.current = true
+        console.log('fetching agency cost if missing 2')
+        try {
+          console.log('🔄 [DashboardPlans] Agency cost missing, fetching profile...')
+          const profileResponse = await getProfileDetails(selectedAgency)
+          console.log('profile response is', profileResponse) 
+          if (profileResponse?.data?.status === true) {
+            console.log('profile response is true')
+            
+            const userData = profileResponse.data.data
+            console.log('Plan capabilities is', userData?.planCapabilities || [])
+            console.log('user data is', userData)
+            const cost = 
+              userData?.planCapabilities?.aiCreditRate || 
+              userData?.plan?.grandfatheredFeatures?.aiCreditRate ||
+              userData?.plan?.features?.aiCreditRate ||
+              selectedAgency?.planCapabilities?.aiCreditRate ||
+              selectedAgency?.plan?.capabilities?.aiCreditRate
+            console.log('cost is', cost)
+            if (cost && Number(cost) > 0) {
+              console.log('✅ [DashboardPlans] Agency cost fetched:', cost)
+              setAgencyPlanCost(cost)
+            } else {
+              console.warn('⚠️ [DashboardPlans] Agency cost still not available after fetch')
+            }
+          }
+        } catch (error) {
+          console.error('❌ [DashboardPlans] Error fetching agency cost:', error)
+        } finally {
+          fetchingCostRef.current = false
+        }
+      }
+    }
+
+    // Fetch when modal opens or when selectedAgency changes (but only if cost is missing)
+    // Also add a small delay to let the first useEffect set the cost from props/localStorage
+    const timeoutId = setTimeout(() => {
+      if (open || selectedAgency) {
+        fetchAgencyCostIfMissing()
+      }
+    }, 100) // Small delay to let other useEffects run first
+
+    return () => clearTimeout(timeoutId)
+  }, [open, selectedAgency, agencyPlanCost])
 
   //auto get the data
   useEffect(() => {

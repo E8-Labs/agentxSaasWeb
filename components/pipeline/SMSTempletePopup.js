@@ -43,7 +43,8 @@ function SMSTempletePopup({
   isLeadSMS = false,
   leadPhone = null,
   leadId = null,
-}) {
+  selectedUser,
+  }) {
   const [body, setBody] = useState('')
   const [selectedPhone, setSelectedPhone] = useState(null)
   const [uniqueColumns, setUniqueColumns] = useState([])
@@ -117,7 +118,7 @@ function SMSTempletePopup({
       }
       
       // Load template details for content (phone is not stored in template)
-      const details = await getTempleteDetails(template)
+      const details = await getTempleteDetails(template, selectedUser?.id)
       console.log('Template details:', details)
       if (details) {
         setBody(details.content || '')
@@ -180,6 +181,12 @@ function SMSTempletePopup({
         content: body,
         phone: selectedPhone.phone,
       }
+      
+      // Add userId if selectedUser is provided (for agency/admin creating templates for subaccounts)
+      if (selectedUser?.id) {
+        data.userId = selectedUser.id
+      }
+      
       let response = null
       if (isEditing && !IsDefaultCadence) {
         response = await updateTemplete(data, editingRow.templateId)

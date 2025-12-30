@@ -66,6 +66,9 @@ export const PersistanceKeys = {
   AgencyPartnerUrl: 'https://set.myagentx.com/widget/bookings/assignx-gameplan-session',
   AgencyBillingSupportUrl: 'https://forms.clickup.com/8691504/f/897tg-14437/N7OCXKEV9N8ST83P9D',
   AgencySupportTicketUrl: 'https://forms.clickup.com/8691504/f/897tg-14237/Z94ZMZJ4UJ4W8B9MHK',
+  // Main User URLs
+  MainUserFeedbackUrl: 'https://forms.clickup.com/8691504/f/897tg-14237/Z94ZMZJ4UJ4W8B9MHK',
+  MainUserSupportUrl: 'https://api.leadconnectorhq.com/widget/bookings/assignx-mainuser-support',
   // LocalStoredAgentsList
 }
 export const HowtoVideos = {
