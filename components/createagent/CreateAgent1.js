@@ -1149,9 +1149,17 @@ const CreateAgent1 = ({
             } catch (error) {
               console.error('Error removing skipUserPlansAfterSubscription from localStorage:', error)
             }
-            // Use handleSkipAddPayment to skip UserPlans step (increments by 2 instead of 1)
-            // This ensures we skip UserPlans even if the parent's components array wasn't updated
-            handleSkipAddPayment()
+            
+            // When shouldSkipUserPlans is true, it means the user has a plan.
+            // In this case, the components array already excludes UserPlans (see page.js),
+            // so we should use handleContinue() to go to the next step (CreateAgent4),
+            // NOT handleSkipAddPayment() which would skip CreateAgent4.
+            // 
+            // The components array when user has plan is:
+            // [CreateAgent1, CreateAgent4, CreateAgentVoice]
+            // So from step 1, we need to go to step 2 (CreateAgent4), not step 3.
+            console.log('✅ [CREATE-AGENT] User has plan - using handleContinue() to go to CreateAgent4')
+            handleContinue()
           } else {
             console.log('ℹ️ [CREATE-AGENT] Proceeding normally - will show UserPlans')
             console.log('⚠️ [CREATE-AGENT] DEBUG - Why not skipping:', {
