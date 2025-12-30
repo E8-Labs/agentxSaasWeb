@@ -221,6 +221,8 @@ const PipelineAndStage = ({
                 console.log('Stored cadence data for pipeline update:', cadenceData)
               }
               
+              localStorage.setItem(PersistanceKeys.isFromAdminOrAgency, JSON.stringify({ subAccountData: selectedUser,}))
+
               if (agentCadence.length === 0) {
                 // router.push("/pipeline/update");
                 window.location.href = '/pipeline/update'

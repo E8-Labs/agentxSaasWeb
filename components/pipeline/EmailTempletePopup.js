@@ -64,6 +64,8 @@ function EmailTempletePopup({
     addRow,
   })
 
+  console.log('selectedUser in email templete popup', selectedUser)
+
   const [subject, setSubject] = useState('')
   const [body, setBody] = useState('')
   const [ccEmails, setccEmails] = useState([])
