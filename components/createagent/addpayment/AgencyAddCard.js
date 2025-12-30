@@ -26,7 +26,6 @@ import { toast } from 'sonner'
 import { formatDecimalValue } from '@/components/agency/agencyServices/CheckAgencyData'
 import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
 import Apis from '@/components/apis/Apis'
-import { getPolicyUrls } from '@/utils/getPolicyUrls'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
@@ -34,6 +33,9 @@ import {
   checkReferralCode,
   getNextChargeDate,
 } from '@/components/userPlans/UserPlanServices'
+import SignupHeaderMobile from '@/components/onboarding/mobileUI/SignupHeaderMobile'
+import { Checkbox } from '@/components/ui/checkbox'
+import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
 // import Apis from '../Apis/Apis';
 
@@ -578,23 +580,458 @@ const AgencyAddCard = ({
         message={'Card added successfully'}
       />
 
-      <div
-        className={`w-full flex ${isSmallScreen ? 'flex-col' : 'flex-row'} items-start gap-6`}
+      {isSmallScreen ? (
+        // Mobile Layout - Matching the image design
+        <div className="flex flex-col items-center h-full w-full min-h-screen bg-gray-100">
+          <SignupHeaderMobile 
+            title="Grow Your Business" 
+            description="Gets more done than coffee. Cheaper too. Cancel anytime. 😉" 
+          />
+          
+          {/* White Card Container */}
+          <div
+            style={{
+              position: 'absolute',
+              top: '20vh',
+              left: '50%',
+              transform: 'translateX(-50%)',
+            }}
+            className="w-[90%] max-w-md bg-white rounded-2xl shadow-2xl p-6 mt-4"
+          >
+            <h1 className="text-2xl font-bold text-black mb-6">Payment Method</h1>
+            
+            {/* Card Number */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Card number
+              </label>
+              <div className="relative flex items-center border rounded-lg px-3 py-2 bg-white">
+                <div className="flex-1 min-w-0">
+                  <CardNumberElement
+                    options={elementOptions}
+                    autoFocus={true}
+                    onChange={(event) => {
+                      handleFieldChange(event, cardExpiryRef)
+                      if (event.complete) {
+                        setCardAdded(true)
+                      } else {
+                        setCardAdded(false)
+                      }
+                    }}
+                    ref={cardNumberRef}
+                    onReady={(element) => {
+                      cardNumberRef.current = element
+                      cardNumberRef.current.focus()
+                    }}
+                  />
+                </div>
+                <div className="flex items-center gap-1 ml-2 flex-shrink-0">
+                  <Image
+                    src="/svgIcons/Visa.svg"
+                    alt="Visa"
+                    width={28}
+                    height={18}
+                  />
+                  <Image
+                    src="/svgIcons/Mastercard.svg"
+                    alt="Mastercard"
+                    width={28}
+                    height={18}
+                  />
+                  <Image
+                    src="/svgIcons/Amex.svg"
+                    alt="American Express"
+                    width={28}
+                    height={18}
+                  />
+                  <Image
+                    src="/svgIcons/Discover.svg"
+                    alt="Discover"
+                    width={28}
+                    height={18}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Expiry and CVC */}
+            <div className="flex gap-3 mb-4">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Expiry
+                </label>
+                <div className="border rounded-lg px-3 py-2 bg-white">
+                  <CardExpiryElement
+                    options={elementOptions}
+                    onChange={(event) => {
+                      handleFieldChange(event, cardCvcRef)
+                      if (event.complete) {
+                        setCardExpiry(true)
+                      } else {
+                        setCardExpiry(false)
+                      }
+                    }}
+                    ref={cardExpiryRef}
+                    onReady={(element) => {
+                      cardExpiryRef.current = element
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  CVC
+                </label>
+                <div className="border rounded-lg px-3 py-2 bg-white">
+                  <CardCvcElement
+                    options={{
+                      ...elementOptions,
+                      placeholder: 'CVC',
+                    }}
+                    ref={cardCvcRef}
+                    onReady={(element) => {
+                      cardCvcRef.current = element
+                    }}
+                    onChange={(event) => {
+                      if (event.complete) {
+                        setCVC(true)
+                      } else {
+                        setCVC(false)
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Promo Code */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Promo Code
+              </label>
+              <input
+                value={inviteCode}
+                onChange={(e) => {
+                  setInviteCode(e.target.value)
+                }}
+                className="w-full h-[50px] px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-brand-primary/20"
+                style={{
+                  color: '#000000',
+                  backgroundColor: 'white',
+                  fontSize: 15,
+                  fontWeight: '500',
+                }}
+                placeholder=""
+              />
+              {inviteCode && (
+                <div className="mt-2 flex items-center gap-2" style={{ minHeight: 24 }}>
+                  {referralStatus === 'loading' && (
+                    <div style={{ fontSize: 12, color: '#4F5B76' }}>
+                      Validating code…
+                    </div>
+                  )}
+                  {referralStatus === 'invalid' && (
+                    <div
+                      style={{ fontSize: 12, color: '#D93025', fontWeight: 600 }}
+                    >
+                      {referralMessage || 'Invalid referral code'}
+                    </div>
+                  )}
+                  {referralStatus === 'valid' && (
+                    <div
+                      style={{ fontSize: 12, color: '#34A853', fontWeight: 600 }}
+                    >
+                      {referralMessage || 'Code applied'}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Order Summary Section */}
+            {selectedPlan && (
+              <div className="mb-6 pt-4 border-t border-gray-200">
+                <h2 className="text-lg font-bold text-black mb-4">Order Summary</h2>
+                
+                {/* Plan Title and Monthly Price */}
+                <div className="flex flex-row items-start justify-between w-full mb-4">
+                  <div>
+                    <div style={{ fontWeight: '600', fontSize: 15 }}>
+                      {selectedPlan?.title || 'No Plan Selected'}
+                    </div>
+                    <div style={{ fontWeight: '400', fontSize: 13, marginTop: 4 }}>
+                      Total Annual Commitment: $
+                      {(selectedPlan?.originalPrice * 12)?.toLocaleString()}
+                    </div>
+                  </div>
+                  <div style={{ fontWeight: '600', fontSize: 15 }}>
+                    ${formatFractional2(selectedPlan?.originalPrice)}
+                  </div>
+                </div>
+
+                {/* Calculate discount if promo code is applied */}
+                {(() => {
+                  const discountCalculation = promoCodeDetails
+                    ? calculateDiscountedPrice(selectedPlan, promoCodeDetails)
+                    : null
+
+                  const billingMonths = GetMonthCountFronBillingCycle(
+                    selectedPlan?.billingCycle || selectedPlan?.duration,
+                  )
+                  const monthlyPrice =
+                    selectedPlan?.discountPrice ||
+                    selectedPlan?.discountedPrice ||
+                    selectedPlan?.originalPrice ||
+                    0
+                  const originalTotal = billingMonths * monthlyPrice
+                  const finalTotal = discountCalculation
+                    ? discountCalculation.finalPrice
+                    : originalTotal
+
+                  return (
+                    <>
+                      {promoCodeDetails && (
+                        <div className="flex flex-row items-start justify-between w-full mb-4">
+                          <div>
+                            <div
+                              style={{
+                                fontWeight: '600',
+                                fontSize: 15,
+                                color: 'hsl(var(--brand-primary))',
+                              }}
+                            >
+                              Promo Code Applied
+                            </div>
+                            <div
+                              style={{
+                                fontWeight: '400',
+                                fontSize: 13,
+                                marginTop: 4,
+                              }}
+                            >
+                              {promoCodeDetails?.discountType === 'percentage'
+                                ? `${promoCodeDetails?.discountValue}% off`
+                                : `$${promoCodeDetails?.discountValue} off`}
+                              {promoCodeDetails?.discountDurationMonths
+                                ? ` for ${promoCodeDetails?.discountDurationMonths} month${promoCodeDetails?.discountDurationMonths > 1 ? 's' : ''}`
+                                : ''}
+                            </div>
+                          </div>
+                          <div
+                            style={{
+                              fontWeight: '600',
+                              fontSize: 15,
+                              color: '#7902DF',
+                            }}
+                          >
+                            -${formatFractional2(discountCalculation?.discountAmount)}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex flex-row items-start justify-between w-full mb-4">
+                        <div>
+                          <div
+                            className="capitalize"
+                            style={{ fontWeight: '600', fontSize: 15 }}
+                          >
+                            {`Total Billed ${selectedPlan?.billingCycle || selectedPlan?.duration || 'No Plan Selected'}`}
+                          </div>
+                          <div
+                            style={{
+                              fontWeight: '400',
+                              fontSize: 13,
+                              marginTop: 4,
+                            }}
+                          >
+                            Next Charge Date {getNextChargeDate(selectedPlan)}
+                          </div>
+                        </div>
+                        <div style={{ fontWeight: '600', fontSize: 15 }}>
+                          {(() => {
+                            // Check if plan has trial and user is subscribing for the first time
+                            const hasTrial = selectedPlan?.hasTrial === true
+                            const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+                            
+                            // If plan has trial and user has no previous plan, show $0
+                            if (hasTrial && isFirstTimeSubscription) {
+                              return '$0'
+                            }
+                            
+                            return discountCalculation
+                              ? `$${formatFractional2(finalTotal)}`
+                              : `$${formatFractional2(originalTotal)}`
+                          })()}
+                        </div>
+                      </div>
+
+                      {inviteCode && !promoCodeDetails && (
+                        <div className="flex flex-row items-start justify-between w-full mb-4">
+                          <div>
+                            <div style={{ fontWeight: '600', fontSize: 15 }}>
+                              Referral Code
+                            </div>
+                            <div
+                              style={{
+                                fontWeight: '400',
+                                fontSize: 13,
+                                marginTop: 4,
+                              }}
+                            >
+                              {referralMessage}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )
+                })()}
+
+                {/* Divider */}
+                <div className="my-4 h-[1px] w-full bg-[#00000035]"></div>
+
+                {/* Total */}
+                <div className="flex flex-row items-start justify-between w-full">
+                  <div style={{ fontWeight: '600', fontSize: 15 }}>Total:</div>
+                  <div className="flex flex-col items-end">
+                    <div style={{ fontWeight: '600', fontSize: 22 }}>
+                      {(() => {
+                        if (!selectedPlan) return '$0'
+
+                        // Check if plan has trial and user is subscribing for the first time (no previous plan)
+                        const hasTrial = selectedPlan?.hasTrial === true
+                        const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+                        
+                        // If plan has trial and user has no previous plan, show $0 (they won't be charged immediately)
+                        if (hasTrial && isFirstTimeSubscription) {
+                          return '$0'
+                        }
+
+                        const discountCalculation = promoCodeDetails
+                          ? calculateDiscountedPrice(selectedPlan, promoCodeDetails)
+                          : null
+
+                        if (discountCalculation) {
+                          return `$${formatFractional2(discountCalculation.finalPrice)}`
+                        }
+
+                        const billingMonths = GetMonthCountFronBillingCycle(
+                          selectedPlan?.billingCycle || selectedPlan?.duration,
+                        )
+                        const monthlyPrice =
+                          selectedPlan?.discountPrice ||
+                          selectedPlan?.discountedPrice ||
+                          selectedPlan?.originalPrice ||
+                          0
+                        return `$${formatFractional2(billingMonths * monthlyPrice)}`
+                      })()}
+                    </div>
+                    <div
+                      style={{
+                        fontWeight: '400',
+                        fontSize: 13,
+                        marginTop: 4,
+                        color: '#8A8A8A',
+                      }}
+                    >
+                      Due Today
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Terms & Conditions Checkbox */}
+            <div className="flex items-center gap-2 mb-6">
+              <Checkbox
+                checked={agreeTerms}
+                onCheckedChange={setAgreeTerms}
+                className="h-5 w-5"
+              />
+              <label className="text-sm text-gray-700">
+                I agree to the{' '}
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    const { termsUrl } = getPolicyUrls()
+                    window.open(termsUrl, '_blank')
+                  }}
+                  className="text-brand-primary underline font-semibold"
+                  rel="noopener noreferrer"
+                >
+                  Terms & Condition
+                </a>
+              </label>
+            </div>
+
+            {/* Continue Button */}
+            <button
+              onClick={handleAddCard}
+              disabled={
+                !CardAdded ||
+                !CardExpiry ||
+                !CVC ||
+                addCardLoader ||
+                disableContinue ||
+                isSubscribingRef.current ||
+                !agreeTerms
+              }
+              className={`w-full h-[50px] rounded-xl font-bold text-white text-lg transition-all ${
+                !CardAdded ||
+                !CardExpiry ||
+                !CVC ||
+                addCardLoader ||
+                disableContinue ||
+                isSubscribingRef.current ||
+                !agreeTerms
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-brand-primary hover:opacity-90 shadow-lg active:scale-98'
+              }`}
+            >
+              {addCardLoader ? (
+                <div className="flex items-center justify-center gap-2">
+                  <CircularProgress size={20} color="inherit" />
+                  <span>Processing...</span>
+                </div>
+              ) : (
+                'Continue'
+              )}
+            </button>
+
+            {/* Disclaimer */}
+            <p className="text-xs text-center text-gray-500 mt-4">
+              By continuing you agree to our{' '}
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  const { termsUrl } = getPolicyUrls()
+                  window.open(termsUrl, '_blank')
+                }}
+                className="text-brand-primary underline font-semibold"
+                rel="noopener noreferrer"
+              >
+                Terms & Conditions
+              </a>{' '}
+              and agree to a 12-months license terms. Payments are billed yearly as selected.
+            </p>
+          </div>
+        </div>
+      ) : (
+        // Desktop Layout - Keep existing design
+        <div
+          className={`w-full flex flex-row items-start gap-6`}
         style={{ backgroundColor: 'transparent' }}
       >
         <div
-          className={`${isSmallScreen ? 'w-full px-4 mt-0 pb-32' : 'relative flex-1'}`}
-          style={
-            isSmallScreen
-              ? {}
-              : {
+            className="relative flex-1"
+            style={{
                   minWidth: 0,
                   maxWidth: '720px',
-                }
-          }
+            }}
         >
           {/* Orb */}
-          {!isSmallScreen && (
             <div
               className="absolute left-0 top-[72%] -translate-y-1/2 flex justify-center items-center shrink-0"
               style={{
@@ -615,42 +1052,19 @@ const AgencyAddCard = ({
                 }}
               />
             </div>
-          )}
 
           {/* Form */}
           <div
             className="flex flex-col justify-start flex-1 min-w-0"
-            style={
-              isSmallScreen
-                ? {}
-                : {
-                    paddingLeft: isMediumScreen ? '160px' : '200px',
-                  }
-            }
-          >
-            {isSmallScreen ? (
-              <div className="mb-6">
-                <div style={{ fontWeight: '600', fontSize: 24 }}>
-                  Continue to Payment
-                </div>
-                <div
                   style={{
-                    fontWeight: '400',
-                    fontSize: 14,
-                    color: '#4F5B76',
-                    marginTop: 8,
+                paddingLeft: isMediumScreen ? '160px' : '200px',
                   }}
                 >
-                  Add your payment method to continue
-                </div>
-              </div>
-            ) : (
               <div className="flex w-full flex-col items-start">
                 <div style={{ fontWeight: '600', fontSize: 28 }}>
                   Continue to Payment
                 </div>
               </div>
-            )}
 
             <div className="flex w-full flex-col items-start mt-4">
               <div
@@ -875,64 +1289,6 @@ const AgencyAddCard = ({
             ) : null}
           </div>
         </div>
-
-        {/* Mobile Continue Button - Fixed at bottom */}
-        {isSmallScreen && (
-          <div 
-            className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50"
-            style={{ 
-              paddingBottom: `calc(1.5rem + env(safe-area-inset-bottom, 0px))`,
-            }}
-          >
-            <div className="max-w-md mx-auto px-4 pt-4 pb-2">
-              <button
-                onClick={handleAddCard}
-                disabled={
-                  !CardAdded ||
-                  !CardExpiry ||
-                  !CVC ||
-                  addCardLoader ||
-                  disableContinue ||
-                  isSubscribingRef.current
-                }
-                className={`w-full h-[50px] rounded-xl font-bold text-white text-lg transition-all ${
-                  !CardAdded ||
-                  !CardExpiry ||
-                  !CVC ||
-                  addCardLoader ||
-                  disableContinue ||
-                  isSubscribingRef.current
-                    ? 'bg-gray-300 cursor-not-allowed'
-                    : 'bg-brand-primary hover:opacity-90 shadow-lg active:scale-98'
-                }`}
-              >
-                {addCardLoader ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <CircularProgress size={20} color="inherit" />
-                    <span>Processing...</span>
-                  </div>
-                ) : (
-                  'Continue'
-                )}
-              </button>
-              <p className="text-xs text-center text-gray-500 mt-2 mb-2">
-                By continuing you agree to{' '}
-                <a
-                  href="https://www.myagentx.com/terms-and-condition"
-                  style={{
-                    textDecoration: 'underline',
-                    color: 'hsl(var(--brand-primary))',
-                  }}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold"
-                >
-                  Terms & Conditions
-                </a>
-              </p>
-            </div>
-          </div>
-        )}
 
         {/* Order Summary - Desktop only */}
         {!isSmallScreen && (
@@ -1205,6 +1561,7 @@ const AgencyAddCard = ({
         </div>
         )}
       </div>
+      )}
     </div>
   )
 }

@@ -1,0 +1,224 @@
+import React, { useEffect, useState } from 'react'
+import Image from 'next/image'
+import moment from 'moment'
+import axios from 'axios'
+import Apis from '@/components/apis/Apis'
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
+import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
+import { getNextChargeDate } from '@/components/userPlans/UserPlanServices'
+import SignupHeaderMobile from './SignupHeaderMobile'
+
+function PlanSummaryMobile({ selectedPlan, onMakePayment, onEditPayment }) {
+  const [card, setCard] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    getCardsList()
+  }, [])
+
+  const getCardsList = async () => {
+    try {
+      setLoading(true)
+      const Token = AuthToken()
+      const ApiPath = Apis.getCardsList
+
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: `Bearer ${Token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response?.data?.status === true && response.data.data?.length > 0) {
+        // Get the default card or first card
+        const defaultCard = response.data.data.find((c) => c.isDefault) || response.data.data[0]
+        setCard(defaultCard)
+      }
+    } catch (error) {
+      console.error('Error fetching cards:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (!selectedPlan) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <div className="text-gray-500">No plan selected</div>
+      </div>
+    )
+  }
+
+  // Calculate plan details
+  const planDuration = selectedPlan.duration || selectedPlan.billingCycle || 'monthly'
+  const planPrice = selectedPlan.discountedPrice || selectedPlan.discountPrice || selectedPlan.originalPrice || 0
+  const planTitle = selectedPlan.title || selectedPlan.name || 'Plan'
+  
+  // Calculate total based on duration
+  let totalPrice = planPrice
+  let quantity = 1
+  let durationLabel = 'Monthly Subscription'
+  
+  if (planDuration === 'quarterly') {
+    totalPrice = planPrice * 3
+    quantity = 3
+    durationLabel = 'Quarterly Subscription'
+  } else if (planDuration === 'yearly') {
+    totalPrice = planPrice * 12
+    quantity = 12
+    durationLabel = 'Annual Subscription'
+  }
+
+  // Calculate next charge date
+  const nextChargeDate = getNextChargeDate(planDuration)
+
+  // Format card expiry
+  const formatCardExpiry = (card) => {
+    if (!card?.expMonth || !card?.expYear) return '12/28'
+    const month = String(card.expMonth).padStart(2, '0')
+    const year = String(card.expYear).slice(-2)
+    return `${month}/${year}`
+  }
+
+  // Get card brand image
+  const getCardBrandImage = (brand) => {
+    const brandLower = brand?.toLowerCase() || 'visa'
+    if (brandLower === 'visa') return '/svgIcons/Visa.svg'
+    if (brandLower === 'mastercard') return '/svgIcons/Mastercard.svg'
+    if (brandLower === 'amex' || brandLower === 'american express') return '/svgIcons/Amex.svg'
+    return '/svgIcons/Visa.svg'
+  }
+
+  return (
+    <div className="flex flex-col items-center h-full w-full min-h-screen">
+      <SignupHeaderMobile  title="Get an AI AaaS Agency" description="Gets more done than coffee. Cheaper too.😉"  />
+      
+      {/* Purple to Pink Gradient Background */}
+      <div
+        className="flex-1 w-full flex items-center justify-center pb-8"
+        style={{
+          position: 'absolute',
+          top: '20vh',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          minHeight: '60vh',
+        }}
+      >
+        {/* White Card */}
+        <div className="w-[90%] max-w-md bg-white rounded-2xl shadow-2xl p-6 mt-4">
+          {/* Title */}
+          <h1 className="text-2xl font-bold text-black mb-6">Review & Confirm</h1>
+
+          {/* Payment Method Section */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                {card ? (
+                  <>
+                    <Image
+                      src={getCardBrandImage(card.brand)}
+                      alt={card.brand || 'Card'}
+                      width={40}
+                      height={25}
+                      className="object-contain"
+                    />
+                    <div>
+                      <div className="text-base font-semibold text-black">
+                        **** {card.last4 || '1234'}
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Expiry: {formatCardExpiry(card)}
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Image
+                      src="/svgIcons/Visa.svg"
+                      alt="Card"
+                      width={40}
+                      height={25}
+                      className="object-contain"
+                    />
+                    <div>
+                      <div className="text-base font-semibold text-black">
+                        **** 1234
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        Expiry: 12/28
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+              {onEditPayment && (
+                <button
+                  onClick={onEditPayment}
+                  className="text-purple-600 font-medium text-sm hover:text-purple-700"
+                >
+                  Edit
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Order Summary Section */}
+          <div className="mb-6">
+            <h2 className="text-lg font-bold text-black mb-4">Order Summary</h2>
+            
+            <div className="space-y-3">
+              <div className="flex justify-between items-start">
+                <div className="flex-1">
+                  <div className="text-base font-semibold text-black">
+                    {planTitle}
+                  </div>
+                  <div className="text-sm text-gray-600 mt-1">
+                    {durationLabel}
+                  </div>
+                </div>
+                <div className="text-base font-semibold text-black">
+                  {quantity} x ${formatFractional2(planPrice)}
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 pt-3 mt-3">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-sm text-gray-600">Total Billed {planDuration === 'yearly' ? 'Annually' : planDuration === 'quarterly' ? 'Quarterly' : 'Monthly'}:</span>
+                  <span className="text-base font-semibold text-black">
+                    ${formatFractional2(totalPrice)}
+                  </span>
+                </div>
+                <div className="text-sm text-gray-500">
+                  Next Charge Date: {moment(nextChargeDate).format('MM/DD/YYYY')}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Total Section */}
+          <div className="border-t border-gray-200 pt-4 mb-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <div className="text-lg font-bold text-black">Total:</div>
+                <div className="text-xs text-gray-500 mt-1">plus applicable taxes</div>
+              </div>
+              <div className="text-2xl font-bold text-black">
+                ${formatFractional2(totalPrice)}
+              </div>
+            </div>
+          </div>
+
+          {/* Make Payment Button */}
+          <button
+            onClick={onMakePayment}
+            className="w-full bg-purple-600 text-white font-semibold py-4 rounded-xl text-lg hover:bg-purple-700 transition-colors"
+          >
+            Make Payment
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default PlanSummaryMobile

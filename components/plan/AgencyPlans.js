@@ -29,6 +29,8 @@ import { logout } from '@/utilities/UserUtility'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import FeatureLine from '../userPlans/FeatureLine'
 import SignupHeaderMobile from '../onboarding/mobileUI/SignupHeaderMobile'
+import PlanSummaryMobile from '../onboarding/mobileUI/PlanSummaryMobile'
+import PlansListMobile from '../onboarding/mobileUI/PlansListMobile'
 
 //code for add card
 const stripePromise = getStripe()
@@ -101,6 +103,8 @@ function AgencyPlans({
 
   const [showPlanDetails, setShowPlanDetails] = useState(false)
   const [tooltipOpen, setTooltipOpen] = useState(false)
+
+  const [showPlanSummary, setShowPlanSummary] = useState(false)
 
 
   useEffect(() => {
@@ -538,6 +542,7 @@ function AgencyPlans({
   }
 
   const handleContinueClick = async () => {
+    
     if (!selectedPlan) return
 
     const hasPM = () => {
@@ -572,231 +577,59 @@ function AgencyPlans({
   // Mobile layout
   if (isMobile) {
     const currentPlans = getCurrentPlans()
-    const monthlyPrice = selectedPlan ? getMonthlyPrice(selectedPlan) : 0
-    const totalPrice = selectedPlan ? getTotalPrice(selectedPlan) : 0
 
     return (
       <div className="h-screen overflow-hidden flex flex-col w-full">
         <div className="relative z-10 flex-1 flex flex-col overflow-hidden h-screen">
           {/* Main Card - Scrollable */}
-          
-            <div className="w-full flex h-full flex-col items-center  overflow-hidden">
 
-              <SignupHeaderMobile title="Get an AI AaaS Agency" description="Gets more done than coffee. Cheaper too." />
+          <div className="w-full flex h-full flex-col items-center  overflow-hidden">
 
 
-              {/* Content */}
-              <div
-              style={{
-                position: 'absolute',
-                top: '20vh',
-                left: '50%',
-                transform: 'translateX(-50%)',
-              }}
-              className="px-6 h-[70vh] overflow-y-auto w-[90%] bg-white rounded-xl p-2 mt-2 ">
+            {showPlanSummary ? (
+              <PlanSummaryMobile
+                selectedPlan={selectedPlan}
+                onMakePayment={async () => {
+                  await handleContinueClick()
+                }}
+                onEditPayment={() => {
+                  setShowPlanSummary(false)
+                  setAddPaymentPopUp(true)
+                }}
+              />
+            ) : (
+              <PlansListMobile
+                loading={loading}
+                currentPlans={currentPlans}
+                selectedPlan={selectedPlan}
+                selectedDuration={selectedDuration}
+                duration={duration}
+                durationSaving={durationSaving}
+                showPlanDetails={showPlanDetails}
+                subPlanLoader={subPlanLoader}
+                onPlanSelect={handlePlanSelect}
+                onDurationChange={(item) => {
+                  setSelectedDuration(item)
+                }}
+                onShowPlanDetails={(plan) => {
+                  if (plan.id === selectedPlan?.id) {
+                    setShowPlanDetails(!showPlanDetails)
+                  } else {
+                    setShowPlanDetails(true)
+                    handlePlanSelect(plan)
+                  }
+                }}
+                onGetStarted={(plan) => {
+                  handlePlanSelect(plan)
+                  setShowPlanSummary(true)
+                }}
+                getMonthlyPrice={getMonthlyPrice}
+                getCurrentPlans={getCurrentPlans}
+              />
+            )}
 
-
-                <div className="flex flex-col items-end w-full mt-2">
-                  <div className="flex mt-3 flex-row items-center justify-end gap-5 px-2 me-[0px] md:me-[7px]  w-auto">
-                    {durationSaving.map((item) => {
-                      return (
-                        <button
-                          key={item.id}
-                          className={
-                            `px-2 py-1 rounded-tl-lg rounded-tr-lg font-semibold text-[13px] ${selectedDuration.id === item.id ? 'text-white bg-brand-primary outline-none border-none' : 'text-muted-foreground'}`
-                          }
-                          onClick={() => {
-                            setSelectedDuration(item);
-                            getCurrentPlans();
-                          }}
-                        >
-                          {item.title}
-                        </button>
-                      )
-                    })}
-                  </div>
-                  <div className="w-full flex md:w-auto flex-col items-center md:items-end justify-center md:justify-end">
-                    <div
-                      className="border flex flex-row items-center bg-neutral-100 px-2 gap-[8px] rounded-full py-1.5 w-[90%] md:w-auto justify-center md:justify-start"
-                    >
-                      {duration?.map((item) => (
-                        <button
-                          key={item.id}
-                          className={
-                            `px-4 py-1 rounded-full ${selectedDuration.id === item.id ? 'text-white bg-brand-primary outline-none border-none shadow-md shadow-brand-primary/50' : 'text-foreground'}`
-                          }
-                          onClick={() => {
-                            setSelectedDuration(item);
-                            getCurrentPlans();
-                          }}
-                        >
-                          {item.title}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-
-
-                {/* Plan Selection */}
-                {loading ? (
-                  <div className="flex justify-center py-8">
-                    <CircularProgress size={35} />
-                  </div>
-                ) : currentPlans.length > 0 ? (
-                  <div className="space-y-3">
-                    {currentPlans.map((plan, index) => (
-                      <div
-                        key={plan.id}
-                        onClick={() => handlePlanSelect(plan)}
-                        className={`p-2 pb-4 rounded-xl border-2 transition-all cursor-pointer ${selectedPlan?.id === plan.id
-                          ? 'border-none bg-gradient-to-b from-brand-primary to-brand-primary/40 rounded-lg'
-                          : 'border-gray-200 hover:border-brand-primary/30'
-                          } h-auto
-                           
-                          
-                          ` }
-                      >
-                        <div className="flex items-center flex-col">
-                          {
-                            plan.tag && (
-
-                              <div className="flex flex-row items-center gap-2 pb-1">
-                                {
-                                  selectedPlan?.id === plan.id ? (
-                                    <Image src="/svgIcons/powerWhite.svg" height={24} width={24} alt="*" />
-                                  ) : (
-                                    renderBrandedIcon('/svgIcons/power.svg', 24, 24)
-                                  )
-                                }
-                                <div className={`text-base font-bold ${selectedPlan?.id === plan.id ? 'text-white' : 'text-brand-primary'}`}>
-                                  {plan.tag}
-                                </div>
-                                {
-                                  selectedPlan?.id === plan.id ? (
-                                    <Image src="/svgIcons/enterArrowWhite.svg" height={20} width={20} alt="*" />
-                                  ) : (
-                                    renderBrandedIcon('/svgIcons/enterArrow.svg', 20, 20)
-                                  )
-                                }
-                              </div>
-                            )
-                          }
-                          <div className="flex-1 flex flex-col items-center w-full bg-white rounded-lg">
-                            <div className="flex items-center flex-col gap-2 w-full">
-                              <h3 className="font-bold text-2xl text-black capitalize mt-2">
-                                {plan.title}
-                              </h3>
-
-
-                              <div className="flex items-baseline gap-2 mt-4">
-                                <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-primary to-brand-primary">
-                                  ${formatDecimalValue(getMonthlyPrice(plan))}
-                                </span>
-                              </div>
-
-                              <div className="flex items-baseline gap-2 mt-1">
-                                <span className="text-sm text-gray-500 capitalize">
-                                  {plan.planDescription}
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Continue Button */}
-                            <button
-                              onClick={handleContinueClick}
-                              disabled={!selectedPlan || subPlanLoader}
-                              className={`w-[90%] py-3 mt-4 rounded-xl font-regular text-white text-base transition-all ${!selectedPlan || subPlanLoader && selectedPlan?.id === plan.id
-                                ? 'bg-gray-300 cursor-not-allowed'
-                                : 'bg-brand-primary hover:opacity-90 shadow-lg active:scale-98'
-                                }`}
-                            >
-                              {subPlanLoader && selectedPlan?.id === plan.id ? (
-                                <div className="flex items-center justify-center gap-2">
-                                  <CircularProgress size={20} color="inherit" />
-                                  <span>Processing...</span>
-                                </div>
-                              ) : (
-                                'Get Started'
-                              )}
-                            </button>
-                      {!showPlanDetails &&(
-                            <button className=" mt-4 mb-4"
-                              onClick={() => {
-                                setShowPlanDetails(!showPlanDetails)
-                              }}
-                            >
-                              <div className="flex flex-row items-center gap-2">
-                                <span className="text-sm text-brand-primary capitalize underline">
-                                  {showPlanDetails && plan.id === selectedPlan?.id ? 'Hide Plan Details' : 'Show Plan Details'}
-                                </span>
-
-                                {
-                                  showPlanDetails && plan.id === selectedPlan?.id ? (
-                                    renderBrandedIcon('/svgIcons/downArrow.svg', 20, 20)
-                                  ) : (
-                                    renderBrandedIcon('/svgIcons/downArrow.svg', 20, 20)
-                                  )
-                                }
-                              </div>
-                            </button>
-                          )}
-
-
-                            {
-                              showPlanDetails && plan.id === selectedPlan?.id && (
-
-                                <div className="flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0">
-                                  <div className="flex flex-col items-start w-full flex-1 pr-2">
-                                    {index > 0 && (
-                                      <div className="w-full mb-3 flex-shrink-0">
-                                        <div className="text-sm font-semibold text-foreground mb-2 text-left">
-                                          Everything in{' '}
-                                          {getCurrentPlans()[index - 1]?.title}, and:
-                                        </div>
-                                      </div>
-                                    )}
-
-                                    {Array.isArray(plan?.features) &&
-                                      plan?.features?.map((feature) => (
-                                        <div
-                                          key={feature.text}
-                                          className="flex flex-row items-start gap-3 mb-3 w-full"
-                                        >
-                                          <Checkbox
-                                            checked={true}
-                                            className="!rounded-full h-4 w-4 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
-                                          />
-                                          <FeatureLine
-                                            text={feature.text}
-                                            info={feature.subtext}
-                                            max={16}
-                                            min={10}
-                                            gap={6}
-                                            iconSize={16}
-                                          />
-                                        </div>
-                                      ))}
-                                  </div>
-                                </div>
-                              )
-                            }
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-500">No plans available</div>
-                )}
-
-              </div>
-            </div>
           </div>
-
-
-
+        </div>
 
         {/* Add Payment Modal */}
         <Modal

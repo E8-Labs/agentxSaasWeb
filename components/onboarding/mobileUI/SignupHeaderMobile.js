@@ -20,7 +20,7 @@ function SignupHeaderMobile({
                 {title}
             </div>
 
-            <div className="mt-2 md:text-4xl text-lg font-[600] text-white"
+            <div className="mt-2 md:text-4xl text-lg font-[400] text-white"
                 style={{ textAlign: 'center' }}
             >
                 {description}
