@@ -10,6 +10,9 @@ import getProfileDetails from '@/components/apis/GetProfile.js'
 // const Pipeline2 = dynamic(() =>
 //   import("../../components/pipeline/Pipeline2.js")
 // );
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import { PersistanceKeys } from '@/constants/Constants.js'
 import { useUser } from '@/hooks/redux-hooks.js'
 
@@ -27,6 +30,9 @@ const Page = () => {
   const [index, setIndex] = useState(0)
   const [shouldShowGradient, setShouldShowGradient] = useState(false)
   const [gradientBackground, setGradientBackground] = useState(null)
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [isErrorVisible, setIsErrorVisible] = useState(false)
+  const [errorType, setErrorType] = useState(SnackbarTypes.Error)
 
   // Redux user state
   const { user: userData, setUser: setUserData, token } = useUser()
@@ -354,13 +360,42 @@ const Page = () => {
             router.push('/dashboard/myAgentX')
           }
         } else {
-          // setLoader(false);
+          // API returned error response
+          const errorMsg =
+            response.data?.message ||
+            'Failed to create pipeline cadence. Please try again.'
+          setErrorMessage(errorMsg)
+          setErrorType(SnackbarTypes.Error)
+          setIsErrorVisible(true)
         }
       }
     } catch (error) {
       console.error('Error occured in api is :', error)
-      //show snackbar we created with error message here
-      //   setLoader(false);
+      
+      // Handle axios errors (network errors, non-200 status codes)
+      let errorMsg = 'Failed to create pipeline cadence. Please try again.'
+      
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        errorMsg =
+          error.response.data?.message ||
+          error.response.data?.error ||
+          `Error: ${error.response.status} - ${error.response.statusText}`
+      } else if (error.request) {
+        // The request was made but no response was received
+        errorMsg =
+          'Network error. Please check your internet connection and try again.'
+      } else {
+        // Something happened in setting up the request
+        errorMsg = error.message || errorMsg
+      }
+      
+      console.log('Error message is :', errorMsg)
+      console.log('Error is :', error)
+      setErrorMessage(errorMsg)
+      setErrorType(SnackbarTypes.Error)
+      setIsErrorVisible(true)
     } finally {
     }
   }
@@ -397,6 +432,12 @@ const Page = () => {
           }}
         />
       )}
+      <AgentSelectSnackMessage
+        isVisible={isErrorVisible}
+        hide={() => setIsErrorVisible(false)}
+        message={errorMessage}
+        type={errorType}
+      />
       <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
     </div>
     // <div className='w-full h-screen' style={{display: "flex", flexDirection: "row", justifyContent: "center", alignItems:" center" }}>

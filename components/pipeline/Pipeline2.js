@@ -32,6 +32,9 @@ import {
 import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 
 import Apis from '../apis/Apis'
+import AgentSelectSnackMessage, {
+  SnackbarTypes,
+} from '../dashboard/leads/AgentSelectSnackMessage'
 import IntroVideoModal from '../createagent/IntroVideoModal'
 import VideoCard from '../createagent/VideoCard'
 import DraftMentions from '../test/DraftMentions'
@@ -83,6 +86,9 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
   const [columnloader, setColumnloader] = useState(false)
   const [uniqueColumns, setUniqueColumns] = useState([])
   const [showMoreUniqueColumns, setShowMoreUniqueColumns] = useState(false)
+  const [errorMessage, setErrorMessage] = useState(null)
+  const [isErrorVisible, setIsErrorVisible] = useState(false)
+  const [errorType, setErrorType] = useState(SnackbarTypes.Error)
 
   //code for objective
   const [objective, setObjective] = useState('')
@@ -662,11 +668,44 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
           //   router.push('/dashboard/myAgentX')
           // }
         } else {
-          // setLoader(false);
+          // API returned error response
+          const errorMsg =
+            response.data?.message ||
+            'Failed to create pipeline cadence. Please try again.'
+          setErrorMessage(errorMsg)
+          setErrorType(SnackbarTypes.Error)
+          setIsErrorVisible(true)
+          setLoader(false)
         }
       }
     } catch (error) {
       console.error('Error occured in api is :', error)
+      
+      // Handle axios errors (network errors, non-200 status codes)
+      let errorMsg = 'Failed to create pipeline cadence. Please try again.'
+      
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        errorMsg =
+          error.response.data?.message ||
+          error.response.data?.error ||
+          `Error: ${error.response.status} - ${error.response.statusText}`
+      } else if (error.request) {
+        // The request was made but no response was received
+        errorMsg =
+          'Network error. Please check your internet connection and try again.'
+      } else {
+        // Something happened in setting up the request
+        errorMsg = error.message || errorMsg
+      }
+
+
+      console.log('Error message is :', errorMsg)
+      console.log('Error is :', error)
+      setErrorMessage(errorMsg)
+      setErrorType(SnackbarTypes.Error)
+      setIsErrorVisible(true)
       setLoader(false)
     } finally {
     }
@@ -820,6 +859,12 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       style={{ width: '100%' }}
       className="overflow-y-none flex flex-row justify-center items-center"
     >
+      <AgentSelectSnackMessage
+        isVisible={isErrorVisible}
+        hide={() => setIsErrorVisible(false)}
+        message={errorMessage}
+        type={errorType}
+      />
       <div className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative">
         <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
           {/* header with title centered vertically */}
