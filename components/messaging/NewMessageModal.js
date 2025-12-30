@@ -215,8 +215,12 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
         const leadsData = Array.isArray(response.data.data)
           ? response.data.data
           : []
+        console.log('Search results received:', leadsData.length, 'leads')
         setFilteredLeads(leadsData)
+        // Ensure dropdown stays open when results arrive
+        setShowLeadList(true)
       } else {
+        console.log('No results in response:', response.data)
         setFilteredLeads([])
       }
     } catch (error) {
@@ -307,7 +311,10 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
 
     if (!searchQuery.trim()) {
       setFilteredLeads([])
-      setShowLeadList(false)
+      // Don't hide the list if user is actively searching - only hide if completely empty
+      if (selectedLeads.length === 0) {
+        setShowLeadList(false)
+      }
       return
     }
 
@@ -324,7 +331,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
         clearTimeout(searchTimeoutRef.current)
       }
     }
-  }, [searchQuery])
+  }, [searchQuery, selectedLeads.length])
 
   // Get user data from localStorage
   useEffect(() => {
@@ -1017,10 +1024,10 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                 {/* To Field */}
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   <label className="text-sm font-medium whitespace-nowrap flex-shrink-0">To:</label>
-                  <div className="relative flex-1 min-w-0 overflow-hidden">
+                  <div className="relative flex-1 min-w-0">
                     {/* Tag Input Container */}
                     <div 
-                      className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden"
+                      className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
                       style={{ height: '42px', minHeight: '42px', maxWidth: '100%' }}
                       onClick={() => {
                         setShowLeadList(true)
@@ -1047,7 +1054,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                             type="text"
                             value={searchQuery}
                             onChange={(e) => {
-                              setSearchQuery(e.target.value)
+                              const value = e.target.value
+                              setSearchQuery(value)
                               setShowLeadList(true)
                             }}
                             onFocus={() => {
@@ -1063,6 +1071,11 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                               maxWidth: '100%'
                             }}
                             onClick={(e) => e.stopPropagation()}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Escape') {
+                                setShowLeadList(false)
+                              }
+                            }}
                           />
                         </>
                       ) : (
@@ -1070,7 +1083,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                           type="text"
                           value={searchQuery}
                           onChange={(e) => {
-                            setSearchQuery(e.target.value)
+                            const value = e.target.value
+                            setSearchQuery(value)
                             setShowLeadList(true)
                           }}
                           onFocus={() => {
@@ -1085,6 +1099,11 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                             verticalAlign: 'middle',
                             maxWidth: '100%'
                           }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Escape') {
+                              setShowLeadList(false)
+                            }
+                          }}
                         />
                       )}
                       <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-1" />
@@ -1092,7 +1111,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
 
                     {/* Leads List Dropdown - Show when searching or when clicking on field */}
                     {showLeadList && (
-                      <div className="absolute z-10 w-full mt-1 bg-white border-[0.5px] border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto overflow-x-hidden">
+                      <div className="absolute z-50 w-full mt-1 bg-white border-[0.5px] border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto overflow-x-hidden">
                         {loading ? (
                           <div className="p-4 text-center">
                             <CircularProgress size={24} />
