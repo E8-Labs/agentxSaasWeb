@@ -9,7 +9,7 @@ import { getNextChargeDate } from '@/components/userPlans/UserPlanServices'
 import SignupHeaderMobile from './SignupHeaderMobile'
 import LoaderAnimation from '@/components/animations/LoaderAnimation'
 
-function PlanSummaryMobile({ selectedPlan, onMakePayment, onEditPayment, isRedirecting: isRedirectingProp }) {
+function PlanSummaryMobile({ selectedPlan, onMakePayment, onEditPayment, isRedirecting: isRedirectingProp, handleBack }) {
   const [card, setCard] = useState(null)
   const [loading, setLoading] = useState(true)
   const [isSubscribing, setIsSubscribing] = useState(false)
@@ -127,7 +127,7 @@ function PlanSummaryMobile({ selectedPlan, onMakePayment, onEditPayment, isRedir
         }}
       >
         {/* White Card */}
-        <div className="w-[90%] max-w-md bg-white rounded-2xl shadow-2xl p-6 mt-4">
+        <div className="w-[90%] max-w-md bg-white rounded-2xl shadow-2xl px-6 py-4 mt-4">
           {/* Title */}
           <h1 className="text-2xl font-bold text-black mb-6">Review & Confirm</h1>
 
@@ -264,6 +264,15 @@ function PlanSummaryMobile({ selectedPlan, onMakePayment, onEditPayment, isRedir
               'Make Payment'
             )}
           </button>
+
+          <div className="w-full flex flex-row  justify-start">
+          <button
+            onClick={handleBack}
+            className=" text-brand-primary font-semibold py-4 rounded-xl text-lg hover:bg-gray-200 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            Back
+          </button>
+          </div>
         </div>
       </div>
 

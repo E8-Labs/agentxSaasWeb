@@ -585,7 +585,7 @@ const AgencyAddCard = ({
         <div className="flex flex-col items-center h-full w-full min-h-screen bg-gray-100">
           <SignupHeaderMobile 
             title="Grow Your Business" 
-            description="Gets more done than coffee. Cheaper too. Cancel anytime. 😉" 
+            description="Gets more done than coffee. Cheaper too. 😉" 
           />
           
           {/* White Card Container */}

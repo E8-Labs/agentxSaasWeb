@@ -598,6 +598,9 @@ function AgencyPlans({
                   setAddPaymentPopUp(true)
                 }}
                 isRedirecting={isRedirecting}
+                handleBack={() => {
+                  setShowPlanSummary(false)
+                }}
               />
             ) : (
               <PlansListMobile
