@@ -1036,7 +1036,7 @@ const AgencySignupMobile = ({
                   color: '#000000',
                 }}
               >
-                {`Let's build your AI AssignX`}
+                {`Let's build your AI Agency`}
               </div>
 
               {registerLoader ? (
