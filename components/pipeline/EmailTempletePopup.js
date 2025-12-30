@@ -123,7 +123,7 @@ function EmailTempletePopup({
   }, [open])
 
   const templatesForSelectedType = async () => {
-    let temp = await getTempletes('email')
+    let temp = await getTempletes('email', selectedUser?.id)
     setTempletes(temp)
   }
 

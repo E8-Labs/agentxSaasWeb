@@ -44,7 +44,7 @@ function SMSTempletePopup({
   leadPhone = null,
   leadId = null,
   selectedUser,
-}) {
+  }) {
   const [body, setBody] = useState('')
   const [selectedPhone, setSelectedPhone] = useState(null)
   const [uniqueColumns, setUniqueColumns] = useState([])
@@ -118,7 +118,7 @@ function SMSTempletePopup({
       }
       
       // Load template details for content (phone is not stored in template)
-      const details = await getTempleteDetails(template)
+      const details = await getTempleteDetails(template, selectedUser?.id)
       console.log('Template details:', details)
       if (details) {
         setBody(details.content || '')

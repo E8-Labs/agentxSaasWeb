@@ -4,13 +4,16 @@ import { AuthToken } from '../agency/plan/AuthDetails'
 import Apis from '../apis/Apis'
 import { Scopes } from '../dashboard/myagentX/Scopes'
 
-export const getTempletes = async (type) => {
+export const getTempletes = async (type, userId = null) => {
   try {
     let token = AuthToken()
     // console.log('token', token)
     let path = Apis.templets
     if (type) {
       path = path + '?communicationType=' + type
+    }
+    if (userId) {
+      path = path + '&userId=' + userId
     }
     console.log('path', path)
 
@@ -55,11 +58,12 @@ export const getA2PNumbers = async (id) => {
   }
 }
 
-export const getTempleteDetails = async (temp) => {
+export const getTempleteDetails = async (temp, userId = null) => {
   try {
     let token = AuthToken()
     // console.log('token', token)
     let path = `${Apis.templets}/${temp.templateId}`
+
     console.log('path', path)
 
     const response = await axios.get(path, {
