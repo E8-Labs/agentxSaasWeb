@@ -1,4 +1,5 @@
 import React from 'react'
+import Image from 'next/image'
 
 import UnlockPremiunFeatures from '../globalExtras/UnlockPremiunFeatures'
 
@@ -386,15 +387,31 @@ export const UpgradeTag = ({
   
   return (
     <div
-      className={`items-center gap-2 p-2 rounded-lg text-[12px] cursor-pointer transition-colors ${className}`}
+      className={`flex flex-row items-center gap-1.5 p-2 rounded-lg text-[16px] cursor-pointer transition-colors ${className}`}
       style={{
-        backgroundColor: `${brandColor}/20`,
         color: brandColor,
       }}
-   
       onClick={onClick}
     >
-      {requestFeature ? 'Request Feature' : 'Upgrade'}
+      <div
+        style={{
+          width: 18,
+          height: 18,
+          backgroundColor: brandColor,
+          WebkitMaskImage: `url(/svgIcons/king.svg)`,
+          maskImage: `url(/svgIcons/king.svg)`,
+          WebkitMaskSize: 'contain',
+          maskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          maskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          maskPosition: 'center',
+        }}
+        className="flex-shrink-0"
+      />
+      <span style={{ color: brandColor, fontSize: '16px', fontWeight: 500 }}>
+        {requestFeature ? 'Request Feature' : 'Upgrade'}
+      </span>
     </div>
   )
 }
