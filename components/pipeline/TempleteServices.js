@@ -111,6 +111,10 @@ export const createTemplete = async (data) => {
       // Ensure it's a proper JSON array string
       formdata.append('ccEmails', JSON.stringify(data.ccEmails))
     }
+    if (data.bccEmails && Array.isArray(data.bccEmails)) {
+      // Ensure it's a proper JSON array string
+      formdata.append('bccEmails', JSON.stringify(data.bccEmails))
+    }
     for (let pair of formdata.entries()) {
       console.log(pair[0] + ':', pair[1])
     }
@@ -168,6 +172,10 @@ export const updateTemplete = async (data, tempId) => {
     if (data.ccEmails && Array.isArray(data.ccEmails)) {
       // Ensure it's a proper JSON array string
       formdata.append('ccEmails', JSON.stringify(data.ccEmails))
+    }
+    if (data.bccEmails && Array.isArray(data.bccEmails)) {
+      // Ensure it's a proper JSON array string
+      formdata.append('bccEmails', JSON.stringify(data.bccEmails))
     }
     for (let pair of formdata.entries()) {
       console.log(pair[0] + ':', pair[1])

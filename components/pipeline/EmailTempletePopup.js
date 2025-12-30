@@ -191,30 +191,49 @@ function EmailTempletePopup({
       const details = await getTempleteDetails(template)
       console.log('details', details)
       if (details) {
-        // Preserve current visibility state before updating
-        const wasBCCVisible = showBCC
-        const wasCCVisible = showCC
-        
         setTempName(details.templateName || '')
         setSubject(details.subject || '')
         setBody(details.content || '')
-        setccEmails(details.ccEmails || [])
-        setBccEmails(details.bccEmails || [])
-        setAttachments(details.attachments || [])
         
-        // Show CC field if it has values OR if it was already visible
-        if (details.ccEmails && details.ccEmails.length > 0) {
-          setShowCC(true)
-        } else if (wasCCVisible) {
-          // Preserve CC visibility if it was already shown
-          setShowCC(true)
+        // Parse ccEmails if it's a string (JSON string)
+        let parsedCcEmails = []
+        if (details.ccEmails) {
+          if (typeof details.ccEmails === 'string') {
+            try {
+              parsedCcEmails = JSON.parse(details.ccEmails)
+            } catch (e) {
+              console.error('Error parsing ccEmails:', e)
+              parsedCcEmails = []
+            }
+          } else if (Array.isArray(details.ccEmails)) {
+            parsedCcEmails = details.ccEmails
+          }
         }
         
-        // Show BCC field if it has values OR if it was already visible
-        if (details.bccEmails && details.bccEmails.length > 0) {
-          setShowBCC(true)
-        } else if (wasBCCVisible) {
-          // Preserve BCC visibility if it was already shown (even if now empty)
+        // Parse bccEmails if it's a string (JSON string)
+        let parsedBccEmails = []
+        if (details.bccEmails) {
+          if (typeof details.bccEmails === 'string') {
+            try {
+              parsedBccEmails = JSON.parse(details.bccEmails)
+            } catch (e) {
+              console.error('Error parsing bccEmails:', e)
+              parsedBccEmails = []
+            }
+          } else if (Array.isArray(details.bccEmails)) {
+            parsedBccEmails = details.bccEmails
+          }
+        }
+        
+        setccEmails(Array.isArray(parsedCcEmails) ? parsedCcEmails : [])
+        setBccEmails(Array.isArray(parsedBccEmails) ? parsedBccEmails : [])
+        setAttachments(details.attachments || [])
+        
+        // Show CC/BCC fields if they have values
+        if (parsedCcEmails && Array.isArray(parsedCcEmails) && parsedCcEmails.length > 0) {
+          setShowCC(true)
+        }
+        if (parsedBccEmails && Array.isArray(parsedBccEmails) && parsedBccEmails.length > 0) {
           setShowBCC(true)
         }
       }
@@ -227,17 +246,22 @@ function EmailTempletePopup({
 
   const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
 
+  // Ensure ccEmails and bccEmails are always arrays before filtering
+  const safeCcEmails = Array.isArray(ccEmails) ? ccEmails : []
+  const safeBccEmails = Array.isArray(bccEmails) ? bccEmails : []
+
   const invalidEmails = [
-    ...ccEmails.filter((e) => !emailRegex.test(String(e).trim())),
-    ...bccEmails.filter((e) => !emailRegex.test(String(e).trim())),
+    ...safeCcEmails.filter((e) => !emailRegex.test(String(e).trim())),
+    ...safeBccEmails.filter((e) => !emailRegex.test(String(e).trim())),
   ]
 
   // Helper function to add email to CC array
   const addCcEmail = (email) => {
     const trimmedEmail = email.trim()
     if (trimmedEmail && emailRegex.test(trimmedEmail)) {
-      if (!ccEmails.includes(trimmedEmail)) {
-        setccEmails([...ccEmails, trimmedEmail])
+      const currentCcEmails = Array.isArray(ccEmails) ? ccEmails : []
+      if (!currentCcEmails.includes(trimmedEmail)) {
+        setccEmails([...currentCcEmails, trimmedEmail])
         setccEmailsChanged(true)
       }
       setCcEmailInput('')
@@ -248,8 +272,9 @@ function EmailTempletePopup({
   const addBccEmail = (email) => {
     const trimmedEmail = email.trim()
     if (trimmedEmail && emailRegex.test(trimmedEmail)) {
-      if (!bccEmails.includes(trimmedEmail)) {
-        setBccEmails([...bccEmails, trimmedEmail])
+      const currentBccEmails = Array.isArray(bccEmails) ? bccEmails : []
+      if (!currentBccEmails.includes(trimmedEmail)) {
+        setBccEmails([...currentBccEmails, trimmedEmail])
         setBccEmailsChanged(true)
       }
       setBccEmailInput('')
@@ -258,31 +283,31 @@ function EmailTempletePopup({
 
   // Helper function to remove email from CC array
   const removeCcEmail = (emailToRemove) => {
-    setccEmails(ccEmails.filter((email) => email !== emailToRemove))
+    const currentCcEmails = Array.isArray(ccEmails) ? ccEmails : []
+    setccEmails(currentCcEmails.filter((email) => email !== emailToRemove))
     setccEmailsChanged(true)
   }
 
   // Helper function to remove email from BCC array
   const removeBccEmail = (emailToRemove) => {
-    setBccEmails(bccEmails.filter((email) => email !== emailToRemove))
+    const currentBccEmails = Array.isArray(bccEmails) ? bccEmails : []
+    setBccEmails(currentBccEmails.filter((email) => email !== emailToRemove))
     setBccEmailsChanged(true)
   }
 
   // Handle CC input change - support pasting multiple emails
   const handleCcInputChange = (e) => {
     const value = e.target.value
-    // Check if input contains comma or space (likely pasted multiple emails)
-    if (value.includes(',') || value.includes(' ')) {
-      // Split by comma first, then by space, and flatten
-      const emails = value
-        .split(',')
-        .flatMap(part => part.split(' '))
-        .map(email => email.trim())
-        .filter(email => email)
-      
+    // Check if input contains comma (likely pasted multiple emails)
+    if (value.includes(',')) {
+      const emails = value.split(',').map(email => email.trim()).filter(email => email)
+      const currentCcEmails = Array.isArray(ccEmails) ? ccEmails : []
       emails.forEach(email => {
-        if (emailRegex.test(email) && !ccEmails.includes(email)) {
-          setccEmails(prev => [...prev, email])
+        if (emailRegex.test(email) && !currentCcEmails.includes(email)) {
+          setccEmails(prev => {
+            const prevArray = Array.isArray(prev) ? prev : []
+            return [...prevArray, email]
+          })
           setccEmailsChanged(true)
         }
       })
@@ -295,18 +320,16 @@ function EmailTempletePopup({
   // Handle BCC input change - support pasting multiple emails
   const handleBccInputChange = (e) => {
     const value = e.target.value
-    // Check if input contains comma or space (likely pasted multiple emails)
-    if (value.includes(',') || value.includes(' ')) {
-      // Split by comma first, then by space, and flatten
-      const emails = value
-        .split(',')
-        .flatMap(part => part.split(' '))
-        .map(email => email.trim())
-        .filter(email => email)
-      
+    // Check if input contains comma (likely pasted multiple emails)
+    if (value.includes(',')) {
+      const emails = value.split(',').map(email => email.trim()).filter(email => email)
+      const currentBccEmails = Array.isArray(bccEmails) ? bccEmails : []
       emails.forEach(email => {
-        if (emailRegex.test(email) && !bccEmails.includes(email)) {
-          setBccEmails(prev => [...prev, email])
+        if (emailRegex.test(email) && !currentBccEmails.includes(email)) {
+          setBccEmails(prev => {
+            const prevArray = Array.isArray(prev) ? prev : []
+            return [...prevArray, email]
+          })
           setBccEmailsChanged(true)
         }
       })
@@ -318,7 +341,7 @@ function EmailTempletePopup({
 
   // Handle CC input key events
   const handleCcInputKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
+    if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault()
       if (ccEmailInput.trim()) {
         addCcEmail(ccEmailInput)
@@ -331,7 +354,7 @@ function EmailTempletePopup({
 
   // Handle BCC input key events
   const handleBccInputKeyDown = (e) => {
-    if (e.key === 'Enter' || e.key === ',' || e.key === ' ') {
+    if (e.key === 'Enter' || e.key === ',') {
       e.preventDefault()
       if (bccEmailInput.trim()) {
         addBccEmail(bccEmailInput)
@@ -424,34 +447,189 @@ function EmailTempletePopup({
     // setTempletes((prev) => prev.filter((x) => x.id !== t.id));
   }
 
-  const handleSelect = (t) => {
+  const handleSelect = async (t) => {
     console.log('t', t)
-    // Preserve current visibility state before updating
-    const wasBCCVisible = showBCC
-    const wasCCVisible = showCC
-    
     setSelectedTemp(t)
-    setTempName(t.templateName || '')
-    setSubject(t.subject || '')
-    setBody(t.content || '')
-    setccEmails(t.ccEmails || [])
-    setBccEmails(t.bccEmails || [])
-    setAttachments(t.attachments || [])
     
-    // Show CC field if it has values OR if it was already visible
-    if (t.ccEmails && t.ccEmails.length > 0) {
-      setShowCC(true)
-    } else if (wasCCVisible) {
-      // Preserve CC visibility if it was already shown
-      setShowCC(true)
-    }
-    
-    // Show BCC field if it has values OR if it was already visible
-    if (t.bccEmails && t.bccEmails.length > 0) {
-      setShowBCC(true)
-    } else if (wasBCCVisible) {
-      // Preserve BCC visibility if it was already shown (even if now empty)
-      setShowBCC(true)
+    // If template has an id, fetch full details to ensure we have all fields including ccEmails and bccEmails
+    if (t && (t.id || t.templateId)) {
+      try {
+        const templateId = t.id || t.templateId
+        setDetailsLoader(templateId)
+        // Create a template object with templateId for getTempleteDetails
+        const templateForDetails = { templateId: templateId, id: t.id }
+        const details = await getTempleteDetails(templateForDetails)
+        console.log('Template details loaded:', details)
+        if (details) {
+          setTempName(details.templateName || '')
+          setSubject(details.subject || '')
+          setBody(details.content || '')
+          
+          // Parse ccEmails if it's a string (JSON string)
+          let parsedCcEmails = []
+          if (details.ccEmails) {
+            if (typeof details.ccEmails === 'string') {
+              try {
+                parsedCcEmails = JSON.parse(details.ccEmails)
+              } catch (e) {
+                console.error('Error parsing ccEmails:', e)
+                parsedCcEmails = []
+              }
+            } else if (Array.isArray(details.ccEmails)) {
+              parsedCcEmails = details.ccEmails
+            }
+          }
+          
+          // Parse bccEmails if it's a string (JSON string)
+          let parsedBccEmails = []
+          if (details.bccEmails) {
+            if (typeof details.bccEmails === 'string') {
+              try {
+                parsedBccEmails = JSON.parse(details.bccEmails)
+              } catch (e) {
+                console.error('Error parsing bccEmails:', e)
+                parsedBccEmails = []
+              }
+            } else if (Array.isArray(details.bccEmails)) {
+              parsedBccEmails = details.bccEmails
+            }
+          }
+          
+          setccEmails(Array.isArray(parsedCcEmails) ? parsedCcEmails : [])
+          setBccEmails(Array.isArray(parsedBccEmails) ? parsedBccEmails : [])
+          setAttachments(Array.isArray(details.attachments) ? details.attachments : [])
+          
+          // Show CC/BCC fields if they have values
+          if (parsedCcEmails && Array.isArray(parsedCcEmails) && parsedCcEmails.length > 0) {
+            setShowCC(true)
+          }
+          if (parsedBccEmails && Array.isArray(parsedBccEmails) && parsedBccEmails.length > 0) {
+            setShowBCC(true)
+          }
+        } else {
+          // Fallback to template object if details fetch fails
+          setTempName(t.templateName || '')
+          setSubject(t.subject || '')
+          setBody(t.content || '')
+          
+          // Parse ccEmails if it's a string (JSON string)
+          let parsedCcEmails = []
+          if (t.ccEmails) {
+            if (typeof t.ccEmails === 'string') {
+              try {
+                parsedCcEmails = JSON.parse(t.ccEmails)
+              } catch (e) {
+                parsedCcEmails = []
+              }
+            } else if (Array.isArray(t.ccEmails)) {
+              parsedCcEmails = t.ccEmails
+            }
+          }
+          
+          // Parse bccEmails if it's a string (JSON string)
+          let parsedBccEmails = []
+          if (t.bccEmails) {
+            if (typeof t.bccEmails === 'string') {
+              try {
+                parsedBccEmails = JSON.parse(t.bccEmails)
+              } catch (e) {
+                parsedBccEmails = []
+              }
+            } else if (Array.isArray(t.bccEmails)) {
+              parsedBccEmails = t.bccEmails
+            }
+          }
+          
+          setccEmails(Array.isArray(parsedCcEmails) ? parsedCcEmails : [])
+          setBccEmails(Array.isArray(parsedBccEmails) ? parsedBccEmails : [])
+          setAttachments(Array.isArray(t.attachments) ? t.attachments : [])
+        }
+      } catch (error) {
+        console.error('Error loading template details:', error)
+        // Fallback to template object if details fetch fails
+        setTempName(t.templateName || '')
+        setSubject(t.subject || '')
+        setBody(t.content || '')
+        
+        // Parse ccEmails if it's a string (JSON string)
+        let parsedCcEmails = []
+        if (t.ccEmails) {
+          if (typeof t.ccEmails === 'string') {
+            try {
+              parsedCcEmails = JSON.parse(t.ccEmails)
+            } catch (e) {
+              parsedCcEmails = []
+            }
+          } else if (Array.isArray(t.ccEmails)) {
+            parsedCcEmails = t.ccEmails
+          }
+        }
+        
+        // Parse bccEmails if it's a string (JSON string)
+        let parsedBccEmails = []
+        if (t.bccEmails) {
+          if (typeof t.bccEmails === 'string') {
+            try {
+              parsedBccEmails = JSON.parse(t.bccEmails)
+            } catch (e) {
+              parsedBccEmails = []
+            }
+          } else if (Array.isArray(t.bccEmails)) {
+            parsedBccEmails = t.bccEmails
+          }
+        }
+        
+        setccEmails(Array.isArray(parsedCcEmails) ? parsedCcEmails : [])
+        setBccEmails(Array.isArray(parsedBccEmails) ? parsedBccEmails : [])
+        setAttachments(Array.isArray(t.attachments) ? t.attachments : [])
+      } finally {
+        setDetailsLoader(null)
+      }
+    } else {
+      // If no id, use template object directly
+      setTempName(t.templateName || '')
+      setSubject(t.subject || '')
+      setBody(t.content || '')
+      
+      // Parse ccEmails if it's a string (JSON string)
+      let parsedCcEmails = []
+      if (t.ccEmails) {
+        if (typeof t.ccEmails === 'string') {
+          try {
+            parsedCcEmails = JSON.parse(t.ccEmails)
+          } catch (e) {
+            parsedCcEmails = []
+          }
+        } else if (Array.isArray(t.ccEmails)) {
+          parsedCcEmails = t.ccEmails
+        }
+      }
+      
+      // Parse bccEmails if it's a string (JSON string)
+      let parsedBccEmails = []
+      if (t.bccEmails) {
+        if (typeof t.bccEmails === 'string') {
+          try {
+            parsedBccEmails = JSON.parse(t.bccEmails)
+          } catch (e) {
+            parsedBccEmails = []
+          }
+        } else if (Array.isArray(t.bccEmails)) {
+          parsedBccEmails = t.bccEmails
+        }
+      }
+      
+      setccEmails(Array.isArray(parsedCcEmails) ? parsedCcEmails : [])
+      setBccEmails(Array.isArray(parsedBccEmails) ? parsedBccEmails : [])
+      setAttachments(Array.isArray(t.attachments) ? t.attachments : [])
+      
+      // Show CC/BCC fields if they have values
+      if (parsedCcEmails && Array.isArray(parsedCcEmails) && parsedCcEmails.length > 0) {
+        setShowCC(true)
+      }
+      if (parsedBccEmails && Array.isArray(parsedBccEmails) && parsedBccEmails.length > 0) {
+        setShowBCC(true)
+      }
     }
 
     // if (!isEditing && addRow) {
@@ -952,7 +1130,18 @@ function EmailTempletePopup({
                 </div>
               </div>
 
-              {/* To Field - Hidden for lead email (email is auto-filled from lead) */}
+              {/* To Field - Only show for lead email */}
+              {isLeadEmail && (
+                <div className="flex items-center gap-2 flex-1">
+                  <label className="text-sm font-medium whitespace-nowrap">To:</label>
+                  <Input
+                    value={leadEmail || ''}
+                    readOnly
+                    className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary bg-gray-50"
+                    style={{ height: '42px' }}
+                  />
+                </div>
+              )}
             </div>
 
             {/* CC and BCC fields - shown when toggled - Tag-based design */}
@@ -1064,10 +1253,11 @@ function EmailTempletePopup({
               </div>
             )}
 
-            {/* Template Selection - Show for both pipeline and lead emails */}
-            <div className="flex items-center gap-2">
-              {/* Template Name field - Only show for pipeline emails (not lead emails) */}
-              {!isLeadEmail && (
+            {!isLeadEmail && (
+              <div className="flex items-center gap-2 flex-1">
+                <label className="text-[15px] font-[400] text-black whitespace-nowrap">
+                  Template Name
+                </label>
                 <Input
                   placeholder="Template Name"
                   value={tempName || ''}
@@ -1078,155 +1268,79 @@ function EmailTempletePopup({
                   className="flex-1 h-[42px] border rounded-lg focus-visible:ring-1 focus-visible:ring-black focus-visible:border-black"
                   style={{ height: '42px' }}
                 />
-              )}
-              {/* Select Template dropdown - Show for both pipeline and lead emails */}
-              {isLeadEmail ? (
-                <>
-                  <label className="text-sm font-medium whitespace-nowrap">Template:</label>
-                  <div className="flex-1">
-                    <FormControl size="small" fullWidth sx={{ minWidth: 180 }}>
-                      <Select
-                        value={selectedTemp || ''}
-                        onChange={(e) => handleSelect(e.target.value)}
-                        displayEmpty
-                        renderValue={(selected) =>
-                          selected?.templateName || (
-                            <div style={{ color: '#aaa' }}>Select Template</div>
-                          )
-                        }
-                        sx={{
-                          fontSize: '0.875rem',
-                          height: '42px',
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: '#d1d5db',
-                          },
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'hsl(var(--brand-primary))',
-                          },
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'hsl(var(--brand-primary))',
-                          },
-                        }}
-                        MenuProps={{
-                          PaperProps: {
-                            style: {
-                              maxHeight: '30vh',
-                              overflow: 'auto',
-                              scrollbarWidth: 'none',
-                            },
-                          },
-                        }}
-                      >
-                        {templetes?.length > 0 ? (
-                          templetes?.map((item, index) =>
-                            detailsLoader?.id === item.id ? (
-                              <CircularProgress key={item.id} size={20} />
-                            ) : (
-                              <MenuItem
-                                key={index}
-                                value={item}
-                              >
-                                <div className="flex flex-row items-center gap-2 w-full">
-                                  <div className="text-[15] font-[500] flex-1 truncate min-w-0">
-                                    {item.templateName}
-                                  </div>
-                                  {delTempLoader?.id === item.id ? (
-                                    <CircularProgress size={20} className="flex-shrink-0" />
-                                  ) : (
-                                    <button
-                                      onClick={(e) => {
-                                        e.preventDefault()
-                                        handleDelete(e, item)
-                                      }}
-                                      className="text-brand-primary hover:text-brand-primary/80 transition-colors flex-shrink-0 ml-2"
-                                    >
-                                      <Trash2 size={16} />
-                                    </button>
-                                  )}
-                                </div>
-                              </MenuItem>
-                            ),
-                          )
-                        ) : (
-                          <div className="ml-2">No template found</div>
-                        )}
-                      </Select>
-                    </FormControl>
-                  </div>
-                </>
-              ) : (
+                {/* Select Template dropdown next to Template Name field */}
                 <div className="flex-1">
                   <FormControl size="small" fullWidth sx={{ minWidth: 180 }}>
-                    <Select
-                      value={selectedTemp || ''}
-                      onChange={(e) => handleSelect(e.target.value)}
-                      displayEmpty
-                      renderValue={(selected) =>
-                        selected?.templateName || (
-                          <div style={{ color: '#aaa' }}>Select Template</div>
-                        )
-                      }
-                      sx={{
-                        fontSize: '0.875rem',
-                        height: '42px',
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          borderColor: '#d1d5db',
+                  <Select
+                    value={selectedTemp || ''}
+                    onChange={(e) => handleSelect(e.target.value)}
+                    displayEmpty
+                    renderValue={(selected) =>
+                      selected?.templateName || (
+                        <div style={{ color: '#aaa' }}>Select Template</div>
+                      )
+                    }
+                    sx={{
+                      fontSize: '0.875rem',
+                      height: '42px',
+                      '& .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#d1d5db',
+                      },
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'hsl(var(--brand-primary))',
+                      },
+                      '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                        borderColor: 'hsl(var(--brand-primary))',
+                      },
+                    }}
+                    MenuProps={{
+                      PaperProps: {
+                        style: {
+                          maxHeight: '30vh',
+                          overflow: 'auto',
+                          scrollbarWidth: 'none',
                         },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'hsl(var(--brand-primary))',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          borderColor: 'hsl(var(--brand-primary))',
-                        },
-                      }}
-                      MenuProps={{
-                        PaperProps: {
-                          style: {
-                            maxHeight: '30vh',
-                            overflow: 'auto',
-                            scrollbarWidth: 'none',
-                          },
-                        },
-                      }}
-                    >
-                      {templetes?.length > 0 ? (
-                        templetes?.map((item, index) =>
-                          detailsLoader?.id === item.id ? (
-                            <CircularProgress key={item.id} size={20} />
-                          ) : (
-                            <MenuItem
-                              key={index}
-                              value={item}
-                            >
-                              <div className="flex flex-row items-center gap-2 w-full">
-                                <div className="text-[15] font-[500] flex-1 truncate min-w-0">
-                                  {item.templateName}
-                                </div>
-                                {delTempLoader?.id === item.id ? (
-                                  <CircularProgress size={20} className="flex-shrink-0" />
-                                ) : (
-                                  <button
-                                    onClick={(e) => {
-                                      e.preventDefault()
-                                      handleDelete(e, item)
-                                    }}
-                                    className="text-brand-primary hover:text-brand-primary/80 transition-colors flex-shrink-0 ml-2"
-                                  >
-                                    <Trash2 size={16} />
-                                  </button>
-                                )}
+                      },
+                    }}
+                  >
+                    {templetes?.length > 0 ? (
+                      templetes?.map((item, index) =>
+                        detailsLoader?.id === item.id ? (
+                          <CircularProgress key={item.id} size={20} />
+                        ) : (
+                          <MenuItem
+                            key={index}
+                            value={item}
+                          >
+                            <div className="flex flex-row items-center gap-2 w-full">
+                              <div className="text-[15] font-[500] flex-1 truncate min-w-0">
+                                {item.templateName}
                               </div>
-                            </MenuItem>
-                          ),
-                        )
-                      ) : (
-                        <div className="ml-2">No template found</div>
-                      )}
-                    </Select>
+                              {delTempLoader?.id === item.id ? (
+                                <CircularProgress size={20} className="flex-shrink-0" />
+                              ) : (
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    handleDelete(e, item)
+                                  }}
+                                  className="text-brand-primary hover:text-brand-primary/80 transition-colors flex-shrink-0 ml-2"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              )}
+                            </div>
+                          </MenuItem>
+                        ),
+                      )
+                    ) : (
+                      <div className="ml-2">No template found</div>
+                    )}
+                  </Select>
                   </FormControl>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
 
             {/* Subject Field - Unified design with Variables dropdown */}
             <div className="flex items-center gap-2">
@@ -1441,7 +1555,15 @@ function EmailTempletePopup({
           {/* Footer - Sticky at bottom */}
           <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50 flex-shrink-0">
             <div className="flex items-center gap-2">
-            
+              {/* Cancel button - Only show for pipeline email, positioned on left */}
+              {!isLeadEmail && (
+                <button 
+                  className="text-[#6b7280] outline-none h-[50px] px-4"
+                  onClick={onClose}
+                >
+                  Cancel
+                </button>
+              )}
               
               {/* Attachment button - Only show for lead email */}
               {isLeadEmail && (
