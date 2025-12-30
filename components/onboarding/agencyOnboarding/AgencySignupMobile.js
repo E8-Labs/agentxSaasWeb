@@ -470,19 +470,19 @@ const AgencySignupMobile = ({
     >
       <div className="flex flex-col items-center h-full w-full">
         <SignupHeaderMobile title="Create Your AI Agency" />
-    
+
         <div style={{
           position: 'absolute',
           top: '20vh',
           left: '50%',
           transform: 'translateX(-50%)',
 
-        }} className=" w-[90%] bg-white h-[78vh] rounded-xl p-2 mt-2 ">
+        }} className=" w-[90%] bg-white h-[78vh] rounded-xl p-2 mt-2 shadow-2xl">
 
           <div className="flex flex-col items-center justify-center">
 
-          <Image src="/agentxOrb.gif" alt="Agency Onboarding Background"
-            width={100} height={100} />
+            <Image src="/agentxOrb.gif" alt="Agency Onboarding Background"
+              width={100} height={100} />
 
             <div className="flex flex-col items-center px-4 w-full h-[92%]">
 
@@ -843,8 +843,6 @@ const AgencySignupMobile = ({
               </div>
             </div>
           </div>
-        </div>
-        <div className="h-[10%] w-full flex flex-col justify-end pb-4">
           <div className="w-full px-4 flex flex-row justify-end items-center pt-4">
             {registerLoader ? (
               <CircularProgress size={35} />

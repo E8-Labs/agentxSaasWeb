@@ -7,10 +7,13 @@ import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
 import { getNextChargeDate } from '@/components/userPlans/UserPlanServices'
 import SignupHeaderMobile from './SignupHeaderMobile'
+import LoaderAnimation from '@/components/animations/LoaderAnimation'
 
-function PlanSummaryMobile({ selectedPlan, onMakePayment, onEditPayment }) {
+function PlanSummaryMobile({ selectedPlan, onMakePayment, onEditPayment, isRedirecting: isRedirectingProp }) {
   const [card, setCard] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [isSubscribing, setIsSubscribing] = useState(false)
+  const [isRedirecting, setIsRedirecting] = useState(false)
 
   useEffect(() => {
     getCardsList()
@@ -88,6 +91,25 @@ function PlanSummaryMobile({ selectedPlan, onMakePayment, onEditPayment }) {
     if (brandLower === 'amex' || brandLower === 'american express') return '/svgIcons/Amex.svg'
     return '/svgIcons/Visa.svg'
   }
+
+  // Handle payment with loading states
+  const handleMakePayment = async () => {
+    try {
+      setIsSubscribing(true)
+      await onMakePayment()
+      // If payment succeeds, the parent will handle redirect
+      // Set redirecting state after a short delay to show transition
+      setTimeout(() => {
+        setIsRedirecting(true)
+      }, 500)
+    } catch (error) {
+      console.error('Payment error:', error)
+      setIsSubscribing(false)
+    }
+  }
+
+  // Use prop if provided, otherwise use internal state
+  const showRedirecting = isRedirectingProp !== undefined ? isRedirectingProp : isRedirecting
 
   return (
     <div className="flex flex-col items-center h-full w-full min-h-screen">
@@ -210,13 +232,48 @@ function PlanSummaryMobile({ selectedPlan, onMakePayment, onEditPayment }) {
 
           {/* Make Payment Button */}
           <button
-            onClick={onMakePayment}
-            className="w-full bg-purple-600 text-white font-semibold py-4 rounded-xl text-lg hover:bg-purple-700 transition-colors"
+            onClick={handleMakePayment}
+            disabled={isSubscribing || showRedirecting}
+            className="w-full bg-purple-600 text-white font-semibold py-4 rounded-xl text-lg hover:bg-purple-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            Make Payment
+            {isSubscribing ? (
+              <>
+                <svg
+                  className="animate-spin h-5 w-5 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Processing Payment...
+              </>
+            ) : (
+              'Make Payment'
+            )}
           </button>
         </div>
       </div>
+
+      {/* Redirect Loading Overlay */}
+      {showRedirecting && (
+        <LoaderAnimation
+          open={showRedirecting}
+          title="Redirecting to dashboard..."
+        />
+      )}
     </div>
   )
 }
