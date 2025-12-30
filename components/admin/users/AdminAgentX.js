@@ -2438,12 +2438,20 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         }
       }
     } catch (error) {
-      //// console.error("Error occured in test api is", error);
-      if (axios.isAxiosError(error)) {
-        console.error('Axios error:', error.response?.data || error.message)
-      } else {
-        console.error('General error:', error)
-      }
+      console.error('Error occured in test api is', error)
+      
+      // Extract error message from API response
+      const errorMessage =
+        error?.response?.data?.message || 
+        error?.message || 
+        'An error occurred while testing the AI agent'
+      
+      // Display error message to user
+      setShowErrorSnack(errorMessage)
+      setIsVisibleSnack2(true)
+      
+      // Only close modal if it's a non-critical error (optional)
+      // setOpenTestAiModal(false)
     } finally {
       ////console.log;
       setTestAIloader(false)
