@@ -151,7 +151,8 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
             console.log('user data is', userData)
             const cost = 
               userData?.planCapabilities?.aiCreditRate || 
-              userData?.plan?.capabilities?.aiCreditRate ||
+              userData?.plan?.grandfatheredFeatures?.aiCreditRate ||
+              userData?.plan?.features?.aiCreditRate ||
               selectedAgency?.planCapabilities?.aiCreditRate ||
               selectedAgency?.plan?.capabilities?.aiCreditRate
             console.log('cost is', cost)
