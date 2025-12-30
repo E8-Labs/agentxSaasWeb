@@ -122,6 +122,9 @@ export default function DialerModal({
       dialogJustOpened.current = true
       isClosingRef.current = false
       
+      // Reset dropdown anchor when modal opens
+      setNumberDropdownAnchor(null)
+      
       // Reset flag after a delay to allow dialog to fully open
       const timeoutId = setTimeout(() => {
         console.log('[DialerModal] Dialog fully opened, clearing protection flag')
@@ -857,7 +860,8 @@ export default function DialerModal({
     if (open) {
       const overlay = document.querySelector('[data-radix-dialog-overlay]') as HTMLElement
       if (overlay) {
-        overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.1)'
+        overlay.style.backgroundColor = 'transparent'
+        overlay.style.pointerEvents = 'none'
       }
       
       // Hide the close button - use MutationObserver to catch it when it's added
@@ -902,11 +906,11 @@ export default function DialerModal({
     }
   }, [open])
 
-  // Add global style to hide close button
+  // Add global style to hide close button and remove overlay background
   useEffect(() => {
     if (open) {
       const style = document.createElement('style')
-      style.id = 'dialer-modal-hide-close'
+      style.id = 'dialer-modal-styles'
       style.textContent = `
         [data-radix-dialog-content] button[aria-label="Close"],
         [data-radix-dialog-content] > button {
@@ -915,10 +919,14 @@ export default function DialerModal({
           opacity: 0 !important;
           pointer-events: none !important;
         }
+        [data-radix-dialog-overlay] {
+          background-color: transparent !important;
+          pointer-events: none !important;
+        }
       `
       document.head.appendChild(style)
       return () => {
-        const existingStyle = document.getElementById('dialer-modal-hide-close')
+        const existingStyle = document.getElementById('dialer-modal-styles')
         if (existingStyle) {
           existingStyle.remove()
         }
@@ -941,8 +949,10 @@ export default function DialerModal({
           left: 'auto',
           transform: 'none',
           margin: 0,
-          maxWidth: '380px',
-          width: '380px',
+          maxWidth: showScriptPanel ? '700px' : '380px',
+          width: showScriptPanel ? '700px' : '380px',
+          transition: 'width 0.3s ease, max-width 0.3s ease',
+          boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1)',
         }}
         onInteractOutside={(e) => {
           // Prevent closing when dialog just opened (prevents MUI Drawer conflicts)
@@ -968,7 +978,7 @@ export default function DialerModal({
         <div className="flex flex-row" style={{ minHeight: '500px', maxHeight: '80vh' }}>
           {/* Script Panel - Left Side */}
           {showScriptPanel && (
-            <div className="w-80 border-r border-gray-200 flex-shrink-0">
+            <div className="w-80 border-r border-gray-200 flex-shrink-0 flex flex-col" style={{ maxHeight: '80vh' }}>
               <CallingScript
                 leadId={leadId}
                 leadName={leadName}
@@ -979,7 +989,14 @@ export default function DialerModal({
           )}
 
           {/* Main Content - Right Side */}
-          <div className="flex-1 flex flex-col min-w-0">
+          <div 
+            className="flex flex-col relative"
+            style={{
+              width: showScriptPanel ? '380px' : '100%',
+              flexShrink: 0,
+              maxHeight: '80vh',
+            }}
+          >
             {/* Header with Your Number - Gray Background */}
             <div className="px-4 py-3 relative" style={{ backgroundColor: '#F5F5F5', zIndex: 1, pointerEvents: 'auto' }}>
               <div className="space-y-2">
@@ -1021,24 +1038,25 @@ export default function DialerModal({
                       Change
                       <ChevronDown size={14} />
                     </button>
-                    <Menu
-                      anchorEl={numberDropdownAnchor}
-                      open={Boolean(numberDropdownAnchor)}
-                      onClose={() => setNumberDropdownAnchor(null)}
-                      PaperProps={{
-                        style: {
-                          maxHeight: '300px',
-                          width: '300px',
-                          zIndex: 1500,
-                        },
-                      }}
-                      style={{ zIndex: 1500 }}
-                      MenuListProps={{
-                        style: { zIndex: 1500 },
-                      }}
-                      container={() => document.body}
-                      disablePortal={false}
-                    >
+                    {numberDropdownAnchor && (
+                      <Menu
+                        anchorEl={numberDropdownAnchor}
+                        open={Boolean(numberDropdownAnchor)}
+                        onClose={() => setNumberDropdownAnchor(null)}
+                        PaperProps={{
+                          style: {
+                            maxHeight: '300px',
+                            width: '300px',
+                            zIndex: 1500,
+                          },
+                        }}
+                        style={{ zIndex: 1500 }}
+                        MenuListProps={{
+                          style: { zIndex: 1500 },
+                        }}
+                        container={() => document.body}
+                        disablePortal={false}
+                      >
                   {phoneNumbersLoading ? (
                     <MenuItem disabled>Loading...</MenuItem>
                   ) : phoneNumbers.length === 0 ? (
@@ -1078,7 +1096,8 @@ export default function DialerModal({
                       </MenuItem>
                     ))
                   )}
-                    </Menu>
+                      </Menu>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1199,13 +1218,23 @@ export default function DialerModal({
                               </span>
                             </button>
                             <button
-                              onClick={() => setShowScriptPanel(!showScriptPanel)}
-                              className={`flex flex-col items-center gap-1 p-3 rounded-full transition-colors ${showScriptPanel
-                                  ? 'bg-gray-100'
-                                  : 'hover:bg-gray-50 bg-white'
+                              onClick={(e) => {
+                                e.preventDefault()
+                                e.stopPropagation()
+                                setShowScriptPanel(prev => {
+                                  console.log('Toggling script panel from', prev, 'to', !prev)
+                                  return !prev
+                                })
+                              }}
+                              className={`flex flex-col items-center gap-1 p-3 rounded-full transition-all ${!showScriptPanel
+                                  ? 'hover:bg-gray-50'
+                                  : ''
                                 }`}
                               style={{
                                 border: showScriptPanel ? '2px solid hsl(var(--brand-primary))' : '1px solid #e5e7eb',
+                                backgroundColor: showScriptPanel 
+                                  ? 'hsl(var(--brand-primary) / 0.1)' 
+                                  : 'white',
                               }}
                             >
                               <FileText
@@ -1297,18 +1326,32 @@ export default function DialerModal({
                           {/* Create Script Button - Show if no script exists */}
                           <div className="flex w-full justify-center">
                             <Button
-                              onClick={() => setShowScriptPanel(true)}
+                              onClick={() => setShowScriptPanel(!showScriptPanel)}
                               variant="filled"
-                              className=" rounded-full py-2 px-4"
+                              className="rounded-full py-2 px-4 transition-all"
                               style={{
-                                backgroundColor: '#F9F9F9',
-                                // borderColor: '#e5e7eb',
-                                color: '#374151',
+                                backgroundColor: showScriptPanel 
+                                  ? 'hsl(var(--brand-primary) / 0.1)' 
+                                  : '#F9F9F9',
+                                border: showScriptPanel 
+                                  ? '2px solid hsl(var(--brand-primary))' 
+                                  : '1px solid #e5e7eb',
+                                color: showScriptPanel 
+                                  ? 'hsl(var(--brand-primary))' 
+                                  : '#374151',
                                 fontSize: '14px',
                                 height: 'auto',
                               }}
                             >
-                              <FileText size={14} className="mr-1.5" />
+                              <FileText 
+                                size={14} 
+                                className="mr-1.5" 
+                                style={{
+                                  color: showScriptPanel 
+                                    ? 'hsl(var(--brand-primary))' 
+                                    : '#374151'
+                                }}
+                              />
                               Create Script
                             </Button>
                           </div>
@@ -1320,16 +1363,17 @@ export default function DialerModal({
               )}
             </div>
 
-            {/* Fixed Start Call Button at Bottom */}
+            {/* Fixed Start Call Button at Bottom - Only in main content area */}
             {(callStatus === 'idle' || callStatus === 'ended' || callStatus === 'error') && (
               <div
-                className="w-full px-6 py-4 border-t border-gray-200 "
+                className="px-6 py-4 border-t border-gray-200"
                 style={{
                   position: 'absolute',
                   bottom: 0,
                   left: 0,
                   right: 0,
                   backgroundColor: 'white',
+                  width: '100%',
                 }}
               >
                  <Button

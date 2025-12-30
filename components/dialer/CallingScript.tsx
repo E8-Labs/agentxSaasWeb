@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import { Button as ButtonBase } from '../ui/button'
 import { Textarea } from '../ui/textarea'
-import { FileText, Plus, Pencil, X, Check } from 'lucide-react'
+import { FileText, Plus, Pencil, X, Check, Hash, Square, Eye, Type, RotateCw, Grid3x3, Minus, Code, ChevronDown, Send } from 'lucide-react'
 import { toast } from 'sonner'
 
 // Type assertions for components from .jsx files
@@ -198,42 +199,44 @@ export default function CallingScript({
   }
 
   return (
-    <div className="flex flex-col h-full w-full border-r border-gray-200 bg-white">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
-        <div className="flex items-center gap-2">
-          <FileText size={20} className="text-brand-primary" style={{ color: 'hsl(var(--brand-primary))' }} />
-          <h3 className="font-semibold text-base" style={{ color: 'hsl(var(--brand-primary))' }}>
-            Calling script
-          </h3>
-        </div>
-        <button
-          onClick={onClose}
-          className="p-1 hover:bg-gray-100 rounded"
-        >
-          <X size={18} />
-        </button>
+    <div className="flex flex-col h-full w-full border-r border-gray-200 bg-white relative">
+      {/* Header - Only title, no close button */}
+      <div className="px-6 py-5">
+        <h3 className="font-bold text-xl text-gray-900">
+          Calling script
+        </h3>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4">
+      {/* Content Area */}
+      <div className="flex-1 overflow-y-auto px-6">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-sm text-gray-500">Loading scripts...</div>
           </div>
         ) : scripts.length === 0 && !isCreating ? (
-          <div className="flex flex-col items-center justify-center h-full gap-4">
-            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
-              <FileText size={32} className="text-gray-400" />
+          <div className="flex flex-col items-center justify-center h-full gap-6">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: '#F9F9F9' }}>
+              <Image 
+                src="/svgIcons/OLD AGENTX UI/script_icon.svg" 
+                alt="Script icon" 
+                width={32}
+                height={32}
+              />
             </div>
             <div className="text-center">
-              <p className="text-sm text-gray-500 mb-2">No script found</p>
+              <p className="text-base mb-5" style={{ color: 'rgba(0, 0, 0, 0.6)' }}>No script found</p>
               <Button
                 onClick={handleCreateScript}
-                className="flex items-center gap-2"
-                style={{ backgroundColor: 'hsl(var(--brand-primary))', color: 'white' }}
+                className="rounded-full bg-gray-50 hover:bg-gray-50"
+                style={{ 
+                  color: '#374151',
+                  padding: '10px 20px',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  boxShadow: 'none',
+                }}
               >
-                <Plus size={16} />
+                <Plus size={16} className="mr-1" />
                 Add Script
               </Button>
             </div>
@@ -241,7 +244,7 @@ export default function CallingScript({
         ) : isCreating || isEditing ? (
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-2 block">Title</label>
+              <label className="text-sm font-medium mb-2 block text-gray-700">Title</label>
               <input
                 type="text"
                 value={editTitle}
@@ -252,12 +255,12 @@ export default function CallingScript({
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-2 block">Content</label>
+              <label className="text-sm font-medium mb-2 block text-gray-700">Content</label>
               <Textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
                 placeholder="Enter script content..."
-                className="w-full min-h-[300px] resize-none"
+                className="w-full min-h-[400px] resize-none border border-gray-300 rounded-lg"
                 style={{ fontSize: '14px' }}
               />
             </div>
@@ -283,7 +286,7 @@ export default function CallingScript({
         ) : selectedScript ? (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h4 className="font-semibold text-base">{selectedScript.title}</h4>
+              <h4 className="font-semibold text-base text-gray-900">{selectedScript.title}</h4>
               <Button
                 onClick={() => handleEditScript(selectedScript)}
                 variant="ghost"
@@ -300,24 +303,36 @@ export default function CallingScript({
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full gap-4">
-            <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center">
-              <FileText size={32} className="text-gray-400" />
+          <div className="flex flex-col items-center justify-center h-full gap-6">
+            <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: '#F9F9F9' }}>
+              <Image 
+                src="/svgIcons/OLD AGENTX UI/script_icon.svg" 
+                alt="Script icon" 
+                width={32}
+                height={32}
+              />
             </div>
             <div className="text-center">
-              <p className="text-sm text-gray-500 mb-2">No script found</p>
+              <p className="text-base mb-5" style={{ color: 'rgba(0, 0, 0, 0.6)' }}>No script found</p>
               <Button
                 onClick={handleCreateScript}
-                className="flex items-center gap-2"
-                style={{ backgroundColor: 'hsl(var(--brand-primary))', color: 'white' }}
+                className="rounded-full bg-gray-50 hover:bg-gray-50"
+                style={{ 
+                  color: '#374151',
+                  padding: '10px 20px',
+                  fontSize: '14px',
+                  fontWeight: 500,
+                  boxShadow: 'none',
+                }}
               >
-                <Plus size={16} />
+                <Plus size={16} className="mr-1" />
                 Add Script
               </Button>
             </div>
           </div>
         )}
       </div>
+
     </div>
   )
 }
