@@ -297,7 +297,8 @@ const EmbedModal = ({
       })
 
       const response = await axios.post(
-        'https://apimyagentx.com/agentxtest/api/agent/updateAgentSupportButton',
+        // 'https://apimyagentx.com/agentxtest/api/agent/updateAgentSupportButton',
+        Apis.updateAgentSupportButton,
         formData,
         {
           headers: {
@@ -344,8 +345,8 @@ const EmbedModal = ({
       console.log('🔧 EMBED-MODAL - Attaching smart list:', payload)
 
       const response = await axios.post(
-        'https://apimyagentx.com/agentxtest/api/agent/attachSmartList',
-        payload,
+        // 'https://apimyagentx.com/agentxtest/api/agent/attachSmartList',
+        Apis.attachSmartList,
         {
           headers: {
             Authorization: `Bearer ${AuthToken}`,
