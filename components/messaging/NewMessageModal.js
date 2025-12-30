@@ -589,11 +589,10 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
     setSelectedLeads((prev) => {
       const exists = prev.find((l) => l.id === lead.id)
       if (exists) {
+        // Remove lead but keep dropdown open for multi-select
         return prev.filter((l) => l.id !== lead.id)
       } else {
-        // Add lead and clear search
-        setSearchQuery('')
-        setShowLeadList(false)
+        // Add lead but keep dropdown open for multi-select
         return [...prev, lead]
       }
     })
@@ -609,6 +608,10 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
     const handleClickOutside = (event) => {
       if (leadSearchRef.current && !leadSearchRef.current.contains(event.target)) {
         setShowLeadList(false)
+        // Clear search query when closing dropdown if no leads selected
+        if (selectedLeads.length === 0) {
+          setSearchQuery('')
+        }
       }
     }
 
@@ -619,7 +622,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [open])
+  }, [open, selectedLeads.length])
 
   // Handle send
   const handleSend = async () => {
@@ -1012,59 +1015,91 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                 </div>
 
                 {/* To Field */}
-                <div className="flex items-center gap-2 flex-1">
-                  <label className="text-sm font-medium whitespace-nowrap">To:</label>
-                  <div className="relative flex-1 min-w-0">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <label className="text-sm font-medium whitespace-nowrap flex-shrink-0">To:</label>
+                  <div className="relative flex-1 min-w-0 overflow-hidden">
                     {/* Tag Input Container */}
-                    <div className="flex flex-wrap items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto" style={{ height: '42px', minHeight: '42px' }}>
-                      {/* Selected Lead Tags */}
-                      {selectedLeads.map((lead) => (
-                        <div
-                          key={lead.id}
-                          className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
-                        >
-                          <span className="text-gray-700">
-                            {lead.firstName || lead.name || 'Lead'} {lead.lastName || ''}
-                            {lead.smartListName && (
-                              <span className="ml-1 text-brand-primary">• {lead.smartListName}</span>
+                    <div 
+                      className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden"
+                      style={{ height: '42px', minHeight: '42px', maxWidth: '100%' }}
+                      onClick={() => {
+                        setShowLeadList(true)
+                      }}
+                    >
+                      {/* Display first selected lead and badge if multiple */}
+                      {selectedLeads.length > 0 ? (
+                        <>
+                          <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
+                            <span className="text-sm text-gray-700 truncate max-w-[150px]">
+                              {selectedMode === 'email' 
+                                ? (selectedLeads[0].email || `${selectedLeads[0].firstName || ''} ${selectedLeads[0].lastName || ''}`.trim() || 'Lead')
+                                : (selectedLeads[0].phone || `${selectedLeads[0].firstName || ''} ${selectedLeads[0].lastName || ''}`.trim() || 'Lead')
+                              }
+                            </span>
+                            {selectedLeads.length > 1 && (
+                              <span className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0">
+                                +{selectedLeads.length - 1}
+                              </span>
                             )}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => removeLead(lead.id)}
-                            className="text-gray-500 hover:text-gray-700 ml-1"
-                          >
-                            <X size={14} weight="bold" />
-                          </button>
-                        </div>
-                      ))}
-                      {/* Search Input */}
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        onFocus={() => {
-                          if (searchQuery.trim()) {
+                          </div>
+                          {/* Search Input - Always visible for adding more */}
+                          <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => {
+                              setSearchQuery(e.target.value)
+                              setShowLeadList(true)
+                            }}
+                            onFocus={() => {
+                              setShowLeadList(true)
+                            }}
+                            placeholder=""
+                            className="flex-1 min-w-[80px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                            style={{
+                              height: '100%',
+                              lineHeight: '42px',
+                              padding: 0,
+                              verticalAlign: 'middle',
+                              maxWidth: '100%'
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                          />
+                        </>
+                      ) : (
+                        <input
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => {
+                            setSearchQuery(e.target.value)
                             setShowLeadList(true)
-                          }
-                        }}
-                        placeholder={selectedLeads.length === 0 ? "Search leads..." : ""}
-                        className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
-                        style={{
-                          height: '100%',
-                          lineHeight: '42px',
-                          padding: 0,
-                          verticalAlign: 'middle'
-                        }}
-                      />
+                          }}
+                          onFocus={() => {
+                            setShowLeadList(true)
+                          }}
+                          placeholder="Search leads..."
+                          className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                          style={{
+                            height: '100%',
+                            lineHeight: '42px',
+                            padding: 0,
+                            verticalAlign: 'middle',
+                            maxWidth: '100%'
+                          }}
+                        />
+                      )}
+                      <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-1" />
                     </div>
 
-                    {/* Leads List Dropdown - Only show when searching and list is visible */}
-                    {showLeadList && searchQuery.trim() && (
-                      <div className="absolute z-10 w-full mt-1 bg-white border-[0.5px] border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                    {/* Leads List Dropdown - Show when searching or when clicking on field */}
+                    {showLeadList && (
+                      <div className="absolute z-10 w-full mt-1 bg-white border-[0.5px] border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto overflow-x-hidden">
                         {loading ? (
                           <div className="p-4 text-center">
                             <CircularProgress size={24} />
+                          </div>
+                        ) : !searchQuery.trim() ? (
+                          <div className="p-4 text-center text-gray-500 text-sm">
+                            Start typing to search leads...
                           </div>
                         ) : filteredLeads.length === 0 ? (
                           <div className="p-4 text-center text-gray-500 text-sm">
@@ -1077,27 +1112,22 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                               <div
                                 key={lead.id}
                                 onClick={() => toggleLeadSelection(lead)}
-                                className={`p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${isSelected ? 'bg-brand-primary/5' : ''
+                                className={`p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${isSelected ? 'bg-gray-100' : ''
                                   }`}
                               >
-                                <div className="flex items-center justify-between">
-                                  <div className="flex-1">
-                                    <div className="font-medium text-sm">
+                                <div className="flex items-center justify-between gap-2 min-w-0">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-sm text-gray-900 truncate">
                                       {lead.firstName || lead.name || 'Unknown'} {lead.lastName || ''}
                                     </div>
-                                    <div className="text-xs text-gray-500 mt-1">
-                                      {selectedMode === 'sms'
-                                        ? lead.phone || 'No phone'
-                                        : lead.email || 'No email'}
-                                      {lead.smartListName && (
-                                        <span className="ml-2 text-brand-primary">
-                                          • {lead.smartListName}
-                                        </span>
-                                      )}
+                                    <div className="text-xs text-gray-500 mt-1 truncate">
+                                      {selectedMode === 'email'
+                                        ? lead.email || 'No email'
+                                        : lead.phone || 'No phone'}
                                     </div>
                                   </div>
                                   {isSelected && (
-                                    <div className="w-5 h-5 rounded-full bg-brand-primary flex items-center justify-center">
+                                    <div className="w-5 h-5 rounded-full bg-brand-primary flex items-center justify-center flex-shrink-0">
                                       <Check size={14} className="text-white" />
                                     </div>
                                   )}
