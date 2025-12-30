@@ -1,6 +1,6 @@
 'use client'
 
-import { CircularProgress, Drawer, Modal } from '@mui/material'
+import { CircularProgress, Drawer, Modal, Tooltip } from '@mui/material'
 import axios from 'axios'
 import moment from 'moment'
 import Image from 'next/image'
@@ -10,6 +10,7 @@ import InfiniteScroll from 'react-infinite-scroll-component'
 import { MessageSquare } from 'lucide-react'
 
 import { NotificationTypes } from '@/constants/NotificationTypes'
+import { PersistanceKeys } from '@/constants/Constants'
 import { getSupportUrlFor } from '@/utilities/UserUtility'
 import { GetFormattedDateString } from '@/utilities/utility'
 
@@ -222,7 +223,7 @@ function NotficationsDrawer({ close }) {
   function giveFeedback() {
     // Get user data from localStorage
     const userData = localStorage.getItem('User')
-    let feedbackUrl = '/dashboard/myAccount?tab=5' // Default fallback
+    let feedbackUrl = PersistanceKeys.MainUserFeedbackUrl // Default to main user URL
 
     if (userData) {
       try {
@@ -422,18 +423,71 @@ function NotficationsDrawer({ close }) {
         </button>
       )
     } else if (item.type === NotificationTypes.NoCallsIn3Days) {
+      // Get support workshop URL from agency or user settings
+      const userData = localStorage.getItem('User')
+      let supportWorkshopUrl = null
+      let isAgencyUser = false
+
+      if (userData) {
+        try {
+          const user = JSON.parse(userData)
+          isAgencyUser = !!user?.user?.agencySettings
+          // Check agency settings first (for subaccounts)
+          if (user?.user?.agencySettings?.supportWorkshopUrl) {
+            supportWorkshopUrl = user.user.agencySettings.supportWorkshopUrl
+          }
+          // Then check user's own settings
+          else if (user?.user?.userSettings?.supportWorkshopUrl) {
+            supportWorkshopUrl = user.user.userSettings.supportWorkshopUrl
+          }
+        } catch (error) {
+          console.error('Error parsing user data for support workshop URL:', error)
+        }
+      }
+
+      // Fallback to main user support URL if no agency URL
+      const finalUrl = supportWorkshopUrl || PersistanceKeys.MainUserSupportUrl
+      // Show unavailable only if agency user doesn't have supportWorkshopUrl configured
+      const isUnavailable = isAgencyUser && !supportWorkshopUrl
+
       return (
-        <button
-          className="outline-none"
-          onClick={() => {
-            router.push('/dashboard/myAgentX')
-            setShowNotificationDrawer(false)
+        <Tooltip
+          title={isUnavailable ? 'Unavailable' : ''}
+          placement="top"
+          arrow
+          componentsProps={{
+            tooltip: {
+              sx: {
+                backgroundColor: '#ffffff',
+                color: '#333',
+                fontSize: '14px',
+                padding: '10px 15px',
+                borderRadius: '8px',
+                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+              },
+            },
+            arrow: { sx: { color: '#ffffff' } },
           }}
         >
-          <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
-            View Agents
-          </div>
-        </button>
+          <button
+            className="outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => {
+              if (finalUrl) {
+                if (finalUrl.startsWith('http://') || finalUrl.startsWith('https://')) {
+                  window.open(finalUrl, '_blank')
+                } else {
+                  router.push(finalUrl)
+                }
+                setShowNotificationDrawer(false)
+              }
+            }}
+            disabled={isUnavailable}
+          >
+            <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
+              View Agents
+            </div>
+          </button>
+        </Tooltip>
       )
     } else if (
       NotificationTypes.Trial30MinTicking === item.type ||
@@ -524,15 +578,11 @@ function NotficationsDrawer({ close }) {
         <button
           className="outline-none"
           onClick={() => {
-            if (reduxUser?.userSettings?.giveFeedbackUrl) {
-              router.push(reduxUser?.userSettings?.giveFeedbackUrl)
-            } else {
-              giveFeedback()
-            }
+            giveFeedback()
           }}
         >
           <div className="flex flex-row items-center justify-center p-2 border border-[#00000020] rounded-md text-[13px] font-medium ">
-            Get Live Help
+            Give Feedback
           </div>
         </button>
       )
@@ -596,31 +646,17 @@ function NotficationsDrawer({ close }) {
                   style={{ fontSize: 16, fontWeight: '600' }}
                 >
                   {item.title}
-                  {item.type === NotificationTypes.NoCallsIn3Days && (
-                    <button
-                      style={{
-                        fontSize: 15,
-                        fontWeight: '500',
-                        color: '#7902DF',
-                        textDecorationLine: 'underline',
-                        marginLeft: '8px', // Add some spacing between the title and button
-                      }}
-                      onClick={() => {
-                        getSupport()
-                      }}
-                    >
-                      Need help?
-                    </button>
-                  )}
                 </div>
               </div>
 
-              {item.body && (
+              {(item.body || item.type === NotificationTypes.Day14FeedbackRequest) && (
                 <div
                   className=" flex flex col gap-2"
                   style={{ fontSize: 15, fontWeight: '500' }}
                 >
-                  {item.body}
+                  {item.type === NotificationTypes.Day14FeedbackRequest
+                    ? 'Tell us about your experience'
+                    : item.body}
                 </div>
               )}
 
