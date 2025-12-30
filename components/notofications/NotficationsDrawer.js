@@ -221,27 +221,35 @@ function NotficationsDrawer({ close }) {
   }
 
   function giveFeedback() {
-    // Get user data from localStorage
+    // Logic:
+    // - For agency subaccounts: Use URL from agencySettings.giveFeedbackUrl if available
+    // - For main accounts and agency accounts: Always use MainUserFeedbackUrl (ClickUp form)
     const userData = localStorage.getItem('User')
-    let feedbackUrl = PersistanceKeys.MainUserFeedbackUrl // Default to main user URL
+    let feedbackUrl = PersistanceKeys.MainUserFeedbackUrl // Default to ClickUp form URL
 
     if (userData) {
       try {
         const user = JSON.parse(userData)
-        // Check agency settings first (for subaccounts)
-        if (user?.user?.agencySettings?.giveFeedbackUrl) {
-          feedbackUrl = user.user.agencySettings.giveFeedbackUrl
+        const userRole = user?.user?.userRole || user?.userRole
+        
+        // Only for subaccounts: use agency feedback URL if available
+        if (userRole === 'AgencySubAccount') {
+          if (
+            user?.user?.agencySettings?.giveFeedbackUrl &&
+            user.user.agencySettings.giveFeedbackUrl.trim() !== '' &&
+            !user.user.agencySettings.giveFeedbackUrl.includes('forms.gle')
+          ) {
+            feedbackUrl = user.user.agencySettings.giveFeedbackUrl
+          }
         }
-        // Then check user's own settings
-        else if (user?.user?.userSettings?.giveFeedbackUrl) {
-          feedbackUrl = user.user.userSettings.giveFeedbackUrl
-        }
+        // For main accounts (AgentX) and agency accounts (Agency), always use MainUserFeedbackUrl
+        // This ensures they get the ClickUp form URL
       } catch (error) {
         console.error('Error parsing user data for feedback URL:', error)
       }
     }
 
-    // If it's an external URL, open in new tab, otherwise use router
+    // Always open the feedback URL in a new tab
     if (feedbackUrl.startsWith('http://') || feedbackUrl.startsWith('https://')) {
       window.open(feedbackUrl, '_blank')
     } else {
