@@ -194,14 +194,46 @@ function EmailTempletePopup({
         setTempName(details.templateName || '')
         setSubject(details.subject || '')
         setBody(details.content || '')
-        setccEmails(details.ccEmails || [])
-        setBccEmails(details.bccEmails || [])
+        
+        // Parse ccEmails if it's a string (JSON string)
+        let parsedCcEmails = []
+        if (details.ccEmails) {
+          if (typeof details.ccEmails === 'string') {
+            try {
+              parsedCcEmails = JSON.parse(details.ccEmails)
+            } catch (e) {
+              console.error('Error parsing ccEmails:', e)
+              parsedCcEmails = []
+            }
+          } else if (Array.isArray(details.ccEmails)) {
+            parsedCcEmails = details.ccEmails
+          }
+        }
+        
+        // Parse bccEmails if it's a string (JSON string)
+        let parsedBccEmails = []
+        if (details.bccEmails) {
+          if (typeof details.bccEmails === 'string') {
+            try {
+              parsedBccEmails = JSON.parse(details.bccEmails)
+            } catch (e) {
+              console.error('Error parsing bccEmails:', e)
+              parsedBccEmails = []
+            }
+          } else if (Array.isArray(details.bccEmails)) {
+            parsedBccEmails = details.bccEmails
+          }
+        }
+        
+        setccEmails(Array.isArray(parsedCcEmails) ? parsedCcEmails : [])
+        setBccEmails(Array.isArray(parsedBccEmails) ? parsedBccEmails : [])
         setAttachments(details.attachments || [])
+        
         // Show CC/BCC fields if they have values
-        if (details.ccEmails && details.ccEmails.length > 0) {
+        if (parsedCcEmails && Array.isArray(parsedCcEmails) && parsedCcEmails.length > 0) {
           setShowCC(true)
         }
-        if (details.bccEmails && details.bccEmails.length > 0) {
+        if (parsedBccEmails && Array.isArray(parsedBccEmails) && parsedBccEmails.length > 0) {
           setShowBCC(true)
         }
       }
@@ -214,17 +246,22 @@ function EmailTempletePopup({
 
   const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i
 
+  // Ensure ccEmails and bccEmails are always arrays before filtering
+  const safeCcEmails = Array.isArray(ccEmails) ? ccEmails : []
+  const safeBccEmails = Array.isArray(bccEmails) ? bccEmails : []
+
   const invalidEmails = [
-    ...ccEmails.filter((e) => !emailRegex.test(String(e).trim())),
-    ...bccEmails.filter((e) => !emailRegex.test(String(e).trim())),
+    ...safeCcEmails.filter((e) => !emailRegex.test(String(e).trim())),
+    ...safeBccEmails.filter((e) => !emailRegex.test(String(e).trim())),
   ]
 
   // Helper function to add email to CC array
   const addCcEmail = (email) => {
     const trimmedEmail = email.trim()
     if (trimmedEmail && emailRegex.test(trimmedEmail)) {
-      if (!ccEmails.includes(trimmedEmail)) {
-        setccEmails([...ccEmails, trimmedEmail])
+      const currentCcEmails = Array.isArray(ccEmails) ? ccEmails : []
+      if (!currentCcEmails.includes(trimmedEmail)) {
+        setccEmails([...currentCcEmails, trimmedEmail])
         setccEmailsChanged(true)
       }
       setCcEmailInput('')
@@ -235,8 +272,9 @@ function EmailTempletePopup({
   const addBccEmail = (email) => {
     const trimmedEmail = email.trim()
     if (trimmedEmail && emailRegex.test(trimmedEmail)) {
-      if (!bccEmails.includes(trimmedEmail)) {
-        setBccEmails([...bccEmails, trimmedEmail])
+      const currentBccEmails = Array.isArray(bccEmails) ? bccEmails : []
+      if (!currentBccEmails.includes(trimmedEmail)) {
+        setBccEmails([...currentBccEmails, trimmedEmail])
         setBccEmailsChanged(true)
       }
       setBccEmailInput('')
@@ -245,13 +283,15 @@ function EmailTempletePopup({
 
   // Helper function to remove email from CC array
   const removeCcEmail = (emailToRemove) => {
-    setccEmails(ccEmails.filter((email) => email !== emailToRemove))
+    const currentCcEmails = Array.isArray(ccEmails) ? ccEmails : []
+    setccEmails(currentCcEmails.filter((email) => email !== emailToRemove))
     setccEmailsChanged(true)
   }
 
   // Helper function to remove email from BCC array
   const removeBccEmail = (emailToRemove) => {
-    setBccEmails(bccEmails.filter((email) => email !== emailToRemove))
+    const currentBccEmails = Array.isArray(bccEmails) ? bccEmails : []
+    setBccEmails(currentBccEmails.filter((email) => email !== emailToRemove))
     setBccEmailsChanged(true)
   }
 
@@ -261,9 +301,13 @@ function EmailTempletePopup({
     // Check if input contains comma (likely pasted multiple emails)
     if (value.includes(',')) {
       const emails = value.split(',').map(email => email.trim()).filter(email => email)
+      const currentCcEmails = Array.isArray(ccEmails) ? ccEmails : []
       emails.forEach(email => {
-        if (emailRegex.test(email) && !ccEmails.includes(email)) {
-          setccEmails(prev => [...prev, email])
+        if (emailRegex.test(email) && !currentCcEmails.includes(email)) {
+          setccEmails(prev => {
+            const prevArray = Array.isArray(prev) ? prev : []
+            return [...prevArray, email]
+          })
           setccEmailsChanged(true)
         }
       })
@@ -279,9 +323,13 @@ function EmailTempletePopup({
     // Check if input contains comma (likely pasted multiple emails)
     if (value.includes(',')) {
       const emails = value.split(',').map(email => email.trim()).filter(email => email)
+      const currentBccEmails = Array.isArray(bccEmails) ? bccEmails : []
       emails.forEach(email => {
-        if (emailRegex.test(email) && !bccEmails.includes(email)) {
-          setBccEmails(prev => [...prev, email])
+        if (emailRegex.test(email) && !currentBccEmails.includes(email)) {
+          setBccEmails(prev => {
+            const prevArray = Array.isArray(prev) ? prev : []
+            return [...prevArray, email]
+          })
           setBccEmailsChanged(true)
         }
       })
@@ -399,21 +447,189 @@ function EmailTempletePopup({
     // setTempletes((prev) => prev.filter((x) => x.id !== t.id));
   }
 
-  const handleSelect = (t) => {
+  const handleSelect = async (t) => {
     console.log('t', t)
     setSelectedTemp(t)
-    setTempName(t.templateName || '')
-    setSubject(t.subject || '')
-    setBody(t.content || '')
-    setccEmails(t.ccEmails || [])
-    setBccEmails(t.bccEmails || [])
-    setAttachments(t.attachments || [])
-    // Show CC/BCC fields if they have values
-    if (t.ccEmails && t.ccEmails.length > 0) {
-      setShowCC(true)
-    }
-    if (t.bccEmails && t.bccEmails.length > 0) {
-      setShowBCC(true)
+    
+    // If template has an id, fetch full details to ensure we have all fields including ccEmails and bccEmails
+    if (t && (t.id || t.templateId)) {
+      try {
+        const templateId = t.id || t.templateId
+        setDetailsLoader(templateId)
+        // Create a template object with templateId for getTempleteDetails
+        const templateForDetails = { templateId: templateId, id: t.id }
+        const details = await getTempleteDetails(templateForDetails)
+        console.log('Template details loaded:', details)
+        if (details) {
+          setTempName(details.templateName || '')
+          setSubject(details.subject || '')
+          setBody(details.content || '')
+          
+          // Parse ccEmails if it's a string (JSON string)
+          let parsedCcEmails = []
+          if (details.ccEmails) {
+            if (typeof details.ccEmails === 'string') {
+              try {
+                parsedCcEmails = JSON.parse(details.ccEmails)
+              } catch (e) {
+                console.error('Error parsing ccEmails:', e)
+                parsedCcEmails = []
+              }
+            } else if (Array.isArray(details.ccEmails)) {
+              parsedCcEmails = details.ccEmails
+            }
+          }
+          
+          // Parse bccEmails if it's a string (JSON string)
+          let parsedBccEmails = []
+          if (details.bccEmails) {
+            if (typeof details.bccEmails === 'string') {
+              try {
+                parsedBccEmails = JSON.parse(details.bccEmails)
+              } catch (e) {
+                console.error('Error parsing bccEmails:', e)
+                parsedBccEmails = []
+              }
+            } else if (Array.isArray(details.bccEmails)) {
+              parsedBccEmails = details.bccEmails
+            }
+          }
+          
+          setccEmails(Array.isArray(parsedCcEmails) ? parsedCcEmails : [])
+          setBccEmails(Array.isArray(parsedBccEmails) ? parsedBccEmails : [])
+          setAttachments(Array.isArray(details.attachments) ? details.attachments : [])
+          
+          // Show CC/BCC fields if they have values
+          if (parsedCcEmails && Array.isArray(parsedCcEmails) && parsedCcEmails.length > 0) {
+            setShowCC(true)
+          }
+          if (parsedBccEmails && Array.isArray(parsedBccEmails) && parsedBccEmails.length > 0) {
+            setShowBCC(true)
+          }
+        } else {
+          // Fallback to template object if details fetch fails
+          setTempName(t.templateName || '')
+          setSubject(t.subject || '')
+          setBody(t.content || '')
+          
+          // Parse ccEmails if it's a string (JSON string)
+          let parsedCcEmails = []
+          if (t.ccEmails) {
+            if (typeof t.ccEmails === 'string') {
+              try {
+                parsedCcEmails = JSON.parse(t.ccEmails)
+              } catch (e) {
+                parsedCcEmails = []
+              }
+            } else if (Array.isArray(t.ccEmails)) {
+              parsedCcEmails = t.ccEmails
+            }
+          }
+          
+          // Parse bccEmails if it's a string (JSON string)
+          let parsedBccEmails = []
+          if (t.bccEmails) {
+            if (typeof t.bccEmails === 'string') {
+              try {
+                parsedBccEmails = JSON.parse(t.bccEmails)
+              } catch (e) {
+                parsedBccEmails = []
+              }
+            } else if (Array.isArray(t.bccEmails)) {
+              parsedBccEmails = t.bccEmails
+            }
+          }
+          
+          setccEmails(Array.isArray(parsedCcEmails) ? parsedCcEmails : [])
+          setBccEmails(Array.isArray(parsedBccEmails) ? parsedBccEmails : [])
+          setAttachments(Array.isArray(t.attachments) ? t.attachments : [])
+        }
+      } catch (error) {
+        console.error('Error loading template details:', error)
+        // Fallback to template object if details fetch fails
+        setTempName(t.templateName || '')
+        setSubject(t.subject || '')
+        setBody(t.content || '')
+        
+        // Parse ccEmails if it's a string (JSON string)
+        let parsedCcEmails = []
+        if (t.ccEmails) {
+          if (typeof t.ccEmails === 'string') {
+            try {
+              parsedCcEmails = JSON.parse(t.ccEmails)
+            } catch (e) {
+              parsedCcEmails = []
+            }
+          } else if (Array.isArray(t.ccEmails)) {
+            parsedCcEmails = t.ccEmails
+          }
+        }
+        
+        // Parse bccEmails if it's a string (JSON string)
+        let parsedBccEmails = []
+        if (t.bccEmails) {
+          if (typeof t.bccEmails === 'string') {
+            try {
+              parsedBccEmails = JSON.parse(t.bccEmails)
+            } catch (e) {
+              parsedBccEmails = []
+            }
+          } else if (Array.isArray(t.bccEmails)) {
+            parsedBccEmails = t.bccEmails
+          }
+        }
+        
+        setccEmails(Array.isArray(parsedCcEmails) ? parsedCcEmails : [])
+        setBccEmails(Array.isArray(parsedBccEmails) ? parsedBccEmails : [])
+        setAttachments(Array.isArray(t.attachments) ? t.attachments : [])
+      } finally {
+        setDetailsLoader(null)
+      }
+    } else {
+      // If no id, use template object directly
+      setTempName(t.templateName || '')
+      setSubject(t.subject || '')
+      setBody(t.content || '')
+      
+      // Parse ccEmails if it's a string (JSON string)
+      let parsedCcEmails = []
+      if (t.ccEmails) {
+        if (typeof t.ccEmails === 'string') {
+          try {
+            parsedCcEmails = JSON.parse(t.ccEmails)
+          } catch (e) {
+            parsedCcEmails = []
+          }
+        } else if (Array.isArray(t.ccEmails)) {
+          parsedCcEmails = t.ccEmails
+        }
+      }
+      
+      // Parse bccEmails if it's a string (JSON string)
+      let parsedBccEmails = []
+      if (t.bccEmails) {
+        if (typeof t.bccEmails === 'string') {
+          try {
+            parsedBccEmails = JSON.parse(t.bccEmails)
+          } catch (e) {
+            parsedBccEmails = []
+          }
+        } else if (Array.isArray(t.bccEmails)) {
+          parsedBccEmails = t.bccEmails
+        }
+      }
+      
+      setccEmails(Array.isArray(parsedCcEmails) ? parsedCcEmails : [])
+      setBccEmails(Array.isArray(parsedBccEmails) ? parsedBccEmails : [])
+      setAttachments(Array.isArray(t.attachments) ? t.attachments : [])
+      
+      // Show CC/BCC fields if they have values
+      if (parsedCcEmails && Array.isArray(parsedCcEmails) && parsedCcEmails.length > 0) {
+        setShowCC(true)
+      }
+      if (parsedBccEmails && Array.isArray(parsedBccEmails) && parsedBccEmails.length > 0) {
+        setShowBCC(true)
+      }
     }
 
     // if (!isEditing && addRow) {
