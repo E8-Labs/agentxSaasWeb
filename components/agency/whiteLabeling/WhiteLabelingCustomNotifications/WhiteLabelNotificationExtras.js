@@ -74,7 +74,7 @@ export const StandardNotificationsList = [
     title: 'USE ON DESKTOP EMAIL',
     description: '{{ When email is sent }}',
     tootTip: 'Test tool',
-    subject: 'Welcome to AssignX! Continue on Desktop',
+    subject: 'Welcome to AssignX!',
     subjectDescription:
       "Hey Visionary, Welcome to AssignX, where we redefine what's possible in real estate. You've just taken the first step toward building your own AI—a tool so powerful, it could reshape how you do business. Continue your journey on desktop for the full experience. Best regards, The AssignX Team",
     CTA: 'Continue on Desktop',
