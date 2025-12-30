@@ -90,7 +90,7 @@ function Page() {
     setCurrentIndex((prev) => prev + 1)
   }
   return (
-    <div className="flex flex-col w-full items-center justify-center py-2 overflow-y-auto">
+    <div className="flex flex-col w-full items-center justify-center overflow-y-auto">
       {
         !isMobile && (
 

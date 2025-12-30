@@ -19,9 +19,9 @@ function SignupHeaderMobile({
                     width={100} height={100} />
             </div>
 
-            <div className="h-[1px] w-full mt-2 bg-white"></div>
+            <div className="h-[1px] w-full mt-2 mb-5 bg-white"></div>
             <div
-                className="mt-4 md:text-4xl text-lg font-[600] text-white"
+                className=" md:text-2xl text-2xl font-[600] text-white"
                 style={{ textAlign: 'center' }}
             >
                 {title}

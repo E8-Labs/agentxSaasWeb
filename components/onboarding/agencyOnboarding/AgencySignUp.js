@@ -35,6 +35,7 @@ import { clearAgencyUUID, getAgencyUUIDForAPI } from '@/utilities/AgencyUtility'
 import { GetCampaigneeNameIfAvailable } from '@/utilities/UserUtility'
 import { setCookie } from '@/utilities/cookies'
 import { forceApplyBranding } from '@/utilities/applyBranding'
+import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 
 const AgencySignUp = ({
   handleContinue,
@@ -308,12 +309,12 @@ const AgencySignUp = ({
         verificationCode: VerifyCode.join(''),
       })
 
-      if(response.data.status === true){
-       await checkPhoneNumber(userPhoneNumber)
+      if (response.data.status === true) {
+        await checkPhoneNumber(userPhoneNumber)
         setShowResetBtn(false)
         setIsVisible(true)
         setResponse(response.data)
-      }else{
+      } else {
         setErrMessage(response.data.message)
         setIsVisible(true)
         setResponse(response.data)
@@ -322,7 +323,7 @@ const AgencySignUp = ({
       setResetLoader(false)
       console.error('Error occured in reset account api is: ', error)
     }
-    finally{
+    finally {
       setResetLoader(false)
     }
   }
@@ -332,9 +333,9 @@ const AgencySignUp = ({
     console.log('verify code is: ', VerifyCode)
     setPhoneVerifiedSuccessSnack(true)
 
-    if(showResetBtn){
+    if (showResetBtn) {
       resetAccount()
-    }else{
+    } else {
       handleRegister()
     }
     // handleRegister()
@@ -409,11 +410,11 @@ const AgencySignUp = ({
           )
           console.log('agency signup data is', response.data.data)
           localStorage.removeItem(PersistanceKeys.RegisterDetails)
-          
+
           // CRITICAL: Clear logout flag on successful registration
           const { clearLogoutFlag } = require('@/utilities/UserUtility')
           clearLogoutFlag()
-          
+
           localStorage.setItem('User', JSON.stringify(response.data.data))
 
           if (typeof document !== 'undefined') {
@@ -595,7 +596,7 @@ const AgencySignUp = ({
   return (
     <div
       style={{ width: '100%' }}
-      className="overflow-y-hidden flex flex-row justify-center items-center"
+      className="overflow-y-hidden py-2 flex flex-row justify-center items-center"
     >
       <div
         className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-11/12 h-[100%] sm:max-h-[90%] overflow-y-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple"
@@ -886,8 +887,8 @@ const AgencySignUp = ({
                       resetLoader ? (
                         <CircularProgress size={20} />
                       ) : (
-                      <button className="bg-brand-primary text-white px-4 py-2 rounded-md whitespace-nowrap"
-                        onClick={() => handleVerifyPopup()  }
+                        <button className="bg-brand-primary text-white px-4 py-2 rounded-md whitespace-nowrap"
+                          onClick={() => handleVerifyPopup()}
                         >
                           Reset Account
                         </button>
@@ -992,7 +993,7 @@ const AgencySignUp = ({
                   spellCheck="false"
                   enterKeyHint="done"
                   placeholder="Website"
-                  className="border rounded px-3 py-2.5 focus:border-black transition-colors h-[40px] w-full"
+                  className="w-full border rounded px-3 py-2.5 focus:border-black transition-colors"
                   style={{
                     ...styles.inputStyle,
                     marginTop: '8px',
@@ -1254,14 +1255,14 @@ const AgencySignUp = ({
                   </Box>
                 </Modal>
 
-                <SnackMessages
-                  message={response.message}
+                <AgentSelectSnackMessage
                   isVisible={isVisible}
-                  setIsVisible={(visible) => {
-                    setIsVisible(visible)
-                  }}
-                  success={response.status}
+                  hide={() => setIsVisible(false)}
+                  message={response.message}
+                  type={response.status ? SnackbarTypes.Success : SnackbarTypes.Error}
                 />
+
+                
               </div>
             </div>
           </div>

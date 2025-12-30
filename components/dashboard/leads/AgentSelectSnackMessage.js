@@ -70,12 +70,8 @@ export default function AgentSelectSnackMessage({
         description: toastDescription,
         style: {
           width: 'fit-content',
-          maxWidth: 'fit-content',
+          maxWidth: '90vw',
           minWidth: 'fit-content',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          marginLeft: 'auto',
-          marginRight: 'auto',
           whiteSpace: 'nowrap',
         },
         className: 'toast-no-wrap',
