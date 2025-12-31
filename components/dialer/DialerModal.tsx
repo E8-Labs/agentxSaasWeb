@@ -1402,39 +1402,100 @@ export default function DialerModal({
                           ) : phoneNumbers.length === 0 ? (
                             <MenuItem disabled>No phone numbers available</MenuItem>
                           ) : (
-                            phoneNumbers.map((pn) => (
-                              <MenuItem
-                                key={pn.id}
-                                onClick={() => {
-                                  if (pn.canBeInternalDialer) {
-                                    handleSetInternalNumber(pn.id)
-                                  }
-                                }}
-                                disabled={!pn.canBeInternalDialer || pn.usageType === 'internal_dialer'}
-                                style={{
-                                  opacity: pn.canBeInternalDialer ? 1 : 0.6,
-                                }}
-                              >
-                                <div className="flex items-center justify-between w-full">
-                                  <div className="flex flex-col">
-                                    <span className="text-sm">{pn.phone}</span>
-                                    {pn.agentCount > 0 && (
-                                      <span className="text-xs text-gray-500">
-                                        {pn.firstAgent?.name || 'Agent'} {pn.agentCount > 1 ? `+${pn.agentCount - 1}` : ''}
-                                      </span>
-                                    )}
+                            phoneNumbers.map((pn) => {
+                              const isSelected = pn.usageType === 'internal_dialer'
+                              const hasAgents = pn.agentCount > 0
+                              const additionalAgents = pn.agentCount > 1 ? pn.agentCount - 1 : 0
+                              
+                              // Get agent initial for avatar fallback
+                              const agentInitial = pn.firstAgent?.name 
+                                ? pn.firstAgent.name.charAt(0).toUpperCase() 
+                                : 'A'
+                              
+                              return (
+                                <MenuItem
+                                  key={pn.id}
+                                  onClick={() => {
+                                    if (pn.canBeInternalDialer) {
+                                      handleSetInternalNumber(pn.id)
+                                    }
+                                  }}
+                                  disabled={!pn.canBeInternalDialer || isSelected}
+                                  style={{
+                                    opacity: pn.canBeInternalDialer ? 1 : 0.6,
+                                    border: isSelected ? '2px solid hsl(var(--brand-primary))' : '1px solid #e5e7eb',
+                                    borderRadius: '8px',
+                                    margin: '4px 8px',
+                                    padding: '12px 16px',
+                                    backgroundColor: isSelected ? 'hsl(var(--brand-primary) / 0.05)' : 'white',
+                                  }}
+                                >
+                                  <div className="flex items-center justify-between w-full gap-3">
+                                    <div className="flex-1 min-w-0">
+                                      <div className="text-sm font-medium text-gray-900">
+                                        {pn.phone}
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-2 flex-shrink-0">
+                                      {/* Agent Avatars */}
+                                      {hasAgents && (
+                                        <div className="flex items-center" style={{ marginLeft: '-4px' }}>
+                                          {/* First Agent Avatar */}
+                                          {pn.firstAgent?.thumb_profile_image ? (
+                                            <div className="w-6 h-6 rounded-full overflow-hidden border-2 border-white">
+                                              <Image
+                                                src={pn.firstAgent.thumb_profile_image}
+                                                alt={pn.firstAgent.name || 'Agent'}
+                                                width={24}
+                                                height={24}
+                                                className="w-full h-full object-cover"
+                                              />
+                                            </div>
+                                          ) : (
+                                            <div
+                                              className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-semibold border-2 border-white"
+                                              style={{
+                                                backgroundColor: `hsl(${(agentInitial.charCodeAt(0) * 137.508) % 360}, 70%, 50%)`,
+                                              }}
+                                            >
+                                              {agentInitial}
+                                            </div>
+                                          )}
+                                          {/* Counter Bubble for Additional Agents */}
+                                          {additionalAgents > 0 && (
+                                            <div
+                                              className="w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-semibold border-2 border-white"
+                                              style={{
+                                                backgroundColor: '#6b7280',
+                                                fontSize: '10px',
+                                                marginLeft: '-8px',
+                                              }}
+                                            >
+                                              +{additionalAgents}
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
+                                      {/* Selected Checkmark */}
+                                      {isSelected && (
+                                        <div
+                                          className="w-5 h-5 rounded flex items-center justify-center flex-shrink-0"
+                                          style={{
+                                            backgroundColor: 'hsl(var(--brand-primary))',
+                                          }}
+                                        >
+                                          <Check size={12} className="text-white" />
+                                        </div>
+                                      )}
+                                      {/* Available Indicator (Green Dot) */}
+                                      {pn.canBeInternalDialer && !isSelected && !hasAgents && (
+                                        <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
+                                      )}
+                                    </div>
                                   </div>
-                                  <div className="flex items-center gap-2">
-                                    {pn.usageType === 'internal_dialer' && (
-                                      <Check size={16} style={{ color: 'hsl(var(--brand-primary))' }} />
-                                    )}
-                                    {pn.canBeInternalDialer && pn.usageType !== 'internal_dialer' && (
-                                      <div className="w-2 h-2 rounded-full bg-green-500" />
-                                    )}
-                                  </div>
-                                </div>
-                              </MenuItem>
-                            ))
+                                </MenuItem>
+                              )
+                            })
                           )}
                         </Menu>
                       )}
