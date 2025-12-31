@@ -148,6 +148,7 @@ const PipelineStages = ({
   const [user, setUser] = useState(userData) // Keep local state for compatibility
   const [gmailAccounts, setGmailAccounts] = useState([])
   const [accountLoader, setAccountLoader] = useState(false)
+)
 
   const [targetUser, setTargetUser] = useState(null)
 
@@ -579,6 +580,8 @@ const PipelineStages = ({
 
     // //console.log;
   }
+
+
 
   //code to delete stage
   const handleDeleteStage = async (value) => {
@@ -1263,7 +1266,7 @@ const PipelineStages = ({
                                                 >
                                                   {a.label}
                                                 </div>
-                                                {user?.planCapabilities
+                                                {userData?.planCapabilities
                                                   .allowTextMessages ===
                                                   false &&
                                                   a.label == 'Text' && (

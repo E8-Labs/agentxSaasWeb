@@ -229,7 +229,7 @@ export default function CreateSubAccountModal({
         const agencyProfile = parsedUser?.user
         const hasInternal = agencyProfile?.hasInternalAccount || false
         setHasInternalAccount(hasInternal)
-        
+
         // If agency already has an internal account, disable the toggle
         if (hasInternal) {
           setIsInternalAccount(false)
@@ -773,122 +773,117 @@ export default function CreateSubAccountModal({
             </div>
           </div>
           {/* Sub Acc Phone */}
-          <div className="flex-1">
-            <div className="flex flex-row items-center justify-between">
-              <div style={styles.inputs}>Phone Number</div>
-              <div className="">
-                {isInternalAccount ? (
-                  <p
-                    style={{
-                      ...styles.errmsg,
-                      color: 'gray',
-                      height: '20px',
-                    }}
-                  >
-                    Not required for internal accounts
-                  </p>
-                ) : (
-                  <>
-                    {locationLoader && (
-                      <p
-                        className="text-black"
-                        style={{ ...styles.errmsg, height: '20px' }}
-                      >
-                        Getting location ...
-                      </p>
-                    )}
-                    {errorMessage ? (
-                      <p
-                        style={{
-                          ...styles.errmsg,
-                          color: errorMessage && 'red',
-                          height: '20px',
-                        }}
-                      >
-                        {errorMessage}
-                      </p>
-                    ) : (
-                      <div>
-                        {phoneNumberLoader ? (
-                          <p
-                            style={{
-                              ...styles.errmsg,
-                              color: 'black',
-                              height: '20px',
-                            }}
-                          >
-                            Checking ...
-                          </p>
-                        ) : (
-                          <div>
-                            {checkPhoneResponse ? (
-                              <p
-                                style={{
-                                  ...styles.errmsg,
-                                  color:
-                                    checkPhoneResponse.status === true
-                                      ? 'green'
-                                      : 'red',
-                                  height: '20px',
-                                }}
-                              >
-                                {checkPhoneResponse?.message
-                                  ?.slice(0, 1)
-                                  .toUpperCase() +
-                                  checkPhoneResponse?.message?.slice(1)}
-                              </p>
-                            ) : (
-                              <div />
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </>
-                )}
+          {!isInternalAccount && (
+            <div className="flex-1">
+              <div className="flex flex-row items-center justify-between">
+                <div style={styles.inputs}>Phone Number</div>
+                <div className="">
+                  {
+                    <>
+                      {locationLoader && (
+                        <p
+                          className="text-black"
+                          style={{ ...styles.errmsg, height: '20px' }}
+                        >
+                          Getting location ...
+                        </p>
+                      )}
+                      {errorMessage ? (
+                        <p
+                          style={{
+                            ...styles.errmsg,
+                            color: errorMessage && 'red',
+                            height: '20px',
+                          }}
+                        >
+                          {errorMessage}
+                        </p>
+                      ) : (
+                        <div>
+                          {phoneNumberLoader ? (
+                            <p
+                              style={{
+                                ...styles.errmsg,
+                                color: 'black',
+                                height: '20px',
+                              }}
+                            >
+                              Checking ...
+                            </p>
+                          ) : (
+                            <div>
+                              {checkPhoneResponse ? (
+                                <p
+                                  style={{
+                                    ...styles.errmsg,
+                                    color:
+                                      checkPhoneResponse.status === true
+                                        ? 'green'
+                                        : 'red',
+                                    height: '20px',
+                                  }}
+                                >
+                                  {checkPhoneResponse?.message
+                                    ?.slice(0, 1)
+                                    .toUpperCase() +
+                                    checkPhoneResponse?.message?.slice(1)}
+                                </p>
+                              ) : (
+                                <div />
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  }
+                </div>
+              </div>
+              <div className="mt-2">
+                {
+                  (
+                    <PhoneInput
+                      specialLabel=""
+                      className="border outline-none bg-white"
+                      country="us" // Set the default country
+                      value={userPhoneNumber}
+                      onChange={handlePhoneNumberChange}
+                      placeholder={
+                        isInternalAccount
+                          ? 'Internal Account - Phone not required'
+                          : locationLoader
+                            ? 'Loading location ...'
+                            : 'Enter Phone Number'
+                      }
+                      disabled={loading || isInternalAccount} // Disable input if still loading or internal account
+                      style={{ borderRadius: '7px' }}
+                      inputStyle={{
+                        width: '100%',
+                        borderWidth: '0px',
+                        backgroundColor: 'transparent',
+                        paddingLeft: '35px',
+                        paddingTop: '20px',
+                        paddingBottom: '20px',
+                      }}
+                      buttonStyle={{
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        // display: 'flex',
+                        // alignItems: 'center',
+                        // justifyContent: 'center',
+                      }}
+                      dropdownStyle={{
+                        maxHeight: '150px',
+                        overflowY: 'auto',
+                      }}
+                      countryCodeEditable={false}
+                      disableDropdown={true}
+                      defaultMask={loading ? 'Loading...' : undefined}
+                    />
+                  )}
               </div>
             </div>
-            <div className="mt-2">
-              <PhoneInput
-                specialLabel=""
-                className="border outline-none bg-white"
-                country="us" // Set the default country
-                value={userPhoneNumber}
-                onChange={handlePhoneNumberChange}
-                placeholder={
-                  isInternalAccount
-                    ? 'Internal Account - Phone not required'
-                    : locationLoader
-                      ? 'Loading location ...'
-                      : 'Enter Phone Number'
-                }
-                disabled={loading || isInternalAccount} // Disable input if still loading or internal account
-                style={{ borderRadius: '7px' }}
-                inputStyle={{
-                  width: '100%',
-                  borderWidth: '0px',
-                  backgroundColor: 'transparent',
-                  paddingLeft: '35px',
-                  paddingTop: '20px',
-                  paddingBottom: '20px',
-                }}
-                buttonStyle={{
-                  border: 'none',
-                  backgroundColor: 'transparent',
-                  // display: 'flex',
-                  // alignItems: 'center',
-                  // justifyContent: 'center',
-                }}
-                dropdownStyle={{
-                  maxHeight: '150px',
-                  overflowY: 'auto',
-                }}
-                countryCodeEditable={false}
-                disableDropdown={true}
-                defaultMask={loading ? 'Loading...' : undefined}
-              />
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Code for allow sell seats */}
@@ -1088,7 +1083,7 @@ export default function CreateSubAccountModal({
                   width={15}
                   height={15}
                   className="cursor-pointer rounded-full"
-                  // onClick={() => setIntroVideoModal2(true)}
+                // onClick={() => setIntroVideoModal2(true)}
                 />
               </div>
             </Tooltip>
