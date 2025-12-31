@@ -1868,9 +1868,412 @@ const Messages = () => {
         time={4000}
         hide={() => setSnackbar({ ...snackbar, isVisible: false })}
       />
+      {
+        planCapabilities?.allowTextMessages === false && planCapabilities?.allowEmails === false ? (
+          <UnlockMessagesView />
+        ) : (
 
-      <UnlockMessagesView />
-      
+          <div className="w-full h-screen flex flex-row bg-white">
+            {/* Left Sidebar - Thread List */}
+            <ThreadsList
+              loading={loading}
+              threads={threads}
+              selectedThread={selectedThread}
+              onSelectThread={handleThreadSelect}
+              onNewMessage={() => setShowNewMessageModal(true)}
+              getLeadName={getLeadName}
+              getThreadDisplayName={getThreadDisplayName}
+              getRecentMessageType={getRecentMessageType}
+              formatUnreadCount={formatUnreadCount}
+              onDeleteThread={handleDeleteThread}
+              searchValue={searchValue}
+              onSearchChange={setSearchValue}
+              onFilterClick={handleOpenFilterModal}
+              selectedTeamMemberIdsCount={appliedTeamMemberIds.length}
+            />
+
+            {/* Right Side - Messages View */}
+            <div className="flex-1 flex flex-col h-screen">
+              {selectedThread ? (
+                <>
+                  {/* Messages Header */}
+                  {/* <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white">
+                <div>
+                  <h2 className="text-lg font-semibold text-black">
+                    {selectedThread.lead?.firstName || selectedThread.lead?.name || 'Unknown Lead'}
+                  </h2>
+                  <p className="text-sm text-gray-500 mt-0.5">Click here for more info</p>
+                </div>
+              </div> */}
+
+                  {/* Messages Container */}
+                  <ConversationView
+                    selectedThread={selectedThread}
+                    messages={messages}
+                    messagesLoading={messagesLoading}
+                    loadingOlderMessages={loadingOlderMessages}
+                    messagesContainerRef={messagesContainerRef}
+                    messagesEndRef={messagesEndRef}
+                    messagesTopRef={messagesTopRef}
+                    sanitizeHTML={sanitizeHTML}
+                    getLeadName={getLeadName}
+                    getAgentAvatar={getAgentAvatar}
+                    getImageUrl={getImageUrl}
+                    setImageAttachments={setImageAttachments}
+                    setCurrentImageIndex={setCurrentImageIndex}
+                    setImageModalOpen={setImageModalOpen}
+                    setSnackbar={setSnackbar}
+                    SnackbarTypes={SnackbarTypes}
+                    openEmailDetailId={openEmailDetailId}
+                    setOpenEmailDetailId={setOpenEmailDetailId}
+                    getEmailDetails={getEmailDetails}
+                    setShowEmailTimeline={setShowEmailTimeline}
+                    setEmailTimelineLeadId={setEmailTimelineLeadId}
+                    setEmailTimelineSubject={setEmailTimelineSubject}
+                    onReplyClick={handleReplyClick}
+                    onOpenEmailTimeline={handleOpenEmailTimeline}
+                  />
+
+                  {/* Composer */}
+                  <MessageComposer
+                    composerMode={composerMode}
+                    setComposerMode={setComposerMode}
+                    selectedThread={selectedThread}
+                    composerData={composerData}
+                    setComposerData={setComposerData}
+                    fetchPhoneNumbers={fetchPhoneNumbers}
+                    fetchEmailAccounts={fetchEmailAccounts}
+                    showCC={showCC}
+                    setShowCC={setShowCC}
+                    showBCC={showBCC}
+                    setShowBCC={setShowBCC}
+                    ccEmails={ccEmails}
+                    ccInput={ccInput}
+                    handleCcInputChange={handleCcInputChange}
+                    handleCcInputKeyDown={handleCcInputKeyDown}
+                    handleCcInputPaste={handleCcInputPaste}
+                    handleCcInputBlur={handleCcInputBlur}
+                    removeCcEmail={removeCcEmail}
+                    bccEmails={bccEmails}
+                    bccInput={bccInput}
+                    handleBccInputChange={handleBccInputChange}
+                    handleBccInputKeyDown={handleBccInputKeyDown}
+                    handleBccInputPaste={handleBccInputPaste}
+                    handleBccInputBlur={handleBccInputBlur}
+                    removeBccEmail={removeBccEmail}
+                    phoneNumbers={phoneNumbers}
+                    selectedPhoneNumber={selectedPhoneNumber}
+                    setSelectedPhoneNumber={setSelectedPhoneNumber}
+                    emailAccounts={emailAccounts}
+                    selectedEmailAccount={selectedEmailAccount}
+                    setSelectedEmailAccount={setSelectedEmailAccount}
+                    removeAttachment={removeAttachment}
+                    richTextEditorRef={richTextEditorRef}
+                    SMS_CHAR_LIMIT={SMS_CHAR_LIMIT}
+                    handleFileChange={handleFileChange}
+                    handleSendMessage={handleSendMessage}
+                    sendingMessage={sendingMessage}
+                    onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
+                  />
+                </>
+              ) : (
+                <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-8">
+                  <div className="mb-6">
+                    <Image
+                      src="/messaging/no message icon.svg"
+                      width={120}
+                      height={120}
+                      alt="No conversation selected"
+                      className="opacity-60"
+                    />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    No message selected
+                  </h3>
+                  <p className="text-sm text-gray-600 text-center max-w-sm">
+                    Select message to begin conversation
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* New Message Modal */}
+            <NewMessageModal
+              open={showNewMessageModal}
+              onClose={() => setShowNewMessageModal(false)}
+              onSend={(result) => {
+                // Refresh threads after sending (even if partial success)
+                if (result.sent > 0) {
+                  setTimeout(() => {
+                    fetchThreads(searchValue || "", appliedTeamMemberIds)
+                  }, 1000)
+                }
+              }}
+              mode="email"
+            />
+
+            {/* Image Viewer Modal */}
+            {imageModalOpen && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
+                <div className="relative w-full h-full flex items-center justify-center">
+                  {/* Close Button */}
+                  <button
+                    onClick={() => {
+                      setImageModalOpen(false)
+                      setImageAttachments([])
+                      setCurrentImageIndex(0)
+                    }}
+                    className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+                  >
+                    <X size={24} />
+                  </button>
+
+                  {/* Previous Button */}
+                  {imageAttachments.length > 1 && currentImageIndex > 0 && (
+                    <button
+                      onClick={() => {
+                        setCurrentImageIndex(currentImageIndex - 1)
+                      }}
+                      className="absolute left-4 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+                    >
+                      <ChevronLeft size={24} />
+                    </button>
+                  )}
+
+                  {/* Next Button */}
+                  {imageAttachments.length > 1 && currentImageIndex < imageAttachments.length - 1 && (
+                    <button
+                      onClick={() => {
+                        setCurrentImageIndex(currentImageIndex + 1)
+                      }}
+                      className="absolute right-4 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+                    >
+                      <ChevronRight size={24} />
+                    </button>
+                  )}
+
+                  {/* Image or Loading Placeholder */}
+                  <div className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center">
+                    {imageAttachments[currentImageIndex] && getImageUrl(imageAttachments[currentImageIndex], null) ? (
+                      <>
+                        {(() => {
+                          const imageUrl = getImageUrl(imageAttachments[currentImageIndex], null)
+                          const isFromOurServer = isImageFromOurServer(imageUrl)
+
+                          // Use Next.js Image for images from our server (Gmail attachments)
+                          if (isFromOurServer) {
+                            return (
+                              <Image
+                                src={imageUrl}
+                                alt={imageAttachments[currentImageIndex]?.fileName || 'Image'}
+                                width={1920}
+                                height={1080}
+                                className="max-w-full max-h-[90vh] object-contain"
+                                unoptimized
+                              />
+                            )
+                          }
+
+                          // For external images, use Next.js Image with unoptimized prop
+                          return (
+                            <Image
+                              src={imageUrl}
+                              alt={imageAttachments[currentImageIndex]?.fileName || 'Image'}
+                              width={1920}
+                              height={1080}
+                              className="max-w-full max-h-[90vh] object-contain"
+                              style={{ maxWidth: '90vw', maxHeight: '90vh' }}
+                              unoptimized
+                            />
+                          )
+                        })()}
+
+                        {/* Image Info & Download */}
+                        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg flex items-center gap-4">
+                          <span className="text-sm">
+                            {imageAttachments[currentImageIndex]?.fileName || imageAttachments[currentImageIndex]?.originalName || 'Image'}
+                            {imageAttachments.length > 1 && ` (${currentImageIndex + 1} / ${imageAttachments.length})`}
+                          </span>
+                          <button
+                            onClick={() => {
+                              const attachment = imageAttachments[currentImageIndex]
+                              const imageUrl = getImageUrl(attachment, null)
+                              if (imageUrl) {
+                                const a = document.createElement('a')
+                                a.href = imageUrl
+                                a.download = attachment.fileName || attachment.originalName || 'image'
+                                a.target = '_blank'
+                                document.body.appendChild(a)
+                                a.click()
+                                document.body.removeChild(a)
+                              }
+                            }}
+                            className="p-1 hover:bg-white/20 rounded transition-colors"
+                            title="Download image"
+                          >
+                            <Download size={16} />
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center gap-4 text-white">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+                        <span className="text-sm">Loading image...</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Email Timeline Modal */}
+            <EmailTimelineModal
+              open={showEmailTimeline}
+              onClose={() => {
+                setShowEmailTimeline(false)
+                setEmailTimelineLeadId(null)
+                // Keep emailTimelineSubject and emailTimelineMessages so we can use them for threading
+                // when sending from the main composer. They'll be cleared when a new thread is selected.
+                // setEmailTimelineSubject(null)
+                // setEmailTimelineMessages([])
+                setReplyToMessage(null)
+              }}
+              leadId={emailTimelineLeadId}
+              subject={emailTimelineSubject}
+              messages={emailTimelineMessages}
+              loading={emailTimelineLoading}
+              selectedThread={selectedThread}
+              emailAccounts={emailAccounts}
+              selectedEmailAccount={selectedEmailAccount}
+              setSelectedEmailAccount={setSelectedEmailAccount}
+              onSendSuccess={async () => {
+                if (emailTimelineLeadId && emailTimelineSubject) {
+                  await fetchEmailTimeline(emailTimelineLeadId, emailTimelineSubject)
+                }
+              }}
+              fetchThreads={fetchThreads}
+              onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
+              replyToMessage={replyToMessage}
+            />
+
+            {/* Auth Selection Popup for Gmail Connection */}
+            <AuthSelectionPopup
+              open={showAuthSelectionPopup}
+              onClose={() => setShowAuthSelectionPopup(false)}
+              onSuccess={() => {
+                setShowAuthSelectionPopup(false)
+                fetchEmailAccounts()
+              }}
+              setShowEmailTempPopup={() => { }}
+              showEmailTempPopup={false}
+              setSelectedGoogleAccount={() => { }}
+            />
+
+            {/* Filter Modal for Team Members */}
+            <Modal
+              open={showFilterModal}
+              onClose={() => setShowFilterModal(false)}
+              closeAfterTransition
+              BackdropProps={{
+                timeout: 1000,
+                sx: {
+                  backgroundColor: '#00000020',
+                },
+              }}
+            >
+              <Box
+                className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh] rounded-[13px]"
+                sx={{
+                  height: 'auto',
+                  bgcolor: 'transparent',
+                  p: 0,
+                  mx: 'auto',
+                  my: '50vh',
+                  transform: 'translateY(-55%)',
+                  borderRadius: '13px',
+                  border: 'none',
+                  outline: 'none',
+                  overflow: 'hidden',
+                }}
+              >
+                <div className="flex flex-col w-full">
+                  <div
+                    className="w-full rounded-[13px] overflow-hidden"
+                    style={{
+                      backgroundColor: '#ffffff',
+                      padding: 20,
+                      paddingInline: 30,
+                      borderRadius: '13px',
+                    }}
+                  >
+                    <div className="flex flex-row items-center justify-between mb-4">
+                      <div style={{ fontWeight: '700', fontSize: 22 }}>
+                        Filter
+                      </div>
+                      <CloseBtn onClick={() => setShowFilterModal(false)} />
+                    </div>
+
+                    <div
+                      className="mt-4"
+                      style={{
+                        maxHeight: '400px',
+                        overflowY: 'auto',
+                        border: '1px solid #00000020',
+                        borderRadius: '13px',
+                        padding: '10px',
+                      }}
+                    >
+                      {filterTeamMembers.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                          No team members available
+                        </div>
+                      ) : (
+                        filterTeamMembers.map((member) => (
+                          <div
+                            key={member.id}
+                            className="flex flex-row items-center gap-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer"
+                            onClick={() => handleTeamMemberFilterToggle(member.id)}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedTeamMemberIds.includes(member.id)}
+                              onChange={() => handleTeamMemberFilterToggle(member.id)}
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                            />
+                            <div className="flex flex-col flex-1">
+                              <span className="font-medium text-gray-900">
+                                {member.name}
+                              </span>
+                              {member.email && (
+                                <span className="text-sm text-gray-500">
+                                  {member.email}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <div className="w-full mt-4">
+                      <button
+                        onClick={handleApplyFilter}
+                        className="bg-purple h-[50px] rounded-xl text-white w-full"
+                        style={{
+                          fontWeight: '600',
+                          fontSize: 16,
+                        }}
+                      >
+                        Apply Filter
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </Box>
+            </Modal>
+          </div>
+        )}
     </>
   )
 }
