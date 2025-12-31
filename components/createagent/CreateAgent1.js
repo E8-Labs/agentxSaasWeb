@@ -1330,7 +1330,7 @@ const CreateAgent1 = ({
           />
 
           {/* header */}
-          <div className="h-[10%]">
+          <div className="h-[12%]">
             <Header />
           </div>
           {/* Video */}
