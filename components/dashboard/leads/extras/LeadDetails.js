@@ -1785,6 +1785,9 @@ const LeadDetails = ({
         onClose={() => {
           setShowDetailsModal(false)
         }}
+        disableEnforceFocus={true}
+        disableAutoFocus={true}
+        disableRestoreFocus={true}
         PaperProps={{
           sx: {
             width: '45%', // Adjust width as needed

@@ -90,8 +90,8 @@ function SMSTempletePopup({
         }
       }
       
-      // Load template details if templateId exists
-      if (editingRow.templateId) {
+      // Load template details if templateId or id exists
+      if (editingRow.templateId || editingRow.id) {
         loadTemplateDetails(editingRow)
       }
     } else if (!isEditing) {
@@ -273,7 +273,11 @@ function SMSTempletePopup({
           // //backdropFilter: "blur(20px)",
           padding: 0,
           margin: 0,
+          zIndex: 1500,
         },
+      }}
+      sx={{
+        zIndex: 1500,
       }}
     >
       <Box

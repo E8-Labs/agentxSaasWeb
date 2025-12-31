@@ -8,9 +8,12 @@ import { toast } from 'sonner'
 import DialerSettings from './DialerSettings'
 import CallingScript from './CallingScript'
 import CallNotesWindow from './CallNotesWindow'
-import { ArrowUp, Pause, Mic, MicOff, FileText, StickyNote, X, ChevronDown, Check, Phone, Mail, MessageSquare, MoreVertical } from 'lucide-react'
+import EmailTempletePopup from '../pipeline/EmailTempletePopup'
+import SMSTempletePopup from '../pipeline/SMSTempletePopup'
+import { ArrowUp, Pause, Mic, MicOff, FileText, StickyNote, X, ChevronDown, Check, Phone, Mail, MessageSquare, MoreVertical, Pencil } from 'lucide-react'
 import { Menu, MenuItem } from '@mui/material'
 import Image from 'next/image'
+import { formatPhoneNumber } from '@/utilities/agentUtilities'
 
 // @ts-ignore - Twilio Voice SDK types
 import { Device, Call } from '@twilio/voice-sdk'
@@ -69,6 +72,14 @@ export default function DialerModal({
   const [templatesLoading, setTemplatesLoading] = useState(false)
   const [sendingEmail, setSendingEmail] = useState(false)
   const [sendingSms, setSendingSms] = useState(false)
+  const [showEmailTemplatePopup, setShowEmailTemplatePopup] = useState(false)
+  const [showSmsTemplatePopup, setShowSmsTemplatePopup] = useState(false)
+  const [isEditingTemplate, setIsEditingTemplate] = useState(false)
+  const [editingTemplate, setEditingTemplate] = useState<any>(null)
+  const [templateMenuAnchor, setTemplateMenuAnchor] = useState<null | HTMLElement>(null)
+  const [selectedTemplateForMenu, setSelectedTemplateForMenu] = useState<any>(null)
+  const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null)
+  const [selectedUser, setSelectedUser] = useState<any>(null)
   const callDurationIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const simulationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   
@@ -197,6 +208,21 @@ export default function DialerModal({
       fetchPhoneNumbersWithAgents()
     }
   }, [open, hasDialerNumber])
+
+  // Get user data for template popups
+  useEffect(() => {
+    if (open) {
+      try {
+        const userStr = localStorage.getItem('User')
+        if (userStr) {
+          const userData = JSON.parse(userStr)
+          setSelectedUser(userData?.user || userData)
+        }
+      } catch (e) {
+        console.error('Error parsing User from localStorage:', e)
+      }
+    }
+  }, [open])
 
   const checkDialerNumber = async () => {
     try {
@@ -1076,6 +1102,61 @@ export default function DialerModal({
     }
   }
 
+  const handleDeleteTemplate = async (template: any) => {
+    try {
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
+      if (localData) {
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
+      }
+
+      if (!AuthToken) {
+        toast.error('Authentication required')
+        return
+      }
+
+      const response = await fetch(`/api/templates/${template.id}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${AuthToken}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const data = await response.json()
+
+      if (data?.status === true) {
+        toast.success('Template deleted successfully')
+        // Refresh templates
+        if (showEmailPanel) {
+          await fetchEmailTemplates()
+        } else if (showSmsPanel) {
+          await fetchSmsTemplates()
+        }
+        // Clear selection if deleted template was selected
+        if (selectedTemplate?.id === template.id) {
+          setSelectedTemplate(null)
+        }
+      } else {
+        toast.error(data?.message || 'Failed to delete template')
+      }
+    } catch (error: any) {
+      console.error('Error deleting template:', error)
+      toast.error('Failed to delete template')
+    }
+  }
+
+  const handleEditTemplate = (template: any) => {
+    setEditingTemplate(template)
+    setIsEditingTemplate(true)
+    if (showEmailPanel) {
+      setShowEmailTemplatePopup(true)
+    } else if (showSmsPanel) {
+      setShowSmsTemplatePopup(true)
+    }
+  }
+
   const handleSendEmail = async () => {
     if (!selectedTemplate || !leadId) {
       toast.error('Please select a template')
@@ -1189,26 +1270,76 @@ export default function DialerModal({
         maxHeight: '80vh',
         borderRadius: '16px',
         overflow: 'hidden',
-      }}
-      onClick={(e) => {
-        // Prevent closing when clicking inside
-        e.stopPropagation()
+        pointerEvents: 'auto',
       }}
       onKeyDown={(e) => {
           // Allow escape to close unless in active call
+          // Don't interfere with input fields
+          const target = e.target as HTMLElement
+          if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+            return
+          }
         if (e.key === 'Escape' && callStatus !== 'in-call' && callStatus !== 'ringing' && callStatus !== 'connecting') {
           onClose()
         }
       }}
     >
-      <div className="flex flex-row" style={{ minHeight: '500px', maxHeight: '80vh' }}>
+      {/* Close Button */}
+      <Button
+        onClick={onClose}
+        variant="ghost"
+        size="sm"
+        className="absolute top-4 right-4 z-50 p-2 h-auto"
+        style={{
+          position: 'absolute',
+          top: '16px',
+          right: '16px',
+          zIndex: 50,
+        }}
+      >
+        <X size={20} />
+      </Button>
+
+      <div 
+        className="flex flex-row" 
+        style={{ minHeight: '500px', maxHeight: '80vh' }}
+      >
         {/* Email/SMS Templates Panel - Left Side (when call ended and panel open) */}
           {(callStatus === 'ended' || callStatus === 'error') && (showEmailPanel || showSmsPanel) && (
-          <div className="w-80 border-r border-gray-200 flex-shrink-0 flex flex-col" style={{ maxHeight: '60vh' }}>
-            <div className="px-4 py-3 border-b border-gray-200">
+          <div 
+            className="w-80 border-r border-gray-200 flex-shrink-0 flex flex-col" 
+            style={{ maxHeight: '60vh', pointerEvents: 'auto' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
               <h3 className="text-sm font-semibold text-gray-900">
                 {showEmailPanel ? 'Select Email' : 'Select SMS'}
               </h3>
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  // Reset editing state for new template
+                  setIsEditingTemplate(false)
+                  setEditingTemplate(null)
+                  if (showEmailPanel) {
+                    setShowEmailTemplatePopup(true)
+                  } else {
+                    setShowSmsTemplatePopup(true)
+                  }
+                }}
+                size="sm"
+                className="rounded-lg border border-gray-300"
+                style={{
+                  backgroundColor: 'white',
+                  color: '#374151',
+                  fontSize: '12px',
+                  padding: '4px 12px',
+                  height: 'auto',
+                }}
+              >
+                <span className="mr-1">✏️</span>
+                Compose New
+              </Button>
             </div>
             <div className="flex-1 overflow-y-auto p-4">
               {templatesLoading ? (
@@ -1253,7 +1384,23 @@ export default function DialerModal({
                             </div>
                           )}
                         </div>
-                        <MoreVertical size={16} className="text-gray-400 ml-2 flex-shrink-0" />
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            e.preventDefault()
+                            setSelectedTemplateForMenu(template)
+                            setTemplateMenuAnchor(e.currentTarget)
+                          }}
+                          onMouseDown={(e) => {
+                            e.stopPropagation()
+                          }}
+                          variant="ghost"
+                          size="sm"
+                          className="p-1 h-auto ml-2 flex-shrink-0"
+                          style={{ pointerEvents: 'auto' }}
+                        >
+                          <MoreVertical size={16} className="text-gray-400" />
+                        </Button>
                       </div>
                       {selectedTemplate?.id === template.id && (
                         <div className="mt-3 pt-3 border-t border-gray-200">
@@ -1283,30 +1430,16 @@ export default function DialerModal({
                   ))}
               </div>
             )}
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <Button
-                  onClick={() => {
-                    toast.info(`Compose new ${showEmailPanel ? 'email' : 'SMS'} feature coming soon`)
-                  }}
-                  className="w-full rounded-lg border border-gray-300"
-                  style={{
-                    backgroundColor: 'white',
-                    color: '#374151',
-                    fontSize: '14px',
-                    padding: '8px 16px',
-                  }}
-                >
-                  <span className="mr-2">✏️</span>
-                  Compose New
-                </Button>
-          </div>
             </div>
           </div>
         )}
 
         {/* Script Panel - Left Side */}
         {showScriptPanel && callStatus !== 'ended' && (
-          <div className="w-80 border-r border-gray-200 flex-shrink-0 flex flex-col" style={{ maxHeight: '80vh' }}>
+          <div 
+            className="w-80 border-r border-gray-200 flex-shrink-0 flex flex-col" 
+            style={{ maxHeight: '80vh', position: 'relative', zIndex: 2000 }}
+          >
             <CallingScript
               leadId={leadId}
               leadName={leadName}
@@ -1338,7 +1471,7 @@ export default function DialerModal({
                   </div>
                   {selectedInternalNumber?.phone && (
                     <div className="text-xs text-gray-500">
-                      {selectedInternalNumber.phone}
+                      {formatPhoneNumber(selectedInternalNumber.phone)}
                     </div>
                   )}
                 </>
@@ -1356,7 +1489,7 @@ export default function DialerModal({
                     </span>
                   </div>
                   <div className="text-xs text-gray-500 ml-[24px]">
-                    {selectedInternalNumber?.phone || (SIMULATE_CALL_FLOW ? '+1 (234) 567-8900' : 'No number selected')}
+                    {selectedInternalNumber?.phone ? formatPhoneNumber(selectedInternalNumber.phone) : (SIMULATE_CALL_FLOW ? '+1 (234) 567-8900' : 'No number selected')}
                   </div>
                 </>
               ) : (
@@ -1372,7 +1505,7 @@ export default function DialerModal({
                   </div>
                   <div className="flex items-center justify-between relative">
                     <div className="text-sm font-medium text-gray-900">
-                      {selectedInternalNumber?.phone || 'No number selected'}
+                      {selectedInternalNumber?.phone ? formatPhoneNumber(selectedInternalNumber.phone) : 'No number selected'}
                     </div>
                     <div style={{ position: 'relative', zIndex: 1000 }}>
                       <button
@@ -1446,12 +1579,13 @@ export default function DialerModal({
                                     margin: '4px 8px',
                                     padding: '12px 16px',
                                     backgroundColor: isSelected ? 'hsl(var(--brand-primary) / 0.05)' : 'white',
+                                    color: isSelected ? 'hsl(var(--brand-primary))' : 'inherit',
                                   }}
                                 >
                                   <div className="flex items-center justify-between w-full gap-3">
             <div className="flex-1 min-w-0">
-                                      <div className="text-sm font-medium text-gray-900">
-                                        {pn.phone}
+                                      <div className="text-sm font-medium text-gray-900" style={{ color: 'hsl(var(--brand-primary))' }}>
+                                        {formatPhoneNumber(pn.phone)}
             </div>
                                     </div>
               <div className="flex items-center gap-2 flex-shrink-0">
@@ -1557,9 +1691,9 @@ export default function DialerModal({
                         </span>
                       </div>
                       <div className="text-center">
-                        <div className="font-semibold text-base">{leadName || phoneNumber}</div>
-                        {leadName && (
-                          <div className="text-sm text-gray-500">{phoneNumber}</div>
+                        <div className="font-semibold text-base">{leadName || (phoneNumber ? formatPhoneNumber(phoneNumber) : '')}</div>
+                        {leadName && phoneNumber && (
+                          <div className="text-sm text-gray-500">{formatPhoneNumber(phoneNumber)}</div>
                         )}
                         {callStatus === 'in-call' && (
                           <div className="flex items-center justify-center gap-1 mt-2">
@@ -1746,7 +1880,7 @@ export default function DialerModal({
 
                     {/* Call Status - Side by Side */}
                     <div className="flex items-center gap-4 justify-center">
-                      <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
                         <Phone size={14} className="text-red-500" />
                         <span className="text-sm text-red-500">Call Ended</span>
                   </div>
@@ -1821,9 +1955,9 @@ export default function DialerModal({
                         <div className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center">
                           <span className="text-xs text-gray-500">i</span>
                         </div>
-                      </div>
+              </div>
 
-                      <div className="space-y-2">
+              <div className="space-y-2">
                         <Button
                           onClick={async () => {
                             if (!showEmailPanel) {
@@ -1908,7 +2042,7 @@ export default function DialerModal({
                             }}
                           />
                           Send Text
-                        </Button>
+                  </Button>
                       </div>
                     </div>
                   </div>
@@ -1932,12 +2066,12 @@ export default function DialerModal({
                       {/* Contact Name */}
                       <div className="text-center">
                         <div className="font-bold text-xl text-gray-900">
-                          {leadName || phoneNumber || 'Unknown Contact'}
+                          {leadName || (phoneNumber ? formatPhoneNumber(phoneNumber) : '') || 'Unknown Contact'}
                         </div>
                         {/* Phone Number as Label */}
                         {phoneNumber && (
                           <div className="text-sm text-gray-600 mt-1">
-                            {phoneNumber}
+                            {formatPhoneNumber(phoneNumber)}
                           </div>
                         )}
                       </div>
@@ -1973,13 +2107,13 @@ export default function DialerModal({
                           }}
                         />
                         Create Script
-                      </Button>
+                  </Button>
                     </div>
             </>
           )}
         </div>
-            )}
-          </div>
+                )}
+              </div>
 
           {/* Fixed Start Call Button at Bottom - Only in main content area */}
           {(callStatus === 'idle' || callStatus === 'ended' || callStatus === 'error') && (
@@ -2008,9 +2142,9 @@ export default function DialerModal({
               >
                 {initializing ? 'Initializing...' : !deviceRegistered ? 'Connecting...' : 'Start Call'}
               </Button>
-            </div>
+                  </div>
           )}
-        </div>
+                </div>
       </div>
 
       {/* Call Notes Window - Bottom Right */}
@@ -2023,7 +2157,114 @@ export default function DialerModal({
         />
       )}
 
-    </div>
+      {/* Email Template Popup - Only render when actually open */}
+      {showEmailTemplatePopup && (
+        <EmailTempletePopup
+          open={showEmailTemplatePopup}
+          onClose={() => {
+            setShowEmailTemplatePopup(false)
+            setIsEditingTemplate(false)
+            setEditingTemplate(null)
+            // Refresh email templates after closing
+            if (showEmailPanel) {
+              fetchEmailTemplates()
+            }
+          }}
+          communicationType="email"
+          addRow={null}
+          isEditing={isEditingTemplate}
+          editingRow={editingTemplate}
+          onUpdateRow={null}
+          selectedGoogleAccount={selectedGoogleAccount}
+          setSelectedGoogleAccount={setSelectedGoogleAccount}
+          onSendEmail={null}
+          isLeadEmail={false}
+          leadEmail={null}
+          leadId={leadId}
+          selectedUser={selectedUser}
+        />
+      )}
+
+      {/* SMS Template Popup - Only render when actually open */}
+      {showSmsTemplatePopup && (
+        <SMSTempletePopup
+          open={showSmsTemplatePopup}
+          onClose={() => {
+            setShowSmsTemplatePopup(false)
+            setIsEditingTemplate(false)
+            setEditingTemplate(null)
+            // Refresh SMS templates after closing
+            if (showSmsPanel) {
+              fetchSmsTemplates()
+            }
+          }}
+          phoneNumbers={phoneNumbers.map((pn: any) => ({ id: pn.id, phone: pn.phone }))}
+          phoneLoading={phoneNumbersLoading}
+          communicationType="sms"
+          addRow={null}
+          isEditing={isEditingTemplate}
+          editingRow={editingTemplate}
+          onUpdateRow={null}
+          onSendSMS={null}
+          isLeadSMS={false}
+          leadPhone={phoneNumber}
+          leadId={leadId}
+          selectedUser={selectedUser}
+        />
+      )}
+
+      {/* Template Menu */}
+      {selectedTemplateForMenu && (
+        <Menu
+          anchorEl={templateMenuAnchor}
+          open={Boolean(templateMenuAnchor)}
+          onClose={() => {
+            setTemplateMenuAnchor(null)
+            setSelectedTemplateForMenu(null)
+          }}
+          MenuListProps={{
+            'aria-labelledby': 'template-menu-button',
+          }}
+          PaperProps={{
+            style: {
+              minWidth: '120px',
+              zIndex: 1500,
+            },
+          }}
+          style={{
+            zIndex: 1500,
+          }}
+          disablePortal={false}
+        >
+          <MenuItem
+            onClick={() => {
+              if (selectedTemplateForMenu) {
+                handleEditTemplate(selectedTemplateForMenu)
+              }
+              setTemplateMenuAnchor(null)
+              setSelectedTemplateForMenu(null)
+            }}
+          >
+            <Pencil size={14} className="mr-2" />
+            Edit
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              if (selectedTemplateForMenu) {
+                handleDeleteTemplate(selectedTemplateForMenu)
+              }
+              setTemplateMenuAnchor(null)
+              setSelectedTemplateForMenu(null)
+            }}
+            style={{ color: '#dc2626' }}
+          >
+            <X size={14} className="mr-2" />
+            Delete
+          </MenuItem>
+        </Menu>
+      )}
+
+        </div>
   )
 }
 

@@ -55,16 +55,7 @@ function EmailTempletePopup({
   const [selectedVariable, setSelectedVariable] = useState('')
   const [selectedSubjectVariable, setSelectedSubjectVariable] = useState('')
 
-  console.log('EmailTempletePopup: addRow called with:', {
-    communicationType,
-    addRow,
-    isEditing,
-    editingRow,
-    selectedGoogleAccount,
-    addRow,
-  })
-
-  console.log('selectedUser in email templete popup', selectedUser)
+  // Removed console.logs that were causing re-renders on every click
 
   const [subject, setSubject] = useState('')
   const [body, setBody] = useState('')
@@ -159,8 +150,8 @@ function EmailTempletePopup({
   useEffect(() => {
     console.log('trying to edit', isEditing, editingRow)
     if (isEditing && editingRow && open) {
-      // Load template details if templateId exists
-      if (editingRow.templateId) {
+      // Load template details if templateId or id exists
+      if (editingRow.templateId || editingRow.id) {
         loadTemplateDetails(editingRow)
       }
 
@@ -190,8 +181,8 @@ function EmailTempletePopup({
   // Set selectedTemp when templates are loaded and we're editing
   // This ensures the dropdown shows the correct template even if templates load after details
   useEffect(() => {
-    if (isEditing && editingRow?.templateId && templetes.length > 0) {
-      const templateId = editingRow.templateId
+    const templateId = editingRow?.templateId || editingRow?.id
+    if (isEditing && templateId && templetes.length > 0) {
       const matchingTemplate = templetes.find(
         (t) => t.id === templateId || t.templateId === templateId
       )
@@ -204,7 +195,7 @@ function EmailTempletePopup({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [templetes, isEditing, editingRow?.templateId])
+  }, [templetes, isEditing, editingRow?.templateId, editingRow?.id])
 
   const loadTemplateDetails = async (template) => {
     try {
@@ -425,7 +416,7 @@ function EmailTempletePopup({
     invalidEmails.length > 0 ||
     !selectedGoogleAccount?.id
 
-  console.log('ccEmails', ccEmails)
+  // Removed console.log for ccEmails
 
 
   // Restore selected account when editing and accounts are loaded
@@ -1032,8 +1023,22 @@ function EmailTempletePopup({
     }
   }
 
+  // Don't render anything if not open to prevent backdrop from blocking interactions
+  if (!open) return null
+
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal 
+      open={open} 
+      onClose={onClose}
+      BackdropProps={{
+        style: {
+          zIndex: 1500,
+        },
+      }}
+      sx={{
+        zIndex: 1500,
+      }}
+    >
       <Box
         className="w-full h-[100vh] py-4 flex flex-col items-center justify-center"
         sx={{
@@ -1051,7 +1056,7 @@ function EmailTempletePopup({
           display: 'flex',
           flexDirection: 'column',
           overflow: 'visible',
-          zIndex: 1300,
+          zIndex: 1500,
         }}
       >
         <div className={`flex flex-col w-full h-full p-0 bg-white rounded-lg overflow-hidden`}>
