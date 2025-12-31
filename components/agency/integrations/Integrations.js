@@ -15,6 +15,10 @@ import {
 } from '@/components/onboarding/extras/StickyModals'
 import { handleDisconnectTwilio } from '@/components/onboarding/services/apisServices/ApiService'
 import { useUser } from '@/hooks/redux-hooks'
+import VideoCard from '@/components/createagent/VideoCard'
+import IntroVideoModal from '@/components/createagent/IntroVideoModal'
+import { HowToVideoTypes } from '@/constants/Constants'
+import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 
 const Integrations = ({ selectedAgency, reduxUser, refreshUserData }) => {
   const [allowUpSellPhone, setAllowUpSellPhone] = useState(false)
@@ -32,6 +36,8 @@ const Integrations = ({ selectedAgency, reduxUser, refreshUserData }) => {
   const [hotReloadTrustProducts, setHotReloadTrustProducts] = useState(false)
   //remove trust hub data
   const [removeTrustHubData, setRemoveTrustHubData] = useState(false)
+  //video modal
+  const [showVideoModal, setShowVideoModal] = useState(false)
 
   console.log('reduxUser', reduxUser)
   useEffect(() => {
@@ -65,6 +71,19 @@ const Integrations = ({ selectedAgency, reduxUser, refreshUserData }) => {
 
   return (
     <div className="w-full flex flex-col items-center">
+      {/* Video Modal */}
+      <IntroVideoModal
+        open={showVideoModal}
+        onClose={() => setShowVideoModal(false)}
+        videoTitle={
+          getTutorialByType(HowToVideoTypes.TwilioIntegrationAgency)?.title ||
+          'Twilio Integration - Agency'
+        }
+        videoUrl={
+          getVideoUrlByType(HowToVideoTypes.TwilioIntegrationAgency) || ''
+        }
+      />
+
       <AgentSelectSnackMessage
         isVisible={showSnackMessage}
         hide={() => {
@@ -111,61 +130,87 @@ const Integrations = ({ selectedAgency, reduxUser, refreshUserData }) => {
         }}
       />
 
-      <div className="flex flex-row item-center justify-between border rounded-lg p-4 w-11/12 mt-6">
-        <div className="flex flex-row item-center gap-2">
-          <Image
-            src={'/agencyIcons/twilioIntIcon.png'}
-            alt="*"
-            height={70}
-            width={70}
-          />
-          <div>
-            <div style={styles.heading}>Twilio</div>
-            <div className="mt-1" style={styles.subHeading}>
-              Connect your Twilio to enable customers to purchase phone numbers.
-            </div>
-            {reduxUser?.twilio?.twilAuthToken && (
-              <div style={{ fontWeight: '500', fontSize: 15 }}>
-                SID {reduxUser?.twilio?.twilSid} Token{' '}
-                {reduxUser?.twilio?.twilAuthToken}
+      <div className="flex flex-col border rounded-lg p-4 w-11/12 mt-6">
+        <div className="flex flex-row item-center justify-between">
+          <div className="flex flex-row item-center gap-2 flex-1">
+            <Image
+              src={'/agencyIcons/twilioIntIcon.png'}
+              alt="*"
+              height={70}
+              width={70}
+              style={{ objectFit: 'contain' }}
+            />
+            <div>
+              <div style={styles.heading}>Twilio</div>
+              <div className="mt-1" style={styles.subHeading}>
+                Connect your Twilio to enable customers to purchase phone numbers.
               </div>
-            )}
+              {reduxUser?.twilio?.twilAuthToken && (
+                <div style={{ fontWeight: '500', fontSize: 15 }}>
+                  SID {reduxUser?.twilio?.twilSid} Token{' '}
+                  {reduxUser?.twilio?.twilAuthToken}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-        {reduxUser?.twilio?.twilAuthToken ? (
-          <div>
-            {disConnectLoader ? (
-              <CircularProgress size={20} />
+          <div className="flex items-center">
+            {reduxUser?.twilio?.twilAuthToken ? (
+              <div>
+                {disConnectLoader ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <button
+                    className="h-[39px] px-2 text-center rounded-md bg-red text-white"
+                    onClick={async () => {
+                      const response = await handleDisconnectTwilio({
+                        setDisConnectLoader,
+                        setShowSnackMessage,
+                        setShowSnackType,
+                        selectedAgency,
+                      })
+                      if (response) {
+                        await refreshUserData()
+                        setHotReloadTrustProducts(true)
+                        setRemoveTrustHubData(true)
+                      }
+                    }}
+                  >
+                    Disconnect
+                  </button>
+                )}
+              </div>
             ) : (
               <button
-                className="h-[39px] px-2 text-center rounded-md bg-red text-white"
-                onClick={async () => {
-                  const response = await handleDisconnectTwilio({
-                    setDisConnectLoader,
-                    setShowSnackMessage,
-                    setShowSnackType,
-                    selectedAgency,
-                  })
-                  if (response) {
-                    await refreshUserData()
-                    setHotReloadTrustProducts(true)
-                    setRemoveTrustHubData(true)
-                  }
+                className="h-[39px] w-[85px] text-center rounded-md bg-brand-primary text-white"
+                onClick={() => {
+                  setShowAddKeyModal(true)
                 }}
               >
-                Disconnect
+                Add
               </button>
             )}
           </div>
-        ) : (
-          <button
-            className="h-[39px] w-[85px] text-center rounded-md bg-brand-primary text-white"
-            onClick={() => {
-              setShowAddKeyModal(true)
-            }}
-          >
-            Add
-          </button>
+        </div>
+        {/* Video Card - Below SID/Token */}
+        {reduxUser?.twilio?.twilAuthToken && (
+          <div className="mt-4">
+            <VideoCard
+              duration={(() => {
+                const tutorial = getTutorialByType(
+                  HowToVideoTypes.TwilioIntegrationAgency,
+                )
+                return tutorial?.description || '0:00'
+              })()}
+              horizontal={false}
+              playVideo={() => {
+                setShowVideoModal(true)
+              }}
+              title={
+                getTutorialByType(HowToVideoTypes.TwilioIntegrationAgency)
+                  ?.title || 'Twilio Integration - Agency'
+              }
+            />
+          </div>
         )}
       </div>
 

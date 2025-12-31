@@ -19,6 +19,9 @@ const getDefaultVideoUrl = (videoType) => {
     [HowToVideoTypes.TwilioTrustHub]: HowtoVideos.TwilioTrustHub,
     [HowToVideoTypes.Calendar]: HowtoVideos.Calendar,
     [HowToVideoTypes.Walkthrough]: HowtoVideos.WalkthroughWatched,
+    [HowToVideoTypes.ConnectBankAgency]: HowtoVideos.ConnectBankAgency,
+    [HowToVideoTypes.SettingGlobalNumber]: HowtoVideos.SettingGlobalNumber,
+    [HowToVideoTypes.TwilioIntegrationAgency]: HowtoVideos.TwilioIntegrationAgency,
     [HowToVideoTypes.Generic]: HowtoVideos.GettingStarted, // Fallback
   }
 
@@ -89,6 +92,21 @@ const getDefaultTutorial = (videoType) => {
       title: 'Welcome to AssignX',
       description: '05:02',
       videoUrl: HowtoVideos.WalkthroughWatched,
+    },
+    [HowToVideoTypes.ConnectBankAgency]: {
+      title: 'Connect Bank Agency',
+      description: '4:39',
+      videoUrl: HowtoVideos.ConnectBankAgency,
+    },
+    [HowToVideoTypes.SettingGlobalNumber]: {
+      title: 'Setting Global Number',
+      description: '2:52',
+      videoUrl: HowtoVideos.SettingGlobalNumber,
+    },
+    [HowToVideoTypes.TwilioIntegrationAgency]: {
+      title: 'Twilio Integration - Agency',
+      description: '1:55',
+      videoUrl: HowtoVideos.TwilioIntegrationAgency,
     },
   }
 

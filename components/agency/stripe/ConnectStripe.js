@@ -14,7 +14,6 @@ import AgentSelectSnackMessage, {
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import { getStripeLink } from '@/components/onboarding/services/apisServices/ApiService'
 import { PersistanceKeys } from '@/constants/Constants'
-
 import StripeDetailsCard from './StripeDetailsCard'
 
 const ConnectStripe = ({ fullScreen = false }) => {
@@ -155,32 +154,32 @@ const ConnectStripe = ({ fullScreen = false }) => {
               <div
                 className={`w-[28rem] rounded-2xl shadow-lg bg-white border border-gray-200 ${fullScreen ? '' : 'mt-6'}`}
               >
-                <div
-                  className="w-full flex flex-row items-start justify-end rounded-t-2xl h-[200px]"
-                  style={{
-                    backgroundImage:
-                      "url('/agencyIcons/stripeNotConnected.png')", ///agencyIcons/subAccBg.jpg
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    // borderRadius:'20px'
-                  }}
-                >
-                  <button className="bg-white p-2 rounded-full px-2 py-1 mt-4 me-4 flex flex-row items-center justify-center">
-                    <Image
-                      alt="*"
-                      src={'/agencyIcons/redDot.png'}
-                      height={20}
-                      width={20}
-                    />
-                    <p
-                      className="text-black"
-                      style={{ fontSize: '12px', fontWeight: '400' }}
-                    >
-                      Not Connected
-                    </p>
-                  </button>
-                </div>
-                {/*
+                  <div
+                    className="w-full flex flex-row items-start justify-end rounded-t-2xl h-[200px]"
+                    style={{
+                      backgroundImage:
+                        "url('/agencyIcons/stripeNotConnected.png')", ///agencyIcons/subAccBg.jpg
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',
+                      // borderRadius:'20px'
+                    }}
+                  >
+                    <button className="bg-white p-2 rounded-full px-2 py-1 mt-4 me-4 flex flex-row items-center justify-center">
+                      <Image
+                        alt="*"
+                        src={'/agencyIcons/redDot.png'}
+                        height={20}
+                        width={20}
+                      />
+                      <p
+                        className="text-black"
+                        style={{ fontSize: '12px', fontWeight: '400' }}
+                      >
+                        Not Connected
+                      </p>
+                    </button>
+                  </div>
+                  {/*
                                             <img
                                                 alt="*"
                                                 src={"/agencyIcons/stripeNotConnected.png"}
@@ -190,66 +189,67 @@ const ConnectStripe = ({ fullScreen = false }) => {
                                                 }}
                                             />
                                         */}
-                <div
-                  className="flex flex-row items-center justify-center"
-                  style={{ marginTop: '-35px' }}
-                >
-                  <Image
-                    alt="*"
-                    src={'/agencyIcons/stripeLogo.png'}
-                    height={70}
-                    width={70}
-                  />
-                </div>
-                <div className="flex flex-col items-center justify-center p-4">
                   <div
-                    style={{
-                      fontWeight: '500',
-                      fontSize: '15px',
-                      color: '#000000',
-                    }}
+                    className="flex flex-row items-center justify-center"
+                    style={{ marginTop: '-35px' }}
                   >
-                    Your agency account is created.
+                    <Image
+                      alt="*"
+                      src={'/agencyIcons/stripeLogo.png'}
+                      height={70}
+                      width={70}
+                    />
                   </div>
-                  <div
-                    style={{
-                      fontWeight: '500',
-                      fontSize: '15px',
-                      color: '#000000',
-                    }}
-                  >
-                    Lets add your Stripe detail for payouts.
-                  </div>
-                  {loader ? (
-                    <div className="mt-4">
-                      <CircularProgress size={30} />
+                  <div className="flex flex-col items-center justify-center p-4">
+                    <div
+                      style={{
+                        fontWeight: '500',
+                        fontSize: '15px',
+                        color: '#000000',
+                      }}
+                    >
+                      Your agency account is created.
                     </div>
-                  ) : (
-                    <div className="flex flex-col items-center gap-3 w-full mt-4">
-                      <button
-                        className="bg-purple text-white py-2 px-4 rounded-md w-full h-[40px]"
-                        style={styles.btnText}
-                        onClick={() => {
-                          if (agencydata?.canAcceptPaymentsAgencyccount) {
-                            setSnackMsg('Stripe already connected.')
-                          } else {
-                            handleVerifyClick()
-                          }
-                        }}
-                      >
-                        Add Stripe
-                      </button>
-                      {fullScreen ? (
+                    <div
+                      style={{
+                        fontWeight: '500',
+                        fontSize: '15px',
+                        color: '#000000',
+                      }}
+                    >
+                      Lets add your Stripe detail for payouts.
+                    </div>
+                    {loader ? (
+                      <div className="mt-4">
+                        <CircularProgress size={30} />
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-3 w-full mt-4">
                         <button
-                          className="text-gray-600 py-2 px-4 rounded-md w-full h-[40px] border border-gray-300 hover:bg-gray-50 transition-colors"
+                          className="bg-purple text-white py-2 px-4 rounded-md w-full h-[40px]"
                           style={styles.btnText}
-                          onClick={handleSkip}
+                          onClick={() => {
+                            if (agencydata?.canAcceptPaymentsAgencyccount) {
+                              setSnackMsg('Stripe already connected.')
+                            } else {
+                              handleVerifyClick()
+                            }
+                          }}
                         >
-                          Skip for now
+                          Add Stripe
                         </button>
-                      ) : null}
-                    </div>
-                  )}
+                        {fullScreen ? (
+                          <button
+                            className="text-gray-600 py-2 px-4 rounded-md w-full h-[40px] border border-gray-300 hover:bg-gray-50 transition-colors"
+                            style={styles.btnText}
+                            onClick={handleSkip}
+                          >
+                            Skip for now
+                          </button>
+                        ) : null}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}

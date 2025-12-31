@@ -12,6 +12,10 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import ClaimNumber from '@/components/dashboard/myagentX/ClaimNumber'
+import VideoCard from '@/components/createagent/VideoCard'
+import IntroVideoModal from '@/components/createagent/IntroVideoModal'
+import { HowToVideoTypes } from '@/constants/Constants'
+import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 
 function AgencyPhoneNumbers({ selectedAgency }) {
   const [phoneNumbers, setPhoneNumbers] = useState([])
@@ -24,6 +28,7 @@ function AgencyPhoneNumbers({ selectedAgency }) {
     message: '',
     isVisible: false,
   })
+  const [showVideoModal, setShowVideoModal] = useState(false)
 
   useEffect(() => {
     fetchPhoneNumbers()
@@ -239,9 +244,22 @@ function AgencyPhoneNumbers({ selectedAgency }) {
       className="flex  flex-col w-full p-8  overflow-y-hidden"
       style={{ maxWidth: '1200px', margin: '0 auto' }}
     >
+      {/* Video Modal */}
+      <IntroVideoModal
+        open={showVideoModal}
+        onClose={() => setShowVideoModal(false)}
+        videoTitle={
+          getTutorialByType(HowToVideoTypes.SettingGlobalNumber)?.title ||
+          'Setting Global Number'
+        }
+        videoUrl={
+          getVideoUrlByType(HowToVideoTypes.SettingGlobalNumber) || ''
+        }
+      />
+
       {/* Header */}
       <div className="mb-6 flex items-start justify-between">
-        <div>
+        <div className="flex-1">
           <div
             className="text-2xl font-semibold mb-2"
             style={{ color: '#000' }}
@@ -253,33 +271,54 @@ function AgencyPhoneNumbers({ selectedAgency }) {
             visible to all subaccounts.
           </div>
         </div>
-        <Tooltip
-          title={
-            !isTwilioConnected
-              ? 'Please connect your Twilio account first to get a global number'
-              : ''
-          }
-          arrow
-        >
-          <span>
-            <Button
-              variant="contained"
-              onClick={() => setShowClaimPopup(true)}
-              disabled={!isTwilioConnected}
-              style={{
-                backgroundColor: isTwilioConnected
-                  ? 'hsl(var(--brand-primary))'
-                  : '#d0d0d0',
-                color: '#fff',
-                textTransform: 'none',
-                minWidth: '150px',
-                cursor: isTwilioConnected ? 'pointer' : 'not-allowed',
+        <div className="flex items-center gap-4">
+          {/* Video Card */}
+          <div className="hidden lg:block">
+            <VideoCard
+              duration={(() => {
+                const tutorial = getTutorialByType(
+                  HowToVideoTypes.SettingGlobalNumber,
+                )
+                return tutorial?.description || '0:00'
+              })()}
+              horizontal={false}
+              playVideo={() => {
+                setShowVideoModal(true)
               }}
-            >
-              Get Global Number
-            </Button>
-          </span>
-        </Tooltip>
+              title={
+                getTutorialByType(HowToVideoTypes.SettingGlobalNumber)?.title ||
+                'Setting Global Number'
+              }
+            />
+          </div>
+          <Tooltip
+            title={
+              !isTwilioConnected
+                ? 'Please connect your Twilio account first to get a global number'
+                : ''
+            }
+            arrow
+          >
+            <span>
+              <Button
+                variant="contained"
+                onClick={() => setShowClaimPopup(true)}
+                disabled={!isTwilioConnected}
+                style={{
+                  backgroundColor: isTwilioConnected
+                    ? 'hsl(var(--brand-primary))'
+                    : '#d0d0d0',
+                  color: '#fff',
+                  textTransform: 'none',
+                  minWidth: '150px',
+                  cursor: isTwilioConnected ? 'pointer' : 'not-allowed',
+                }}
+              >
+                Get Global Number
+              </Button>
+            </span>
+          </Tooltip>
+        </div>
       </div>
 
       {/* Global Number Info Banner */}

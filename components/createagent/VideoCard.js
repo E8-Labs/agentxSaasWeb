@@ -54,7 +54,8 @@ const VideoCard = ({
               width={parseInt(width, 10)}
               height={parseInt(height, 10)}
               priority
-              className="rounded-lg object-cover"
+              className="rounded-lg"
+              style={{ objectFit: 'contain' }}
             />
           </div>
           <div className="flex flex-col items-end justify-end gap-1">
