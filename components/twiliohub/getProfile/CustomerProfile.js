@@ -67,6 +67,10 @@ const CustomerProfile = ({
     ? getTutorialByType(HowToVideoTypes.TwilioIntegrationAgency)
     : getTutorialByType(HowToVideoTypes.TwilioTrustHub)
 
+  const learnMoreCta = isFromAgency
+    ? 'Learn how to connect Twilio and use the video link shared with you.'
+    : 'Learn more about Twilio Trust Hub'
+
   const introVideoTitle =
     introVideo?.title ||
     (isFromAgency
@@ -137,7 +141,7 @@ const CustomerProfile = ({
               setIntroVideoModal2(true)
             }}
           >
-            Learn more about Twilio Trust Hub
+            {learnMoreCta}
           </button>
           <Play size={18} 
           weight='bold'
