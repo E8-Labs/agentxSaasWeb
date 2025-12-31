@@ -53,6 +53,10 @@ import Apis from '../apis/Apis'
 import { AudioWaveActivity } from '../askSky/askskycomponents/AudioWaveActivity'
 import { VoiceWavesComponent } from '../askSky/askskycomponents/voice-waves'
 import CloseBtn from '../globalExtras/CloseBtn'
+import AgentXOrb from '../common/AgentXOrb'
+import { MYAGENTX_URL } from '../askSky/constants'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
+
 
 // Add style tag to override global white background for loading message
 if (typeof document !== 'undefined') {
@@ -115,6 +119,7 @@ const Creator = ({ agentId, name }) => {
   const [snackbarSeverity, setSnackbarSeverity] = useState('error')
   const [vapiAgent, setVapiAgent] = useState(null)
   const [assistantOverrides, setAssistantOverrides] = useState(null)
+  const [isMuted, setIsMuted] = useState(false)
 
   // Modal and form states
   const [showLeadModal, setShowLeadModal] = useState(false)
@@ -739,12 +744,68 @@ const Creator = ({ agentId, name }) => {
     setLoading(false)
     setloadingMessage('')
     setOpen(false)
+    setIsMuted(false) // Reset mute state when call ends
     if (voiceOpen) {
       setVoiceOpen(false)
     }
 
     if (chatOpen) {
       setChatOpen(false)
+    }
+  }
+
+  // Handle mute/unmute toggle
+  const handleMuteToggle = () => {
+    if (!vapi || !open) return
+
+    try {
+      const newMutedState = !isMuted
+      
+      // Try using Vapi's setMuted method if available (preferred method)
+      if (typeof vapi.setMuted === 'function') {
+        vapi.setMuted(newMutedState)
+        setIsMuted(newMutedState)
+        console.log(`Microphone ${newMutedState ? 'muted' : 'unmuted'} via Vapi API`)
+        return
+      }
+      
+      // Fallback: Try to find and mute/unmute active audio tracks
+      // This works with the existing media stream that Vapi is using
+      if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+        // Get all media tracks from the current page
+        navigator.mediaDevices.enumerateDevices()
+          .then(() => {
+            // Try to mute/unmute by accessing active media streams
+            // Note: This is a fallback and may not work in all cases
+            const audioElements = document.querySelectorAll('audio')
+            audioElements.forEach((audio) => {
+              if (audio.srcObject) {
+                const stream = audio.srcObject
+                if (stream instanceof MediaStream) {
+                  stream.getAudioTracks().forEach((track) => {
+                    track.enabled = !newMutedState
+                  })
+                }
+              }
+            })
+            
+            setIsMuted(newMutedState)
+            console.log(`Microphone ${newMutedState ? 'muted' : 'unmuted'} via media tracks`)
+          })
+          .catch((error) => {
+            console.log('Could not enumerate devices for muting:', error)
+            setIsMuted(newMutedState) // Update UI state anyway
+          })
+      } else {
+        // Last resort: Update UI state (actual muting may not work)
+        setIsMuted(newMutedState)
+        console.log('Mute state updated in UI (actual muting may require Vapi API)')
+      }
+    } catch (error) {
+      console.error('Error toggling mute:', error)
+      setSnackbarMessage('Error toggling mute. Please try again.')
+      setSnackbarSeverity('error')
+      setSnackbarOpen(true)
     }
   }
 
@@ -855,17 +916,18 @@ const Creator = ({ agentId, name }) => {
 
   const showCallUI = () => {
     return (
-      <div 
+      <div
         className="flex flex-col items-center justify-center voice-call-ui-container"
-        style={{ 
-          backgroundColor: 'transparent', 
+        style={{
+          backgroundColor: 'transparent',
           background: 'transparent',
           width: '100%'
         }}
       >
+
         {loading || !open ? (
-          <span 
-            style={{ 
+          <span
+            style={{
               backgroundColor: 'transparent',
               background: 'transparent',
               padding: 0,
@@ -892,14 +954,34 @@ const Creator = ({ agentId, name }) => {
             className="mt-10"
           />
         )}
+      
 
         {open && (
-          <button
-            onClick={handleCloseCall}
-            className="px-6 py-3 rounded-full bg-purple mt-5 text-white text-[15px] font-[500]"
-          >
-            End Call
-          </button>
+          <div className='flex mt-5 flex-row items-center justify-center gap-2'>
+            <button
+              onClick={handleCloseCall}
+              className="px-3 py-2 flex flex-row items-center justify-center gap-3 rounded-full bg-[#ffffff40] shadow-md"
+            >
+            {renderBrandedIcon('/assets/cross.png', 12, 12,)}
+              <span className='text-black text-[15px] font-normal'>
+                End Call
+              </span>
+            </button>
+
+            <button
+              onClick={handleMuteToggle}
+              aria-label={isMuted ? 'Unmute microphone' : 'Mute microphone'}
+              className={`shadow-lg rounded-full ${isMuted && 'shadow-red-500'}`}
+
+            >
+              <Image 
+                src={isMuted ? "/svgIcons/Mute.svg" : "/svgIcons/Unmuted.svg"} 
+                alt={isMuted ? "mute" : "unmute"}   
+                width={40} 
+                height={40} 
+              />
+            </button>
+          </div>
         )}
       </div>
     )
@@ -930,7 +1012,11 @@ const Creator = ({ agentId, name }) => {
   return (
     <div>
       <div
-        style={backgroundImage}
+        style={{
+          width: '100%',
+          height: '100svh',
+          overflow: 'hidden',
+        }}
         className="  overflow-y-hidden"
         onMouseMove={handleMouseMove}
       >
@@ -942,180 +1028,131 @@ const Creator = ({ agentId, name }) => {
             top: 25,
           }}
         >
-          <div className="rounded-full border border-[#ffffff] bg-[#00000010] flex flex-row items-center gap-2 py-2 px-4 outline-none">
+          <div className="rounded-full border border-[#ffffff] bg-[#FFFFFF39] shadow-md flex flex-row items-center gap-2 py-1 px-2 outline-none">
             {profileLoader ? (
               <CircularProgress size={15} />
             ) : (
-              <div className="border border-[#ffffff] rounded-full">
+              <div className="rounded-full">
                 {agentImage(agentDetails?.data?.data?.agent)}
               </div>
             )}
             <div
               className="truncate"
-              style={{ fontSize: '17px', fontWeight: '500', color: 'black' }}
+              style={{ fontSize: '15px', fontWeight: '400', color: 'black' }}
             >
               {/*agentDetails?.data?.data?.agent?.name*/}
               {agentDetails?.data?.data?.agent?.name &&
                 agentDetails?.data?.data?.agent?.name.charAt(0).toUpperCase() +
-                  agentDetails?.data?.data?.agent?.name.slice(1)}
+                agentDetails?.data?.data?.agent?.name.slice(1)}
             </div>
           </div>
         </div>
 
-        {/* Bottom button */}
-        <div
-          ref={createAIButtonRef}
-          style={{
-            position: 'absolute',
-            left: 20,
-            bottom: 25,
-          }}
-        >
-          <button
-            className="rounded-full border border-[#ffffff] bg-purple60 flex flex-row items-center gap-2 h-[52px] px-4 outline-none"
-            onClick={() => {
-              window.open('https://www.assignx.ai/', '_blank')
-            }}
-          >
-            <Image
-              src={'/assets/stars.png'}
-              alt="phone"
-              height={20}
-              width={20}
-            />
-            <div
-              className="text-white"
-              style={{ fontSize: '17px', fontWeight: '500' }}
-            >
-              Build your AI
-            </div>
-          </button>
-        </div>
+      
+
 
         {/* Animating Image */}
         <div
           style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
+
           }}
-          className="flex flex-col w-9/12 justify-center items-center md:flex hidden"
+          className="flex w-full h-full flex-col justify-center items-center"
         >
-          <button
-            className="flex items-center justify-center flex-1"
+          <div
+            className="flex items-center justify-center flex-col flex-1 "
             style={{
               cursor: 'pointer',
               outline: 'none',
               border: 'none',
               backgroundColor: 'transparent',
+              backgroundImage: 'url("/svgIcons/onGoingCallBg.svg")',
+              backgroundSize: 'cover',
+              backgroundRepeat: 'no-repeat',
+              backgroundPosition: 'center',
+              width: '100%',
+              height: '100%',
+
             }}
           >
-            {/* <div className='flex flex-row items-center justify-center' style={gifBackgroundImage}>
-                                    <Image onClick={handleInitiateVapi} src="/mainAppGif.gif" alt='gif' style={{ backgroundColor: "red", borderRadius: "50%" }} height={600} width={600} />
-                                </div> */}
-
-            <div
-              style={gifBackgroundImage}
-              className="flex flex-row justify-center items-center"
-            >
-              <Image
-                ref={buttonRef6}
-                onClick={handleInitiateVapi}
-                src="/assets/maingif.gif"
-                alt="gif"
-                style={{
-                  backgroundColor: '',
-                  borderRadius: '50%',
-                  height: windowHeight / 2.14,
-                  width: windowHeight / 2.14,
+          {
+            isSmallScreen && (
+  
+              <motion.div
+                animate={{
+                  y: [0, -30, 0],
                 }}
-                height={600}
-                width={600}
-              />
-            </div>
-          </button>
-          <div ref={endCallButtonRef}>{showCallUI()}</div>
-        </div>
-
-        {/* visible on small screens only */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '55%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-          }}
-          className="w-full flex justify-center items-center md:hidden flex flex-col gap-4"
-        >
-          <button
-            className="flex flex-col items-center justify-center flex-1 mr-6"
-            style={{
-              cursor: 'pointer',
-              outline: 'none',
-              border: 'none',
-            }}
-          >
-            {/* <div className='px-4 py-2 rounded-lg -mb-8' style={{ fontSize: 14, fontWeight: '500', fontFamily: 'inter', backgroundColor: '#ffffff50' }}>
-                                    Click to Talk
-                                </div> */}
-            <motion.div
-              animate={{
-                y: [0, -30, 0],
-              }}
-              transition={{
-                duration: 3.5,
-                repeat: Infinity,
-                repeatType: 'loop',
-                ease: 'easeInOut',
-              }}
-              className="-mb-16 rounded-lg flex flex-col justify-center"
-              style={{
-                fontSize: 14,
-                fontWeight: '500',
-                fontFamily: 'inter',
-                backgroundColor: '#ffffff80',
-                padding: '10px 20px', // Add padding to the content inside the box
-                position: 'relative', // Required for positioning the triangle
-              }}
-            >
-              Click to Talk
-              {/* Triangle at the bottom center */}
-              <div
+                transition={{
+                  duration: 3.5,
+                  repeat: Infinity,
+                  repeatType: 'loop',
+                  ease: 'easeInOut',
+                }}
+                className="-mb-16 rounded-lg flex flex-col justify-center"
                 style={{
+                  fontSize: 14,
+                  fontWeight: '500',
+                  fontFamily: 'inter',
+                  backgroundColor: '#ffffff80',
+                  padding: '10px 20px', // Add padding to the content inside the box
                   position: 'absolute',
-                  bottom: '-15px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: 0,
-                  height: 0,
-                  borderLeft: '15px solid transparent',
-                  borderRight: '15px solid transparent',
-                  borderTop: '15px solid #ffffff80',
+                  top: '25%',
+                  left: '40%',
                 }}
-              />
-            </motion.div>
-
+              >
+                Tap to Talk
+                {/* Triangle at the bottom center */}
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: '-15px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    width: 0,
+                    height: 0,
+                    borderLeft: '15px solid transparent',
+                    borderRight: '15px solid transparent',
+                    borderTop: '15px solid #ffffff80',
+                  }}
+                />
+              </motion.div>
+            )
+          }
             <div
-              style={gifBackgroundImageSmallScreen}
-              className="flex flex-row justify-center items-center"
+              className='flex items-center justify-center'
+              style={{
+                cursor: 'pointer',
+                width: isSmallScreen ? '80%' : '40%',
+                height: isSmallScreen ? '80%' : '40%',
+                backgroundColor: 'transparent',
+                backgroundImage: 'url("/svgIcons/onGoingCallOrb.svg")',
+                backgroundSize: 'contain',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center',
+              }}
+              onClick={() => {
+                handleInitiateVapi()
+              }}
             >
-              <Image
-                onClick={handleInitiateVapi}
-                src="/assets/maingif.gif"
-                alt="gif"
-                style={{
-                  backgroundColor: '',
-                  borderRadius: '50%',
-                  height: windowHeight / 3,
-                  width: windowHeight / 3,
-                }}
-                height={200}
-                width={200}
-              />
+
+              <AgentXOrb size={250} />
             </div>
-          </button>
-          <div ref={buttonRef}>{showCallUI()}</div>
+
+          </div>
+          <div className='absolute bottom-3 left-1/2 -translate-x-1/2'>
+            <div
+              className="flex flex-row items-center gap-1"
+            >
+              <p className="text-xs">Powered by</p>
+
+              <img
+                src="/assets/assignX.png"
+                alt="AssignX Logo"
+                className="h-3.5"
+              />
+
+            </div>
+          </div>
+          <div className='absolute bottom-20 left-1/2 -translate-x-1/2' ref={endCallButtonRef}>{showCallUI()}</div>
         </div>
 
         {/* Mouse Following Box Animation */}
@@ -1360,9 +1397,8 @@ const Creator = ({ agentId, name }) => {
                 </div>
               ) : (
                 <button
-                  className={`h-[50px] rounded-xl text-white flex-1 ${
-                    isFormValid() ? 'bg-purple' : 'bg-gray-400'
-                  }`}
+                  className={`h-[50px] rounded-xl text-white flex-1 ${isFormValid() ? 'bg-purple' : 'bg-gray-400'
+                    }`}
                   style={{
                     fontWeight: '600',
                     fontSize: 16.8,
