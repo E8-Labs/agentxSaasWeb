@@ -85,6 +85,9 @@ export const HowtoVideos = {
   Tools: process.env.NEXT_PUBLIC_REACT_APP_MCPTool || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Mcp_Tools_Video_B_AgentX_155_2025_Reupload',
   WalkthroughWatched: process.env.NEXT_PUBLIC_REACT_APP_WalkthroughWatched || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Assignx_Intro_Video_B_AgentX_155_2025_Reupload',
   TwilioTrustHub: process.env.NEXT_PUBLIC_REACT_APP_TwilioTrustHub || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Twilio_Trusthub_B_AgentX_155_2025_Reupload',
+  ConnectBankAgency: process.env.NEXT_PUBLIC_REACT_APP_ConnectBankAgency || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Connect_Bank_Stripe_Agency_AgentX_155_2025_Reupload',
+  SettingGlobalNumber: process.env.NEXT_PUBLIC_REACT_APP_SettingGlobalNumber || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Setting_Global_Number_Agency_AgentX_155_2025_Reupload',
+  TwilioIntegrationAgency: process.env.NEXT_PUBLIC_REACT_APP_TwilioIntegrationAgency || 'https://apimyagentx.com/agentx/uploads/howtos/howtos_Twilio_Integration_Agency_AgentX_155_2025_Reupload',
 }
 
 export const HowToVideoTypes = {
@@ -102,6 +105,9 @@ export const HowToVideoTypes = {
   Script: 'Script',
   LeadScoring: 'LeadScoring',
   Generic: 'Generic',
+  ConnectBankAgency: 'ConnectBankAgency',
+  SettingGlobalNumber: 'SettingGlobalNumber',
+  TwilioIntegrationAgency: 'TwilioIntegrationAgency',
 }
 
 export const Constants = {

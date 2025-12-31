@@ -111,62 +111,67 @@ const Integrations = ({ selectedAgency, reduxUser, refreshUserData }) => {
         }}
       />
 
-      <div className="flex flex-row item-center justify-between border rounded-lg p-4 w-11/12 mt-6">
-        <div className="flex flex-row item-center gap-2">
-          <Image
-            src={'/agencyIcons/twilioIntIcon.png'}
-            alt="*"
-            height={70}
-            width={70}
-          />
-          <div>
-            <div style={styles.heading}>Twilio</div>
-            <div className="mt-1" style={styles.subHeading}>
-              Connect your Twilio to enable customers to purchase phone numbers.
-            </div>
-            {reduxUser?.twilio?.twilAuthToken && (
-              <div style={{ fontWeight: '500', fontSize: 15 }}>
-                SID {reduxUser?.twilio?.twilSid} Token{' '}
-                {reduxUser?.twilio?.twilAuthToken}
+      <div className="flex flex-col border rounded-lg p-4 w-11/12 mt-6">
+        <div className="flex flex-row item-center justify-between">
+          <div className="flex flex-row item-center gap-2 flex-1">
+            <Image
+              src={'/agencyIcons/twilioIntIcon.png'}
+              alt="*"
+              height={70}
+              width={70}
+              style={{ objectFit: 'contain' }}
+            />
+            <div>
+              <div style={styles.heading}>Twilio</div>
+              <div className="mt-1" style={styles.subHeading}>
+                Connect your Twilio to enable customers to purchase phone numbers.
               </div>
-            )}
+              {reduxUser?.twilio?.twilAuthToken && (
+                <div style={{ fontWeight: '500', fontSize: 15 }}>
+                  SID {reduxUser?.twilio?.twilSid} Token{' '}
+                  {reduxUser?.twilio?.twilAuthToken}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-        {reduxUser?.twilio?.twilAuthToken ? (
-          <div>
-            {disConnectLoader ? (
-              <CircularProgress size={20} />
+          <div className="flex items-center">
+            {reduxUser?.twilio?.twilAuthToken ? (
+              <div>
+                {disConnectLoader ? (
+                  <CircularProgress size={20} />
+                ) : (
+                  <button
+                    className="h-[39px] px-2 text-center rounded-md bg-red text-white"
+                    onClick={async () => {
+                      const response = await handleDisconnectTwilio({
+                        setDisConnectLoader,
+                        setShowSnackMessage,
+                        setShowSnackType,
+                        selectedAgency,
+                      })
+                      if (response) {
+                        await refreshUserData()
+                        setHotReloadTrustProducts(true)
+                        setRemoveTrustHubData(true)
+                      }
+                    }}
+                  >
+                    Disconnect
+                  </button>
+                )}
+              </div>
             ) : (
               <button
-                className="h-[39px] px-2 text-center rounded-md bg-red text-white"
-                onClick={async () => {
-                  const response = await handleDisconnectTwilio({
-                    setDisConnectLoader,
-                    setShowSnackMessage,
-                    setShowSnackType,
-                    selectedAgency,
-                  })
-                  if (response) {
-                    await refreshUserData()
-                    setHotReloadTrustProducts(true)
-                    setRemoveTrustHubData(true)
-                  }
+                className="h-[39px] w-[85px] text-center rounded-md bg-brand-primary text-white"
+                onClick={() => {
+                  setShowAddKeyModal(true)
                 }}
               >
-                Disconnect
+                Add
               </button>
             )}
           </div>
-        ) : (
-          <button
-            className="h-[39px] w-[85px] text-center rounded-md bg-brand-primary text-white"
-            onClick={() => {
-              setShowAddKeyModal(true)
-            }}
-          >
-            Add
-          </button>
-        )}
+        </div>
       </div>
 
       {/*

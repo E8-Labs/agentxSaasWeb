@@ -1,20 +1,19 @@
 'use client'
 
 import { CircularProgress } from '@mui/material'
-import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 
-import { AuthToken } from '@/components/agency/plan/AuthDetails'
-import Apis from '@/components/apis/Apis'
 import getProfileDetails from '@/components/apis/GetProfile'
+import IntroVideoModal from '@/components/createagent/IntroVideoModal'
+import VideoCard from '@/components/createagent/VideoCard'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import { getStripeLink } from '@/components/onboarding/services/apisServices/ApiService'
-import { PersistanceKeys } from '@/constants/Constants'
-
+import { HowToVideoTypes } from '@/constants/Constants'
+import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 import StripeDetailsCard from './StripeDetailsCard'
 
 const ConnectStripe = ({ fullScreen = false }) => {
@@ -25,17 +24,9 @@ const ConnectStripe = ({ fullScreen = false }) => {
   const [agencydata, setAgencyData] = useState(null)
   const [snackMsg, setSnackMsg] = useState(null)
   const [snackMsgType, setSnackMsgType] = useState(SnackbarTypes.Warning)
+  const [showVideoModal, setShowVideoModal] = useState(false)
 
-  //get the local data
   useEffect(() => {
-    // const Data = localStorage.getItem("User");
-    // if (Data) {
-    //     const LD = JSON.parse(Data);
-    //     if (LD) {
-    //         setAgencyData(LD.user);
-    //         console.log("Agency data from localstorge is", LD.user);
-    //     }
-    // }
     checkStripe()
   }, [])
 
@@ -45,12 +36,13 @@ const ConnectStripe = ({ fullScreen = false }) => {
       const agencyProfile = await getProfileDetails()
       const stripeStatus =
         agencyProfile?.data?.data?.canAcceptPaymentsAgencyccount
+
       setAgencyData(agencyProfile?.data?.data)
-      setCheckStripeStatus(stripeStatus)
-      setCheckStripeStatusLoader(false)
+      setCheckStripeStatus(Boolean(stripeStatus))
     } catch (error) {
-      setCheckStripeStatusLoader(false)
       console.log('Eror in gettin stripe status', error)
+    } finally {
+      setCheckStripeStatusLoader(false)
     }
   }
 
@@ -59,14 +51,12 @@ const ConnectStripe = ({ fullScreen = false }) => {
   }
 
   const handleVerifyClick = async () => {
-    // Open popup immediately on user click to avoid popup blocker
     const popupWindow = window.open(
       'about:blank',
       '_blank',
       'width=800,height=600,scrollbars=yes,resizable=yes',
     )
 
-    // Show loading message in popup
     if (popupWindow) {
       popupWindow.document.write(
         '<html><body><div style="text-align:center;margin-top:50px;"><h2>Connecting to Stripe...</h2><p>Please wait while we redirect you to Stripe Connect.</p></div></body></html>',
@@ -74,41 +64,6 @@ const ConnectStripe = ({ fullScreen = false }) => {
     }
 
     await getStripeLink(setLoader, popupWindow)
-    // try {
-    //     setLoader(true);
-    //     const data = await getProfileDetails();
-    //     console.log("Working");
-    //     if (data) {
-    //         const D = data.data.data
-    //         console.log("Getprofile data is", D);
-    //         if (D.plan) {
-    //             const Token = AuthToken();
-    //             const ApiPath = Apis.createOnboardingLink;
-    //             const response = await axios.post(ApiPath, null, {
-    //                 headers: {
-    //                     "Authorization": "Bearer " + Token
-    //                 }
-    //             });
-    //             if (response) {
-    //                 console.log("Route user to connect stripe");
-    //                 console.log("Payment link is", response.data.data.url);
-    //                 window.open(response.data.data.url, "_blank");
-    //                 setLoader(false);
-    //             }
-    //             // router.push("/agency/verify")
-    //         } else {
-    //             console.log("Need to subscribe plan");
-    //             const d = {
-    //                 subPlan: false
-    //             }
-    //             localStorage.setItem(PersistanceKeys.LocalStorageSubPlan, JSON.stringify(d));
-    //             router.push("/agency/onboarding");
-    //         }
-    //     }
-    // } catch (error) {
-    //     setLoader(false);
-    //     console.error("Error occured  in getVerify link api is", error);
-    // }
   }
 
   const styles = {
@@ -120,19 +75,26 @@ const ConnectStripe = ({ fullScreen = false }) => {
     },
   }
 
+  const connectBankTutorial = getTutorialByType(
+    HowToVideoTypes.ConnectBankAgency,
+  )
+  const connectBankVideoUrl =
+    getVideoUrlByType(HowToVideoTypes.ConnectBankAgency) ||
+    connectBankTutorial?.videoUrl
+
   return (
     <div
       className={`w-full flex flex-row items-center justify-center ${fullScreen ? 'h-screen' : ''}`}
-      // style={{
-      //     height: '100svh',
-      //     width: '100%',
-      //     backgroundImage: "url('/agencyIcons/congratsBg.jpg')",
-      //     backgroundSize: "cover",
-      //     backgroundPosition: "center",
-      //     alignItems: 'center',
-      //     justifyContent: 'center',
-      // }}
     >
+      <IntroVideoModal
+        open={showVideoModal}
+        onClose={() => setShowVideoModal(false)}
+        videoTitle={
+          connectBankTutorial?.title || 'Connect your bank account with Stripe'
+        }
+        videoUrl={connectBankVideoUrl}
+        videoDescription={connectBankTutorial?.description}
+      />
       <AgentSelectSnackMessage
         isVisible={snackMsg !== null}
         message={snackMsg}
@@ -145,7 +107,18 @@ const ConnectStripe = ({ fullScreen = false }) => {
         {checkStripeStatusLoader ? (
           <CircularProgress size={30} />
         ) : (
-          <div className="h-full w-full flex flex-row items-center justify-center">
+          <div className="h-full w-full flex flex-col gap-4 items-center justify-center">
+            <div className="w-full flex items-center justify-center">
+              <VideoCard
+                horizontal={false}
+                title={
+                  connectBankTutorial?.title ||
+                  'Connect your bank account with Stripe'
+                }
+                duration={connectBankTutorial?.description || '4:00'}
+                playVideo={() => setShowVideoModal(true)}
+              />
+            </div>
             {checkStripeStatus ? (
               <StripeDetailsCard
                 stripeData={agencydata?.stripeAccount}
@@ -158,11 +131,9 @@ const ConnectStripe = ({ fullScreen = false }) => {
                 <div
                   className="w-full flex flex-row items-start justify-end rounded-t-2xl h-[200px]"
                   style={{
-                    backgroundImage:
-                      "url('/agencyIcons/stripeNotConnected.png')", ///agencyIcons/subAccBg.jpg
+                    backgroundImage: "url('/agencyIcons/stripeNotConnected.png')",
                     backgroundSize: 'cover',
                     backgroundPosition: 'center',
-                    // borderRadius:'20px'
                   }}
                 >
                   <button className="bg-white p-2 rounded-full px-2 py-1 mt-4 me-4 flex flex-row items-center justify-center">
@@ -180,16 +151,6 @@ const ConnectStripe = ({ fullScreen = false }) => {
                     </p>
                   </button>
                 </div>
-                {/*
-                                            <img
-                                                alt="*"
-                                                src={"/agencyIcons/stripeNotConnected.png"}
-                                                className="rounded-t-2xl"
-                                                style={{
-                                                    height: "100%", width: "100%", objectFit: "cover",
-                                                }}
-                                            />
-                                        */}
                 <div
                   className="flex flex-row items-center justify-center"
                   style={{ marginTop: '-35px' }}
