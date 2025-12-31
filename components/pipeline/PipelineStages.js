@@ -148,7 +148,6 @@ const PipelineStages = ({
   const [user, setUser] = useState(userData) // Keep local state for compatibility
   const [gmailAccounts, setGmailAccounts] = useState([])
   const [accountLoader, setAccountLoader] = useState(false)
-)
 
   const [targetUser, setTargetUser] = useState(null)
 
