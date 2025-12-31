@@ -74,7 +74,7 @@ const Messages = () => {
   const [replyToMessage, setReplyToMessage] = useState(null)
   const [searchValue, setSearchValue] = useState('')
   const threadsRequestIdRef = useRef(0)
-  
+
   // Filter state
   const [showFilterModal, setShowFilterModal] = useState(false)
   const [selectedTeamMemberIds, setSelectedTeamMemberIds] = useState([]) // Temporary selection in modal
@@ -83,8 +83,8 @@ const Messages = () => {
 
 
   const { user: reduxUser, setUser: setReduxUser, planCapabilities } = useUser()
-console.log("reduxUser is ", reduxUser)
-console.log("planCapabilities is ", reduxUser?.planCapabilities)
+  console.log("reduxUser is ", reduxUser)
+  console.log("planCapabilities is ", reduxUser?.planCapabilities)
   // Check if user has access to messaging features
   const hasMessagingAccess = reduxUser?.planCapabilities?.allowEmails === true || planCapabilities?.allowTextMessages === true
 
@@ -132,43 +132,43 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
         // Outgoing: from is the sender (user/agent email), to is the recipient (lead email)
         fromEmail = ensureString(
           message.fromEmail ||
-            message.from ||
-            message.sender ||
-            message.senderEmail ||
-            message.metadata?.from ||
-            getHeader('from') ||
-            userData?.user?.email ||
-            ''
+          message.from ||
+          message.sender ||
+          message.senderEmail ||
+          message.metadata?.from ||
+          getHeader('from') ||
+          userData?.user?.email ||
+          ''
         )
         toEmail = ensureString(
           message.toEmail ||
-            message.to ||
-            message.receiverEmail ||
-            message.metadata?.to ||
-            getHeader('to') ||
-            selectedThread?.lead?.email ||
-            ''
+          message.to ||
+          message.receiverEmail ||
+          message.metadata?.to ||
+          getHeader('to') ||
+          selectedThread?.lead?.email ||
+          ''
         )
       } else {
         // Incoming: from is the sender (lead email), to is the recipient (user/agent email)
         fromEmail = ensureString(
           message.fromEmail ||
-            message.from ||
-            message.sender ||
-            message.senderEmail ||
-            message.metadata?.from ||
-            getHeader('from') ||
-            selectedThread?.lead?.email ||
-            ''
+          message.from ||
+          message.sender ||
+          message.senderEmail ||
+          message.metadata?.from ||
+          getHeader('from') ||
+          selectedThread?.lead?.email ||
+          ''
         )
         toEmail = ensureString(
           message.toEmail ||
-            message.to ||
-            message.receiverEmail ||
-            message.metadata?.to ||
-            getHeader('to') ||
-            userData?.user?.email ||
-            ''
+          message.to ||
+          message.receiverEmail ||
+          message.metadata?.to ||
+          getHeader('to') ||
+          userData?.user?.email ||
+          ''
         )
       }
 
@@ -185,7 +185,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
     },
     [selectedThread?.lead?.email, userData?.user?.email],
   )
-  
+
   // Helper function to get image URL for Next.js Image component
   const getImageUrl = (attachment, message = null) => {
     const getApiBaseUrl = () => {
@@ -200,17 +200,17 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
       )
     }
     const apiBaseUrl = getApiBaseUrl()
-    
+
     // Direct URL from downloadData (for non-Gmail attachments)
     if (attachment.downloadData?.type === 'direct_url' && attachment.downloadData.url) {
       return attachment.downloadData.url
     }
-    
+
     // Check if URL is the POST endpoint for Gmail attachments
-    const isGmailPostEndpoint = attachment.url && 
-      (attachment.url.includes('/api/agent/gmail-attachment') || 
-       attachment.url.endsWith('/gmail-attachment'))
-    
+    const isGmailPostEndpoint = attachment.url &&
+      (attachment.url.includes('/api/agent/gmail-attachment') ||
+        attachment.url.endsWith('/gmail-attachment'))
+
     // If URL is the POST endpoint, we need to construct GET endpoint from downloadData
     // For incoming emails, the URL will be like: https://apimyagentx.com/agentxtest/api/agent/gmail-attachment
     if (isGmailPostEndpoint || attachment.url?.includes('gmail-attachment')) {
@@ -218,7 +218,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
       let messageId = attachment.downloadData?.messageId || attachment.messageId
       let attachmentId = attachment.downloadData?.attachmentId || attachment.attachmentId
       let emailAccountId = attachment.downloadData?.emailAccountId || attachment.emailAccountId
-      
+
       // Fallback to message-level fields if attachment doesn't have them
       if (message) {
         if (!messageId && message.emailMessageId) {
@@ -228,14 +228,14 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
           emailAccountId = message.emailAccountId
         }
       }
-      
+
       // If we have all required fields, construct the GET endpoint URL
       if (messageId && attachmentId && emailAccountId) {
         // Use GET endpoint: /gmail-attachment/:messageId/:emailAccountId?attachmentId=...
         // This is for images from our server, so Next.js Image can be used
         return `${apiBaseUrl}api/agent/gmail-attachment/${encodeURIComponent(messageId)}/${encodeURIComponent(emailAccountId)}?attachmentId=${encodeURIComponent(attachmentId)}`
       }
-      
+
       console.warn('⚠️ Gmail attachment detected but missing required fields:', {
         messageId,
         attachmentId,
@@ -243,22 +243,22 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
         attachment: attachment.fileName,
         downloadData: attachment.downloadData,
       })
-      
+
       return null
     }
-    
+
     // Direct URL from attachment (not Gmail attachment endpoint)
     // This could be external URLs or other attachment types
     if (attachment.url && !attachment.url.includes('gmail-attachment')) {
       return attachment.url
     }
-    
+
     // Fallback: Try to construct from downloadData even if URL doesn't indicate Gmail
     if (attachment.downloadData) {
       let messageId = attachment.downloadData.messageId || attachment.messageId
       let attachmentId = attachment.downloadData.attachmentId || attachment.attachmentId
       let emailAccountId = attachment.downloadData.emailAccountId || attachment.emailAccountId
-      
+
       if (message) {
         if (!messageId && message.emailMessageId) {
           messageId = message.emailMessageId
@@ -267,36 +267,36 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
           emailAccountId = message.emailAccountId
         }
       }
-      
+
       if (messageId && attachmentId && emailAccountId) {
         return `${apiBaseUrl}api/agent/gmail-attachment/${encodeURIComponent(messageId)}/${encodeURIComponent(emailAccountId)}?attachmentId=${encodeURIComponent(attachmentId)}`
       }
     }
-    
+
     // Final fallback to attachment downloadData URL
     if (attachment.downloadData?.url) {
       return attachment.downloadData.url
     }
-    
+
     console.warn('⚠️ Cannot construct image URL - missing required fields:', {
       url: attachment.url,
       downloadData: attachment.downloadData,
       attachment: attachment.fileName,
     })
-    
+
     return null
   }
-  
+
   // Helper function to check if image is from our server (for Next.js Image optimization)
   const isImageFromOurServer = (url) => {
     if (!url) return false
-    
+
     const ourDomains = [
       'apimyagentx.com',
       'localhost:8003',
       'localhost',
     ]
-    
+
     try {
       const urlObj = new URL(url)
       return ourDomains.some(domain => urlObj.hostname.includes(domain))
@@ -372,7 +372,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
       if (searchQuery && searchQuery.trim()) {
         setThreads([])
       }
-      
+
       const localData = localStorage.getItem('User')
       if (!localData) {
         setThreads([])
@@ -447,7 +447,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
         } else {
           setMessagesLoading(true)
         }
-        
+
         const localData = localStorage.getItem('User')
         if (!localData) return
 
@@ -455,7 +455,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
         const token = userData.token
 
         let actualOffset = offset
-        
+
         // For initial load, fetch a larger batch to get the most recent messages
         if (!append && offset === null) {
           // Fetch a large batch to get the most recent messages
@@ -481,10 +481,10 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
             // Calculate the offset of the oldest message we're showing
             // If we fetched 500 and took last 30, the oldest is at offset 470 (if there are 500+ messages)
             // If we fetched less than 500, it means we got all messages, so offset is 0
-            const oldestMessageOffset = allMessages.length >= 500 
+            const oldestMessageOffset = allMessages.length >= 500
               ? Math.max(0, allMessages.length - MESSAGES_PER_PAGE)
               : 0
-            
+
             // Debug: Log messages with attachments and metadata structure
             fetchedMessages.forEach((msg) => {
               console.log(`🔍 Message ${msg.id} (${msg.messageType}):`, {
@@ -503,27 +503,27 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
                 console.log(`⚠️ Message ${msg.id} has metadata but no attachments:`, msg.metadata)
               }
             })
-            
+
             // Set messages (newest at bottom)
             setMessages(fetchedMessages)
-            
+
             // Check if there are more older messages
             // If we got exactly 500, there might be more. If less, we got all messages.
             setHasMoreMessages(allMessages.length >= 500)
             setMessageOffset(oldestMessageOffset)
-            
+
             // Scroll to bottom after loading
             setTimeout(() => {
               if (messagesEndRef.current) {
                 messagesEndRef.current.scrollIntoView({ behavior: 'auto' })
               }
             }, 100)
-            
+
             setMessagesLoading(false)
             return
           }
         }
-        
+
         // For loading older messages (append = true)
         if (append && actualOffset !== null) {
           // Calculate offset for older messages (before current oldest)
@@ -548,7 +548,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
 
         if (response.data?.status && response.data?.data) {
           const fetchedMessages = response.data.data
-          
+
           // Debug: Log messages with attachments and metadata structure
           fetchedMessages.forEach((msg) => {
             console.log(`🔍 Message ${msg.id} (${msg.messageType}):`, {
@@ -567,16 +567,16 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
               console.log(`⚠️ Message ${msg.id} has metadata but no attachments:`, msg.metadata)
             }
           })
-          
+
           if (append) {
             // Store scroll position before prepending
             const container = messagesContainerRef.current
             const scrollHeight = container?.scrollHeight || 0
             const scrollTop = container?.scrollTop || 0
-            
+
             // Prepend older messages at the top
             setMessages((prev) => [...fetchedMessages, ...prev])
-            
+
             // Restore scroll position after prepending (maintain scroll position)
             setTimeout(() => {
               if (container) {
@@ -585,7 +585,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
                 container.scrollTop = scrollTop + heightDifference
               }
             }, 0)
-            
+
             // Update offset to the oldest message now loaded
             setMessageOffset(actualOffset)
             // Check if there are more older messages
@@ -599,7 +599,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
                 messagesEndRef.current.scrollIntoView({ behavior: 'auto' })
               }
             }, 100)
-            
+
             // Check if there are more messages
             setHasMoreMessages(fetchedMessages.length === MESSAGES_PER_PAGE)
             setMessageOffset(actualOffset + fetchedMessages.length)
@@ -668,17 +668,17 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
     if (thread.unreadCount > 0) {
       markThreadAsRead(thread.id)
     }
-    
+
     // Clear email timeline state when switching threads
     setEmailTimelineSubject(null)
     setEmailTimelineMessages([])
     setEmailTimelineLeadId(null)
     setReplyToMessage(null)
-    
+
     // Set composer data based on current mode
     const receiverEmail = thread.receiverEmail || thread.lead?.email || ''
     const receiverPhone = thread.receiverPhoneNumber || thread.lead?.phone || ''
-    
+
     setComposerData((prev) => ({
       ...prev,
       to: composerMode === 'email' ? receiverEmail : receiverPhone,
@@ -879,7 +879,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
   const removeQuotedText = (content) => {
     if (!content || typeof window === 'undefined') return content
     if (typeof content !== 'string') return content
-    
+
     // Extract plain text from HTML if needed for pattern matching
     let text = content
     if (typeof document !== 'undefined' && content.includes('<')) {
@@ -892,7 +892,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
         text = content
       }
     }
-    
+
     // Pattern 1: "Replying to [subject] [sender]" - Gmail style
     // Match patterns like "Replying to test Noah Nega Technical Developer"
     // This pattern indicates the start of quoted/signature content
@@ -918,7 +918,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
         }
       }
     }
-    
+
     // Pattern 2: "On [date] [time] [sender] wrote:" and everything after
     // Match patterns like "On Fri, Nov 28, 2025 at 7:18 AM Tech Connect wrote:"
     const onDatePattern = /On\s+\w+,\s+\w+\s+\d+,\s+\d+\s+at\s+\d+:\d+\s+(?:AM|PM)\s+[^:]+:\s*/i
@@ -929,13 +929,13 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
         text = text.substring(0, index).trim()
       }
     }
-    
+
     // Pattern 3: Remove lines starting with ">" (quoted lines)
     if (text.includes('>')) {
       const lines = text.split('\n')
       const cleanedLines = []
       let foundQuoteStart = false
-      
+
       for (const line of lines) {
         // Check if this line starts a quote block
         const trimmedLine = line.trim()
@@ -947,10 +947,10 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
           cleanedLines.push(line)
         }
       }
-      
+
       text = cleanedLines.join('\n').trim()
     }
-    
+
     // Pattern 4: Remove "-----Original Message-----" and everything after
     const originalMessagePattern = /-----Original Message-----/i
     if (text.match(originalMessagePattern)) {
@@ -959,13 +959,13 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
         text = text.substring(0, index).trim()
       }
     }
-    
+
     // Pattern 5: Remove signature blocks and quoted content (phone numbers, URLs, quotes, etc.)
     // Look for patterns like phone numbers, URLs, quoted text, or common signature indicators
     const lines = text.split('\n')
     const cleanedLines = []
     let foundSignature = false
-    
+
     // Common signature indicators
     const signaturePatterns = [
       /^[\s]*\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}/, // Phone numbers like (408) 679.9068
@@ -975,43 +975,43 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
       /^[\s]*Thanks/i,
       /^[\s]*Regards/i,
     ]
-    
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]
       const trimmedLine = line.trim()
-      
+
       // Skip empty lines if we haven't found signature yet
       if (!trimmedLine && !foundSignature) {
         cleanedLines.push(line)
         continue
       }
-      
+
       // Check if this line matches a signature pattern
       const isSignatureLine = signaturePatterns.some(pattern => pattern.test(trimmedLine))
-      
+
       // Check if line contains quoted text in quotes (like "Don't postpone...")
       // This often indicates quoted content from the original email
       const isQuotedText = trimmedLine.match(/^["'].*["']$/) && trimmedLine.length > 15
-      
+
       // Check if line looks like a standalone quote (starts and ends with quotes)
       if (isQuotedText) {
         foundSignature = true
         break
       }
-      
+
       if (isSignatureLine) {
         foundSignature = true
         break
       }
-      
+
       // If we haven't found signature yet, keep the line
       if (!foundSignature) {
         cleanedLines.push(line)
       }
     }
-    
+
     text = cleanedLines.join('\n').trim()
-    
+
     // Pattern 6: Remove content after common email separators
     const separators = [
       /^From:.*$/m,
@@ -1020,7 +1020,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
       /^Subject:.*$/m,
       /^Date:.*$/m,
     ]
-    
+
     for (const separator of separators) {
       const match = text.match(separator)
       if (match) {
@@ -1030,7 +1030,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
         }
       }
     }
-    
+
     return text
   }
 
@@ -1038,10 +1038,10 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
   const sanitizeHTML = (html) => {
     if (typeof window === 'undefined') return html
     if (!html) return ''
-    
+
     // Remove quoted text first
     const cleanedContent = removeQuotedText(html)
-    
+
     return DOMPurify.sanitize(cleanedContent || '', {
       ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'span', 'h2', 'h3', 'h4'],
       ALLOWED_ATTR: ['href', 'target', 'rel'],
@@ -1061,14 +1061,14 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
   // Handle reply click
   const handleReplyClick = (message) => {
     if (!message || !selectedThread?.lead?.id) return
-    
+
     // Set the message to reply to
     setReplyToMessage(message)
-    
+
     // Open EmailTimelineModal with reply mode
     setShowEmailTimeline(true)
     setEmailTimelineLeadId(selectedThread.lead.id)
-    
+
     // Set subject for threading (normalize it)
     if (message.subject) {
       const normalizedSubject = normalizeSubject(message.subject)
@@ -1083,10 +1083,10 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
   // Handle opening email timeline (for Load More or subject click)
   const handleOpenEmailTimeline = (subject) => {
     if (!selectedThread?.lead?.id) return
-    
+
     setShowEmailTimeline(true)
     setEmailTimelineLeadId(selectedThread.lead.id)
-    
+
     if (subject) {
       const normalizedSubject = normalizeSubject(subject)
       setEmailTimelineSubject(normalizedSubject)
@@ -1114,7 +1114,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
           />
         )
       }
-      
+
       // Try agent bitmoji (from voiceId)
       if (message.agent.voiceId) {
         const selectedVoice = voicesList.find(
@@ -1134,7 +1134,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
         }
       }
     }
-    
+
     // Priority 2: User profile image
     if (userData?.user?.thumb_profile_image) {
       return (
@@ -1148,7 +1148,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
         />
       )
     }
-    
+
     // Priority 3: User profile letter
     const userName = userData?.user?.name || userData?.user?.firstName || 'U'
     const userLetter = userName.charAt(0).toUpperCase()
@@ -1224,16 +1224,16 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
         // Send Email with attachments
         // Determine subject for threading
         let emailSubject = composerData.subject
-        
+
         // Find the most recent message in the thread to use as replyToMessageId
         // This ensures proper Gmail threading with In-Reply-To and References headers
         let replyToMessageId = null
-        
+
         // Use emailTimelineMessages if available (from Load More or subject click), otherwise use messages from thread
-        let emailMessages = emailTimelineMessages.length > 0 
-          ? emailTimelineMessages 
+        let emailMessages = emailTimelineMessages.length > 0
+          ? emailTimelineMessages
           : messages.filter(msg => msg.messageType === 'email' && msg.subject)
-        
+
         // If we have emailTimelineSubject but no emailTimelineMessages, try to fetch them
         if (emailTimelineSubject && emailTimelineMessages.length === 0 && selectedThread?.leadId) {
           try {
@@ -1241,7 +1241,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
             if (localData) {
               const userData = JSON.parse(localData)
               const token = userData.token
-              
+
               const response = await axios.get(Apis.getEmailsBySubject, {
                 params: {
                   leadId: selectedThread.leadId,
@@ -1252,7 +1252,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
                   'Content-Type': 'application/json',
                 },
               })
-              
+
               if (response.data?.status && response.data?.data) {
                 emailMessages = response.data.data
                 console.log(`📧 Fetched ${emailMessages.length} emails by subject for threading`)
@@ -1264,7 +1264,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
             emailMessages = messages.filter(msg => msg.messageType === 'email' && msg.subject)
           }
         }
-        
+
         // If subject is empty, try to get subject from thread context
         if (!emailSubject || emailSubject.trim() === '') {
           // Check if we have emailTimelineSubject (from Load More or subject click)
@@ -1280,7 +1280,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
           // Normalize the subject to ensure proper threading
           emailSubject = normalizeSubject(emailSubject)
         }
-        
+
         // If we have email messages, find the most recent one that matches the subject
         // This ensures Gmail threads the email correctly by using the correct message for reply headers
         if (emailMessages.length > 0 && emailSubject) {
@@ -1290,7 +1290,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
             const msgSubject = normalizeSubject(msg.subject).toLowerCase().trim()
             return msgSubject === normalizedSubject
           })
-          
+
           if (matchingMessages.length > 0) {
             // Get the most recent matching email message (messages are sorted oldest to newest)
             const mostRecentEmail = matchingMessages[matchingMessages.length - 1]
@@ -1304,17 +1304,17 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
             console.log(`📧 Using most recent message ${replyToMessageId} for threading (subject match not found)`)
           }
         }
-        
+
         // If still no subject, use a default
         if (!emailSubject || emailSubject.trim() === '') {
           emailSubject = 'No Subject'
         }
-        
+
         const formData = new FormData()
         formData.append('leadId', selectedThread.leadId)
         formData.append('subject', emailSubject)
         formData.append('body', composerData.body)
-        
+
         // Add replyToMessageId if we found one (for proper Gmail threading)
         if (replyToMessageId) {
           formData.append('replyToMessageId', replyToMessageId.toString())
@@ -1357,7 +1357,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
           })
           // Reset composer but preserve subject if we're in an email thread context
           // Prioritize emailTimelineSubject (set when Load More or subject is clicked)
-          const preservedSubject = emailTimelineSubject || 
+          const preservedSubject = emailTimelineSubject ||
             (composerData.subject && composerData.subject.trim() ? normalizeSubject(composerData.subject) : '')
           setComposerData({
             to: selectedThread.receiverEmail || selectedThread.lead?.email || '',
@@ -1461,7 +1461,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
     // Add a style tag to hide support widget
     const styleId = 'hide-support-widget-messages'
     let styleElement = document.getElementById(styleId)
-    
+
     if (!styleElement) {
       styleElement = document.createElement('style')
       styleElement.id = styleId
@@ -1542,7 +1542,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
   // Fetch email timeline messages
   const fetchEmailTimeline = useCallback(async (leadId, subject = null) => {
     if (!leadId) return
-    
+
     try {
       setEmailTimelineLoading(true)
       const localData = localStorage.getItem('User')
@@ -1664,7 +1664,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
     if (searchValue && searchValue.trim()) {
       setThreads([])
     }
-    
+
     const timeoutId = setTimeout(() => {
       // Fetch threads with search query and team member filter (only use applied filter)
       fetchThreads(searchValue || '', appliedTeamMemberIds)
@@ -1672,7 +1672,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
 
     return () => clearTimeout(timeoutId)
   }, [searchValue, appliedTeamMemberIds, fetchThreads])
-  
+
   // Fetch team members on mount
   useEffect(() => {
     const getMyTeam = async () => {
@@ -1706,7 +1706,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
     }
     getMyTeam()
   }, [])
-  
+
   // Handler for team member filter selection
   const handleTeamMemberFilterToggle = (memberId) => {
     setSelectedTeamMemberIds((prev) => {
@@ -1717,7 +1717,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
       }
     })
   }
-  
+
   // Handler to apply filter
   const handleApplyFilter = () => {
     const newAppliedIds = [...selectedTeamMemberIds]
@@ -1726,7 +1726,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
     // Pass the IDs directly instead of relying on state
     fetchThreads(searchValue || '', newAppliedIds)
   }
-  
+
   // Handler to clear filter
   const handleClearFilter = () => {
     setSelectedTeamMemberIds([])
@@ -1735,7 +1735,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
     // Pass empty array directly instead of relying on state
     fetchThreads(searchValue || '', [])
   }
-  
+
   // When opening the filter modal, sync selectedTeamMemberIds with appliedTeamMemberIds
   const handleOpenFilterModal = () => {
     setSelectedTeamMemberIds([...appliedTeamMemberIds])
@@ -1779,7 +1779,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
           setMessages([])
         }
       } else {
-       setSnackbar({
+        setSnackbar({
           isVisible: true,
           message: response.data?.message || 'Failed to delete thread',
           type: SnackbarTypes.Error,
@@ -1821,7 +1821,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
           width={240}
           alt="No messaging access"
         />
-        
+
         <div className="w-full flex flex-col items-center -mt-12 gap-4">
           <div style={{ fontWeight: '700', fontSize: 22 }}>
             Unlock Messaging
@@ -1830,7 +1830,7 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
             Upgrade your plan to send and receive emails and text messages
           </div>
         </div>
-        
+
         <div className="">
           <button
             className="rounded-lg text-white bg-brand-primary mt-8"
@@ -1867,32 +1867,36 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
         time={4000}
         hide={() => setSnackbar({ ...snackbar, isVisible: false })}
       />
-      
-      <div className="w-full h-screen flex flex-row bg-white">
-        {/* Left Sidebar - Thread List */}
-        <ThreadsList
-          loading={loading}
-          threads={threads}
-          selectedThread={selectedThread}
-          onSelectThread={handleThreadSelect}
-          onNewMessage={() => setShowNewMessageModal(true)}
-          getLeadName={getLeadName}
-          getThreadDisplayName={getThreadDisplayName}
-          getRecentMessageType={getRecentMessageType}
-          formatUnreadCount={formatUnreadCount}
-          onDeleteThread={handleDeleteThread}
-          searchValue={searchValue}
-          onSearchChange={setSearchValue}
-          onFilterClick={handleOpenFilterModal}
-          selectedTeamMemberIdsCount={appliedTeamMemberIds.length}
-        />
+      {
+        planCapabilities?.allowTextMessages === false && planCapabilities?.allowEmails === false ? (
+          <UnlockMessagesView />
+        ) : (
 
-        {/* Right Side - Messages View */}
-        <div className="flex-1 flex flex-col h-screen">
-          {selectedThread ? (
-            <>
-              {/* Messages Header */}
-              {/* <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white">
+          <div className="w-full h-screen flex flex-row bg-white">
+            {/* Left Sidebar - Thread List */}
+            <ThreadsList
+              loading={loading}
+              threads={threads}
+              selectedThread={selectedThread}
+              onSelectThread={handleThreadSelect}
+              onNewMessage={() => setShowNewMessageModal(true)}
+              getLeadName={getLeadName}
+              getThreadDisplayName={getThreadDisplayName}
+              getRecentMessageType={getRecentMessageType}
+              formatUnreadCount={formatUnreadCount}
+              onDeleteThread={handleDeleteThread}
+              searchValue={searchValue}
+              onSearchChange={setSearchValue}
+              onFilterClick={handleOpenFilterModal}
+              selectedTeamMemberIdsCount={appliedTeamMemberIds.length}
+            />
+
+            {/* Right Side - Messages View */}
+            <div className="flex-1 flex flex-col h-screen">
+              {selectedThread ? (
+                <>
+                  {/* Messages Header */}
+                  {/* <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white">
                 <div>
                   <h2 className="text-lg font-semibold text-black">
                     {selectedThread.lead?.firstName || selectedThread.lead?.name || 'Unknown Lead'}
@@ -1901,373 +1905,374 @@ console.log("planCapabilities is ", reduxUser?.planCapabilities)
                 </div>
               </div> */}
 
-              {/* Messages Container */}
-              <ConversationView
-                selectedThread={selectedThread}
-                messages={messages}
-                messagesLoading={messagesLoading}
-                loadingOlderMessages={loadingOlderMessages}
-                messagesContainerRef={messagesContainerRef}
-                messagesEndRef={messagesEndRef}
-                messagesTopRef={messagesTopRef}
-                sanitizeHTML={sanitizeHTML}
-                getLeadName={getLeadName}
-                getAgentAvatar={getAgentAvatar}
-                getImageUrl={getImageUrl}
-                setImageAttachments={setImageAttachments}
-                setCurrentImageIndex={setCurrentImageIndex}
-                setImageModalOpen={setImageModalOpen}
-                setSnackbar={setSnackbar}
-                SnackbarTypes={SnackbarTypes}
-                openEmailDetailId={openEmailDetailId}
-                setOpenEmailDetailId={setOpenEmailDetailId}
-                getEmailDetails={getEmailDetails}
-                setShowEmailTimeline={setShowEmailTimeline}
-                setEmailTimelineLeadId={setEmailTimelineLeadId}
-                setEmailTimelineSubject={setEmailTimelineSubject}
-                onReplyClick={handleReplyClick}
-                onOpenEmailTimeline={handleOpenEmailTimeline}
-              />
+                  {/* Messages Container */}
+                  <ConversationView
+                    selectedThread={selectedThread}
+                    messages={messages}
+                    messagesLoading={messagesLoading}
+                    loadingOlderMessages={loadingOlderMessages}
+                    messagesContainerRef={messagesContainerRef}
+                    messagesEndRef={messagesEndRef}
+                    messagesTopRef={messagesTopRef}
+                    sanitizeHTML={sanitizeHTML}
+                    getLeadName={getLeadName}
+                    getAgentAvatar={getAgentAvatar}
+                    getImageUrl={getImageUrl}
+                    setImageAttachments={setImageAttachments}
+                    setCurrentImageIndex={setCurrentImageIndex}
+                    setImageModalOpen={setImageModalOpen}
+                    setSnackbar={setSnackbar}
+                    SnackbarTypes={SnackbarTypes}
+                    openEmailDetailId={openEmailDetailId}
+                    setOpenEmailDetailId={setOpenEmailDetailId}
+                    getEmailDetails={getEmailDetails}
+                    setShowEmailTimeline={setShowEmailTimeline}
+                    setEmailTimelineLeadId={setEmailTimelineLeadId}
+                    setEmailTimelineSubject={setEmailTimelineSubject}
+                    onReplyClick={handleReplyClick}
+                    onOpenEmailTimeline={handleOpenEmailTimeline}
+                  />
 
-              {/* Composer */}
-              <MessageComposer
-                composerMode={composerMode}
-                setComposerMode={setComposerMode}
-                selectedThread={selectedThread}
-                composerData={composerData}
-                setComposerData={setComposerData}
-                fetchPhoneNumbers={fetchPhoneNumbers}
-                fetchEmailAccounts={fetchEmailAccounts}
-                showCC={showCC}
-                setShowCC={setShowCC}
-                showBCC={showBCC}
-                setShowBCC={setShowBCC}
-                ccEmails={ccEmails}
-                ccInput={ccInput}
-                handleCcInputChange={handleCcInputChange}
-                handleCcInputKeyDown={handleCcInputKeyDown}
-                handleCcInputPaste={handleCcInputPaste}
-                handleCcInputBlur={handleCcInputBlur}
-                removeCcEmail={removeCcEmail}
-                bccEmails={bccEmails}
-                bccInput={bccInput}
-                handleBccInputChange={handleBccInputChange}
-                handleBccInputKeyDown={handleBccInputKeyDown}
-                handleBccInputPaste={handleBccInputPaste}
-                handleBccInputBlur={handleBccInputBlur}
-                removeBccEmail={removeBccEmail}
-                phoneNumbers={phoneNumbers}
-                selectedPhoneNumber={selectedPhoneNumber}
-                setSelectedPhoneNumber={setSelectedPhoneNumber}
-                emailAccounts={emailAccounts}
-                selectedEmailAccount={selectedEmailAccount}
-                setSelectedEmailAccount={setSelectedEmailAccount}
-                removeAttachment={removeAttachment}
-                richTextEditorRef={richTextEditorRef}
-                SMS_CHAR_LIMIT={SMS_CHAR_LIMIT}
-                handleFileChange={handleFileChange}
-                handleSendMessage={handleSendMessage}
-                sendingMessage={sendingMessage}
-                onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
-              />
-          </>
-        ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-8">
-            <div className="mb-6">
-              <Image
-                src="/messaging/no message icon.svg"
-                width={120}
-                height={120}
-                alt="No conversation selected"
-                className="opacity-60"
-              />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-            No message selected
-            </h3>
-            <p className="text-sm text-gray-600 text-center max-w-sm">
-            Select message to begin conversation
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* New Message Modal */}
-      <NewMessageModal
-        open={showNewMessageModal}
-        onClose={() => setShowNewMessageModal(false)}
-        onSend={(result) => {
-          // Refresh threads after sending (even if partial success)
-          if (result.sent > 0) {
-            setTimeout(() => {
-              fetchThreads(searchValue || "", appliedTeamMemberIds)
-            }, 1000)
-          }
-        }}
-        mode="email"
-      />
-
-      {/* Image Viewer Modal */}
-      {imageModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
-          <div className="relative w-full h-full flex items-center justify-center">
-            {/* Close Button */}
-            <button
-              onClick={() => {
-                setImageModalOpen(false)
-                setImageAttachments([])
-                setCurrentImageIndex(0)
-              }}
-              className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
-            >
-              <X size={24} />
-            </button>
-
-            {/* Previous Button */}
-            {imageAttachments.length > 1 && currentImageIndex > 0 && (
-              <button
-                onClick={() => {
-                  setCurrentImageIndex(currentImageIndex - 1)
-                }}
-                className="absolute left-4 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
-              >
-                <ChevronLeft size={24} />
-              </button>
-            )}
-
-            {/* Next Button */}
-            {imageAttachments.length > 1 && currentImageIndex < imageAttachments.length - 1 && (
-              <button
-                onClick={() => {
-                  setCurrentImageIndex(currentImageIndex + 1)
-                }}
-                className="absolute right-4 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
-              >
-                <ChevronRight size={24} />
-              </button>
-            )}
-
-            {/* Image or Loading Placeholder */}
-            <div className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center">
-              {imageAttachments[currentImageIndex] && getImageUrl(imageAttachments[currentImageIndex], null) ? (
-                <>
-                  {(() => {
-                    const imageUrl = getImageUrl(imageAttachments[currentImageIndex], null)
-                    const isFromOurServer = isImageFromOurServer(imageUrl)
-                    
-                    // Use Next.js Image for images from our server (Gmail attachments)
-                    if (isFromOurServer) {
-                      return (
-                        <Image
-                          src={imageUrl}
-                          alt={imageAttachments[currentImageIndex]?.fileName || 'Image'}
-                          width={1920}
-                          height={1080}
-                          className="max-w-full max-h-[90vh] object-contain"
-                          unoptimized
-                        />
-                      )
-                    }
-                    
-                    // For external images, use Next.js Image with unoptimized prop
-                    return (
-                      <Image
-                        src={imageUrl}
-                        alt={imageAttachments[currentImageIndex]?.fileName || 'Image'}
-                        width={1920}
-                        height={1080}
-                        className="max-w-full max-h-[90vh] object-contain"
-                        style={{ maxWidth: '90vw', maxHeight: '90vh' }}
-                        unoptimized
-                      />
-                    )
-                  })()}
-                  
-                  {/* Image Info & Download */}
-                  <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg flex items-center gap-4">
-                    <span className="text-sm">
-                      {imageAttachments[currentImageIndex]?.fileName || imageAttachments[currentImageIndex]?.originalName || 'Image'} 
-                      {imageAttachments.length > 1 && ` (${currentImageIndex + 1} / ${imageAttachments.length})`}
-                    </span>
-                    <button
-                      onClick={() => {
-                        const attachment = imageAttachments[currentImageIndex]
-                        const imageUrl = getImageUrl(attachment, null)
-                        if (imageUrl) {
-                          const a = document.createElement('a')
-                          a.href = imageUrl
-                          a.download = attachment.fileName || attachment.originalName || 'image'
-                          a.target = '_blank'
-                          document.body.appendChild(a)
-                          a.click()
-                          document.body.removeChild(a)
-                        }
-                      }}
-                      className="p-1 hover:bg-white/20 rounded transition-colors"
-                      title="Download image"
-                    >
-                      <Download size={16} />
-                    </button>
-                  </div>
+                  {/* Composer */}
+                  <MessageComposer
+                    composerMode={composerMode}
+                    setComposerMode={setComposerMode}
+                    selectedThread={selectedThread}
+                    composerData={composerData}
+                    setComposerData={setComposerData}
+                    fetchPhoneNumbers={fetchPhoneNumbers}
+                    fetchEmailAccounts={fetchEmailAccounts}
+                    showCC={showCC}
+                    setShowCC={setShowCC}
+                    showBCC={showBCC}
+                    setShowBCC={setShowBCC}
+                    ccEmails={ccEmails}
+                    ccInput={ccInput}
+                    handleCcInputChange={handleCcInputChange}
+                    handleCcInputKeyDown={handleCcInputKeyDown}
+                    handleCcInputPaste={handleCcInputPaste}
+                    handleCcInputBlur={handleCcInputBlur}
+                    removeCcEmail={removeCcEmail}
+                    bccEmails={bccEmails}
+                    bccInput={bccInput}
+                    handleBccInputChange={handleBccInputChange}
+                    handleBccInputKeyDown={handleBccInputKeyDown}
+                    handleBccInputPaste={handleBccInputPaste}
+                    handleBccInputBlur={handleBccInputBlur}
+                    removeBccEmail={removeBccEmail}
+                    phoneNumbers={phoneNumbers}
+                    selectedPhoneNumber={selectedPhoneNumber}
+                    setSelectedPhoneNumber={setSelectedPhoneNumber}
+                    emailAccounts={emailAccounts}
+                    selectedEmailAccount={selectedEmailAccount}
+                    setSelectedEmailAccount={setSelectedEmailAccount}
+                    removeAttachment={removeAttachment}
+                    richTextEditorRef={richTextEditorRef}
+                    SMS_CHAR_LIMIT={SMS_CHAR_LIMIT}
+                    handleFileChange={handleFileChange}
+                    handleSendMessage={handleSendMessage}
+                    sendingMessage={sendingMessage}
+                    onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
+                  />
                 </>
               ) : (
-                <div className="flex flex-col items-center justify-center gap-4 text-white">
-                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
-                  <span className="text-sm">Loading image...</span>
+                <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-8">
+                  <div className="mb-6">
+                    <Image
+                      src="/messaging/no message icon.svg"
+                      width={120}
+                      height={120}
+                      alt="No conversation selected"
+                      className="opacity-60"
+                    />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    No message selected
+                  </h3>
+                  <p className="text-sm text-gray-600 text-center max-w-sm">
+                    Select message to begin conversation
+                  </p>
                 </div>
               )}
             </div>
-          </div>
-        </div>
-      )}
 
-      {/* Email Timeline Modal */}
-      <EmailTimelineModal
-        open={showEmailTimeline}
-        onClose={() => {
-          setShowEmailTimeline(false)
-          setEmailTimelineLeadId(null)
-          // Keep emailTimelineSubject and emailTimelineMessages so we can use them for threading
-          // when sending from the main composer. They'll be cleared when a new thread is selected.
-          // setEmailTimelineSubject(null)
-          // setEmailTimelineMessages([])
-          setReplyToMessage(null)
-        }}
-        leadId={emailTimelineLeadId}
-        subject={emailTimelineSubject}
-        messages={emailTimelineMessages}
-        loading={emailTimelineLoading}
-        selectedThread={selectedThread}
-        emailAccounts={emailAccounts}
-        selectedEmailAccount={selectedEmailAccount}
-        setSelectedEmailAccount={setSelectedEmailAccount}
-        onSendSuccess={async () => {
-          if (emailTimelineLeadId && emailTimelineSubject) {
-            await fetchEmailTimeline(emailTimelineLeadId, emailTimelineSubject)
-          }
-        }}
-        fetchThreads={fetchThreads}
-        onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
-        replyToMessage={replyToMessage}
-      />
+            {/* New Message Modal */}
+            <NewMessageModal
+              open={showNewMessageModal}
+              onClose={() => setShowNewMessageModal(false)}
+              onSend={(result) => {
+                // Refresh threads after sending (even if partial success)
+                if (result.sent > 0) {
+                  setTimeout(() => {
+                    fetchThreads(searchValue || "", appliedTeamMemberIds)
+                  }, 1000)
+                }
+              }}
+              mode="email"
+            />
 
-      {/* Auth Selection Popup for Gmail Connection */}
-      <AuthSelectionPopup
-        open={showAuthSelectionPopup}
-        onClose={() => setShowAuthSelectionPopup(false)}
-        onSuccess={() => {
-          setShowAuthSelectionPopup(false)
-          fetchEmailAccounts()
-        }}
-        setShowEmailTempPopup={() => {}}
-        showEmailTempPopup={false}
-        setSelectedGoogleAccount={() => {}}
-      />
+            {/* Image Viewer Modal */}
+            {imageModalOpen && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
+                <div className="relative w-full h-full flex items-center justify-center">
+                  {/* Close Button */}
+                  <button
+                    onClick={() => {
+                      setImageModalOpen(false)
+                      setImageAttachments([])
+                      setCurrentImageIndex(0)
+                    }}
+                    className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+                  >
+                    <X size={24} />
+                  </button>
 
-      {/* Filter Modal for Team Members */}
-      <Modal
-        open={showFilterModal}
-        onClose={() => setShowFilterModal(false)}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 1000,
-          sx: {
-            backgroundColor: '#00000020',
-          },
-        }}
-      >
-        <Box
-          className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh] rounded-[13px]"
-          sx={{
-            height: 'auto',
-            bgcolor: 'transparent',
-            p: 0,
-            mx: 'auto',
-            my: '50vh',
-            transform: 'translateY(-55%)',
-            borderRadius: '13px',
-            border: 'none',
-            outline: 'none',
-            overflow: 'hidden',
-          }}
-        >
-          <div className="flex flex-col w-full">
-            <div
-              className="w-full rounded-[13px] overflow-hidden"
-              style={{
-                backgroundColor: '#ffffff',
-                padding: 20,
-                paddingInline: 30,
-                borderRadius: '13px',
+                  {/* Previous Button */}
+                  {imageAttachments.length > 1 && currentImageIndex > 0 && (
+                    <button
+                      onClick={() => {
+                        setCurrentImageIndex(currentImageIndex - 1)
+                      }}
+                      className="absolute left-4 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+                    >
+                      <ChevronLeft size={24} />
+                    </button>
+                  )}
+
+                  {/* Next Button */}
+                  {imageAttachments.length > 1 && currentImageIndex < imageAttachments.length - 1 && (
+                    <button
+                      onClick={() => {
+                        setCurrentImageIndex(currentImageIndex + 1)
+                      }}
+                      className="absolute right-4 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+                    >
+                      <ChevronRight size={24} />
+                    </button>
+                  )}
+
+                  {/* Image or Loading Placeholder */}
+                  <div className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center">
+                    {imageAttachments[currentImageIndex] && getImageUrl(imageAttachments[currentImageIndex], null) ? (
+                      <>
+                        {(() => {
+                          const imageUrl = getImageUrl(imageAttachments[currentImageIndex], null)
+                          const isFromOurServer = isImageFromOurServer(imageUrl)
+
+                          // Use Next.js Image for images from our server (Gmail attachments)
+                          if (isFromOurServer) {
+                            return (
+                              <Image
+                                src={imageUrl}
+                                alt={imageAttachments[currentImageIndex]?.fileName || 'Image'}
+                                width={1920}
+                                height={1080}
+                                className="max-w-full max-h-[90vh] object-contain"
+                                unoptimized
+                              />
+                            )
+                          }
+
+                          // For external images, use Next.js Image with unoptimized prop
+                          return (
+                            <Image
+                              src={imageUrl}
+                              alt={imageAttachments[currentImageIndex]?.fileName || 'Image'}
+                              width={1920}
+                              height={1080}
+                              className="max-w-full max-h-[90vh] object-contain"
+                              style={{ maxWidth: '90vw', maxHeight: '90vh' }}
+                              unoptimized
+                            />
+                          )
+                        })()}
+
+                        {/* Image Info & Download */}
+                        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg flex items-center gap-4">
+                          <span className="text-sm">
+                            {imageAttachments[currentImageIndex]?.fileName || imageAttachments[currentImageIndex]?.originalName || 'Image'}
+                            {imageAttachments.length > 1 && ` (${currentImageIndex + 1} / ${imageAttachments.length})`}
+                          </span>
+                          <button
+                            onClick={() => {
+                              const attachment = imageAttachments[currentImageIndex]
+                              const imageUrl = getImageUrl(attachment, null)
+                              if (imageUrl) {
+                                const a = document.createElement('a')
+                                a.href = imageUrl
+                                a.download = attachment.fileName || attachment.originalName || 'image'
+                                a.target = '_blank'
+                                document.body.appendChild(a)
+                                a.click()
+                                document.body.removeChild(a)
+                              }
+                            }}
+                            className="p-1 hover:bg-white/20 rounded transition-colors"
+                            title="Download image"
+                          >
+                            <Download size={16} />
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center gap-4 text-white">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+                        <span className="text-sm">Loading image...</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Email Timeline Modal */}
+            <EmailTimelineModal
+              open={showEmailTimeline}
+              onClose={() => {
+                setShowEmailTimeline(false)
+                setEmailTimelineLeadId(null)
+                // Keep emailTimelineSubject and emailTimelineMessages so we can use them for threading
+                // when sending from the main composer. They'll be cleared when a new thread is selected.
+                // setEmailTimelineSubject(null)
+                // setEmailTimelineMessages([])
+                setReplyToMessage(null)
+              }}
+              leadId={emailTimelineLeadId}
+              subject={emailTimelineSubject}
+              messages={emailTimelineMessages}
+              loading={emailTimelineLoading}
+              selectedThread={selectedThread}
+              emailAccounts={emailAccounts}
+              selectedEmailAccount={selectedEmailAccount}
+              setSelectedEmailAccount={setSelectedEmailAccount}
+              onSendSuccess={async () => {
+                if (emailTimelineLeadId && emailTimelineSubject) {
+                  await fetchEmailTimeline(emailTimelineLeadId, emailTimelineSubject)
+                }
+              }}
+              fetchThreads={fetchThreads}
+              onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
+              replyToMessage={replyToMessage}
+            />
+
+            {/* Auth Selection Popup for Gmail Connection */}
+            <AuthSelectionPopup
+              open={showAuthSelectionPopup}
+              onClose={() => setShowAuthSelectionPopup(false)}
+              onSuccess={() => {
+                setShowAuthSelectionPopup(false)
+                fetchEmailAccounts()
+              }}
+              setShowEmailTempPopup={() => { }}
+              showEmailTempPopup={false}
+              setSelectedGoogleAccount={() => { }}
+            />
+
+            {/* Filter Modal for Team Members */}
+            <Modal
+              open={showFilterModal}
+              onClose={() => setShowFilterModal(false)}
+              closeAfterTransition
+              BackdropProps={{
+                timeout: 1000,
+                sx: {
+                  backgroundColor: '#00000020',
+                },
               }}
             >
-              <div className="flex flex-row items-center justify-between mb-4">
-                <div style={{ fontWeight: '700', fontSize: 22 }}>
-                  Filter
-                </div>
-                <CloseBtn onClick={() => setShowFilterModal(false)} />
-              </div>
-              
-              <div
-                className="mt-4"
-                style={{
-                  maxHeight: '400px',
-                  overflowY: 'auto',
-                  border: '1px solid #00000020',
+              <Box
+                className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh] rounded-[13px]"
+                sx={{
+                  height: 'auto',
+                  bgcolor: 'transparent',
+                  p: 0,
+                  mx: 'auto',
+                  my: '50vh',
+                  transform: 'translateY(-55%)',
                   borderRadius: '13px',
-                  padding: '10px',
+                  border: 'none',
+                  outline: 'none',
+                  overflow: 'hidden',
                 }}
               >
-                {filterTeamMembers.length === 0 ? (
-                  <div className="text-center py-8 text-gray-500">
-                    No team members available
-                  </div>
-                ) : (
-                  filterTeamMembers.map((member) => (
-                    <div
-                      key={member.id}
-                      className="flex flex-row items-center gap-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer"
-                      onClick={() => handleTeamMemberFilterToggle(member.id)}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={selectedTeamMemberIds.includes(member.id)}
-                        onChange={() => handleTeamMemberFilterToggle(member.id)}
-                        onClick={(e) => e.stopPropagation()}
-                        className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
-                      />
-                      <div className="flex flex-col flex-1">
-                        <span className="font-medium text-gray-900">
-                          {member.name}
-                        </span>
-                        {member.email && (
-                          <span className="text-sm text-gray-500">
-                            {member.email}
-                          </span>
-                        )}
+                <div className="flex flex-col w-full">
+                  <div
+                    className="w-full rounded-[13px] overflow-hidden"
+                    style={{
+                      backgroundColor: '#ffffff',
+                      padding: 20,
+                      paddingInline: 30,
+                      borderRadius: '13px',
+                    }}
+                  >
+                    <div className="flex flex-row items-center justify-between mb-4">
+                      <div style={{ fontWeight: '700', fontSize: 22 }}>
+                        Filter
                       </div>
+                      <CloseBtn onClick={() => setShowFilterModal(false)} />
                     </div>
-                  ))
-                )}
-              </div>
-              
-              <div className="w-full mt-4">
-                <button
-                  onClick={handleApplyFilter}
-                  className="bg-purple h-[50px] rounded-xl text-white w-full"
-                  style={{
-                    fontWeight: '600',
-                    fontSize: 16,
-                  }}
-                >
-                  Apply Filter
-                </button>
-              </div>
-            </div>
+
+                    <div
+                      className="mt-4"
+                      style={{
+                        maxHeight: '400px',
+                        overflowY: 'auto',
+                        border: '1px solid #00000020',
+                        borderRadius: '13px',
+                        padding: '10px',
+                      }}
+                    >
+                      {filterTeamMembers.length === 0 ? (
+                        <div className="text-center py-8 text-gray-500">
+                          No team members available
+                        </div>
+                      ) : (
+                        filterTeamMembers.map((member) => (
+                          <div
+                            key={member.id}
+                            className="flex flex-row items-center gap-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer"
+                            onClick={() => handleTeamMemberFilterToggle(member.id)}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={selectedTeamMemberIds.includes(member.id)}
+                              onChange={() => handleTeamMemberFilterToggle(member.id)}
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                            />
+                            <div className="flex flex-col flex-1">
+                              <span className="font-medium text-gray-900">
+                                {member.name}
+                              </span>
+                              {member.email && (
+                                <span className="text-sm text-gray-500">
+                                  {member.email}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <div className="w-full mt-4">
+                      <button
+                        onClick={handleApplyFilter}
+                        className="bg-purple h-[50px] rounded-xl text-white w-full"
+                        style={{
+                          fontWeight: '600',
+                          fontSize: 16,
+                        }}
+                      >
+                        Apply Filter
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </Box>
+            </Modal>
           </div>
-        </Box>
-      </Modal>
-    </div>
+        )}
     </>
   )
 }

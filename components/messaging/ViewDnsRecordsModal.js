@@ -31,7 +31,7 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
 
       if (response.data?.status) {
         const freshRecords = response.data.data.dnsRecords || []
-        
+
         // If Mailgun returned empty records but we have existing ones, preserve them
         // This prevents clearing records when Mailgun API temporarily returns empty
         if (freshRecords.length === 0 && dnsRecords && dnsRecords.length > 0) {
@@ -44,7 +44,7 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
           // Both are empty, set to empty array
           setDnsRecords([])
         }
-        
+
         // Always update verification status if provided
         if (response.data.data.verificationStatus) {
           setCurrentVerificationStatus(response.data.data.verificationStatus)
@@ -80,12 +80,12 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
   // Normalize dnsRecords - handle JSON strings, null, undefined, or non-array values
   const normalizeDnsRecords = () => {
     console.log('Raw dnsRecords received:', dnsRecords, 'Type:', typeof dnsRecords)
-    
+
     if (!dnsRecords) {
       console.log('dnsRecords is falsy, returning empty array')
       return []
     }
-    
+
     // If it's a string, try to parse it as JSON
     if (typeof dnsRecords === 'string') {
       try {
@@ -97,13 +97,13 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
         return []
       }
     }
-    
+
     // If it's already an array, return it
     if (Array.isArray(dnsRecords)) {
       console.log('dnsRecords is already an array:', dnsRecords)
       return dnsRecords
     }
-    
+
     // If it's an object, try to extract array from common properties
     if (typeof dnsRecords === 'object' && dnsRecords !== null) {
       console.log('dnsRecords is an object:', dnsRecords)
@@ -122,7 +122,7 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
         return Object.values(dnsRecords)
       }
     }
-    
+
     console.log('Could not normalize dnsRecords, returning empty array')
     return []
   }
@@ -183,7 +183,54 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
                 </p>
               </div>
             </div>
+
+            <div className="flex items-start gap-2 mt-2">
+              <AlertCircle className="text-blue-600 mt-0.5 flex-shrink-0" size={18} />
+              <div className="text-sm text-blue-900">
+                <p className="font-medium mb-1">Important for MX Records:</p>
+                <p className="text-blue-700">
+                  When adding MX records, enter the <strong>Value</strong> and <strong>Priority</strong> in separate fields.
+                  Do not include the priority number in the value field.
+                </p>
+              </div>
+            </div>
           </div>
+
+          {/* Verification Status */}
+          {currentVerificationStatus && (
+            <div className={`mt-6 p-4 rounded-lg border-l-4 ${isVerified
+              ? 'bg-green-50 border-green-500'
+              : 'bg-amber-50 border-amber-500'
+              }`}>
+              <div className="flex items-center gap-2">
+                {isVerified ? (
+                  <>
+                    <CheckCircle2 size={20} className="text-green-600 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-semibold text-green-900">
+                        Domain Verified
+                      </p>
+                      <p className="text-xs text-green-700 mt-0.5">
+                        Your domain is ready to send and receive emails
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Clock size={20} className="text-amber-600 flex-shrink-0" />
+                    <div>
+                      <p className="text-sm font-semibold text-amber-900">
+                        Verification Pending
+                      </p>
+                      <p className="text-xs text-amber-700 mt-0.5">
+                        Add the DNS records above and click "Verify Domain" to complete verification
+                      </p>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           {normalizedRecords.length === 0 ? (
             <div className="border border-yellow-200 rounded-lg p-6 bg-yellow-50">
@@ -206,7 +253,7 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
               </div>
             </div>
           ) : (
-            <div className="space-y-4">
+            <div className="space-y-4 mt-4">
               {/* Table */}
               <div className="border border-gray-200 rounded-lg overflow-hidden">
                 <div className="overflow-x-auto">
@@ -230,11 +277,11 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
                         const recordValue = record.value || record.recordValue || ''
                         const priority = record.priority || record.priorityValue || null
                         const ttl = record.ttl || record.TTL || 'Auto'
-                        
+
                         // Display actual hostname - don't replace '@' with 'Root Domain'
                         // Mailgun returns the actual hostname for MX records (e.g., domain.com)
                         const displayName = recordName === '@' ? domain : recordName
-                        
+
                         // Get verification status from Mailgun (valid field)
                         // Mailgun returns 'valid' as a string: "valid" or "unknown"
                         const recordValid = record.valid
@@ -242,17 +289,16 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
                         // "valid" means verified, "unknown" or anything else means pending
                         const recordVerified = recordValid === 'valid' || recordValid === true
                         const isMX = recordType === 'MX'
-                        
+
                         return (
                           <tr key={index} className="hover:bg-gray-50 transition-colors">
                             <td className="py-4 px-4">
-                              <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold ${
-                                isMX 
-                                  ? 'bg-purple-100 text-purple-800' 
-                                  : recordType === 'TXT'
+                              <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold ${isMX
+                                ? 'bg-purple-100 text-purple-800'
+                                : recordType === 'TXT'
                                   ? 'bg-blue-100 text-blue-800'
                                   : 'bg-gray-100 text-gray-800'
-                              }`}>
+                                }`}>
                                 {recordType}
                               </span>
                             </td>
@@ -269,7 +315,7 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
                             <td className="py-4 px-4">
                               <div className="flex items-center gap-2 max-w-md">
                                 <code className="text-sm text-gray-900 break-all font-mono bg-gray-50 px-2 py-1 rounded border border-gray-200 flex-1">
-                                  {recordValue || <span className="text-gray-400">-</span>}
+                                  {(recordValue.slice(0, 20)) || <span className="text-gray-400">-</span>}
                                 </code>
                                 {recordValue && (
                                   <button
@@ -321,79 +367,19 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
                 </div>
               </div>
 
-              {/* MX Record Warning */}
-              {normalizedRecords.some(r => (r.recordType || r.type) === 'MX') && (
-                <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                  <div className="flex items-start gap-2">
-                    <AlertCircle className="text-amber-600 mt-0.5 flex-shrink-0" size={18} />
-                    <div className="text-sm text-amber-800">
-                      <p className="font-medium mb-1">Important for MX Records:</p>
-                      <p className="text-amber-700">
-                        When adding MX records, enter the <strong>Value</strong> and <strong>Priority</strong> in separate fields. 
-                        Do not include the priority number in the value field.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
           )}
 
-          {/* Verification Status */}
-          {currentVerificationStatus && (
-            <div className={`mt-6 p-4 rounded-lg border-l-4 ${
-              isVerified 
-                ? 'bg-green-50 border-green-500' 
-                : 'bg-amber-50 border-amber-500'
-            }`}>
-              <div className="flex items-center gap-2">
-                {isVerified ? (
-                  <>
-                    <CheckCircle2 size={20} className="text-green-600 flex-shrink-0" />
-                    <div>
-                      <p className="text-sm font-semibold text-green-900">
-                        Domain Verified
-                      </p>
-                      <p className="text-xs text-green-700 mt-0.5">
-                        Your domain is ready to send and receive emails
-                      </p>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <Clock size={20} className="text-amber-600 flex-shrink-0" />
-                    <div>
-                      <p className="text-sm font-semibold text-amber-900">
-                        Verification Pending
-                      </p>
-                      <p className="text-xs text-amber-700 mt-0.5">
-                        Add the DNS records above and click "Verify Domain" to complete verification
-                      </p>
-                    </div>
-                  </>
-                )}
-              </div>
-            </div>
-          )}
+
 
           {/* Helpful Note */}
           <div className="mt-6 bg-gray-50 border border-gray-200 rounded-lg p-4">
             <p className="text-sm text-gray-700">
-              <strong className="text-gray-900">Tip:</strong> After adding DNS records, wait a few minutes for DNS propagation. 
-              If verification doesn't work immediately, manually trigger verification in your Mailgun dashboard 
+              <strong className="text-gray-900">Tip:</strong> After adding DNS records, wait a few minutes for DNS propagation.
+              If verification doesn't work immediately, manually trigger verification in your Mailgun dashboard
               by clicking "Check DNS settings" first, then try verifying again.
             </p>
           </div>
-        </div>
-
-        {/* Footer */}
-        <div className="border-t border-gray-200 bg-gray-50 px-6 py-4 flex justify-end">
-          <Button 
-            onClick={onClose}
-            className="px-6"
-          >
-            Close
-          </Button>
         </div>
       </div>
     </div>
