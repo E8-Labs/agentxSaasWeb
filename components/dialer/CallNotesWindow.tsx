@@ -2,8 +2,11 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { X, StickyNote } from 'lucide-react'
-import { Button } from '../ui/button'
+import { Button as ButtonBase } from '../ui/button'
 import { toast } from 'sonner'
+
+// Type assertion for Button component
+const Button = ButtonBase as any
 
 interface CallNotesWindowProps {
   open: boolean

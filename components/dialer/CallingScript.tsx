@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { Button as ButtonBase } from '../ui/button'
-import { Textarea } from '../ui/textarea'
+import { Textarea as TextareaBase } from '../ui/textarea'
 import { FileText, Plus, Pencil, X, Check, Hash, Square, Eye, Type, RotateCw, Grid3x3, Minus, Code, ChevronDown, Send } from 'lucide-react'
 import { toast } from 'sonner'
 
 // Type assertions for components from .jsx files
 const Button = ButtonBase as any
+const Textarea = TextareaBase as any
 
 interface CallingScript {
   id: number
