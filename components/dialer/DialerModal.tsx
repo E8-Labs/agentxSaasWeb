@@ -58,6 +58,7 @@ export default function DialerModal({
   const [callDuration, setCallDuration] = useState(0) // in seconds
   const [isMuted, setIsMuted] = useState(false)
   const [isOnHold, setIsOnHold] = useState(false)
+  const [callEndedInError, setCallEndedInError] = useState(false)
   const [showScriptPanel, setShowScriptPanel] = useState(false)
   const [showNotes, setShowNotes] = useState(false)
   const [showEmailPanel, setShowEmailPanel] = useState(false)
@@ -123,7 +124,7 @@ export default function DialerModal({
       console.log('[DialerModal] Modal opened, setting dialogJustOpened flag')
       dialogJustOpened.current = true
       isClosingRef.current = false
-      
+
       // Reset dropdown anchor when modal opens
       setNumberDropdownAnchor(null)
       
@@ -146,13 +147,13 @@ export default function DialerModal({
       // Only cleanup if we're actually closing (not just re-rendering)
       if (isClosingRef.current || !dialogJustOpened.current) {
         console.log('[DialerModal] Modal closing, cleaning up device')
-        
+
         // Clear simulation
         if (simulationTimeoutRef.current) {
           clearTimeout(simulationTimeoutRef.current)
           simulationTimeoutRef.current = null
         }
-        
+
         if (activeCall) {
           try {
             // Only disconnect if it's a real call
@@ -620,21 +621,21 @@ export default function DialerModal({
     // Step 1: Connecting (5 seconds)
     setCallStatus('connecting')
     setActiveCall({} as Call) // Mock call object
-    
+
     simulationTimeoutRef.current = setTimeout(() => {
       // Step 2: Ringing (5 seconds)
       setCallStatus('ringing')
-      
+
       simulationTimeoutRef.current = setTimeout(() => {
         // Step 3: In-call (5 seconds)
         setCallStatus('in-call')
         setCallDuration(0)
-        
+
         // Start call duration timer
         callDurationIntervalRef.current = setInterval(() => {
           setCallDuration((prev) => prev + 1)
         }, 1000)
-        
+
         simulationTimeoutRef.current = setTimeout(() => {
           // Step 4: End call
           setCallStatus('ended')
@@ -765,7 +766,16 @@ export default function DialerModal({
       })
 
       call.on('disconnect', () => {
-        setCallStatus('ended')
+        // Preserve error status if call ended in error
+        setCallStatus((prevStatus) => {
+          // If we already set it to error, keep it as error
+          // Otherwise, if callEndedInError flag is set, set to error
+          // Otherwise, set to ended
+          if (prevStatus === 'error' || callEndedInError) {
+            return 'error'
+          }
+          return 'ended'
+        })
         setActiveCall(null)
         // Stop call duration timer
         if (callDurationIntervalRef.current) {
@@ -776,7 +786,10 @@ export default function DialerModal({
         setIsMuted(false)
         setIsOnHold(false)
         setShowScriptPanel(false)
+        // Only show "Call ended" toast if it wasn't an error
+        if (!callEndedInError && callStatus !== 'error') {
         toast.info('Call ended')
+        }
       })
 
       call.on('cancel', () => {
@@ -800,6 +813,7 @@ export default function DialerModal({
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:377', message: 'Call error event', data: { errorCode: error.code, errorMessage: error.message, errorName: error.name }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
         // #endregion
         setCallStatus('error')
+        setCallEndedInError(true)
         setActiveCall(null)
         let errorMsg = 'Call failed'
         if (error.code === 31005) {
@@ -826,7 +840,7 @@ export default function DialerModal({
       clearTimeout(simulationTimeoutRef.current)
       simulationTimeoutRef.current = null
     }
-    
+
     if (activeCall) {
       // Only disconnect if it's a real call (not simulation)
       if (SIMULATE_CALL_FLOW && !device) {
@@ -835,7 +849,10 @@ export default function DialerModal({
       activeCall.disconnect()
       }
       setActiveCall(null)
+      // Don't change status if it's already 'error' or 'ended'
+      if (callStatus !== 'error' && callStatus !== 'ended') {
       setCallStatus('idle')
+      }
       // Stop call duration timer
       if (callDurationIntervalRef.current) {
         clearInterval(callDurationIntervalRef.current)
@@ -845,6 +862,7 @@ export default function DialerModal({
       setIsMuted(false)
       setIsOnHold(false)
       setShowScriptPanel(false)
+      setCallEndedInError(false)
     }
   }
 
@@ -869,16 +887,32 @@ export default function DialerModal({
   const handleHoldToggle = () => {
     if (!activeCall) return
     try {
+      // Twilio SDK may not support hold() directly - using type assertion
+      // If hold is not available, this will throw an error which we catch
+      const callWithHold = activeCall as any
       if (isOnHold) {
-        activeCall.hold(false)
+        if (typeof callWithHold.hold === 'function') {
+          callWithHold.hold(false)
+        } else {
+          // Fallback: Hold is not supported in this SDK version
+          toast.info('Hold functionality may not be available in this SDK version')
+          return
+        }
         setIsOnHold(false)
       } else {
-        activeCall.hold(true)
+        if (typeof callWithHold.hold === 'function') {
+          callWithHold.hold(true)
+        } else {
+          // Fallback: Hold is not supported in this SDK version
+          toast.info('Hold functionality may not be available in this SDK version')
+          return
+        }
         setIsOnHold(true)
       }
     } catch (error: any) {
       console.error('Error toggling hold:', error)
-      toast.error('Failed to toggle hold')
+      toast.error('Failed to toggle hold. This feature may not be supported.')
+      setIsOnHold(false) // Reset state on error
     }
   }
 
@@ -1129,8 +1163,8 @@ export default function DialerModal({
         top: '80px',
         right: '20px',
         left: 'auto',
-        maxWidth: (showScriptPanel && callStatus !== 'ended') || ((showEmailPanel || showSmsPanel) && callStatus === 'ended') ? '700px' : '380px',
-        width: (showScriptPanel && callStatus !== 'ended') || ((showEmailPanel || showSmsPanel) && callStatus === 'ended') ? '700px' : '380px',
+        maxWidth: (showScriptPanel && callStatus !== 'ended' && callStatus !== 'error') || ((showEmailPanel || showSmsPanel) && (callStatus === 'ended' || callStatus === 'error')) ? '700px' : '380px',
+        width: (showScriptPanel && callStatus !== 'ended' && callStatus !== 'error') || ((showEmailPanel || showSmsPanel) && (callStatus === 'ended' || callStatus === 'error')) ? '700px' : '380px',
         transition: 'width 0.3s ease, max-width 0.3s ease',
         boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1)',
         minHeight: '500px',
@@ -1149,270 +1183,269 @@ export default function DialerModal({
         }
       }}
     >
-        <div className="flex flex-row" style={{ minHeight: '500px', maxHeight: '80vh' }}>
-          {/* Email/SMS Templates Panel - Left Side (when call ended and panel open) */}
-          {callStatus === 'ended' && (showEmailPanel || showSmsPanel) && (
-            <div className="w-80 border-r border-gray-200 flex-shrink-0 flex flex-col" style={{ maxHeight: '80vh' }}>
-              <div className="px-4 py-3 border-b border-gray-200">
-                <h3 className="text-sm font-semibold text-gray-900">
-                  {showEmailPanel ? 'Select Email' : 'Select SMS'}
-                </h3>
-              </div>
-              <div className="flex-1 overflow-y-auto p-4">
-                {templatesLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="text-sm text-gray-500">Loading templates...</div>
-                  </div>
-                ) : (showEmailPanel ? emailTemplates : smsTemplates).length === 0 ? (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="text-sm text-gray-500">No {showEmailPanel ? 'email' : 'SMS'} templates found</div>
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {(showEmailPanel ? emailTemplates : smsTemplates).map((template: any) => (
-                      <div
-                        key={template.id}
-                        onClick={() => setSelectedTemplate(template)}
-                        className={`p-3 border rounded-lg cursor-pointer transition-all ${
-                          selectedTemplate?.id === template.id
-                            ? 'border-2 border-purple-500 bg-purple-50'
-                            : 'border border-gray-200 hover:border-gray-300'
+      <div className="flex flex-row" style={{ minHeight: '500px', maxHeight: '80vh' }}>
+        {/* Email/SMS Templates Panel - Left Side (when call ended and panel open) */}
+          {(callStatus === 'ended' || callStatus === 'error') && (showEmailPanel || showSmsPanel) && (
+          <div className="w-80 border-r border-gray-200 flex-shrink-0 flex flex-col" style={{ maxHeight: '60vh' }}>
+            <div className="px-4 py-3 border-b border-gray-200">
+              <h3 className="text-sm font-semibold text-gray-900">
+                {showEmailPanel ? 'Select Email' : 'Select SMS'}
+              </h3>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4">
+              {templatesLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-sm text-gray-500">Loading templates...</div>
+                </div>
+              ) : (showEmailPanel ? emailTemplates : smsTemplates).length === 0 ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="text-sm text-gray-500">No {showEmailPanel ? 'email' : 'SMS'} templates found</div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {(showEmailPanel ? emailTemplates : smsTemplates).map((template: any) => (
+                    <div
+                      key={template.id}
+                      onClick={() => setSelectedTemplate(template)}
+                      className={`p-3 border rounded-lg cursor-pointer transition-all ${selectedTemplate?.id === template.id
+                          ? 'border-2 border-purple-500 bg-purple-50'
+                          : 'border border-gray-200 hover:border-gray-300'
                         }`}
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="text-sm font-medium text-gray-900 mb-1">
-                              {template.templateName}
-                            </div>
-                            {showEmailPanel && (
-                              <>
-                                <div className="text-xs text-gray-500 line-clamp-2">
-                                  {template.subject}
-                                </div>
-                                {template.content && (
-                                  <div className="text-xs text-gray-400 mt-1 line-clamp-2">
-                                    {template.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
-                                  </div>
-                                )}
-                              </>
-                            )}
-                            {showSmsPanel && template.content && (
-                              <div className="text-xs text-gray-500 line-clamp-2">
-                                {template.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
-                              </div>
-                            )}
-                          </div>
-                          <MoreVertical size={16} className="text-gray-400 ml-2 flex-shrink-0" />
-                        </div>
-                        {selectedTemplate?.id === template.id && (
-                          <div className="mt-3 pt-3 border-t border-gray-200">
-                            <Button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                if (showEmailPanel) {
-                                  handleSendEmail()
-                                } else {
-                                  handleSendSms()
-                                }
-                              }}
-                              disabled={sendingEmail || sendingSms}
-                              className="w-full rounded-lg"
-                              style={{
-                                backgroundColor: 'hsl(var(--brand-primary))',
-                                color: 'white',
-                                fontSize: '14px',
-                                padding: '8px 16px',
-                              }}
-                            >
-                              {(sendingEmail || sendingSms) ? 'Sending...' : 'Send'}
-                            </Button>
-            </div>
-                        )}
-                      </div>
-                    ))}
-              </div>
-            )}
-                <div className="mt-4 pt-4 border-t border-gray-200">
-                  <Button
-                    onClick={() => {
-                      toast.info(`Compose new ${showEmailPanel ? 'email' : 'SMS'} feature coming soon`)
-                    }}
-                    className="w-full rounded-lg border border-gray-300"
-                    style={{
-                      backgroundColor: 'white',
-                      color: '#374151',
-                      fontSize: '14px',
-                      padding: '8px 16px',
-                    }}
-                  >
-                    <span className="mr-2">✏️</span>
-                    Compose New
-                  </Button>
-          </div>
-              </div>
-            </div>
-          )}
-
-          {/* Script Panel - Left Side */}
-          {showScriptPanel && callStatus !== 'ended' && (
-            <div className="w-80 border-r border-gray-200 flex-shrink-0 flex flex-col" style={{ maxHeight: '80vh' }}>
-              <CallingScript
-                leadId={leadId}
-                leadName={leadName}
-                isExpanded={showScriptPanel}
-                onClose={() => setShowScriptPanel(false)}
-              />
-            </div>
-          )}
-
-          {/* Main Content - Right Side */}
-          <div 
-            className="flex flex-col relative"
-            style={{
-              width: (showScriptPanel && callStatus !== 'ended') || (showEmailPanel && callStatus === 'ended') ? '380px' : '100%',
-              flexShrink: 0,
-              maxHeight: '80vh',
-            }}
-          >
-            {/* Header with Your Number / Outgoing Call / Call Summary - Gray Background */}
-            <div className="px-4 py-3 relative" style={{ backgroundColor: '#F5F5F5', zIndex: 1, pointerEvents: 'auto', minHeight: '72px' }}>
-              <div className="space-y-2">
-                {callStatus === 'ended' ? (
-                  <>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Phone size={16} style={{ color: 'hsl(var(--brand-primary))' }} />
-                        <span className="text-sm font-semibold text-gray-900">Call Summary</span>
-                      </div>
-                    </div>
-                    {selectedInternalNumber?.phone && (
-                      <div className="text-xs text-gray-500">
-                        {selectedInternalNumber.phone}
-                      </div>
-                    )}
-                  </>
-                ) : (callStatus === 'ringing' || callStatus === 'in-call' || callStatus === 'connecting') ? (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src="/svgIcons/dialer/OLD AGENTX UI/dialer_outoing_green_arrow.svg"
-                        alt="Outgoing call"
-                        width={16}
-                        height={16}
-                      />
-                      <span className="text-sm font-semibold text-gray-900">
-                        Outgoing
-                      </span>
-                    </div>
-                    <div className="text-xs text-gray-500 ml-[24px]">
-                      {selectedInternalNumber?.phone || (SIMULATE_CALL_FLOW ? '+1 (234) 567-8900' : 'No number selected')}
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <Image
-                        src="/svgIcons/dialer/OLD AGENTX UI/dialer_arrow_icon_call_idle.svg"
-                        alt="Your number"
-                        width={16}
-                        height={16}
-                      />
-                      <span className="text-sm font-semibold text-gray-900">Your Number</span>
-                    </div>
-                    <div className="flex items-center justify-between relative">
-                      <div className="text-sm font-medium text-gray-900">
-                        {selectedInternalNumber?.phone || 'No number selected'}
-                      </div>
-                  <div style={{ position: 'relative', zIndex: 1000 }}>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        console.log('Change button clicked', e.currentTarget)
-                        setNumberDropdownAnchor(e.currentTarget)
-                      }}
-                      className="text-sm flex items-center gap-1 hover:opacity-80 transition-opacity cursor-pointer"
-                      style={{ 
-                        color: 'hsl(var(--brand-primary))',
-                        zIndex: 1000,
-                        position: 'relative',
-                        pointerEvents: 'auto',
-                        backgroundColor: 'transparent',
-                        border: 'none',
-                        padding: '4px 8px',
-                      }}
                     >
-                      Change
-                      <ChevronDown size={14} />
-                    </button>
-                    {numberDropdownAnchor && (
-                      <Menu
-                        anchorEl={numberDropdownAnchor}
-                        open={Boolean(numberDropdownAnchor)}
-                        onClose={() => setNumberDropdownAnchor(null)}
-                        PaperProps={{
-                          style: {
-                            maxHeight: '300px',
-                            width: '300px',
-                            zIndex: 1500,
-                          },
-                        }}
-                        style={{ zIndex: 1500 }}
-                        MenuListProps={{
-                          style: { zIndex: 1500 },
-                        }}
-                        container={() => document.body}
-                        disablePortal={false}
-                      >
-                  {phoneNumbersLoading ? (
-                    <MenuItem disabled>Loading...</MenuItem>
-                  ) : phoneNumbers.length === 0 ? (
-                    <MenuItem disabled>No phone numbers available</MenuItem>
-                  ) : (
-                    phoneNumbers.map((pn) => (
-                      <MenuItem
-                        key={pn.id}
-                        onClick={() => {
-                          if (pn.canBeInternalDialer) {
-                            handleSetInternalNumber(pn.id)
-                          }
-                        }}
-                        disabled={!pn.canBeInternalDialer || pn.usageType === 'internal_dialer'}
-                        style={{
-                          opacity: pn.canBeInternalDialer ? 1 : 0.6,
-                        }}
-                      >
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex flex-col">
-                            <span className="text-sm">{pn.phone}</span>
-                            {pn.agentCount > 0 && (
-                              <span className="text-xs text-gray-500">
-                                {pn.firstAgent?.name || 'Agent'} {pn.agentCount > 1 ? `+${pn.agentCount - 1}` : ''}
-                              </span>
-            )}
-            </div>
-                          <div className="flex items-center gap-2">
-                            {pn.usageType === 'internal_dialer' && (
-                              <Check size={16} style={{ color: 'hsl(var(--brand-primary))' }} />
-                            )}
-                            {pn.canBeInternalDialer && pn.usageType !== 'internal_dialer' && (
-                              <div className="w-2 h-2 rounded-full bg-green-500" />
-                            )}
-              </div>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="text-sm font-medium text-gray-900 mb-1">
+                            {template.templateName}
+                          </div>
+                          {showEmailPanel && (
+                            <>
+                              <div className="text-xs text-gray-500 line-clamp-2">
+                                {template.subject}
+                              </div>
+                              {template.content && (
+                                <div className="text-xs text-gray-400 mt-1 line-clamp-2">
+                                  {template.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
+                                </div>
+                              )}
+                            </>
+                          )}
+                          {showSmsPanel && template.content && (
+                            <div className="text-xs text-gray-500 line-clamp-2">
+                              {template.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
+                            </div>
+                          )}
                         </div>
-                      </MenuItem>
-                    ))
-                  )}
-                      </Menu>
-            )}
-          </div>
-                    </div>
-                  </>
-                )}
-              </div>
+                        <MoreVertical size={16} className="text-gray-400 ml-2 flex-shrink-0" />
+                      </div>
+                      {selectedTemplate?.id === template.id && (
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              if (showEmailPanel) {
+                                handleSendEmail()
+                              } else {
+                                handleSendSms()
+                              }
+                            }}
+                            disabled={sendingEmail || sendingSms}
+                            className="w-full rounded-lg"
+                            style={{
+                              backgroundColor: 'hsl(var(--brand-primary))',
+                              color: 'white',
+                              fontSize: '14px',
+                              padding: '8px 16px',
+                            }}
+                          >
+                            {(sendingEmail || sendingSms) ? 'Sending...' : 'Send'}
+                          </Button>
             </div>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            )}
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <Button
+                  onClick={() => {
+                    toast.info(`Compose new ${showEmailPanel ? 'email' : 'SMS'} feature coming soon`)
+                  }}
+                  className="w-full rounded-lg border border-gray-300"
+                  style={{
+                    backgroundColor: 'white',
+                    color: '#374151',
+                    fontSize: '14px',
+                    padding: '8px 16px',
+                  }}
+                >
+                  <span className="mr-2">✏️</span>
+                  Compose New
+                </Button>
+          </div>
+            </div>
+          </div>
+        )}
 
-            <div className="flex-1 overflow-y-auto p-6" style={{ paddingBottom: callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting' ? '80px' : '24px' }}>
+        {/* Script Panel - Left Side */}
+        {showScriptPanel && callStatus !== 'ended' && (
+          <div className="w-80 border-r border-gray-200 flex-shrink-0 flex flex-col" style={{ maxHeight: '80vh' }}>
+            <CallingScript
+              leadId={leadId}
+              leadName={leadName}
+              isExpanded={showScriptPanel}
+              onClose={() => setShowScriptPanel(false)}
+            />
+          </div>
+        )}
+
+        {/* Main Content - Right Side */}
+        <div
+          className="flex flex-col relative"
+            style={{
+              width: (showScriptPanel && callStatus !== 'ended' && callStatus !== 'error') || ((showEmailPanel || showSmsPanel) && (callStatus === 'ended' || callStatus === 'error')) ? '380px' : '100%',
+            flexShrink: 0,
+            maxHeight: '80vh',
+          }}
+        >
+          {/* Header with Your Number / Outgoing Call / Call Summary - Gray Background */}
+          <div className="px-4 py-3 relative" style={{ backgroundColor: '#F5F5F5', zIndex: 1, pointerEvents: 'auto', minHeight: '72px' }}>
+            <div className="space-y-2">
+              {callStatus === 'ended' || callStatus === 'error' ? (
+                <>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Phone size={16} style={{ color: 'hsl(var(--brand-primary))' }} />
+                      <span className="text-sm font-semibold text-gray-900">Call Summary</span>
+                    </div>
+                  </div>
+                  {selectedInternalNumber?.phone && (
+                    <div className="text-xs text-gray-500">
+                      {selectedInternalNumber.phone}
+                    </div>
+                  )}
+                </>
+              ) : (callStatus === 'ringing' || callStatus === 'in-call' || callStatus === 'connecting') ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src="/svgIcons/dialer/OLD AGENTX UI/dialer_outoing_green_arrow.svg"
+                      alt="Outgoing call"
+                      width={16}
+                      height={16}
+                    />
+                    <span className="text-sm font-semibold text-gray-900">
+                      Outgoing
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-500 ml-[24px]">
+                    {selectedInternalNumber?.phone || (SIMULATE_CALL_FLOW ? '+1 (234) 567-8900' : 'No number selected')}
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src="/svgIcons/dialer/OLD AGENTX UI/dialer_arrow_icon_call_idle.svg"
+                      alt="Your number"
+                      width={16}
+                      height={16}
+                    />
+                    <span className="text-sm font-semibold text-gray-900">Your Number</span>
+                  </div>
+                  <div className="flex items-center justify-between relative">
+                    <div className="text-sm font-medium text-gray-900">
+                      {selectedInternalNumber?.phone || 'No number selected'}
+                    </div>
+                    <div style={{ position: 'relative', zIndex: 1000 }}>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          console.log('Change button clicked', e.currentTarget)
+                          setNumberDropdownAnchor(e.currentTarget)
+                        }}
+                        className="text-sm flex items-center gap-1 hover:opacity-80 transition-opacity cursor-pointer"
+                        style={{
+                          color: 'hsl(var(--brand-primary))',
+                          zIndex: 1000,
+                          position: 'relative',
+                          pointerEvents: 'auto',
+                          backgroundColor: 'transparent',
+                          border: 'none',
+                          padding: '4px 8px',
+                        }}
+                      >
+                        Change
+                        <ChevronDown size={14} />
+                      </button>
+                      {numberDropdownAnchor && (
+                        <Menu
+                          anchorEl={numberDropdownAnchor}
+                          open={Boolean(numberDropdownAnchor)}
+                          onClose={() => setNumberDropdownAnchor(null)}
+                          PaperProps={{
+                            style: {
+                              maxHeight: '300px',
+                              width: '300px',
+                              zIndex: 1500,
+                            },
+                          }}
+                          style={{ zIndex: 1500 }}
+                          MenuListProps={{
+                            style: { zIndex: 1500 },
+                          }}
+                          container={() => document.body}
+                          disablePortal={false}
+                        >
+                          {phoneNumbersLoading ? (
+                            <MenuItem disabled>Loading...</MenuItem>
+                          ) : phoneNumbers.length === 0 ? (
+                            <MenuItem disabled>No phone numbers available</MenuItem>
+                          ) : (
+                            phoneNumbers.map((pn) => (
+                              <MenuItem
+                                key={pn.id}
+                                onClick={() => {
+                                  if (pn.canBeInternalDialer) {
+                                    handleSetInternalNumber(pn.id)
+                                  }
+                                }}
+                                disabled={!pn.canBeInternalDialer || pn.usageType === 'internal_dialer'}
+                                style={{
+                                  opacity: pn.canBeInternalDialer ? 1 : 0.6,
+                                }}
+                              >
+                                <div className="flex items-center justify-between w-full">
+                                  <div className="flex flex-col">
+                                    <span className="text-sm">{pn.phone}</span>
+                                    {pn.agentCount > 0 && (
+                                      <span className="text-xs text-gray-500">
+                                        {pn.firstAgent?.name || 'Agent'} {pn.agentCount > 1 ? `+${pn.agentCount - 1}` : ''}
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-2">
+                                    {pn.usageType === 'internal_dialer' && (
+                                      <Check size={16} style={{ color: 'hsl(var(--brand-primary))' }} />
+                                    )}
+                                    {pn.canBeInternalDialer && pn.usageType !== 'internal_dialer' && (
+                                      <div className="w-2 h-2 rounded-full bg-green-500" />
+                                    )}
+                                  </div>
+                                </div>
+                              </MenuItem>
+                            ))
+                          )}
+                        </Menu>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-6" style={{ paddingBottom: callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting' ? '80px' : (callStatus === 'ended' || callStatus === 'error') ? '16px' : '24px' }}>
           {checkingDialerNumber || initializing ? (
             <div className="text-center py-8">
               <div className="text-sm text-gray-500">Initializing dialer...</div>
@@ -1427,457 +1460,491 @@ export default function DialerModal({
               </div>
             </div>
           ) : (
-                <div className="space-y-6">
-                  {/* Call Status Section - Show when call is active */}
-                  {(callStatus === 'ringing' || callStatus === 'in-call' || callStatus === 'connecting') ? (
-                        <div className="space-y-4">
-                          {/* Contact Info */}
-                          <div className="flex flex-col items-center space-y-2 py-4">
-                            <div
-                              className="w-20 h-20 rounded-full flex items-center justify-center"
-                              style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.1)' }}
-                            >
-                              <span
-                                className="text-3xl font-semibold"
-                                style={{ color: 'hsl(var(--brand-primary))' }}
-                              >
-                                {leadName ? leadName.charAt(0).toUpperCase() : phoneNumber?.charAt(phoneNumber.length - 1) || '?'}
-                              </span>
-                            </div>
-                            <div className="text-center">
-                              <div className="font-semibold text-base">{leadName || phoneNumber}</div>
-                              {leadName && (
-                                <div className="text-sm text-gray-500">{phoneNumber}</div>
-                              )}
-                              {callStatus === 'in-call' && (
-                                <div className="flex items-center justify-center gap-1 mt-2">
-                                  <div className="w-2 h-2 rounded-full bg-red-500" />
-                                  <span className="text-sm font-medium">{formatDuration(callDuration)}</span>
-                                </div>
-                              )}
-                              {(callStatus === 'ringing' || callStatus === 'connecting') && (
-                                <div className="text-sm text-gray-500 mt-2">Calling...</div>
-                              )}
-                            </div>
+              <div className="space-y-6">
+                {/* Call Status Section - Show when call is active */}
+                {(callStatus === 'ringing' || callStatus === 'in-call' || callStatus === 'connecting') ? (
+                  <div className="space-y-4">
+                    {/* Contact Info */}
+                    <div className="flex flex-col items-center space-y-2 py-4">
+                      <div
+                        className="w-20 h-20 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.1)' }}
+                      >
+                        <span
+                          className="text-3xl font-semibold"
+                          style={{ color: 'hsl(var(--brand-primary))' }}
+                        >
+                          {leadName ? leadName.charAt(0).toUpperCase() : phoneNumber?.charAt(phoneNumber.length - 1) || '?'}
+                        </span>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-semibold text-base">{leadName || phoneNumber}</div>
+                        {leadName && (
+                          <div className="text-sm text-gray-500">{phoneNumber}</div>
+                        )}
+                        {callStatus === 'in-call' && (
+                          <div className="flex items-center justify-center gap-1 mt-2">
+                            <div className="w-2 h-2 rounded-full bg-red-500" />
+                            <span className="text-sm font-medium">{formatDuration(callDuration)}</span>
+                          </div>
+                        )}
+                        {(callStatus === 'ringing' || callStatus === 'connecting') && (
+                          <div className="text-sm text-gray-500 mt-2">Calling...</div>
+                        )}
+                      </div>
               </div>
 
-                          {/* Call Controls */}
-                          <div className="flex flex-col items-center gap-4 py-4">
-                            {/* First Row: Hold, Mute, Script */}
-                            <div className="flex items-center justify-center gap-4">
-                              <div className="flex flex-col items-center gap-1">
-                                <button
-                                  onClick={handleHoldToggle}
-                                  className={`flex items-center justify-center transition-colors ${isOnHold
-                                      ? 'bg-gray-100'
-                                      : 'hover:bg-gray-50 bg-white'
-                                    }`}
-                                  disabled={!activeCall}
-                                  style={{
-                                    width: '56px',
-                                    height: '56px',
-                                    borderRadius: '50%',
-                                    border: isOnHold ? '2px solid hsl(var(--brand-primary))' : '1px solid #e5e7eb',
-                                    padding: 0,
-                                  }}
-                                >
-                                  <Pause
-                                    size={20}
-                                    style={{
-                                      color: isOnHold ? 'hsl(var(--brand-primary))' : '#6b7280'
-                                    }}
-                                  />
-                                </button>
-                                <span className="text-xs" style={{ color: isOnHold ? 'hsl(var(--brand-primary))' : '#6b7280' }}>
-                                  Hold
-                                </span>
-              </div>
-                              <div className="flex flex-col items-center gap-1">
-                                <button
-                                  onClick={handleMuteToggle}
-                                  className={`flex items-center justify-center transition-colors ${isMuted
-                                      ? 'bg-gray-100'
-                                      : 'hover:bg-gray-50 bg-white'
-                                    }`}
-                                  disabled={!activeCall}
-                                  style={{
-                                    width: '56px',
-                                    height: '56px',
-                                    borderRadius: '50%',
-                                    border: isMuted ? '2px solid hsl(var(--brand-primary))' : '1px solid #e5e7eb',
-                                    padding: 0,
-                                  }}
-                                >
-                                  {isMuted ? (
-                                    <MicOff size={20} style={{ color: 'hsl(var(--brand-primary))' }} />
-                                  ) : (
-                                    <Mic size={20} style={{ color: '#6b7280' }} />
-                                  )}
-                                </button>
-                                <span className="text-xs" style={{ color: isMuted ? 'hsl(var(--brand-primary))' : '#6b7280' }}>
-                                  Mute
-                                </span>
-                              </div>
-                              <div className="flex flex-col items-center gap-1">
-                                <button
-                                  onClick={(e) => {
-                                    e.preventDefault()
-                                    e.stopPropagation()
-                                    setShowScriptPanel(prev => {
-                                      console.log('Toggling script panel from', prev, 'to', !prev)
-                                      return !prev
-                                    })
-                                  }}
-                                  className={`flex items-center justify-center transition-all ${!showScriptPanel
-                                      ? 'hover:bg-gray-50'
-                                      : ''
-                                    }`}
-                                  style={{
-                                    width: '56px',
-                                    height: '56px',
-                                    borderRadius: '50%',
-                                    border: showScriptPanel ? '2px solid hsl(var(--brand-primary))' : '1px solid #e5e7eb',
-                                    backgroundColor: showScriptPanel 
-                                      ? 'hsl(var(--brand-primary) / 0.1)' 
-                                      : 'white',
-                                    padding: 0,
-                                  }}
-                                >
-                                  <FileText
-                                    size={20}
-                                    style={{
-                                      color: showScriptPanel ? 'hsl(var(--brand-primary))' : '#6b7280'
-                                    }}
-                                  />
-                                </button>
-                                <span
-                                  className="text-xs"
-                                  style={{
-                                    color: showScriptPanel ? 'hsl(var(--brand-primary))' : '#6b7280'
-                                  }}
-                                >
-                                  Script
-                                </span>
-                              </div>
-                            </div>
-                            {/* Second Row: Take Notes */}
-                            <button
-                              onClick={() => setShowNotes(!showNotes)}
-                              className="rounded-full py-2 px-4 transition-all flex items-center gap-1.5"
-                              style={{
-                                backgroundColor: showNotes 
-                                  ? 'hsl(var(--brand-primary) / 0.1)' 
-                                  : '#F9F9F9',
-                                border: 'none',
-                                color: showNotes 
-                                  ? 'hsl(var(--brand-primary))' 
-                                  : '#374151',
-                                fontSize: '14px',
-                                height: 'auto',
-                              }}
-                            >
-                              <StickyNote
-                                size={14}
-                                style={{
-                                  color: showNotes ? 'hsl(var(--brand-primary))' : '#374151'
-                                }}
-                              />
-                              <span
-                                style={{
-                                  color: showNotes ? 'hsl(var(--brand-primary))' : '#374151'
-                                }}
-                              >
-                                Take Notes
-                              </span>
-                            </button>
-              </div>
-
-                          {/* End Call Button - Fixed at bottom */}
-                          <div
-                            className="w-full px-6 py-4"
+                    {/* Call Controls */}
+                    <div className="flex flex-col items-center gap-4 py-4">
+                      {/* First Row: Hold, Mute, Script */}
+                      <div className="flex items-center justify-center gap-4">
+                        <div className="flex flex-col items-center gap-1">
+                          <button
+                            onClick={handleHoldToggle}
+                            className={`flex items-center justify-center transition-colors ${isOnHold
+                              ? 'bg-gray-100'
+                              : 'hover:bg-gray-50 bg-white'
+                              }`}
+                            disabled={!activeCall}
                             style={{
-                              position: 'absolute',
-                              bottom: 0,
-                              left: 0,
-                              right: 0,
-                              backgroundColor: 'white',
-                              width: showScriptPanel ? '380px' : '100%',
+                              width: '56px',
+                              height: '56px',
+                              borderRadius: '50%',
+                              border: isOnHold ? '2px solid hsl(var(--brand-primary))' : '1px solid #e5e7eb',
+                              padding: 0,
                             }}
                           >
-                            <Button
-                              onClick={handleEndCall}
-                              className="w-full rounded-lg"
+                            <Pause
+                              size={20}
                               style={{
-                                backgroundColor: '#ef4444',
-                                color: 'white',
-                                fontWeight: 600,
-                                height: '56px',
-                                fontSize: '16px',
+                                color: isOnHold ? 'hsl(var(--brand-primary))' : '#6b7280'
                               }}
-                            >
+                            />
+                          </button>
+                          <span className="text-xs" style={{ color: isOnHold ? 'hsl(var(--brand-primary))' : '#6b7280' }}>
+                            Hold
+                          </span>
+              </div>
+                        <div className="flex flex-col items-center gap-1">
+                          <button
+                            onClick={handleMuteToggle}
+                            className={`flex items-center justify-center transition-colors ${isMuted
+                              ? 'bg-gray-100'
+                              : 'hover:bg-gray-50 bg-white'
+                              }`}
+                            disabled={!activeCall}
+                            style={{
+                              width: '56px',
+                              height: '56px',
+                              borderRadius: '50%',
+                              border: isMuted ? '2px solid hsl(var(--brand-primary))' : '1px solid #e5e7eb',
+                              padding: 0,
+                            }}
+                          >
+                            {isMuted ? (
+                              <MicOff size={20} style={{ color: 'hsl(var(--brand-primary))' }} />
+                            ) : (
+                              <Mic size={20} style={{ color: '#6b7280' }} />
+                            )}
+                          </button>
+                          <span className="text-xs" style={{ color: isMuted ? 'hsl(var(--brand-primary))' : '#6b7280' }}>
+                            Mute
+                          </span>
+                        </div>
+                        <div className="flex flex-col items-center gap-1">
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault()
+                              e.stopPropagation()
+                              setShowScriptPanel(prev => {
+                                console.log('Toggling script panel from', prev, 'to', !prev)
+                                return !prev
+                              })
+                            }}
+                            className={`flex items-center justify-center transition-all ${!showScriptPanel
+                              ? 'hover:bg-gray-50'
+                              : ''
+                              }`}
+                            style={{
+                              width: '56px',
+                              height: '56px',
+                              borderRadius: '50%',
+                              border: showScriptPanel ? '2px solid hsl(var(--brand-primary))' : '1px solid #e5e7eb',
+                              backgroundColor: showScriptPanel
+                                ? 'hsl(var(--brand-primary) / 0.1)'
+                                : 'white',
+                              padding: 0,
+                            }}
+                          >
+                            <FileText
+                              size={20}
+                              style={{
+                                color: showScriptPanel ? 'hsl(var(--brand-primary))' : '#6b7280'
+                              }}
+                            />
+                          </button>
+                          <span
+                            className="text-xs"
+                            style={{
+                              color: showScriptPanel ? 'hsl(var(--brand-primary))' : '#6b7280'
+                            }}
+                          >
+                            Script
+                          </span>
+                        </div>
+                      </div>
+                      {/* Second Row: Take Notes */}
+                      <button
+                        onClick={() => setShowNotes(!showNotes)}
+                        className="rounded-full py-2 px-4 transition-all flex items-center gap-1.5"
+                        style={{
+                          backgroundColor: showNotes
+                            ? 'hsl(var(--brand-primary) / 0.1)'
+                            : '#F9F9F9',
+                          border: 'none',
+                          color: showNotes
+                            ? 'hsl(var(--brand-primary))'
+                            : '#374151',
+                          fontSize: '14px',
+                          height: 'auto',
+                        }}
+                      >
+                        <StickyNote
+                          size={14}
+                          style={{
+                            color: showNotes ? 'hsl(var(--brand-primary))' : '#374151'
+                          }}
+                        />
+                        <span
+                          style={{
+                            color: showNotes ? 'hsl(var(--brand-primary))' : '#374151'
+                          }}
+                        >
+                          Take Notes
+                        </span>
+                      </button>
+                    </div>
+
+                    {/* End Call Button - Fixed at bottom */}
+                    <div
+                      className="w-full px-6 py-4"
+                      style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        backgroundColor: 'white',
+                        width: showScriptPanel ? '380px' : '100%',
+                      }}
+                    >
+                      <Button
+                        onClick={handleEndCall}
+                        className="w-full rounded-lg"
+                        style={{
+                          backgroundColor: '#ef4444',
+                          color: 'white',
+                          fontWeight: 600,
+                          height: '56px',
+                          fontSize: '16px',
+                        }}
+                      >
                     End Call
                   </Button>
-                          </div>
-                        </div>
-                      ) : callStatus === 'ended' ? (
-                        /* Call Summary UI - Show when call ends */
-                        <div className="space-y-4 py-4 flex flex-col items-center">
-                          {/* Contact Info */}
-                          <div className="text-center">
-                            <div className="text-base font-semibold text-gray-900">
-                              {leadName || 'Unknown Contact'}
-                            </div>
-                            {phoneNumber && (
-                              <div className="text-sm text-gray-600 mt-1">{phoneNumber}</div>
+                    </div>
+                  </div>
+                ) : callStatus === 'ended' || callStatus === 'error' ? (
+                  /* Call Summary UI - Show when call ends */
+                  <div className="space-y-3 py-2 flex flex-col items-center">
+                    {/* Contact Info - Name and Phone in a row */}
+                    <div className="w-full flex flex-row items-center gap-3 w-full justify-center">
+                      <div className="text-base font-semibold text-gray-900">
+                        {leadName || ''}
+                      </div>
+                      {phoneNumber && (
+                        <div className="text-sm text-gray-600">{phoneNumber}</div>
                 )}
               </div>
 
-                          {/* Call Status - Side by Side */}
-                          <div className="flex items-center gap-4 justify-center">
-                            <div className="flex items-center gap-2">
-                              <Phone size={14} className="text-red-500" />
-                              <span className="text-sm text-red-500">Call Ended</span>
+                    {/* Call Status - Side by Side */}
+                    <div className="flex items-center gap-4 justify-center">
+                      <div className="flex items-center gap-2">
+                        <Phone size={14} className="text-red-500" />
+                        <span className="text-sm text-red-500">Call Ended</span>
                   </div>
-                            <div 
-                              className="flex items-center gap-2 px-3 py-1 rounded-full"
-                              style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.1)' }}
-                            >
-                              <div 
-                                className="w-4 h-4 rounded-full flex items-center justify-center"
-                                style={{ backgroundColor: 'hsl(var(--brand-primary))' }}
-                              >
-                                <Check size={10} className="text-white" />
-                              </div>
-                              <span className="text-sm" style={{ color: 'hsl(var(--brand-primary))' }}>
-                                Completed
-                              </span>
-                            </div>
+                      {callStatus === 'error' ? (
+                        <div
+                          className="flex items-center gap-2 px-3 py-1 rounded-full"
+                          style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)' }}
+                        >
+                          <div
+                            className="w-4 h-4 rounded-full flex items-center justify-center"
+                            style={{ backgroundColor: '#ef4444' }}
+                          >
+                            <X size={10} className="text-white" />
                           </div>
-
-                          {/* Call Duration */}
-                          <div className="text-sm text-gray-900 text-center">
-                            {formatDurationForSummary(callDuration)}
-                          </div>
-
-                          {/* Call Back Button - 60% width, centered */}
-                          <div className="w-full flex justify-center">
-                            <Button
-                              onClick={() => {
-                                setCallStatus('idle')
-                                setCallDuration(0)
-                              }}
-                              className="rounded-lg border border-gray-300"
-                              style={{
-                                width: '60%',
-                                backgroundColor: 'white',
-                                color: '#374151',
-                                fontSize: '14px',
-                                padding: '10px 16px',
-                                height: 'auto',
-                              }}
-                            >
-                              <Phone size={16} className="mr-2" />
-                              Call Back
-                            </Button>
-                          </div>
-
-                          {/* Divider */}
-                          <div className="border-t border-dashed border-gray-300 my-4 w-full"></div>
-
-                          {/* Follow Up Section */}
-                          <div className="w-full">
-                            <div className="flex items-center justify-center gap-2 mb-3">
-                              <span className="text-sm font-medium text-gray-900">Follow up</span>
-                              <div className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center">
-                                <span className="text-xs text-gray-500">i</span>
-                              </div>
-                            </div>
-
-                            <div className="space-y-2">
-                              <Button
-                                onClick={async () => {
-                                  if (!showEmailPanel) {
-                                    setShowEmailPanel(true)
-                                    setShowSmsPanel(false)
-                                    setSelectedTemplate(null)
-                                    if (emailTemplates.length === 0) {
-                                      await fetchEmailTemplates()
-                                    }
-                                  } else {
-                                    setShowEmailPanel(false)
-                                    setSelectedTemplate(null)
-                                  }
-                                }}
-                                className="w-full rounded-lg"
-                                style={{
-                                  backgroundColor: showEmailPanel 
-                                    ? 'hsl(var(--brand-primary) / 0.1)' 
-                                    : 'hsl(var(--brand-primary) / 0.1)',
-                                  color: 'hsl(var(--brand-primary))',
-                                  fontSize: '14px',
-                                  padding: '10px 16px',
-                                  border: showEmailPanel 
-                                    ? '2px solid hsl(var(--brand-primary))' 
-                                    : '1px solid hsl(var(--brand-primary))',
-                                  height: 'auto',
-                                }}
-                              >
-                                <Mail 
-                                  size={16} 
-                                  className="mr-2" 
-                                  style={{ color: 'hsl(var(--brand-primary))' }}
-                                />
-                                Send Email
-                              </Button>
-
-                              <Button
-                                onClick={async () => {
-                                  if (!showSmsPanel) {
-                                    setShowSmsPanel(true)
-                                    setShowEmailPanel(false)
-                                    setSelectedTemplate(null)
-                                    if (smsTemplates.length === 0) {
-                                      await fetchSmsTemplates()
-                                    }
-                                  } else {
-                                    setShowSmsPanel(false)
-                                    setSelectedTemplate(null)
-                                  }
-                                }}
-                                className="w-full rounded-lg border"
-                                style={{
-                                  backgroundColor: showSmsPanel 
-                                    ? 'hsl(var(--brand-primary) / 0.1)' 
-                                    : 'white',
-                                  color: showSmsPanel 
-                                    ? 'hsl(var(--brand-primary))' 
-                                    : '#374151',
-                                  fontSize: '14px',
-                                  padding: '8px 16px',
-                                  border: showSmsPanel 
-                                    ? '2px solid hsl(var(--brand-primary))' 
-                                    : '1px solid #d1d5db',
-                                  height: 'auto',
-                                }}
-                              >
-                                <MessageSquare size={16} className="mr-2" />
-                                Send Text
-                              </Button>
-                            </div>
-                          </div>
+                          <span className="text-sm" style={{ color: '#ef4444' }}>
+                            Failed
+                          </span>
                         </div>
                       ) : (
-                        /* Pre-call UI - Show when not in call */
-                        <>
-                          {/* Contact Information Section */}
-                          <div className="flex flex-col items-center space-y-3 py-6">
-                            {/* Contact Avatar */}
-                            <div
-                              className="w-24 h-24 rounded-full flex items-center justify-center"
-                              style={{ backgroundColor: 'hsl(var(--brand-primary))' }}
-                            >
-                              <span
-                                className="text-4xl font-semibold text-white"
-                              >
-                                {leadName ? leadName.charAt(0).toUpperCase() : phoneNumber?.charAt(phoneNumber.length - 1) || '?'}
-                              </span>
-              </div>
-
-                            {/* Contact Name */}
-                            <div className="text-center">
-                              <div className="font-bold text-xl text-gray-900">
-                                {leadName || phoneNumber || 'Unknown Contact'}
-                  </div>
-                              {/* Phone Number as Label */}
-                              {phoneNumber && (
-                                <div className="text-sm text-gray-600 mt-1">
-                                  {phoneNumber}
+                        <div
+                          className="flex items-center gap-2 px-3 py-1 rounded-full"
+                          style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.1)' }}
+                        >
+                          <div
+                            className="w-4 h-4 rounded-full flex items-center justify-center"
+                            style={{ backgroundColor: 'hsl(var(--brand-primary))' }}
+                          >
+                            <Check size={10} className="text-white" />
+                          </div>
+                          <span className="text-sm" style={{ color: 'hsl(var(--brand-primary))' }}>
+                            Completed
+                          </span>
                 </div>
               )}
-                            </div>
-                          </div>
+                    </div>
 
-                          {/* Create Script Button - Show if no script exists */}
-                          <div className="flex w-full justify-center">
-                            <Button
-                              onClick={() => setShowScriptPanel(!showScriptPanel)}
-                              variant="filled"
-                              className="rounded-full py-2 px-4 transition-all"
-                              style={{
-                                backgroundColor: showScriptPanel 
-                                  ? 'hsl(var(--brand-primary) / 0.1)' 
-                                  : '#F9F9F9',
-                                border: showScriptPanel 
-                                  ? '2px solid hsl(var(--brand-primary))' 
-                                  : '1px solid #e5e7eb',
-                                color: showScriptPanel 
-                                  ? 'hsl(var(--brand-primary))' 
-                                  : '#374151',
-                                fontSize: '14px',
-                                height: 'auto',
-                              }}
-                            >
-                              <FileText 
-                                size={14} 
-                                className="mr-1.5" 
-                                style={{
-                                  color: showScriptPanel 
-                                    ? 'hsl(var(--brand-primary))' 
-                                    : '#374151'
-                                }}
-                              />
-                              Create Script
-                  </Button>
+                    {/* Call Duration */}
+                    <div className="text-sm text-gray-900 text-center">
+                      {formatDurationForSummary(callDuration)}
+                    </div>
+
+                    {/* Call Back Button - 60% width, centered */}
+                    <div className="w-full flex justify-center">
+                      <Button
+                        onClick={() => {
+                          setCallStatus('idle')
+                          setCallDuration(0)
+                        }}
+                        className="rounded-lg border border-gray-300"
+                        style={{
+                          width: '60%',
+                          backgroundColor: 'white',
+                          color: '#374151',
+                          fontSize: '14px',
+                          padding: '10px 16px',
+                          height: 'auto',
+                          boxShadow: 'none',
+                        }}
+                      >
+                        <Phone size={16} className="mr-2" />
+                        Call Back
+                      </Button>
+                    </div>
+
+                    {/* Divider */}
+                    <div className="border-t border-dashed border-gray-300 my-3 w-full"></div>
+
+                    {/* Follow Up Section */}
+                    <div className="w-full">
+                      <div className="flex items-center gap-2 mb-3">
+                        <span className="text-sm font-medium text-gray-900">Follow up</span>
+                        <div className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center">
+                          <span className="text-xs text-gray-500">i</span>
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Button
+                          onClick={async () => {
+                            if (!showEmailPanel) {
+                              setShowEmailPanel(true)
+                              setShowSmsPanel(false)
+                              setSelectedTemplate(null)
+                              if (emailTemplates.length === 0) {
+                                await fetchEmailTemplates()
+                              }
+                            } else {
+                              setShowEmailPanel(false)
+                              setSelectedTemplate(null)
+                            }
+                          }}
+                          className="w-full rounded-lg"
+                          style={{
+                            backgroundColor: showEmailPanel
+                              ? 'hsl(var(--brand-primary) / 0.1)'
+                              : 'white',
+                            color: showEmailPanel
+                              ? 'hsl(var(--brand-primary))'
+                              : '#374151',
+                            fontSize: '14px',
+                            padding: '12px 16px',
+                            border: showEmailPanel
+                              ? '2px solid hsl(var(--brand-primary))'
+                              : '1px solid #d1d5db',
+                            height: 'auto',
+                            boxShadow: 'none',
+                          }}
+                        >
+                          <Mail
+                            size={16}
+                            className="mr-2"
+                            style={{
+                              color: showEmailPanel
+                                ? 'hsl(var(--brand-primary))'
+                                : '#374151'
+                            }}
+                          />
+                          Send Email
+                        </Button>
+
+                        <Button
+                          onClick={async () => {
+                            if (!showSmsPanel) {
+                              setShowSmsPanel(true)
+                              setShowEmailPanel(false)
+                              setSelectedTemplate(null)
+                              if (smsTemplates.length === 0) {
+                                await fetchSmsTemplates()
+                              }
+                            } else {
+                              setShowSmsPanel(false)
+                              setSelectedTemplate(null)
+                            }
+                          }}
+                          className="w-full rounded-lg"
+                          style={{
+                            backgroundColor: showSmsPanel
+                              ? 'hsl(var(--brand-primary) / 0.1)'
+                              : 'white',
+                            color: showSmsPanel
+                              ? 'hsl(var(--brand-primary))'
+                              : '#374151',
+                            fontSize: '14px',
+                            padding: '12px 16px',
+                            border: showSmsPanel
+                              ? '2px solid hsl(var(--brand-primary))'
+                              : '1px solid #d1d5db',
+                            height: 'auto',
+                            boxShadow: 'none',
+                          }}
+                        >
+                          <MessageSquare
+                            size={16}
+                            className="mr-2"
+                            style={{
+                              color: showSmsPanel
+                                ? 'hsl(var(--brand-primary))'
+                                : '#374151'
+                            }}
+                          />
+                          Send Text
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  /* Pre-call UI - Show when not in call */
+                  <>
+                    {/* Contact Information Section */}
+                    <div className="flex flex-col items-center space-y-3 py-6">
+                      {/* Contact Avatar */}
+                      <div
+                        className="w-24 h-24 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: 'hsl(var(--brand-primary))' }}
+                      >
+                        <span
+                          className="text-4xl font-semibold text-white"
+                        >
+                          {leadName ? leadName.charAt(0).toUpperCase() : phoneNumber?.charAt(phoneNumber.length - 1) || '?'}
+                        </span>
+                      </div>
+
+                      {/* Contact Name */}
+                      <div className="text-center">
+                        <div className="font-bold text-xl text-gray-900">
+                          {leadName || phoneNumber || 'Unknown Contact'}
+                        </div>
+                        {/* Phone Number as Label */}
+                        {phoneNumber && (
+                          <div className="text-sm text-gray-600 mt-1">
+                            {phoneNumber}
                           </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Create Script Button - Show if no script exists */}
+                    <div className="flex w-full justify-center">
+                      <Button
+                        onClick={() => setShowScriptPanel(!showScriptPanel)}
+                        variant="filled"
+                        className="rounded-full py-2 px-4 transition-all"
+                        style={{
+                          backgroundColor: showScriptPanel
+                            ? 'hsl(var(--brand-primary) / 0.1)'
+                            : '#F9F9F9',
+                          border: showScriptPanel
+                            ? '2px solid hsl(var(--brand-primary))'
+                            : '1px solid #e5e7eb',
+                          color: showScriptPanel
+                            ? 'hsl(var(--brand-primary))'
+                            : '#374151',
+                          fontSize: '14px',
+                          height: 'auto',
+                        }}
+                      >
+                        <FileText
+                          size={14}
+                          className="mr-1.5"
+                          style={{
+                            color: showScriptPanel
+                              ? 'hsl(var(--brand-primary))'
+                              : '#374151'
+                          }}
+                        />
+                        Create Script
+                      </Button>
+                    </div>
             </>
           )}
         </div>
-                )}
-              </div>
+            )}
+          </div>
 
-            {/* Fixed Start Call Button at Bottom - Only in main content area */}
-            {(callStatus === 'idle' || callStatus === 'ended' || callStatus === 'error') && (
-              <div
-                className="px-6 py-4 border-t border-gray-200"
+          {/* Fixed Start Call Button at Bottom - Only in main content area */}
+          {(callStatus === 'idle' || callStatus === 'ended' || callStatus === 'error') && (
+            <div
+              className="px-6 py-4 border-t border-gray-200"
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: 0,
+                right: 0,
+                backgroundColor: 'white',
+                width: '100%',
+              }}
+            >
+              <Button
+                onClick={handleCall}
+                className="w-full rounded-lg"
+                disabled={!device || !deviceRegistered || initializing || !phoneNumber}
                 style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  backgroundColor: 'white',
-                  width: '100%',
+                  backgroundColor: 'hsl(var(--brand-primary))',
+                  color: 'white',
+                  fontWeight: 600,
+                  height: '56px',
+                  fontSize: '16px',
                 }}
               >
-                 <Button
-                   onClick={handleCall}
-                   className="w-full rounded-lg"
-                   disabled={!device || !deviceRegistered || initializing || !phoneNumber}
-                   style={{
-                     backgroundColor: 'hsl(var(--brand-primary))',
-                     color: 'white',
-                     fontWeight: 600,
-                     height: '56px',
-                     fontSize: '16px',
-                   }}
-                 >
-                   {initializing ? 'Initializing...' : !deviceRegistered ? 'Connecting...' : 'Start Call'}
-                 </Button>
-                  </div>
-            )}
-                </div>
+                {initializing ? 'Initializing...' : !deviceRegistered ? 'Connecting...' : 'Start Call'}
+              </Button>
+            </div>
+          )}
         </div>
+      </div>
 
-        {/* Call Notes Window - Bottom Right */}
-        {(callStatus === 'ringing' || callStatus === 'in-call' || callStatus === 'connecting') && (
-          <CallNotesWindow
-            open={showNotes}
-            onClose={() => setShowNotes(false)}
-            leadId={leadId}
-            leadName={leadName}
-          />
-        )}
+      {/* Call Notes Window - Bottom Right */}
+      {(callStatus === 'ringing' || callStatus === 'in-call' || callStatus === 'connecting') && (
+        <CallNotesWindow
+          open={showNotes}
+          onClose={() => setShowNotes(false)}
+          leadId={leadId}
+          leadName={leadName}
+        />
+      )}
 
-        </div>
+    </div>
   )
 }
 
