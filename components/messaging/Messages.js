@@ -25,6 +25,7 @@ import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 import { Modal, Box } from '@mui/material'
 import { useUser } from '@/hooks/redux-hooks'
+import UnlockMessagesView from './UnlockMessagesView'
 
 const Messages = () => {
   const [threads, setThreads] = useState([])
