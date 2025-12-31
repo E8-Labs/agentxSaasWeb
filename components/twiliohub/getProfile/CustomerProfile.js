@@ -7,7 +7,8 @@ import IntroVideoModal from '@/components/createagent/IntroVideoModal'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
-import { HowtoVideos } from '@/constants/Constants'
+import { HowtoVideos, HowToVideoTypes } from '@/constants/Constants'
+import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 
 import AddTwilio from '../addtwilio/AddTwilio'
 import AddTwilioAnimation from '../addtwilio/AddTwilioAnimation'
@@ -61,6 +62,23 @@ const CustomerProfile = ({
       fontWeight: '500',
     },
   }
+
+  const introVideo = isFromAgency
+    ? getTutorialByType(HowToVideoTypes.TwilioIntegrationAgency)
+    : getTutorialByType(HowToVideoTypes.TwilioTrustHub)
+
+  const introVideoTitle =
+    introVideo?.title ||
+    (isFromAgency
+      ? 'Twilio Integration - Agency'
+      : 'Learn how to add Twilio Trust Hub')
+
+  const introVideoUrl = isFromAgency
+    ? introVideo?.videoUrl ||
+      getVideoUrlByType(HowToVideoTypes.TwilioIntegrationAgency)
+    : introVideo?.videoUrl ||
+      getVideoUrlByType(HowToVideoTypes.TwilioTrustHub) ||
+      HowtoVideos.TwilioTrustHub
 
   return (
     <div className="w-full">
@@ -141,8 +159,8 @@ const CustomerProfile = ({
       <IntroVideoModal
         open={introVideoModal2}
         onClose={() => setIntroVideoModal2(false)}
-        videoTitle="Learn how to add Twilio Trust Hub"
-        videoUrl={HowtoVideos.TwilioTrustHub}
+        videoTitle={introVideoTitle}
+        videoUrl={introVideoUrl}
       />
 
       <div className="border rounded-lg w-full mt-2">

@@ -15,10 +15,6 @@ import {
 } from '@/components/onboarding/extras/StickyModals'
 import { handleDisconnectTwilio } from '@/components/onboarding/services/apisServices/ApiService'
 import { useUser } from '@/hooks/redux-hooks'
-import VideoCard from '@/components/createagent/VideoCard'
-import IntroVideoModal from '@/components/createagent/IntroVideoModal'
-import { HowToVideoTypes } from '@/constants/Constants'
-import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 
 const Integrations = ({ selectedAgency, reduxUser, refreshUserData }) => {
   const [allowUpSellPhone, setAllowUpSellPhone] = useState(false)
@@ -36,8 +32,6 @@ const Integrations = ({ selectedAgency, reduxUser, refreshUserData }) => {
   const [hotReloadTrustProducts, setHotReloadTrustProducts] = useState(false)
   //remove trust hub data
   const [removeTrustHubData, setRemoveTrustHubData] = useState(false)
-  //video modal
-  const [showVideoModal, setShowVideoModal] = useState(false)
 
   console.log('reduxUser', reduxUser)
   useEffect(() => {
@@ -71,19 +65,6 @@ const Integrations = ({ selectedAgency, reduxUser, refreshUserData }) => {
 
   return (
     <div className="w-full flex flex-col items-center">
-      {/* Video Modal */}
-      <IntroVideoModal
-        open={showVideoModal}
-        onClose={() => setShowVideoModal(false)}
-        videoTitle={
-          getTutorialByType(HowToVideoTypes.TwilioIntegrationAgency)?.title ||
-          'Twilio Integration - Agency'
-        }
-        videoUrl={
-          getVideoUrlByType(HowToVideoTypes.TwilioIntegrationAgency) || ''
-        }
-      />
-
       <AgentSelectSnackMessage
         isVisible={showSnackMessage}
         hide={() => {
@@ -191,27 +172,6 @@ const Integrations = ({ selectedAgency, reduxUser, refreshUserData }) => {
             )}
           </div>
         </div>
-        {/* Video Card - Below SID/Token */}
-        {reduxUser?.twilio?.twilAuthToken && (
-          <div className="mt-4">
-            <VideoCard
-              duration={(() => {
-                const tutorial = getTutorialByType(
-                  HowToVideoTypes.TwilioIntegrationAgency,
-                )
-                return tutorial?.description || '0:00'
-              })()}
-              horizontal={false}
-              playVideo={() => {
-                setShowVideoModal(true)
-              }}
-              title={
-                getTutorialByType(HowToVideoTypes.TwilioIntegrationAgency)
-                  ?.title || 'Twilio Integration - Agency'
-              }
-            />
-          </div>
-        )}
       </div>
 
       {/*
