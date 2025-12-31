@@ -23,6 +23,8 @@ export default function AgentSelectSnackMessage({
   const toastIdRef = useRef(null)
   const lastMessageRef = useRef(null)
   const timerRef = useRef(null)
+  const prevIsVisibleRef = useRef(false)
+  const lastShownMessageKeyRef = useRef(null)
 
   useEffect(() => {
     // Dismiss existing toast when visibility becomes false
@@ -36,14 +38,20 @@ export default function AgentSelectSnackMessage({
         timerRef.current = null
       }
       lastMessageRef.current = null
+      lastShownMessageKeyRef.current = null
+      prevIsVisibleRef.current = false
       return
     }
 
-    // Show toast when isVisible is true and we have a message
-    if (isVisible && (message || title)) {
-      const currentMessage = title || message
-      const messageKey = `${currentMessage}-${type}`
+    // Only show toast when isVisible transitions from false to true
+    // OR when the message content actually changes while visible
+    const currentMessage = title || message
+    const messageKey = `${currentMessage}-${type}`
+    const isVisibilityTransition = !prevIsVisibleRef.current && isVisible
+    const isMessageChange = lastShownMessageKeyRef.current !== messageKey && isVisible
 
+    // Show toast only on visibility transition or message change
+    if ((isVisibilityTransition || isMessageChange) && (message || title)) {
       // Always dismiss any existing toast before showing a new one
       // This prevents stacking when messages appear quickly
       if (toastIdRef.current) {
@@ -53,13 +61,6 @@ export default function AgentSelectSnackMessage({
       if (timerRef.current) {
         clearTimeout(timerRef.current)
         timerRef.current = null
-      }
-
-      // Show toast - allow showing same message again if isVisible was reset
-      // Reset lastMessageRef if we're showing again (means user clicked again)
-      if (lastMessageRef.current === messageKey) {
-        // Same message being shown again - reset the ref to allow it to show
-        lastMessageRef.current = null
       }
 
       const toastMessage = title || message
@@ -98,6 +99,8 @@ export default function AgentSelectSnackMessage({
 
       toastIdRef.current = toastId
       lastMessageRef.current = messageKey
+      lastShownMessageKeyRef.current = messageKey
+      prevIsVisibleRef.current = true
 
       // Auto-dismiss after timer and call hide callback
       timerRef.current = setTimeout(() => {
@@ -110,6 +113,10 @@ export default function AgentSelectSnackMessage({
         }
         timerRef.current = null
       }, time)
+    } else if (isVisible) {
+      // Update prevIsVisibleRef even if we don't show toast
+      // This prevents re-showing when other props change
+      prevIsVisibleRef.current = true
     }
 
     return () => {
@@ -118,7 +125,9 @@ export default function AgentSelectSnackMessage({
         timerRef.current = null
       }
     }
-  }, [isVisible, message, title, type, time, hide])
+    // Only depend on isVisible and message content, not on hide callback or other props
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isVisible, message, title, type, time])
 
   // Return null since Sonner handles rendering
   return null

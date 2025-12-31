@@ -156,11 +156,7 @@ const LeadDetails = ({
   const [stagesList, setStagesList] = useState([])
   const [stagesListLoader, setStagesListLoader] = useState(false)
 
-  //code for snakbars
-  const [showSuccessSnack, setShowSuccessSnack] = useState(null)
-  const [showSuccessSnack2, setShowSuccessSnack2] = useState(false)
-  const [showErrorSnack, setShowErrorSnack] = useState(null)
-  const [showErrorSnack2, setShowErrorSnack2] = useState(false)
+  //code for snakbars - consolidated into single state
 
   //update lead loader
   const [updateLeadLoader, setUpdateLeadLoader] = useState(false)
@@ -219,6 +215,19 @@ const LeadDetails = ({
     message: '',
     isVisible: false,
   })
+
+  useEffect(() => {
+    console.log('showSnackMsg', showSnackMsg)
+  }, [showSnackMsg])
+
+  // Helper function to show snackbar messages
+  const showSnackbar = (message, type = SnackbarTypes.Success) => {
+    setShowSnackMsg({
+      type,
+      message,
+      isVisible: true,
+    })
+  }
 
   const [showAuthSelectionPopup, setShowAuthSelectionPopup] = useState(false)
 
@@ -356,8 +365,7 @@ const LeadDetails = ({
         leadAssignedTeam(item, selectedLeadsDetails)
       } else if (response && response.data && response.data.status === false) {
         // Show error message if assignment failed (e.g., duplicate)
-        setShowErrorSnack(response.data.message || 'Failed to assign team member')
-        setShowErrorSnack2(true)
+        showSnackbar(response.data.message || 'Failed to assign team member', SnackbarTypes.Error)
       }
       //console.log;
     } catch (error) {
@@ -393,17 +401,14 @@ const LeadDetails = ({
             ),
           }
         })
-        setShowSuccessSnack(response.data.message || 'Team member unassigned successfully')
-        setShowSuccessSnack2(true)
+        showSnackbar(response.data.message || 'Team member unassigned successfully', SnackbarTypes.Success)
       } else if (response && response.data && response.data.status === false) {
         // Show error message if unassignment failed
-        setShowErrorSnack(response.data.message || 'Failed to unassign team member')
-        setShowErrorSnack2(true)
+        showSnackbar(response.data.message || 'Failed to unassign team member', SnackbarTypes.Error)
       }
     } catch (error) {
       console.error('Error occurred in unassign lead from team member:', error)
-      setShowErrorSnack('Failed to unassign team member. Please try again.')
-      setShowErrorSnack2(true)
+      showSnackbar('Failed to unassign team member. Please try again.', SnackbarTypes.Error)
     } finally {
       setGlobalLoader(false)
     }
@@ -476,12 +481,10 @@ const LeadDetails = ({
         // //console.log;
         setUpdateLeadLoader(false)
         if (response.data.status === true) {
-          setShowSuccessSnack(response.data.message)
-          setShowSuccessSnack2(true)
+          showSnackbar(response.data.message, SnackbarTypes.Success)
           leadStageUpdated(stage)
         } else if (response.data.status === false) {
-          setShowErrorSnack(response.data.message)
-          setShowErrorSnack2(true)
+          showSnackbar(response.data.message, SnackbarTypes.Error)
         }
       }
     } catch (error) {
@@ -610,8 +613,7 @@ const LeadDetails = ({
   const handleEditNote = async () => {
     try {
       if (!editingNote || !editNoteValue.trim()) {
-        setShowErrorSnack('Note content cannot be empty')
-        setShowErrorSnack2(true)
+        showSnackbar('Note content cannot be empty', SnackbarTypes.Error)
         return
       }
 
@@ -650,16 +652,13 @@ const LeadDetails = ({
         )
         setEditingNote(null)
         setEditNoteValue('')
-        setShowSuccessSnack('Note updated successfully')
-        setShowSuccessSnack2(true)
+        showSnackbar('Note updated successfully', SnackbarTypes.Success)
       } else {
-        setShowErrorSnack(data.message || 'Failed to update note')
-        setShowErrorSnack2(true)
+        showSnackbar(data.message || 'Failed to update note', SnackbarTypes.Error)
       }
     } catch (error) {
       console.error('Error updating note:', error)
-      setShowErrorSnack('Failed to update note. Please try again.')
-      setShowErrorSnack2(true)
+      showSnackbar('Failed to update note. Please try again.', SnackbarTypes.Error)
     } finally {
       setEditNoteLoader(false)
     }
@@ -698,16 +697,13 @@ const LeadDetails = ({
         )
         setDeleteNoteId(null)
         setShowDeleteNoteConfirm(false)
-        setShowSuccessSnack('Note deleted successfully')
-        setShowSuccessSnack2(true)
+        showSnackbar('Note deleted successfully', SnackbarTypes.Success)
       } else {
-        setShowErrorSnack(data.message || 'Failed to delete note')
-        setShowErrorSnack2(true)
+        showSnackbar(data.message || 'Failed to delete note', SnackbarTypes.Error)
       }
     } catch (error) {
       console.error('Error deleting note:', error)
-      setShowErrorSnack('Failed to delete note. Please try again.')
-      setShowErrorSnack2(true)
+      showSnackbar('Failed to delete note. Please try again.', SnackbarTypes.Error)
     } finally {
       setDeleteNoteLoader(false)
     }
@@ -1005,8 +1001,7 @@ const LeadDetails = ({
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          setShowSuccessSnack2(true)
-          setShowSuccessSnack(response.data.message)
+          showSnackbar(response.data.message, SnackbarTypes.Success)
           setShowDetailsModal(false)
           handleDelLead(selectedLeadsDetails)
         }
@@ -1110,8 +1105,7 @@ const LeadDetails = ({
             setSelectedLeadsDetails(response.data.data)
             let credits = u.user.enrichCredits
 
-            setShowSuccessSnack(response.data.message)
-            setShowSuccessSnack2(true)
+            showSnackbar(response.data.message, SnackbarTypes.Success)
 
             if (credits == 0) {
               u.user.enrichCredits = 99
@@ -1123,8 +1117,7 @@ const LeadDetails = ({
 
             setshowConfirmPerplexity(false)
           } else {
-            setShowErrorSnack(response.data.message)
-            setShowErrorSnack2(true)
+            showSnackbar(response.data.message, SnackbarTypes.Error)
 
             console.log('response.data.message', response.data.message)
           }
@@ -1171,8 +1164,7 @@ const LeadDetails = ({
   const handleCopy = async (id) => {
     try {
       await navigator.clipboard.writeText(id)
-      setShowSuccessSnack('Call ID copied to the clipboard.')
-      setShowSuccessSnack2(true)
+      showSnackbar('Call ID copied to the clipboard.', SnackbarTypes.Success)
     } catch (err) {
       console.error('Failed to copy: ', err)
     }
@@ -1209,8 +1201,7 @@ const LeadDetails = ({
 
             setShowConfirmationPopup(false)
 
-            setShowSuccessSnack('Call activity deleted')
-            setShowSuccessSnack2(true)
+            showSnackbar('Call activity deleted', SnackbarTypes.Success)
           }
         }
       }
@@ -1273,17 +1264,14 @@ const LeadDetails = ({
       })
 
       if (response.data.status === true) {
-        setShowSuccessSnack('Email sent successfully!')
-        setShowSuccessSnack2(true)
+        showSnackbar('Email sent successfully!', SnackbarTypes.Success)
         setShowEmailModal(false)
       } else {
-        setShowErrorSnack(response.data.message || 'Failed to send email')
-        setShowErrorSnack2(true)
+        showSnackbar(response.data.message || 'Failed to send email', SnackbarTypes.Error)
       }
     } catch (error) {
       console.error('Error sending email:', error)
-      setShowErrorSnack('Failed to send email. Please try again.')
-      setShowErrorSnack2(true)
+      showSnackbar('Failed to send email. Please try again.', SnackbarTypes.Error)
     } finally {
       setSendEmailLoader(false)
     }
@@ -1321,17 +1309,14 @@ const LeadDetails = ({
       })
 
       if (response.data.status === true) {
-        setShowSuccessSnack('SMS sent successfully!')
-        setShowSuccessSnack2(true)
+        showSnackbar('SMS sent successfully!', SnackbarTypes.Success)
         setShowSMSModal(false)
       } else {
-        setShowErrorSnack(response.data.message || 'Failed to send SMS')
-        setShowErrorSnack2(true)
+        showSnackbar(response.data.message || 'Failed to send SMS', SnackbarTypes.Error)
       }
     } catch (error) {
       console.error('Error sending SMS:', error)
-      setShowErrorSnack('Failed to send SMS. Please try again.')
-      setShowErrorSnack2(true)
+      showSnackbar('Failed to send SMS. Please try again.', SnackbarTypes.Error)
     } finally {
       setSendSMSLoader(false)
     }
@@ -1825,24 +1810,16 @@ const LeadDetails = ({
           message={showSnackMsg.message}
           type={showSnackMsg.type}
           isVisible={showSnackMsg.isVisible}
-          hide={() =>
-            setShowSnackMsg({ type: null, message: '', isVisible: false })
-          }
+          hide={() => {
+            setShowSnackMsg({
+              type: SnackbarTypes.Success,
+              message: '',
+              isVisible: false,
+            })
+          }}
         />
         <div className="flex flex-col w-full h-full  py-2 px-5 rounded-xl">
           <div className="w-full flex flex-col items-center h-full">
-            <AgentSelectSnackMessage
-              isVisible={showSuccessSnack2}
-              hide={() => setShowSuccessSnack2(false)}
-              message={showSuccessSnack}
-              type={SnackbarTypes.Success}
-            />
-            <AgentSelectSnackMessage
-              isVisible={showErrorSnack2}
-              hide={() => setShowErrorSnack2(false)}
-              message={showErrorSnack2}
-              type={SnackbarTypes.Error}
-            />
 
             <div className="w-full">
               {initialLoader ? (
