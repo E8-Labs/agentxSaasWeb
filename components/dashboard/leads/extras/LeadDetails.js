@@ -373,16 +373,16 @@ const LeadDetails = ({
     try {
       setGlobalLoader(true)
       console.log('Unassigning user with ID:', userId)
-      
+
       let ApiData = {
         leadId: selectedLeadsDetails.id,
         teamMemberUserId: userId,
       }
-      
+
       console.log('Api data to send in unassign api is', ApiData)
-      
+
       let response = await UnassignTeamMember(ApiData)
-      
+
       if (response && response.data && response.data.status === true) {
         // Remove the user from the assigned list
         setSelectedLeadsDetails((prevData) => {
@@ -1956,18 +1956,12 @@ const LeadDetails = ({
                                         {(!userLocalData?.planCapabilities
                                           ?.allowEmails
                                         ) && (
-                                            <span
-                                              className="rounded px-1"
-                                              style={{
-                                                backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
-                                              }}
-                                            >
-                                              <UpgradeTagWithModal
-                                                reduxUser={userLocalData}
-                                                setReduxUser={setUserLocalData}
-                                              />
-                                            </span>
-                                        )}
+
+                                            <UpgradeTagWithModal
+                                              reduxUser={userLocalData}
+                                              setReduxUser={setUserLocalData}
+                                            />
+                                          )}
                                       </div>
                                     </MenuItem>
                                   )}
@@ -1993,17 +1987,11 @@ const LeadDetails = ({
                                       {/* Show upgrade button only if allowTextMessages is false */}
                                       {!userLocalData?.planCapabilities
                                         ?.allowTextMessages && (
-                                          <span
-                                            className="rounded px-1"
-                                            style={{
-                                              backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
-                                            }}
-                                          >
+                                     
                                             <UpgradeTagWithModal
                                               reduxUser={userLocalData}
                                               setReduxUser={setUserLocalData}
                                             />
-                                          </span>
                                         )}
                                       {/* Show info icon with tooltip if allowTextMessages is true but no phone numbers */}
                                       {userLocalData?.planCapabilities

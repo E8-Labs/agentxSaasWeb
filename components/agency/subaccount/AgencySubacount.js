@@ -437,6 +437,8 @@ function AgencySubacount({ selectedAgency }) {
           userId: moreDropdown,
         }
         console.log('Api data is', apidata)
+        console.log('selectedItem is', selectedItem)
+        // return
 
         const response = await axios.post(path, apidata, {
           headers: {
@@ -450,7 +452,7 @@ function AgencySubacount({ selectedAgency }) {
           
           // Check if the deleted subaccount was an internal account
           // Use selectedItem which contains the full subaccount object
-          if (selectedItem?.isInternalAccount) {
+          if (selectedItem?.isInternal) {
             // Update localStorage to set hasInternalAccount to false
             const localData = localStorage.getItem('User')
             if (localData) {
