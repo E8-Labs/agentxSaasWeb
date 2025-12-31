@@ -187,9 +187,28 @@ function EmailTempletePopup({
     }
   }, [isEditing, editingRow, open])
 
+  // Set selectedTemp when templates are loaded and we're editing
+  // This ensures the dropdown shows the correct template even if templates load after details
+  useEffect(() => {
+    if (isEditing && editingRow?.templateId && templetes.length > 0) {
+      const templateId = editingRow.templateId
+      const matchingTemplate = templetes.find(
+        (t) => t.id === templateId || t.templateId === templateId
+      )
+      // Set selectedTemp if we found a match and either:
+      // 1. selectedTemp is not set yet, OR
+      // 2. selectedTemp is set but doesn't match the current templateId
+      if (matchingTemplate && (!selectedTemp || selectedTemp.id !== templateId)) {
+        console.log('Setting selectedTemp from templates array:', matchingTemplate)
+        setSelectedTemp(matchingTemplate)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [templetes, isEditing, editingRow?.templateId])
+
   const loadTemplateDetails = async (template) => {
     try {
-      setDetailsLoader(template.id)
+      setDetailsLoader(template.id || template.templateId)
       const details = await getTempleteDetails(template)
       console.log('details', details)
       if (details) {
@@ -237,6 +256,29 @@ function EmailTempletePopup({
         }
         if (parsedBccEmails && Array.isArray(parsedBccEmails) && parsedBccEmails.length > 0) {
           setShowBCC(true)
+        }
+
+        // Set selectedTemp to the matching template from templetes array
+        // This ensures the dropdown shows the selected template when editing
+        const templateId = template.templateId || template.id || details.id
+        if (templateId && templetes.length > 0) {
+          const matchingTemplate = templetes.find(
+            (t) => t.id === templateId || t.templateId === templateId
+          )
+          if (matchingTemplate) {
+            console.log('Setting selectedTemp to matching template:', matchingTemplate)
+            setSelectedTemp(matchingTemplate)
+          } else {
+            // If template not found in list, create a temporary template object from details
+            console.log('Template not found in list, creating from details')
+            setSelectedTemp({
+              id: templateId,
+              templateId: templateId,
+              templateName: details.templateName,
+              subject: details.subject,
+              content: details.content,
+            })
+          }
         }
       }
     } catch (error) {
