@@ -2,7 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { X, Phone, Check, Mail, MessageSquare, MoreVertical } from 'lucide-react'
-import { Button } from '../ui/button'
+import { Button as ButtonBase } from '../ui/button'
+
+// Type assertion for Button component
+const Button = ButtonBase as any
 import { toast } from 'sonner'
 import Image from 'next/image'
 

@@ -13,7 +13,7 @@ const BASE_API_URL =
  */
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await getAuthUser(req)
@@ -37,7 +37,7 @@ export async function GET(
       )
     }
 
-    const { id } = params
+    const { id } = await params
 
     // Call backend API
     const response = await fetch(`${BASE_API_URL}api/calling-scripts/${id}`, {
@@ -71,7 +71,7 @@ export async function GET(
  */
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await getAuthUser(req)
@@ -83,7 +83,7 @@ export async function PUT(
     }
 
     const body = await req.json()
-    const { id } = params
+    const { id } = await params
 
     // Get token from request
     const authHeader = req.headers.get('Authorization')
@@ -131,7 +131,7 @@ export async function PUT(
  */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await getAuthUser(req)
@@ -142,7 +142,7 @@ export async function DELETE(
       )
     }
 
-    const { id } = params
+    const { id } = await params
 
     // Get token from request
     const authHeader = req.headers.get('Authorization')

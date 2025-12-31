@@ -13,7 +13,7 @@ const BASE_API_URL =
  */
 export async function POST(
   req: NextRequest,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await getAuthUser(req)
@@ -24,7 +24,7 @@ export async function POST(
       )
     }
 
-    const { id } = params
+    const { id } = await params
 
     // Get token from request
     const authHeader = req.headers.get('Authorization')
