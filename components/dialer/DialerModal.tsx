@@ -777,12 +777,12 @@ export default function DialerModal({
           return 'ended'
         })
         setActiveCall(null)
-        // Stop call duration timer
+        // Stop call duration timer (but keep the duration value for summary)
         if (callDurationIntervalRef.current) {
           clearInterval(callDurationIntervalRef.current)
           callDurationIntervalRef.current = null
         }
-        setCallDuration(0)
+        // Don't reset callDuration - keep it for the Call Summary
         setIsMuted(false)
         setIsOnHold(false)
         setShowScriptPanel(false)
@@ -845,24 +845,42 @@ export default function DialerModal({
       // Only disconnect if it's a real call (not simulation)
       if (SIMULATE_CALL_FLOW && !device) {
         // Simulation mode - just reset state
+        // Set status to 'ended' to show call summary
+        if (callStatus !== 'error' && callStatus !== 'ended') {
+          setCallStatus('ended')
+        }
       } else if (activeCall && typeof activeCall.disconnect === 'function') {
+        // Disconnect the call - the 'disconnect' event will handle status update
+        // But we also set it here to ensure Call Summary shows immediately
+        if (callStatus !== 'error' && callStatus !== 'ended') {
+          setCallStatus('ended')
+        }
       activeCall.disconnect()
+      } else {
+        // No active call but status might be in-call/ringing - set to ended
+        if (callStatus !== 'error' && callStatus !== 'ended') {
+          setCallStatus('ended')
+        }
       }
       setActiveCall(null)
-      // Don't change status if it's already 'error' or 'ended'
-      if (callStatus !== 'error' && callStatus !== 'ended') {
-      setCallStatus('idle')
-      }
       // Stop call duration timer
       if (callDurationIntervalRef.current) {
         clearInterval(callDurationIntervalRef.current)
         callDurationIntervalRef.current = null
       }
-      setCallDuration(0)
+      // Don't reset callDuration - keep it for the summary
       setIsMuted(false)
       setIsOnHold(false)
       setShowScriptPanel(false)
       setCallEndedInError(false)
+    } else if (callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting') {
+      // If there's no active call but status indicates a call was happening, set to ended
+      setCallStatus('ended')
+      // Stop call duration timer
+      if (callDurationIntervalRef.current) {
+        clearInterval(callDurationIntervalRef.current)
+        callDurationIntervalRef.current = null
+      }
     }
   }
 
@@ -1431,12 +1449,12 @@ export default function DialerModal({
                                   }}
                                 >
                                   <div className="flex items-center justify-between w-full gap-3">
-                                    <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0">
                                       <div className="text-sm font-medium text-gray-900">
                                         {pn.phone}
-                                      </div>
+            </div>
                                     </div>
-                                    <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex items-center gap-2 flex-shrink-0">
                                       {/* Agent Avatars */}
                                       {hasAgents && (
                                         <div className="flex items-center" style={{ marginLeft: '-4px' }}>
@@ -1459,8 +1477,8 @@ export default function DialerModal({
                                               }}
                                             >
                                               {agentInitial}
-                                            </div>
-                                          )}
+              </div>
+            )}
                                           {/* Counter Bubble for Additional Agents */}
                                           {additionalAgents > 0 && (
                                             <div
@@ -1472,7 +1490,7 @@ export default function DialerModal({
                                               }}
                                             >
                                               +{additionalAgents}
-                                            </div>
+          </div>
                                           )}
                                         </div>
                                       )}
