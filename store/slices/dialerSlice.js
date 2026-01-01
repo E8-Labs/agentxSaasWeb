@@ -17,11 +17,14 @@ const isCacheStale = (lastFetched, duration) => {
 const initialState = {
   // UI State
   isOpen: false,
+  isMinimized: false, // Collapsed/minimized state
   callStatus: 'idle', // 'idle' | 'requesting-mic' | 'connecting' | 'ringing' | 'in-call' | 'ended' | 'error'
   showScriptPanel: false,
   showNotes: false,
   showEmailPanel: false,
   showSmsPanel: false,
+  // Draggable position
+  position: { x: null, y: null }, // null = use default, { x, y } = custom position
   
   // Lead/Contact Data
   leadId: null,
@@ -210,6 +213,21 @@ const dialerSlice = createSlice({
       }
     },
 
+    // Toggle minimized state
+    toggleMinimized: (state) => {
+      state.isMinimized = !state.isMinimized
+    },
+    
+    // Set minimized state
+    setMinimized: (state, action) => {
+      state.isMinimized = action.payload
+    },
+    
+    // Update position
+    updatePosition: (state, action) => {
+      state.position = action.payload
+    },
+
     // Reset all dialer state
     resetDialer: (state) => {
       return initialState
@@ -234,12 +252,17 @@ export const {
   setSelectedUser,
   setLoadingState,
   updateDeviceState,
+  toggleMinimized,
+  setMinimized,
+  updatePosition,
   resetDialer,
 } = dialerSlice.actions
 
 // Selectors
 export const selectDialerState = (state) => state.dialer
 export const selectIsDialerOpen = (state) => state.dialer.isOpen
+export const selectIsMinimized = (state) => state.dialer.isMinimized
+export const selectDialerPosition = (state) => state.dialer.position
 export const selectCallStatus = (state) => state.dialer.callStatus
 export const selectPreventClose = (state) => state.dialer.preventClose
 export const selectPhoneNumbers = (state) => state.dialer.phoneNumbers

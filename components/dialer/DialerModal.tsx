@@ -31,6 +31,8 @@ import {
   selectCallStatus,
   selectLeadData,
   selectIsDialerOpen,
+  selectIsMinimized,
+  selectDialerPosition,
   updateCallStatus,
   updateDeviceState,
   setPhoneNumbers,
@@ -44,6 +46,9 @@ import {
   setSelectedEmailAccount,
   setSelectedUser,
   setLoadingState,
+  toggleMinimized,
+  setMinimized,
+  updatePosition,
 } from '@/store/slices/dialerSlice'
 
 // @ts-ignore - Twilio Voice SDK types
@@ -397,6 +402,8 @@ function DialerModal({
   
   // Get Redux state for UI panels and other state
   const dialerState = useSelector((state: any) => state.dialer)
+  const isMinimized = useSelector(selectIsMinimized)
+  const dialerPosition = useSelector(selectDialerPosition)
   const showScriptPanel = dialerState.showScriptPanel
   const showNotes = dialerState.showNotes
   const showEmailPanel = dialerState.showEmailPanel
@@ -407,6 +414,38 @@ function DialerModal({
   const callEndedInError = dialerState.callEndedInError
   const phoneNumbersLoading = dialerState.phoneNumbersLoading
   const templatesLoading = dialerState.templatesLoading
+  
+  // Dragging state
+  const [isDragging, setIsDragging] = useState(false)
+  const modalRef = useRef<HTMLDivElement>(null)
+  const collapsedRef = useRef<HTMLDivElement>(null)
+  const dragStartPos = useRef({ x: 0, y: 0 })
+  
+  // Navigation detection for auto-collapse
+  const pathnameRef = useRef<string | null>(null)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const currentPath = window.location.pathname
+      if (pathnameRef.current && pathnameRef.current !== currentPath) {
+        // Navigation detected - auto-collapse if call is active
+        if ((callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting') && !isMinimized) {
+          dispatch(setMinimized(true))
+        }
+      }
+      pathnameRef.current = currentPath
+    }
+  }, [typeof window !== 'undefined' ? window.location.pathname : null, callStatus, isMinimized, dispatch])
+  
+  // Also listen to popstate for browser back/forward
+  useEffect(() => {
+    const handlePopState = () => {
+      if ((callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting') && !isMinimized) {
+        dispatch(setMinimized(true))
+      }
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [callStatus, isMinimized, dispatch])
   const emailAccountsLoading = dialerState.emailAccountsLoading
   const initializing = dialerState.initializing
   const checkingDialerNumber = dialerState.checkingDialerNumber
@@ -1872,25 +1911,192 @@ function DialerModal({
   }
 
 
+  // Drag handlers
+  const handleMouseDown = (e: React.MouseEvent, isCollapsed: boolean = false) => {
+    // Only allow dragging from header area or when clicking on empty space
+    const target = e.target as HTMLElement
+    if (target.closest('button') || target.closest('input') || target.closest('textarea')) {
+      return // Don't drag when clicking on interactive elements
+    }
+    const ref = isCollapsed ? collapsedRef : modalRef
+    if (ref.current) {
+      const rect = ref.current.getBoundingClientRect()
+      dragStartPos.current = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top,
+      }
+      setIsDragging(true)
+    }
+  }
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDragging) {
+        const activeRef = isMinimized ? collapsedRef.current : modalRef.current
+        if (activeRef) {
+          const newX = e.clientX - dragStartPos.current.x
+          const newY = e.clientY - dragStartPos.current.y
+          
+          // Constrain to viewport
+          const maxX = window.innerWidth - activeRef.offsetWidth
+          const maxY = window.innerHeight - activeRef.offsetHeight
+          
+          const constrainedX = Math.max(0, Math.min(newX, maxX))
+          const constrainedY = Math.max(0, Math.min(newY, maxY))
+          
+          dispatch(updatePosition({ x: constrainedX, y: constrainedY }))
+        }
+      }
+    }
+
+    const handleMouseUp = () => {
+      setIsDragging(false)
+    }
+
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove)
+        document.removeEventListener('mouseup', handleMouseUp)
+      }
+    }
+  }, [isDragging, isMinimized, dispatch])
+
+  // Calculate position
+  const getPosition = () => {
+    if (dialerPosition.x !== null && dialerPosition.y !== null) {
+      return { x: dialerPosition.x, y: dialerPosition.y }
+    }
+    // Default position - start from top (match lead modal ~1% from top)
+    if (typeof window !== 'undefined') {
+      return { x: window.innerWidth - 400, y: window.innerHeight * 0.01 }
+    }
+    return { x: 0, y: 0 }
+  }
+
+  const position = getPosition()
+
+  // Collapsed UI component
+  const CollapsedDialer = () => {
+    if (!isMinimized || (callStatus !== 'in-call' && callStatus !== 'ringing' && callStatus !== 'connecting')) {
+      return null
+    }
+
+    return (
+      <div
+        className="fixed z-[1402] bg-white rounded-lg shadow-lg border border-gray-200"
+        style={{
+          left: `${position.x}px`,
+          top: `${position.y}px`,
+          width: '280px',
+          padding: '12px',
+          cursor: isDragging ? 'grabbing' : 'default',
+        }}
+        onMouseDown={(e) => handleMouseDown(e, true)}
+        ref={collapsedRef}
+      >
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <div className={`w-2 h-2 rounded-full ${callStatus === 'in-call' ? 'bg-green-500' : 'bg-blue-500'} animate-pulse`} />
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-gray-900 truncate">{leadName || formatPhoneNumber(phoneNumber)}</div>
+              {callStatus === 'in-call' && (
+                <div className="text-xs text-gray-500">{formatDuration(callDuration)}</div>
+              )}
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-1">
+            {/* Mute Button */}
+            {callStatus === 'in-call' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleToggleMute()
+                }}
+                className="p-1.5 h-auto"
+              >
+                {isMuted ? <MicOff size={16} /> : <Mic size={16} />}
+              </Button>
+            )}
+            
+            {/* Hold Button */}
+            {callStatus === 'in-call' && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  handleToggleHold()
+                }}
+                className="p-1.5 h-auto"
+              >
+                <Pause size={16} />
+              </Button>
+            )}
+            
+            {/* End Call Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation()
+                handleEndCall()
+                dispatch(setMinimized(false)) // Expand when ending call
+              }}
+              className="p-1.5 h-auto text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              <Phone size={16} className="rotate-135" />
+            </Button>
+            
+            {/* Expand Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation()
+                dispatch(toggleMinimized())
+              }}
+              className="p-1.5 h-auto"
+            >
+              <ArrowUp size={16} />
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   if (!open) return null
+
+  // Show collapsed UI if minimized and call is active
+  if (isMinimized && (callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting')) {
+    return <CollapsedDialer />
+  }
 
   return (
     <div
+      ref={modalRef}
       className="fixed z-[1401] bg-white"
       style={{
-        top: '80px',
-        right: '20px',
-        left: 'auto',
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        right: 'auto',
         maxWidth: (showScriptPanel && callStatus !== 'ended' && callStatus !== 'error') || ((showEmailPanel || showSmsPanel) && (callStatus === 'ended' || callStatus === 'error')) ? '700px' : '380px',
         width: (showScriptPanel && callStatus !== 'ended' && callStatus !== 'error') || ((showEmailPanel || showSmsPanel) && (callStatus === 'ended' || callStatus === 'error')) ? '700px' : '380px',
-        transition: 'width 0.3s ease, max-width 0.3s ease',
+        transition: isDragging ? 'none' : 'width 0.3s ease, max-width 0.3s ease, left 0.1s ease, top 0.1s ease',
         boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1)',
         minHeight: '500px',
         maxHeight: '80vh',
         borderRadius: '16px',
         overflow: 'hidden',
         pointerEvents: 'auto',
+        cursor: isDragging ? 'grabbing' : 'default',
       }}
+      onMouseDown={(e) => handleMouseDown(e, false)}
       onKeyDown={(e) => {
           // Allow escape to close unless in active call
           // Don't interfere with input fields
@@ -1903,21 +2109,34 @@ function DialerModal({
         }
       }}
     >
-      {/* Close Button */}
-      <Button
-        onClick={onClose}
-        variant="ghost"
-        size="sm"
-        className="absolute top-4 right-4 z-50 p-2 h-auto"
-        style={{
-          position: 'absolute',
-          top: '16px',
-          right: '16px',
-          zIndex: 50,
-        }}
-      >
-        <X size={20} />
-      </Button>
+      {/* Minimize and Close Buttons */}
+      <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
+        {/* Minimize Button - only show when call is active */}
+        {(callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting') && (
+          <Button
+            onClick={(e) => {
+              e.stopPropagation()
+              dispatch(toggleMinimized())
+            }}
+            variant="ghost"
+            size="sm"
+            className="p-2 h-auto"
+            title="Minimize"
+          >
+            <ChevronDown size={20} />
+          </Button>
+        )}
+        {/* Close Button */}
+        <Button
+          onClick={onClose}
+          variant="ghost"
+          size="sm"
+          className="p-2 h-auto"
+          title="Close"
+        >
+          <X size={20} />
+        </Button>
+      </div>
 
       <div 
         className="flex flex-row" 
