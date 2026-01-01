@@ -1559,7 +1559,7 @@ const LeadDetails = ({
 
             {callSummary?.leadTemperature && (
               <Tooltip
-                title={`Lead Temperature: ${callSummary.leadTemperature}`}
+                title={`Temperature: ${callSummary.leadTemperature}`}
                 arrow
                 componentsProps={{
                   tooltip: {
@@ -1732,23 +1732,14 @@ const LeadDetails = ({
     return (
       <div className="flex flex-col items-start gap-2">
         {item.sentSubject && (
-          <div className="flex flex-col items-start gap-2">
-            <div className="text-base font-semibold text-[#00000050]">
-              Subject
+            <div className="text-base font-semibold text-[#000000]">
+              Subject:  {item.sentSubject}
             </div>
-
-            <div className="text-base font-medium text-[#000000]">
-              {item.sentSubject}
-            </div>
-          </div>
         )}
 
         {item.sentContent && (
           <div className="flex flex-col items-start gap-2">
-            <div className="text-base font-semibold text-[#00000050]">
-              Content
-            </div>
-
+           
             <div className="text-base font-medium text-[#000000] whitespace-pre-wrap">
               {htmlToPlainText(item.sentContent)}
             </div>
@@ -3311,7 +3302,7 @@ const LeadDetails = ({
                                                 title={
                                                   <div style={{ whiteSpace: 'pre-line' }}>
                                                     <div style={{ fontWeight: '600', marginBottom: '4px' }}>
-                                                      Lead Temperature:
+                                                      Temperature:
                                                     </div>
                                                     {item.callSummary.leadTemperature}
                                                   </div>

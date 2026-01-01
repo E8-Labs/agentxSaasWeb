@@ -691,7 +691,7 @@ function SMSTempletePopup({
                     {body.length}/160 char
                   </div>
                   <div className="flex flex-row items-center gap-2 text-sm text-gray-600">
-                    <span>|</span>
+                   
                     <div className="flex flex-row items-center gap-1">
                       <span>{((user?.totalSecondsAvailable || 0) / 60).toFixed(2)} credits left</span>
                       <Tooltip 

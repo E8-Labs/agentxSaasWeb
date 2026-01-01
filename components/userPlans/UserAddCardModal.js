@@ -39,6 +39,8 @@ import {
   getNextChargeDate,
   getTotalPrice,
 } from './UserPlanServices'
+import SignupHeaderMobile from '../onboarding/mobileUI/SignupHeaderMobile'
+import { Checkbox } from '../ui/checkbox'
 
 const UserAddCard = ({
   handleClose,
@@ -539,25 +541,386 @@ const UserAddCard = ({
 
   return (
     <div style={{ width: '100%' }}>
-      <div
-        className={`w-full flex ${isSmallScreen ? 'flex-col' : 'flex-row'} items-start gap-6`}
-        style={{ backgroundColor: 'transparent' }}
-      >
+      {isSmallScreen ? (
+        // Mobile Layout - Matching AgencyAddCard design
+        <div className="flex flex-col items-center h-full w-full min-h-screen bg-gray-100">
+          <SignupHeaderMobile 
+            title="Grow Your Business" 
+            description="Gets more done than coffee. Cheaper too. 😉" 
+          />
+          
+          {/* White Card Container */}
+          <div
+            className="w-[90%] max-w-md bg-white rounded-2xl shadow-2xl p-6 mt-4 overflow-y-auto"
+            style={{
+              position: 'absolute',
+              top: '20vh',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              maxHeight: 'calc(80vh - 10vh)',
+            }}
+          >
+            <h1 className="text-2xl font-bold text-black mb-6">Payment Method</h1>
+            
+            {/* Card Number */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Card number
+              </label>
+              <div className="relative flex items-center border rounded-lg px-3 py-2 bg-white">
+                <div className="flex-1 min-w-0">
+                  <CardNumberElement
+                    options={elementOptions}
+                    autoFocus={true}
+                    onChange={(event) => {
+                      handleFieldChange(event, cardExpiryRef)
+                      if (event.complete) {
+                        setCardAdded(true)
+                      } else {
+                        setCardAdded(false)
+                      }
+                    }}
+                    ref={cardNumberRef}
+                    onReady={(element) => {
+                      cardNumberRef.current = element
+                      cardNumberRef.current.focus()
+                    }}
+                  />
+                </div>
+                <div className="flex items-center gap-1 ml-2 flex-shrink-0">
+                  <Image
+                    src="/svgIcons/Visa.svg"
+                    alt="Visa"
+                    width={28}
+                    height={18}
+                  />
+                  <Image
+                    src="/svgIcons/Mastercard.svg"
+                    alt="Mastercard"
+                    width={28}
+                    height={18}
+                  />
+                  <Image
+                    src="/svgIcons/Amex.svg"
+                    alt="American Express"
+                    width={28}
+                    height={18}
+                  />
+                  <Image
+                    src="/svgIcons/Discover.svg"
+                    alt="Discover"
+                    width={28}
+                    height={18}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Expiry and CVC */}
+            <div className="flex gap-3 mb-4">
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Expiry
+                </label>
+                <div className="border rounded-lg px-3 py-2 bg-white">
+                  <CardExpiryElement
+                    options={elementOptions}
+                    onChange={(event) => {
+                      handleFieldChange(event, cardCvcRef)
+                      if (event.complete) {
+                        setCardExpiry(true)
+                      } else {
+                        setCardExpiry(false)
+                      }
+                    }}
+                    ref={cardExpiryRef}
+                    onReady={(element) => {
+                      cardExpiryRef.current = element
+                    }}
+                  />
+                </div>
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  CVC
+                </label>
+                <div className="border rounded-lg px-3 py-2 bg-white">
+                  <CardCvcElement
+                    options={{
+                      ...elementOptions,
+                      placeholder: 'CVC',
+                    }}
+                    ref={cardCvcRef}
+                    onReady={(element) => {
+                      cardCvcRef.current = element
+                    }}
+                    onChange={(event) => {
+                      if (event.complete) {
+                        setCVC(true)
+                      } else {
+                        setCVC(false)
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Promo Code */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Promo Code
+              </label>
+              <input
+                value={inviteCode}
+                onChange={(e) => {
+                  setInviteCode(e.target.value)
+                }}
+                className="w-full h-[50px] px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-brand-primary/20"
+                style={{
+                  color: '#000000',
+                  backgroundColor: 'white',
+                  fontSize: 15,
+                  fontWeight: '500',
+                }}
+                placeholder=""
+              />
+              {inviteCode && (
+                <div className="mt-2 flex items-center gap-2" style={{ minHeight: 24 }}>
+                  {referralStatus === 'loading' && (
+                    <div style={{ fontSize: 12, color: '#4F5B76' }}>
+                      Validating code…
+                    </div>
+                  )}
+                  {referralStatus === 'invalid' && (
+                    <div
+                      style={{ fontSize: 12, color: '#D93025', fontWeight: 600 }}
+                    >
+                      {referralMessage || 'Invalid referral code'}
+                    </div>
+                  )}
+                  {referralStatus === 'valid' && (
+                    <div
+                      style={{ fontSize: 12, color: '#34A853', fontWeight: 600 }}
+                    >
+                      {referralMessage || 'Code applied'}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Order Summary Section */}
+            {selectedPlan && (
+              <div className="mb-6 pt-4 border-t border-gray-200">
+                <h2 className="text-lg font-bold text-black mb-4">Order Summary</h2>
+                
+                {/* Plan Title and Monthly Price */}
+                <div className="flex flex-row items-start justify-between w-full mb-4">
+                  <div>
+                    <div style={{ fontWeight: '600', fontSize: 15 }}>
+                      {selectedPlan?.title || 'No Plan Selected'}
+                    </div>
+                    <div style={{ fontWeight: '400', fontSize: 13, marginTop: 4 }}>
+                      {(() => {
+                        const billingCycle = selectedPlan?.billingCycle || selectedPlan?.duration || 'monthly'
+                        const cycleLabel = billingCycle.charAt(0).toUpperCase() + billingCycle.slice(1) + ' subscription'
+                        return cycleLabel
+                      })()}: $
+                      {(() => {
+                        const price = selectedPlan?.discountedPrice || 
+                                      selectedPlan?.discountPrice || 
+                                      selectedPlan?.originalPrice || 
+                                      0
+                        return formatFractional2(price)
+                      })()}
+                    </div>
+                  </div>
+                  <div style={{ fontWeight: '600', fontSize: 15 }}>
+                    ${formatFractional2(selectedPlan?.discountedPrice || selectedPlan?.discountPrice || selectedPlan?.originalPrice || 0)}
+                  </div>
+                </div>
+
+                {/* Total Billed */}
+                <div className="flex flex-row items-start justify-between w-full mb-4">
+                  <div>
+                    <div
+                      className="capitalize"
+                      style={{ fontWeight: '600', fontSize: 15 }}
+                    >
+                      {`Total Billed ${selectedPlan?.billingCycle || selectedPlan?.duration || 'monthly'}`}
+                    </div>
+                    <div
+                      style={{
+                        fontWeight: '400',
+                        fontSize: 13,
+                        marginTop: 4,
+                      }}
+                    >
+                      Next Charge Date {getNextChargeDate(selectedPlan)}
+                    </div>
+                  </div>
+                  <div style={{ fontWeight: '600', fontSize: 15 }}>
+                    {(() => {
+                      // Check if plan has trial and user is subscribing for the first time
+                      const hasTrial = selectedPlan?.hasTrial === true
+                      const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+                      
+                      // If plan has trial and user has no previous plan, show $0
+                      if (hasTrial && isFirstTimeSubscription) {
+                        return '$0'
+                      }
+                      
+                      const billingMonths = GetMonthCountFronBillingCycle(
+                        selectedPlan?.billingCycle || selectedPlan?.duration,
+                      )
+                      const monthlyPrice =
+                        selectedPlan?.discountPrice ||
+                        selectedPlan?.discountedPrice ||
+                        selectedPlan?.originalPrice ||
+                        0
+                      return `$${formatFractional2(billingMonths * monthlyPrice)}`
+                    })()}
+                  </div>
+                </div>
+
+                {/* Divider */}
+                <div className="my-4 h-[1px] w-full bg-[#00000035]"></div>
+
+                {/* Total */}
+                <div className="flex flex-row items-start justify-between w-full">
+                  <div style={{ fontWeight: '600', fontSize: 15 }}>Total:</div>
+                  <div className="flex flex-col items-end">
+                    <div style={{ fontWeight: '600', fontSize: 22 }}>
+                      {(() => {
+                        if (!selectedPlan) return '$0'
+
+                        // Check if plan has trial and user is subscribing for the first time
+                        const hasTrial = selectedPlan?.hasTrial === true
+                        const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+                        
+                        // If plan has trial and user has no previous plan, show $0
+                        if (hasTrial && isFirstTimeSubscription) {
+                          return '$0'
+                        }
+
+                        const billingMonths = GetMonthCountFronBillingCycle(
+                          selectedPlan?.billingCycle || selectedPlan?.duration,
+                        )
+                        const monthlyPrice =
+                          selectedPlan?.discountPrice ||
+                          selectedPlan?.discountedPrice ||
+                          selectedPlan?.originalPrice ||
+                          0
+                        return `$${formatFractional2(billingMonths * monthlyPrice)}`
+                      })()}
+                    </div>
+                    <div
+                      style={{
+                        fontWeight: '400',
+                        fontSize: 13,
+                        marginTop: 4,
+                        color: '#8A8A8A',
+                      }}
+                    >
+                      Due Today
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Terms & Conditions Checkbox */}
+            <div className="flex items-center gap-2 mb-6">
+              <Checkbox
+                checked={agreeTerms}
+                onCheckedChange={setAgreeTerms}
+                className="h-5 w-5"
+              />
+              <label className="text-sm text-gray-700">
+                I agree to the{' '}
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault()
+                    const { termsUrl } = getPolicyUrls()
+                    window.open(termsUrl, '_blank')
+                  }}
+                  className="text-brand-primary underline font-semibold"
+                  rel="noopener noreferrer"
+                >
+                  Terms & Condition
+                </a>
+              </label>
+            </div>
+
+            {/* Continue Button */}
+            <button
+              onClick={handleAddCard}
+              disabled={
+                !CardAdded ||
+                !CardExpiry ||
+                !CVC ||
+                addCardLoader ||
+                disableContinue ||
+                isSubscribingRef.current ||
+                !agreeTerms
+              }
+              className={`w-full h-[50px] rounded-xl font-bold text-white text-lg transition-all ${
+                !CardAdded ||
+                !CardExpiry ||
+                !CVC ||
+                addCardLoader ||
+                disableContinue ||
+                isSubscribingRef.current ||
+                !agreeTerms
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-brand-primary hover:opacity-90 shadow-lg active:scale-98'
+              }`}
+            >
+              {addCardLoader ? (
+                <div className="flex items-center justify-center gap-2">
+                  <CircularProgress size={20} color="inherit" />
+                  <span>Processing...</span>
+                </div>
+              ) : (
+                'Continue'
+              )}
+            </button>
+
+            {/* Disclaimer */}
+            <p className="text-xs text-center text-gray-500 mt-4">
+              By continuing you agree to our{' '}
+              <a
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault()
+                  const { termsUrl } = getPolicyUrls()
+                  window.open(termsUrl, '_blank')
+                }}
+                className="text-brand-primary underline font-semibold"
+                rel="noopener noreferrer"
+              >
+                Terms & Conditions
+              </a>{' '}
+              and agree to a 12-months license terms. Payments are billed yearly as selected.
+            </p>
+          </div>
+        </div>
+      ) : (
+        // Desktop Layout
         <div
-          className={`${isSmallScreen ? 'w-full px-4 pt-6 pb-52 overflow-y-auto' : 'relative flex-1'}`}
-          style={
-            isSmallScreen
-              ? {
-                  paddingTop: 'max(1.5rem, env(safe-area-inset-top, 0px))',
-                }
-              : {
-                  minWidth: 0,
-                  maxWidth: '720px',
-                }
-          }
+          className={`w-full flex flex-row items-start gap-6`}
+          style={{ backgroundColor: 'transparent' }}
         >
-          {/* Orb */}
-          {!isSmallScreen && (
+          <div
+            className="relative flex-1"
+            style={{
+              minWidth: 0,
+              maxWidth: '720px',
+            }}
+          >
+            {/* Orb */}
             <div
               className="absolute left-0 top-[75%] -translate-y-1/2 flex justify-center items-center shrink-0"
               style={{
@@ -578,7 +941,6 @@ const UserAddCard = ({
                 }}
               />
             </div>
-          )}
 
           {/* Form */}
           <div
@@ -591,23 +953,7 @@ const UserAddCard = ({
                   }
             }
           >
-            {isSmallScreen ? (
-              <div className="mb-6">
-                <div style={{ fontWeight: '600', fontSize: 24 }}>
-                  Continue to Payment
-                </div>
-                <div
-                  style={{
-                    fontWeight: '400',
-                    fontSize: 14,
-                    color: '#4F5B76',
-                    marginTop: 8,
-                  }}
-                >
-                  Add your payment method to continue
-                </div>
-              </div>
-            ) : (
+            {!isSmallScreen && (
               <div className="flex w-full flex-col items-start">
                 <div style={{ fontWeight: '600', fontSize: 28 }}>
                   Continue to Payment
@@ -837,69 +1183,6 @@ const UserAddCard = ({
             ) : null}
           </div>
         </div>
-
-        {/* Mobile Continue Button - Fixed at bottom */}
-        {isSmallScreen && (
-          <div 
-            className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50"
-            style={{ 
-              paddingBottom: `calc(2rem + env(safe-area-inset-bottom, 0px))`,
-            }}
-          >
-            <div className="max-w-md mx-auto px-4 pt-4 pb-4 space-y-3">
-              <p className="text-xs text-center text-gray-500 mb-1">
-                By continuing you agree to{' '}
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    const { termsUrl } = getPolicyUrls()
-                    window.open(termsUrl, '_blank')
-                  }}
-                  style={{
-                    textDecoration: 'underline',
-                    color: 'hsl(var(--brand-primary))',
-                  }}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="font-semibold"
-                >
-                  Terms & Conditions
-                </a>
-              </p>
-              <button
-                onClick={handleAddCard}
-                disabled={
-                  !CardAdded ||
-                  !CardExpiry ||
-                  !CVC ||
-                  addCardLoader ||
-                  disableContinue ||
-                  isSubscribingRef.current
-                }
-                className={`w-full h-[50px] rounded-xl font-bold text-white text-lg transition-all ${
-                  !CardAdded ||
-                  !CardExpiry ||
-                  !CVC ||
-                  addCardLoader ||
-                  disableContinue ||
-                  isSubscribingRef.current
-                    ? 'bg-gray-300 cursor-not-allowed'
-                    : 'bg-brand-primary hover:opacity-90 shadow-lg active:scale-98'
-                }`}
-              >
-                {addCardLoader ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <CircularProgress size={20} color="inherit" />
-                    <span>Processing...</span>
-                  </div>
-                ) : (
-                  'Continue'
-                )}
-              </button>
-            </div>
-          </div>
-        )}
         
         {/* Order Summary - Desktop only */}
         {!isSmallScreen && (
@@ -1113,62 +1396,6 @@ const UserAddCard = ({
             </div>
           </div>
         )}
-      </div>
-      
-      {/* Fixed Bottom Section for Mobile */}
-      {isSmallScreen && (
-        <div 
-          className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-lg z-50"
-          style={{ 
-            paddingBottom: `calc(1.5rem + env(safe-area-inset-bottom, 0px))`,
-          }}
-        >
-          <div className="max-w-md mx-auto px-4 pt-4 pb-2 space-y-3">
-            <div
-              className="text-center mb-2"
-              style={{
-                fontWeight: '400',
-                fontSize: 10,
-                color: '#8A8A8A',
-              }}
-            >
-              By continuing you agree to our
-              <a
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault()
-                  const { termsUrl } = getPolicyUrls()
-                  window.open(termsUrl, '_blank')
-                }}
-                style={{ textDecoration: 'underline', color: 'hsl(var(--brand-primary))', cursor: 'pointer' }}
-                className="ms-1 me-1"
-                rel="noopener noreferrer"
-              >
-                Terms & Conditions
-              </a>
-            </div>
-            {addCardLoader ? (
-              <div className="flex flex-row justify-center items-center w-full">
-                <CircularProgress size={30} />
-              </div>
-            ) : (
-              <button
-                onClick={handleAddCard}
-                disabled={!CardAdded || !CardExpiry || !CVC || addCardLoader || disableContinue || isSubscribingRef.current}
-                className={`w-full h-[50px] rounded-xl px-8 text-white py-3 disabled:opacity-50 disabled:cursor-not-allowed ${
-                  CardAdded && CardExpiry && CVC
-                    ? 'bg-brand-primary hover:opacity-90'
-                    : 'bg-gray-300 text-gray-500'
-                }`}
-                style={{
-                  fontWeight: '600',
-                  fontSize: 17,
-                }}
-              >
-                Continue
-              </button>
-            )}
-          </div>
         </div>
       )}
     </div>

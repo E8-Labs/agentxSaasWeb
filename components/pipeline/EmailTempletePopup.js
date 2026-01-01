@@ -1423,7 +1423,13 @@ function EmailTempletePopup({
                               maxHeight: '30vh',
                               overflow: 'auto',
                               scrollbarWidth: 'none',
+                              zIndex: 1700, // Higher than modal (1500) and backdrop
                             },
+                          },
+                          disablePortal: false,
+                          container: typeof document !== 'undefined' ? document.body : null,
+                          style: {
+                            zIndex: 1700,
                           },
                         }}
                       >
@@ -1524,6 +1530,21 @@ function EmailTempletePopup({
                           borderColor: 'hsl(var(--brand-primary))',
                         },
                       }}
+                      MenuProps={{
+                        PaperProps: {
+                          style: {
+                            maxHeight: '30vh',
+                            overflow: 'auto',
+                            scrollbarWidth: 'none',
+                            zIndex: 1700, // Higher than modal (1500) and backdrop
+                          },
+                        },
+                        disablePortal: false,
+                        container: typeof document !== 'undefined' ? document.body : null,
+                        style: {
+                          zIndex: 1700,
+                        },
+                      }}
                     >
                       <MenuItem value="" disabled>
                         <em>Variables</em>
@@ -1609,6 +1630,21 @@ function EmailTempletePopup({
                                   },
                                   '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                                     borderColor: 'hsl(var(--brand-primary))',
+                                  },
+                                }}
+                                MenuProps={{
+                                  PaperProps: {
+                                    style: {
+                                      maxHeight: '30vh',
+                                      overflow: 'auto',
+                                      scrollbarWidth: 'none',
+                                      zIndex: 1700, // Higher than modal (1500) and backdrop
+                                    },
+                                  },
+                                  disablePortal: false,
+                                  container: typeof document !== 'undefined' ? document.body : null,
+                                  style: {
+                                    zIndex: 1700,
                                   },
                                 }}
                               >
@@ -1762,7 +1798,18 @@ function EmailTempletePopup({
         </Box>
       </Modal>
        {/* New Template Name Modal */}
-      <Modal open={showNewTemplateModal} onClose={handleNewTemplateNameCancel}>
+      <Modal 
+        open={showNewTemplateModal} 
+        onClose={handleNewTemplateNameCancel}
+        BackdropProps={{
+          style: {
+            zIndex: 1600,
+          },
+        }}
+        sx={{
+          zIndex: 1600,
+        }}
+      >
         <Box
           sx={{
             position: 'absolute',
@@ -1774,7 +1821,7 @@ function EmailTempletePopup({
             borderRadius: 2,
             boxShadow: 24,
             p: 3,
-            zIndex: 1400,
+            zIndex: 1601,
           }}
         >
           <div className="flex flex-col gap-4">

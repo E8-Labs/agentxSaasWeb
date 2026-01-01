@@ -962,7 +962,8 @@ const Creator = ({ agentId, name }) => {
               onClick={handleCloseCall}
               className="px-3 py-2 flex flex-row items-center justify-center gap-3 rounded-full bg-[#ffffff40] shadow-md"
             >
-            {renderBrandedIcon('/assets/cross.png', 12, 12,)}
+              <Image src="/assets/cross.png" alt="end call" 
+              width={12} height={12} />
               <span className='text-black text-[15px] font-normal'>
                 End Call
               </span>
@@ -1121,8 +1122,8 @@ const Creator = ({ agentId, name }) => {
               className='flex items-center justify-center'
               style={{
                 cursor: 'pointer',
-                width: isSmallScreen ? '80%' : '40%',
-                height: isSmallScreen ? '80%' : '40%',
+                width: isSmallScreen ? '55%' : '30%',
+                height: isSmallScreen ? '55%' : '30%',
                 backgroundColor: 'transparent',
                 backgroundImage: 'url("/svgIcons/onGoingCallOrb.svg")',
                 backgroundSize: 'contain',
@@ -1134,7 +1135,7 @@ const Creator = ({ agentId, name }) => {
               }}
             >
 
-              <AgentXOrb size={250} />
+              <AgentXOrb size={200} />
             </div>
 
           </div>
