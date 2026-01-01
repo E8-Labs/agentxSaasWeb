@@ -1070,6 +1070,7 @@ function EmailTempletePopup({
   }
 
   return (
+    <>
     <Modal 
       open={open} 
       onClose={onClose}
