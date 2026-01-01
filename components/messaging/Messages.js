@@ -683,7 +683,7 @@ const Messages = () => {
     setReplyToMessage(null)
 
     // Set composer data based on current mode
-    const receiverEmail = thread.receiverEmail || thread.lead?.email || ''
+    const receiverEmail = thread.lead?.email// || thread.receiverEmail || ''
     const receiverPhone = thread.receiverPhoneNumber || thread.lead?.phone || ''
 
     setComposerData((prev) => ({
@@ -1211,7 +1211,7 @@ const Messages = () => {
           })
           // Reset composer
           setComposerData({
-            to: selectedThread.receiverPhoneNumber || '',
+            to: selectedThread.lead?.email || selectedThread.receiverPhoneNumber || '',
             subject: '',
             body: '',
             cc: '',
@@ -1367,7 +1367,7 @@ const Messages = () => {
           const preservedSubject = emailTimelineSubject ||
             (composerData.subject && composerData.subject.trim() ? normalizeSubject(composerData.subject) : '')
           setComposerData({
-            to: selectedThread.receiverEmail || selectedThread.lead?.email || '',
+            to: selectedThread.lead?.email || selectedThread.receiverEmail || '',
             subject: preservedSubject,
             body: '',
             cc: '',
@@ -1525,7 +1525,7 @@ const Messages = () => {
         const receiverPhone = selectedThread.receiverPhoneNumber || selectedThread.lead?.phone || ''
         setComposerData((prev) => ({ ...prev, to: receiverPhone }))
       } else {
-        const receiverEmail = selectedThread.receiverEmail || selectedThread.lead?.email || ''
+        const receiverEmail = selectedThread.lead?.email || selectedThread.receiverEmail || ''
         setComposerData((prev) => ({ ...prev, to: receiverEmail }))
       }
     }
