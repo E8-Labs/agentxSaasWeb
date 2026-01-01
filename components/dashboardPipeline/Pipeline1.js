@@ -2700,7 +2700,7 @@ const Pipeline1 = () => {
                                             '...'
                                           : '') || ''}
                                       </div>
-                                      <div className="flex flex-row items-center gap-0.5">
+                                      <div className="flex flex-row items-center gap-2">
                                         {getAgentsListImage(
                                           lead.agent?.agents[0]?.agentType ===
                                             'outbound'
