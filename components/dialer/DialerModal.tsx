@@ -904,7 +904,7 @@ function DialerModal({
           const userStr = localStorage.getItem('User')
           if (userStr) {
             const userData = JSON.parse(userStr)
-            token = userData?.token || userData?.user?.token
+            token = userData?.token //|| userData?.user?.token
           }
         } catch (e) {
           console.error('Error parsing User from localStorage:', e)
