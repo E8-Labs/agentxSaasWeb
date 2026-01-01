@@ -1121,8 +1121,8 @@ const Creator = ({ agentId, name }) => {
               className='flex items-center justify-center'
               style={{
                 cursor: 'pointer',
-                width: isSmallScreen ? '80%' : '40%',
-                height: isSmallScreen ? '80%' : '40%',
+                width: isSmallScreen ? '50%' : '25%',
+                height: isSmallScreen ? '50%' : '25%',
                 backgroundColor: 'transparent',
                 backgroundImage: 'url("/svgIcons/onGoingCallOrb.svg")',
                 backgroundSize: 'contain',
@@ -1134,7 +1134,7 @@ const Creator = ({ agentId, name }) => {
               }}
             >
 
-              <AgentXOrb size={250} />
+              <AgentXOrb size={150} />
             </div>
 
           </div>
