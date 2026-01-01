@@ -2113,30 +2113,42 @@ function DialerModal({
       <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
         {/* Minimize Button - only show when call is active */}
         {(callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting') && (
-          <Button
-            onClick={(e) => {
-              e.stopPropagation()
+              <Button
+                onClick={(e) => {
+                  e.stopPropagation()
               dispatch(toggleMinimized())
             }}
             variant="ghost"
-            size="sm"
+                size="sm"
             className="p-2 h-auto"
             title="Minimize"
           >
             <ChevronDown size={20} />
-          </Button>
+              </Button>
         )}
         {/* Close Button */}
-        <Button
-          onClick={onClose}
-          variant="ghost"
-          size="sm"
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation()
+            // If there's an active call, disconnect it first
+            if (activeCall && (callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting')) {
+              handleEndCall()
+            }
+            // Reset dialer state to idle
+            callDurationRef.current = 0
+            updateCallStatusInRedux('idle')
+            dispatch(updateCallState({ callDuration: 0, isMuted: false, isOnHold: false }))
+            // Then close the dialer
+            onClose()
+                          }}
+                          variant="ghost"
+                          size="sm"
           className="p-2 h-auto"
           title="Close"
-        >
+                        >
           <X size={20} />
-        </Button>
-      </div>
+                        </Button>
+                      </div>
 
       <div 
         className="flex flex-row" 
@@ -2702,10 +2714,20 @@ function DialerModal({
                     {/* Call Back Button - 60% width, centered */}
                     <div className="w-full flex justify-center">
                       <Button
-                        onClick={() => {
+                        onClick={async () => {
+                          // Reset call state
                           callDurationRef.current = 0
                           updateCallStatusInRedux('idle')
                           dispatch(updateCallState({ callDuration: 0 }))
+                          // Call the lead again using the same phone number
+                          if (phoneNumber) {
+                            // Small delay to ensure state is reset
+                            setTimeout(() => {
+                              handleCall()
+                            }, 100)
+                          } else {
+                            toast.error('No phone number available to call back')
+                          }
                         }}
                         className="rounded-lg border border-gray-300"
                         style={{
@@ -2730,9 +2752,9 @@ function DialerModal({
                     <div className="w-full">
                       <div className="flex items-center gap-2 mb-3">
                         <span className="text-sm font-medium text-gray-900">Follow up</span>
-                        <div className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center">
+                        {/* <div className="w-4 h-4 rounded-full bg-gray-200 flex items-center justify-center">
                           <span className="text-xs text-gray-500">i</span>
-                        </div>
+                        </div> */}
               </div>
 
               <div className="space-y-2">
@@ -2884,7 +2906,7 @@ function DialerModal({
                               : '#374151'
                           }}
                         />
-                        Create Script
+                        View Script
                   </Button>
                     </div>
             </>

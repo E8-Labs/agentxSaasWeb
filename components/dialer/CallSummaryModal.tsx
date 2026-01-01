@@ -17,6 +17,7 @@ interface CallSummaryModalProps {
   leadPhone?: string
   callDuration: number // in seconds
   internalNumber?: string
+  onCallBack?: () => void // Callback to handle call back
 }
 
 interface EmailTemplate {
@@ -35,6 +36,7 @@ export default function CallSummaryModal({
   leadPhone,
   callDuration,
   internalNumber,
+  onCallBack,
 }: CallSummaryModalProps) {
   const [showEmailPanel, setShowEmailPanel] = useState(false)
   const [emailTemplates, setEmailTemplates] = useState<EmailTemplate[]>([])
@@ -298,8 +300,14 @@ export default function CallSummaryModal({
             {/* Call Back Button */}
             <Button
               onClick={() => {
-                // TODO: Implement call back functionality
-                toast.info('Call back feature coming soon')
+                if (onCallBack) {
+                  onCallBack()
+                } else if (leadPhone) {
+                  // Fallback: try to trigger call if no callback provided
+                  toast.info('Call back feature - please use the dialer to call back')
+                } else {
+                  toast.error('No phone number available to call back')
+                }
               }}
               className="w-full rounded-lg border border-gray-300"
               style={{
