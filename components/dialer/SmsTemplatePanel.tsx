@@ -6,9 +6,10 @@ import { toast } from 'sonner'
 import { Phone, MoreVertical, Pencil, X, Loader2 } from 'lucide-react'
 import { Menu, MenuItem } from '@mui/material'
 import { formatPhoneNumber } from '@/utilities/agentUtilities'
-import SMSTempletePopup from '../pipeline/SMSTempletePopup'
+import SMSTempletePopupBase from '../pipeline/SMSTempletePopup'
 
 const Button = ButtonBase as any
+const SMSTempletePopup = SMSTempletePopupBase as any
 
 interface SmsTemplatePanelProps {
   smsTemplates: any[]
