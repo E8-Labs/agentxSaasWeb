@@ -336,6 +336,11 @@ const WhiteLabel = ({ selectedAgency }) => {
                   upgradeProfile()
                 } else {
                   await copyAgencyOnboardingLink({ setLinkCopied, reduxUser, selectedAgency })
+                  setShowSnackMessage({
+                    type: SnackbarTypes.Success,
+                    message: 'Agency link copied',
+                    isVisible: true,
+                  })
                 }
               }}
             >

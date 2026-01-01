@@ -67,15 +67,15 @@ export default function AgentSelectSnackMessage({
       const toastDescription = title ? message : null
 
       const toastOptions = {
-        duration: time,
-        description: toastDescription,
-        style: {
-          width: 'fit-content',
-          maxWidth: '90vw',
-          minWidth: 'fit-content',
-          whiteSpace: 'nowrap',
-        },
-        className: 'toast-no-wrap',
+        // duration: time,
+        // description: toastDescription,
+        // style: {
+        //   width: 'fit-content',
+        //   maxWidth: '90vw',
+        //   minWidth: 'fit-content',
+        //   whiteSpace: 'nowrap',
+        // },
+        // className: 'toast-no-wrap',
       }
 
       // Use typed toast functions - they will use the custom icons from Toaster component

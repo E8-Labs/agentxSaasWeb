@@ -320,7 +320,7 @@ const ConversationView = ({
     <div
       ref={messagesContainerRef}
       className="flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 space-y-4 bg-white"
-      style={{ scrollBehavior: 'smooth', paddingRight: '1.5rem' }}
+      style={{ scrollBehavior: 'auto', paddingRight: '1.5rem' }}
     >
       {/* Loader for older messages at top */}
       {loadingOlderMessages && (

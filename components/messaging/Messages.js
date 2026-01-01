@@ -488,6 +488,7 @@ const Messages = () => {
 
             // Debug: Log messages with attachments and metadata structure
             fetchedMessages.forEach((msg) => {
+              console.log("msg is ", msg)
               console.log(`🔍 Message ${msg.id} (${msg.messageType}):`, {
                 hasMetadata: !!msg.metadata,
                 metadataType: typeof msg.metadata,
@@ -513,12 +514,14 @@ const Messages = () => {
             setHasMoreMessages(allMessages.length >= 500)
             setMessageOffset(oldestMessageOffset)
 
-            // Scroll to bottom after loading
-            setTimeout(() => {
-              if (messagesEndRef.current) {
-                messagesEndRef.current.scrollIntoView({ behavior: 'auto' })
-              }
-            }, 100)
+            // Scroll to bottom instantly after DOM update (no visible animation)
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                if (messagesContainerRef.current) {
+                  messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
+                }
+              })
+            })
 
             setMessagesLoading(false)
             return
@@ -594,12 +597,15 @@ const Messages = () => {
           } else {
             // Set messages (newest at bottom)
             setMessages(fetchedMessages)
-            // Scroll to bottom after loading
-            setTimeout(() => {
-              if (messagesEndRef.current) {
-                messagesEndRef.current.scrollIntoView({ behavior: 'auto' })
-              }
-            }, 100)
+            
+            // Scroll to bottom instantly after DOM update (no visible animation)
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                if (messagesContainerRef.current) {
+                  messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
+                }
+              })
+            })
 
             // Check if there are more messages
             setHasMoreMessages(fetchedMessages.length === MESSAGES_PER_PAGE)
@@ -1805,12 +1811,29 @@ const Messages = () => {
     }
   }, [handleScroll])
 
-  // Scroll to bottom when new messages arrive
+  // Scroll to bottom instantly when messages are loaded (only if not loading older messages or initial load)
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    // Only scroll if:
+    // 1. Not loading older messages (to preserve scroll position)
+    // 2. Not in initial loading state
+    // 3. Container and messages exist
+    if (
+      !loadingOlderMessages &&
+      !messagesLoading &&
+      messagesContainerRef.current &&
+      messages.length > 0
+    ) {
+      // Use double requestAnimationFrame to ensure DOM has fully rendered
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (messagesContainerRef.current) {
+            // Set scroll position directly (no animation) - instantly jump to bottom
+            messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
+          }
+        })
+      })
     }
-  }, [messages])
+  }, [messages.length, loadingOlderMessages, messagesLoading])
 
   // If user doesn't have access to emails or text messages, show empty state
   if (!hasMessagingAccess) {

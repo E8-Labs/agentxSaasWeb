@@ -108,17 +108,7 @@ const ConnectStripe = ({ fullScreen = false }) => {
           <CircularProgress size={30} />
         ) : (
           <div className="h-full w-full flex flex-col gap-4 items-center justify-center">
-            <div className="w-full flex items-center justify-center">
-              <VideoCard
-                horizontal={false}
-                title={
-                  connectBankTutorial?.title ||
-                  'Connect your bank account with Stripe'
-                }
-                duration={connectBankTutorial?.description || '4:00'}
-                playVideo={() => setShowVideoModal(true)}
-              />
-            </div>
+
             {checkStripeStatus ? (
               <StripeDetailsCard
                 stripeData={agencydata?.stripeAccount}
@@ -214,6 +204,18 @@ const ConnectStripe = ({ fullScreen = false }) => {
                 </div>
               </div>
             )}
+
+            <div className="w-full flex items-center justify-center">
+              <VideoCard
+                horizontal={false}
+                title={
+                  connectBankTutorial?.title ||
+                  'Connect your bank account with Stripe'
+                }
+                duration={connectBankTutorial?.description || '4:00'}
+                playVideo={() => setShowVideoModal(true)}
+              />
+            </div>
           </div>
         )}
       </div>

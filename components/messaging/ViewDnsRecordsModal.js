@@ -220,10 +220,10 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
                     <Clock size={20} className="text-amber-600 flex-shrink-0" />
                     <div>
                       <p className="text-sm font-semibold text-amber-900">
-                        Verification Pending
+                        Domain Pending
                       </p>
                       <p className="text-xs text-amber-700 mt-0.5">
-                        Add the DNS records above and click "Verify Domain" to complete verification
+                        Your records are still pending. Please double check with your domain provider.
                       </p>
                     </div>
                   </>
@@ -352,13 +352,7 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
                                 <span className="text-xs text-gray-400">-</span>
                               )}
                             </td>
-                            <td className="py-4 px-4">
-                              {isMX && priority && (
-                                <div className="flex items-center" title="Enter Value and Priority separately in your DNS provider">
-                                  <AlertCircle size={16} className="text-amber-500" />
-                                </div>
-                              )}
-                            </td>
+
                           </tr>
                         )
                       })}

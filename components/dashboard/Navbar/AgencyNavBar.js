@@ -674,7 +674,8 @@ const AgencyNavBar = () => {
             style={{
               position: 'absolute',
               bottom: 10,
-              right: 10,
+              left: '50%',
+              transform: 'translateX(-50%)',
               zIndex: 9999,
             }}
           >

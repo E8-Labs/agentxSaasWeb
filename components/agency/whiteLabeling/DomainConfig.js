@@ -429,7 +429,7 @@ const DomainConfig = ({ selectedAgency }) => {
       document.body.removeChild(textArea)
 
       if (successful) {
-        console.log('✅ Copied to clipboard using execCommand')
+        console.log('✅ Agency link copied using execCommand')
         return true
       } else {
         console.error('execCommand copy failed')
@@ -447,16 +447,37 @@ const DomainConfig = ({ selectedAgency }) => {
 
     if (copySuccess) {
       setCopiedFields((prev) => ({ ...prev, [fieldId]: true }))
+      setShowSnackMessage({
+        type: SnackbarTypes.Success,
+        message: 'Agency link copied',
+        isVisible: true,
+      })
     } else {
       // If fallback fails, try async clipboard API as last resort
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
           await navigator.clipboard.writeText(text)
-          console.log('✅ Copied to clipboard using Clipboard API')
+          console.log('✅ Agency link copied using Clipboard API')
           setCopiedFields((prev) => ({ ...prev, [fieldId]: true }))
+          setShowSnackMessage({
+            type: SnackbarTypes.Success,
+            message: 'Agency link copied',
+            isVisible: true,
+          })
+        } else {
+          setShowSnackMessage({
+            type: SnackbarTypes.Error,
+            message: 'Failed to copy to clipboard',
+            isVisible: true,
+          })
         }
       } catch (clipboardError) {
         console.error('All clipboard methods failed:', clipboardError)
+        setShowSnackMessage({
+          type: SnackbarTypes.Error,
+          message: 'Failed to copy to clipboard',
+          isVisible: true,
+        })
       }
     }
 
@@ -701,7 +722,7 @@ const DomainConfig = ({ selectedAgency }) => {
       </div>
 
       {/* Snackbar Message */}
-      {showSnackMessage.isVisible && (
+      
         <AgentSelectSnackMessage
           type={showSnackMessage.type}
           message={showSnackMessage.message}
@@ -713,7 +734,7 @@ const DomainConfig = ({ selectedAgency }) => {
             })
           }
         />
-      )}
+
     </div>
   )
 }

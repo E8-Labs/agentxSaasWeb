@@ -94,7 +94,7 @@ const getDefaultTutorial = (videoType) => {
       videoUrl: HowtoVideos.WalkthroughWatched,
     },
     [HowToVideoTypes.ConnectBankAgency]: {
-      title: 'Connect Bank Agency',
+      title: 'Learn how to connect Stripe',
       description: '4:39',
       videoUrl: HowtoVideos.ConnectBankAgency,
     },

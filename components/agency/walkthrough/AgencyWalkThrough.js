@@ -37,6 +37,16 @@ const AgencyWalkThrough = ({ open, onClose }) => {
     getChecklistData()
   }, [])
 
+  // Reset video loading state when step changes
+  useEffect(() => {
+    const currentItem = checklist[currentStep]
+    if (currentItem?.videoUrl) {
+      setVideoLoading(true)
+    } else {
+      setVideoLoading(false)
+    }
+  }, [currentStep, checklist])
+
   const getChecklistData = () => {
     setChecklist([
       {
@@ -84,6 +94,11 @@ const AgencyWalkThrough = ({ open, onClose }) => {
 
   const handleNext = async () => {
     const currentItem = checklist[currentStep]
+
+    // Prevent moving forward if video is still loading (for steps with videos)
+    if (currentItem?.videoUrl && videoLoading) {
+      return
+    }
 
     if (currentItem.id === 1) {
       // Platform Walkthrough - move to next step
@@ -195,7 +210,7 @@ const AgencyWalkThrough = ({ open, onClose }) => {
                       className="absolute left-2.5 top-6 w-0.5 z-0"
                       style={{
                         backgroundColor: getBrandPrimaryHex(),
-                        height: `${(checklist.length - 1) * 56}px`, // 56px per item (24px icon + 24px gap + 8px spacing)
+                        height: `${(checklist.length - 1) * 42}px`, // 56px per item (24px icon + 24px gap + 8px spacing)
                       }}
                     />
                   )}
@@ -215,7 +230,7 @@ const AgencyWalkThrough = ({ open, onClose }) => {
                           {/* Checkmark or empty state */}
                           {isPlayed ? (
                             <div
-                              className="rounded-full relative flex items-center justify-center"
+                              className="rounded-full relative flex p-2 items-center justify-center"
                               style={{
                                 width: 24,
                                 height: 24,
@@ -281,10 +296,10 @@ const AgencyWalkThrough = ({ open, onClose }) => {
                 {
                   <button
                     onClick={handleNext}
-                    disabled={loader}
+                    disabled={loader || (currentVideoUrl && videoLoading)}
                     className="w-full bg-brand-primary text-white rounded-lg py-3 px-4 font-semibold text-base mt-4 hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
-                    {loader ? (
+                    {loader || (currentVideoUrl && videoLoading) ? (
                       <>
                         <CircularProgress
                           size={20}
@@ -348,6 +363,8 @@ const AgencyWalkThrough = ({ open, onClose }) => {
                       muted={false}
                       onLoadStart={() => setVideoLoading(true)}
                       onLoadedData={() => setVideoLoading(false)}
+                      onCanPlay={() => setVideoLoading(false)}
+                      onError={() => setVideoLoading(false)}
                       onPlay={handleVideoPlay}
                       className="w-full h-[40vh]"
                       style={{
