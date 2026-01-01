@@ -180,7 +180,21 @@ const LeadDetails = ({
 
   const [showConfirmPerplexity, setshowConfirmPerplexity] = useState(false)
 
-  const [userLocalData, setUserLocalData] = useState('')
+  // Initialize userLocalData from localStorage immediately
+  const [userLocalData, setUserLocalData] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        try {
+          const parsed = JSON.parse(localData)
+          return parsed.user || null
+        } catch (e) {
+          return null
+        }
+      }
+    }
+    return null
+  })
   const [loading, setLoading] = useState(false)
 
   const [showDelModal, setShowDelModal] = useState(false)
@@ -1930,15 +1944,21 @@ const LeadDetails = ({
                                         />
                                         <span>Email</span>
 
-                                        {(!userLocalData?.planCapabilities
-                                          ?.allowEmails
-                                        ) && (
-
-                                            <UpgradeTagWithModal
-                                              reduxUser={userLocalData}
-                                              setReduxUser={setUserLocalData}
-                                            />
-                                          )}
+                                        {!userLocalData?.planCapabilities?.allowEmails && (
+                                          <UpgradeTagWithModal
+                                            reduxUser={userLocalData ? { 
+                                              user: userLocalData,
+                                              userRole: userLocalData.userRole 
+                                            } : null}
+                                            setReduxUser={async (updatedData) => {
+                                              // Refresh user data after upgrade
+                                              const user = await getProfileDetails()
+                                              if (user) {
+                                                setUserLocalData(user.data.data)
+                                              }
+                                            }}
+                                          />
+                                        )}
                                       </div>
                                     </MenuItem>
                                   )}
@@ -1962,14 +1982,21 @@ const LeadDetails = ({
                                       />
                                       <span>Text</span>
                                       {/* Show upgrade button only if allowTextMessages is false */}
-                                      {!userLocalData?.planCapabilities
-                                        ?.allowTextMessages && (
-                                     
-                                            <UpgradeTagWithModal
-                                              reduxUser={userLocalData}
-                                              setReduxUser={setUserLocalData}
-                                            />
-                                        )}
+                                      {!userLocalData?.planCapabilities?.allowTextMessages && (
+                                        <UpgradeTagWithModal
+                                          reduxUser={userLocalData ? { 
+                                            user: userLocalData,
+                                            userRole: userLocalData.userRole 
+                                          } : null}
+                                          setReduxUser={async (updatedData) => {
+                                            // Refresh user data after upgrade
+                                            const user = await getProfileDetails()
+                                            if (user) {
+                                              setUserLocalData(user.data.data)
+                                            }
+                                          }}
+                                        />
+                                      )}
                                       {/* Show info icon with tooltip if allowTextMessages is true but no phone numbers */}
                                       {userLocalData?.planCapabilities
                                         ?.allowTextMessages &&

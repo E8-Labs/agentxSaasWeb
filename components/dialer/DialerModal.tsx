@@ -12,6 +12,7 @@ import CallNotesWindow from './CallNotesWindow'
 import SmsTemplatePanel from './SmsTemplatePanel'
 import EmailTemplatePanel from './EmailTemplatePanel'
 import { getGmailAccounts } from '../pipeline/TempleteServices'
+import ClaimNumber from '../dashboard/myagentX/ClaimNumber'
 import { ArrowUp, Pause, Mic, MicOff, FileText, StickyNote, X, ChevronDown, Check, Phone, Mail, MessageSquare, MoreVertical, Pencil, Loader2 } from 'lucide-react'
 import { Menu, MenuItem } from '@mui/material'
 import Image from 'next/image'
@@ -386,6 +387,7 @@ function DialerModal({
   const [sendingEmail, setSendingEmail] = useState(false)
   const [sendingSms, setSendingSms] = useState(false)
   const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null)
+  const [showClaimNumberModal, setShowClaimNumberModal] = useState(false)
   
   // Sync Redux callStatus to local state
   useEffect(() => {
@@ -1336,7 +1338,7 @@ function DialerModal({
 
       call.on('accept', () => {
         updateCallStatusInRedux('in-call')
-        toast.success('Call connected')
+        // toast.success('Call connected')
         // Start call duration timer - use ref to track duration locally for interval
         callDurationRef.current = 0
         dispatch(updateCallState({ callDuration: 0 }))
@@ -1366,7 +1368,7 @@ function DialerModal({
         dispatch(updateUIPanel({ panel: 'script', value: false }))
         // Only show "Call ended" toast if it wasn't an error
         if (!callEndedInError && callStatus !== 'error') {
-        toast.info('Call ended')
+        // toast.info('Call ended')
         }
       })
 
@@ -1383,7 +1385,7 @@ function DialerModal({
         callDurationRef.current = 0
         dispatch(updateCallState({ callDuration: 0, isMuted: false, isOnHold: false }))
         dispatch(updateUIPanel({ panel: 'script', value: false }))
-        toast.info('Call canceled')
+        // toast.info('Call canceled')
       })
 
       call.on('error', (error: any) => {
@@ -2257,13 +2259,36 @@ function DialerModal({
       }}
       onMouseDown={(e) => handleMouseDown(e, false)}
       onKeyDown={(e) => {
-          // Allow escape to close unless in active call
           // Don't interfere with input fields
           const target = e.target as HTMLElement
           if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
             return
           }
-        if (e.key === 'Escape' && callStatus !== 'in-call' && callStatus !== 'ringing' && callStatus !== 'connecting') {
+        if (e.key === 'Escape') {
+          // If there's an active call OR call is in any active state, disconnect it immediately
+          const isActiveCallState = callStatus === 'requesting-mic' || 
+                                   callStatus === 'connecting' || 
+                                   callStatus === 'ringing' || 
+                                   callStatus === 'in-call'
+          
+          if (activeCall || isActiveCallState) {
+            handleEndCall()
+          }
+          // Reset dialer state to idle
+          callDurationRef.current = 0
+          updateCallStatusInRedux('idle')
+          dispatch(updateCallState({ callDuration: 0, isMuted: false, isOnHold: false }))
+          // Reset position to default
+          dispatch(updatePosition({ x: null, y: null }))
+          rightPositionRef.current = null
+          // Reset UI panels
+          dispatch(updateUIPanel({ panel: 'script', value: false }))
+          dispatch(updateUIPanel({ panel: 'email', value: false }))
+          dispatch(updateUIPanel({ panel: 'sms', value: false }))
+          dispatch(updateUIPanel({ panel: 'notes', value: false }))
+          // Reset minimized state
+          dispatch(setMinimized(false))
+          // Then close the dialer
           onClose()
         }
       }}
@@ -2289,8 +2314,14 @@ function DialerModal({
                         <Button
                           onClick={(e) => {
                             e.stopPropagation()
-            // If there's an active call, disconnect it first
-            if (activeCall && (callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting')) {
+            // If there's an active call OR call is in any active state, disconnect it immediately
+            // Active states: 'requesting-mic', 'connecting', 'ringing', 'in-call'
+            const isActiveCallState = callStatus === 'requesting-mic' || 
+                                     callStatus === 'connecting' || 
+                                     callStatus === 'ringing' || 
+                                     callStatus === 'in-call'
+            
+            if (activeCall || isActiveCallState) {
               handleEndCall()
             }
             // Reset dialer state to idle
@@ -2609,6 +2640,30 @@ function DialerModal({
                               )
                             })
                           })()}
+                          {/* Get New Number Button */}
+                          <MenuItem
+                            onClick={() => {
+                              setNumberDropdownAnchor(null)
+                              setShowClaimNumberModal(true)
+                            }}
+                            style={{
+                              display: 'block',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '8px',
+                              margin: '4px 8px',
+                              padding: '12px 16px',
+                              backgroundColor: 'white',
+                              borderTop: '2px solid #e5e7eb',
+                              marginTop: '8px',
+                            }}
+                          >
+                            <div className="flex items-center justify-center gap-2">
+                              <Phone size={16} style={{ color: 'hsl(var(--brand-primary))' }} />
+                              <span className="text-sm font-medium" style={{ color: 'hsl(var(--brand-primary))' }}>
+                                Get New Number
+                              </span>
+                            </div>
+                          </MenuItem>
                         </Menu>
                       )}
                     </div>
@@ -2621,7 +2676,7 @@ function DialerModal({
           <div className="flex-1 overflow-y-auto p-6" style={{ paddingBottom: callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting' ? '80px' : (callStatus === 'ended' || callStatus === 'error') ? '16px' : '24px' }}>
           {checkingDialerNumber || initializing ? (
             <div className="text-center py-8">
-              <div className="text-sm text-gray-500">Initializing dialer...</div>
+              <div className="text-sm text-gray-500">Connecting...</div>
             </div>
           ) : !hasDialerNumber ? (
             <div className="text-center py-8 space-y-4">
@@ -3140,6 +3195,24 @@ function DialerModal({
         />
       )}
 
+      {/* Claim Number Modal */}
+      <ClaimNumber
+        showClaimPopup={showClaimNumberModal}
+        handleCloseClaimPopup={() => {
+          setShowClaimNumberModal(false)
+          // Refresh phone numbers after closing (in case a new number was purchased)
+          fetchPhoneNumbersWithAgents()
+        }}
+        setOpenCalimNumDropDown={() => {}}
+        setSelectNumber={() => {}}
+        setPreviousNumber={() => {}}
+        previousNumber={[]}
+        AssignNumber={(phoneNumber: string) => {
+          // After assigning a number, refresh the phone numbers list
+          fetchPhoneNumbersWithAgents()
+        }}
+        selectedUSer={selectedUser}
+      />
 
         </div>
   )

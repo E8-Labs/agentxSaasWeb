@@ -250,16 +250,17 @@ export default function CallingScript({
         {!isCreating && !isEditing && (
           <Button
             onClick={handleCreateScript}
-            size="sm"
-            className="rounded-full"
+            variant="filled"
+            className="rounded-full py-2 px-4 transition-all"
             style={{ 
-              backgroundColor: 'hsl(var(--brand-primary))',
-              color: 'white',
-              padding: '6px 16px',
+              backgroundColor: '#F9F9F9',
+              border: '1px solid #e5e7eb',
+              color: '#374151',
               fontSize: '14px',
+              height: 'auto',
             }}
           >
-            <Plus size={16} className="mr-1" />
+            <Plus size={14} className="mr-1.5" style={{ color: '#374151' }} />
             Add Script
           </Button>
         )}
@@ -288,16 +289,17 @@ export default function CallingScript({
               <p className="text-base mb-5" style={{ color: 'rgba(0, 0, 0, 0.6)' }}>No script found</p>
               <Button
                 onClick={handleCreateScript}
-                className="rounded-full bg-gray-50 hover:bg-gray-50"
+                variant="filled"
+                className="rounded-full py-2 px-4 transition-all"
                 style={{ 
+                  backgroundColor: '#F9F9F9',
+                  border: '1px solid #e5e7eb',
                   color: '#374151',
-                  padding: '10px 20px',
                   fontSize: '14px',
-                  fontWeight: 500,
-                  boxShadow: 'none',
+                  height: 'auto',
                 }}
               >
-                <Plus size={16} className="mr-1" />
+                <Plus size={14} className="mr-1.5" style={{ color: '#374151' }} />
                 Add Script
               </Button>
             </div>
@@ -483,16 +485,17 @@ export default function CallingScript({
               <p className="text-base mb-5" style={{ color: 'rgba(0, 0, 0, 0.6)' }}>No script found</p>
               <Button
                 onClick={handleCreateScript}
-                className="rounded-full bg-gray-50 hover:bg-gray-50"
+                variant="filled"
+                className="rounded-full py-2 px-4 transition-all"
                 style={{ 
+                  backgroundColor: '#F9F9F9',
+                  border: '1px solid #e5e7eb',
                   color: '#374151',
-                  padding: '10px 20px',
                   fontSize: '14px',
-                  fontWeight: 500,
-                  boxShadow: 'none',
+                  height: 'auto',
                 }}
               >
-                <Plus size={16} className="mr-1" />
+                <Plus size={14} className="mr-1.5" style={{ color: '#374151' }} />
                 Add Script
               </Button>
             </div>
