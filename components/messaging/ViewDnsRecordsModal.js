@@ -131,9 +131,26 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
     return normalizeDnsRecords()
   }, [dnsRecords])
 
-  // Get verification status for display
-  const isVerified = currentVerificationStatus === 'verified'
-  const isPending = currentVerificationStatus === 'pending' || !currentVerificationStatus
+  // Calculate actual verification status based on DNS records
+  // Domain is ONLY verified if ALL DNS records are verified
+  const actualVerificationStatus = useMemo(() => {
+    if (!normalizedRecords || normalizedRecords.length === 0) {
+      return currentVerificationStatus || 'pending'
+    }
+    
+    // Check if all DNS records are verified
+    const allRecordsVerified = normalizedRecords.every(record => {
+      const valid = record.valid === 'valid' || record.valid === true
+      const verified = record.verified === true
+      return valid || verified
+    })
+    
+    return allRecordsVerified ? 'verified' : 'pending'
+  }, [normalizedRecords, currentVerificationStatus])
+
+  // Get verification status for display - use actual status from DNS records
+  const isVerified = actualVerificationStatus === 'verified'
+  const isPending = actualVerificationStatus === 'pending' || !actualVerificationStatus
 
   if (!open) return null
 
@@ -197,7 +214,7 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
           </div>
 
           {/* Verification Status */}
-          {currentVerificationStatus && (
+          {actualVerificationStatus && (
             <div className={`mt-6 p-4 rounded-lg border-l-4 ${isVerified
               ? 'bg-green-50 border-green-500'
               : 'bg-amber-50 border-amber-500'
