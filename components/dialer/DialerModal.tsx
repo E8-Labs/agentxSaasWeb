@@ -1785,6 +1785,46 @@ function DialerModal({
 
 
 
+  // Start/stop call duration timer based on call status
+  // This ensures the timer runs correctly even if 'accept' event fires early
+  useEffect(() => {
+    if (callStatus === 'in-call' && activeCall) {
+      // Start timer if not already running
+      if (!callDurationIntervalRef.current) {
+        // Reset duration to 0 when call starts
+        callDurationRef.current = 0
+        dispatch(updateCallState({ callDuration: 0 }))
+        
+        // Start the interval
+        callDurationIntervalRef.current = setInterval(() => {
+          callDurationRef.current += 1
+          dispatch(updateCallState({ callDuration: callDurationRef.current }))
+        }, 1000)
+        
+        console.log('[Dialer] Call duration timer started (from useEffect)')
+      }
+    } else if (callStatus !== 'in-call' && callDurationIntervalRef.current) {
+      // Stop timer when call status changes away from 'in-call'
+      // But don't clear it on 'disconnect' - we want to keep the duration for the summary
+      if (callStatus === 'ended' || callStatus === 'error') {
+        // Only clear on ended/error - disconnect handler already cleared it
+        // This is a safety net in case the disconnect event didn't fire
+        clearInterval(callDurationIntervalRef.current)
+        callDurationIntervalRef.current = null
+        console.log('[Dialer] Call duration timer stopped (from useEffect)')
+      }
+    }
+    
+    return () => {
+      // Cleanup on unmount or when dependencies change
+      // But only if call is not active (to preserve duration during call)
+      if (callStatus !== 'in-call' && callDurationIntervalRef.current) {
+        clearInterval(callDurationIntervalRef.current)
+        callDurationIntervalRef.current = null
+      }
+    }
+  }, [callStatus, activeCall, dispatch])
+
   // Cleanup intervals and timeouts on unmount
   useEffect(() => {
     return () => {
