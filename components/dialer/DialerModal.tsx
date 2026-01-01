@@ -318,6 +318,7 @@ function DialerModal({
   const dialogJustOpened = useRef(false)
   const isClosingRef = useRef(false)
   const callDurationIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const callDurationRef = useRef<number>(0) // Track call duration locally for interval
   const simulationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const hasInitializedRef = useRef(getGlobalHasInitialized()) // Track if dialer has been initialized
   const isInitializingRef = useRef(getGlobalIsInitializing()) // Prevent concurrent initialization
@@ -1140,6 +1141,7 @@ function DialerModal({
       clearInterval(callDurationIntervalRef.current)
       callDurationIntervalRef.current = null
     }
+    callDurationRef.current = 0
 
     // Step 1: Connecting (5 seconds)
     setCallStatus('connecting')
@@ -1171,6 +1173,7 @@ function DialerModal({
             clearInterval(callDurationIntervalRef.current)
             callDurationIntervalRef.current = null
           }
+          callDurationRef.current = 0
           dispatch(updateCallState({ callDuration: 0, isMuted: false, isOnHold: false }))
           dispatch(updateUIPanel({ panel: 'script', value: false }))
           simulationTimeoutRef.current = null
@@ -1289,13 +1292,15 @@ function DialerModal({
       call.on('accept', () => {
         updateCallStatusInRedux('in-call')
         toast.success('Call connected')
-        // Start call duration timer
+        // Start call duration timer - use ref to track duration locally for interval
+        callDurationRef.current = 0
         dispatch(updateCallState({ callDuration: 0 }))
         if (callDurationIntervalRef.current) {
           clearInterval(callDurationIntervalRef.current)
         }
         callDurationIntervalRef.current = setInterval(() => {
-          dispatch(updateCallState({ callDuration: dialerState.callDuration + 1 }))
+          callDurationRef.current += 1
+          dispatch(updateCallState({ callDuration: callDurationRef.current }))
         }, 1000)
       })
 
@@ -1330,6 +1335,7 @@ function DialerModal({
           clearInterval(callDurationIntervalRef.current)
           callDurationIntervalRef.current = null
         }
+        callDurationRef.current = 0
         dispatch(updateCallState({ callDuration: 0, isMuted: false, isOnHold: false }))
         dispatch(updateUIPanel({ panel: 'script', value: false }))
         toast.info('Call canceled')
@@ -2438,6 +2444,7 @@ function DialerModal({
                     <div className="w-full flex justify-center">
                       <Button
                         onClick={() => {
+                          callDurationRef.current = 0
                           updateCallStatusInRedux('idle')
                           dispatch(updateCallState({ callDuration: 0 }))
                         }}
