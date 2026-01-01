@@ -301,11 +301,11 @@ export const formatPhoneNumber = (rawNumber) => {
       const countryCode = phoneNumber.countryCallingCode // Get the country code
       const nationalNumber = phoneNumber.nationalNumber // Get the national number
 
-      // Format the number as "1 (805) 457 9527"
+      // Format the number as "+1 (619)257 6042"
       if (phoneNumber.country === 'US' && nationalNumber.length === 10) {
         const match = nationalNumber.match(/^(\d{3})(\d{3})(\d{4})$/)
         if (match) {
-          return `${countryCode} (${match[1]}) ${match[2]} ${match[3]}`
+          return `+${countryCode} (${match[1]})${match[2]} ${match[3]}`
         }
       }
 

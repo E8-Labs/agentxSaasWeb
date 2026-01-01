@@ -109,6 +109,7 @@ export default function CallNotesWindow({
         boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1)',
         pointerEvents: 'auto',
       }}
+      onClick={(e) => e.stopPropagation()}
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200">

@@ -62,7 +62,13 @@ export const getTempleteDetails = async (temp, userId = null) => {
   try {
     let token = AuthToken()
     // console.log('token', token)
-    let path = `${Apis.templets}/${temp.templateId}`
+    // Support both templateId and id
+    const templateId = temp.templateId || temp.id
+    if (!templateId) {
+      console.error('getTempleteDetails: No templateId or id found in template object', temp)
+      return null
+    }
+    let path = `${Apis.templets}/${templateId}`
 
     console.log('path', path)
 

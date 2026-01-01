@@ -4,6 +4,7 @@ import { persistReducer, persistStore } from 'redux-persist'
 
 // Import slices
 import userSlice from './slices/userSlice'
+import dialerSlice from './slices/dialerSlice'
 
 // SSR-safe storage wrapper
 const createNoopStorage = () => ({
@@ -22,6 +23,8 @@ const persistConfig = {
   key: 'root',
   storage,
   // Whitelist specific slices to persist
+  // NOTE: 'dialer' is NOT persisted - we reset dialer state on page refresh
+  // to prevent trying to restore disconnected Twilio calls
   whitelist: ['user'],
   // Transform to maintain compatibility with existing localStorage structure
   transforms: [],
@@ -30,6 +33,7 @@ const persistConfig = {
 // Root reducer combining all slices
 const rootReducer = combineReducers({
   user: userSlice,
+  dialer: dialerSlice,
 })
 
 // Persisted reducer

@@ -12,7 +12,7 @@ import {
 import { ArrowDropDownIcon } from '@mui/x-date-pickers'
 import { Plus, PaperPlaneTilt } from '@phosphor-icons/react'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 
 import ChipInput from '@/constants/ChipsInput'
 import { PersistanceKeys } from '@/constants/Constants'
@@ -27,7 +27,6 @@ import {
   getTempleteDetails,
   updateTemplete,
 } from './TempleteServices'
-import { PromptTagInput } from './tagInputs/PromptTagInput'
 
 function SMSTempletePopup({
   open,
@@ -48,6 +47,8 @@ function SMSTempletePopup({
   const [body, setBody] = useState('')
   const [selectedPhone, setSelectedPhone] = useState(null)
   const [uniqueColumns, setUniqueColumns] = useState([])
+  const [selectedVariable, setSelectedVariable] = useState('')
+  const textareaRef = useRef(null)
   const [saveSmsLoader, setSaveSmsLoader] = useState(false)
   const [showSnackBar, setShowSnackBar] = useState({
     message: '',
@@ -79,6 +80,9 @@ function SMSTempletePopup({
 
   // Auto-fill form when editing
   useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:81', message: 'Auto-fill useEffect triggered', data: { isEditing, hasEditingRow: !!editingRow, editingRowId: editingRow?.id, editingRowTemplateId: editingRow?.templateId, open, phoneNumbersLength: phoneNumbers.length }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+    // #endregion
     if (isEditing && editingRow && open) {
       // Set phone from editingRow.smsPhoneNumberId if available
       if (editingRow.smsPhoneNumberId && phoneNumbers.length > 0) {
@@ -90,9 +94,16 @@ function SMSTempletePopup({
         }
       }
       
-      // Load template details if templateId exists
-      if (editingRow.templateId) {
+      // Load template details if templateId or id exists
+      if (editingRow.templateId || editingRow.id) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:95', message: 'Calling loadTemplateDetails', data: { templateId: editingRow.templateId, id: editingRow.id, templateObject: { id: editingRow.id, templateId: editingRow.templateId } }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+        // #endregion
         loadTemplateDetails(editingRow)
+      } else {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:99', message: 'No templateId or id found in editingRow', data: { editingRowKeys: Object.keys(editingRow || {}) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+        // #endregion
       }
     } else if (!isEditing) {
       // Reset form when not editing
@@ -102,6 +113,9 @@ function SMSTempletePopup({
   }, [isEditing, editingRow, open, phoneNumbers])
 
   const loadTemplateDetails = async (template) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:104', message: 'loadTemplateDetails called', data: { templateId: template?.templateId, id: template?.id, templateObject: { id: template?.id, templateId: template?.templateId }, selectedUserId: selectedUser?.id }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+    // #endregion
     try {
       // First, try to get phone from editingRow.smsPhoneNumberId (cadence row data)
       if (editingRow?.smsPhoneNumberId && phoneNumbers.length > 0) {
@@ -118,13 +132,35 @@ function SMSTempletePopup({
       }
       
       // Load template details for content (phone is not stored in template)
-      const details = await getTempleteDetails(template, selectedUser?.id)
+      // Ensure template has both id and templateId for compatibility
+      const normalizedTemplate = {
+        ...template,
+        id: template.id || template.templateId,
+        templateId: template.templateId || template.id,
+      }
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:125', message: 'Calling getTempleteDetails with normalized template', data: { normalizedTemplateId: normalizedTemplate.id, normalizedTemplateTemplateId: normalizedTemplate.templateId, selectedUserId: selectedUser?.id }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+      // #endregion
+      const details = await getTempleteDetails(normalizedTemplate, selectedUser?.id)
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:128', message: 'getTempleteDetails response', data: { hasDetails: !!details, hasContent: !!details?.content, contentLength: details?.content?.length || 0, detailsKeys: Object.keys(details || {}) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+      // #endregion
       console.log('Template details:', details)
       if (details) {
         setBody(details.content || '')
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:132', message: 'Setting body from details', data: { bodyLength: (details.content || '').length, bodyPreview: (details.content || '').substring(0, 50) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+        // #endregion
         // Don't set phone from details - it doesn't exist there
+      } else {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:136', message: 'No details returned from getTempleteDetails', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+        // #endregion
       }
     } catch (error) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:139', message: 'Error loading template details', data: { errorMessage: error?.message, errorStack: error?.stack }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+      // #endregion
       console.error('Error loading template details:', error)
     } finally {
       // setDetailsLoader(null);
@@ -265,7 +301,20 @@ function SMSTempletePopup({
   return (
     <Modal
       open={open}
-      onClose={onClose}
+      onClose={(event, reason) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:303', message: 'Modal onClose called', data: { reason, eventType: event?.type, targetTag: event?.target?.tagName }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+        // #endregion
+        // Only close if reason is 'backdropClick' and user explicitly clicked backdrop
+        // Don't close for other reasons like clicking inside content
+        if (reason === 'backdropClick') {
+          onClose()
+        }
+      }}
+      disableEnforceFocus={true}
+      disableAutoFocus={true}
+      disableRestoreFocus={true}
+      disableBackdropClick={false}
       BackdropProps={{
         timeout: 500,
         sx: {
@@ -273,14 +322,97 @@ function SMSTempletePopup({
           // //backdropFilter: "blur(20px)",
           padding: 0,
           margin: 0,
+          zIndex: 1500,
+          // Ensure backdrop doesn't block dropdowns
+          pointerEvents: 'auto',
+        },
+        onClick: (e) => {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:318', message: 'Backdrop onClick fired', data: { targetTag: e.target?.tagName, targetClass: e.target?.className, currentTargetTag: e.currentTarget?.tagName, targetIsBackdrop: e.target === e.currentTarget, hasMuiBackdropClass: e.target?.classList?.contains('MuiBackdrop-root'), clientX: e.clientX, clientY: e.clientY }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+          // #endregion
+          // Only close if clicking directly on the backdrop element itself
+          // Check if the click target is the backdrop root element
+          const backdropRoot = e.currentTarget
+          const clickTarget = e.target
+          
+          // Check if click is actually on the backdrop (not on any child element)
+          // The backdrop should be the direct target, not a child
+          const isDirectBackdropClick = clickTarget === backdropRoot || 
+            (clickTarget.classList && clickTarget.classList.contains('MuiBackdrop-root'))
+          
+          // Also check if the click is outside the modal content area
+          // Get the modal content box
+          const modalContent = backdropRoot?.parentElement?.querySelector('.MuiBox-root')
+          const isClickOutsideContent = modalContent && !modalContent.contains(clickTarget)
+          
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:335', message: 'Backdrop click analysis', data: { isDirectBackdropClick, isClickOutsideContent, hasModalContent: !!modalContent }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+          // #endregion
+          
+          // Only close if clicking directly on backdrop AND outside content
+          if (isDirectBackdropClick && isClickOutsideContent) {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:343', message: 'Closing modal from backdrop click', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+            // #endregion
+            onClose()
+          } else {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:347', message: 'Backdrop click ignored - not valid backdrop click', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+            // #endregion
+            // Prevent the click from propagating
+            e.stopPropagation()
+          }
+        },
+      }}
+      sx={{
+        zIndex: 1500,
+        // Ensure modal content doesn't block dropdowns
+        '& .MuiBackdrop-root': {
+          zIndex: 1500,
         },
       }}
     >
       <Box
         className="w-full h-full py-4 flex items-center justify-center"
-        sx={{ ...styles.modalsStyle }}
+        sx={{ 
+          ...styles.modalsStyle,
+          position: 'relative',
+          zIndex: 1501, // Above backdrop (1500)
+          pointerEvents: 'auto',
+        }}
+        onClick={(e) => {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:355', message: 'Box onClick fired', data: { targetTag: e.target?.tagName, targetClass: e.target?.className, isBox: e.target === e.currentTarget }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+          // #endregion
+          // Only close if clicking directly on the Box (outside content)
+          if (e.target === e.currentTarget) {
+            onClose()
+          }
+          e.stopPropagation()
+        }}
+        onMouseDown={(e) => {
+          // Prevent mousedown from reaching backdrop
+          e.stopPropagation()
+        }}
       >
-        <div className="flex flex-col w-full max-w-2xl px-8 py-6 bg-white max-h-[85vh] rounded-2xl justify-between">
+        <div 
+          className="flex flex-col w-full max-w-2xl px-8 py-6 bg-white max-h-[85vh] rounded-2xl justify-between relative z-10"
+          style={{ pointerEvents: 'auto' }}
+          onClick={(e) => {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:370', message: 'Content div onClick fired', data: { targetTag: e.target?.tagName, targetClass: e.target?.className }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+            // #endregion
+            // Prevent clicks inside modal content from closing the modal
+            e.stopPropagation()
+          }}
+          onMouseDown={(e) => {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:377', message: 'Content div onMouseDown fired', data: { targetTag: e.target?.tagName, targetClass: e.target?.className }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+            // #endregion
+            // Prevent mousedown events from bubbling to backdrop
+            e.stopPropagation()
+          }}
+        >
           <div
             className="flex flex-col w-full h-[80%] overflow-auto"
             style={{ scrollbarWidth: 'none' }}
@@ -297,7 +429,11 @@ function SMSTempletePopup({
               }}
             />
 
-            <div className="w-full flex flex-row items-center justify-between mb-8">
+            <div 
+              className="w-full flex flex-row items-center justify-between mb-8"
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
               <div className="text-[15px] font-[700]">
                 {isLeadSMS
                   ? 'Send Text Message'
@@ -310,10 +446,12 @@ function SMSTempletePopup({
             </div>
 
             <div 
-              className="w-full flex flex-col items-ceter p-3 rounded-lg mb-4 sms-note-container"
+              className="w-full flex flex-col items-center p-3 rounded-lg mb-4 sms-note-container"
               style={{
                 backgroundColor: '#F5F5F5',
               }}
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
             >
               <div className="flex flex-row items-center justify-between w-full mb-1">
                 <div className="text-[14px] font-[700]" style={{ color: '#000' }}>Note</div>
@@ -364,7 +502,11 @@ function SMSTempletePopup({
             </div>
 
             {/* From field */}
-            <div className="w-full mb-4">
+            <div 
+              className="w-full mb-4"
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 From:
               </label>
@@ -396,7 +538,13 @@ function SMSTempletePopup({
                           maxHeight: '30vh',
                           overflow: 'auto',
                           scrollbarWidth: 'none',
+                          zIndex: 1700, // Higher than modal (1500) and backdrop
                         },
+                      },
+                      disablePortal: false,
+                      container: typeof document !== 'undefined' ? document.body : null,
+                      style: {
+                        zIndex: 1700,
                       },
                     }}
                   >
@@ -419,24 +567,122 @@ function SMSTempletePopup({
             </div>
 
             {/* Message field */}
-            <div className="w-full mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Message:
-              </label>
-              <div className="relative">
-                <PromptTagInput
-                  promptTag={body}
-                  uniqueColumns={uniqueColumns}
-                  tagValue={setBody}
-                  showSaveChangesBtn={body}
-                  from={'sms'}
-                  isEdit={isEditing}
-                  editTitle={
-                    isEditing && !IsDefaultCadence ? 'Edit Text' : 'Create Text'
-                  }
-                  saveUpdates={async () => { }}
-                  limit={160}
+            <div 
+              className="w-full mb-4"
+              onClick={(e) => {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:527', message: 'Message field div onClick', data: { targetTag: e.target?.tagName, targetClass: e.target?.className }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+                // #endregion
+                e.stopPropagation()
+              }}
+              onMouseDown={(e) => {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:534', message: 'Message field div onMouseDown', data: { targetTag: e.target?.tagName, targetClass: e.target?.className }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+                // #endregion
+                e.stopPropagation()
+              }}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-gray-700">
+                  Message:
+                </label>
+                {uniqueColumns && uniqueColumns.length > 0 && (
+                  <FormControl size="small" sx={{ minWidth: 150 }}>
+                    <Select
+                      value={selectedVariable}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        setSelectedVariable('')
+                        if (value && textareaRef.current) {
+                          const textarea = textareaRef.current
+                          const start = textarea.selectionStart || 0
+                          const end = textarea.selectionEnd || 0
+                          const variableText = value.startsWith('{') && value.endsWith('}')
+                            ? value
+                            : `{${value}}`
+                          const newBody = body.substring(0, start) + variableText + body.substring(end)
+                          setBody(newBody)
+                          // Set cursor position after inserted variable
+                          setTimeout(() => {
+                            textarea.focus()
+                            textarea.setSelectionRange(start + variableText.length, start + variableText.length)
+                          }, 0)
+                        }
+                      }}
+                      displayEmpty
+                      sx={{
+                        fontSize: '0.875rem',
+                        height: '32px',
+                        backgroundColor: 'white',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#d1d5db',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--brand-primary))',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--brand-primary))',
+                        },
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          style: {
+                            maxHeight: '30vh',
+                            overflow: 'auto',
+                            scrollbarWidth: 'none',
+                            zIndex: 1700,
+                          },
+                        },
+                        disablePortal: false,
+                        container: typeof document !== 'undefined' ? document.body : null,
+                        style: {
+                          zIndex: 1700,
+                        },
+                      }}
+                    >
+                      <MenuItem value="" disabled>
+                        <em>Insert Variable</em>
+                      </MenuItem>
+                      {uniqueColumns.map((variable, index) => {
+                        const displayText = variable.startsWith('{') && variable.endsWith('}')
+                          ? variable
+                          : `{${variable}}`
+                        return (
+                          <MenuItem key={index} value={variable}>
+                            {displayText}
+                          </MenuItem>
+                        )
+                      })}
+                    </Select>
+                  </FormControl>
+                )}
+              </div>
+              <div 
+                className="relative"
+                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                <textarea
+                  ref={textareaRef}
+                  value={body}
+                  onChange={(e) => {
+                    const newValue = e.target.value
+                    // Enforce 160 character limit for SMS
+                    if (newValue.length <= 160) {
+                      setBody(newValue)
+                    }
+                  }}
                   placeholder="Type your message..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary resize-none"
+                  rows={6}
+                  style={{
+                    minHeight: '120px',
+                    fontFamily: 'inherit',
+                    fontSize: '14px',
+                    lineHeight: '1.5',
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  onMouseDown={(e) => e.stopPropagation()}
                 />
                 
                 {/* Character count and balance at bottom of message area */}

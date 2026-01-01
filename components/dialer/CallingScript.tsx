@@ -1,15 +1,19 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import Image from 'next/image'
 import { Button as ButtonBase } from '../ui/button'
 import { Textarea as TextareaBase } from '../ui/textarea'
-import { FileText, Plus, Pencil, X, Check, Hash, Square, Eye, Type, RotateCw, Grid3x3, Minus, Code, ChevronDown, Send } from 'lucide-react'
+import { Input as InputBase } from '../ui/input'
+import { FileText, Plus, Pencil, X, Check, Hash, Square, Eye, Type, RotateCw, Grid3x3, Minus, Code, ChevronDown, Send, MoreVertical, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
+import { Menu, MenuItem } from '@mui/material'
+import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 
 // Type assertions for components from .jsx files
 const Button = ButtonBase as any
 const Textarea = TextareaBase as any
+const Input = InputBase as any
 
 interface CallingScript {
   id: number
@@ -42,6 +46,10 @@ export default function CallingScript({
   const [editTitle, setEditTitle] = useState('')
   const [editContent, setEditContent] = useState('')
   const [saving, setSaving] = useState(false)
+  const [scriptMenuAnchor, setScriptMenuAnchor] = useState<null | HTMLElement>(null)
+  const [selectedScriptForMenu, setSelectedScriptForMenu] = useState<CallingScript | null>(null)
+  const titleInputRef = useRef<HTMLInputElement>(null)
+  const contentTextareaRef = useRef<HTMLTextAreaElement>(null)
 
   // Fetch scripts when component mounts or expands
   useEffect(() => {
@@ -50,21 +58,7 @@ export default function CallingScript({
     }
   }, [isExpanded])
 
-  // Set default script when scripts are loaded
-  useEffect(() => {
-    if (scripts.length > 0 && !selectedScript) {
-      const defaultScript = scripts.find((s) => s.isDefault && s.isActive)
-      if (defaultScript) {
-        setSelectedScript(defaultScript)
-      } else {
-        // If no default, use first active script
-        const firstActive = scripts.find((s) => s.isActive)
-        if (firstActive) {
-          setSelectedScript(firstActive)
-        }
-      }
-    }
-  }, [scripts])
+  // Don't auto-select any script - show list by default
 
   const fetchScripts = async () => {
     try {
@@ -102,9 +96,14 @@ export default function CallingScript({
 
   const handleCreateScript = () => {
     setIsCreating(true)
+    setIsEditing(false)
     setEditTitle('')
     setEditContent('')
     setSelectedScript(null)
+    // Focus the title input after a short delay to ensure it's rendered
+    setTimeout(() => {
+      titleInputRef.current?.focus()
+    }, 100)
   }
 
   const handleEditScript = (script: CallingScript) => {
@@ -120,11 +119,46 @@ export default function CallingScript({
     setIsCreating(false)
     setEditTitle('')
     setEditContent('')
-    if (scripts.length > 0) {
-      const defaultScript = scripts.find((s) => s.isDefault && s.isActive)
-      setSelectedScript(defaultScript || scripts.find((s) => s.isActive) || null)
+    setSelectedScript(null) // Go back to list view
+  }
+
+  const handleDeleteScript = async (scriptId: number) => {
+    if (!confirm('Are you sure you want to delete this script?')) {
+      return
+    }
+
+    try {
+      const token = localStorage.getItem('token') || JSON.parse(localStorage.getItem('User') || '{}').token
+
+      if (!token) {
+        toast.error('Not authenticated')
+        return
+      }
+
+      const response = await fetch(`/api/calling-scripts/${scriptId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        toast.error(data.message || 'Failed to delete script')
+        return
+      }
+
+      toast.success('Script deleted successfully')
+      await fetchScripts() // Refresh scripts
+      setSelectedScript(null) // Go back to list view
+    } catch (error: any) {
+      console.error('Error deleting script:', error)
+      toast.error('Failed to delete script')
     }
   }
+
 
   const handleSaveScript = async () => {
     if (!editTitle.trim() || !editContent.trim()) {
@@ -154,7 +188,6 @@ export default function CallingScript({
             title: editTitle.trim(),
             content: editContent.trim(),
             isActive: true,
-            isDefault: scripts.length === 0, // Set as default if it's the first script
           }),
         })
       } else if (selectedScript) {
@@ -186,6 +219,7 @@ export default function CallingScript({
       setIsCreating(false)
       setEditTitle('')
       setEditContent('')
+      setSelectedScript(null) // Go back to list view after saving
       await fetchScripts() // Refresh scripts
     } catch (error: any) {
       console.error('Error saving script:', error)
@@ -200,16 +234,38 @@ export default function CallingScript({
   }
 
   return (
-    <div className="flex flex-col h-full w-full border-r border-gray-200 bg-white relative">
-      {/* Header - Only title, no close button */}
-      <div className="px-6 py-5">
+    <div 
+      className="flex flex-col h-full w-full border-r border-gray-200 bg-white relative"
+      style={{ zIndex: 2000, position: 'relative' }}
+    >
+      {/* Header - Title and Add Script button */}
+      <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between" style={{ position: 'relative', zIndex: 2000 }}>
         <h3 className="font-bold text-xl text-gray-900">
           Calling script
         </h3>
+        {!isCreating && !isEditing && (
+          <Button
+            onClick={handleCreateScript}
+            size="sm"
+            className="rounded-full"
+            style={{ 
+              backgroundColor: 'hsl(var(--brand-primary))',
+              color: 'white',
+              padding: '6px 16px',
+              fontSize: '14px',
+            }}
+          >
+            <Plus size={16} className="mr-1" />
+            Add Script
+          </Button>
+        )}
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 overflow-y-auto px-6">
+      <div 
+        className="flex-1 overflow-y-auto px-6"
+        style={{ position: 'relative', zIndex: 2000 }}
+      >
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-sm text-gray-500">Loading scripts...</div>
@@ -243,26 +299,44 @@ export default function CallingScript({
             </div>
           </div>
         ) : isCreating || isEditing ? (
-          <div className="space-y-4">
-            <div>
+          <div 
+            className="space-y-4 pb-6"
+            style={{ position: 'relative', zIndex: 2000 }}
+          >
+            <div style={{ position: 'relative', zIndex: 2001 }}>
               <label className="text-sm font-medium mb-2 block text-gray-700">Title</label>
-              <input
+              <Input
+                ref={titleInputRef}
                 type="text"
                 value={editTitle}
                 onChange={(e) => setEditTitle(e.target.value)}
                 placeholder="Enter script title"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary"
-                style={{ fontSize: '14px' }}
+                className="border border-[#00000020] p-3 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black"
+                style={{ 
+                  fontSize: '14px',
+                  position: 'relative',
+                  zIndex: 2001,
+                  borderRadius: '7px',
+                }}
+                autoFocus
+                tabIndex={0}
               />
             </div>
-            <div>
+            <div style={{ position: 'relative', zIndex: 2001 }}>
               <label className="text-sm font-medium mb-2 block text-gray-700">Content</label>
               <Textarea
+                ref={contentTextareaRef}
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
                 placeholder="Enter script content..."
-                className="w-full min-h-[400px] resize-none border border-gray-300 rounded-lg"
-                style={{ fontSize: '14px' }}
+                className="w-full min-h-[400px] resize-none border-2 border-[#00000020] rounded-lg px-3 py-2 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black"
+                style={{ 
+                  fontSize: '14px',
+                  position: 'relative',
+                  zIndex: 2001,
+                  borderRadius: '7px',
+                }}
+                tabIndex={0}
               />
             </div>
             <div className="flex gap-2">
@@ -285,23 +359,111 @@ export default function CallingScript({
             </div>
           </div>
         ) : selectedScript ? (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h4 className="font-semibold text-base text-gray-900">{selectedScript.title}</h4>
+          <div className="flex flex-col h-full">
+            {/* Header */}
+            <div className="flex items-center justify-between pb-4 border-b border-gray-200 mb-6">
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={() => setSelectedScript(null)}
+                  variant="ghost"
+                  size="sm"
+                  className="p-2 h-8 w-8"
+                >
+                  <ArrowLeft size={16} />
+                </Button>
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.1)' }}>
+                    <FileText size={20} style={{ color: 'hsl(var(--brand-primary))' }} />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-lg text-gray-900">{selectedScript.title}</h3>
+                    <p className="text-xs text-gray-500 mt-0.5">Calling Script</p>
+                  </div>
+                </div>
+              </div>
               <Button
-                onClick={() => handleEditScript(selectedScript)}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setSelectedScriptForMenu(selectedScript)
+                  setScriptMenuAnchor(e.currentTarget)
+                }}
                 variant="ghost"
                 size="sm"
-                className="p-2"
+                className="p-2 h-8 w-8"
               >
-                <Pencil size={16} />
+                <MoreVertical size={18} />
               </Button>
             </div>
-            <div className="prose max-w-none">
-              <div className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed">
-                {selectedScript.content}
+
+            {/* Content Card */}
+            <Card className="flex-1 border-2" style={{ borderColor: 'hsl(var(--brand-primary) / 0.2)' }}>
+              <CardContent className="p-6">
+                <div className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed" style={{ 
+                  lineHeight: '1.75',
+                  fontSize: '14px',
+                }}>
+                  {selectedScript.content}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : scripts.length > 0 ? (
+          <div className="space-y-3 py-4">
+            {scripts.map((script, index) => (
+              <div
+                key={script.id}
+                onClick={() => setSelectedScript(script)}
+                className="p-4 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md"
+                style={{
+                  borderColor: script.isActive 
+                    ? '#e5e7eb' 
+                    : '#f3f4f6',
+                  backgroundColor: 'white',
+                  boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+                }}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-2">
+                      <h4 className="font-semibold text-sm text-gray-900 truncate">
+                        {script.title}
+                      </h4>
+                      {!script.isActive && (
+                        <span className="px-2 py-0.5 text-xs font-medium rounded-full flex-shrink-0 bg-gray-100 text-gray-600">
+                          Inactive
+                        </span>
+                      )}
+                    </div>
+                    <p 
+                      className="text-xs text-gray-600"
+                      style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 2,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                      }}
+                    >
+                      {script.content}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setSelectedScriptForMenu(script)
+                        setScriptMenuAnchor(e.currentTarget)
+                      }}
+                      variant="ghost"
+                      size="sm"
+                      className="p-1.5 h-auto"
+                    >
+                      <MoreVertical size={14} />
+                    </Button>
+                  </div>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-full gap-6">
@@ -334,6 +496,56 @@ export default function CallingScript({
         )}
       </div>
 
+      {/* Script Menu */}
+      {selectedScriptForMenu && (
+        <Menu
+          anchorEl={scriptMenuAnchor}
+          open={Boolean(scriptMenuAnchor)}
+          onClose={() => {
+            setScriptMenuAnchor(null)
+            setSelectedScriptForMenu(null)
+          }}
+          MenuListProps={{
+            'aria-labelledby': 'script-menu-button',
+          }}
+          PaperProps={{
+            style: {
+              minWidth: '120px',
+              zIndex: 1500,
+            },
+          }}
+          style={{
+            zIndex: 1500,
+          }}
+          disablePortal={false}
+        >
+          <MenuItem
+            onClick={() => {
+              if (selectedScriptForMenu) {
+                handleEditScript(selectedScriptForMenu)
+              }
+              setScriptMenuAnchor(null)
+              setSelectedScriptForMenu(null)
+            }}
+          >
+            <Pencil size={14} className="mr-2" />
+            Edit
+          </MenuItem>
+          <MenuItem
+            onClick={() => {
+              if (selectedScriptForMenu) {
+                handleDeleteScript(selectedScriptForMenu.id)
+              }
+              setScriptMenuAnchor(null)
+              setSelectedScriptForMenu(null)
+            }}
+            style={{ color: '#dc2626' }}
+          >
+            <X size={14} className="mr-2" />
+            Delete
+          </MenuItem>
+        </Menu>
+      )}
     </div>
   )
 }

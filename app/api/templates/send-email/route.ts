@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
     // Get request body
     const body = await req.json()
-    const { leadId, templateId } = body
+    const { leadId, templateId, emailAccountId } = body
 
     // Validate required fields
     if (!leadId || !templateId) {
@@ -35,8 +35,47 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Call backend API
-    const response = await fetch(`${BASE_API_URL}api/templates/send-email`, {
+    if (!emailAccountId) {
+      return NextResponse.json(
+        { status: false, message: 'Missing required field: emailAccountId' },
+        { status: 400 },
+      )
+    }
+
+    // Fetch lead to get email address
+    let leadEmail = null
+    if (leadId) {
+      try {
+        const leadResponse = await fetch(`${BASE_API_URL}api/leads/leadDetail?leadId=${leadId}`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          cache: 'no-store',
+        })
+
+        if (leadResponse.ok) {
+          const leadData = await leadResponse.json()
+          if (leadData?.status && leadData?.data?.email) {
+            leadEmail = leadData.data.email
+          }
+        }
+      } catch (error) {
+        console.error('Error fetching lead:', error)
+        // Continue without lead email - backend will handle validation
+      }
+    }
+
+    if (!leadEmail) {
+      return NextResponse.json(
+        { status: false, message: 'Lead email not found. Please ensure the lead has a valid email address.' },
+        { status: 400 },
+      )
+    }
+
+    // Call backend API - use mail/send-email endpoint which accepts emailAccountId
+    const response = await fetch(`${BASE_API_URL}api/mail/send-email`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -45,6 +84,8 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         leadId,
         templateId,
+        emailAccountId,
+        to: leadEmail,
       }),
       cache: 'no-store',
     })

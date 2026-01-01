@@ -37,11 +37,19 @@ export async function GET(req: NextRequest) {
     // Get query parameters
     const { searchParams } = new URL(req.url)
     const isActive = searchParams.get('isActive')
+    const userId = searchParams.get('userId')
 
     // Build URL with query params
     let url = `${BASE_API_URL}api/calling-scripts`
+    const params = new URLSearchParams()
     if (isActive !== null) {
-      url += `?isActive=${isActive}`
+      params.append('isActive', isActive)
+    }
+    if (userId !== null) {
+      params.append('userId', userId)
+    }
+    if (params.toString()) {
+      url += `?${params.toString()}`
     }
 
     // Call backend API

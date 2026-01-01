@@ -94,7 +94,8 @@ import ConfirmPerplexityModal from './CofirmPerplexityModal'
 import DeleteCallLogConfimation from './DeleteCallLogConfimation'
 import NoPerplexity from './NoPerplexity'
 import Perplexity from './Perplexity'
-import DialerModal from '@/components/dialer/DialerModal'
+import { useDispatch } from 'react-redux'
+import { openDialer } from '@/store/slices/dialerSlice'
 
 const LeadDetails = ({
   showDetailsModal,
@@ -242,10 +243,10 @@ const LeadDetails = ({
   const [selectedPlan, setSelectedPlan] = useState(null)
   const [currentFullPlan, setCurrentFullPlan] = useState(null)
 
-  // Dialer modal state
-  const [showDialerModal, setShowDialerModal] = useState(false)
-
   const [creditCost, setCreditCost] = useState(null)
+
+  // Redux dispatch for dialer
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const getData = async () => {
@@ -1352,7 +1353,12 @@ const LeadDetails = ({
     }
 
     // Open dialer modal with the phone number
-    setShowDialerModal(true)
+    dispatch(openDialer({
+      leadId: selectedLeadsDetails?.id,
+      leadName: selectedLeadsDetails?.name || selectedLeadsDetails?.firstName,
+      phoneNumber: selectedLeadsDetails?.phone || '',
+      selectedLeadDetails: selectedLeadsDetails, // Full object
+    }))
   }
 
   // Helper function to format objections from JSON
@@ -1785,6 +1791,9 @@ const LeadDetails = ({
         onClose={() => {
           setShowDetailsModal(false)
         }}
+        disableEnforceFocus={true}
+        disableAutoFocus={true}
+        disableRestoreFocus={true}
         PaperProps={{
           sx: {
             width: '45%', // Adjust width as needed
@@ -4211,14 +4220,7 @@ const LeadDetails = ({
         leadId={selectedLeadsDetails?.id}
       />
 
-      {/* Dialer Modal */}
-      <DialerModal
-        open={showDialerModal}
-        onClose={() => setShowDialerModal(false)}
-        initialPhoneNumber={selectedLeadsDetails?.phone || ''}
-        leadId={selectedLeadsDetails?.id}
-        leadName={selectedLeadsDetails?.name || selectedLeadsDetails?.firstName || ''}
-      />
+      {/* Dialer Modal is now rendered in app/dashboard/layout.js */}
 
       {/* Upgrade Plan Modal */}
       <Elements stripe={stripePromise}>
