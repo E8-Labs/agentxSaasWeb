@@ -2015,7 +2015,7 @@ function DialerModal({
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation()
-                  handleToggleMute()
+                  handleMuteToggle()
                 }}
                 className="p-1.5 h-auto"
               >
@@ -2030,7 +2030,7 @@ function DialerModal({
                 size="sm"
                 onClick={(e) => {
                   e.stopPropagation()
-                  handleToggleHold()
+                  handleHoldToggle()
                 }}
                 className="p-1.5 h-auto"
               >
