@@ -5,10 +5,11 @@ import { Button as ButtonBase } from '../ui/button'
 import { toast } from 'sonner'
 import { Mail, MoreVertical, Pencil, X, Loader2, Check } from 'lucide-react'
 import { Menu, MenuItem } from '@mui/material'
-import EmailTempletePopup from '../pipeline/EmailTempletePopup'
+import EmailTempletePopupBase from '../pipeline/EmailTempletePopup'
 import { getGmailAccounts } from '../pipeline/TempleteServices'
 
 const Button = ButtonBase as any
+const EmailTempletePopup = EmailTempletePopupBase as any
 
 interface EmailTemplatePanelProps {
   emailTemplates: any[]

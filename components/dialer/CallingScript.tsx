@@ -8,12 +8,16 @@ import { Input as InputBase } from '../ui/input'
 import { FileText, Plus, Pencil, X, Check, Hash, Square, Eye, Type, RotateCw, Grid3x3, Minus, Code, ChevronDown, Send, MoreVertical, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { Menu, MenuItem } from '@mui/material'
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
+import { Card as CardBase, CardHeader as CardHeaderBase, CardTitle as CardTitleBase, CardContent as CardContentBase } from '../ui/card'
 
 // Type assertions for components from .jsx files
 const Button = ButtonBase as any
 const Textarea = TextareaBase as any
 const Input = InputBase as any
+const Card = CardBase as any
+const CardHeader = CardHeaderBase as any
+const CardTitle = CardTitleBase as any
+const CardContent = CardContentBase as any
 
 interface CallingScript {
   id: number

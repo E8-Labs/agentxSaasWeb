@@ -48,6 +48,7 @@ function EmailTempletePopup({
   onSendEmail = null,
   isLeadEmail = false,
   leadEmail = null,
+  leadId = null,
   selectedUser,
   bodyHeight = null, // Optional prop for custom body text field height
 }) {
