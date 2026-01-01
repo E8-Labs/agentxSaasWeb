@@ -91,7 +91,7 @@ function EmailTempletePopup({
     type: SnackbarTypes.Error,
   })
   const [tempName, setTempName] = useState(null)
-
+  const [templateEmailAccountId, setTemplateEmailAccountId] = useState(null)
 
   const [googleAccounts, setGoogleAccounts] = useState([])
   const [googleAccountLoader, setGoogleAccountLoader] = useState(false)
@@ -174,6 +174,7 @@ function EmailTempletePopup({
       setSelectedTemp(null)
       setShowCC(false)
       setShowBCC(false)
+      setTemplateEmailAccountId(null)
       // setSelectedGoogleAccount(null); // Reset selected account too
     }
   }, [isEditing, editingRow, open])
@@ -247,6 +248,12 @@ function EmailTempletePopup({
         }
         if (parsedBccEmails && Array.isArray(parsedBccEmails) && parsedBccEmails.length > 0) {
           setShowBCC(true)
+        }
+
+        // Store emailAccountId from template details if available
+        // Note: Templates don't typically store emailAccountId, but check just in case
+        if (details.emailAccountId) {
+          setTemplateEmailAccountId(details.emailAccountId)
         }
 
         // Set selectedTemp to the matching template from templetes array
@@ -421,18 +428,24 @@ function EmailTempletePopup({
 
   // Restore selected account when editing and accounts are loaded
   useEffect(() => {
+    const emailAccountId = editingRow?.emailAccountId || templateEmailAccountId
     console.log('Account restoration check:', {
       isEditing,
       editingRowEmailAccountId: editingRow?.emailAccountId,
+      templateEmailAccountId: templateEmailAccountId,
+      finalEmailAccountId: emailAccountId,
       googleAccountsLength: googleAccounts.length,
       currentSelectedAccountId: selectedGoogleAccount?.id,
     })
 
+    // Only restore account if we're editing, have accounts loaded, and no account is currently selected
+    // IMPORTANT: Only auto-select account if editingRow has emailAccountId (i.e., editing from cadence)
+    // When editing templates directly (from dialer), editingRow won't have emailAccountId, so don't auto-select
     if (isEditing && googleAccounts.length > 0 && !selectedGoogleAccount?.id) {
-      if (editingRow?.emailAccountId) {
-        // Try to restore the existing account
+      if (emailAccountId) {
+        // Try to restore the existing account from either editingRow or template details
         const matchingAccount = googleAccounts.find(
-          (account) => account.id === editingRow.emailAccountId,
+          (account) => account.id === emailAccountId,
         )
         if (matchingAccount) {
           console.log(
@@ -443,27 +456,22 @@ function EmailTempletePopup({
         } else {
           console.warn(
             'Could not find matching account for emailAccountId:',
-            editingRow.emailAccountId,
+            emailAccountId,
           )
           console.warn(
             'Available accounts:',
             googleAccounts.map((acc) => ({ id: acc.id, email: acc.email })),
           )
-          // Fallback to first account if existing account not found
-          setSelectedGoogleAccount(googleAccounts[0])
+          // Don't auto-select if account not found - let user choose
         }
-      } else {
-        // No existing emailAccountId, use the first available account
-        console.log(
-          'No existing emailAccountId, selecting first available account:',
-          googleAccounts[0],
-        )
-        setSelectedGoogleAccount(googleAccounts[0])
       }
+      // Removed: Auto-selecting first account when no emailAccountId
+      // When editing templates directly (not from cadence), let user choose the account
     }
   }, [
     isEditing,
     editingRow?.emailAccountId,
+    templateEmailAccountId,
     googleAccounts,
     selectedGoogleAccount?.id,
   ])
@@ -1030,13 +1038,28 @@ function EmailTempletePopup({
     <Modal 
       open={open} 
       onClose={onClose}
+      disableEnforceFocus={true}
+      disableAutoFocus={true}
+      disableRestoreFocus={true}
       BackdropProps={{
         style: {
           zIndex: 1500,
+          // Ensure backdrop doesn't block dropdowns
+          pointerEvents: 'auto',
+        },
+        onClick: (e) => {
+          // Allow backdrop clicks to close modal, but don't block dropdown clicks
+          if (e.target === e.currentTarget) {
+            onClose()
+          }
         },
       }}
       sx={{
         zIndex: 1500,
+        // Ensure modal content doesn't block dropdowns
+        '& .MuiBackdrop-root': {
+          zIndex: 1500,
+        },
       }}
     >
       <Box
@@ -1124,6 +1147,21 @@ function EmailTempletePopup({
                           }
                           const account = googleAccounts.find((a) => a.id === parseInt(selected))
                           return account?.email || 'Select email account'
+                        }}
+                        MenuProps={{
+                          PaperProps: {
+                            style: {
+                              maxHeight: '30vh',
+                              overflow: 'auto',
+                              scrollbarWidth: 'none',
+                              zIndex: 1700, // Higher than modal (1500) and backdrop
+                            },
+                          },
+                          disablePortal: false,
+                          container: typeof document !== 'undefined' ? document.body : null,
+                          style: {
+                            zIndex: 1700,
+                          },
                         }}
                         sx={{
                           fontSize: '0.875rem',
@@ -1353,7 +1391,13 @@ function EmailTempletePopup({
                           maxHeight: '30vh',
                           overflow: 'auto',
                           scrollbarWidth: 'none',
+                          zIndex: 1700, // Higher than modal (1500) and backdrop
                         },
+                      },
+                      disablePortal: false,
+                      container: typeof document !== 'undefined' ? document.body : null,
+                      style: {
+                        zIndex: 1700,
                       },
                     }}
                   >

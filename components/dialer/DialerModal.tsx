@@ -8,9 +8,10 @@ import { toast } from 'sonner'
 import DialerSettings from './DialerSettings'
 import CallingScript from './CallingScript'
 import CallNotesWindow from './CallNotesWindow'
-import EmailTempletePopup from '../pipeline/EmailTempletePopup'
-import SMSTempletePopup from '../pipeline/SMSTempletePopup'
-import { ArrowUp, Pause, Mic, MicOff, FileText, StickyNote, X, ChevronDown, Check, Phone, Mail, MessageSquare, MoreVertical, Pencil } from 'lucide-react'
+import SmsTemplatePanel from './SmsTemplatePanel'
+import EmailTemplatePanel from './EmailTemplatePanel'
+import { getGmailAccounts } from '../pipeline/TempleteServices'
+import { ArrowUp, Pause, Mic, MicOff, FileText, StickyNote, X, ChevronDown, Check, Phone, Mail, MessageSquare, MoreVertical, Pencil, Loader2 } from 'lucide-react'
 import { Menu, MenuItem } from '@mui/material'
 import Image from 'next/image'
 import { formatPhoneNumber } from '@/utilities/agentUtilities'
@@ -72,14 +73,11 @@ export default function DialerModal({
   const [templatesLoading, setTemplatesLoading] = useState(false)
   const [sendingEmail, setSendingEmail] = useState(false)
   const [sendingSms, setSendingSms] = useState(false)
-  const [showEmailTemplatePopup, setShowEmailTemplatePopup] = useState(false)
-  const [showSmsTemplatePopup, setShowSmsTemplatePopup] = useState(false)
-  const [isEditingTemplate, setIsEditingTemplate] = useState(false)
-  const [editingTemplate, setEditingTemplate] = useState<any>(null)
-  const [templateMenuAnchor, setTemplateMenuAnchor] = useState<null | HTMLElement>(null)
-  const [selectedTemplateForMenu, setSelectedTemplateForMenu] = useState<any>(null)
   const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null)
   const [selectedUser, setSelectedUser] = useState<any>(null)
+  const [emailAccounts, setEmailAccounts] = useState<any[]>([])
+  const [emailAccountsLoading, setEmailAccountsLoading] = useState(false)
+  const [selectedEmailAccount, setSelectedEmailAccount] = useState<any>(null)
   const callDurationIntervalRef = useRef<NodeJS.Timeout | null>(null)
   const simulationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   
@@ -1053,9 +1051,38 @@ export default function DialerModal({
     }
   }
 
-  const handleSendSms = async () => {
+  const handleSendSms = async (phoneNumberId?: number) => {
     if (!selectedTemplate || !leadId) {
       toast.error('Please select a template')
+      return
+    }
+
+    // If no phoneNumberId provided, show phone number dropdown
+    if (!phoneNumberId) {
+      // Get A2P verified phone numbers
+      // Handle both boolean (true) and numeric (1) values for isA2PVerified
+      const a2pVerifiedNumbers = phoneNumbers.filter(
+        (pn: any) => (pn.isA2PVerified === true || pn.isA2PVerified === 1) && 
+                     (pn.a2pVerificationStatus === 'verified' || pn.a2pVerificationStatus === 'Verified')
+      )
+      
+      // Deduplicate by phone number - keep the first occurrence of each unique phone
+      const seenPhones = new Map<string, any>()
+      const uniqueA2pNumbers = a2pVerifiedNumbers.filter((pn: any) => {
+        const normalizedPhone = pn.phone?.trim()
+        if (!normalizedPhone) return false
+        if (!seenPhones.has(normalizedPhone)) {
+          seenPhones.set(normalizedPhone, pn)
+          return true
+        }
+        return false
+      })
+      
+      if (uniqueA2pNumbers.length === 0) {
+        toast.error('No A2P verified phone numbers found. Please verify a phone number first.')
+        return
+      }
+      // The dropdown will be shown via the anchor element set in the button click handler
       return
     }
 
@@ -1082,6 +1109,7 @@ export default function DialerModal({
         body: JSON.stringify({
           leadId: leadId,
           templateId: selectedTemplate.id,
+          phoneNumberId: phoneNumberId,
         }),
       })
 
@@ -1101,6 +1129,7 @@ export default function DialerModal({
       setSendingSms(false)
     }
   }
+
 
   const handleDeleteTemplate = async (template: any) => {
     try {
@@ -1148,18 +1177,37 @@ export default function DialerModal({
   }
 
   const handleEditTemplate = (template: any) => {
-    setEditingTemplate(template)
-    setIsEditingTemplate(true)
-    if (showEmailPanel) {
-      setShowEmailTemplatePopup(true)
-    } else if (showSmsPanel) {
-      setShowSmsTemplatePopup(true)
+    // This is now handled by the panel components
+    // Keeping for backward compatibility but it won't be called
+  }
+
+  const fetchEmailAccounts = async () => {
+    try {
+      setEmailAccountsLoading(true)
+      const userId = selectedUser?.id || selectedUser?.user?.id
+      const accounts = await getGmailAccounts(userId)
+      setEmailAccounts(accounts || [])
+    } catch (error: any) {
+      console.error('Error fetching email accounts:', error)
+      toast.error('Failed to load email accounts')
+    } finally {
+      setEmailAccountsLoading(false)
     }
   }
 
-  const handleSendEmail = async () => {
+  const handleSendEmail = async (emailAccountId?: number) => {
     if (!selectedTemplate || !leadId) {
       toast.error('Please select a template')
+      return
+    }
+
+    // If no emailAccountId provided, show account dropdown
+    if (!emailAccountId) {
+      // Fetch accounts if not already loaded
+      if (emailAccounts.length === 0 && !emailAccountsLoading) {
+        await fetchEmailAccounts()
+      }
+      // The dropdown will be shown via the anchor element set in the button click handler
       return
     }
 
@@ -1186,6 +1234,7 @@ export default function DialerModal({
         body: JSON.stringify({
           leadId: leadId,
           templateId: selectedTemplate.id,
+          emailAccountId: emailAccountId,
         }),
       })
 
@@ -1195,6 +1244,7 @@ export default function DialerModal({
         toast.success('Email sent successfully')
         setSelectedTemplate(null)
         setShowEmailPanel(false)
+        setSelectedEmailAccount(null)
       } else {
         toast.error(data?.message || 'Failed to send email')
       }
@@ -1205,6 +1255,8 @@ export default function DialerModal({
       setSendingEmail(false)
     }
   }
+
+
 
   // Cleanup intervals and timeouts on unmount
   useEffect(() => {
@@ -1305,133 +1357,43 @@ export default function DialerModal({
         style={{ minHeight: '500px', maxHeight: '80vh' }}
       >
         {/* Email/SMS Templates Panel - Left Side (when call ended and panel open) */}
-          {(callStatus === 'ended' || callStatus === 'error') && (showEmailPanel || showSmsPanel) && (
-          <div 
-            className="w-80 border-r border-gray-200 flex-shrink-0 flex flex-col" 
-            style={{ maxHeight: '60vh', pointerEvents: 'auto' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-gray-900">
-                {showEmailPanel ? 'Select Email' : 'Select SMS'}
-              </h3>
-              <Button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  // Reset editing state for new template
-                  setIsEditingTemplate(false)
-                  setEditingTemplate(null)
-                  if (showEmailPanel) {
-                    setShowEmailTemplatePopup(true)
-                  } else {
-                    setShowSmsTemplatePopup(true)
-                  }
-                }}
-                size="sm"
-                className="rounded-lg border border-gray-300"
-                style={{
-                  backgroundColor: 'white',
-                  color: '#374151',
-                  fontSize: '12px',
-                  padding: '4px 12px',
-                  height: 'auto',
-                }}
-              >
-                <span className="mr-1">✏️</span>
-                Compose New
-              </Button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4">
-              {templatesLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="text-sm text-gray-500">Loading templates...</div>
-                </div>
-              ) : (showEmailPanel ? emailTemplates : smsTemplates).length === 0 ? (
-                <div className="flex items-center justify-center py-8">
-                  <div className="text-sm text-gray-500">No {showEmailPanel ? 'email' : 'SMS'} templates found</div>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {(showEmailPanel ? emailTemplates : smsTemplates).map((template: any) => (
-                    <div
-                      key={template.id}
-                      onClick={() => setSelectedTemplate(template)}
-                      className={`p-3 border rounded-lg cursor-pointer transition-all ${selectedTemplate?.id === template.id
-                          ? 'border-2 border-purple-500 bg-purple-50'
-                          : 'border border-gray-200 hover:border-gray-300'
-                        }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <div className="text-sm font-medium text-gray-900 mb-1">
-                            {template.templateName}
-                          </div>
-                          {showEmailPanel && (
-                            <>
-                              <div className="text-xs text-gray-500 line-clamp-2">
-                                {template.subject}
-                              </div>
-                              {template.content && (
-                                <div className="text-xs text-gray-400 mt-1 line-clamp-2">
-                                  {template.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
-                                </div>
-                              )}
-                            </>
-                          )}
-                          {showSmsPanel && template.content && (
-                            <div className="text-xs text-gray-500 line-clamp-2">
-                              {template.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
-                            </div>
-                          )}
-                        </div>
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            e.preventDefault()
-                            setSelectedTemplateForMenu(template)
-                            setTemplateMenuAnchor(e.currentTarget)
-                          }}
-                          onMouseDown={(e) => {
-                            e.stopPropagation()
-                          }}
-                          variant="ghost"
-                          size="sm"
-                          className="p-1 h-auto ml-2 flex-shrink-0"
-                          style={{ pointerEvents: 'auto' }}
-                        >
-                          <MoreVertical size={16} className="text-gray-400" />
-                        </Button>
-                      </div>
-                      {selectedTemplate?.id === template.id && (
-                        <div className="mt-3 pt-3 border-t border-gray-200">
-                          <Button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              if (showEmailPanel) {
-                                handleSendEmail()
-                              } else {
-                                handleSendSms()
-                              }
-                            }}
-                            disabled={sendingEmail || sendingSms}
-                            className="w-full rounded-lg"
-                            style={{
-                              backgroundColor: 'hsl(var(--brand-primary))',
-                              color: 'white',
-                              fontSize: '14px',
-                              padding: '8px 16px',
-                            }}
-                          >
-                            {(sendingEmail || sendingSms) ? 'Sending...' : 'Send'}
-                          </Button>
-            </div>
-                      )}
-                    </div>
-                  ))}
-              </div>
-            )}
-            </div>
-          </div>
+        {(callStatus === 'ended' || callStatus === 'error') && showSmsPanel && (
+          <SmsTemplatePanel
+            smsTemplates={smsTemplates}
+            selectedTemplate={selectedTemplate}
+            templatesLoading={templatesLoading}
+            phoneNumbers={phoneNumbers}
+            phoneNumbersLoading={phoneNumbersLoading}
+            sendingSms={sendingSms}
+            leadId={leadId}
+            leadPhone={phoneNumber}
+            selectedUser={selectedUser}
+            onTemplateSelect={setSelectedTemplate}
+            onSendSms={handleSendSms}
+            onDeleteTemplate={handleDeleteTemplate}
+            onEditTemplate={handleEditTemplate}
+            onRefreshTemplates={fetchSmsTemplates}
+            onClose={() => setShowSmsPanel(false)}
+          />
+        )}
+        {(callStatus === 'ended' || callStatus === 'error') && showEmailPanel && (
+          <EmailTemplatePanel
+            emailTemplates={emailTemplates}
+            selectedTemplate={selectedTemplate}
+            templatesLoading={templatesLoading}
+            emailAccounts={emailAccounts}
+            emailAccountsLoading={emailAccountsLoading}
+            sendingEmail={sendingEmail}
+            leadId={leadId}
+            selectedUser={selectedUser}
+            onTemplateSelect={setSelectedTemplate}
+            onSendEmail={handleSendEmail}
+            onDeleteTemplate={handleDeleteTemplate}
+            onEditTemplate={handleEditTemplate}
+            onRefreshTemplates={fetchEmailTemplates}
+            onRefreshEmailAccounts={fetchEmailAccounts}
+            onClose={() => setShowEmailPanel(false)}
+          />
         )}
 
         {/* Script Panel - Left Side */}
@@ -1552,8 +1514,20 @@ export default function DialerModal({
                             <MenuItem disabled>Loading...</MenuItem>
                           ) : phoneNumbers.length === 0 ? (
                             <MenuItem disabled>No phone numbers available</MenuItem>
-                          ) : (
-                            phoneNumbers.map((pn) => {
+                          ) : (() => {
+                            // Deduplicate by phone number - keep the first occurrence of each unique phone
+                            const seenPhones = new Map<string, any>()
+                            const uniquePhoneNumbers = phoneNumbers.filter((pn: any) => {
+                              const normalizedPhone = pn.phone?.trim()
+                              if (!normalizedPhone) return false
+                              if (!seenPhones.has(normalizedPhone)) {
+                                seenPhones.set(normalizedPhone, pn)
+                                return true
+                              }
+                              return false
+                            })
+                            
+                            return uniquePhoneNumbers.map((pn) => {
                               const isSelected = pn.usageType === 'internal_dialer'
                               const hasAgents = pn.agentCount > 0
                               const additionalAgents = pn.agentCount > 1 ? pn.agentCount - 1 : 0
@@ -1565,7 +1539,7 @@ export default function DialerModal({
                               
                               return (
                                 <MenuItem
-                                  key={pn.id}
+                                  key={`phone-${pn.phone}-${pn.id}`}
                                   onClick={() => {
                                     if (pn.canBeInternalDialer) {
                                       handleSetInternalNumber(pn.id)
@@ -1573,7 +1547,8 @@ export default function DialerModal({
                                   }}
                                   disabled={!pn.canBeInternalDialer || isSelected}
                                   style={{
-                                    opacity: pn.canBeInternalDialer ? 1 : 0.6,
+                                    opacity: (!pn.canBeInternalDialer || isSelected) ? 0.6 : 1,
+                                    display: 'block', // Ensure disabled items are visible
                                     border: isSelected ? '2px solid hsl(var(--brand-primary))' : '1px solid #e5e7eb',
                                     borderRadius: '8px',
                                     margin: '4px 8px',
@@ -1584,8 +1559,27 @@ export default function DialerModal({
                                 >
                                   <div className="flex items-center justify-between w-full gap-3">
             <div className="flex-1 min-w-0">
-                                      <div className="text-sm font-medium text-gray-900" style={{ color: 'hsl(var(--brand-primary))' }}>
+                                      <div className="flex items-center gap-2">
+                                        <span className="text-sm font-medium text-gray-900" style={{ color: 'hsl(var(--brand-primary))' }}>
                                         {formatPhoneNumber(pn.phone)}
+                                        </span>
+                                        {(() => {
+                                          const isA2PVerified = pn.isA2PVerified === true || pn.isA2PVerified === 1
+                                          const isVerified = pn.a2pVerificationStatus === 'verified' || pn.a2pVerificationStatus === 'Verified'
+                                          const showA2PTag = isA2PVerified && isVerified
+                                          return showA2PTag ? (
+                                            <Badge
+                                              variant="secondary"
+                                              className="text-xs font-semibold px-2 py-0.5 flex-shrink-0"
+                                              style={{
+                                                backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                                color: 'hsl(var(--brand-primary))',
+                                              }}
+                                            >
+                                              A2P
+                                            </Badge>
+                                          ) : null
+                                        })()}
             </div>
                                     </div>
               <div className="flex items-center gap-2 flex-shrink-0">
@@ -1648,7 +1642,7 @@ export default function DialerModal({
                                 </MenuItem>
                               )
                             })
-                          )}
+                          })()}
                         </Menu>
                       )}
                     </div>
@@ -2157,112 +2151,6 @@ export default function DialerModal({
         />
       )}
 
-      {/* Email Template Popup - Only render when actually open */}
-      {showEmailTemplatePopup && (
-        <EmailTempletePopup
-          open={showEmailTemplatePopup}
-          onClose={() => {
-            setShowEmailTemplatePopup(false)
-            setIsEditingTemplate(false)
-            setEditingTemplate(null)
-            // Refresh email templates after closing
-            if (showEmailPanel) {
-              fetchEmailTemplates()
-            }
-          }}
-          communicationType="email"
-          addRow={null}
-          isEditing={isEditingTemplate}
-          editingRow={editingTemplate}
-          onUpdateRow={null}
-          selectedGoogleAccount={selectedGoogleAccount}
-          setSelectedGoogleAccount={setSelectedGoogleAccount}
-          onSendEmail={null}
-          isLeadEmail={false}
-          leadEmail={null}
-          leadId={leadId}
-          selectedUser={selectedUser}
-        />
-      )}
-
-      {/* SMS Template Popup - Only render when actually open */}
-      {showSmsTemplatePopup && (
-        <SMSTempletePopup
-          open={showSmsTemplatePopup}
-          onClose={() => {
-            setShowSmsTemplatePopup(false)
-            setIsEditingTemplate(false)
-            setEditingTemplate(null)
-            // Refresh SMS templates after closing
-            if (showSmsPanel) {
-              fetchSmsTemplates()
-            }
-          }}
-          phoneNumbers={phoneNumbers.map((pn: any) => ({ id: pn.id, phone: pn.phone }))}
-          phoneLoading={phoneNumbersLoading}
-          communicationType="sms"
-          addRow={null}
-          isEditing={isEditingTemplate}
-          editingRow={editingTemplate}
-          onUpdateRow={null}
-          onSendSMS={null}
-          isLeadSMS={false}
-          leadPhone={phoneNumber}
-          leadId={leadId}
-          selectedUser={selectedUser}
-        />
-      )}
-
-      {/* Template Menu */}
-      {selectedTemplateForMenu && (
-        <Menu
-          anchorEl={templateMenuAnchor}
-          open={Boolean(templateMenuAnchor)}
-          onClose={() => {
-            setTemplateMenuAnchor(null)
-            setSelectedTemplateForMenu(null)
-          }}
-          MenuListProps={{
-            'aria-labelledby': 'template-menu-button',
-          }}
-          PaperProps={{
-            style: {
-              minWidth: '120px',
-              zIndex: 1500,
-            },
-          }}
-          style={{
-            zIndex: 1500,
-          }}
-          disablePortal={false}
-        >
-          <MenuItem
-            onClick={() => {
-              if (selectedTemplateForMenu) {
-                handleEditTemplate(selectedTemplateForMenu)
-              }
-              setTemplateMenuAnchor(null)
-              setSelectedTemplateForMenu(null)
-            }}
-          >
-            <Pencil size={14} className="mr-2" />
-            Edit
-          </MenuItem>
-          <MenuItem
-            onClick={() => {
-              if (selectedTemplateForMenu) {
-                handleDeleteTemplate(selectedTemplateForMenu)
-              }
-              setTemplateMenuAnchor(null)
-              setSelectedTemplateForMenu(null)
-            }}
-            style={{ color: '#dc2626' }}
-          >
-            <X size={14} className="mr-2" />
-            Delete
-          </MenuItem>
-        </Menu>
-      )}
 
         </div>
   )
