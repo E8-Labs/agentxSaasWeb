@@ -1,12 +1,17 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback, useRef, memo } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 
 import ErrorBoundary from '@/components/ErrorBoundary'
 import ProfileNav from '@/components/dashboard/Navbar/ProfileNav'
 // import GhlOauthWatcher from "../components/dashboard/oAuthWatcher/GhlOAuthWatcher";
 // import GhlOauthWatcher from '../components/dashboard/oAuthWatcher/GhlOauthWatcher'
 import GhlOauthWatcher from '@/components/dashboard/oAuthWatcher/GhlOauthWatcher'
+import DialerModal from '@/components/dialer/DialerModal'
+import NavigationLoader from '@/components/common/NavigationLoader'
+import { selectIsDialerOpen, selectCallStatus, selectPreventClose, selectLeadData } from '@/store/slices/dialerSlice'
+import { closeDialer, forceCloseDialer } from '@/store/slices/dialerSlice'
 
 const shouldShowServiceBanner =
   process.env.NEXT_PUBLIC_REACT_APP_DOWN_TIME === 'Yes'
@@ -17,6 +22,44 @@ export default function DashboardLayout({ children }) {
 
   const [typedMessage, setTypedMessage] = useState(message)
   const [charIndex, setCharIndex] = useState(0)
+  
+  // Redux state for dialer
+  const dispatch = useDispatch()
+  const isDialerOpen = useSelector(selectIsDialerOpen)
+  const callStatus = useSelector(selectCallStatus)
+  const preventClose = useSelector(selectPreventClose)
+  const leadData = useSelector(selectLeadData)
+
+  // #region agent log
+  const renderCount = useRef(0)
+  const mountTime = useRef(Date.now())
+  renderCount.current += 1
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'dashboard/layout.js:30', message: 'DashboardLayout mounted', data: { pathname: typeof window !== 'undefined' ? window.location.pathname : 'server', mountTime: mountTime.current, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'J' }) }).catch(() => { });
+    }
+  }, [])
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'dashboard/layout.js:38', message: 'DashboardLayout render', data: { renderCount: renderCount.current, isDialerOpen, callStatus, preventClose, leadId: leadData?.leadId, leadName: leadData?.leadName, phoneNumber: leadData?.phoneNumber, pathname: typeof window !== 'undefined' ? window.location.pathname : 'server', timeSinceMount: Date.now() - mountTime.current, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'J' }) }).catch(() => { });
+    }
+  })
+  // #endregion
+
+  // Handle dialer close with call protection
+  // Use useCallback to prevent function recreation on every render
+  const handleDialerClose = useCallback(() => {
+    if (preventClose && ['in-call', 'ringing', 'connecting'].includes(callStatus)) {
+      // Show confirmation dialog
+      if (window.confirm('You have an active call. Are you sure you want to close?')) {
+        dispatch(forceCloseDialer())
+      }
+    } else {
+      dispatch(closeDialer())
+    }
+  }, [preventClose, callStatus, dispatch])
 
   //   useEffect(() => {
   //     if (shouldShowServiceBanner && charIndex < message.length) {
@@ -29,8 +72,16 @@ export default function DashboardLayout({ children }) {
   //     }
   //   }, [charIndex, shouldShowServiceBanner]);
 
+  // #region agent log
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'dashboard/layout.js:74', message: 'DashboardLayout render (not remount)', data: { pathname: window.location.pathname, renderCount: renderCount.current, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'K' }) }).catch(() => { });
+    }
+  })
+  // #endregion
+  
   return (
-    <ErrorBoundary>
+    <ErrorBoundary key="dashboard-error-boundary">
       <div className="flex flex-col w-full" style={{ backgroundColor: '#ffffff', background: '#ffffff' }}>
         {/* Service Banner */}
         {shouldShowServiceBanner && (
@@ -76,6 +127,20 @@ export default function DashboardLayout({ children }) {
             {children}
           </div>
         </div>
+        
+        {/* Navigation Loader - shows during page transitions */}
+        <NavigationLoader />
+        
+        {/* Global Dialer Modal - persists across navigation */}
+        {/* Use a stable key to prevent remounting on navigation */}
+        <DialerModal
+          key="global-dialer-modal"
+          open={isDialerOpen}
+          onClose={handleDialerClose}
+          initialPhoneNumber={leadData.phoneNumber || ''}
+          leadId={leadData.leadId}
+          leadName={leadData.leadName}
+        />
       </div>
     </ErrorBoundary>
   )

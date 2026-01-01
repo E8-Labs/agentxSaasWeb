@@ -61,3 +61,4 @@ export function renderBrandedIcon(iconPath, width, height, fallbackColor = 'hsl(
   )
 }
 
+

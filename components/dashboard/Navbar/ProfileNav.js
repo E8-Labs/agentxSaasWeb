@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -7,11 +7,11 @@ import {
   Box,
   CircularProgress,
   Fade,
-  Link,
   Modal,
   Snackbar,
   Typography,
 } from "@mui/material";
+import Link from "next/link";
 import getProfileDetails from "@/components/apis/GetProfile";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
@@ -58,6 +58,24 @@ const stripePromise = getStripe();
 // Plans will now be loaded dynamically from API
 //banner
 const ProfileNav = () => {
+  // #region agent log
+  const renderCount = useRef(0)
+  const mountTime = useRef(Date.now())
+  renderCount.current += 1
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'Navbar/ProfileNav.js:60', message: 'ProfileNav mounted', data: { pathname: typeof window !== 'undefined' ? window.location.pathname : 'server', mountTime: mountTime.current, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'J' }) }).catch(() => { });
+    }
+  }, [])
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'Navbar/ProfileNav.js:68', message: 'ProfileNav render', data: { renderCount: renderCount.current, pathname: typeof window !== 'undefined' ? window.location.pathname : 'server', timeSinceMount: Date.now() - mountTime.current, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'J' }) }).catch(() => { });
+    }
+  })
+  // #endregion
+  
   // const [user, setUser] = useState(null)
 
   const { user: reduxUser, setUser: setReduxUser } = useUser();
@@ -65,6 +83,14 @@ const ProfileNav = () => {
   const [plans, setPlans] = useState([]);
   const router = useRouter();
   const pathname = usePathname();
+  
+  // #region agent log
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'Navbar/ProfileNav.js:85', message: 'ProfileNav pathname changed', data: { pathname, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'J' }) }).catch(() => { });
+    }
+  }, [pathname])
+  // #endregion
 
   const [showPlansPopup, setShowPlansPopup] = useState(false);
   const [userDetails, setUserDetails] = useState(null);
@@ -1440,15 +1466,8 @@ const ProfileNav = () => {
             {showLinks().map((item) => (
               <div key={item.id} className="w-full flex flex-col gap-3 pl-6">
                 <Link
-                  sx={{
-                    cursor: "pointer",
-                    textDecoration: "none",
-                    "&:hover": {
-                      textDecoration: "none"
-                    }
-                  }}
                   href={item.href}
-                  underline="none"
+                  className="cursor-pointer no-underline hover:no-underline"
                 // onClick={(e) => handleOnClick(e, item.href)}
                 >
                   <div
@@ -1525,18 +1544,11 @@ const ProfileNav = () => {
           >
             <Link
               href={"/dashboard/myAccount"}
-              className="w-full flex flex-row items-start gap-3 px-2 py-2 truncate outline-none text-start relative" //border border-[#00000015] rounded-[10px]
+              className="w-full flex flex-row items-start gap-3 px-2 py-2 truncate outline-none text-start relative no-underline hover:no-underline" //border border-[#00000015] rounded-[10px]
               style={{
                 textOverflow: "ellipsis",
                 textDecoration: "none",
               }}
-              sx={{
-                textDecoration: "none",
-                "&:hover": {
-                  textDecoration: "none"
-                }
-              }}
-              underline="none"
             >
               {userDetails?.user?.thumb_profile_image ? (
                 <img
@@ -1992,6 +2004,7 @@ const ProfileNav = () => {
   );
 };
 
-export default ProfileNav;
+// Memoize ProfileNav to prevent unnecessary re-renders that could cause layout remounts
+export default React.memo(ProfileNav);
 
 

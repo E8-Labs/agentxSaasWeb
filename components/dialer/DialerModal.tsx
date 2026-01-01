@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, memo } from 'react'
+import { useSelector, useDispatch } from 'react-redux'
 import { Button as ButtonBase } from '../ui/button'
 import { Input as InputBase } from '../ui/input'
 import { Badge } from '../ui/badge'
@@ -15,6 +16,35 @@ import { ArrowUp, Pause, Mic, MicOff, FileText, StickyNote, X, ChevronDown, Chec
 import { Menu, MenuItem } from '@mui/material'
 import Image from 'next/image'
 import { formatPhoneNumber } from '@/utilities/agentUtilities'
+import {
+  selectPhoneNumbers,
+  selectSelectedInternalNumber,
+  selectEmailTemplates,
+  selectSmsTemplates,
+  selectSelectedTemplate,
+  selectEmailAccounts,
+  selectSelectedEmailAccount,
+  selectShouldRefetchPhoneNumbers,
+  selectShouldRefetchEmailTemplates,
+  selectShouldRefetchSmsTemplates,
+  selectShouldRefetchEmailAccounts,
+  selectCallStatus,
+  selectLeadData,
+  selectIsDialerOpen,
+  updateCallStatus,
+  updateDeviceState,
+  setPhoneNumbers,
+  setEmailTemplates,
+  setSmsTemplates,
+  setEmailAccounts,
+  updateCallState,
+  updateUIPanel,
+  setSelectedTemplate,
+  setSelectedInternalNumber,
+  setSelectedEmailAccount,
+  setSelectedUser,
+  setLoadingState,
+} from '@/store/slices/dialerSlice'
 
 // @ts-ignore - Twilio Voice SDK types
 import { Device, Call } from '@twilio/voice-sdk'
@@ -26,6 +56,113 @@ const Input = InputBase as any
 // Simulation mode - set via environment variable
 const SIMULATE_CALL_FLOW = process.env.NEXT_PUBLIC_SIMULATE_DIALER === 'true'
 
+// Module-level store to persist device and call across component remounts
+// This is necessary because refs are lost when the component unmounts
+// Use window object to persist across module reloads (Next.js HMR can reload modules)
+let globalDeviceStore: Device | null = null
+let globalCallStore: Call | null = null
+let globalHasInitialized = false
+let globalIsInitializing = false
+
+// Helper functions to get/set from window (survives module reloads)
+const getGlobalDevice = (): Device | null => {
+  if (typeof window !== 'undefined' && (window as any).__dialerGlobalDevice) {
+    return (window as any).__dialerGlobalDevice
+  }
+  return globalDeviceStore
+}
+
+const setGlobalDevice = (device: Device | null) => {
+  globalDeviceStore = device
+  if (typeof window !== 'undefined') {
+    if (device) {
+      // Store device in window - this persists across remounts and navigation
+      (window as any).__dialerGlobalDevice = device
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:79', message: 'setGlobalDevice: Storing device in window', data: { deviceState: (device as any).state, hasWindowDevice: !!(window as any).__dialerGlobalDevice }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'J' }) }).catch(() => { });
+      // #endregion
+    } else {
+      // CRITICAL: Never clear the window store during unmount/remount cycles
+      // Only clear if we're explicitly destroying the device (user closed dialer)
+      // Check if there's an existing device in the window store
+      const existingDevice = (window as any).__dialerGlobalDevice
+      if (existingDevice) {
+        // Check if device is still valid (not destroyed)
+        try {
+          const deviceState = (existingDevice as any).state
+          // NEVER clear if device is registered, registering, or in any active state
+          // This preserves the device across navigation remounts
+          if (deviceState === 'registered' || deviceState === 'registering' || deviceState === 'busy') {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:92', message: 'setGlobalDevice: Preserving device in window (not clearing)', data: { deviceState, reason: 'Device is active - preserving across remount', timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'J' }) }).catch(() => { });
+            // #endregion
+            // Keep the existing device in window store - don't clear
+            return
+          }
+        } catch (e) {
+          // Device might be destroyed - but still preserve it in case it's just a state issue
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:102', message: 'setGlobalDevice: Error checking device state, preserving anyway', data: { error: String(e), reason: 'Preserving device in window store despite error' }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'J' }) }).catch(() => { });
+          // #endregion
+          // Preserve device even if we can't check its state
+          return
+        }
+      }
+      // Only clear if we're absolutely sure we want to destroy the device
+      // For now, we'll be conservative and NOT clear during setGlobalDevice(null) calls
+      // The device will only be cleared when explicitly destroyed in cleanup
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:110', message: 'setGlobalDevice: NOT clearing window store (preserving device)', data: { reason: 'Preserving device across remounts - only clear on explicit destroy' }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'J' }) }).catch(() => { });
+      // #endregion
+      // Don't clear - preserve device in window store
+      // Only update module-level store
+      return
+    }
+  }
+}
+
+const getGlobalCall = (): Call | null => {
+  if (typeof window !== 'undefined' && (window as any).__dialerGlobalCall) {
+    return (window as any).__dialerGlobalCall
+  }
+  return globalCallStore
+}
+
+const setGlobalCall = (call: Call | null) => {
+  globalCallStore = call
+  if (typeof window !== 'undefined') {
+    (window as any).__dialerGlobalCall = call
+  }
+}
+
+const getGlobalHasInitialized = (): boolean => {
+  if (typeof window !== 'undefined' && (window as any).__dialerGlobalHasInitialized !== undefined) {
+    return (window as any).__dialerGlobalHasInitialized
+  }
+  return globalHasInitialized
+}
+
+const setGlobalHasInitialized = (value: boolean) => {
+  globalHasInitialized = value
+  if (typeof window !== 'undefined') {
+    (window as any).__dialerGlobalHasInitialized = value
+  }
+}
+
+const getGlobalIsInitializing = (): boolean => {
+  if (typeof window !== 'undefined' && (window as any).__dialerGlobalIsInitializing !== undefined) {
+    return (window as any).__dialerGlobalIsInitializing
+  }
+  return globalIsInitializing
+}
+
+const setGlobalIsInitializing = (value: boolean) => {
+  globalIsInitializing = value
+  if (typeof window !== 'undefined') {
+    (window as any).__dialerGlobalIsInitializing = value
+  }
+}
+
 type CallStatus = 'idle' | 'requesting-mic' | 'connecting' | 'ringing' | 'in-call' | 'ended' | 'error'
 
 interface DialerModalProps {
@@ -36,50 +173,253 @@ interface DialerModalProps {
   leadName?: string
 }
 
-export default function DialerModal({
+function DialerModal({
   open,
   onClose,
   initialPhoneNumber = '',
   leadId,
   leadName,
 }: DialerModalProps) {
-  const [phoneNumber, setPhoneNumber] = useState(initialPhoneNumber)
-  const [callStatus, setCallStatus] = useState<CallStatus>('idle')
-  const [device, setDevice] = useState<Device | null>(null)
-  const [activeCall, setActiveCall] = useState<Call | null>(null)
-  const [hasDialerNumber, setHasDialerNumber] = useState(false)
-  const [checkingDialerNumber, setCheckingDialerNumber] = useState(true)
-  const [initializing, setInitializing] = useState(false)
-  const [deviceRegistered, setDeviceRegistered] = useState(false)
+  const dispatch = useDispatch()
+  
+  // #region agent log
+  const mountTime = useRef(Date.now())
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      // Detect if this is a page refresh (not just navigation)
+      // Use Performance API to detect page reload
+      let isPageRefresh = false
+      let timeSinceNavigation: number = Infinity
+      try {
+        const navEntries = performance.getEntriesByType('navigation') as PerformanceNavigationTiming[]
+        if (navEntries.length > 0) {
+          // 'reload' = page refresh, 'navigate' = initial load, 'back_forward' = browser back/forward
+          isPageRefresh = navEntries[0].type === 'reload'
+          // Calculate time since navigation for logging
+          const navigationTimestamp = (window as any).__lastNavigationTime
+          timeSinceNavigation = navigationTimestamp ? Date.now() - navigationTimestamp : Infinity
+        } else {
+          // Fallback: check if there's a navigation timestamp
+          const navigationTimestamp = (window as any).__lastNavigationTime
+          timeSinceNavigation = navigationTimestamp ? Date.now() - navigationTimestamp : Infinity
+          isPageRefresh = timeSinceNavigation > 2000 // More than 2 seconds = likely page refresh
+        }
+      } catch (e) {
+        // Performance API not available, use fallback
+        const navigationTimestamp = (window as any).__lastNavigationTime
+        timeSinceNavigation = navigationTimestamp ? Date.now() - navigationTimestamp : Infinity
+        isPageRefresh = timeSinceNavigation > 2000
+      }
+      
+      // Mark this navigation time for future checks
+      ;(window as any).__lastNavigationTime = Date.now()
+      
+      const globalDevice = getGlobalDevice()
+      const globalCall = getGlobalCall()
+      const windowDevice = typeof window !== 'undefined' ? (window as any).__dialerGlobalDevice : null
+      const windowCall = typeof window !== 'undefined' ? (window as any).__dialerGlobalCall : null
+      
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:68', message: 'DialerModal component MOUNTED', data: { open, initialPhoneNumber, leadId, leadName, pathname: window.location.pathname, hasGlobalDevice: !!globalDevice, hasGlobalCall: !!globalCall, hasWindowDevice: !!windowDevice, hasWindowCall: !!windowCall, deviceState: globalDevice ? (globalDevice as any).state : null, isPageRefresh, timeSinceNavigation, mountTime: mountTime.current }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run3', hypothesisId: 'I' }) }).catch(() => { });
+      
+      // CRITICAL: On page refresh, clear window store and reset state
+      // Twilio connections are lost on page refresh, so we should start fresh
+      if (isPageRefresh) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:82', message: 'Page refresh detected - clearing window store and resetting dialer state', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run3', hypothesisId: 'I' }) }).catch(() => { });
+        // #endregion
+        
+        // Clear window store
+        if (typeof window !== 'undefined') {
+          (window as any).__dialerGlobalDevice = null
+          ;(window as any).__dialerGlobalCall = null
+          ;(window as any).__dialerGlobalHasInitialized = false
+          ;(window as any).__dialerGlobalIsInitializing = false
+        }
+        
+        // Clear module-level store
+        globalDeviceStore = null
+        globalCallStore = null
+        globalHasInitialized = false
+        globalIsInitializing = false
+        
+        // Reset refs
+        deviceRef.current = null
+        activeCallRef.current = null
+        hasInitializedRef.current = false
+        isInitializingRef.current = false
+        
+        // Reset state
+        setDevice(null)
+        setActiveCall(null)
+        
+        // Reset Redux state via dispatch
+        dispatch(updateCallStatus('idle'))
+        dispatch(updateDeviceState({ deviceRegistered: false, initializing: false }))
+        
+        return // Don't restore anything on page refresh
+      }
+      
+      // CRITICAL: Restore device from window store on mount if it exists (only on navigation, not page refresh)
+      if (windowDevice && !device && !deviceRef.current) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:115', message: 'Restoring device from window store on mount (navigation, not refresh)', data: { deviceState: (windowDevice as any).state, isRegistered: (windowDevice as any).isRegistered }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run3', hypothesisId: 'I' }) }).catch(() => { });
+        // #endregion
+        deviceRef.current = windowDevice
+        setDevice(windowDevice)
+      }
+      
+      // CRITICAL: Restore call from window store on mount if it exists (only on navigation, not page refresh)
+      if (windowCall && !activeCall && !activeCallRef.current) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:125', message: 'Restoring call from window store on mount (navigation, not refresh)', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run3', hypothesisId: 'I' }) }).catch(() => { });
+        // #endregion
+        activeCallRef.current = windowCall
+        setActiveCall(windowCall)
+      }
+    }
+  }, []);
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:75', message: 'DialerModal props changed', data: { open, initialPhoneNumber, leadId, leadName, pathname: window.location.pathname, timeSinceMount: Date.now() - mountTime.current, hasGlobalDevice: !!getGlobalDevice(), hasGlobalCall: !!getGlobalCall() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run3', hypothesisId: 'I' }) }).catch(() => { });
+    }
+  }, [open, initialPhoneNumber, leadId, leadName]);
+  // #endregion
+  
+  // Redux state
+  const reduxCallStatus = useSelector(selectCallStatus)
+  const reduxIsDialerOpen = useSelector(selectIsDialerOpen) // Check Redux state, not just local prop
+  // #region agent log
+  if (typeof window !== 'undefined') {
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:78', message: 'Redux selector: callStatus', data: { reduxCallStatus, open }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+  }
+  // #endregion
+  const phoneNumbers = useSelector(selectPhoneNumbers)
+  const selectedInternalNumber = useSelector(selectSelectedInternalNumber)
+  const emailTemplates = useSelector(selectEmailTemplates)
+  const smsTemplates = useSelector(selectSmsTemplates)
+  const selectedTemplate = useSelector(selectSelectedTemplate)
+  const emailAccounts = useSelector(selectEmailAccounts)
+  const selectedEmailAccount = useSelector(selectSelectedEmailAccount)
+  const leadData = useSelector(selectLeadData)
+  const shouldRefetchPhoneNumbers = useSelector(selectShouldRefetchPhoneNumbers)
+  const shouldRefetchEmailTemplates = useSelector(selectShouldRefetchEmailTemplates)
+  const shouldRefetchSmsTemplates = useSelector(selectShouldRefetchSmsTemplates)
+  const shouldRefetchEmailAccounts = useSelector(selectShouldRefetchEmailAccounts)
+  
+  // Use Redux callStatus, but keep local for immediate updates
+  const [callStatus, setCallStatus] = useState<CallStatus>(reduxCallStatus)
+  
+  // Refs MUST be declared before useState that uses them
+  // Store device and call in refs to persist across re-renders (backup to state)
+  // Also sync with module-level store to persist across remounts
+  const deviceRef = useRef<Device | null>(getGlobalDevice())
+  const activeCallRef = useRef<Call | null>(getGlobalCall())
   const dialogJustOpened = useRef(false)
   const isClosingRef = useRef(false)
-
-  // New state for enhanced UI
-  const [phoneNumbers, setPhoneNumbers] = useState<any[]>([])
-  const [selectedInternalNumber, setSelectedInternalNumber] = useState<any>(null)
-  const [phoneNumbersLoading, setPhoneNumbersLoading] = useState(false)
+  const callDurationIntervalRef = useRef<NodeJS.Timeout | null>(null)
+  const simulationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const hasInitializedRef = useRef(getGlobalHasInitialized()) // Track if dialer has been initialized
+  const isInitializingRef = useRef(getGlobalIsInitializing()) // Prevent concurrent initialization
+  
+  // Local state for non-serializable objects and UI-only state
+  const [phoneNumber, setPhoneNumber] = useState(initialPhoneNumber || leadData.phoneNumber || '')
+  // Initialize from window/global store or refs if they exist (persist across remounts/navigation)
+  // This ensures device and call persist across page changes and component remounts
+  const [device, setDevice] = useState<Device | null>(getGlobalDevice() || deviceRef.current)
+  const [activeCall, setActiveCall] = useState<Call | null>(getGlobalCall() || activeCallRef.current)
+  
+  // Sync refs and window/global store with state when state changes (but preserve if state is lost)
+  useEffect(() => {
+    if (device) {
+      deviceRef.current = device
+      setGlobalDevice(device) // Persist to window and module-level store
+    } else if (deviceRef.current && !device) {
+      // State was lost but ref has it - restore from ref
+      setDevice(deviceRef.current)
+    } else {
+      // Check window/global store on every render to restore if module was reloaded
+      const globalDevice = getGlobalDevice()
+      if (globalDevice && !device && !deviceRef.current) {
+        // Component remounted or module reloaded - restore from window/global store
+        deviceRef.current = globalDevice
+        setDevice(globalDevice)
+      }
+    }
+  }, [device])
+  
+  useEffect(() => {
+    if (activeCall) {
+      activeCallRef.current = activeCall
+      setGlobalCall(activeCall) // Persist to window and module-level store
+    } else if (activeCallRef.current && !activeCall) {
+      // State was lost but ref has it - restore from ref
+      setActiveCall(activeCallRef.current)
+    } else {
+      // Check window/global store on every render to restore if module was reloaded
+      const globalCall = getGlobalCall()
+      if (globalCall && !activeCall && !activeCallRef.current) {
+        // Component remounted or module reloaded - restore from window/global store
+        activeCallRef.current = globalCall
+        setActiveCall(globalCall)
+      }
+    }
+  }, [activeCall])
+  
+  // Sync initialization flags with window/module-level store
+  useEffect(() => {
+    setGlobalHasInitialized(hasInitializedRef.current)
+  }, [hasInitializedRef.current])
+  
+  useEffect(() => {
+    setGlobalIsInitializing(isInitializingRef.current)
+  }, [isInitializingRef.current])
+  
   const [numberDropdownAnchor, setNumberDropdownAnchor] = useState<null | HTMLElement>(null)
-  const [callDuration, setCallDuration] = useState(0) // in seconds
-  const [isMuted, setIsMuted] = useState(false)
-  const [isOnHold, setIsOnHold] = useState(false)
-  const [callEndedInError, setCallEndedInError] = useState(false)
-  const [showScriptPanel, setShowScriptPanel] = useState(false)
-  const [showNotes, setShowNotes] = useState(false)
-  const [showEmailPanel, setShowEmailPanel] = useState(false)
-  const [showSmsPanel, setShowSmsPanel] = useState(false)
-  const [emailTemplates, setEmailTemplates] = useState<any[]>([])
-  const [smsTemplates, setSmsTemplates] = useState<any[]>([])
-  const [selectedTemplate, setSelectedTemplate] = useState<any>(null)
-  const [templatesLoading, setTemplatesLoading] = useState(false)
   const [sendingEmail, setSendingEmail] = useState(false)
   const [sendingSms, setSendingSms] = useState(false)
   const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null)
-  const [selectedUser, setSelectedUser] = useState<any>(null)
-  const [emailAccounts, setEmailAccounts] = useState<any[]>([])
-  const [emailAccountsLoading, setEmailAccountsLoading] = useState(false)
-  const [selectedEmailAccount, setSelectedEmailAccount] = useState<any>(null)
-  const callDurationIntervalRef = useRef<NodeJS.Timeout | null>(null)
-  const simulationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  
+  // Sync Redux callStatus to local state
+  useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:138', message: 'Sync effect: Redux callStatus changed', data: { reduxCallStatus, localCallStatus: callStatus, open, hasDevice: !!device, hasActiveCall: !!activeCall }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'B' }) }).catch(() => { });
+    // #endregion
+    setCallStatus(reduxCallStatus)
+  }, [reduxCallStatus])
+  
+  // Sync local callStatus changes to Redux
+  const updateCallStatusInRedux = (status: CallStatus) => {
+    setCallStatus(status)
+    dispatch(updateCallStatus(status))
+  }
+  
+  // Get Redux state for UI panels and other state
+  const dialerState = useSelector((state: any) => state.dialer)
+  const showScriptPanel = dialerState.showScriptPanel
+  const showNotes = dialerState.showNotes
+  const showEmailPanel = dialerState.showEmailPanel
+  const showSmsPanel = dialerState.showSmsPanel
+  const callDuration = dialerState.callDuration
+  const isMuted = dialerState.isMuted
+  const isOnHold = dialerState.isOnHold
+  const callEndedInError = dialerState.callEndedInError
+  const phoneNumbersLoading = dialerState.phoneNumbersLoading
+  const templatesLoading = dialerState.templatesLoading
+  const emailAccountsLoading = dialerState.emailAccountsLoading
+  const initializing = dialerState.initializing
+  const checkingDialerNumber = dialerState.checkingDialerNumber
+  const hasDialerNumber = dialerState.hasDialerNumber
+  const deviceRegistered = dialerState.deviceRegistered
+  const selectedUser = dialerState.selectedUser
+  
+  // #region agent log
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:175', message: 'Initialization state check', data: { initializing, deviceRegistered, hasDialerNumber, hasDevice: !!device, checkingDialerNumber, open }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
+    }
+  }, [initializing, deviceRegistered, hasDialerNumber, device, checkingDialerNumber, open]);
+  // #endregion
   
   // Global error handler for uncaught Twilio errors
   useEffect(() => {
@@ -93,7 +433,7 @@ export default function DialerModal({
       if (message.includes('application error') || message.includes('goodbye')) {
         event.preventDefault() // Prevent default error handling
         toast.error('Connection error. Please check your internet and try again.')
-        setCallStatus('error')
+        updateCallStatusInRedux('error')
         if (device) {
           try {
             device.destroy()
@@ -127,10 +467,43 @@ export default function DialerModal({
     }
   }, [initialPhoneNumber])
 
-  // Initialize device when modal opens
+  // Initialize device when modal opens (only once per open session)
   useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:223', message: 'Init effect: open changed', data: { open, reduxCallStatus, localCallStatus: callStatus, hasInitialized: hasInitializedRef.current, hasDevice: !!device, hasActiveCall: !!activeCall, deviceRegistered }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
+    // #endregion
     if (open) {
-      console.log('[DialerModal] Modal opened, setting dialogJustOpened flag')
+      // Check if we already have a device and it's registered - if so, don't re-initialize
+      // First check window/global store (persists across remounts), then refs, then state
+      const existingDevice = getGlobalDevice() || device || deviceRef.current
+      // Check device state directly (more reliable than Redux state on re-render)
+      const isDeviceRegistered = existingDevice && (existingDevice as any).state === 'registered'
+      const isDeviceReady = existingDevice && (deviceRegistered || isDeviceRegistered)
+      
+      // If we have a device in the window/global store but not in state/refs, restore it
+      const globalDevice = getGlobalDevice()
+      if (globalDevice && !device && !deviceRef.current) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:243', message: 'Restoring device from global store after remount', data: { deviceState: (globalDevice as any).state, isRegistered: (globalDevice as any).isRegistered }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'G' }) }).catch(() => { });
+        // #endregion
+        deviceRef.current = globalDevice
+        setDevice(globalDevice)
+      }
+      
+      // If we have a call in the window/global store but not in state/refs, restore it
+      const globalCall = getGlobalCall()
+      if (globalCall && !activeCall && !activeCallRef.current) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:253', message: 'Restoring call from global store after remount', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'G' }) }).catch(() => { });
+        // #endregion
+        activeCallRef.current = globalCall
+        setActiveCall(globalCall)
+      }
+      
+      // Only initialize if we haven't already initialized AND we don't have a working device
+      if (!hasInitializedRef.current && !isInitializingRef.current && !isDeviceReady) {
+        console.log('[DialerModal] Modal opened, initializing for first time')
+        isInitializingRef.current = true
       dialogJustOpened.current = true
       isClosingRef.current = false
 
@@ -148,14 +521,83 @@ export default function DialerModal({
       if (hasDialerNumber) {
         fetchPhoneNumbersWithAgents()
       }
+        
+        hasInitializedRef.current = true
+        isInitializingRef.current = false
       
       return () => {
         clearTimeout(timeoutId)
       }
+      } else if (isDeviceReady) {
+        // Device already exists and is ready - just mark as initialized, don't re-check
+        console.log('[DialerModal] Device already ready, skipping re-initialization', {
+          hasDevice: !!existingDevice,
+          deviceState: existingDevice ? (existingDevice as any).state : 'none',
+          deviceRegistered,
+          hasInitialized: hasInitializedRef.current
+        })
+        if (!hasInitializedRef.current) {
+          hasInitializedRef.current = true
+        }
+        // Restore device from ref if state was lost
+        if (!device && deviceRef.current) {
+          setDevice(deviceRef.current)
+        }
+        // Restore call from ref if state was lost
+        if (!activeCall && activeCallRef.current) {
+          setActiveCall(activeCallRef.current)
+        }
+        // Ensure deviceRegistered is set in Redux if device is actually registered
+        if (isDeviceRegistered && !deviceRegistered) {
+          dispatch(updateDeviceState({ deviceRegistered: true }))
+        }
+        // Update phone number if needed
+        if (initialPhoneNumber && initialPhoneNumber !== phoneNumber) {
+          setPhoneNumber(initialPhoneNumber)
+      }
     } else {
-      // Only cleanup if we're actually closing (not just re-rendering)
-      if (isClosingRef.current || !dialogJustOpened.current) {
-        console.log('[DialerModal] Modal closing, cleaning up device')
+        // Already initialized, just update phone number if needed
+        if (initialPhoneNumber && initialPhoneNumber !== phoneNumber) {
+          setPhoneNumber(initialPhoneNumber)
+        }
+      }
+    } else {
+      // Only cleanup if we're actually closing (not just re-rendering or remounting)
+      // CRITICAL: Check Redux state, not just local prop - during remount, prop might be false but Redux says open
+      // CRITICAL: Never cleanup if there's an active call - preserve call connection
+      const globalCall = getGlobalCall()
+      const hasActiveCall = activeCall || activeCallRef.current || globalCall
+      const currentCallStatus = reduxCallStatus || callStatus
+      const isCallActive = hasActiveCall && ['in-call', 'ringing', 'connecting'].includes(currentCallStatus)
+      
+      // #region agent log
+      const globalDevice = getGlobalDevice()
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:363', message: 'Cleanup check: open=false', data: { open, reduxIsDialerOpen, reduxCallStatus, localCallStatus: callStatus, hasActiveCall, isCallActive, isClosing: isClosingRef.current, dialogJustOpened: dialogJustOpened.current, hasGlobalDevice: !!globalDevice, hasGlobalCall: !!globalCall }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'G' }) }).catch(() => { });
+      // #endregion
+      
+      // CRITICAL: Don't cleanup if there's a device in the window/global store (persists across remounts)
+      // This handles the case where Redux state hasn't been restored yet during navigation
+      if (globalDevice) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:375', message: 'Skipping cleanup: Device exists in global store (preserving across remount)', data: { open, reduxIsDialerOpen, hasGlobalDevice: !!globalDevice, deviceState: (globalDevice as any)?.state }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'G' }) }).catch(() => { });
+        // #endregion
+        return // Don't cleanup - device should persist
+      }
+      
+      // DON'T cleanup if Redux says dialer is still open (might be remounting during navigation)
+      // Only cleanup if Redux also says it's closed AND we're actually closing (not just remounting)
+      if (reduxIsDialerOpen) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:384', message: 'Skipping cleanup: Redux says dialer is open (likely remounting)', data: { open, reduxIsDialerOpen }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'G' }) }).catch(() => { });
+        // #endregion
+        return // Don't cleanup - dialer should stay open
+      }
+      
+      if ((isClosingRef.current || !dialogJustOpened.current) && !isCallActive) {
+        console.log('[DialerModal] Modal closing, cleaning up device (no active call)')
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:291', message: 'Cleanup executing', data: { reduxCallStatus, localCallStatus: callStatus }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
+        // #endregion
 
         // Clear simulation
         if (simulationTimeoutRef.current) {
@@ -163,68 +605,104 @@ export default function DialerModal({
           simulationTimeoutRef.current = null
         }
 
-        if (activeCall) {
-          try {
-            // Only disconnect if it's a real call
-            if (typeof activeCall.disconnect === 'function') {
-            activeCall.disconnect()
-            }
-          } catch (e) {
-            console.error('Error disconnecting call:', e)
-          }
-          setActiveCall(null)
-        }
-        if (device) {
+        // Only cleanup if no active call exists
+        if (device && !isCallActive) {
           try {
             device.destroy()
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:545', message: 'Device destroyed - explicitly clearing window store', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'J' }) }).catch(() => { });
+            // #endregion
+            // Explicitly clear window store only after device is destroyed
+            if (typeof window !== 'undefined') {
+              (window as any).__dialerGlobalDevice = null
+            }
           } catch (e) {
             console.error('Error destroying device:', e)
           }
           setDevice(null)
+          deviceRef.current = null
+          globalDeviceStore = null // Clear module-level store only (setGlobalDevice preserves window store)
         }
-        setDeviceRegistered(false)
-        setCallStatus('idle')
+        
+        // Don't reset device state if there's an active call
+        if (!isCallActive) {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:308', message: 'Resetting state to idle', data: { reduxCallStatus, localCallStatus: callStatus }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
+          // #endregion
+          dispatch(updateDeviceState({ deviceRegistered: false }))
+          updateCallStatusInRedux('idle')
+          // Reset initialization flag when closing (only if no active call)
+          hasInitializedRef.current = false
+          isInitializingRef.current = false
+          setGlobalHasInitialized(false)
+          setGlobalIsInitializing(false)
+        } else {
+          console.log('[DialerModal] Preserving device and call state - active call in progress')
+        }
+      } else if (isCallActive) {
+        console.log('[DialerModal] Modal closing prevented - active call in progress, preserving connection')
+        // Keep device and call alive - don't cleanup
       }
     }
-  }, [open])
+  }, [open, dispatch, hasDialerNumber, initialPhoneNumber, phoneNumber, reduxCallStatus, callStatus, device, activeCall, deviceRegistered])
 
   // Initialize device only after we confirm we have a dialer number
+  // Only initialize once per session
   useEffect(() => {
-    if (open && hasDialerNumber && !device && !initializing && !checkingDialerNumber) {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:358', message: 'Device init effect: checking conditions', data: { open, hasDialerNumber, hasDevice: !!device, initializing, checkingDialerNumber, hasInitialized: hasInitializedRef.current }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
+    // #endregion
+    
+    // If initializing is stuck at true but we don't have a device, reset it
+    // BUT only if initialization is NOT actually in progress (check isInitializingRef)
+    if (open && hasDialerNumber && !device && initializing && !checkingDialerNumber && hasInitializedRef.current && !isInitializingRef.current) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:365', message: 'Resetting stuck initializing flag', data: { initializing, hasDevice: !!device, hasInitialized: hasInitializedRef.current, isInitializing: isInitializingRef.current }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
+      // #endregion
+      dispatch(setLoadingState({ key: 'initializing', value: false }))
+      return
+    }
+    
+    if (open && hasDialerNumber && !device && !initializing && !checkingDialerNumber && hasInitializedRef.current) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:373', message: 'Calling initializeDevice', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
+      // #endregion
       // Small delay to ensure state is settled
       const timer = setTimeout(() => {
+        if (!device) { // Double check device wasn't created in the meantime
         initializeDevice()
+        }
       }, 100)
       return () => clearTimeout(timer)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, hasDialerNumber])
+  }, [open, hasDialerNumber, device, initializing, checkingDialerNumber, dispatch])
 
-  // Fetch phone numbers when hasDialerNumber becomes true
+  // Fetch phone numbers when hasDialerNumber becomes true (only if not already fetched)
   useEffect(() => {
-    if (open && hasDialerNumber && phoneNumbers.length === 0) {
+    if (open && hasDialerNumber && phoneNumbers.length === 0 && hasInitializedRef.current) {
       fetchPhoneNumbersWithAgents()
     }
-  }, [open, hasDialerNumber])
+  }, [open, hasDialerNumber, phoneNumbers.length, shouldRefetchPhoneNumbers])
 
   // Get user data for template popups
   useEffect(() => {
-    if (open) {
+    if (open && !selectedUser) {
       try {
         const userStr = localStorage.getItem('User')
         if (userStr) {
           const userData = JSON.parse(userStr)
-          setSelectedUser(userData?.user || userData)
+          dispatch(setSelectedUser(userData?.user || userData))
         }
       } catch (e) {
         console.error('Error parsing User from localStorage:', e)
       }
     }
-  }, [open])
+  }, [open, selectedUser, dispatch])
 
   const checkDialerNumber = async () => {
     try {
-      setCheckingDialerNumber(true)
+      dispatch(setLoadingState({ key: 'checkingDialerNumber', value: true }))
       // Try multiple ways to get the token
       let token = localStorage.getItem('token')
       if (!token) {
@@ -239,7 +717,7 @@ export default function DialerModal({
         }
       }
       if (!token) {
-        setHasDialerNumber(false)
+        dispatch(updateDeviceState({ hasDialerNumber: false, checkingDialerNumber: false }))
         return
       }
 
@@ -252,25 +730,28 @@ export default function DialerModal({
       const data = await response.json()
       if (data.status && data.data) {
         const hasDialer = data.data.some((pn: any) => pn.usageType === 'internal_dialer')
-        setHasDialerNumber(hasDialer)
+        dispatch(updateDeviceState({ hasDialerNumber: hasDialer, checkingDialerNumber: false }))
         if (!hasDialer) {
           // Don't show error toast here - let the UI show the message
         }
       } else {
-        setHasDialerNumber(false)
+        dispatch(updateDeviceState({ hasDialerNumber: false, checkingDialerNumber: false }))
       }
     } catch (error) {
       console.error('Error checking dialer number:', error)
-      setHasDialerNumber(false)
-    } finally {
-      setCheckingDialerNumber(false)
+      dispatch(updateDeviceState({ hasDialerNumber: false, checkingDialerNumber: false }))
     }
   }
 
   // Fetch phone numbers with agent assignments
   const fetchPhoneNumbersWithAgents = async () => {
+    // Check if we should refetch (cache is stale or empty)
+    if (!shouldRefetchPhoneNumbers && phoneNumbers.length > 0) {
+      return // Use cached data
+    }
+    
     try {
-      setPhoneNumbersLoading(true)
+      dispatch(setLoadingState({ key: 'phoneNumbers', value: true }))
       let token = localStorage.getItem('token')
       if (!token) {
         try {
@@ -284,6 +765,7 @@ export default function DialerModal({
         }
       }
       if (!token) {
+        dispatch(setLoadingState({ key: 'phoneNumbers', value: false }))
         return
       }
 
@@ -295,17 +777,17 @@ export default function DialerModal({
 
       const data = await response.json()
       if (data.status && data.data) {
-        setPhoneNumbers(data.data)
         // Find and set the internal dialer number
         const internalNumber = data.data.find((pn: any) => pn.usageType === 'internal_dialer')
-        if (internalNumber) {
-          setSelectedInternalNumber(internalNumber)
-        }
+        dispatch(setPhoneNumbers({
+          phoneNumbers: data.data,
+          selectedInternalNumber: internalNumber || null,
+          timestamp: Date.now(),
+        }))
       }
     } catch (error) {
       console.error('Error fetching phone numbers with agents:', error)
-    } finally {
-      setPhoneNumbersLoading(false)
+      dispatch(setLoadingState({ key: 'phoneNumbers', value: false }))
     }
   }
 
@@ -355,14 +837,18 @@ export default function DialerModal({
   }
 
   const initializeDevice = async () => {
-    if (initializing) return
+    if (initializing || isInitializingRef.current) return
     if (!hasDialerNumber) {
       // Don't initialize if no dialer number is configured
       return
     }
 
     try {
-      setInitializing(true)
+      isInitializingRef.current = true
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:545', message: 'Setting initializing=true', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
+      // #endregion
+      dispatch(setLoadingState({ key: 'initializing', value: true }))
       // Try multiple ways to get the token
       let token = localStorage.getItem('token')
       if (!token) {
@@ -407,11 +893,13 @@ export default function DialerModal({
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:184', message: 'Token request failed', data: { status: response.status, message: data.message }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
         // #endregion
         if (response.status === 409) {
-          setHasDialerNumber(false)
+          dispatch(updateDeviceState({ hasDialerNumber: false }))
           toast.error('No internal dialer number set. Please configure one in settings.')
         } else {
           toast.error(data.message || 'Failed to get access token')
         }
+        dispatch(setLoadingState({ key: 'initializing', value: false }))
+        isInitializingRef.current = false
         return
       }
       
@@ -481,7 +969,8 @@ export default function DialerModal({
           fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:269', message: 'Device registration timeout - not registered', data: { deviceState: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
           // #endregion
           toast.error('Device registration timed out. Please check your connection and try again.')
-          setInitializing(false)
+          dispatch(setLoadingState({ key: 'initializing', value: false }))
+          isInitializingRef.current = false
         }
       }, 10000)
 
@@ -489,10 +978,13 @@ export default function DialerModal({
         console.log('Twilio Device registered')
         clearTimeout(registrationTimeout)
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:311', message: 'Device registered successfully', data: { state: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:653', message: 'Device registered event fired', data: { state: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
         // #endregion
-        setDeviceRegistered(true)
-        setInitializing(false)
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:659', message: 'Dispatching updateDeviceState with initializing=false', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
+        // #endregion
+        dispatch(updateDeviceState({ deviceRegistered: true, initializing: false }))
+        isInitializingRef.current = false
       })
       
       // Note: The Device should automatically register when created with a valid token
@@ -530,14 +1022,17 @@ export default function DialerModal({
           clearInterval(stateCheckInterval)
           clearTimeout(registrationTimeout)
           // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:376', message: 'Device registered via state check', data: { state: twilioDevice.state }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:699', message: 'Device registered via state check', data: { state: twilioDevice.state }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
           // #endregion
-          setDeviceRegistered(true)
-          setInitializing(false)
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:702', message: 'Dispatching updateDeviceState (state check) with initializing=false', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
+          // #endregion
+          dispatch(updateDeviceState({ deviceRegistered: true, initializing: false }))
+          isInitializingRef.current = false
         } else if (twilioDevice.state === 'registered' && !deviceRegistered) {
           // Also check state property directly
-          setDeviceRegistered(true)
-          setInitializing(false)
+          dispatch(updateDeviceState({ deviceRegistered: true, initializing: false }))
+          isInitializingRef.current = false
         }
         
         // Stop checking after 15 seconds
@@ -551,7 +1046,7 @@ export default function DialerModal({
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:330', message: 'Device unregistered', data: { reason, state: twilioDevice.state }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
         // #endregion
-        setDeviceRegistered(false)
+        dispatch(updateDeviceState({ deviceRegistered: false }))
       })
 
       twilioDevice.on('error', (error: any) => {
@@ -560,9 +1055,8 @@ export default function DialerModal({
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:322', message: 'Device error event', data: { errorCode: error.code, errorMessage: error.message, errorName: error.name, errorTwilioError: error.twilioError?.message, errorTwilioCode: error.twilioError?.code }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
         // #endregion
-        setDeviceRegistered(false)
-        setInitializing(false)
-        setCallStatus('error')
+        dispatch(updateDeviceState({ deviceRegistered: false, initializing: false }))
+        updateCallStatusInRedux('error')
         // Provide user-friendly error messages
         let errorMsg = 'Device error occurred'
         if (error.code === 31005) {
@@ -594,6 +1088,11 @@ export default function DialerModal({
 
 
       setDevice(twilioDevice)
+      deviceRef.current = twilioDevice // Store in ref for persistence across re-renders
+      setGlobalDevice(twilioDevice) // Store in window and module-level store for persistence across remounts
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:957', message: 'Device stored in window store', data: { deviceState: twilioDevice.state, hasWindowDevice: !!(typeof window !== 'undefined' && (window as any).__dialerGlobalDevice) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run3', hypothesisId: 'I' }) }).catch(() => { });
+      // #endregion
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:404', message: 'Device initialized and set, attempting explicit registration', data: { hasDevice: !!twilioDevice, state: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
       // #endregion
@@ -618,7 +1117,8 @@ export default function DialerModal({
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:310', message: 'Error initializing device', data: { errorMessage: error.message, errorName: error.name, errorStack: error.stack?.substring(0, 200) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
       // #endregion
-      setDeviceRegistered(false)
+      dispatch(updateDeviceState({ deviceRegistered: false, initializing: false }))
+      isInitializingRef.current = false
       let errorMsg = 'Failed to initialize dialer'
       if (error.message?.includes('token')) {
         errorMsg = 'Invalid access token. Please try again.'
@@ -626,7 +1126,6 @@ export default function DialerModal({
         errorMsg = `Initialization error: ${error.message}`
       }
       toast.error(errorMsg)
-      setInitializing(false)
     }
   }
 
@@ -652,26 +1151,28 @@ export default function DialerModal({
 
       simulationTimeoutRef.current = setTimeout(() => {
         // Step 3: In-call (5 seconds)
-        setCallStatus('in-call')
-        setCallDuration(0)
+        updateCallStatusInRedux('in-call')
+        dispatch(updateCallState({ callDuration: 0 }))
 
-        // Start call duration timer
+        // Start call duration timer - use ref to track duration locally for interval
+        let localDuration = 0
         callDurationIntervalRef.current = setInterval(() => {
-          setCallDuration((prev) => prev + 1)
+          localDuration += 1
+          dispatch(updateCallState({ callDuration: localDuration }))
         }, 1000)
 
         simulationTimeoutRef.current = setTimeout(() => {
           // Step 4: End call
-          setCallStatus('ended')
+          updateCallStatusInRedux('ended')
           setActiveCall(null)
+          activeCallRef.current = null
+          setGlobalCall(null) // Clear window and module-level store
           if (callDurationIntervalRef.current) {
             clearInterval(callDurationIntervalRef.current)
             callDurationIntervalRef.current = null
           }
-          setCallDuration(0)
-          setIsMuted(false)
-          setIsOnHold(false)
-          setShowScriptPanel(false)
+          dispatch(updateCallState({ callDuration: 0, isMuted: false, isOnHold: false }))
+          dispatch(updateUIPanel({ panel: 'script', value: false }))
           simulationTimeoutRef.current = null
         }, 5000) // 5 seconds in-call
       }, 5000) // 5 seconds ringing
@@ -679,6 +1180,10 @@ export default function DialerModal({
   }
 
   const handleCall = async () => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:842', message: 'handleCall called', data: { hasDevice: !!device, deviceRegistered, initializing, hasDialerNumber, phoneNumber, SIMULATE_CALL_FLOW }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
+    // #endregion
+    
     // Check if simulation mode is enabled
     if (SIMULATE_CALL_FLOW) {
       if (!phoneNumber) {
@@ -690,15 +1195,18 @@ export default function DialerModal({
     }
 
     if (!device) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:856', message: 'handleCall: No device', data: { hasDevice: !!device }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
+      // #endregion
       toast.error('Device not initialized. Please wait...')
       return
     }
 
     if (!deviceRegistered) {
-      toast.error('Device not ready. Please wait for connection...')
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:325', message: 'Call attempted before device registered', data: { hasDevice: !!device, deviceRegistered }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:863', message: 'handleCall: Device not registered', data: { hasDevice: !!device, deviceRegistered, deviceState: device ? (device as any).state : 'none' }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
       // #endregion
+      toast.error('Device not ready. Please wait for connection...')
       return
     }
 
@@ -722,12 +1230,12 @@ export default function DialerModal({
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       stream.getTracks().forEach((track) => track.stop()) // Stop immediately, Device will handle it
 
-      setCallStatus('connecting')
+      updateCallStatusInRedux('connecting')
 
       const userStr = localStorage.getItem('User')
       if (!userStr) {
         console.error('User not found in localStorage')
-        setCallStatus('idle')
+        updateCallStatusInRedux('idle')
         toast.error('User not found. Please log in again.')
         return
       }
@@ -737,7 +1245,7 @@ export default function DialerModal({
         userData = JSON.parse(userStr)
       } catch (e) {
         console.error('Error parsing user data:', e)
-        setCallStatus('idle')
+        updateCallStatusInRedux('idle')
         toast.error('Invalid user data. Please log in again.')
         return
       }
@@ -747,7 +1255,7 @@ export default function DialerModal({
       
       if (!user || !user.id) {
         console.error('User data missing id:', userData)
-        setCallStatus('idle')
+        updateCallStatusInRedux('idle')
         toast.error('Invalid user data. Please log in again.')
         return
       }
@@ -774,42 +1282,38 @@ export default function DialerModal({
       // #endregion
 
       setActiveCall(call)
-      setCallStatus('ringing')
+      activeCallRef.current = call // Store in ref for persistence across re-renders
+      setGlobalCall(call) // Store in window and module-level store for persistence across remounts
+      updateCallStatusInRedux('ringing')
 
       call.on('accept', () => {
-        setCallStatus('in-call')
+        updateCallStatusInRedux('in-call')
         toast.success('Call connected')
         // Start call duration timer
-        setCallDuration(0)
+        dispatch(updateCallState({ callDuration: 0 }))
         if (callDurationIntervalRef.current) {
           clearInterval(callDurationIntervalRef.current)
         }
         callDurationIntervalRef.current = setInterval(() => {
-          setCallDuration((prev) => prev + 1)
+          dispatch(updateCallState({ callDuration: dialerState.callDuration + 1 }))
         }, 1000)
       })
 
       call.on('disconnect', () => {
         // Preserve error status if call ended in error
-        setCallStatus((prevStatus) => {
-          // If we already set it to error, keep it as error
-          // Otherwise, if callEndedInError flag is set, set to error
-          // Otherwise, set to ended
-          if (prevStatus === 'error' || callEndedInError) {
-            return 'error'
-          }
-          return 'ended'
-        })
+        const newStatus = callStatus === 'error' || callEndedInError ? 'error' : 'ended'
+        updateCallStatusInRedux(newStatus)
         setActiveCall(null)
+        activeCallRef.current = null
+        globalCallStore = null // Clear module-level store
         // Stop call duration timer (but keep the duration value for summary)
         if (callDurationIntervalRef.current) {
           clearInterval(callDurationIntervalRef.current)
           callDurationIntervalRef.current = null
         }
         // Don't reset callDuration - keep it for the Call Summary
-        setIsMuted(false)
-        setIsOnHold(false)
-        setShowScriptPanel(false)
+        dispatch(updateCallState({ isMuted: false, isOnHold: false }))
+        dispatch(updateUIPanel({ panel: 'script', value: false }))
         // Only show "Call ended" toast if it wasn't an error
         if (!callEndedInError && callStatus !== 'error') {
         toast.info('Call ended')
@@ -817,17 +1321,17 @@ export default function DialerModal({
       })
 
       call.on('cancel', () => {
-        setCallStatus('ended')
+        updateCallStatusInRedux('ended')
         setActiveCall(null)
+        activeCallRef.current = null
+        globalCallStore = null // Clear module-level store
         // Stop call duration timer
         if (callDurationIntervalRef.current) {
           clearInterval(callDurationIntervalRef.current)
           callDurationIntervalRef.current = null
         }
-        setCallDuration(0)
-        setIsMuted(false)
-        setIsOnHold(false)
-        setShowScriptPanel(false)
+        dispatch(updateCallState({ callDuration: 0, isMuted: false, isOnHold: false }))
+        dispatch(updateUIPanel({ panel: 'script', value: false }))
         toast.info('Call canceled')
       })
 
@@ -836,9 +1340,11 @@ export default function DialerModal({
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:377', message: 'Call error event', data: { errorCode: error.code, errorMessage: error.message, errorName: error.name }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
         // #endregion
-        setCallStatus('error')
-        setCallEndedInError(true)
+        updateCallStatusInRedux('error')
+        dispatch(updateCallState({ callEndedInError: true }))
         setActiveCall(null)
+        activeCallRef.current = null
+        globalCallStore = null // Clear module-level store
         let errorMsg = 'Call failed'
         if (error.code === 31005) {
           errorMsg = 'Connection error. The call could not be established. This may be due to network issues or an invalid phone number.'
@@ -853,7 +1359,7 @@ export default function DialerModal({
       })
     } catch (error: any) {
       console.error('Error making call:', error)
-      setCallStatus('error')
+      updateCallStatusInRedux('error')
       toast.error(`Failed to make call: ${error.message}`)
     }
   }
@@ -887,16 +1393,16 @@ export default function DialerModal({
         }
       }
       setActiveCall(null)
+      activeCallRef.current = null
+      globalCallStore = null // Clear module-level store
       // Stop call duration timer
       if (callDurationIntervalRef.current) {
         clearInterval(callDurationIntervalRef.current)
         callDurationIntervalRef.current = null
       }
       // Don't reset callDuration - keep it for the summary
-      setIsMuted(false)
-      setIsOnHold(false)
-      setShowScriptPanel(false)
-      setCallEndedInError(false)
+        dispatch(updateCallState({ isMuted: false, isOnHold: false, callEndedInError: false }))
+        dispatch(updateUIPanel({ panel: 'script', value: false }))
     } else if (callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting') {
       // If there's no active call but status indicates a call was happening, set to ended
       setCallStatus('ended')
@@ -914,10 +1420,10 @@ export default function DialerModal({
     try {
       if (isMuted) {
         activeCall.mute(false)
-        setIsMuted(false)
+        dispatch(updateCallState({ isMuted: false }))
       } else {
         activeCall.mute(true)
-        setIsMuted(true)
+        dispatch(updateCallState({ isMuted: true }))
       }
     } catch (error: any) {
       console.error('Error toggling mute:', error)
@@ -940,7 +1446,7 @@ export default function DialerModal({
           toast.info('Hold functionality may not be available in this SDK version')
           return
         }
-        setIsOnHold(false)
+        dispatch(updateCallState({ isOnHold: false }))
       } else {
         if (typeof callWithHold.hold === 'function') {
           callWithHold.hold(true)
@@ -949,12 +1455,12 @@ export default function DialerModal({
           toast.info('Hold functionality may not be available in this SDK version')
           return
         }
-        setIsOnHold(true)
+        dispatch(updateCallState({ isOnHold: true }))
       }
     } catch (error: any) {
       console.error('Error toggling hold:', error)
       toast.error('Failed to toggle hold. This feature may not be supported.')
-      setIsOnHold(false) // Reset state on error
+      dispatch(updateCallState({ isOnHold: false })) // Reset state on error
     }
   }
 
@@ -976,8 +1482,13 @@ export default function DialerModal({
   }
 
   const fetchEmailTemplates = async () => {
+    // Check if we should refetch (cache is stale or empty)
+    if (!shouldRefetchEmailTemplates && emailTemplates.length > 0) {
+      return // Use cached data
+    }
+    
     try {
-      setTemplatesLoading(true)
+      dispatch(setLoadingState({ key: 'templates', value: true }))
       const localData = localStorage.getItem('User')
       let AuthToken = null
       if (localData) {
@@ -1001,21 +1512,26 @@ export default function DialerModal({
       const data = await response.json()
 
       if (data?.status === true && data?.data) {
-        setEmailTemplates(data.data)
+        dispatch(setEmailTemplates({ templates: data.data, timestamp: Date.now() }))
       } else {
         toast.error('Failed to load email templates')
+        dispatch(setLoadingState({ key: 'templates', value: false }))
       }
     } catch (error: any) {
       console.error('Error fetching email templates:', error)
       toast.error('Failed to load email templates')
-    } finally {
-      setTemplatesLoading(false)
+      dispatch(setLoadingState({ key: 'templates', value: false }))
     }
   }
 
   const fetchSmsTemplates = async () => {
+    // Check if we should refetch (cache is stale or empty)
+    if (!shouldRefetchSmsTemplates && smsTemplates.length > 0) {
+      return // Use cached data
+    }
+    
     try {
-      setTemplatesLoading(true)
+      dispatch(setLoadingState({ key: 'templates', value: true }))
       const localData = localStorage.getItem('User')
       let AuthToken = null
       if (localData) {
@@ -1025,6 +1541,7 @@ export default function DialerModal({
 
       if (!AuthToken) {
         toast.error('Authentication required')
+        dispatch(setLoadingState({ key: 'templates', value: false }))
         return
       }
 
@@ -1039,15 +1556,15 @@ export default function DialerModal({
       const data = await response.json()
 
       if (data?.status === true && data?.data) {
-        setSmsTemplates(data.data)
+        dispatch(setSmsTemplates({ templates: data.data, timestamp: Date.now() }))
       } else {
         toast.error('Failed to load SMS templates')
+        dispatch(setLoadingState({ key: 'templates', value: false }))
       }
     } catch (error: any) {
       console.error('Error fetching SMS templates:', error)
       toast.error('Failed to load SMS templates')
-    } finally {
-      setTemplatesLoading(false)
+      dispatch(setLoadingState({ key: 'templates', value: false }))
     }
   }
 
@@ -1117,8 +1634,8 @@ export default function DialerModal({
 
       if (data?.status === true) {
         toast.success('SMS sent successfully')
-        setSelectedTemplate(null)
-        setShowSmsPanel(false)
+        dispatch(setSelectedTemplate(null))
+        dispatch(updateUIPanel({ panel: 'sms', value: false }))
       } else {
         toast.error(data?.message || 'Failed to send SMS')
       }
@@ -1182,16 +1699,20 @@ export default function DialerModal({
   }
 
   const fetchEmailAccounts = async () => {
+    // Check if we should refetch (cache is stale or empty)
+    if (!shouldRefetchEmailAccounts && emailAccounts.length > 0) {
+      return // Use cached data
+    }
+    
     try {
-      setEmailAccountsLoading(true)
+      dispatch(setLoadingState({ key: 'emailAccounts', value: true }))
       const userId = selectedUser?.id || selectedUser?.user?.id
       const accounts = await getGmailAccounts(userId)
-      setEmailAccounts(accounts || [])
+      dispatch(setEmailAccounts({ accounts: accounts || [], timestamp: Date.now() }))
     } catch (error: any) {
       console.error('Error fetching email accounts:', error)
       toast.error('Failed to load email accounts')
-    } finally {
-      setEmailAccountsLoading(false)
+      dispatch(setLoadingState({ key: 'emailAccounts', value: false }))
     }
   }
 
@@ -1242,9 +1763,9 @@ export default function DialerModal({
 
       if (data?.status === true) {
         toast.success('Email sent successfully')
-        setSelectedTemplate(null)
-        setShowEmailPanel(false)
-        setSelectedEmailAccount(null)
+        dispatch(setSelectedTemplate(null))
+        dispatch(updateUIPanel({ panel: 'email', value: false }))
+        dispatch(setSelectedEmailAccount(null))
       } else {
         toast.error(data?.message || 'Failed to send email')
       }
@@ -1368,12 +1889,12 @@ export default function DialerModal({
             leadId={leadId}
             leadPhone={phoneNumber}
             selectedUser={selectedUser}
-            onTemplateSelect={setSelectedTemplate}
+            onTemplateSelect={(template) => dispatch(setSelectedTemplate(template))}
             onSendSms={handleSendSms}
             onDeleteTemplate={handleDeleteTemplate}
             onEditTemplate={handleEditTemplate}
             onRefreshTemplates={fetchSmsTemplates}
-            onClose={() => setShowSmsPanel(false)}
+            onClose={() => dispatch(updateUIPanel({ panel: 'sms', value: false }))}
           />
         )}
         {(callStatus === 'ended' || callStatus === 'error') && showEmailPanel && (
@@ -1386,13 +1907,13 @@ export default function DialerModal({
             sendingEmail={sendingEmail}
             leadId={leadId}
             selectedUser={selectedUser}
-            onTemplateSelect={setSelectedTemplate}
+            onTemplateSelect={(template) => dispatch(setSelectedTemplate(template))}
             onSendEmail={handleSendEmail}
             onDeleteTemplate={handleDeleteTemplate}
             onEditTemplate={handleEditTemplate}
             onRefreshTemplates={fetchEmailTemplates}
             onRefreshEmailAccounts={fetchEmailAccounts}
-            onClose={() => setShowEmailPanel(false)}
+            onClose={() => dispatch(updateUIPanel({ panel: 'email', value: false }))}
           />
         )}
 
@@ -1406,7 +1927,7 @@ export default function DialerModal({
               leadId={leadId}
               leadName={leadName}
               isExpanded={showScriptPanel}
-              onClose={() => setShowScriptPanel(false)}
+              onClose={() => dispatch(updateUIPanel({ panel: 'script', value: false }))}
             />
           </div>
         )}
@@ -1763,10 +2284,7 @@ export default function DialerModal({
                             onClick={(e) => {
                               e.preventDefault()
                               e.stopPropagation()
-                              setShowScriptPanel(prev => {
-                                console.log('Toggling script panel from', prev, 'to', !prev)
-                                return !prev
-                              })
+                              dispatch(updateUIPanel({ panel: 'script', value: !showScriptPanel }))
                             }}
                             className={`flex items-center justify-center transition-all ${!showScriptPanel
                               ? 'hover:bg-gray-50'
@@ -1802,7 +2320,7 @@ export default function DialerModal({
                       </div>
                       {/* Second Row: Take Notes */}
                       <button
-                        onClick={() => setShowNotes(!showNotes)}
+                        onClick={() => dispatch(updateUIPanel({ panel: 'notes', value: !showNotes }))}
                         className="rounded-full py-2 px-4 transition-all flex items-center gap-1.5"
                         style={{
                           backgroundColor: showNotes
@@ -1920,8 +2438,8 @@ export default function DialerModal({
                     <div className="w-full flex justify-center">
                       <Button
                         onClick={() => {
-                          setCallStatus('idle')
-                          setCallDuration(0)
+                          updateCallStatusInRedux('idle')
+                          dispatch(updateCallState({ callDuration: 0 }))
                         }}
                         className="rounded-lg border border-gray-300"
                         style={{
@@ -1955,15 +2473,15 @@ export default function DialerModal({
                         <Button
                           onClick={async () => {
                             if (!showEmailPanel) {
-                              setShowEmailPanel(true)
-                              setShowSmsPanel(false)
-                              setSelectedTemplate(null)
+                              dispatch(updateUIPanel({ panel: 'email', value: true }))
+                              dispatch(updateUIPanel({ panel: 'sms', value: false }))
+                              dispatch(setSelectedTemplate(null))
                               if (emailTemplates.length === 0) {
                                 await fetchEmailTemplates()
                               }
                             } else {
-                              setShowEmailPanel(false)
-                              setSelectedTemplate(null)
+                              dispatch(updateUIPanel({ panel: 'email', value: false }))
+                              dispatch(setSelectedTemplate(null))
                             }
                           }}
                           className="w-full rounded-lg"
@@ -1998,15 +2516,15 @@ export default function DialerModal({
                         <Button
                           onClick={async () => {
                             if (!showSmsPanel) {
-                              setShowSmsPanel(true)
-                              setShowEmailPanel(false)
-                              setSelectedTemplate(null)
+                              dispatch(updateUIPanel({ panel: 'sms', value: true }))
+                              dispatch(updateUIPanel({ panel: 'email', value: false }))
+                              dispatch(setSelectedTemplate(null))
                               if (smsTemplates.length === 0) {
                                 await fetchSmsTemplates()
                               }
                             } else {
-                              setShowSmsPanel(false)
-                              setSelectedTemplate(null)
+                              dispatch(updateUIPanel({ panel: 'sms', value: false }))
+                              dispatch(setSelectedTemplate(null))
                             }
                           }}
                           className="w-full rounded-lg"
@@ -2074,7 +2592,7 @@ export default function DialerModal({
                     {/* Create Script Button - Show if no script exists */}
                     <div className="flex w-full justify-center">
                       <Button
-                        onClick={() => setShowScriptPanel(!showScriptPanel)}
+                        onClick={() => dispatch(updateUIPanel({ panel: 'script', value: !showScriptPanel }))}
                         variant="filled"
                         className="rounded-full py-2 px-4 transition-all"
                         style={{
@@ -2134,7 +2652,22 @@ export default function DialerModal({
                   fontSize: '16px',
                 }}
               >
-                {initializing ? 'Initializing...' : !deviceRegistered ? 'Connecting...' : 'Start Call'}
+                {(() => {
+                  // #region agent log
+                  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:2299', message: 'Button render state', data: { initializing, deviceRegistered, hasDevice: !!device, hasPhoneNumber: !!phoneNumber, disabled: !device || !deviceRegistered || initializing || !phoneNumber }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
+                  // #endregion
+                  // Show "Initializing..." only if we're actually initializing AND don't have a device yet
+                  // Once we have a device, show "Connecting..." if not registered, or "Start Call" if registered
+                  if (initializing && !device) {
+                    return 'Initializing...'
+                  } else if (device && !deviceRegistered) {
+                    return 'Connecting...'
+                  } else if (device && deviceRegistered) {
+                    return 'Start Call'
+                  } else {
+                    return 'Initializing...'
+                  }
+                })()}
               </Button>
                   </div>
           )}
@@ -2145,7 +2678,7 @@ export default function DialerModal({
       {(callStatus === 'ringing' || callStatus === 'in-call' || callStatus === 'connecting') && (
         <CallNotesWindow
           open={showNotes}
-          onClose={() => setShowNotes(false)}
+          onClose={() => dispatch(updateUIPanel({ panel: 'notes', value: false }))}
           leadId={leadId}
           leadName={leadName}
         />
@@ -2155,4 +2688,26 @@ export default function DialerModal({
         </div>
   )
 }
+
+// Memoize component to prevent unnecessary re-renders on navigation
+// Only re-render if critical props actually change
+// IMPORTANT: This prevents re-renders but NOT remounts. Remounts happen when parent remounts.
+const MemoizedDialerModal = memo(DialerModal, (prevProps, nextProps) => {
+  // Return true if props are equal (skip re-render), false if different (re-render)
+  const propsEqual = (
+    prevProps.open === nextProps.open &&
+    prevProps.initialPhoneNumber === nextProps.initialPhoneNumber &&
+    prevProps.leadId === nextProps.leadId &&
+    prevProps.leadName === nextProps.leadName &&
+    prevProps.onClose === nextProps.onClose // Also check onClose reference
+  )
+  // #region agent log
+  if (typeof window !== 'undefined' && !propsEqual) {
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:2400', message: 'React.memo: Props changed, allowing re-render', data: { openChanged: prevProps.open !== nextProps.open, phoneChanged: prevProps.initialPhoneNumber !== nextProps.initialPhoneNumber, leadIdChanged: prevProps.leadId !== nextProps.leadId, leadNameChanged: prevProps.leadName !== nextProps.leadName, onCloseChanged: prevProps.onClose !== nextProps.onClose }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'G' }) }).catch(() => { });
+  }
+  // #endregion
+  return propsEqual
+})
+
+export default MemoizedDialerModal
 

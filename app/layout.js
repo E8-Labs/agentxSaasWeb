@@ -7,14 +7,10 @@ import Script from 'next/script'
 import { Toaster } from '../components/ui/sonner'
 
 import { ReduxProvider } from '../components/providers/redux-provider'
+import { BrandingProvider } from '../components/providers/branding-provider'
+import { LayoutTracker } from '../components/providers/layout-tracker'
 import DynamicTitle from '../components/common/DynamicTitle'
 import { getServerBranding } from '../lib/getServerBranding'
-import {
-  hexToHsl,
-  getDefaultPrimaryColor,
-  getDefaultSecondaryColor,
-  calculateIconFilter,
-} from '../utilities/colorUtils'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -76,43 +72,31 @@ export async function generateMetadata() {
   }
 }
 
-export default async function RootLayout({ children }) {
-  // Fetch branding server-side to inject CSS variables before hydration
-  const branding = await getServerBranding()
-
-  // Calculate CSS variables server-side (eliminates FOUC)
-  const primaryHsl = branding?.primaryColor
-    ? hexToHsl(branding.primaryColor)
-    : getDefaultPrimaryColor()
-  const secondaryHsl = branding?.secondaryColor
-    ? hexToHsl(branding.secondaryColor)
-    : getDefaultSecondaryColor()
-  const iconFilter = branding?.primaryColor
-    ? calculateIconFilter(branding.primaryColor)
-    : 'brightness(0) saturate(100%)'
-
-  // Inline CSS for brand colors - injected before React hydrates
-  const brandStyles = `
-    :root {
-      --brand-primary: ${primaryHsl};
-      --brand-secondary: ${secondaryHsl};
-      --primary: ${primaryHsl};
-      --secondary: ${secondaryHsl};
-      --icon-filter: ${iconFilter};
-    }
-  `
+export default function RootLayout({ children }) {
+  // No longer async - branding is handled client-side to prevent layout re-execution
+  // This ensures the layout doesn't re-render on navigation
+  // Note: Server components can't log client-side, so we track via LayoutTracker client component
 
   return (
     <html
       lang="en"
       style={{ backgroundColor: '#ffffff', background: '#ffffff' }}
-      data-branding-applied={branding ? 'server' : 'none'}
+      data-branding-applied="client"
     >
       <head>
-        {/* Brand colors injected server-side to prevent flash */}
+        {/* Brand colors will be injected client-side by BrandingProvider */}
+        {/* Default colors to prevent flash */}
         <style
-          id="brand-colors"
-          dangerouslySetInnerHTML={{ __html: brandStyles }}
+          id="brand-colors-default"
+          dangerouslySetInnerHTML={{ __html: `
+            :root {
+              --brand-primary: hsl(270, 91%, 65%);
+              --brand-secondary: hsl(258, 90%, 66%);
+              --primary: hsl(270, 91%, 65%);
+              --secondary: hsl(258, 90%, 66%);
+              --icon-filter: brightness(0) saturate(100%);
+            }
+          ` }}
         />
         <link rel="manifest" href="/manifest.json" />
 
@@ -295,8 +279,11 @@ export default async function RootLayout({ children }) {
         }}
       >
         <ReduxProvider>
-          <DynamicTitle />
-          {children}
+          <BrandingProvider>
+            <LayoutTracker />
+            <DynamicTitle />
+            {children}
+          </BrandingProvider>
         </ReduxProvider>
         <Toaster />
 
