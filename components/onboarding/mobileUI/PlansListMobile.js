@@ -6,6 +6,7 @@ import { formatDecimalValue } from '@/components/agency/agencyServices/CheckAgen
 import FeatureLine from '@/components/userPlans/FeatureLine'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import SignupHeaderMobile from './SignupHeaderMobile'
+import { useSelector } from 'react-redux'
 
 function PlansListMobile({
     loading,
@@ -23,7 +24,11 @@ function PlansListMobile({
     getMonthlyPrice,
     getCurrentPlans,
 }) {
+    const reduxUser = useSelector((state) => state.user.user)
     return (
+
+
+
         <div className="flex flex-col items-center h-full w-full min-h-screen">
             <SignupHeaderMobile title="Get an AI AaaS Agency" description="Gets more done than coffee. Cheaper too.😉" />
 
@@ -39,25 +44,29 @@ function PlansListMobile({
                 className="px-6 h-[75vh] overflow-y-auto w-[90%] bg-white rounded-xl p-2 mt-2  shadow-2xl"
             >
                 <div className="flex flex-col items-end w-full mt-2 mb-2">
-                    <div className="flex mt-3 flex-row items-center justify-end gap-5 px-2 me-[15px] md:me-[7px] w-full">
-                        {durationSaving.map((item) => {
-                            return (
-                                <button
-                                    key={item.id}
-                                    className={`px-2 py-1 rounded-tl-lg rounded-tr-lg font-semibold text-[13px] ${selectedDuration.id === item.id
-                                        ? 'text-white bg-brand-primary outline-none border-none'
-                                        : 'text-muted-foreground'
-                                        }`}
-                                    onClick={() => {
-                                        onDurationChange(item)
-                                        getCurrentPlans()
-                                    }}
-                                >
-                                    {item.title}
-                                </button>
-                            )
-                        })}
-                    </div>
+                    {
+                        reduxUser?.userRole !== 'AgencySubAccount' && (
+
+                            <div className="flex mt-3 flex-row items-center justify-end gap-5 px-2 me-[15px] md:me-[7px] w-full">
+                                {durationSaving.map((item) => {
+                                    return (
+                                        <button
+                                            key={item.id}
+                                            className={`px-2 py-1 rounded-tl-lg rounded-tr-lg font-semibold text-[13px] ${selectedDuration.id === item.id
+                                                ? 'text-white bg-brand-primary outline-none border-none'
+                                                : 'text-muted-foreground'
+                                                }`}
+                                            onClick={() => {
+                                                onDurationChange(item)
+                                                getCurrentPlans()
+                                            }}
+                                        >
+                                            {item.title}
+                                        </button>
+                                    )
+                                })}
+                            </div>
+                        )}
                     <div className="w-full flex md:w-auto flex-col items-center md:items-end justify-center md:justify-end">
                         <div className="border flex flex-row items-center bg-neutral-100 px-2 gap-[8px] rounded-full py-1.5 w-[90%] md:w-auto justify-center md:justify-start">
                             {duration?.map((item) => (
@@ -131,7 +140,7 @@ function PlansListMobile({
                                     <div className="flex-1 flex flex-col items-center w-full bg-white rounded-lg">
                                         <div className="flex items-center flex-col gap-2 w-full">
                                             <h3 className="font-bold text-2xl text-black capitalize mt-2">
-                                                {plan.title}
+                                                {plan.title || plan.name}
                                             </h3>
 
                                             <div className="flex items-baseline gap-2 mt-4">
@@ -142,7 +151,7 @@ function PlansListMobile({
 
                                             <div className="flex items-baseline gap-2 mt-1">
                                                 <span className="text-sm text-gray-500 capitalize">
-                                                    {plan.planDescription}
+                                                    {plan.planDescription || plan.details}
                                                 </span>
                                             </div>
                                         </div>

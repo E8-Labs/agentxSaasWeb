@@ -17,6 +17,7 @@ import AgentSelectSnackMessage, {
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import ProgressBar from '@/components/onboarding/ProgressBar'
 import UserPlans from '@/components/userPlans/UserPlans'
+import UserPlansMobile from '@/components/userPlans/UserPlansMobile'
 import { PersistanceKeys } from '@/constants/Constants'
 import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
@@ -45,10 +46,27 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
   const [subaccount, setSubaccount] = useState(null)
 
   const [disableContinue, setDisableContinue] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
     getPlans()
     checkIsFromOnboarding()
+    
+    // Detect if user is on mobile
+    const checkMobile = () => {
+      if (typeof window !== 'undefined') {
+        const screenWidth = window.innerWidth
+        const SM_SCREEN_SIZE = 640
+        const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          typeof navigator !== 'undefined' ? navigator.userAgent : ''
+        )
+        setIsMobile(screenWidth <= SM_SCREEN_SIZE || isMobileDevice)
+      }
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
   const checkIsFromOnboarding = () => {
@@ -308,42 +326,81 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
       />
 
       {/* Progress bar */}
-      <UserPlans
-        isFrom={'SubAccount'}
-        handleContinue={() => {
-          // alert("This is working function")
-          if (isFrom === 'UpgradePlanForTeam' && handleClose) {
-            handleClose()
-          } else {
-            // Check if user is on mobile
-            const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
-            const SM_SCREEN_SIZE = 640
-            const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-              typeof navigator !== 'undefined' ? navigator.userAgent : ''
-            )
-            
-            // For mobile subaccounts, redirect to continue to desktop screen
-            if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
-              console.log('Mobile subaccount - redirecting to continue to desktop screen')
-              // Use window.location.href for hard redirect to prevent React cleanup errors
-              setTimeout(() => {
-                window.location.href = '/createagent/desktop'
-              }, 0)
-            } else if (handleContinue && subaccount) {
-              // Only call handleContinue if it exists and subaccount is from onboarding flow
-              handleContinue()
+      {isMobile ? (
+        <UserPlansMobile
+          isFrom={'SubAccount'}
+          handleContinue={() => {
+            // alert("This is working function")
+            if (isFrom === 'UpgradePlanForTeam' && handleClose) {
+              handleClose()
             } else {
-              // Default: redirect to dashboard (when coming from direct URL or handleContinue is undefined)
-              // Use window.location.href for hard redirect to prevent React cleanup errors
-              setTimeout(() => {
-                window.location.href = '/dashboard'
-              }, 0)
+              // Check if user is on mobile
+              const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
+              const SM_SCREEN_SIZE = 640
+              const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+                typeof navigator !== 'undefined' ? navigator.userAgent : ''
+              )
+              
+              // For mobile subaccounts, redirect to continue to desktop screen
+              if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
+                console.log('Mobile subaccount - redirecting to continue to desktop screen')
+                // Use window.location.href for hard redirect to prevent React cleanup errors
+                setTimeout(() => {
+                  window.location.href = '/createagent/desktop'
+                }, 0)
+              } else if (handleContinue && subaccount) {
+                // Only call handleContinue if it exists and subaccount is from onboarding flow
+                handleContinue()
+              } else {
+                // Default: redirect to dashboard (when coming from direct URL or handleContinue is undefined)
+                // Use window.location.href for hard redirect to prevent React cleanup errors
+                setTimeout(() => {
+                  window.location.href = '/dashboard'
+                }, 0)
+              }
             }
-          }
-        }}
-        subPlanLoader={subPlanLoader}
-        // handleBack={handleBack}
-      />
+          }}
+          subPlanLoader={subPlanLoader}
+          // handleBack={handleBack}
+        />
+      ) : (
+        <UserPlans
+          isFrom={'SubAccount'}
+          handleContinue={() => {
+            // alert("This is working function")
+            if (isFrom === 'UpgradePlanForTeam' && handleClose) {
+              handleClose()
+            } else {
+              // Check if user is on mobile
+              const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
+              const SM_SCREEN_SIZE = 640
+              const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+                typeof navigator !== 'undefined' ? navigator.userAgent : ''
+              )
+              
+              // For mobile subaccounts, redirect to continue to desktop screen
+              if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
+                console.log('Mobile subaccount - redirecting to continue to desktop screen')
+                // Use window.location.href for hard redirect to prevent React cleanup errors
+                setTimeout(() => {
+                  window.location.href = '/createagent/desktop'
+                }, 0)
+              } else if (handleContinue && subaccount) {
+                // Only call handleContinue if it exists and subaccount is from onboarding flow
+                handleContinue()
+              } else {
+                // Default: redirect to dashboard (when coming from direct URL or handleContinue is undefined)
+                // Use window.location.href for hard redirect to prevent React cleanup errors
+                setTimeout(() => {
+                  window.location.href = '/dashboard'
+                }, 0)
+              }
+            }
+          }}
+          subPlanLoader={subPlanLoader}
+          // handleBack={handleBack}
+        />
+      )}
 
       <LoaderAnimation
         isOpen={planSubscribed || subPlanLoader}
