@@ -327,6 +327,7 @@ function DialerModal({
   const simulationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const hasInitializedRef = useRef(getGlobalHasInitialized()) // Track if dialer has been initialized
   const isInitializingRef = useRef(getGlobalIsInitializing()) // Prevent concurrent initialization
+  const dragStartPos = useRef<{ x: number; y: number; mouseX?: number; mouseY?: number }>({ x: 0, y: 0 })
   
   // Local state for non-serializable objects and UI-only state
   const [phoneNumber, setPhoneNumber] = useState(initialPhoneNumber || leadData.phoneNumber || '')
@@ -419,7 +420,6 @@ function DialerModal({
   const [isDragging, setIsDragging] = useState(false)
   const modalRef = useRef<HTMLDivElement>(null)
   const collapsedRef = useRef<HTMLDivElement>(null)
-  const dragStartPos = useRef({ x: 0, y: 0 })
   
   // Navigation detection for auto-collapse
   const pathnameRef = useRef<string | null>(null)
@@ -547,6 +547,12 @@ function DialerModal({
       dialogJustOpened.current = true
       isClosingRef.current = false
 
+      // Reset position to default when modal opens (if it was closed)
+      if (dialerPosition.x !== null || dialerPosition.y !== null) {
+        dispatch(updatePosition({ x: null, y: null }))
+        rightPositionRef.current = null
+      }
+      
       // Reset dropdown anchor when modal opens
       setNumberDropdownAnchor(null)
       
@@ -1921,9 +1927,13 @@ function DialerModal({
     const ref = isCollapsed ? collapsedRef : modalRef
     if (ref.current) {
       const rect = ref.current.getBoundingClientRect()
+      // Store the offset from mouse position to the modal's right edge and top edge
+      // This keeps the cursor position relative to the modal consistent during drag
       dragStartPos.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
+        x: rect.right - e.clientX,  // Offset from mouse X to right edge
+        y: e.clientY - rect.top,     // Offset from mouse Y to top edge
+        mouseX: e.clientX,          // Initial mouse X (for reference)
+        mouseY: e.clientY,           // Initial mouse Y (for reference)
       }
       setIsDragging(true)
     }
@@ -1933,18 +1943,26 @@ function DialerModal({
     const handleMouseMove = (e: MouseEvent) => {
       if (isDragging) {
         const activeRef = isMinimized ? collapsedRef.current : modalRef.current
-        if (activeRef) {
-          const newX = e.clientX - dragStartPos.current.x
+        if (activeRef && dragStartPos.current.mouseX !== undefined) {
+          // Calculate new right position: current mouse X + offset to right edge
+          // This keeps the cursor position relative to the modal consistent
+          const newRight = window.innerWidth - (e.clientX + dragStartPos.current.x)
           const newY = e.clientY - dragStartPos.current.y
           
           // Constrain to viewport
-          const maxX = window.innerWidth - activeRef.offsetWidth
-          const maxY = window.innerHeight - activeRef.offsetHeight
+          const minRight = 0
+          const maxRight = window.innerWidth - activeRef.offsetWidth
+          const constrainedRight = Math.max(minRight, Math.min(newRight, maxRight))
+          const constrainedY = Math.max(0, Math.min(newY, window.innerHeight - activeRef.offsetHeight))
           
-          const constrainedX = Math.max(0, Math.min(newX, maxX))
-          const constrainedY = Math.max(0, Math.min(newY, maxY))
+          // Update rightPositionRef immediately for real-time dragging
+          rightPositionRef.current = constrainedRight
           
-          dispatch(updatePosition({ x: constrainedX, y: constrainedY }))
+          // Convert right position to left position for storage (for backward compatibility)
+          const leftX = window.innerWidth - constrainedRight - activeRef.offsetWidth
+          
+          // Store as left position (will be converted to right in getPosition)
+          dispatch(updatePosition({ x: leftX, y: constrainedY }))
         }
       }
     }
@@ -1963,31 +1981,172 @@ function DialerModal({
     }
   }, [isDragging, isMinimized, dispatch])
 
-  // Calculate position
+  // Store the right position in a ref to keep it stable during panel expand/collapse
+  const rightPositionRef = useRef<number | null>(null)
+
+  // Calculate position - anchor from top-right, keep right edge fixed
   const getPosition = () => {
+    // During dragging, use the ref value directly for immediate updates
+    // If we have a stored right position, use it (keeps right edge fixed)
+    if (rightPositionRef.current !== null && !isDragging) {
+      return { right: rightPositionRef.current, y: dialerPosition.y !== null ? dialerPosition.y : (typeof window !== 'undefined' ? window.innerHeight * 0.01 : 0) }
+    }
+    
+    // During dragging, calculate from dialerPosition directly for immediate updates
+    if (isDragging && dialerPosition.x !== null && dialerPosition.y !== null) {
+      const baseWidth = 380
+      const right = typeof window !== 'undefined' ? window.innerWidth - dialerPosition.x - baseWidth : 20
+      return { right: Math.max(0, right), y: dialerPosition.y }
+    }
+    
+    // Initialize from stored position or default
     if (dialerPosition.x !== null && dialerPosition.y !== null) {
-      return { x: dialerPosition.x, y: dialerPosition.y }
+      // Convert stored left position to right position using current width
+      const baseWidth = 380
+      const right = typeof window !== 'undefined' ? window.innerWidth - dialerPosition.x - baseWidth : 20
+      rightPositionRef.current = Math.max(0, right)
+      return { right: rightPositionRef.current, y: dialerPosition.y }
     }
-    // Default position - start from top (match lead modal ~1% from top)
+    
+    // Default position - anchor from top-right
     if (typeof window !== 'undefined') {
-      return { x: window.innerWidth - 400, y: window.innerHeight * 0.01 }
+      const defaultRight = 20
+      rightPositionRef.current = defaultRight
+      return { right: defaultRight, y: window.innerHeight * 0.01 }
     }
-    return { x: 0, y: 0 }
+    
+    const defaultRight = 20
+    rightPositionRef.current = defaultRight
+    return { right: defaultRight, y: 0 }
   }
 
-  const position = getPosition()
+  // Calculate modal dimensions - keep right edge fixed, adjust width smoothly
+  const getModalDimensions = () => {
+    const baseWidth = 380
+    const expandedWidth = 700
+    const panelWidth = 320 // Width of script/email/sms panel
+    
+    const isExpanded = (showScriptPanel && callStatus !== 'ended' && callStatus !== 'error') || 
+                      ((showEmailPanel || showSmsPanel) && (callStatus === 'ended' || callStatus === 'error'))
+    
+    const desiredWidth = isExpanded ? expandedWidth : baseWidth
+    const position = getPosition()
+    // During dragging, use position directly; otherwise use ref for stability
+    const currentRight = isDragging ? (position.right || 20) : (rightPositionRef.current !== null ? rightPositionRef.current : (position.right || 20))
+    
+    if (typeof window !== 'undefined') {
+      // Calculate available space on the left
+      const availableLeft = window.innerWidth - currentRight - baseWidth
+      
+      // If expanding and not enough space on left, we need to adjust
+      if (isExpanded && availableLeft < panelWidth) {
+        // Calculate how much we need to shift left to accommodate the panel
+        const neededSpace = panelWidth - availableLeft
+        const minRight = 20 // Minimum padding from right edge
+        const maxRight = window.innerWidth - expandedWidth - 20 // Maximum right position
+        
+        // Calculate new right position (shift left)
+        const adjustedRight = Math.max(minRight, Math.min(currentRight - neededSpace, maxRight))
+        
+        // Update the ref so it stays at this position
+        rightPositionRef.current = adjustedRight
+        
+        return {
+          width: expandedWidth,
+          right: adjustedRight,
+          y: position.y,
+          adjusted: true
+        }
+      }
+      
+      // When collapsing, keep right position fixed (don't adjust it)
+      if (!isExpanded) {
+        // Keep the right position exactly as it was - only width changes
+        // Only constrain if it would go outside viewport
+        const minRight = 20
+        const maxRight = window.innerWidth - baseWidth - 20
+        if (currentRight < minRight || currentRight > maxRight) {
+          const constrainedRight = Math.max(minRight, Math.min(currentRight, maxRight))
+          rightPositionRef.current = constrainedRight
+          return {
+            width: baseWidth,
+            right: constrainedRight,
+            y: position.y,
+            adjusted: false
+          }
+        }
+        
+        // Right position is fine, keep it exactly as is
+        return {
+          width: baseWidth,
+          right: currentRight,
+          y: position.y,
+          adjusted: false
+        }
+      }
+    }
+    
+    // Normal case - enough space, keep right fixed
+    return {
+      width: desiredWidth,
+      right: currentRight,
+      y: position.y,
+      adjusted: false
+    }
+  }
+
+  const modalDimensions = getModalDimensions()
+  const position = { right: modalDimensions.right, y: modalDimensions.y }
+
+  // Update stored position when adjusted (only when expanding and position changes)
+  useEffect(() => {
+    if (modalDimensions.adjusted && modalRef.current) {
+      // Position was adjusted, update Redux store with new position
+      const leftX = typeof window !== 'undefined' 
+        ? window.innerWidth - modalDimensions.right - modalDimensions.width 
+        : 0
+      dispatch(updatePosition({ x: leftX, y: modalDimensions.y }))
+    }
+  }, [showScriptPanel, showEmailPanel, showSmsPanel, callStatus, modalDimensions.adjusted, dispatch])
+
+  // Update right position ref when dragging
+  useEffect(() => {
+    if (dialerPosition.x !== null && !isDragging) {
+      const baseWidth = 380
+      const right = typeof window !== 'undefined' ? window.innerWidth - dialerPosition.x - baseWidth : 20
+      rightPositionRef.current = Math.max(0, right)
+    }
+  }, [dialerPosition.x, isDragging])
+
+  // Reset position and state when modal is closed
+  useEffect(() => {
+    if (!open) {
+      // Reset position to default
+      dispatch(updatePosition({ x: null, y: null }))
+      rightPositionRef.current = null
+      // Reset UI panels
+      dispatch(updateUIPanel({ panel: 'script', value: false }))
+      dispatch(updateUIPanel({ panel: 'email', value: false }))
+      dispatch(updateUIPanel({ panel: 'sms', value: false }))
+      dispatch(updateUIPanel({ panel: 'notes', value: false }))
+      // Reset minimized state
+      dispatch(setMinimized(false))
+      // Clear dropdown anchors
+      setNumberDropdownAnchor(null)
+    }
+  }, [open, dispatch])
 
   // Collapsed UI component
   const CollapsedDialer = () => {
     if (!isMinimized || (callStatus !== 'in-call' && callStatus !== 'ringing' && callStatus !== 'connecting')) {
       return null
-    }
+  }
 
-    return (
+  return (
       <div
         className="fixed z-[1402] bg-white rounded-lg shadow-lg border border-gray-200"
         style={{
-          left: `${position.x}px`,
+          right: `${position.right}px`,
           top: `${position.y}px`,
           width: '280px',
           padding: '12px',
@@ -2082,12 +2241,12 @@ function DialerModal({
       ref={modalRef}
       className="fixed z-[1401] bg-white"
       style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        right: 'auto',
-        maxWidth: (showScriptPanel && callStatus !== 'ended' && callStatus !== 'error') || ((showEmailPanel || showSmsPanel) && (callStatus === 'ended' || callStatus === 'error')) ? '700px' : '380px',
-        width: (showScriptPanel && callStatus !== 'ended' && callStatus !== 'error') || ((showEmailPanel || showSmsPanel) && (callStatus === 'ended' || callStatus === 'error')) ? '700px' : '380px',
-        transition: isDragging ? 'none' : 'width 0.3s ease, max-width 0.3s ease, left 0.1s ease, top 0.1s ease',
+        right: `${modalDimensions.right}px`,
+        top: `${modalDimensions.y}px`,
+        left: 'auto',
+        maxWidth: `${modalDimensions.width}px`,
+        width: `${modalDimensions.width}px`,
+        transition: isDragging ? 'none' : 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), right 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.1s ease',
         boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1)',
         minHeight: '500px',
         maxHeight: '80vh',
@@ -2138,6 +2297,16 @@ function DialerModal({
             callDurationRef.current = 0
             updateCallStatusInRedux('idle')
             dispatch(updateCallState({ callDuration: 0, isMuted: false, isOnHold: false }))
+            // Reset position to default
+            dispatch(updatePosition({ x: null, y: null }))
+            rightPositionRef.current = null
+            // Reset UI panels
+            dispatch(updateUIPanel({ panel: 'script', value: false }))
+            dispatch(updateUIPanel({ panel: 'email', value: false }))
+            dispatch(updateUIPanel({ panel: 'sms', value: false }))
+            dispatch(updateUIPanel({ panel: 'notes', value: false }))
+            // Reset minimized state
+            dispatch(setMinimized(false))
             // Then close the dialer
             onClose()
                           }}
@@ -2264,18 +2433,14 @@ function DialerModal({
                     <span className="text-sm font-semibold text-gray-900">Your Number</span>
                   </div>
                   <div className="flex items-center justify-between relative">
-                    <div className="text-sm font-medium text-gray-900">
-                      {selectedInternalNumber?.phone ? formatPhoneNumber(selectedInternalNumber.phone) : 'No number selected'}
-                    </div>
                     <div style={{ position: 'relative', zIndex: 1000 }}>
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation()
-                          console.log('Change button clicked', e.currentTarget)
                           setNumberDropdownAnchor(e.currentTarget)
                         }}
-                        className="text-sm flex items-center gap-1 hover:opacity-80 transition-opacity cursor-pointer"
+                        className="text-sm flex items-center gap-1.5 hover:opacity-80 transition-opacity cursor-pointer"
                         style={{
                           color: 'hsl(var(--brand-primary))',
                           zIndex: 1000,
@@ -2284,10 +2449,13 @@ function DialerModal({
                           backgroundColor: 'transparent',
                           border: 'none',
                           padding: '4px 8px',
+                          fontWeight: 500,
                         }}
                       >
-                        Change
-                        <ChevronDown size={14} />
+                        <span className="text-gray-900">
+                          {selectedInternalNumber?.phone ? formatPhoneNumber(selectedInternalNumber.phone) : 'No number selected'}
+                        </span>
+                        <ChevronDown size={14} style={{ color: 'hsl(var(--brand-primary))' }} />
                       </button>
                       {numberDropdownAnchor && (
                         <Menu
@@ -2433,7 +2601,7 @@ function DialerModal({
                                       )}
                                       {/* Available Indicator (Green Dot) */}
                                       {pn.canBeInternalDialer && !isSelected && !hasAgents && (
-                                        <div className="w-2 h-2 rounded-full bg-green-500 flex-shrink-0" />
+                                        <div className="w-2 h-2 rounded-full bg-gray-400 flex-shrink-0" />
                                       )}
                                     </div>
                                   </div>
