@@ -883,7 +883,7 @@ function SMSTempletePopup({
                   )}
                 </div>
                 <div
-                  className="relative"
+                  className="relative w-[99%] ml-1"
                   onClick={(e) => e.stopPropagation()}
                   onMouseDown={(e) => e.stopPropagation()}
                 >
@@ -898,7 +898,7 @@ function SMSTempletePopup({
                       }
                     }}
                     placeholder="Type your message..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary resize-none"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-primary focus:border-brand-primary resize-none"
                     rows={6}
                     style={{
                       minHeight: '120px',

@@ -258,29 +258,31 @@ export default function CallingScript({
       className="flex flex-col h-full w-full border-r border-gray-200 bg-white relative"
       style={{ zIndex: 2000, position: 'relative' }}
     >
-      {/* Header - Title and Add Script button */}
-      <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between" style={{ position: 'relative', zIndex: 2000 }}>
-        <h3 className="font-bold text-xl text-gray-900">
-          Script
-        </h3>
-        {!isCreating && !isEditing && (
-          <Button
-            onClick={handleCreateScript}
-            variant="filled"
-            className="rounded-full py-2 px-4 transition-all"
-            style={{ 
-              backgroundColor: '#F9F9F9',
-              border: '1px solid #e5e7eb',
-              color: '#374151',
-              fontSize: '14px',
-              height: 'auto',
-            }}
-          >
-            <Plus size={14} className="mr-1.5" style={{ color: '#374151' }} />
-            Add Script
-          </Button>
-        )}
-      </div>
+      {/* Header - Title and Add Script button - Only show when not viewing a script */}
+      {!selectedScript && (
+        <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between" style={{ position: 'relative', zIndex: 2000 }}>
+          <h3 className="font-bold text-xl text-gray-900">
+            Script
+          </h3>
+          {!isCreating && !isEditing && (
+            <Button
+              onClick={handleCreateScript}
+              variant="filled"
+              className="rounded-full py-2 px-4 transition-all"
+              style={{ 
+                backgroundColor: '#F9F9F9',
+                border: '1px solid #e5e7eb',
+                color: '#374151',
+                fontSize: '14px',
+                height: 'auto',
+              }}
+            >
+              <Plus size={14} className="mr-1.5" style={{ color: '#374151' }} />
+              Add Script
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* Content Area */}
       <div 
@@ -419,58 +421,6 @@ export default function CallingScript({
                 )}
               </div>
               
-              {/* Info note about variables */}
-              {uniqueColumns.length > 0 && (
-                <div
-                  className="w-full flex flex-col items-start p-3 rounded-lg mb-3"
-                  style={{
-                    backgroundColor: '#F5F5F5',
-                  }}
-                >
-                  <div className="flex flex-row w-full mb-1">
-                    <div className="text-[13px] font-[400] text-black flex flex-row flex-wrap">
-                      <span className="font-bold">Note: </span>{" "}You can add variables like{' '}
-                      <span className="text-brand-primary">{`{First Name}, {Address}.`}</span>
-                      {uniqueColumns.length > 0 && showMoreUniqueColumns ? (
-                        <div className="flex flex-row flex-wrap gap-2">
-                          {uniqueColumns.map((item, index) => (
-                            <div
-                              key={index}
-                              className="flex flex-row items-center gap-2 text-brand-primary"
-                            >
-                              {`{${item}}`},
-                            </div>
-                          ))}
-                          <button
-                            className="text-brand-primary outline-none"
-                            onClick={() => setShowMoreUniqueColumns(false)}
-                          >
-                            show less
-                          </button>
-                        </div>
-                      ) : (
-                        <div>
-                          {uniqueColumns.length > 0 && (
-                            <button
-                              className="text-brand-primary flex flex-row items-center font-bold outline-none"
-                              onClick={() => setShowMoreUniqueColumns(true)}
-                            >
-                              <Plus
-                                size={15}
-                                style={{
-                                  strokeWidth: 40,
-                                }}
-                              />
-                              {uniqueColumns.length}
-                            </button>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-
               <Textarea
                 ref={contentTextareaRef}
                 value={editContent}
@@ -500,8 +450,8 @@ export default function CallingScript({
           </div>
         ) : selectedScript ? (
           <div className="flex flex-col h-full">
-            {/* Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-gray-200 mb-6">
+            {/* Header - Title and Back button */}
+            <div className="py-5 border-b border-gray-200 flex items-center justify-between" style={{ position: 'relative', zIndex: 2000 }}>
               <div className="flex items-center gap-3">
                 <Button
                   onClick={() => setSelectedScript(null)}
@@ -512,12 +462,9 @@ export default function CallingScript({
                   <ArrowLeft size={16} />
                 </Button>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.1)' }}>
-                    <FileText size={20} style={{ color: 'hsl(var(--brand-primary))' }} />
-                  </div>
                   <div>
                     <h3 className="font-semibold text-lg text-gray-900">{selectedScript.title}</h3>
-                    <p className="text-xs text-gray-500 mt-0.5">Calling Script</p>
+                    {/* <p className="text-xs text-gray-500 mt-0.5">Calling Script</p> */}
                   </div>
                 </div>
               </div>
@@ -536,16 +483,18 @@ export default function CallingScript({
             </div>
 
             {/* Content Card */}
-            <Card className="flex-1 border-2" style={{ borderColor: 'hsl(var(--brand-primary) / 0.2)' }}>
-              <CardContent className="p-6">
-                <div className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed" style={{ 
-                  lineHeight: '1.75',
-                  fontSize: '14px',
-                }}>
-                  {selectedScript.content}
-                </div>
-              </CardContent>
-            </Card>
+            <div className="flex-1 overflow-y-auto px-6">
+              <Card className="border-2 mt-6" style={{ borderColor: 'hsl(var(--brand-primary) / 0.2)' }}>
+                <CardContent className="p-6">
+                  <div className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed" style={{ 
+                    lineHeight: '1.75',
+                    fontSize: '14px',
+                  }}>
+                    {selectedScript.content}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         ) : scripts.length > 0 ? (
           <div className="space-y-3 py-4">
@@ -668,9 +617,21 @@ export default function CallingScript({
               setScriptMenuAnchor(null)
               setSelectedScriptForMenu(null)
             }}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              fontSize: 15,
+              fontWeight: 500,
+            }}
           >
-            <Pencil size={14} className="mr-2" />
-            Edit
+            <Image
+              src="/svgIcons/editIcon.svg"
+              alt="Edit"
+              width={18}
+              height={18}
+            />
+            <div>Edit</div>
           </MenuItem>
           <MenuItem
             onClick={() => {
@@ -680,10 +641,23 @@ export default function CallingScript({
               setScriptMenuAnchor(null)
               setSelectedScriptForMenu(null)
             }}
-            style={{ color: '#dc2626' }}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              // justifyContent: 'center',
+              gap: 1,
+              fontSize: 15,
+              fontWeight: 500,
+              color: '#dc2626',
+            }}
           >
-            <X size={14} className="mr-2" />
-            Delete
+            <Image
+              src="/otherAssets/deleteIcon.png"
+              alt="Delete"
+              width={18}
+              height={18}
+            />
+            <div>Delete</div>
           </MenuItem>
         </Menu>
       )}

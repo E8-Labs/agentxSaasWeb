@@ -131,14 +131,8 @@ export default function SmsTemplatePanel({
               height: 'auto',
             }}
           >
-            <FileText
-              size={14}
-              className="mr-1.5"
-              style={{
-                color: '#374151'
-              }}
-            />
-            Compose New
+            <span className="mr-1.5">✏️</span>
+            Create SMS
           </Button>
         </div>
         <div className="flex-1 overflow-y-auto p-4">

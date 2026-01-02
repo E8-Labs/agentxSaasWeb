@@ -227,15 +227,17 @@ export default function CallSummaryModal({
                     // TODO: Open compose new email modal
                     toast.info('Compose new email feature coming soon')
                   }}
-                  className="w-full rounded-lg border border-gray-300"
+                  variant="filled"
+                  className="w-full rounded-full py-2 px-4 transition-all"
                   style={{
-                    backgroundColor: 'white',
+                    backgroundColor: '#F9F9F9',
+                    border: '1px solid #e5e7eb',
                     color: '#374151',
                     fontSize: '14px',
-                    padding: '8px 16px',
+                    height: 'auto',
                   }}
                 >
-                  <span className="mr-2">✏️</span>
+                  <span className="mr-1.5">✏️</span>
                   Create Email
                 </Button>
               </div>

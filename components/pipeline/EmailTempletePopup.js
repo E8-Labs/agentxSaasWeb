@@ -1381,91 +1381,91 @@ function EmailTempletePopup({
                 </div>
               )}
 
-              {!isLeadEmail && (
-                <div className="flex items-center gap-2 flex-1">
-                  <label className="text-[15px] font-[400] text-black whitespace-nowrap">
-                    Template
-                  </label>
-                  {/* Select Template dropdown */}
-                  <div className="flex-1">
-                    <FormControl size="small" fullWidth sx={{ minWidth: 180 }}>
-                      <Select
-                        value={selectedTemp || ''}
-                        onChange={(e) => {
-                          if (e.target.value === 'new-template') {
-                            setShowNewTemplateModal(true)
-                          } else {
-                            handleSelect(e.target.value)
-                          }
-                        }}
-                        displayEmpty
-                        renderValue={(selected) =>
-                          selected?.templateName || (
-                            <div style={{ color: '#aaa' }}>Select Template</div>
-                          )
+              <div className="flex items-center gap-2 flex-1">
+                <label className="text-[15px] font-[400] text-black whitespace-nowrap">
+                  Template
+                </label>
+                {/* Select Template dropdown */}
+                <div className="flex-1">
+                  <FormControl size="small" fullWidth sx={{ minWidth: 180 }}>
+                    <Select
+                      value={selectedTemp || ''}
+                      onChange={(e) => {
+                        if (e.target.value === 'new-template') {
+                          setShowNewTemplateModal(true)
+                        } else {
+                          handleSelect(e.target.value)
                         }
-                        sx={{
-                          fontSize: '0.875rem',
-                          height: '42px',
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            borderColor: '#d1d5db',
-                          },
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'hsl(var(--brand-primary))',
-                          },
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            borderColor: 'hsl(var(--brand-primary))',
-                          },
-                        }}
-                        MenuProps={{
-                          PaperProps: {
-                            style: {
-                              maxHeight: '30vh',
-                              overflow: 'auto',
-                              scrollbarWidth: 'none',
-                              zIndex: 1700, // Higher than modal (1500) and backdrop
-                            },
-                          },
-                          disablePortal: false,
-                          container: typeof document !== 'undefined' ? document.body : null,
+                      }}
+                      displayEmpty
+                      renderValue={(selected) =>
+                        selected?.templateName || (
+                          <div style={{ color: '#aaa' }}>Select Template</div>
+                        )
+                      }
+                      sx={{
+                        fontSize: '0.875rem',
+                        height: '42px',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#d1d5db',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--brand-primary))',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--brand-primary))',
+                        },
+                      }}
+                      MenuProps={{
+                        PaperProps: {
                           style: {
-                            zIndex: 1700,
+                            maxHeight: '30vh',
+                            overflow: 'auto',
+                            scrollbarWidth: 'none',
+                            zIndex: 1700, // Higher than modal (1500) and backdrop
                           },
-                        }}
-                      >
-                        {templetes?.length > 0 ? (
-                          templetes?.map((item, index) =>
-                            detailsLoader?.id === item.id ? (
-                              <CircularProgress key={item.id} size={20} />
-                            ) : (
-                              <MenuItem
-                                key={index}
-                                value={item}
-                              >
-                                <div className="flex flex-row items-center gap-2 w-full">
-                                  <div className="text-[15] font-[500] flex-1 truncate min-w-0">
-                                    {item.templateName}
-                                  </div>
-                                  {delTempLoader?.id === item.id ? (
-                                    <CircularProgress size={20} className="flex-shrink-0" />
-                                  ) : (
-                                    <button
-                                      onClick={(e) => {
-                                        e.preventDefault()
-                                        handleDelete(e, item)
-                                      }}
-                                      className="text-brand-primary hover:text-brand-primary/80 transition-colors flex-shrink-0 ml-2"
-                                    >
-                                      <Trash2 size={16} />
-                                    </button>
-                                  )}
+                        },
+                        disablePortal: false,
+                        container: typeof document !== 'undefined' ? document.body : null,
+                        style: {
+                          zIndex: 1700,
+                        },
+                      }}
+                    >
+                      {templetes?.length > 0 ? (
+                        templetes?.map((item, index) =>
+                          detailsLoader?.id === item.id ? (
+                            <CircularProgress key={item.id} size={20} />
+                          ) : (
+                            <MenuItem
+                              key={index}
+                              value={item}
+                            >
+                              <div className="flex flex-row items-center gap-2 w-full">
+                                <div className="text-[15] font-[500] flex-1 truncate min-w-0">
+                                  {item.templateName}
                                 </div>
-                              </MenuItem>
-                            ),
-                          )
-                        ) : (
-                          <div className="ml-2">No template found</div>
-                        )}
+                                {!isLeadEmail && delTempLoader?.id === item.id ? (
+                                  <CircularProgress size={20} className="flex-shrink-0" />
+                                ) : !isLeadEmail ? (
+                                  <button
+                                    onClick={(e) => {
+                                      e.preventDefault()
+                                      handleDelete(e, item)
+                                    }}
+                                    className="text-brand-primary hover:text-brand-primary/80 transition-colors flex-shrink-0 ml-2"
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
+                                ) : null}
+                              </div>
+                            </MenuItem>
+                          ),
+                        )
+                      ) : (
+                        <div className="ml-2">No template found</div>
+                      )}
+                      {!isLeadEmail && (
                         <MenuItem
                           value="new-template"
                           sx={{
@@ -1481,11 +1481,11 @@ function EmailTempletePopup({
                             New Template
                           </div>
                         </MenuItem>
-                      </Select>
-                    </FormControl>
-                  </div>
+                      )}
+                    </Select>
+                  </FormControl>
                 </div>
-              )}
+              </div>
 
               {/* Subject Field - Unified design with Variables dropdown */}
               <div className="flex items-center gap-2">
