@@ -5,10 +5,11 @@ import Image from 'next/image'
 import { Button as ButtonBase } from '../ui/button'
 import { Textarea as TextareaBase } from '../ui/textarea'
 import { Input as InputBase } from '../ui/input'
-import { FileText, Plus, Pencil, X, Check, Hash, Square, Eye, Type, RotateCw, Grid3x3, Minus, Code, ChevronDown, Send, MoreVertical, ArrowLeft } from 'lucide-react'
+import { FileText, Plus, Pencil, X, Check, Hash, Square, Eye, Type, RotateCw, Grid3x3, Minus, Code, ChevronDown, Send, MoreVertical, ArrowLeft, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Menu, MenuItem, FormControl, Select } from '@mui/material'
 import { Card as CardBase, CardHeader as CardHeaderBase, CardTitle as CardTitleBase, CardContent as CardContentBase } from '../ui/card'
+import { Dialog as DialogBase, DialogContent as DialogContentBase, DialogDescription as DialogDescriptionBase, DialogFooter as DialogFooterBase, DialogHeader as DialogHeaderBase, DialogTitle as DialogTitleBase } from '../ui/dialog'
 import { getUniquesColumn } from '../globalExtras/GetUniqueColumns'
 
 // Type assertions for components from .jsx files
@@ -19,6 +20,12 @@ const Card = CardBase as any
 const CardHeader = CardHeaderBase as any
 const CardTitle = CardTitleBase as any
 const CardContent = CardContentBase as any
+const Dialog = DialogBase as any
+const DialogContent = DialogContentBase as any
+const DialogDescription = DialogDescriptionBase as any
+const DialogFooter = DialogFooterBase as any
+const DialogHeader = DialogHeaderBase as any
+const DialogTitle = DialogTitleBase as any
 
 interface CallingScript {
   id: number
@@ -56,6 +63,9 @@ export default function CallingScript({
   const [uniqueColumns, setUniqueColumns] = useState<string[]>([])
   const [selectedVariable, setSelectedVariable] = useState('')
   const [showMoreUniqueColumns, setShowMoreUniqueColumns] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [scriptToDelete, setScriptToDelete] = useState<number | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -142,20 +152,25 @@ export default function CallingScript({
     setSelectedScript(null) // Go back to list view
   }
 
-  const handleDeleteScript = async (scriptId: number) => {
-    if (!confirm('Are you sure you want to delete this script?')) {
-      return
-    }
+  const handleDeleteScript = (scriptId: number) => {
+    setScriptToDelete(scriptId)
+    setShowDeleteConfirm(true)
+  }
+
+  const confirmDeleteScript = async () => {
+    if (!scriptToDelete) return
 
     try {
+      setDeleting(true)
       const token = localStorage.getItem('token') || JSON.parse(localStorage.getItem('User') || '{}').token
 
       if (!token) {
         toast.error('Not authenticated')
+        setDeleting(false)
         return
       }
 
-      const response = await fetch(`/api/calling-scripts/${scriptId}`, {
+      const response = await fetch(`/api/calling-scripts/${scriptToDelete}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -167,15 +182,20 @@ export default function CallingScript({
 
       if (!response.ok) {
         toast.error(data.message || 'Failed to delete script')
+        setDeleting(false)
         return
       }
 
       toast.success('Script deleted successfully')
       await fetchScripts() // Refresh scripts
       setSelectedScript(null) // Go back to list view
+      setShowDeleteConfirm(false)
+      setScriptToDelete(null)
     } catch (error: any) {
       console.error('Error deleting script:', error)
       toast.error('Failed to delete script')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -661,6 +681,45 @@ export default function CallingScript({
           </MenuItem>
         </Menu>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog 
+        open={showDeleteConfirm} 
+        onOpenChange={(open) => {
+          if (!open && !deleting) {
+            setShowDeleteConfirm(false)
+            setScriptToDelete(null)
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Delete Script</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this script?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button
+              onClick={confirmDeleteScript}
+              disabled={deleting}
+              style={{
+                backgroundColor: '#dc2626',
+                color: 'white',
+              }}
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

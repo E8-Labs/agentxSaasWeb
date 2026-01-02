@@ -83,6 +83,7 @@ import { capitalize } from '@/utilities/StringUtility'
 import { getAgentsListImage } from '@/utilities/agentUtilities'
 import { GetFormattedDateString } from '@/utilities/utility'
 import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
+import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
 
 import NoVoicemailView from '../../myagentX/NoVoicemailView'
 import AgentSelectSnackMessage, {
@@ -152,6 +153,14 @@ const LeadDetails = ({
 
   //code for del tag
   const [DelTagLoader, setDelTagLoader] = useState(null)
+
+  //code for tag input with autocomplete
+  const [tagInputValue, setTagInputValue] = useState('')
+  const [tagSuggestions, setTagSuggestions] = useState([])
+  const [showTagSuggestions, setShowTagSuggestions] = useState(false)
+  const [uniqueColumns, setUniqueColumns] = useState([])
+  const [addTagLoader, setAddTagLoader] = useState(false)
+  const tagInputRef = React.useRef(null)
 
   //code for stages drop down
   const [selectedStage, setSelectedStage] = useState('')
@@ -275,7 +284,20 @@ const LeadDetails = ({
     getNumbers()
     getData()
     getCreditCost()
+    getUniqueColumns()
   }, [])
+
+  // Fetch unique columns for tag autocomplete
+  const getUniqueColumns = async () => {
+    try {
+      const columns = await getUniquesColumn()
+      if (columns && Array.isArray(columns)) {
+        setUniqueColumns(columns)
+      }
+    } catch (error) {
+      console.error('Error fetching unique columns:', error)
+    }
+  }
 
   // get the credit cost
   const getCreditCost = async () => {
@@ -929,6 +951,111 @@ const LeadDetails = ({
         return [...prevIds, item.id]
       }
     })
+  }
+
+  //code for adding tag
+  const handleAddTag = async (tagValue) => {
+    if (!tagValue || !tagValue.trim()) return
+
+    const trimmedTag = tagValue.trim()
+    
+    // Check if tag already exists
+    if (selectedLeadsDetails?.tags?.includes(trimmedTag)) {
+      showSnackbar('Tag already exists', SnackbarTypes.Error)
+      setTagInputValue('')
+      return
+    }
+
+    try {
+      setAddTagLoader(true)
+      let AuthToken = null
+
+      const userData = localStorage.getItem('User')
+      if (userData) {
+        const localData = JSON.parse(userData)
+        AuthToken = localData.token
+      }
+
+      // Prepare updated tags array
+      const updatedTags = [...(selectedLeadsDetails.tags || []), trimmedTag]
+
+      // Call update lead API with tags
+      const ApiData = {
+        leadId: selectedLeadsDetails.id,
+        tags: updatedTags,
+      }
+
+      const ApiPath = Apis.updateLead
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response) {
+        if (response.data.status === true) {
+          setSelectedLeadsDetails((prevDetails) => ({
+            ...prevDetails,
+            tags: updatedTags,
+          }))
+          setTagInputValue('')
+          setShowTagSuggestions(false)
+          showSnackbar('Tag added successfully', SnackbarTypes.Success)
+        } else {
+          showSnackbar(response.data.message || 'Failed to add tag', SnackbarTypes.Error)
+        }
+      }
+    } catch (error) {
+      console.error('Error occurred in update lead api:', error)
+      showSnackbar('Failed to add tag. Please try again.', SnackbarTypes.Error)
+    } finally {
+      setAddTagLoader(false)
+    }
+  }
+
+  // Handle tag input change with autocomplete
+  const handleTagInputChange = (e) => {
+    const value = e.target.value
+    setTagInputValue(value)
+
+    if (value.trim()) {
+      // Filter unique columns that match the input
+      // Also exclude tags that already exist
+      const existingTags = selectedLeadsDetails?.tags || []
+      const filtered = uniqueColumns
+        .filter((col) => {
+          const colLower = col.toLowerCase()
+          const valueLower = value.toLowerCase()
+          // Match if column contains the input value
+          return colLower.includes(valueLower)
+        })
+        .filter((col) => !existingTags.includes(col)) // Exclude existing tags
+      
+      setTagSuggestions(filtered)
+      setShowTagSuggestions(filtered.length > 0)
+    } else {
+      setTagSuggestions([])
+      setShowTagSuggestions(false)
+    }
+  }
+
+  // Handle key events for tag input
+  const handleTagInputKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === ',') {
+      e.preventDefault()
+      const value = tagInputValue.trim()
+      if (value) {
+        handleAddTag(value)
+      }
+    } else if (e.key === 'Escape') {
+      setShowTagSuggestions(false)
+    }
+  }
+
+  // Handle tag suggestion click
+  const handleTagSuggestionClick = (suggestion) => {
+    handleAddTag(suggestion)
   }
 
   //code for del tag api
@@ -2213,84 +2340,115 @@ const LeadDetails = ({
                               </div>
                             </div>
                           )}
-                          {selectedLeadsDetails?.tags.length > 0 && (
+                          {selectedLeadsDetails && (
                             <div className="flex flex-row items-center gap-2">
                               <Tag
                                 size={16}
                                 color="#000000"
                               />
-                              <div>
-                                {selectedLeadsDetails?.tags.length > 0 ? (
-                                  <div
-                                    className="text-end flex flex-row items-center gap-2 "
-                                  // style={styles.paragraph}
-                                  >
-                                    {
-                                      // selectedLeadsDetails?.tags?.map.slice(0, 1)
-                                      selectedLeadsDetails?.tags
-                                        .slice(0, 2)
-                                        .map((tag, index) => {
-                                          return (
+                              <div className="flex-1 relative">
+                                {/* Existing Tags Display */}
+                                {selectedLeadsDetails?.tags && selectedLeadsDetails.tags.length > 0 && (
+                                  <div className="flex flex-row items-center gap-2 flex-wrap mb-2">
+                                    {selectedLeadsDetails.tags
+                                      .slice(0, 2)
+                                      .map((tag, index) => {
+                                        return (
+                                          <div
+                                            key={index}
+                                            className="flex flex-row items-center gap-2"
+                                          >
                                             <div
-                                              key={index}
-                                              className="flex flex-row items-center gap-2"
+                                              className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
                                             >
-                                              <div
-                                                className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
-                                              >
-                                                <div
-                                                  className="text-black" //1C55FF10
-                                                >
-                                                  {tag}
-                                                </div>
-                                                {DelTagLoader &&
-                                                  tag.includes(DelTagLoader) ? (
-                                                  <div>
-                                                    <CircularProgress
-                                                      size={15}
-                                                    />
-                                                  </div>
-                                                ) : (
-                                                  <button
-                                                    onClick={() => {
-                                                      handleDelTag(tag)
-                                                    }}
-                                                  >
-                                                    <X
-                                                      size={15}
-                                                      weight="bold"
-                                                      color="#000000"
-                                                    />
-                                                  </button>
-                                                )}
+                                              <div className="text-black">
+                                                {tag}
                                               </div>
+                                              {DelTagLoader &&
+                                                tag.includes(DelTagLoader) ? (
+                                                <div>
+                                                  <CircularProgress
+                                                    size={15}
+                                                  />
+                                                </div>
+                                              ) : (
+                                                <button
+                                                  onClick={() => {
+                                                    handleDelTag(tag)
+                                                  }}
+                                                >
+                                                  <X
+                                                    size={15}
+                                                    weight="bold"
+                                                    color="#000000"
+                                                  />
+                                                </button>
+                                              )}
                                             </div>
-                                          )
-                                        })
-                                    }
-                                    <button
-                                      className="outline-none"
-                                      onClick={() => {
-                                        // console.log(
-                                        //   "tags are",
-                                        //   selectedLeadsDetails?.tags
-                                        // );
-                                        setExtraTagsModal(true)
-                                      }}
-                                    >
-                                      {selectedLeadsDetails?.tags.length >
-                                        2 && (
-                                          <div className="text-black underline">
-                                            +
-                                            {selectedLeadsDetails?.tags.length -
-                                              2}
                                           </div>
-                                        )}
-                                    </button>
+                                        )
+                                      })}
+                                    {selectedLeadsDetails.tags.length > 2 && (
+                                      <button
+                                        className="outline-none"
+                                        onClick={() => {
+                                          setExtraTagsModal(true)
+                                        }}
+                                      >
+                                        <div className="text-black underline">
+                                          +{selectedLeadsDetails.tags.length - 2}
+                                        </div>
+                                      </button>
+                                    )}
                                   </div>
-                                ) : (
-                                  '-'
                                 )}
+
+                                {/* Tag Input Field */}
+                                <div className="relative">
+                                  <input
+                                    ref={tagInputRef}
+                                    type="text"
+                                    value={tagInputValue}
+                                    onChange={handleTagInputChange}
+                                    onKeyDown={handleTagInputKeyDown}
+                                    onFocus={() => {
+                                      if (tagInputValue.trim() && tagSuggestions.length > 0) {
+                                        setShowTagSuggestions(true)
+                                      }
+                                    }}
+                                    onBlur={() => {
+                                      // Delay to allow click on suggestion
+                                      setTimeout(() => {
+                                        setShowTagSuggestions(false)
+                                      }, 200)
+                                    }}
+                                    placeholder={selectedLeadsDetails?.tags && selectedLeadsDetails.tags.length > 0 ? "Add tag..." : "Add tags (press Enter, Space, or Comma)"}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                                    disabled={addTagLoader}
+                                  />
+                                  
+                                  {/* Autocomplete Suggestions Dropdown */}
+                                  {showTagSuggestions && tagSuggestions.length > 0 && (
+                                    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-auto">
+                                      {tagSuggestions.map((suggestion, index) => (
+                                        <div
+                                          key={index}
+                                          onClick={() => handleTagSuggestionClick(suggestion)}
+                                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                                        >
+                                          {suggestion}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+
+                                  {/* Loading indicator */}
+                                  {addTagLoader && (
+                                    <div className="absolute right-2 top-2">
+                                      <CircularProgress size={20} />
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           )}

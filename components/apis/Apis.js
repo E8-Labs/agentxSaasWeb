@@ -81,6 +81,7 @@ const Apis = {
   deleteLeadNote: `/api/leads`, // Will be used with noteId in path
   getDashboardData: `${BasePath}api/agent/dashboard`,
   delLeadTag: `${BasePath}api/leads/deleteLeadTag`,
+  addLeadTag: `${BasePath}api/leads/addLeadTag`,
   //apis to add card & subscribe plan
   createSetupIntent: `${BasePath}api/user/createSetupIntent`,
   getPaymentIntent: `${BasePath}api/user/getSetupIntent`,
@@ -91,6 +92,7 @@ const Apis = {
   getLeadDetails: `${BasePath}api/leads/leadDetail`,
   getStagesList: `${BasePath}api/pipeline/getPipeline`,
   updateLeadStageApi: `${BasePath}api/leads/updateLeadStage`,
+  updateLead: `${BasePath}api/leads/updateLead`,
 
   sendVerificationCode: `${BasePath}api/user/sendVerificationCode`,
   deleteLead: `${BasePath}api/leads/deleteLead`,
