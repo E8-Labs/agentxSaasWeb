@@ -176,11 +176,10 @@ export default function CallSummaryModal({
                     <div
                       key={template.id}
                       onClick={() => setSelectedTemplate(template)}
-                      className={`p-3 border rounded-lg cursor-pointer transition-all ${
-                        selectedTemplate?.id === template.id
+                      className={`p-3 border rounded-lg cursor-pointer transition-all ${selectedTemplate?.id === template.id
                           ? 'border-2 border-purple-500 bg-purple-50'
                           : 'border border-gray-200 hover:border-gray-300'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -237,7 +236,7 @@ export default function CallSummaryModal({
                   }}
                 >
                   <span className="mr-2">✏️</span>
-                  Compose New
+                  Create Email
                 </Button>
               </div>
             </div>

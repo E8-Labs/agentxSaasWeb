@@ -108,6 +108,7 @@ const LeadDetails = ({
   noBackDrop = false,
   leadStageUpdated,
   leadAssignedTeam,
+  renderInline = false,
 }) => {
   // //console.log;
   // //console.log;
@@ -180,7 +181,21 @@ const LeadDetails = ({
 
   const [showConfirmPerplexity, setshowConfirmPerplexity] = useState(false)
 
-  const [userLocalData, setUserLocalData] = useState('')
+  // Initialize userLocalData from localStorage immediately
+  const [userLocalData, setUserLocalData] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        try {
+          const parsed = JSON.parse(localData)
+          return parsed.user || null
+        } catch (e) {
+          return null
+        }
+      }
+    }
+    return null
+  })
   const [loading, setLoading] = useState(false)
 
   const [showDelModal, setShowDelModal] = useState(false)
@@ -349,6 +364,7 @@ const LeadDetails = ({
       // return;
       let response = await AssignTeamMember(ApiData)
       if (response && response.data && response.data.status === true) {
+        let updatedLead = null
         setSelectedLeadsDetails((prevData) => {
           // Filter duplicates before adding
           const existingIds = (prevData.teamsAssigned || []).map(u => u.id || u.invitedUserId)
@@ -356,14 +372,19 @@ const LeadDetails = ({
 
           // Only add if not already assigned
           if (!existingIds.includes(itemId)) {
-            return {
+            updatedLead = {
               ...prevData,
               teamsAssigned: [...(prevData.teamsAssigned || []), item],
             }
+            return updatedLead
           }
+          updatedLead = prevData
           return prevData
         })
-        leadAssignedTeam(item, selectedLeadsDetails)
+        // Call callback with updated lead data
+        if (updatedLead && leadAssignedTeam) {
+          leadAssignedTeam(item, updatedLead)
+        }
       } else if (response && response.data && response.data.status === false) {
         // Show error message if assignment failed (e.g., duplicate)
         showSnackbar(response.data.message || 'Failed to assign team member', SnackbarTypes.Error)
@@ -394,14 +415,29 @@ const LeadDetails = ({
 
       if (response && response.data && response.data.status === true) {
         // Remove the user from the assigned list
+        let updatedLead = null
         setSelectedLeadsDetails((prevData) => {
-          return {
+          const filteredTeams = (prevData.teamsAssigned || []).filter((user) => {
+            // Check all possible ID fields to match the userId
+            const userIdentifier = user.id || user.invitedUserId || user.invitedUser?.id
+            // Convert both to strings for comparison to handle type mismatches
+            return String(userIdentifier) !== String(userId)
+          })
+          
+          updatedLead = {
             ...prevData,
-            teamsAssigned: (prevData.teamsAssigned || []).filter(
-              (user) => (user.id !== userId && user.invitedUserId !== userId)
-            ),
+            teamsAssigned: filteredTeams,
           }
+          
+          return updatedLead
         })
+        
+        // Call callback with updated lead data to sync with parent component
+        // Use the updatedLead value we just created
+        if (updatedLead && leadAssignedTeam) {
+          leadAssignedTeam(null, updatedLead)
+        }
+        
         showSnackbar(response.data.message || 'Team member unassigned successfully', SnackbarTypes.Success)
       } else if (response && response.data && response.data.status === false) {
         // Show error message if unassignment failed
@@ -1774,39 +1810,9 @@ const LeadDetails = ({
     )
   }
 
-  return (
-    <div className="h-[100svh]">
-      <Drawer
-        open={showDetailsModal}
-        anchor="right"
-        onClose={() => {
-          setShowDetailsModal(false)
-        }}
-        disableEnforceFocus={true}
-        disableAutoFocus={true}
-        disableRestoreFocus={true}
-        PaperProps={{
-          sx: {
-            width: '45%', // Adjust width as needed
-            borderRadius: '20px', // Rounded corners
-            padding: '0px', // Internal padding
-            boxShadow: 3, // Light shadow
-            margin: '1%', // Small margin for better appearance
-            backgroundColor: 'white', // Ensure it's visible
-            height: '96.5vh',
-            overflow: 'hidden',
-            scrollbarWidth: 'none',
-          },
-        }}
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: '#00000020',
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <AgentSelectSnackMessage
+  const mainContent = (
+    <>
+      <AgentSelectSnackMessage
           message={showSnackMsg.message}
           type={showSnackMsg.type}
           isVisible={showSnackMsg.isVisible}
@@ -1837,6 +1843,7 @@ const LeadDetails = ({
                       paddingInline: 30,
                     }}
                   >
+                    {!renderInline && (
                     <div className="w-full flex flex-row items-center justify-between pb-4 border-b">
                       <div style={{ fontSize: 18, fontWeight: '700' }}>
                         More Info
@@ -1849,6 +1856,7 @@ const LeadDetails = ({
                         <CloseIcon />
                       </button>
                     </div>
+                    )}
                     <div>
                       <div className="flex flex-row items-start justify-between mt-4  w-full">
                         <div className="flex flex-col items-start gap-[5px] ">
@@ -1930,15 +1938,21 @@ const LeadDetails = ({
                                         />
                                         <span>Email</span>
 
-                                        {(!userLocalData?.planCapabilities
-                                          ?.allowEmails
-                                        ) && (
-
-                                            <UpgradeTagWithModal
-                                              reduxUser={userLocalData}
-                                              setReduxUser={setUserLocalData}
-                                            />
-                                          )}
+                                        {!userLocalData?.planCapabilities?.allowEmails && (
+                                          <UpgradeTagWithModal
+                                            reduxUser={userLocalData ? { 
+                                              user: userLocalData,
+                                              userRole: userLocalData.userRole 
+                                            } : null}
+                                            setReduxUser={async (updatedData) => {
+                                              // Refresh user data after upgrade
+                                              const user = await getProfileDetails()
+                                              if (user) {
+                                                setUserLocalData(user.data.data)
+                                              }
+                                            }}
+                                          />
+                                        )}
                                       </div>
                                     </MenuItem>
                                   )}
@@ -1962,14 +1976,21 @@ const LeadDetails = ({
                                       />
                                       <span>Text</span>
                                       {/* Show upgrade button only if allowTextMessages is false */}
-                                      {!userLocalData?.planCapabilities
-                                        ?.allowTextMessages && (
-                                     
-                                            <UpgradeTagWithModal
-                                              reduxUser={userLocalData}
-                                              setReduxUser={setUserLocalData}
-                                            />
-                                        )}
+                                      {!userLocalData?.planCapabilities?.allowTextMessages && (
+                                        <UpgradeTagWithModal
+                                          reduxUser={userLocalData ? { 
+                                            user: userLocalData,
+                                            userRole: userLocalData.userRole 
+                                          } : null}
+                                          setReduxUser={async (updatedData) => {
+                                            // Refresh user data after upgrade
+                                            const user = await getProfileDetails()
+                                            if (user) {
+                                              setUserLocalData(user.data.data)
+                                            }
+                                          }}
+                                        />
+                                      )}
                                       {/* Show info icon with tooltip if allowTextMessages is true but no phone numbers */}
                                       {userLocalData?.planCapabilities
                                         ?.allowTextMessages &&
@@ -3793,6 +3814,52 @@ const LeadDetails = ({
             </Modal>
           </div>
         </div>
+    </>
+  )
+
+  // If renderInline is true, render content directly without Drawer
+  if (renderInline) {
+    return (
+      <div className="w-full h-full overflow-auto" style={{ scrollbarWidth: 'none' }}>
+        {mainContent}
+      </div>
+    )
+  }
+
+  // Otherwise, render with Drawer (original behavior)
+  return (
+    <div className="h-[100svh]">
+      <Drawer
+        open={showDetailsModal}
+        anchor="right"
+        onClose={() => {
+          setShowDetailsModal(false)
+        }}
+        disableEnforceFocus={true}
+        disableAutoFocus={true}
+        disableRestoreFocus={true}
+        PaperProps={{
+          sx: {
+            width: '45%', // Adjust width as needed
+            borderRadius: '20px', // Rounded corners
+            padding: '0px', // Internal padding
+            boxShadow: 3, // Light shadow
+            margin: '1%', // Small margin for better appearance
+            backgroundColor: 'white', // Ensure it's visible
+            height: '96.5vh',
+            overflow: 'hidden',
+            scrollbarWidth: 'none',
+          },
+        }}
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: '#00000020',
+            // //backdropFilter: "blur(20px)",
+          },
+        }}
+      >
+        {mainContent}
       </Drawer>
 
       {/* Modal to edit note */}

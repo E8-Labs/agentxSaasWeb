@@ -395,8 +395,8 @@ export const UpgradeTag = ({
     >
       <div
         style={{
-          width: 12,
-          height: 12,
+          width: 14,
+          height: 14,
           backgroundColor: brandColor,
           WebkitMaskImage: `url(/svgIcons/king.svg)`,
           maskImage: `url(/svgIcons/king.svg)`,
@@ -409,7 +409,7 @@ export const UpgradeTag = ({
         }}
         className="flex-shrink-0"
       />
-      <span style={{ color: brandColor, fontSize: '12px', fontWeight: 500 }}>
+      <span style={{ color: brandColor, fontSize: '12px', fontWeight: 400 }}>
         {requestFeature ? 'Request Feature' : 'Upgrade'}
       </span>
     </div>

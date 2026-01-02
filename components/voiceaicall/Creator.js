@@ -756,17 +756,29 @@ const Creator = ({ agentId, name }) => {
 
   // Handle mute/unmute toggle
   const handleMuteToggle = () => {
-    if (!vapi || !open) return
+    // Ensure vapi exists, call is open, and not loading (call is active)
+    if (!vapi || !open || loading) return
 
     try {
       const newMutedState = !isMuted
       
       // Try using Vapi's setMuted method if available (preferred method)
       if (typeof vapi.setMuted === 'function') {
-        vapi.setMuted(newMutedState)
-        setIsMuted(newMutedState)
-        console.log(`Microphone ${newMutedState ? 'muted' : 'unmuted'} via Vapi API`)
-        return
+        try {
+          vapi.setMuted(newMutedState)
+          setIsMuted(newMutedState)
+          console.log(`Microphone ${newMutedState ? 'muted' : 'unmuted'} via Vapi API`)
+          return
+        } catch (vapiError) {
+          // If call object is not available, try fallback methods
+          if (vapiError.message?.includes('Call object is not available') || 
+              vapiError.message?.includes('not available')) {
+            console.log('Call object not ready, using fallback mute method')
+            // Fall through to fallback methods
+          } else {
+            throw vapiError // Re-throw if it's a different error
+          }
+        }
       }
       
       // Fallback: Try to find and mute/unmute active audio tracks
@@ -778,19 +790,26 @@ const Creator = ({ agentId, name }) => {
             // Try to mute/unmute by accessing active media streams
             // Note: This is a fallback and may not work in all cases
             const audioElements = document.querySelectorAll('audio')
+            let foundTrack = false
+            
             audioElements.forEach((audio) => {
               if (audio.srcObject) {
                 const stream = audio.srcObject
                 if (stream instanceof MediaStream) {
                   stream.getAudioTracks().forEach((track) => {
                     track.enabled = !newMutedState
+                    foundTrack = true
                   })
                 }
               }
             })
             
             setIsMuted(newMutedState)
-            console.log(`Microphone ${newMutedState ? 'muted' : 'unmuted'} via media tracks`)
+            if (foundTrack) {
+              console.log(`Microphone ${newMutedState ? 'muted' : 'unmuted'} via media tracks`)
+            } else {
+              console.log(`Mute state updated in UI (no active tracks found)`)
+            }
           })
           .catch((error) => {
             console.log('Could not enumerate devices for muting:', error)
@@ -802,10 +821,20 @@ const Creator = ({ agentId, name }) => {
         console.log('Mute state updated in UI (actual muting may require Vapi API)')
       }
     } catch (error) {
-      console.error('Error toggling mute:', error)
-      setSnackbarMessage('Error toggling mute. Please try again.')
-      setSnackbarSeverity('error')
-      setSnackbarOpen(true)
+      // Only show error snackbar for unexpected errors, not for "call not available"
+      const isCallNotAvailableError = 
+        error.message?.includes('Call object is not available') ||
+        error.message?.includes('not available')
+      
+      if (!isCallNotAvailableError) {
+        console.error('Error toggling mute:', error)
+        setSnackbarMessage('Error toggling mute. Please try again.')
+        setSnackbarSeverity('error')
+        setSnackbarOpen(true)
+      } else {
+        console.log('Call not ready for muting, will retry when call is active')
+        // Silently fail - the call might not be fully initialized yet
+      }
     }
   }
 
@@ -940,7 +969,10 @@ const Creator = ({ agentId, name }) => {
               border: 'none',
               outline: 'none',
               fontStyle: 'italic',
-              color: 'inherit'
+              color: 'inherit',
+              fontSize: '13px',
+              fontWeight: '500',
+
             }}
           >
             {loadingMessage}

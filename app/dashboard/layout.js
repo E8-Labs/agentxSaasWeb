@@ -10,6 +10,7 @@ import ProfileNav from '@/components/dashboard/Navbar/ProfileNav'
 import GhlOauthWatcher from '@/components/dashboard/oAuthWatcher/GhlOauthWatcher'
 import DialerModal from '@/components/dialer/DialerModal'
 import NavigationLoader from '@/components/common/NavigationLoader'
+import IncomingCallBanner from '@/components/dialer/IncomingCallBanner'
 import { selectIsDialerOpen, selectCallStatus, selectPreventClose, selectLeadData } from '@/store/slices/dialerSlice'
 import { closeDialer, forceCloseDialer } from '@/store/slices/dialerSlice'
 
@@ -130,6 +131,9 @@ export default function DashboardLayout({ children }) {
         
         {/* Navigation Loader - shows during page transitions */}
         <NavigationLoader />
+        
+        {/* Incoming Call Banner - shows on all pages */}
+        <IncomingCallBanner />
         
         {/* Global Dialer Modal - persists across navigation */}
         {/* Use a stable key to prevent remounting on navigation */}

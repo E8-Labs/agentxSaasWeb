@@ -7,8 +7,9 @@ import { Textarea as TextareaBase } from '../ui/textarea'
 import { Input as InputBase } from '../ui/input'
 import { FileText, Plus, Pencil, X, Check, Hash, Square, Eye, Type, RotateCw, Grid3x3, Minus, Code, ChevronDown, Send, MoreVertical, ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
-import { Menu, MenuItem } from '@mui/material'
+import { Menu, MenuItem, FormControl, Select } from '@mui/material'
 import { Card as CardBase, CardHeader as CardHeaderBase, CardTitle as CardTitleBase, CardContent as CardContentBase } from '../ui/card'
+import { getUniquesColumn } from '../globalExtras/GetUniqueColumns'
 
 // Type assertions for components from .jsx files
 const Button = ButtonBase as any
@@ -52,15 +53,30 @@ export default function CallingScript({
   const [saving, setSaving] = useState(false)
   const [scriptMenuAnchor, setScriptMenuAnchor] = useState<null | HTMLElement>(null)
   const [selectedScriptForMenu, setSelectedScriptForMenu] = useState<CallingScript | null>(null)
+  const [uniqueColumns, setUniqueColumns] = useState<string[]>([])
+  const [selectedVariable, setSelectedVariable] = useState('')
+  const [showMoreUniqueColumns, setShowMoreUniqueColumns] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null)
 
-  // Fetch scripts when component mounts or expands
+  // Fetch scripts and unique columns when component mounts or expands
   useEffect(() => {
     if (isExpanded) {
       fetchScripts()
+      fetchUniqueColumns()
     }
   }, [isExpanded])
+
+  const fetchUniqueColumns = async () => {
+    try {
+      const columns = await getUniquesColumn()
+      if (columns && Array.isArray(columns)) {
+        setUniqueColumns(columns)
+      }
+    } catch (error) {
+      console.error('Error fetching unique columns:', error)
+    }
+  }
 
   // Don't auto-select any script - show list by default
 
@@ -245,21 +261,22 @@ export default function CallingScript({
       {/* Header - Title and Add Script button */}
       <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between" style={{ position: 'relative', zIndex: 2000 }}>
         <h3 className="font-bold text-xl text-gray-900">
-          Calling script
+          Script
         </h3>
         {!isCreating && !isEditing && (
           <Button
             onClick={handleCreateScript}
-            size="sm"
-            className="rounded-full"
+            variant="filled"
+            className="rounded-full py-2 px-4 transition-all"
             style={{ 
-              backgroundColor: 'hsl(var(--brand-primary))',
-              color: 'white',
-              padding: '6px 16px',
+              backgroundColor: '#F9F9F9',
+              border: '1px solid #e5e7eb',
+              color: '#374151',
               fontSize: '14px',
+              height: 'auto',
             }}
           >
-            <Plus size={16} className="mr-1" />
+            <Plus size={14} className="mr-1.5" style={{ color: '#374151' }} />
             Add Script
           </Button>
         )}
@@ -288,16 +305,17 @@ export default function CallingScript({
               <p className="text-base mb-5" style={{ color: 'rgba(0, 0, 0, 0.6)' }}>No script found</p>
               <Button
                 onClick={handleCreateScript}
-                className="rounded-full bg-gray-50 hover:bg-gray-50"
+                variant="filled"
+                className="rounded-full py-2 px-4 transition-all"
                 style={{ 
+                  backgroundColor: '#F9F9F9',
+                  border: '1px solid #e5e7eb',
                   color: '#374151',
-                  padding: '10px 20px',
                   fontSize: '14px',
-                  fontWeight: 500,
-                  boxShadow: 'none',
+                  height: 'auto',
                 }}
               >
-                <Plus size={16} className="mr-1" />
+                <Plus size={14} className="mr-1.5" style={{ color: '#374151' }} />
                 Add Script
               </Button>
             </div>
@@ -327,7 +345,132 @@ export default function CallingScript({
               />
             </div>
             <div style={{ position: 'relative', zIndex: 2001 }}>
-              <label className="text-sm font-medium mb-2 block text-gray-700">Content</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium block text-gray-700">Script</label>
+                {uniqueColumns && uniqueColumns.length > 0 && (
+                  <FormControl size="small" sx={{ minWidth: 150 }}>
+                    <Select
+                      value={selectedVariable}
+                      onChange={(e) => {
+                        const value = e.target.value as string
+                        setSelectedVariable('')
+                        if (value && contentTextareaRef.current) {
+                          const textarea = contentTextareaRef.current
+                          const start = textarea.selectionStart || 0
+                          const end = textarea.selectionEnd || 0
+                          const variableText = value.startsWith('{') && value.endsWith('}')
+                            ? value
+                            : `{${value}}`
+                          const newContent = editContent.substring(0, start) + variableText + editContent.substring(end)
+                          setEditContent(newContent)
+                          // Set cursor position after inserted variable
+                          setTimeout(() => {
+                            textarea.focus()
+                            textarea.setSelectionRange(start + variableText.length, start + variableText.length)
+                          }, 0)
+                        }
+                      }}
+                      displayEmpty
+                      sx={{
+                        fontSize: '0.875rem',
+                        height: '32px',
+                        backgroundColor: 'white',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#d1d5db',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--brand-primary))',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--brand-primary))',
+                        },
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          style: {
+                            maxHeight: '30vh',
+                            overflow: 'auto',
+                            scrollbarWidth: 'none',
+                            zIndex: 2002,
+                          },
+                        },
+                        disablePortal: false,
+                        container: typeof document !== 'undefined' ? document.body : null,
+                        style: {
+                          zIndex: 2002,
+                        },
+                      }}
+                    >
+                      <MenuItem value="" disabled>
+                        <em>Insert Variable</em>
+                      </MenuItem>
+                      {uniqueColumns.map((variable, index) => {
+                        const displayText = variable.startsWith('{') && variable.endsWith('}')
+                          ? variable
+                          : `{${variable}}`
+                        return (
+                          <MenuItem key={index} value={variable}>
+                            {displayText}
+                          </MenuItem>
+                        )
+                      })}
+                    </Select>
+                  </FormControl>
+                )}
+              </div>
+              
+              {/* Info note about variables */}
+              {uniqueColumns.length > 0 && (
+                <div
+                  className="w-full flex flex-col items-start p-3 rounded-lg mb-3"
+                  style={{
+                    backgroundColor: '#F5F5F5',
+                  }}
+                >
+                  <div className="flex flex-row w-full mb-1">
+                    <div className="text-[13px] font-[400] text-black flex flex-row flex-wrap">
+                      <span className="font-bold">Note: </span>{" "}You can add variables like{' '}
+                      <span className="text-brand-primary">{`{First Name}, {Address}.`}</span>
+                      {uniqueColumns.length > 0 && showMoreUniqueColumns ? (
+                        <div className="flex flex-row flex-wrap gap-2">
+                          {uniqueColumns.map((item, index) => (
+                            <div
+                              key={index}
+                              className="flex flex-row items-center gap-2 text-brand-primary"
+                            >
+                              {`{${item}}`},
+                            </div>
+                          ))}
+                          <button
+                            className="text-brand-primary outline-none"
+                            onClick={() => setShowMoreUniqueColumns(false)}
+                          >
+                            show less
+                          </button>
+                        </div>
+                      ) : (
+                        <div>
+                          {uniqueColumns.length > 0 && (
+                            <button
+                              className="text-brand-primary flex flex-row items-center font-bold outline-none"
+                              onClick={() => setShowMoreUniqueColumns(true)}
+                            >
+                              <Plus
+                                size={15}
+                                style={{
+                                  strokeWidth: 40,
+                                }}
+                              />
+                              {uniqueColumns.length}
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <Textarea
                 ref={contentTextareaRef}
                 value={editContent}
@@ -352,14 +495,7 @@ export default function CallingScript({
               >
                 {saving ? 'Saving...' : isCreating ? 'Create' : 'Save'}
               </Button>
-              <Button
-                onClick={handleCancelEdit}
-                variant="outline"
-                disabled={saving}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
+             
             </div>
           </div>
         ) : selectedScript ? (
@@ -483,16 +619,17 @@ export default function CallingScript({
               <p className="text-base mb-5" style={{ color: 'rgba(0, 0, 0, 0.6)' }}>No script found</p>
               <Button
                 onClick={handleCreateScript}
-                className="rounded-full bg-gray-50 hover:bg-gray-50"
+                variant="filled"
+                className="rounded-full py-2 px-4 transition-all"
                 style={{ 
+                  backgroundColor: '#F9F9F9',
+                  border: '1px solid #e5e7eb',
                   color: '#374151',
-                  padding: '10px 20px',
                   fontSize: '14px',
-                  fontWeight: 500,
-                  boxShadow: 'none',
+                  height: 'auto',
                 }}
               >
-                <Plus size={16} className="mr-1" />
+                <Plus size={14} className="mr-1.5" style={{ color: '#374151' }} />
                 Add Script
               </Button>
             </div>

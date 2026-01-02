@@ -12,6 +12,7 @@ import CallNotesWindow from './CallNotesWindow'
 import SmsTemplatePanel from './SmsTemplatePanel'
 import EmailTemplatePanel from './EmailTemplatePanel'
 import { getGmailAccounts } from '../pipeline/TempleteServices'
+import ClaimNumber from '../dashboard/myagentX/ClaimNumber'
 import { ArrowUp, Pause, Mic, MicOff, FileText, StickyNote, X, ChevronDown, Check, Phone, Mail, MessageSquare, MoreVertical, Pencil, Loader2 } from 'lucide-react'
 import { Menu, MenuItem } from '@mui/material'
 import Image from 'next/image'
@@ -49,6 +50,9 @@ import {
   toggleMinimized,
   setMinimized,
   updatePosition,
+  openDialer,
+  showIncomingCallBanner,
+  hideIncomingCallBanner,
 } from '@/store/slices/dialerSlice'
 
 // @ts-ignore - Twilio Voice SDK types
@@ -66,6 +70,7 @@ const SIMULATE_CALL_FLOW = process.env.NEXT_PUBLIC_SIMULATE_DIALER === 'true'
 // Use window object to persist across module reloads (Next.js HMR can reload modules)
 let globalDeviceStore: Device | null = null
 let globalCallStore: Call | null = null
+let globalIncomingCallStore: Call | null = null
 let globalHasInitialized = false
 let globalIsInitializing = false
 
@@ -168,7 +173,7 @@ const setGlobalIsInitializing = (value: boolean) => {
   }
 }
 
-type CallStatus = 'idle' | 'requesting-mic' | 'connecting' | 'ringing' | 'in-call' | 'ended' | 'error'
+type CallStatus = 'idle' | 'requesting-mic' | 'connecting' | 'ringing' | 'in-call' | 'ended' | 'error' | 'incoming-ringing'
 
 interface DialerModalProps {
   open: boolean
@@ -327,6 +332,7 @@ function DialerModal({
   const simulationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const hasInitializedRef = useRef(getGlobalHasInitialized()) // Track if dialer has been initialized
   const isInitializingRef = useRef(getGlobalIsInitializing()) // Prevent concurrent initialization
+  const dragStartPos = useRef<{ x: number; y: number; mouseX?: number; mouseY?: number }>({ x: 0, y: 0 })
   
   // Local state for non-serializable objects and UI-only state
   const [phoneNumber, setPhoneNumber] = useState(initialPhoneNumber || leadData.phoneNumber || '')
@@ -334,6 +340,14 @@ function DialerModal({
   // This ensures device and call persist across page changes and component remounts
   const [device, setDevice] = useState<Device | null>(getGlobalDevice() || deviceRef.current)
   const [activeCall, setActiveCall] = useState<Call | null>(getGlobalCall() || activeCallRef.current)
+  
+  // Incoming call state
+  const [incomingCall, setIncomingCall] = useState<Call | null>(null)
+  const [incomingCallerInfo, setIncomingCallerInfo] = useState<{
+    from: string
+    to: string
+    callerName?: string
+  } | null>(null)
   
   // Sync refs and window/global store with state when state changes (but preserve if state is lost)
   useEffect(() => {
@@ -385,6 +399,7 @@ function DialerModal({
   const [sendingEmail, setSendingEmail] = useState(false)
   const [sendingSms, setSendingSms] = useState(false)
   const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null)
+  const [showClaimNumberModal, setShowClaimNumberModal] = useState(false)
   
   // Sync Redux callStatus to local state
   useEffect(() => {
@@ -419,7 +434,6 @@ function DialerModal({
   const [isDragging, setIsDragging] = useState(false)
   const modalRef = useRef<HTMLDivElement>(null)
   const collapsedRef = useRef<HTMLDivElement>(null)
-  const dragStartPos = useRef({ x: 0, y: 0 })
   
   // Navigation detection for auto-collapse
   const pathnameRef = useRef<string | null>(null)
@@ -547,6 +561,12 @@ function DialerModal({
       dialogJustOpened.current = true
       isClosingRef.current = false
 
+      // Reset position to default when modal opens (if it was closed)
+      if (dialerPosition.x !== null || dialerPosition.y !== null) {
+        dispatch(updatePosition({ x: null, y: null }))
+        rightPositionRef.current = null
+      }
+      
       // Reset dropdown anchor when modal opens
       setNumberDropdownAnchor(null)
       
@@ -634,9 +654,9 @@ function DialerModal({
       }
       
       if ((isClosingRef.current || !dialogJustOpened.current) && !isCallActive) {
-        console.log('[DialerModal] Modal closing, cleaning up device (no active call)')
+        console.log('[DialerModal] Modal closing, but keeping device registered for incoming calls')
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:291', message: 'Cleanup executing', data: { reduxCallStatus, localCallStatus: callStatus }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:291', message: 'Modal closing - preserving device for incoming calls', data: { reduxCallStatus, localCallStatus: callStatus, hasDevice: !!device }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
         // #endregion
 
         // Clear simulation
@@ -645,37 +665,22 @@ function DialerModal({
           simulationTimeoutRef.current = null
         }
 
-        // Only cleanup if no active call exists
-        if (device && !isCallActive) {
-          try {
-            device.destroy()
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:545', message: 'Device destroyed - explicitly clearing window store', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'J' }) }).catch(() => { });
-            // #endregion
-            // Explicitly clear window store only after device is destroyed
-            if (typeof window !== 'undefined') {
-              (window as any).__dialerGlobalDevice = null
-            }
-          } catch (e) {
-            console.error('Error destroying device:', e)
-          }
-          setDevice(null)
-          deviceRef.current = null
-          globalDeviceStore = null // Clear module-level store only (setGlobalDevice preserves window store)
-        }
+        // IMPORTANT: Do NOT destroy the device when modal closes
+        // The device must stay registered to receive incoming calls
+        // Only destroy on explicit cleanup (logout, refresh, etc.)
+        // The device will remain registered in the background
+        console.log('[DialerModal] Device preserved for incoming calls - not destroying')
         
-        // Don't reset device state if there's an active call
+        // Don't reset device state - keep it registered for incoming calls
+        // Only reset call status to idle (not device registration)
         if (!isCallActive) {
           // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:308', message: 'Resetting state to idle', data: { reduxCallStatus, localCallStatus: callStatus }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:308', message: 'Resetting call status to idle, but keeping device registered', data: { reduxCallStatus, localCallStatus: callStatus, deviceRegistered }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
           // #endregion
-          dispatch(updateDeviceState({ deviceRegistered: false }))
+          // Keep deviceRegistered as true - device stays registered for incoming calls
+          // Only reset call status
           updateCallStatusInRedux('idle')
-          // Reset initialization flag when closing (only if no active call)
-          hasInitializedRef.current = false
-          isInitializingRef.current = false
-          setGlobalHasInitialized(false)
-          setGlobalIsInitializing(false)
+          // Don't reset initialization flags - device is still initialized and registered
         } else {
           console.log('[DialerModal] Preserving device and call state - active call in progress')
         }
@@ -896,7 +901,7 @@ function DialerModal({
           const userStr = localStorage.getItem('User')
           if (userStr) {
             const userData = JSON.parse(userStr)
-            token = userData?.token || userData?.user?.token
+            token = userData?.token //|| userData?.user?.token
           }
         } catch (e) {
           console.error('Error parsing User from localStorage:', e)
@@ -955,6 +960,7 @@ function DialerModal({
         hasVoiceGrant: boolean
         hasOutgoingApp: boolean
         identity: any
+        accountSid: any
         exp: any
         iat: any
       } = 'invalid'
@@ -967,9 +973,19 @@ function DialerModal({
             hasVoiceGrant: !!payload.grants?.voice,
             hasOutgoingApp: !!payload.grants?.voice?.outgoing?.application_sid,
             identity: payload.grants?.identity,
+            accountSid: payload.iss, // JWT issuer is the Account SID
             exp: payload.exp,
             iat: payload.iat,
           }
+          // Log Twilio account info for debugging
+          console.log('[DialerModal] Access Token Details:', {
+            accountSid: payload.iss,
+            identity: payload.grants?.identity,
+            twimlAppSid: payload.grants?.voice?.outgoing?.application_sid,
+          })
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:981', message: 'H3,H4: Access token decoded on frontend', data: { accountSid: payload.iss, identity: payload.grants?.identity, twimlAppSid: payload.grants?.voice?.outgoing?.application_sid, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H3,H4' }) }).catch(() => { });
+          // #endregion
         }
       } catch (e) {
         tokenPreview = 'decode_error'
@@ -987,6 +1003,9 @@ function DialerModal({
           logLevel: 1, // DEBUG level (0=TRACE, 1=DEBUG, 2=INFO, 3=WARN, 4=ERROR, 5=SILENT)
           // Disable automatic error alerts
           allowIncomingWhileBusy: false,
+          // Configure edge for US/Canada users - use US East (ashburn) for best coverage
+          // This ensures device registers in US region, matching phone number configuration
+          edge: 'ashburn', // US East edge - change to 'umatilla' for US West if needed
         } as any)
         
         // #region agent log
@@ -1015,8 +1034,63 @@ function DialerModal({
       }, 10000)
 
       twilioDevice.on('registered', () => {
-        console.log('Twilio Device registered')
+        const deviceIdentity = (twilioDevice as any).identity
+        // Try to get account SID from token
+        let accountSid = 'unknown'
+        let edge = 'unknown'
+        let region = 'unknown'
+        try {
+          const tokenParts = data.token.split('.')
+          if (tokenParts.length === 3) {
+            const payload = JSON.parse(atob(tokenParts[1]))
+            accountSid = payload.iss || 'unknown'
+          }
+          // Try to get edge/region from device's internal state
+          const deviceInternal = twilioDevice as any
+          if (deviceInternal._stream?.edge) {
+            edge = deviceInternal._stream.edge
+          }
+          if (deviceInternal._stream?.region) {
+            region = deviceInternal._stream.region
+          }
+        } catch (e) {
+          // Ignore
+        }
+        console.log('[DialerModal] Twilio Device registered:', {
+          state: twilioDevice.state,
+          isRegistered: (twilioDevice as any).isRegistered,
+          identity: deviceIdentity,
+          accountSid: accountSid,
+          twimlAppSid: (twilioDevice as any).outgoingConnection?.applicationSid || 'unknown',
+          edge: edge,
+          region: region,
+        })
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1030', message: 'H1,H4,H5,H6: Device registered event', data: { state: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered, identity: deviceIdentity, accountSid, edge, region, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H1,H4,H5,H6' }) }).catch(() => { });
+        // #endregion
         clearTimeout(registrationTimeout)
+        
+        // Explicitly ensure device is listening for incoming calls
+        // This is a workaround for potential edge/region propagation issues
+        console.log('[DialerModal] Device registered - ensuring it stays registered for incoming calls')
+        // Explicitly call register() again to ensure device is actively listening
+        // This helps with edge/region propagation and ensures the device is ready for incoming calls
+        try {
+          if (twilioDevice.state !== 'registered') {
+            console.log('[DialerModal] Device state is not registered, calling register() explicitly')
+            twilioDevice.register()
+          } else {
+            console.log('[DialerModal] Device is already registered, ensuring it stays registered')
+            // Even if registered, call register() again to refresh the registration
+            // This helps with edge propagation and ensures Twilio knows the device is available
+            twilioDevice.register()
+          }
+        } catch (registerError: any) {
+          console.warn('[DialerModal] Error ensuring device registration:', registerError)
+        }
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1070', message: 'H6: Ensuring device stays registered for incoming calls', data: { state: twilioDevice.state, identity: deviceIdentity, edge, region, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H6' }) }).catch(() => { });
+        // #endregion
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:653', message: 'Device registered event fired', data: { state: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
         // #endregion
@@ -1082,11 +1156,32 @@ function DialerModal({
       }, 1000)
       
       twilioDevice.on('unregistered', (reason: string) => {
-        console.log('Twilio Device unregistered:', reason)
+        console.log('[DialerModal] ⚠️ Device unregistered:', {
+          reason,
+          state: twilioDevice.state,
+          identity: (twilioDevice as any).identity,
+        })
+        console.log('[DialerModal] ⚠️ This will prevent incoming calls from working!')
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:330', message: 'Device unregistered', data: { reason, state: twilioDevice.state }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1115', message: 'H1: Device unregistered event', data: { reason, state: twilioDevice.state, identity: (twilioDevice as any).identity, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H1' }) }).catch(() => { });
         // #endregion
         dispatch(updateDeviceState({ deviceRegistered: false }))
+        
+        // Try to re-register if unregistered unexpectedly
+        if (reason && !reason.includes('token')) {
+          console.log('[DialerModal] Attempting to re-register device...')
+          try {
+            twilioDevice.register()
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1130', message: 'H1: Attempting re-registration after unregister', data: { reason, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H1' }) }).catch(() => { });
+            // #endregion
+          } catch (e) {
+            console.error('[DialerModal] Failed to re-register:', e)
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1135', message: 'H1: Re-registration failed', data: { error: String(e), timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H1' }) }).catch(() => { });
+            // #endregion
+          }
+        }
       })
 
       twilioDevice.on('error', (error: any) => {
@@ -1115,15 +1210,73 @@ function DialerModal({
       
       // Listen for warning events (might indicate registration issues)
       twilioDevice.on('warning', (name: string, data: any) => {
-        console.warn('Twilio Device warning:', name, data)
+        console.warn('[DialerModal] Twilio Device warning:', name, data)
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:343', message: 'Device warning event', data: { warningName: name, warningData: data }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
         // #endregion
       })
+      
+      // Listen for state changes to track registration progress
+      const originalState = twilioDevice.state
+      console.log('[DialerModal] Device initial state:', originalState)
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1180', message: 'H5: Device initial state', data: { state: originalState, isRegistered: (twilioDevice as any).isRegistered, identity: (twilioDevice as any).identity, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H5' }) }).catch(() => { });
+      // #endregion
+      
+      // Monitor state changes
+      const stateCheck = setInterval(() => {
+        const currentState = twilioDevice.state
+        if (currentState !== originalState) {
+          console.log('[DialerModal] Device state changed:', {
+            from: originalState,
+            to: currentState,
+            isRegistered: (twilioDevice as any).isRegistered,
+            identity: (twilioDevice as any).identity,
+          })
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1190', message: 'H5: Device state changed', data: { from: originalState, to: currentState, isRegistered: (twilioDevice as any).isRegistered, identity: (twilioDevice as any).identity, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H5' }) }).catch(() => { });
+          // #endregion
+        }
+        // Also log periodic state check to verify device stays registered
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1195', message: 'H5: Periodic device state check', data: { state: currentState, isRegistered: (twilioDevice as any).isRegistered, identity: (twilioDevice as any).identity, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H5' }) }).catch(() => { });
+        // #endregion
+      }, 5000) // Check every 5 seconds
+      
+      // Clear interval after 2 minutes to allow monitoring during test
+      setTimeout(() => clearInterval(stateCheck), 120000)
 
       twilioDevice.on('incoming', (call: Call) => {
-        console.log('Incoming call:', call)
-        // Handle incoming calls if needed
+        console.log('[DialerModal] ✅✅✅ INCOMING CALL EVENT RECEIVED ✅✅✅')
+        console.log('[DialerModal] Incoming call event received:', {
+          callSid: call.parameters?.CallSid,
+          from: call.parameters?.From,
+          to: call.parameters?.To,
+          deviceState: twilioDevice.state,
+          isRegistered: (twilioDevice as any).isRegistered,
+          deviceIdentity: (twilioDevice as any).identity,
+          hasActiveCall: !!activeCall,
+        })
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1190', message: 'H2,H6: Incoming call event received on device', data: { callSid: call.parameters?.CallSid, from: call.parameters?.From, to: call.parameters?.To, deviceState: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered, deviceIdentity: (twilioDevice as any).identity, hasActiveCall: !!activeCall, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H2,H6' }) }).catch(() => { });
+        // #endregion
+        handleIncomingCall(call)
+      })
+      
+      // Log when device is ready to receive incoming calls
+      console.log('[DialerModal] Device incoming call listener set up. Device should receive incoming calls now.')
+      console.log('[DialerModal] Current device state:', {
+        state: twilioDevice.state,
+        isRegistered: (twilioDevice as any).isRegistered,
+        identity: (twilioDevice as any).identity,
+      })
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1205', message: 'H2: Incoming call listener attached', data: { state: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered, identity: (twilioDevice as any).identity, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H2' }) }).catch(() => { });
+      // #endregion
+      
+      // Log device identity when registered
+      twilioDevice.on('registered', () => {
+        console.log('[DialerModal] Device registered with identity:', (twilioDevice as any).identity)
       })
 
 
@@ -1330,7 +1483,7 @@ function DialerModal({
 
       call.on('accept', () => {
         updateCallStatusInRedux('in-call')
-        toast.success('Call connected')
+        // toast.success('Call connected')
         // Start call duration timer - use ref to track duration locally for interval
         callDurationRef.current = 0
         dispatch(updateCallState({ callDuration: 0 }))
@@ -1360,8 +1513,19 @@ function DialerModal({
         dispatch(updateUIPanel({ panel: 'script', value: false }))
         // Only show "Call ended" toast if it wasn't an error
         if (!callEndedInError && callStatus !== 'error') {
-        toast.info('Call ended')
+        // toast.info('Call ended')
         }
+        
+        // Log device state after call ends to ensure it's still registered for incoming calls
+        console.log('[DialerModal] Call disconnected. Device state:', {
+          state: device?.state,
+          isRegistered: (device as any)?.isRegistered,
+          identity: (device as any)?.identity,
+        })
+        console.log('[DialerModal] Device should still be registered for incoming calls')
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1434', message: 'H1,H5: Device state after outbound call disconnect', data: { deviceState: device?.state, isRegistered: (device as any)?.isRegistered, identity: (device as any)?.identity, callStatus: newStatus, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H1,H5' }) }).catch(() => { });
+        // #endregion
       })
 
       call.on('cancel', () => {
@@ -1377,7 +1541,7 @@ function DialerModal({
         callDurationRef.current = 0
         dispatch(updateCallState({ callDuration: 0, isMuted: false, isOnHold: false }))
         dispatch(updateUIPanel({ panel: 'script', value: false }))
-        toast.info('Call canceled')
+        // toast.info('Call canceled')
       })
 
       call.on('error', (error: any) => {
@@ -1416,6 +1580,12 @@ function DialerModal({
       simulationTimeoutRef.current = null
     }
 
+    // If there's an incoming call, reject it
+    if (incomingCall && callStatus === 'incoming-ringing') {
+      handleRejectIncomingCall()
+      return
+    }
+
     if (activeCall) {
       // Only disconnect if it's a real call (not simulation)
       if (SIMULATE_CALL_FLOW && !device) {
@@ -1448,7 +1618,7 @@ function DialerModal({
       // Don't reset callDuration - keep it for the summary
         dispatch(updateCallState({ isMuted: false, isOnHold: false, callEndedInError: false }))
         dispatch(updateUIPanel({ panel: 'script', value: false }))
-    } else if (callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting') {
+    } else if (callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting' || callStatus === 'incoming-ringing') {
       // If there's no active call but status indicates a call was happening, set to ended
       setCallStatus('ended')
       // Stop call duration timer
@@ -1457,6 +1627,237 @@ function DialerModal({
         callDurationIntervalRef.current = null
       }
     }
+  }
+
+  // Lookup lead by phone number
+  const lookupLeadByPhone = async (phoneNumber: string) => {
+    try {
+      const user = JSON.parse(localStorage.getItem('User') || '{}')
+      if (!user?.id) return null
+
+      const response = await fetch(`/api/leads/getLeadByPhone?phone=${encodeURIComponent(phoneNumber)}&userId=${user.id}`)
+      if (!response.ok) return null
+
+      const data = await response.json()
+      // The API returns results array with lead data
+      if (data?.results?.[0]?.result) {
+        return data.results[0].result
+      }
+      // Alternative response format
+      if (data?.lead) {
+        return data.lead
+      }
+      return null
+    } catch (error) {
+      console.error('Error looking up lead by phone:', error)
+      return null
+    }
+  }
+
+  // Setup call event handlers (reusable for both outbound and incoming calls)
+  const setupCallEventHandlers = (call: Call) => {
+    call.on('accept', () => {
+      updateCallStatusInRedux('in-call')
+      // Start call duration timer - use ref to track duration locally for interval
+      callDurationRef.current = 0
+      dispatch(updateCallState({ callDuration: 0 }))
+      if (callDurationIntervalRef.current) {
+        clearInterval(callDurationIntervalRef.current)
+      }
+      callDurationIntervalRef.current = setInterval(() => {
+        callDurationRef.current += 1
+        dispatch(updateCallState({ callDuration: callDurationRef.current }))
+      }, 1000)
+    })
+
+    call.on('disconnect', () => {
+      // Preserve error status if call ended in error
+      const newStatus = callStatus === 'error' || callEndedInError ? 'error' : 'ended'
+      updateCallStatusInRedux(newStatus)
+      setActiveCall(null)
+      activeCallRef.current = null
+      globalCallStore = null // Clear module-level store
+      // Stop call duration timer (but keep the duration value for summary)
+      if (callDurationIntervalRef.current) {
+        clearInterval(callDurationIntervalRef.current)
+        callDurationIntervalRef.current = null
+      }
+      // Don't reset callDuration - keep it for the Call Summary
+      dispatch(updateCallState({ isMuted: false, isOnHold: false }))
+      dispatch(updateUIPanel({ panel: 'script', value: false }))
+    })
+
+    call.on('cancel', () => {
+      updateCallStatusInRedux('ended')
+      setActiveCall(null)
+      activeCallRef.current = null
+      globalCallStore = null // Clear module-level store
+      // Stop call duration timer
+      if (callDurationIntervalRef.current) {
+        clearInterval(callDurationIntervalRef.current)
+        callDurationIntervalRef.current = null
+      }
+      callDurationRef.current = 0
+      dispatch(updateCallState({ callDuration: 0, isMuted: false, isOnHold: false }))
+      dispatch(updateUIPanel({ panel: 'script', value: false }))
+    })
+
+    call.on('error', (error: any) => {
+      console.error('Call error:', error)
+      updateCallStatusInRedux('error')
+      dispatch(updateCallState({ callEndedInError: true }))
+      setActiveCall(null)
+      activeCallRef.current = null
+      globalCallStore = null // Clear module-level store
+      let errorMsg = 'Call failed'
+      if (error.code === 31005) {
+        errorMsg = 'Connection error. The call could not be established. This may be due to network issues or an invalid phone number.'
+      } else if (error.code === 31008) {
+        errorMsg = 'Call rejected. The number may be invalid or unreachable.'
+      } else if (error.code === 31205) {
+        errorMsg = 'Invalid access token. Please refresh and try again.'
+      } else if (error.message) {
+        errorMsg = `Call error: ${error.message}`
+      }
+      toast.error(errorMsg)
+    })
+  }
+
+  // Handle incoming call rejection/cleanup
+  const handleIncomingCallRejected = () => {
+    setIncomingCall(null)
+    setIncomingCallerInfo(null)
+    globalIncomingCallStore = null
+    if (typeof window !== 'undefined') {
+      (window as any).__dialerGlobalIncomingCall = null
+    }
+    dispatch(hideIncomingCallBanner())
+    if (callStatus === 'incoming-ringing') {
+      updateCallStatusInRedux('idle')
+    }
+  }
+
+  // Handle reject incoming call
+  const handleRejectIncomingCall = () => {
+    const callToReject = incomingCall || globalIncomingCallStore || (typeof window !== 'undefined' ? (window as any).__dialerGlobalIncomingCall : null)
+    if (callToReject) {
+      try {
+        callToReject.reject()
+      } catch (error: any) {
+        console.error('Error rejecting incoming call:', error)
+        toast.error('Failed to reject call')
+      }
+    }
+    handleIncomingCallRejected()
+  }
+
+  // Handle accept incoming call
+  const handleAcceptIncomingCall = async () => {
+    // Get call from state, ref, or global store (in case called from banner)
+    const callToAccept = incomingCall || globalIncomingCallStore || (typeof window !== 'undefined' ? (window as any).__dialerGlobalIncomingCall : null)
+    if (!callToAccept) return
+
+    try {
+      // Request microphone permission
+      setCallStatus('requesting-mic')
+      updateCallStatusInRedux('requesting-mic')
+      
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      stream.getTracks().forEach((track) => track.stop()) // Stop immediately, Device will handle it
+
+      // Accept the call
+      callToAccept.accept()
+      
+      // Set as active call
+      setActiveCall(callToAccept)
+      activeCallRef.current = callToAccept
+      setGlobalCall(callToAccept)
+      
+      // Clear incoming call state
+      setIncomingCall(null)
+      setIncomingCallerInfo(null)
+      globalIncomingCallStore = null
+      if (typeof window !== 'undefined') {
+        (window as any).__dialerGlobalIncomingCall = null
+      }
+      dispatch(hideIncomingCallBanner())
+      
+      // Setup event handlers
+      setupCallEventHandlers(callToAccept)
+      
+      // Update status - the 'accept' event will fire and update to 'in-call'
+      updateCallStatusInRedux('ringing')
+    } catch (error: any) {
+      console.error('Error accepting incoming call:', error)
+      updateCallStatusInRedux('error')
+      toast.error(`Failed to accept call: ${error.message}`)
+      handleIncomingCallRejected()
+    }
+  }
+
+  // Handle incoming call
+  const handleIncomingCall = async (call: Call) => {
+    console.log('[DialerModal] Incoming call received:', {
+      hasDevice: !!device,
+      deviceRegistered,
+      deviceState: device?.state,
+      isRegistered: (device as any)?.isRegistered,
+      callParameters: call.parameters,
+    })
+
+    // Check if there's an active call - reject if allowIncomingWhileBusy is false
+    if (activeCall || activeCallRef.current) {
+      // Reject incoming call automatically
+      try {
+        call.reject()
+        toast.info('Incoming call rejected - another call is active')
+      } catch (error: any) {
+        console.error('Error rejecting incoming call:', error)
+      }
+      return
+    }
+
+    // Extract caller information
+    const from = call.parameters?.From || call.parameters?.from || ''
+    const to = call.parameters?.To || call.parameters?.to || ''
+
+    console.log('[DialerModal] Incoming call details:', { from, to, callSid: call.parameters?.CallSid })
+
+    // Store incoming call in state and global store
+    setIncomingCall(call)
+    setIncomingCallerInfo({ from, to })
+    globalIncomingCallStore = call
+    if (typeof window !== 'undefined') {
+      (window as any).__dialerGlobalIncomingCall = call
+    }
+
+    // Update Redux status
+    updateCallStatusInRedux('incoming-ringing')
+
+    // Lookup lead by phone number and show banner
+    lookupLeadByPhone(from).then((lead) => {
+      dispatch(showIncomingCallBanner({
+        callerPhoneNumber: from,
+        callerName: lead ? (lead.name || lead.firstName || '') : null,
+        leadId: lead ? lead.id : null,
+      }))
+    }).catch(() => {
+      // If lookup fails, show banner with just phone number
+      dispatch(showIncomingCallBanner({
+        callerPhoneNumber: from,
+        callerName: null,
+        leadId: null,
+      }))
+    })
+
+    // Set up event listeners for when caller hangs up or call is rejected
+    call.on('cancel', () => {
+      handleIncomingCallRejected()
+    })
+
+    call.on('reject', () => {
+      handleIncomingCallRejected()
+    })
   }
 
   // Handle mute toggle
@@ -1883,6 +2284,7 @@ function DialerModal({
       connecting: 'bg-blue-500',
       ringing: 'bg-blue-500',
       'in-call': 'bg-green-500',
+      'incoming-ringing': 'bg-blue-500',
       ended: 'bg-gray-500',
       error: 'bg-red-500',
     }
@@ -1921,9 +2323,13 @@ function DialerModal({
     const ref = isCollapsed ? collapsedRef : modalRef
     if (ref.current) {
       const rect = ref.current.getBoundingClientRect()
+      // Store the offset from mouse position to the modal's right edge and top edge
+      // This keeps the cursor position relative to the modal consistent during drag
       dragStartPos.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
+        x: rect.right - e.clientX,  // Offset from mouse X to right edge
+        y: e.clientY - rect.top,     // Offset from mouse Y to top edge
+        mouseX: e.clientX,          // Initial mouse X (for reference)
+        mouseY: e.clientY,           // Initial mouse Y (for reference)
       }
       setIsDragging(true)
     }
@@ -1933,18 +2339,26 @@ function DialerModal({
     const handleMouseMove = (e: MouseEvent) => {
       if (isDragging) {
         const activeRef = isMinimized ? collapsedRef.current : modalRef.current
-        if (activeRef) {
-          const newX = e.clientX - dragStartPos.current.x
+        if (activeRef && dragStartPos.current.mouseX !== undefined) {
+          // Calculate new right position: current mouse X + offset to right edge
+          // This keeps the cursor position relative to the modal consistent
+          const newRight = window.innerWidth - (e.clientX + dragStartPos.current.x)
           const newY = e.clientY - dragStartPos.current.y
           
           // Constrain to viewport
-          const maxX = window.innerWidth - activeRef.offsetWidth
-          const maxY = window.innerHeight - activeRef.offsetHeight
+          const minRight = 0
+          const maxRight = window.innerWidth - activeRef.offsetWidth
+          const constrainedRight = Math.max(minRight, Math.min(newRight, maxRight))
+          const constrainedY = Math.max(0, Math.min(newY, window.innerHeight - activeRef.offsetHeight))
           
-          const constrainedX = Math.max(0, Math.min(newX, maxX))
-          const constrainedY = Math.max(0, Math.min(newY, maxY))
+          // Update rightPositionRef immediately for real-time dragging
+          rightPositionRef.current = constrainedRight
           
-          dispatch(updatePosition({ x: constrainedX, y: constrainedY }))
+          // Convert right position to left position for storage (for backward compatibility)
+          const leftX = window.innerWidth - constrainedRight - activeRef.offsetWidth
+          
+          // Store as left position (will be converted to right in getPosition)
+          dispatch(updatePosition({ x: leftX, y: constrainedY }))
         }
       }
     }
@@ -1963,31 +2377,172 @@ function DialerModal({
     }
   }, [isDragging, isMinimized, dispatch])
 
-  // Calculate position
+  // Store the right position in a ref to keep it stable during panel expand/collapse
+  const rightPositionRef = useRef<number | null>(null)
+
+  // Calculate position - anchor from top-right, keep right edge fixed
   const getPosition = () => {
+    // During dragging, use the ref value directly for immediate updates
+    // If we have a stored right position, use it (keeps right edge fixed)
+    if (rightPositionRef.current !== null && !isDragging) {
+      return { right: rightPositionRef.current, y: dialerPosition.y !== null ? dialerPosition.y : (typeof window !== 'undefined' ? window.innerHeight * 0.01 : 0) }
+    }
+    
+    // During dragging, calculate from dialerPosition directly for immediate updates
+    if (isDragging && dialerPosition.x !== null && dialerPosition.y !== null) {
+      const baseWidth = 380
+      const right = typeof window !== 'undefined' ? window.innerWidth - dialerPosition.x - baseWidth : 20
+      return { right: Math.max(0, right), y: dialerPosition.y }
+    }
+    
+    // Initialize from stored position or default
     if (dialerPosition.x !== null && dialerPosition.y !== null) {
-      return { x: dialerPosition.x, y: dialerPosition.y }
+      // Convert stored left position to right position using current width
+      const baseWidth = 380
+      const right = typeof window !== 'undefined' ? window.innerWidth - dialerPosition.x - baseWidth : 20
+      rightPositionRef.current = Math.max(0, right)
+      return { right: rightPositionRef.current, y: dialerPosition.y }
     }
-    // Default position - start from top (match lead modal ~1% from top)
+    
+    // Default position - anchor from top-right
     if (typeof window !== 'undefined') {
-      return { x: window.innerWidth - 400, y: window.innerHeight * 0.01 }
+      const defaultRight = 20
+      rightPositionRef.current = defaultRight
+      return { right: defaultRight, y: window.innerHeight * 0.01 }
     }
-    return { x: 0, y: 0 }
+    
+    const defaultRight = 20
+    rightPositionRef.current = defaultRight
+    return { right: defaultRight, y: 0 }
   }
 
-  const position = getPosition()
+  // Calculate modal dimensions - keep right edge fixed, adjust width smoothly
+  const getModalDimensions = () => {
+    const baseWidth = 380
+    const expandedWidth = 700
+    const panelWidth = 320 // Width of script/email/sms panel
+    
+    const isExpanded = (showScriptPanel && callStatus !== 'ended' && callStatus !== 'error') || 
+                      ((showEmailPanel || showSmsPanel) && (callStatus === 'ended' || callStatus === 'error'))
+    
+    const desiredWidth = isExpanded ? expandedWidth : baseWidth
+    const position = getPosition()
+    // During dragging, use position directly; otherwise use ref for stability
+    const currentRight = isDragging ? (position.right || 20) : (rightPositionRef.current !== null ? rightPositionRef.current : (position.right || 20))
+    
+    if (typeof window !== 'undefined') {
+      // Calculate available space on the left
+      const availableLeft = window.innerWidth - currentRight - baseWidth
+      
+      // If expanding and not enough space on left, we need to adjust
+      if (isExpanded && availableLeft < panelWidth) {
+        // Calculate how much we need to shift left to accommodate the panel
+        const neededSpace = panelWidth - availableLeft
+        const minRight = 20 // Minimum padding from right edge
+        const maxRight = window.innerWidth - expandedWidth - 20 // Maximum right position
+        
+        // Calculate new right position (shift left)
+        const adjustedRight = Math.max(minRight, Math.min(currentRight - neededSpace, maxRight))
+        
+        // Update the ref so it stays at this position
+        rightPositionRef.current = adjustedRight
+        
+        return {
+          width: expandedWidth,
+          right: adjustedRight,
+          y: position.y,
+          adjusted: true
+        }
+      }
+      
+      // When collapsing, keep right position fixed (don't adjust it)
+      if (!isExpanded) {
+        // Keep the right position exactly as it was - only width changes
+        // Only constrain if it would go outside viewport
+        const minRight = 20
+        const maxRight = window.innerWidth - baseWidth - 20
+        if (currentRight < minRight || currentRight > maxRight) {
+          const constrainedRight = Math.max(minRight, Math.min(currentRight, maxRight))
+          rightPositionRef.current = constrainedRight
+          return {
+            width: baseWidth,
+            right: constrainedRight,
+            y: position.y,
+            adjusted: false
+          }
+        }
+        
+        // Right position is fine, keep it exactly as is
+        return {
+          width: baseWidth,
+          right: currentRight,
+          y: position.y,
+          adjusted: false
+        }
+      }
+    }
+    
+    // Normal case - enough space, keep right fixed
+    return {
+      width: desiredWidth,
+      right: currentRight,
+      y: position.y,
+      adjusted: false
+    }
+  }
+
+  const modalDimensions = getModalDimensions()
+  const position = { right: modalDimensions.right, y: modalDimensions.y }
+
+  // Update stored position when adjusted (only when expanding and position changes)
+  useEffect(() => {
+    if (modalDimensions.adjusted && modalRef.current) {
+      // Position was adjusted, update Redux store with new position
+      const leftX = typeof window !== 'undefined' 
+        ? window.innerWidth - modalDimensions.right - modalDimensions.width 
+        : 0
+      dispatch(updatePosition({ x: leftX, y: modalDimensions.y }))
+    }
+  }, [showScriptPanel, showEmailPanel, showSmsPanel, callStatus, modalDimensions.adjusted, dispatch])
+
+  // Update right position ref when dragging
+  useEffect(() => {
+    if (dialerPosition.x !== null && !isDragging) {
+      const baseWidth = 380
+      const right = typeof window !== 'undefined' ? window.innerWidth - dialerPosition.x - baseWidth : 20
+      rightPositionRef.current = Math.max(0, right)
+    }
+  }, [dialerPosition.x, isDragging])
+
+  // Reset position and state when modal is closed
+  useEffect(() => {
+    if (!open) {
+      // Reset position to default
+      dispatch(updatePosition({ x: null, y: null }))
+      rightPositionRef.current = null
+      // Reset UI panels
+      dispatch(updateUIPanel({ panel: 'script', value: false }))
+      dispatch(updateUIPanel({ panel: 'email', value: false }))
+      dispatch(updateUIPanel({ panel: 'sms', value: false }))
+      dispatch(updateUIPanel({ panel: 'notes', value: false }))
+      // Reset minimized state
+      dispatch(setMinimized(false))
+      // Clear dropdown anchors
+      setNumberDropdownAnchor(null)
+    }
+  }, [open, dispatch])
 
   // Collapsed UI component
   const CollapsedDialer = () => {
-    if (!isMinimized || (callStatus !== 'in-call' && callStatus !== 'ringing' && callStatus !== 'connecting')) {
+    if (!isMinimized || (callStatus !== 'in-call' && callStatus !== 'ringing' && callStatus !== 'connecting' && callStatus !== 'incoming-ringing')) {
       return null
-    }
+  }
 
-    return (
+  return (
       <div
         className="fixed z-[1402] bg-white rounded-lg shadow-lg border border-gray-200"
         style={{
-          left: `${position.x}px`,
+          right: `${position.right}px`,
           top: `${position.y}px`,
           width: '280px',
           padding: '12px',
@@ -2082,12 +2637,12 @@ function DialerModal({
       ref={modalRef}
       className="fixed z-[1401] bg-white"
       style={{
-        left: `${position.x}px`,
-        top: `${position.y}px`,
-        right: 'auto',
-        maxWidth: (showScriptPanel && callStatus !== 'ended' && callStatus !== 'error') || ((showEmailPanel || showSmsPanel) && (callStatus === 'ended' || callStatus === 'error')) ? '700px' : '380px',
-        width: (showScriptPanel && callStatus !== 'ended' && callStatus !== 'error') || ((showEmailPanel || showSmsPanel) && (callStatus === 'ended' || callStatus === 'error')) ? '700px' : '380px',
-        transition: isDragging ? 'none' : 'width 0.3s ease, max-width 0.3s ease, left 0.1s ease, top 0.1s ease',
+        right: `${modalDimensions.right}px`,
+        top: `${modalDimensions.y}px`,
+        left: 'auto',
+        maxWidth: `${modalDimensions.width}px`,
+        width: `${modalDimensions.width}px`,
+        transition: isDragging ? 'none' : 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), right 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.1s ease',
         boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1)',
         minHeight: '500px',
         maxHeight: '80vh',
@@ -2098,13 +2653,36 @@ function DialerModal({
       }}
       onMouseDown={(e) => handleMouseDown(e, false)}
       onKeyDown={(e) => {
-          // Allow escape to close unless in active call
           // Don't interfere with input fields
           const target = e.target as HTMLElement
           if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
             return
           }
-        if (e.key === 'Escape' && callStatus !== 'in-call' && callStatus !== 'ringing' && callStatus !== 'connecting') {
+        if (e.key === 'Escape') {
+          // If there's an active call OR call is in any active state, disconnect it immediately
+          const isActiveCallState = callStatus === 'requesting-mic' || 
+                                   callStatus === 'connecting' || 
+                                   callStatus === 'ringing' || 
+                                   callStatus === 'in-call'
+          
+          if (activeCall || isActiveCallState) {
+            handleEndCall()
+          }
+          // Reset dialer state to idle
+          callDurationRef.current = 0
+          updateCallStatusInRedux('idle')
+          dispatch(updateCallState({ callDuration: 0, isMuted: false, isOnHold: false }))
+          // Reset position to default
+          dispatch(updatePosition({ x: null, y: null }))
+          rightPositionRef.current = null
+          // Reset UI panels
+          dispatch(updateUIPanel({ panel: 'script', value: false }))
+          dispatch(updateUIPanel({ panel: 'email', value: false }))
+          dispatch(updateUIPanel({ panel: 'sms', value: false }))
+          dispatch(updateUIPanel({ panel: 'notes', value: false }))
+          // Reset minimized state
+          dispatch(setMinimized(false))
+          // Then close the dialer
           onClose()
         }
       }}
@@ -2130,14 +2708,31 @@ function DialerModal({
                         <Button
                           onClick={(e) => {
                             e.stopPropagation()
-            // If there's an active call, disconnect it first
-            if (activeCall && (callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting')) {
+            // If there's an active call OR call is in any active state, disconnect it immediately
+            // Active states: 'requesting-mic', 'connecting', 'ringing', 'in-call', 'incoming-ringing'
+            const isActiveCallState = callStatus === 'requesting-mic' || 
+                                     callStatus === 'connecting' || 
+                                     callStatus === 'ringing' || 
+                                     callStatus === 'in-call' ||
+                                     callStatus === 'incoming-ringing'
+            
+            if (activeCall || isActiveCallState || incomingCall) {
               handleEndCall()
             }
             // Reset dialer state to idle
             callDurationRef.current = 0
             updateCallStatusInRedux('idle')
             dispatch(updateCallState({ callDuration: 0, isMuted: false, isOnHold: false }))
+            // Reset position to default
+            dispatch(updatePosition({ x: null, y: null }))
+            rightPositionRef.current = null
+            // Reset UI panels
+            dispatch(updateUIPanel({ panel: 'script', value: false }))
+            dispatch(updateUIPanel({ panel: 'email', value: false }))
+            dispatch(updateUIPanel({ panel: 'sms', value: false }))
+            dispatch(updateUIPanel({ panel: 'notes', value: false }))
+            // Reset minimized state
+            dispatch(setMinimized(false))
             // Then close the dialer
             onClose()
                           }}
@@ -2235,6 +2830,24 @@ function DialerModal({
                     </div>
                   )}
                 </>
+              ) : callStatus === 'incoming-ringing' ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src="/svgIcons/dialer/OLD AGENTX UI/dialer_outoing_green_arrow.svg"
+                      alt="Incoming call"
+                      width={16}
+                      height={16}
+                      style={{ transform: 'rotate(180deg)' }}
+                    />
+                    <span className="text-sm font-semibold text-gray-900">
+                      Incoming
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-500 ml-[24px]">
+                    {incomingCallerInfo?.from ? formatPhoneNumber(incomingCallerInfo.from) : 'Unknown caller'}
+                  </div>
+                </>
               ) : (callStatus === 'ringing' || callStatus === 'in-call' || callStatus === 'connecting') ? (
                 <>
                   <div className="flex items-center gap-2">
@@ -2264,18 +2877,14 @@ function DialerModal({
                     <span className="text-sm font-semibold text-gray-900">Your Number</span>
                   </div>
                   <div className="flex items-center justify-between relative">
-                    <div className="text-sm font-medium text-gray-900">
-                      {selectedInternalNumber?.phone ? formatPhoneNumber(selectedInternalNumber.phone) : 'No number selected'}
-                    </div>
                     <div style={{ position: 'relative', zIndex: 1000 }}>
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation()
-                          console.log('Change button clicked', e.currentTarget)
                           setNumberDropdownAnchor(e.currentTarget)
                         }}
-                        className="text-sm flex items-center gap-1 hover:opacity-80 transition-opacity cursor-pointer"
+                        className="text-sm flex items-center gap-1.5 hover:opacity-80 transition-opacity cursor-pointer"
                         style={{
                           color: 'hsl(var(--brand-primary))',
                           zIndex: 1000,
@@ -2284,10 +2893,13 @@ function DialerModal({
                           backgroundColor: 'transparent',
                           border: 'none',
                           padding: '4px 8px',
+                          fontWeight: 500,
                         }}
                       >
-                        Change
-                        <ChevronDown size={14} />
+                        <span className="text-gray-900">
+                          {selectedInternalNumber?.phone ? formatPhoneNumber(selectedInternalNumber.phone) : 'No number selected'}
+                        </span>
+                        <ChevronDown size={14} style={{ color: 'hsl(var(--brand-primary))' }} />
                       </button>
                       {numberDropdownAnchor && (
                         <Menu
@@ -2441,6 +3053,30 @@ function DialerModal({
                               )
                             })
                           })()}
+                          {/* Get New Number Button */}
+                          <MenuItem
+                            onClick={() => {
+                              setNumberDropdownAnchor(null)
+                              setShowClaimNumberModal(true)
+                            }}
+                            style={{
+                              display: 'block',
+                              border: '1px solid #e5e7eb',
+                              borderRadius: '8px',
+                              margin: '4px 8px',
+                              padding: '12px 16px',
+                              backgroundColor: 'white',
+                              borderTop: '2px solid #e5e7eb',
+                              marginTop: '8px',
+                            }}
+                          >
+                            <div className="flex items-center justify-center gap-2">
+                              <Phone size={16} style={{ color: 'hsl(var(--brand-primary))' }} />
+                              <span className="text-sm font-medium" style={{ color: 'hsl(var(--brand-primary))' }}>
+                                Get New Number
+                              </span>
+                            </div>
+                          </MenuItem>
                         </Menu>
                       )}
                     </div>
@@ -2450,10 +3086,10 @@ function DialerModal({
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6" style={{ paddingBottom: callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting' ? '80px' : (callStatus === 'ended' || callStatus === 'error') ? '16px' : '24px' }}>
+          <div className="flex-1 overflow-y-auto p-6" style={{ paddingBottom: callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting' || callStatus === 'incoming-ringing' ? '80px' : (callStatus === 'ended' || callStatus === 'error') ? '16px' : '24px' }}>
           {checkingDialerNumber || initializing ? (
             <div className="text-center py-8">
-              <div className="text-sm text-gray-500">Initializing dialer...</div>
+              <div className="text-sm text-gray-500">Connecting...</div>
             </div>
           ) : !hasDialerNumber ? (
             <div className="text-center py-8 space-y-4">
@@ -2466,8 +3102,75 @@ function DialerModal({
             </div>
           ) : (
               <div className="space-y-6">
-                {/* Call Status Section - Show when call is active */}
-                {(callStatus === 'ringing' || callStatus === 'in-call' || callStatus === 'connecting') ? (
+                {/* Incoming Call Section */}
+                {callStatus === 'incoming-ringing' ? (
+                  <div className="space-y-4">
+                    {/* Contact Info */}
+                    <div className="flex flex-col items-center space-y-2 py-4">
+                      <div
+                        className="w-20 h-20 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.1)' }}
+                      >
+                        <span
+                          className="text-3xl font-semibold"
+                          style={{ color: 'hsl(var(--brand-primary))' }}
+                        >
+                          {leadName ? leadName.charAt(0).toUpperCase() : incomingCallerInfo?.from?.charAt(incomingCallerInfo.from.length - 1) || '?'}
+                        </span>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-semibold text-base">
+                          {leadName || (incomingCallerInfo?.from ? formatPhoneNumber(incomingCallerInfo.from) : 'Unknown Caller')}
+                        </div>
+                        {leadName && incomingCallerInfo?.from && (
+                          <div className="text-sm text-gray-500">{formatPhoneNumber(incomingCallerInfo.from)}</div>
+                        )}
+                        <div className="text-sm text-gray-500 mt-2">Incoming call...</div>
+                      </div>
+                    </div>
+
+                    {/* Accept/Reject Buttons */}
+                    <div className="flex items-center justify-center gap-4 py-4">
+                      {/* Reject Button */}
+                      <button
+                        onClick={handleRejectIncomingCall}
+                        className="flex items-center justify-center transition-colors hover:bg-red-50 bg-white"
+                        style={{
+                          width: '64px',
+                          height: '64px',
+                          borderRadius: '50%',
+                          border: '2px solid #ef4444',
+                          padding: 0,
+                        }}
+                      >
+                        <Phone
+                          size={24}
+                          className="rotate-135"
+                          style={{ color: '#ef4444' }}
+                        />
+                      </button>
+                      
+                      {/* Accept Button */}
+                      <button
+                        onClick={handleAcceptIncomingCall}
+                        className="flex items-center justify-center transition-colors hover:bg-green-50"
+                        style={{
+                          width: '64px',
+                          height: '64px',
+                          borderRadius: '50%',
+                          backgroundColor: '#10b981',
+                          border: '2px solid #10b981',
+                          padding: 0,
+                        }}
+                      >
+                        <Phone
+                          size={24}
+                          style={{ color: 'white' }}
+                        />
+                      </button>
+                    </div>
+                  </div>
+                ) : (callStatus === 'ringing' || callStatus === 'in-call' || callStatus === 'connecting') ? (
                   <div className="space-y-4">
                     {/* Contact Info */}
                     <div className="flex flex-col items-center space-y-2 py-4">
@@ -2972,6 +3675,24 @@ function DialerModal({
         />
       )}
 
+      {/* Claim Number Modal */}
+      <ClaimNumber
+        showClaimPopup={showClaimNumberModal}
+        handleCloseClaimPopup={() => {
+          setShowClaimNumberModal(false)
+          // Refresh phone numbers after closing (in case a new number was purchased)
+          fetchPhoneNumbersWithAgents()
+        }}
+        setOpenCalimNumDropDown={() => {}}
+        setSelectNumber={() => {}}
+        setPreviousNumber={() => {}}
+        previousNumber={[]}
+        AssignNumber={(phoneNumber: string) => {
+          // After assigning a number, refresh the phone numbers list
+          fetchPhoneNumbersWithAgents()
+        }}
+        selectedUSer={selectedUser}
+      />
 
         </div>
   )

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button as ButtonBase } from '../ui/button'
 import { toast } from 'sonner'
-import { Phone, MoreVertical, Pencil, X, Loader2 } from 'lucide-react'
+import { Phone, MoreVertical, Pencil, X, Loader2, FileText } from 'lucide-react'
 import { Menu, MenuItem } from '@mui/material'
 import { formatPhoneNumber } from '@/utilities/agentUtilities'
 import SMSTempletePopupBase from '../pipeline/SMSTempletePopup'
@@ -121,17 +121,23 @@ export default function SmsTemplatePanel({
           <h3 className="text-sm font-semibold text-gray-900">Select SMS</h3>
           <Button
             onClick={handleComposeNew}
-            size="sm"
-            className="rounded-lg border border-gray-300"
+            variant="filled"
+            className="rounded-full py-2 px-4 transition-all"
             style={{
-              backgroundColor: 'white',
+              backgroundColor: '#F9F9F9',
+              border: '1px solid #e5e7eb',
               color: '#374151',
-              fontSize: '12px',
-              padding: '4px 12px',
+              fontSize: '14px',
               height: 'auto',
             }}
           >
-            <span className="mr-1">✏️</span>
+            <FileText
+              size={14}
+              className="mr-1.5"
+              style={{
+                color: '#374151'
+              }}
+            />
             Compose New
           </Button>
         </div>
@@ -162,8 +168,8 @@ export default function SmsTemplatePanel({
                         {template.templateName}
                       </div> */}
                       {template.content && (
-                        <div className="text-xs text-gray-500 line-clamp-2">
-                          {template.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
+                        <div className="text-xs text-black line-clamp-2">
+                          {template.content.replace(/<[^>]*>/g, '').substring(0, 100)} {template.content.length > 100 ? '...' : ''}
                         </div>
                       )}
                     </div>
