@@ -66,6 +66,8 @@ export default function CallingScript({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [scriptToDelete, setScriptToDelete] = useState<number | null>(null)
   const [deleting, setDeleting] = useState(false)
+  const [processedContent, setProcessedContent] = useState<string | null>(null)
+  const [processingContent, setProcessingContent] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null)
 
@@ -76,6 +78,54 @@ export default function CallingScript({
       fetchUniqueColumns()
     }
   }, [isExpanded])
+
+  // Replace variables in script content when viewing a script with leadId
+  useEffect(() => {
+    const replaceVariables = async () => {
+      if (selectedScript && leadId && selectedScript.content) {
+        try {
+          setProcessingContent(true)
+          const token = localStorage.getItem('token') || JSON.parse(localStorage.getItem('User') || '{}').token
+
+          if (!token) {
+            setProcessedContent(null)
+            return
+          }
+
+          const response = await fetch('/api/calling-scripts/replace-variables', {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              content: selectedScript.content,
+              leadId: leadId,
+            }),
+          })
+
+          const data = await response.json()
+
+          if (response.ok && data.status && data.data?.processedContent) {
+            setProcessedContent(data.data.processedContent)
+          } else {
+            // If replacement fails, show original content
+            setProcessedContent(null)
+          }
+        } catch (error) {
+          console.error('Error replacing variables:', error)
+          setProcessedContent(null)
+        } finally {
+          setProcessingContent(false)
+        }
+      } else {
+        // Reset processed content when script or leadId changes
+        setProcessedContent(null)
+      }
+    }
+
+    replaceVariables()
+  }, [selectedScript, leadId])
 
   const fetchUniqueColumns = async () => {
     try {
@@ -506,12 +556,19 @@ export default function CallingScript({
             <div className="flex-1 overflow-y-auto px-6">
               <Card className="border-2 mt-6" style={{ borderColor: 'hsl(var(--brand-primary) / 0.2)' }}>
                 <CardContent className="p-6">
-                  <div className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed" style={{ 
-                    lineHeight: '1.75',
-                    fontSize: '14px',
-                  }}>
-                    {selectedScript.content}
-                  </div>
+                  {processingContent ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="w-5 h-5 animate-spin text-gray-400" />
+                      <span className="ml-2 text-sm text-gray-500">Loading script with lead details...</span>
+                    </div>
+                  ) : (
+                    <div className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed" style={{ 
+                      lineHeight: '1.75',
+                      fontSize: '14px',
+                    }}>
+                      {processedContent !== null ? processedContent : selectedScript.content}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
