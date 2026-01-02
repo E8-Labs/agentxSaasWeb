@@ -1070,24 +1070,9 @@ function DialerModal({
         // #endregion
         clearTimeout(registrationTimeout)
         
-        // Explicitly ensure device is listening for incoming calls
-        // This is a workaround for potential edge/region propagation issues
-        console.log('[DialerModal] Device registered - ensuring it stays registered for incoming calls')
-        // Explicitly call register() again to ensure device is actively listening
-        // This helps with edge/region propagation and ensures the device is ready for incoming calls
-        try {
-          if (twilioDevice.state !== 'registered') {
-            console.log('[DialerModal] Device state is not registered, calling register() explicitly')
-            twilioDevice.register()
-          } else {
-            console.log('[DialerModal] Device is already registered, ensuring it stays registered')
-            // Even if registered, call register() again to refresh the registration
-            // This helps with edge propagation and ensures Twilio knows the device is available
-            twilioDevice.register()
-          }
-        } catch (registerError: any) {
-          console.warn('[DialerModal] Error ensuring device registration:', registerError)
-        }
+        // Device is now registered in US region (ashburn/US_EAST_VIRGINIA/us1)
+        // No need to call register() again - device is already registered and listening
+        console.log('[DialerModal] Device registered successfully in US region - ready for incoming calls')
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1070', message: 'H6: Ensuring device stays registered for incoming calls', data: { state: twilioDevice.state, identity: deviceIdentity, edge, region, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H6' }) }).catch(() => { });
         // #endregion

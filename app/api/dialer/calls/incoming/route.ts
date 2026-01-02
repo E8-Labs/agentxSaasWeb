@@ -12,12 +12,25 @@ const BASE_API_URL =
  * Returns TwiML to dial the user's registered device
  */
 export async function POST(req: NextRequest) {
+  // Log immediately when endpoint is hit
+  console.log('🔵 [NEXT.JS INCOMING WEBHOOK] ========================================')
+  console.log('🔵 [NEXT.JS INCOMING WEBHOOK] Endpoint hit at:', new Date().toISOString())
+  console.log('🔵 [NEXT.JS INCOMING WEBHOOK] URL:', req.url)
+  console.log('🔵 [NEXT.JS INCOMING WEBHOOK] Method:', req.method)
+  console.log('🔵 [NEXT.JS INCOMING WEBHOOK] Headers:', JSON.stringify(Object.fromEntries(req.headers.entries()), null, 2))
+  
   try {
     const formData = await req.formData()
     const body: Record<string, string> = {}
     formData.forEach((value, key) => {
       body[key] = value.toString()
     })
+
+    console.log('🔵 [NEXT.JS INCOMING WEBHOOK] Body keys:', Object.keys(body))
+    console.log('🔵 [NEXT.JS INCOMING WEBHOOK] From:', body.From || body.from)
+    console.log('🔵 [NEXT.JS INCOMING WEBHOOK] To:', body.To || body.to)
+    console.log('🔵 [NEXT.JS INCOMING WEBHOOK] CallSid:', body.CallSid || body.callSid)
+    console.log('🔵 [NEXT.JS INCOMING WEBHOOK] Forwarding to backend:', `${BASE_API_URL}api/dialer/calls/incoming`)
 
     // Call backend API to handle incoming call
     const response = await fetch(`${BASE_API_URL}api/dialer/calls/incoming`, {
@@ -29,8 +42,11 @@ export async function POST(req: NextRequest) {
       cache: 'no-store',
     })
 
+    console.log('🔵 [NEXT.JS INCOMING WEBHOOK] Backend response status:', response.status)
+
     if (!response.ok) {
       const errorText = await response.text()
+      console.error('🔵 [NEXT.JS INCOMING WEBHOOK] Backend error:', errorText)
       return new Response(errorText, {
         status: response.status,
         headers: { 'Content-Type': 'text/xml' },
@@ -38,13 +54,16 @@ export async function POST(req: NextRequest) {
     }
 
     const twiml = await response.text()
+    console.log('🔵 [NEXT.JS INCOMING WEBHOOK] TwiML received from backend:', twiml.substring(0, 200))
+    console.log('🔵 [NEXT.JS INCOMING WEBHOOK] Returning TwiML to Twilio')
 
     return new Response(twiml, {
       status: 200,
       headers: { 'Content-Type': 'text/xml' },
     })
   } catch (error: any) {
-    console.error('Error in POST /api/dialer/calls/incoming:', error)
+    console.error('🔵 [NEXT.JS INCOMING WEBHOOK] Error:', error)
+    console.error('🔵 [NEXT.JS INCOMING WEBHOOK] Error stack:', error.stack)
     return new Response(
       '<?xml version="1.0" encoding="UTF-8"?><Response><Say>An error occurred</Say><Hangup /></Response>',
       {

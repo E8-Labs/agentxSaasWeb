@@ -458,6 +458,19 @@ export async function proxy(request) {
     return NextResponse.redirect(callbackUrl.toString())
   }
 
+  // ---- Allow webhook routes without authentication ----
+  // Twilio and other webhook providers don't send user cookies
+  const webhookRoutes = [
+    '/api/dialer/calls/incoming',
+    '/api/dialer/calls/status',
+    '/api/dialer/calls/twiml',
+  ]
+  
+  if (webhookRoutes.some(route => pathname.startsWith(route))) {
+    console.log(`🔵 [MIDDLEWARE] Allowing webhook route without auth: ${pathname}`)
+    return createResponseWithBrandingHeaders(request, agencyBranding)
+  }
+
   // ---- Require login for everything else ----
   if (!user) {
     // Not logged in → always send home
