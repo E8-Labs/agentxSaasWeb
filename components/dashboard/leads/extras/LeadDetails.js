@@ -445,21 +445,21 @@ const LeadDetails = ({
             // Convert both to strings for comparison to handle type mismatches
             return String(userIdentifier) !== String(userId)
           })
-          
+
           updatedLead = {
             ...prevData,
             teamsAssigned: filteredTeams,
           }
-          
+
           return updatedLead
         })
-        
+
         // Call callback with updated lead data to sync with parent component
         // Use the updatedLead value we just created
         if (updatedLead && leadAssignedTeam) {
           leadAssignedTeam(null, updatedLead)
         }
-        
+
         showSnackbar(response.data.message || 'Team member unassigned successfully', SnackbarTypes.Success)
       } else if (response && response.data && response.data.status === false) {
         // Show error message if unassignment failed
@@ -958,7 +958,7 @@ const LeadDetails = ({
     if (!tagValue || !tagValue.trim()) return
 
     const trimmedTag = tagValue.trim()
-    
+
     // Check if tag already exists
     if (selectedLeadsDetails?.tags?.includes(trimmedTag)) {
       showSnackbar('Tag already exists', SnackbarTypes.Error)
@@ -983,7 +983,7 @@ const LeadDetails = ({
         leadId: selectedLeadsDetails.id,
         tag: trimmedTag,
         smartListId: selectedLeadsDetails.sheetId,
-        phoneNumber:selectedLeadsDetails.phone
+        phoneNumber: selectedLeadsDetails.phone
       }
 
       console.log('ApiData for add tag is', ApiData)
@@ -1035,7 +1035,7 @@ const LeadDetails = ({
           return colLower.includes(valueLower)
         })
         .filter((col) => !existingTags.includes(col)) // Exclude existing tags
-      
+
       setTagSuggestions(filtered)
       setShowTagSuggestions(filtered.length > 0)
     } else {
@@ -1899,14 +1899,14 @@ const LeadDetails = ({
     return (
       <div className="flex flex-col items-start gap-2">
         {item.sentSubject && (
-            <div className="text-base font-semibold text-[#000000]">
-              Subject:  {item.sentSubject}
-            </div>
+          <div className="text-base font-semibold text-[#000000]">
+            Subject:  {item.sentSubject}
+          </div>
         )}
 
         {item.sentContent && (
           <div className="flex flex-col items-start gap-2">
-           
+
             <div className="text-base font-medium text-[#000000] whitespace-pre-wrap">
               {htmlToPlainText(item.sentContent)}
             </div>
@@ -1944,37 +1944,37 @@ const LeadDetails = ({
   const mainContent = (
     <>
       <AgentSelectSnackMessage
-          message={showSnackMsg.message}
-          type={showSnackMsg.type}
-          isVisible={showSnackMsg.isVisible}
-          hide={() => {
-            setShowSnackMsg({
-              type: SnackbarTypes.Success,
-              message: '',
-              isVisible: false,
-            })
-          }}
-        />
-        <div className="flex flex-col w-full h-full  py-2 px-5 rounded-xl">
-          <div className="w-full flex flex-col items-center h-full">
+        message={showSnackMsg.message}
+        type={showSnackMsg.type}
+        isVisible={showSnackMsg.isVisible}
+        hide={() => {
+          setShowSnackMsg({
+            type: SnackbarTypes.Success,
+            message: '',
+            isVisible: false,
+          })
+        }}
+      />
+      <div className="flex flex-col w-full h-full  py-2 px-5 rounded-xl">
+        <div className="w-full flex flex-col items-center h-full">
 
-            <div className="w-full">
-              {initialLoader ? (
-                <div className="w-full flex flex-row items-center justify-center mt-24">
-                  <CircularProgress size={45} thickness={2} />
-                </div>
-              ) : (
+          <div className="w-full">
+            {initialLoader ? (
+              <div className="w-full flex flex-row items-center justify-center mt-24">
+                <CircularProgress size={45} thickness={2} />
+              </div>
+            ) : (
+              <div
+                className="h-[95vh] overflow-auto"
+                style={{ scrollbarWidth: 'none' }}
+              >
                 <div
-                  className="h-[95vh] overflow-auto"
-                  style={{ scrollbarWidth: 'none' }}
+                  style={{
+                    padding: 20,
+                    paddingInline: 30,
+                  }}
                 >
-                  <div
-                    style={{
-                      padding: 20,
-                      paddingInline: 30,
-                    }}
-                  >
-                    {!renderInline && (
+                  {!renderInline && (
                     <div className="w-full flex flex-row items-center justify-between pb-4 border-b">
                       <div style={{ fontSize: 18, fontWeight: '700' }}>
                         More Info
@@ -1987,131 +1987,93 @@ const LeadDetails = ({
                         <CloseIcon />
                       </button>
                     </div>
-                    )}
-                    <div>
-                      <div className="flex flex-row items-start justify-between mt-4  w-full">
-                        <div className="flex flex-col items-start gap-[5px] ">
-                          <div className="flex flex-row items-center gap-4">
-                            {selectedLeadsDetails?.agent ? (
-                              <div className="h-[32px] w-[32px]">
-                                {getAgentsListImage(
-                                  selectedLeadsDetails?.agent?.agents?.[0]?.agentType === 'outbound'
-                                    ? selectedLeadsDetails?.agent?.agents?.[0]
-                                    : selectedLeadsDetails?.agent?.agents?.[1],
-                                  32,
-                                  32,
-                                )}
-                              </div>
-                            ) : (
-                              <div
-                                className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                              // onClick={() => handleToggleClick(item.id)}
-                              >
-                                {selectedLeadsDetails?.firstName?.slice(0, 1) ||
-                                  '-'}
-                              </div>
-                            )}
+                  )}
+                  <div>
+                    <div className="flex flex-row items-start justify-between mt-4  w-full">
+                      <div className="flex flex-col items-start gap-[5px] ">
+                        <div className="flex flex-row items-center gap-4">
+                          {selectedLeadsDetails?.agent ? (
+                            <div className="h-[32px] w-[32px]">
+                              {getAgentsListImage(
+                                selectedLeadsDetails?.agent?.agents?.[0]?.agentType === 'outbound'
+                                  ? selectedLeadsDetails?.agent?.agents?.[0]
+                                  : selectedLeadsDetails?.agent?.agents?.[1],
+                                32,
+                                32,
+                              )}
+                            </div>
+                          ) : (
                             <div
-                              className="truncate"
+                              className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
                             // onClick={() => handleToggleClick(item.id)}
                             >
-                              {selectedLeadsDetails?.firstName}{' '}
-                              {selectedLeadsDetails?.lastName}
+                              {selectedLeadsDetails?.firstName?.slice(0, 1) ||
+                                '-'}
                             </div>
+                          )}
+                          <div
+                            className="truncate"
+                          // onClick={() => handleToggleClick(item.id)}
+                          >
+                            {selectedLeadsDetails?.firstName}{' '}
+                            {selectedLeadsDetails?.lastName}
+                          </div>
 
-                            {/* Send Action Dropdown Button */}
-                            <div className="relative">
-                              <button
-                                className="flex flex-row items-center gap-1 px-2 py-1 border border-brand-primary text-brand-primary rounded-lg"
-                                onClick={(e) => setSendActionAnchor(e.currentTarget)}
-                              >
-                                <span className="text-[12px] font-[400]">Send</span>
-                                <CaretDown size={12} weight="bold" />
-                              </button>
-                              <Menu
-                                anchorEl={sendActionAnchor}
-                                open={Boolean(sendActionAnchor)}
-                                onClose={() => setSendActionAnchor(null)}
-                                anchorOrigin={{
-                                  vertical: 'bottom',
-                                  horizontal: 'left',
-                                }}
-                                transformOrigin={{
-                                  vertical: 'top',
-                                  horizontal: 'left',
-                                }}
-                                PaperProps={{
-                                  style: {
-                                    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-                                    borderRadius: '12px',
-                                    minWidth: '150px',
-                                  },
-                                }}
-                              >
-                                {/* Email Option */}
-                                {(selectedLeadsDetails?.email ||
-                                  selectedLeadsDetails?.emails?.length > 0) && (
-                                    <MenuItem
-                                      onClick={() => {
-                                        setSendActionAnchor(null)
-                                        if (googleAccounts.length === 0) {
-                                          setShowAuthSelectionPopup(true)
-                                        } else {
-                                          setShowEmailModal(true)
-                                        }
-                                      }}
-                                      disabled={sendEmailLoader}
-                                    >
-                                      <div className="flex flex-row items-center gap-2 w-full">
-                                        <Mail
-                                          size={20}
-                                          color="#000000"
-                                        />
-                                        <span>Email</span>
-
-                                        {!userLocalData?.planCapabilities?.allowEmails && (
-                                          <UpgradeTagWithModal
-                                            reduxUser={userLocalData ? { 
-                                              user: userLocalData,
-                                              userRole: userLocalData.userRole 
-                                            } : null}
-                                            setReduxUser={async (updatedData) => {
-                                              // Refresh user data after upgrade
-                                              const user = await getProfileDetails()
-                                              if (user) {
-                                                setUserLocalData(user.data.data)
-                                              }
-                                            }}
-                                          />
-                                        )}
-                                      </div>
-                                    </MenuItem>
-                                  )}
-                                {/* Text Option */}
-                                {selectedLeadsDetails?.phone && (
+                          {/* Send Action Dropdown Button */}
+                          <div className="relative">
+                            <button
+                              className="flex flex-row items-center gap-1 px-2 py-1 border border-brand-primary text-brand-primary rounded-lg"
+                              onClick={(e) => setSendActionAnchor(e.currentTarget)}
+                            >
+                              <span className="text-[12px] font-[400]">Send</span>
+                              <CaretDown size={12} weight="bold" />
+                            </button>
+                            <Menu
+                              anchorEl={sendActionAnchor}
+                              open={Boolean(sendActionAnchor)}
+                              onClose={() => setSendActionAnchor(null)}
+                              anchorOrigin={{
+                                vertical: 'bottom',
+                                horizontal: 'left',
+                              }}
+                              transformOrigin={{
+                                vertical: 'top',
+                                horizontal: 'left',
+                              }}
+                              PaperProps={{
+                                style: {
+                                  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                                  borderRadius: '12px',
+                                  minWidth: '150px',
+                                },
+                              }}
+                            >
+                              {/* Email Option */}
+                              {(selectedLeadsDetails?.email ||
+                                selectedLeadsDetails?.emails?.length > 0) && (
                                   <MenuItem
                                     onClick={() => {
-                                      if (sendSMSLoader ||
-                                        !userLocalData?.planCapabilities
-                                          ?.allowTextMessages ||
-                                        phoneNumbers.length == 0) return
                                       setSendActionAnchor(null)
-                                      setShowSMSModal(true)
+                                      if (googleAccounts.length === 0) {
+                                        setShowAuthSelectionPopup(true)
+                                      } else {
+                                        setShowEmailModal(true)
+                                      }
                                     }}
-
+                                    disabled={sendEmailLoader}
                                   >
                                     <div className="flex flex-row items-center gap-2 w-full">
-                                      <MessageSquare
+                                      <Mail
                                         size={20}
                                         color="#000000"
                                       />
-                                      <span>Text</span>
-                                      {/* Show upgrade button only if allowTextMessages is false */}
-                                      {!userLocalData?.planCapabilities?.allowTextMessages && (
+                                      <span>Email</span>
+
+                                      {!userLocalData?.planCapabilities?.allowEmails && (
                                         <UpgradeTagWithModal
-                                          reduxUser={userLocalData ? { 
+                                          reduxUser={userLocalData ? {
                                             user: userLocalData,
-                                            userRole: userLocalData.userRole 
+                                            userRole: userLocalData.userRole
                                           } : null}
                                           setReduxUser={async (updatedData) => {
                                             // Refresh user data after upgrade
@@ -2122,706 +2084,296 @@ const LeadDetails = ({
                                           }}
                                         />
                                       )}
-                                      {/* Show info icon with tooltip if allowTextMessages is true but no phone numbers */}
-                                      {userLocalData?.planCapabilities
-                                        ?.allowTextMessages &&
-                                        phoneNumbers.length == 0 && (
-                                          <Tooltip
-                                            title="No phone numbers available. Please add an A2P number to send text messages."
-                                            arrow
-                                            placement="top"
-                                            componentsProps={{
-                                              tooltip: {
-                                                sx: {
-                                                  backgroundColor: '#ffffff',
-                                                  color: '#333',
-                                                  fontSize: '14px',
-                                                  padding: '10px 15px',
-                                                  borderRadius: '8px',
-                                                  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                                },
-                                              },
-                                              arrow: {
-                                                sx: {
-                                                  color: '#ffffff',
-                                                },
-                                              },
-                                            }}
-                                          >
-                                            <Image
-                                              src="/agencyIcons/InfoIcon.jpg"
-                                              alt="info"
-                                              width={16}
-                                              height={16}
-                                              className="cursor-pointer rounded-full"
-                                            />
-                                          </Tooltip>
-                                        )}
                                     </div>
                                   </MenuItem>
                                 )}
-                                {/* Call Option */}
-                                {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' &&
-                                  selectedLeadsDetails?.phone && (
-                                    <MenuItem
-                                      onClick={() => {
-                                        setSendActionAnchor(null)
-                                        startDialerFlow()
-                                      }}
-                                    >
-                                      <div className="flex flex-row items-center gap-2 w-full">
-                                        <Phone
-                                          size={20}
-                                          color="#000000"
-                                        />
-                                        <span>Call</span>
-                                      </div>
-                                    </MenuItem>
-                                  )}
-                              </Menu>
-                            </div>
+                              {/* Text Option */}
+                              {selectedLeadsDetails?.phone && (
+                                <MenuItem
+                                  onClick={() => {
+                                    if (sendSMSLoader ||
+                                      !userLocalData?.planCapabilities
+                                        ?.allowTextMessages ||
+                                      phoneNumbers.length == 0) return
+                                    setSendActionAnchor(null)
+                                    setShowSMSModal(true)
+                                  }}
 
-                            {selectedLeadsDetails?.scoringDetails &&
-                              selectedLeadsDetails?.scoringDetails?.questions
-                                ?.length > 0 && (
-                                <ScoringProgress
-                                  value={
-                                    selectedLeadsDetails?.scoringDetails
-                                      ?.totalScore
-                                  }
-                                  maxValue={10}
-                                  questions={
-                                    selectedLeadsDetails?.scoringDetails
-                                      ?.questions
-                                  }
-                                  showTooltip={true}
-                                  tooltipTitle="Results"
-                                />
-                              )}
-
-                            {selectedLeadsDetails?.isOnDncList && (
-                              <div className="rounded-full bg-red justify-center items-center  color-black p-1 px-2">
-                                DNC
-                              </div>
-                            )}
-                          </div>
-                          {/* Email Field */}
-                          {(selectedLeadsDetails?.email ||
-                            selectedLeadsDetails?.emails?.length > 0) && (
-                              <div className="flex flex-row items-center gap-2">
-                                <Mail
-                                  size={16}
-                                  color="#000000"
-                                />
-                                <div style={styles.heading2}>
-                                  {selectedLeadsDetails?.email ? (
-                                    selectedLeadsDetails?.email
-                                  ) : (
-                                    <div>
-                                      {selectedLeadsDetails?.emails
-                                        ?.slice(0, 1)
-                                        .map((email, emailIndex) => {
-                                          return (
-                                            <div
-                                              key={emailIndex}
-                                              className="flex flex-row items-center gap-2"
-                                            >
-                                              <div
-                                                className="flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]"
-                                                style={styles.paragraph}
-                                              >
-                                                <Image
-                                                  src={'/assets/power.png'}
-                                                  height={9}
-                                                  width={7}
-                                                  alt="*"
-                                                />
-                                                <div>
-                                                  <span className="text-brand-primary">
-                                                    New
-                                                  </span>{' '}
-                                                  {email.email}
-                                                </div>
-                                              </div>
-                                              <button
-                                                className="text-brand-primary underline"
-                                                onClick={() => {
-                                                  setShowAllEmails(true)
-                                                }}
-                                              >
-                                                {selectedLeadsDetails?.emails
-                                                  ?.length > 1
-                                                  ? `+${selectedLeadsDetails?.emails
-                                                    ?.length - 1
-                                                  }`
-                                                  : ''}
-                                              </button>
-                                            </div>
-                                          )
-                                        })}
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                          <div>
-                            {selectedLeadsDetails?.email && (
-                              <div className="flex flex-row w-full justify-end">
-                                {selectedLeadsDetails?.emails
-                                  ?.slice(0, 1)
-                                  .map((email, emailIndex) => {
-                                    return (
-                                      <div
-                                        key={emailIndex}
-                                        className="flex flex-row items-center gap-2"
-                                      >
-                                        <div
-                                          className="flex flex-row items-center gap-2 px-1 mt-1 mb-1 rounded-lg border border-[#00000020]"
-                                          style={styles.paragraph}
-                                        >
-                                          <Image
-                                            src={'/assets/power.png'}
-                                            height={9}
-                                            width={7}
-                                            alt="*"
-                                          />
-                                          <div className="text-[12px] font-[400]">
-                                            <span className="text-brand-primary text-[15px] font-[400]">
-                                              New
-                                            </span>{' '}
-                                            {email.email}
-                                          </div>
-                                        </div>
-                                        <button
-                                          className="text-brand-primary underline"
-                                          onClick={() => {
-                                            setShowAllEmails(true)
+                                >
+                                  <div className="flex flex-row items-center gap-2 w-full">
+                                    <MessageSquare
+                                      size={20}
+                                      color="#000000"
+                                    />
+                                    <span>Text</span>
+                                    {/* Show upgrade button only if allowTextMessages is false */}
+                                    {!userLocalData?.planCapabilities?.allowTextMessages && (
+                                      <UpgradeTagWithModal
+                                        reduxUser={userLocalData ? {
+                                          user: userLocalData,
+                                          userRole: userLocalData.userRole
+                                        } : null}
+                                        setReduxUser={async (updatedData) => {
+                                          // Refresh user data after upgrade
+                                          const user = await getProfileDetails()
+                                          if (user) {
+                                            setUserLocalData(user.data.data)
+                                          }
+                                        }}
+                                      />
+                                    )}
+                                    {/* Show info icon with tooltip if allowTextMessages is true but no phone numbers */}
+                                    {userLocalData?.planCapabilities
+                                      ?.allowTextMessages &&
+                                      phoneNumbers.length == 0 && (
+                                        <Tooltip
+                                          title="No phone numbers available. Please add an A2P number to send text messages."
+                                          arrow
+                                          placement="top"
+                                          componentsProps={{
+                                            tooltip: {
+                                              sx: {
+                                                backgroundColor: '#ffffff',
+                                                color: '#333',
+                                                fontSize: '14px',
+                                                padding: '10px 15px',
+                                                borderRadius: '8px',
+                                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                              },
+                                            },
+                                            arrow: {
+                                              sx: {
+                                                color: '#ffffff',
+                                              },
+                                            },
                                           }}
                                         >
-                                          {selectedLeadsDetails?.emails
-                                            ?.length > 1
-                                            ? `+${selectedLeadsDetails?.emails
-                                              ?.length - 1
-                                            }`
-                                            : ''}
-                                        </button>
-                                      </div>
-                                    )
-                                  })}
-                              </div>
-                            )}
-                          </div>
-                          {selectedLeadsDetails?.phone && (
-                            <div className="flex flex-row items-center gap-2">
-                              <Phone
-                                size={16}
-                                color="#000000"
-                              />
-                              <div style={styles.heading2}>
-                                {formatPhoneNumber(
-                                  selectedLeadsDetails?.phone,
-                                ) || '-'}
-                              </div>
-                              {selectedLeadsDetails?.cell != null && (
-                                <div
-                                  className="rounded-full font-medium justify-center items-center color-[#ffffff] p-0.2 px-2 bg-[#15151580]"
-                                  style={{ color: 'white' }}
-                                >
-                                  {selectedLeadsDetails?.cell}
-                                </div>
+                                          <Image
+                                            src="/agencyIcons/InfoIcon.jpg"
+                                            alt="info"
+                                            width={16}
+                                            height={16}
+                                            className="cursor-pointer rounded-full"
+                                          />
+                                        </Tooltip>
+                                      )}
+                                  </div>
+                                </MenuItem>
                               )}
+                              {/* Call Option */}
+                              {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' &&
+                                selectedLeadsDetails?.phone && (
+                                  <MenuItem
+                                    onClick={() => {
+                                      setSendActionAnchor(null)
+                                      startDialerFlow()
+                                    }}
+                                  >
+                                    <div className="flex flex-row items-center gap-2 w-full">
+                                      <Phone
+                                        size={20}
+                                        color="#000000"
+                                      />
+                                      <span>Call</span>
+                                    </div>
+                                  </MenuItem>
+                                )}
+                            </Menu>
+                          </div>
+
+                          {selectedLeadsDetails?.scoringDetails &&
+                            selectedLeadsDetails?.scoringDetails?.questions
+                              ?.length > 0 && (
+                              <ScoringProgress
+                                value={
+                                  selectedLeadsDetails?.scoringDetails
+                                    ?.totalScore
+                                }
+                                maxValue={10}
+                                questions={
+                                  selectedLeadsDetails?.scoringDetails
+                                    ?.questions
+                                }
+                                showTooltip={true}
+                                tooltipTitle="Results"
+                              />
+                            )}
+
+                          {selectedLeadsDetails?.isOnDncList && (
+                            <div className="rounded-full bg-red justify-center items-center  color-black p-1 px-2">
+                              DNC
                             </div>
                           )}
-
-                          {selectedLeadsDetails?.address && (
+                        </div>
+                        {/* Email Field */}
+                        {(selectedLeadsDetails?.email ||
+                          selectedLeadsDetails?.emails?.length > 0) && (
                             <div className="flex flex-row items-center gap-2">
-                              <MapPin
+                              <Mail
                                 size={16}
                                 color="#000000"
                               />
                               <div style={styles.heading2}>
-                                {selectedLeadsDetails?.address || '-'}
-                              </div>
-                            </div>
-                          )}
-                          {selectedLeadsDetails && (
-                            <div className="flex flex-row items-center gap-2">
-                            
-                              <Tag
-                                size={16}
-                                color="#000000"
-                              />
-                            
-                              <div className="flex-1 flex flex-row items-center justify-center gap-2">
-                                {/* Existing Tags Display */}
-                                {selectedLeadsDetails?.tags && selectedLeadsDetails.tags.length > 0 && (
-                                  <div className="flex flex-row items-center gap-2 flex-wrap mb-2">
-                                    {selectedLeadsDetails.tags
-                                      .slice(0, 2)
-                                      .map((tag, index) => {
+                                {selectedLeadsDetails?.email ? (
+                                  selectedLeadsDetails?.email
+                                ) : (
+                                  <div>
+                                    {selectedLeadsDetails?.emails
+                                      ?.slice(0, 1)
+                                      .map((email, emailIndex) => {
                                         return (
                                           <div
-                                            key={index}
+                                            key={emailIndex}
                                             className="flex flex-row items-center gap-2"
                                           >
                                             <div
-                                              className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
+                                              className="flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]"
+                                              style={styles.paragraph}
                                             >
-                                              <div className="text-black">
-                                                {tag}
+                                              <Image
+                                                src={'/assets/power.png'}
+                                                height={9}
+                                                width={7}
+                                                alt="*"
+                                              />
+                                              <div>
+                                                <span className="text-brand-primary">
+                                                  New
+                                                </span>{' '}
+                                                {email.email}
                                               </div>
-                                              {DelTagLoader &&
-                                                tag.includes(DelTagLoader) ? (
-                                                <div>
-                                                  <CircularProgress
-                                                    size={15}
-                                                  />
-                                                </div>
-                                              ) : (
-                                                <button
-                                                  onClick={() => {
-                                                    handleDelTag(tag)
-                                                  }}
-                                                >
-                                                  <X
-                                                    size={15}
-                                                    weight="bold"
-                                                    color="#000000"
-                                                  />
-                                                </button>
-                                              )}
                                             </div>
+                                            <button
+                                              className="text-brand-primary underline"
+                                              onClick={() => {
+                                                setShowAllEmails(true)
+                                              }}
+                                            >
+                                              {selectedLeadsDetails?.emails
+                                                ?.length > 1
+                                                ? `+${selectedLeadsDetails?.emails
+                                                  ?.length - 1
+                                                }`
+                                                : ''}
+                                            </button>
                                           </div>
                                         )
                                       })}
-                                    {selectedLeadsDetails.tags.length > 2 && (
-                                      <button
-                                        className="outline-none"
-                                        onClick={() => {
-                                          setExtraTagsModal(true)
-                                        }}
-                                      >
-                                        <div className="text-black underline">
-                                          +{selectedLeadsDetails.tags.length - 2}
-                                        </div>
-                                      </button>
-                                    )}
                                   </div>
                                 )}
-
-                                {/* Tag Input Field */}
-                                <div className="">
-                                  <input
-                                    ref={tagInputRef}
-                                    type="text"
-                                    value={tagInputValue}
-                                    onChange={handleTagInputChange}
-                                    onKeyDown={handleTagInputKeyDown}
-                                    onFocus={() => {
-                                      if (tagInputValue.trim() && tagSuggestions.length > 0) {
-                                        setShowTagSuggestions(true)
-                                      }
-                                    }}
-                                    onBlur={() => {
-                                      // Delay to allow click on suggestion
-                                      setTimeout(() => {
-                                        setShowTagSuggestions(false)
-                                      }, 200)
-                                    }}
-                                  
-                                    placeholder={selectedLeadsDetails?.tags && selectedLeadsDetails.tags.length > 0 ? "Add tag..." : "Add tags (press Enter, Space, or Comma)"}
-                                    className="w-full text-[12px] px-2 py-1 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-                                    disabled={addTagLoader}
-                                  />
-                                  
-                                  {/* Autocomplete Suggestions Dropdown */}
-                                  {showTagSuggestions && tagSuggestions.length > 0 && (
-                                    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-auto">
-                                      {tagSuggestions.map((suggestion, index) => (
-                                        <div
-                                          key={index}
-                                          onClick={() => handleTagSuggestionClick(suggestion)}
-                                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-                                        >
-                                          {suggestion}
-                                        </div>
-                                      ))}
-                                    </div>
-                                  )}
-
-                                  {/* Loading indicator */}
-                                  {addTagLoader && (
-                                    <div className="absolute right-2 top-2">
-                                      <CircularProgress size={20} />
-                                    </div>
-                                  )}
-                                </div>
                               </div>
                             </div>
                           )}
-                          {selectedLeadsDetails?.pipeline && (
-                            <div className="flex flex-row items-center gap-2">
-                              <Workflow
-                                size={20}
-                                color="#000000"
-                              />
-                              <div style={styles.heading2}>
-                                {selectedLeadsDetails?.pipeline
-                                  ? selectedLeadsDetails?.pipeline?.title
-                                  : '-'}
-                              </div>
-                            </div>
-                          )}
-
-                          <div>
-                            {selectedLeadsDetails?.booking && (
-                              <div className="flex flex-row items-center gap-2">
-                                <Calendar
-                                  size={16}
-                                  color="#000000"
-                                />
-                                <div style={styles.heading2}>
-                                  {GetFormattedDateString(
-                                    selectedLeadsDetails.booking.datetime,
-                                    true,
-                                  )}
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                        <div className="flex flex-col items-end gap-[5px]">
-                          <div className="flex flex-row items-center gap-2">
-                            {/* <Image
-                              src={"/assets/arrow.png"}
-                              height={16}
-                              width={16}
-                              alt="man"
-                            /> */}
-                            <div
-                              className="text-end flex flex-row items-center gap-1"
-                              style={styles.paragraph}
-                            >
-                              {stagesListLoader ? (
-                                <CircularProgress size={25} />
-                              ) : (
-                                <>
-                                  <div
-                                    className="h-[10px] w-[10px] rounded-full"
-                                    style={{
-                                      backgroundColor:
-                                        selectedLeadsDetails?.stage
-                                          ?.defaultColor,
-                                    }}
-                                  ></div>
-
-                                  {updateLeadLoader ? (
-                                    <CircularProgress size={20} />
-                                  ) : (
-                                    <SelectStageDropdown
-                                      selectedStage={selectedStage}
-                                      handleStageChange={handleStageChange}
-                                      stagesList={stagesList}
-                                      updateLeadStage={updateLeadStage}
-                                    />
-                                  )}
-                                </>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="w-full mt-3">
-                        <div className="">
-                          {globalLoader ? (
-                            <CircularProgress size={25} />
-                          ) : (
-                            <LeadTeamsAssignedList
-                              users={selectedLeadsDetails?.teamsAssigned || []}
-                              onAssignClick={(event) => {
-                                handleShowPopup(event)
-                              }}
-                              onRemoveClick={(userId) => {
-                                handleUnassignLeadFromTeammember(userId)
-                              }}
-                            />
-                          )}
-                        </div>
-                      </div>
-
-                      {getExtraColumsCount(columnsLength) >= 1 && (
-                        <div className="flex flex-row items-center gap-2 mt-3">
-                          <Image
-                            src={'/assets/customsIcon.svg'}
-                            alt="*"
-                            height={16}
-                            width={16}
-                          />
-                          <button
-                            onClick={() => {
-                              setShowCustomVariables(!showCustomVariables)
-                            }}
-                            className="outline-none flex flex-row items-center gap-1"
-                          >
-                            <div style={styles.heading2}>
-                              Custom fields
-                            </div>
-                            {showCustomVariables ? (
-                              <CaretUp
-                                size={16}
-                                weight="bold"
-                                color="#000000"
-                              />
-                            ) : (
-                              <CaretDown
-                                size={16}
-                                weight="bold"
-                                color="#000000"
-                              />
-                            )}
-                          </button>
-                        </div>
-                      )}
-
-                      <div className="flex w-full">
-                        {getExtraColumsCount(columnsLength) >= 1 && (
-                          <div className="flex flex-col mt-2 rounded-xl p-2 w-full max-w-full overflow-hidden">
-                            <div className="flex w-full ">
-                              {showCustomVariables && (
-                                <div className="flex flex-col mt-4 gap-1 w-full max-w-full overflow-hidden">
-                                  {leadColumns.map((column, index) => {
-                                    if (
-                                      [
-                                        'Name',
-                                        'Phone',
-                                        'address',
-                                        'More',
-                                        0,
-                                        'Stage',
-                                        'status',
-                                      ].includes(column?.title)
-                                    ) {
-                                      return null
-                                    }
-                                    return (
+                        <div>
+                          {selectedLeadsDetails?.email && (
+                            <div className="flex flex-row w-full justify-end">
+                              {selectedLeadsDetails?.emails
+                                ?.slice(0, 1)
+                                .map((email, emailIndex) => {
+                                  return (
+                                    <div
+                                      key={emailIndex}
+                                      className="flex flex-row items-center gap-2"
+                                    >
                                       <div
-                                        key={index}
-                                        className="flex flex-row items-start gap-1 justify-between w-full flex-wrap"
+                                        className="flex flex-row items-center gap-2 px-1 mt-1 mb-1 rounded-lg border border-[#00000020]"
+                                        style={styles.paragraph}
                                       >
-                                        <div className="flex flex-row items-center gap-4">
-                                          <div style={styles.subHeading}>
-                                            {capitalize(column?.title || '')}
-                                          </div>
-                                        </div>
-                                        <div className="flex flex-row whitespace-normal break-words overflow-hidden items-end flex-wrap">
-                                          <div className="flex flex-col items-end flex-grow w-full">
-                                            {getDetailsColumnData(
-                                              column,
-                                              selectedLeadsDetails,
-                                            )}
-                                          </div>
-                                          {ShowReadMoreButton(
-                                            column,
-                                            selectedLeadsDetails,
-                                          ) && (
-                                              <div className="flex items-end justify-end min-w-[120px]">
-                                                <button
-                                                  style={{
-                                                    fontWeight: '600',
-                                                    fontSize: 15,
-                                                  }}
-                                                  onClick={() => {
-                                                    setExpandedCustomFields(
-                                                      (prevFields) =>
-                                                        prevFields.includes(
-                                                          column?.title,
-                                                        )
-                                                          ? prevFields.filter(
-                                                            (field) =>
-                                                              field !==
-                                                              column?.title,
-                                                          )
-                                                          : [
-                                                            ...prevFields,
-                                                            column?.title,
-                                                          ],
-                                                    )
-                                                  }}
-                                                  className="text-black underline w-[120px]"
-                                                >
-                                                  {expandedCustomFields.includes(
-                                                    column?.title,
-                                                  )
-                                                    ? 'Read Less'
-                                                    : 'Read More'}
-                                                </button>
-                                              </div>
-                                            )}
+                                        <Image
+                                          src={'/assets/power.png'}
+                                          height={9}
+                                          width={7}
+                                          alt="*"
+                                        />
+                                        <div className="text-[12px] font-[400]">
+                                          <span className="text-brand-primary text-[15px] font-[400]">
+                                            New
+                                          </span>{' '}
+                                          {email.email}
                                         </div>
                                       </div>
-                                    )
-                                  })}
-                                </div>
-                              )}
+                                      <button
+                                        className="text-brand-primary underline"
+                                        onClick={() => {
+                                          setShowAllEmails(true)
+                                        }}
+                                      >
+                                        {selectedLeadsDetails?.emails
+                                          ?.length > 1
+                                          ? `+${selectedLeadsDetails?.emails
+                                            ?.length - 1
+                                          }`
+                                          : ''}
+                                      </button>
+                                    </div>
+                                  )
+                                })}
+                            </div>
+                          )}
+                        </div>
+                        {selectedLeadsDetails?.phone && (
+                          <div className="flex flex-row items-center gap-2">
+                            <Phone
+                              size={16}
+                              color="#000000"
+                            />
+                            <div style={styles.heading2}>
+                              {formatPhoneNumber(
+                                selectedLeadsDetails?.phone,
+                              ) || '-'}
+                            </div>
+                            {selectedLeadsDetails?.cell != null && (
+                              <div
+                                className="rounded-full font-medium justify-center items-center color-[#ffffff] p-0.2 px-2 bg-[#15151580]"
+                                style={{ color: 'white' }}
+                              >
+                                {selectedLeadsDetails?.cell}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {selectedLeadsDetails?.address && (
+                          <div className="flex flex-row items-center gap-2">
+                            <MapPin
+                              size={16}
+                              color="#000000"
+                            />
+                            <div style={styles.heading2}>
+                              {selectedLeadsDetails?.address || '-'}
                             </div>
                           </div>
                         )}
-                      </div>
-
-                      <AuthSelectionPopup
-                        open={showAuthSelectionPopup}
-                        onClose={() => setShowAuthSelectionPopup(false)}
-                        onSuccess={() => {
-                          setShowEmailModal(true)
-                          setShowAuthSelectionPopup(false)
-                        }}
-                        setShowEmailTempPopup={(value) => {
-                          setShowEmailModal(value)
-                          setShowAuthSelectionPopup(false)
-                        }}
-                        showEmailTempPopup={showEmailModal}
-                        selectedGoogleAccount={selectedGoogleAccount}
-                        setSelectedGoogleAccount={(account) => {
-                          setSelectedGoogleAccount(account)
-                        }}
-                      />
-
-                      {/* Modal for All Emails */}
-                      <Modal
-                        open={showAllEmails}
-                        onClose={() => setShowAllEmails(null)}
-                        closeAfterTransition
-                        BackdropProps={{
-                          timeout: 1000,
-                          sx: {
-                            backgroundColor: '#00000020',
-                            // //backdropFilter: "blur(20px)",
-                          },
-                        }}
-                      >
-                        <Box
-                          className="lg:w-5/12 sm:w-full w-8/12"
-                          sx={styles.modalsStyle}
-                        >
-                          <div className="flex flex-row justify-center w-full">
-                            <div
-                              className="sm:w-full w-full"
-                              style={{
-                                backgroundColor: '#ffffff',
-                                padding: 20,
-                                borderRadius: '13px',
-                              }}
-                            >
-                              <div>
-                                {selectedLeadsDetails?.emails.map(
-                                  (email, emailIndex) => {
-                                    return (
-                                      <div key={emailIndex}>
-                                        <div
-                                          className="flex flex-row items-center gap-2 px-1 mt-2 rounded-lg py-2 border border-[#00000020]"
-                                          style={styles.paragraph}
-                                        >
-                                          <Image
-                                            src={'/assets/power.png'}
-                                            height={9}
-                                            width={7}
-                                            alt="*"
-                                          />
-                                          <div>
-                                            <span className="text-brand-primary">
-                                              New
-                                            </span>{' '}
-                                            {email?.email}
-                                          </div>
-                                        </div>
-                                      </div>
-                                    )
-                                  },
-                                )}
-                              </div>
-                              <div className="mt-4">
-                                <button
-                                  onClick={() => {
-                                    setShowAllEmails(false)
-                                  }}
-                                  className="h-[50px] rounded-xl bg-brand-primary text-white w-full"
-                                >
-                                  Close
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </Box>
-                      </Modal>
-
-                      {/* Modal for All Tags */}
-                      <Modal
-                        open={extraTagsModal}
-                        onClose={() => setExtraTagsModal(false)}
-                        closeAfterTransition
-                        BackdropProps={{
-                          timeout: 1000,
-                          sx: {
-                            backgroundColor: '#00000020',
-                            // //backdropFilter: "blur(20px)",
-                          },
-                        }}
-                      >
-                        <Box
-                          className="lg:w-3/12 sm:w-full w-4/12"
-                          sx={styles.modalsStyle}
-                        >
-                          <div className="flex flex-row justify-center w-full">
-                            <div
-                              className="sm:w-full w-full"
-                              style={{
-                                backgroundColor: '#ffffff',
-                                padding: 20,
-                                borderRadius: '13px',
-                              }}
-                            >
-                              <div className="w-full flex items-center justify-between">
-                                <div
-                                  style={{
-                                    fontsize: 15,
-                                    fontWeight: '600',
-                                  }}
-                                >
-                                  Other Tags
-                                </div>
-                                <div>
-                                  <CloseBtn
-                                    onClick={() => {
-                                      setExtraTagsModal(false)
-                                    }}
-                                  />
-                                </div>
-                              </div>
-                              <div className="flex flex-row items-center gap-4 flex-wrap mt-2">
-                                {selectedLeadsDetails?.tags.map(
-                                  (tag, index) => {
+                        {selectedLeadsDetails && (
+                          <div className="flex w-[40vw] flex-row items-center gap-2 flex-wrap">
+                            <Tag
+                              size={16}
+                              color="#000000"
+                            />
+                            
+                            {/* Existing Tags Display */}
+                            {selectedLeadsDetails?.tags && selectedLeadsDetails.tags.length > 0 && (
+                              <>
+                                {selectedLeadsDetails.tags
+                                  .slice(0, 2)
+                                  .map((tag, index) => {
                                     return (
                                       <div
                                         key={index}
                                         className="flex flex-row items-center gap-2"
                                       >
                                         <div
-                                          className="flex flex-row items-center gap-2 px-2 py-1 rounded-lg"
-                                          style={{
-                                            backgroundColor: 'hsl(var(--brand-primary) / 0.1)'
-                                          }}
+                                          className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
                                         >
-                                          <div
-                                            className="text-brand-primary" //1C55FF10
-                                          >
+                                          <div className="text-black">
                                             {tag}
                                           </div>
                                           {DelTagLoader &&
                                             tag.includes(DelTagLoader) ? (
                                             <div>
-                                              <CircularProgress size={15} />
+                                              <CircularProgress
+                                                size={15}
+                                              />
                                             </div>
                                           ) : (
                                             <button
@@ -2832,577 +2384,1022 @@ const LeadDetails = ({
                                               <X
                                                 size={15}
                                                 weight="bold"
-                                                color="hsl(var(--brand-primary))"
+                                                color="#000000"
                                               />
                                             </button>
                                           )}
                                         </div>
                                       </div>
                                     )
-                                  },
+                                  })}
+                                {selectedLeadsDetails.tags.length > 2 && (
+                                  <button
+                                    className="outline-none"
+                                    onClick={() => {
+                                      setExtraTagsModal(true)
+                                    }}
+                                  >
+                                    <div className="text-black underline">
+                                      +{selectedLeadsDetails.tags.length - 2}
+                                    </div>
+                                  </button>
                                 )}
-                              </div>
-                            </div>
-                          </div>
-                        </Box>
-                      </Modal>
+                              </>
+                            )}
 
-                      <Popover
-                        id={id}
-                        open={open}
-                        anchorEl={anchorEl}
-                        onClose={handleClosePopup}
-                        anchorOrigin={{
-                          vertical: 'bottom',
-                          horizontal: 'left',
-                        }}
-                        transformOrigin={{
-                          vertical: 'top',
-                          horizontal: 'left',
-                        }}
-                        disablePortal={false}
-                        PaperProps={{
-                          elevation: 0,
-                          style: {
-                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-                            borderRadius: '10px',
-                            minWidth: '120px',
-                            zIndex: 9999,
-                          },
-                        }}
-                      >
-                        <button
-                          className="hover:bg-gray-50"
-                          onClick={() => {
-                            handleAssignLeadToTeammember(myTeamAdmin)
-                          }}
-                        >
-                          <div className="p-2 w-full flex flex-row items-center justify-start gap-2 ">
-                            <div className="">
-                              {myTeamAdmin?.thumb_profile_image ? (
-                                <Image
-                                  className="rounded-full"
-                                  src={myTeamAdmin.thumb_profile_image}
-                                  height={32}
-                                  width={32}
-                                  alt="*"
-                                  style={{
-                                    borderRaduis: 50,
-                                  }}
-                                />
-                              ) : (
-                                <div
-                                  className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                // onClick={() => handleToggleClick(item.id)}
-                                >
-                                  {myTeamAdmin?.name?.slice(0, 1)}
+                            {/* Tag Input Field */}
+                            <div className="relative">
+                              <input
+                                ref={tagInputRef}
+                                type="text"
+                                value={tagInputValue}
+                                onChange={handleTagInputChange}
+                                onKeyDown={handleTagInputKeyDown}
+                                onFocus={() => {
+                                  if (tagInputValue.trim() && tagSuggestions.length > 0) {
+                                    setShowTagSuggestions(true)
+                                  }
+                                }}
+                                onBlur={() => {
+                                  // Delay to allow click on suggestion
+                                  setTimeout(() => {
+                                    setShowTagSuggestions(false)
+                                  }, 200)
+                                }}
+                                placeholder={selectedLeadsDetails?.tags && selectedLeadsDetails.tags.length > 0 ? "Add tag..." : "Add tags (press Enter, Space, or Comma)"}
+                                className="text-[12px] px-2 py-1 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                                style={{ width: '150px' }}
+                                disabled={addTagLoader}
+                              />
+
+                              {/* Autocomplete Suggestions Dropdown */}
+                              {showTagSuggestions && tagSuggestions.length > 0 && (
+                                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-auto">
+                                  {tagSuggestions.map((suggestion, index) => (
+                                    <div
+                                      key={index}
+                                      onClick={() => handleTagSuggestionClick(suggestion)}
+                                      className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                                    >
+                                      {suggestion}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              {/* Loading indicator */}
+                              {addTagLoader && (
+                                <div className="absolute right-2 top-2">
+                                  <CircularProgress size={20} />
                                 </div>
                               )}
                             </div>
-                            <div className="">{myTeamAdmin?.name}</div>
-                            <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
-                              Admin
+                          </div>
+                        )}
+                        {selectedLeadsDetails?.pipeline && (
+                          <div className="flex flex-row items-center gap-2">
+                            <Workflow
+                              size={20}
+                              color="#000000"
+                            />
+                            <div style={styles.heading2}>
+                              {selectedLeadsDetails?.pipeline
+                                ? selectedLeadsDetails?.pipeline?.title
+                                : '-'}
                             </div>
                           </div>
-                        </button>
-                        {myTeam.length > 0 ? (
-                          <div>
-                            {myTeam.map((item, index) => {
-                              return (
-                                <div
-                                  key={index}
-                                  className="p-2 flex flex-col gap-2"
-                                  style={{ fontWeight: '500', fontSize: 15 }}
-                                >
-                                  <button
-                                    className="text-start flex flex-row items-center justify-start gap-2 hover:bg-gray-50"
-                                    onClick={() => {
-                                      handleAssignLeadToTeammember(item)
-                                    }}
-                                  >
-                                    {item?.invitedUser?.thumb_profile_image ? (
-                                      <Image
-                                        className="rounded-full"
-                                        src={
-                                          item.invitedUser?.thumb_profile_image
-                                        }
-                                        height={32}
-                                        width={32}
-                                        alt="*"
-                                        style={{}}
-                                      />
-                                    ) : (
-                                      <div
-                                        className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                      // onClick={() =>
-                                      //   handleToggleClick(item.id)
-                                      // }
-                                      >
-                                        {item?.name?.slice(0, 1)}
-                                      </div>
-                                    )}
-                                    {item?.name}
-                                  </button>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        ) : (
-                          ''
                         )}
-                      </Popover>
 
-                      {/* Code for custom variables */}
+                        <div>
+                          {selectedLeadsDetails?.booking && (
+                            <div className="flex flex-row items-center gap-2">
+                              <Calendar
+                                size={16}
+                                color="#000000"
+                              />
+                              <div style={styles.heading2}>
+                                {GetFormattedDateString(
+                                  selectedLeadsDetails.booking.datetime,
+                                  true,
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-[5px] absolute top-25 right-10">
+                        <div className="flex flex-row items-center gap-2">
+                          {/* <Image
+                              src={"/assets/arrow.png"}
+                              height={16}
+                              width={16}
+                              alt="man"
+                            /> */}
+                          <div
+                            className="text-end flex flex-row items-center gap-1"
+                            style={styles.paragraph}
+                          >
+                            {stagesListLoader ? (
+                              <CircularProgress size={25} />
+                            ) : (
+                              <>
+                                <div
+                                  className="h-[10px] w-[10px] rounded-full"
+                                  style={{
+                                    backgroundColor:
+                                      selectedLeadsDetails?.stage
+                                        ?.defaultColor,
+                                  }}
+                                ></div>
+
+                                {updateLeadLoader ? (
+                                  <CircularProgress size={20} />
+                                ) : (
+                                  <SelectStageDropdown
+                                    selectedStage={selectedStage}
+                                    handleStageChange={handleStageChange}
+                                    stagesList={stagesList}
+                                    updateLeadStage={updateLeadStage}
+                                  />
+                                )}
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
-                    <div
-                      className="w-full flex flex-row items-center justify-between mt-2"
-                      style={{
-                        ...styles.paragraph,
-                        paddingInline: 20,
+                    <div className="w-full mt-3">
+                      <div className="">
+                        {globalLoader ? (
+                          <CircularProgress size={25} />
+                        ) : (
+                          <LeadTeamsAssignedList
+                            users={selectedLeadsDetails?.teamsAssigned || []}
+                            onAssignClick={(event) => {
+                              handleShowPopup(event)
+                            }}
+                            onRemoveClick={(userId) => {
+                              handleUnassignLeadFromTeammember(userId)
+                            }}
+                          />
+                        )}
+                      </div>
+                    </div>
+
+                    {getExtraColumsCount(columnsLength) >= 1 && (
+                      <div className="flex flex-row items-center gap-2 mt-3">
+                        <Image
+                          src={'/assets/customsIcon.svg'}
+                          alt="*"
+                          height={16}
+                          width={16}
+                        />
+                        <button
+                          onClick={() => {
+                            setShowCustomVariables(!showCustomVariables)
+                          }}
+                          className="outline-none flex flex-row items-center gap-1"
+                        >
+                          <div style={styles.heading2}>
+                            Custom fields
+                          </div>
+                          {showCustomVariables ? (
+                            <CaretUp
+                              size={16}
+                              weight="bold"
+                              color="#000000"
+                            />
+                          ) : (
+                            <CaretDown
+                              size={16}
+                              weight="bold"
+                              color="#000000"
+                            />
+                          )}
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="flex w-full">
+                      {getExtraColumsCount(columnsLength) >= 1 && (
+                        <div className="flex flex-col mt-2 rounded-xl p-2 w-full max-w-full overflow-hidden">
+                          <div className="flex w-full ">
+                            {showCustomVariables && (
+                              <div className="flex flex-col mt-4 gap-1 w-full max-w-full overflow-hidden">
+                                {leadColumns.map((column, index) => {
+                                  if (
+                                    [
+                                      'Name',
+                                      'Phone',
+                                      'address',
+                                      'More',
+                                      0,
+                                      'Stage',
+                                      'status',
+                                    ].includes(column?.title)
+                                  ) {
+                                    return null
+                                  }
+                                  return (
+                                    <div
+                                      key={index}
+                                      className="flex flex-row items-start gap-1 justify-between w-full flex-wrap"
+                                    >
+                                      <div className="flex flex-row items-center gap-4">
+                                        <div style={styles.subHeading}>
+                                          {capitalize(column?.title || '')}
+                                        </div>
+                                      </div>
+                                      <div className="flex flex-row whitespace-normal break-words overflow-hidden items-end flex-wrap">
+                                        <div className="flex flex-col items-end flex-grow w-full">
+                                          {getDetailsColumnData(
+                                            column,
+                                            selectedLeadsDetails,
+                                          )}
+                                        </div>
+                                        {ShowReadMoreButton(
+                                          column,
+                                          selectedLeadsDetails,
+                                        ) && (
+                                            <div className="flex items-end justify-end min-w-[120px]">
+                                              <button
+                                                style={{
+                                                  fontWeight: '600',
+                                                  fontSize: 15,
+                                                }}
+                                                onClick={() => {
+                                                  setExpandedCustomFields(
+                                                    (prevFields) =>
+                                                      prevFields.includes(
+                                                        column?.title,
+                                                      )
+                                                        ? prevFields.filter(
+                                                          (field) =>
+                                                            field !==
+                                                            column?.title,
+                                                        )
+                                                        : [
+                                                          ...prevFields,
+                                                          column?.title,
+                                                        ],
+                                                  )
+                                                }}
+                                                className="text-black underline w-[120px]"
+                                              >
+                                                {expandedCustomFields.includes(
+                                                  column?.title,
+                                                )
+                                                  ? 'Read Less'
+                                                  : 'Read More'}
+                                              </button>
+                                            </div>
+                                          )}
+                                      </div>
+                                    </div>
+                                  )
+                                })}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    <AuthSelectionPopup
+                      open={showAuthSelectionPopup}
+                      onClose={() => setShowAuthSelectionPopup(false)}
+                      onSuccess={() => {
+                        setShowEmailModal(true)
+                        setShowAuthSelectionPopup(false)
+                      }}
+                      setShowEmailTempPopup={(value) => {
+                        setShowEmailModal(value)
+                        setShowAuthSelectionPopup(false)
+                      }}
+                      showEmailTempPopup={showEmailModal}
+                      selectedGoogleAccount={selectedGoogleAccount}
+                      setSelectedGoogleAccount={(account) => {
+                        setSelectedGoogleAccount(account)
+                      }}
+                    />
+
+                    {/* Modal for All Emails */}
+                    <Modal
+                      open={showAllEmails}
+                      onClose={() => setShowAllEmails(null)}
+                      closeAfterTransition
+                      BackdropProps={{
+                        timeout: 1000,
+                        sx: {
+                          backgroundColor: '#00000020',
+                          // //backdropFilter: "blur(20px)",
+                        },
+                      }}
+                    >
+                      <Box
+                        className="lg:w-5/12 sm:w-full w-8/12"
+                        sx={styles.modalsStyle}
+                      >
+                        <div className="flex flex-row justify-center w-full">
+                          <div
+                            className="sm:w-full w-full"
+                            style={{
+                              backgroundColor: '#ffffff',
+                              padding: 20,
+                              borderRadius: '13px',
+                            }}
+                          >
+                            <div>
+                              {selectedLeadsDetails?.emails.map(
+                                (email, emailIndex) => {
+                                  return (
+                                    <div key={emailIndex}>
+                                      <div
+                                        className="flex flex-row items-center gap-2 px-1 mt-2 rounded-lg py-2 border border-[#00000020]"
+                                        style={styles.paragraph}
+                                      >
+                                        <Image
+                                          src={'/assets/power.png'}
+                                          height={9}
+                                          width={7}
+                                          alt="*"
+                                        />
+                                        <div>
+                                          <span className="text-brand-primary">
+                                            New
+                                          </span>{' '}
+                                          {email?.email}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )
+                                },
+                              )}
+                            </div>
+                            <div className="mt-4">
+                              <button
+                                onClick={() => {
+                                  setShowAllEmails(false)
+                                }}
+                                className="h-[50px] rounded-xl bg-brand-primary text-white w-full"
+                              >
+                                Close
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </Box>
+                    </Modal>
+
+                    {/* Modal for All Tags */}
+                    <Modal
+                      open={extraTagsModal}
+                      onClose={() => setExtraTagsModal(false)}
+                      closeAfterTransition
+                      BackdropProps={{
+                        timeout: 1000,
+                        sx: {
+                          backgroundColor: '#00000020',
+                          // //backdropFilter: "blur(20px)",
+                        },
+                      }}
+                    >
+                      <Box
+                        className="lg:w-3/12 sm:w-full w-4/12"
+                        sx={styles.modalsStyle}
+                      >
+                        <div className="flex flex-row justify-center w-full">
+                          <div
+                            className="sm:w-full w-full"
+                            style={{
+                              backgroundColor: '#ffffff',
+                              padding: 20,
+                              borderRadius: '13px',
+                            }}
+                          >
+                            <div className="w-full flex items-center justify-between">
+                              <div
+                                style={{
+                                  fontsize: 15,
+                                  fontWeight: '600',
+                                }}
+                              >
+                                Other Tags
+                              </div>
+                              <div>
+                                <CloseBtn
+                                  onClick={() => {
+                                    setExtraTagsModal(false)
+                                  }}
+                                />
+                              </div>
+                            </div>
+                            <div className="flex flex-row items-center gap-4 flex-wrap mt-2">
+                              {selectedLeadsDetails?.tags.map(
+                                (tag, index) => {
+                                  return (
+                                    <div
+                                      key={index}
+                                      className="flex flex-row items-center gap-2"
+                                    >
+                                      <div
+                                        className="flex flex-row items-center gap-2 px-2 py-1 rounded-lg"
+                                        style={{
+                                          backgroundColor: 'hsl(var(--brand-primary) / 0.1)'
+                                        }}
+                                      >
+                                        <div
+                                          className="text-brand-primary" //1C55FF10
+                                        >
+                                          {tag}
+                                        </div>
+                                        {DelTagLoader &&
+                                          tag.includes(DelTagLoader) ? (
+                                          <div>
+                                            <CircularProgress size={15} />
+                                          </div>
+                                        ) : (
+                                          <button
+                                            onClick={() => {
+                                              handleDelTag(tag)
+                                            }}
+                                          >
+                                            <X
+                                              size={15}
+                                              weight="bold"
+                                              color="hsl(var(--brand-primary))"
+                                            />
+                                          </button>
+                                        )}
+                                      </div>
+                                    </div>
+                                  )
+                                },
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </Box>
+                    </Modal>
+
+                    <Popover
+                      id={id}
+                      open={open}
+                      anchorEl={anchorEl}
+                      onClose={handleClosePopup}
+                      anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                      }}
+                      transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'left',
+                      }}
+                      disablePortal={false}
+                      PaperProps={{
+                        elevation: 0,
+                        style: {
+                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                          borderRadius: '10px',
+                          minWidth: '120px',
+                          zIndex: 9999,
+                        },
                       }}
                     >
                       <button
-                        className="outline-none p-2 flex flex-row gap-2"
+                        className="hover:bg-gray-50"
+                        onClick={() => {
+                          handleAssignLeadToTeammember(myTeamAdmin)
+                        }}
+                      >
+                        <div className="p-2 w-full flex flex-row items-center justify-start gap-2 ">
+                          <div className="">
+                            {myTeamAdmin?.thumb_profile_image ? (
+                              <Image
+                                className="rounded-full"
+                                src={myTeamAdmin.thumb_profile_image}
+                                height={32}
+                                width={32}
+                                alt="*"
+                                style={{
+                                  borderRaduis: 50,
+                                }}
+                              />
+                            ) : (
+                              <div
+                                className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                              // onClick={() => handleToggleClick(item.id)}
+                              >
+                                {myTeamAdmin?.name?.slice(0, 1)}
+                              </div>
+                            )}
+                          </div>
+                          <div className="">{myTeamAdmin?.name}</div>
+                          <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
+                            Admin
+                          </div>
+                        </div>
+                      </button>
+                      {myTeam.length > 0 ? (
+                        <div>
+                          {myTeam.map((item, index) => {
+                            return (
+                              <div
+                                key={index}
+                                className="p-2 flex flex-col gap-2"
+                                style={{ fontWeight: '500', fontSize: 15 }}
+                              >
+                                <button
+                                  className="text-start flex flex-row items-center justify-start gap-2 hover:bg-gray-50"
+                                  onClick={() => {
+                                    handleAssignLeadToTeammember(item)
+                                  }}
+                                >
+                                  {item?.invitedUser?.thumb_profile_image ? (
+                                    <Image
+                                      className="rounded-full"
+                                      src={
+                                        item.invitedUser?.thumb_profile_image
+                                      }
+                                      height={32}
+                                      width={32}
+                                      alt="*"
+                                      style={{}}
+                                    />
+                                  ) : (
+                                    <div
+                                      className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                                    // onClick={() =>
+                                    //   handleToggleClick(item.id)
+                                    // }
+                                    >
+                                      {item?.name?.slice(0, 1)}
+                                    </div>
+                                  )}
+                                  {item?.name}
+                                </button>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      ) : (
+                        ''
+                      )}
+                    </Popover>
+
+                    {/* Code for custom variables */}
+                  </div>
+
+                  <div
+                    className="w-full flex flex-row items-center justify-between mt-2"
+                    style={{
+                      ...styles.paragraph,
+                      paddingInline: 20,
+                    }}
+                  >
+                    <button
+                      className="outline-none p-2 flex flex-row gap-2"
+                      style={{
+                        borderBottom: showPerplexityDetails
+                          ? '2px solid hsl(var(--brand-primary))'
+                          : '',
+                        backgroundColor: showPerplexityDetails
+                          ? 'hsl(var(--brand-primary) / 0.05)'
+                          : '',
+                      }}
+                      onClick={() => {
+                        setShowPerpelexityDetails(true)
+                        setShowKycDetails(false)
+                        setShowNotesDetails(false)
+                        setShowAcitivityDetails(false)
+                        setShowCustomVariables(false)
+                      }}
+                    >
+                      <div
                         style={{
-                          borderBottom: showPerplexityDetails
-                            ? '2px solid hsl(var(--brand-primary))'
-                            : '',
+                          width: 20,
+                          height: 20,
                           backgroundColor: showPerplexityDetails
-                            ? 'hsl(var(--brand-primary) / 0.05)'
-                            : '',
+                            ? 'hsl(var(--brand-primary))'
+                            : '#000000',
+                          WebkitMaskImage: `url(${showPerplexityDetails
+                            ? '/svgIcons/sparklesPurple.svg'
+                            : '/svgIcons/sparkles.svg'
+                            })`,
+                          maskImage: `url(${showPerplexityDetails
+                            ? '/svgIcons/sparklesPurple.svg'
+                            : '/svgIcons/sparkles.svg'
+                            })`,
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
                         }}
-                        onClick={() => {
-                          setShowPerpelexityDetails(true)
-                          setShowKycDetails(false)
-                          setShowNotesDetails(false)
-                          setShowAcitivityDetails(false)
-                          setShowCustomVariables(false)
+                      />
+                      <div
+                        style={{
+                          color: showPerplexityDetails ? 'hsl(var(--brand-primary))' : 'black',
                         }}
                       >
-                        <div
-                          style={{
-                            width: 20,
-                            height: 20,
-                            backgroundColor: showPerplexityDetails
-                              ? 'hsl(var(--brand-primary))'
-                              : '#000000',
-                            WebkitMaskImage: `url(${showPerplexityDetails
-                              ? '/svgIcons/sparklesPurple.svg'
-                              : '/svgIcons/sparkles.svg'
-                              })`,
-                            maskImage: `url(${showPerplexityDetails
-                              ? '/svgIcons/sparklesPurple.svg'
-                              : '/svgIcons/sparkles.svg'
-                              })`,
-                            WebkitMaskSize: 'contain',
-                            maskSize: 'contain',
-                            WebkitMaskRepeat: 'no-repeat',
-                            maskRepeat: 'no-repeat',
-                            WebkitMaskPosition: 'center',
-                            maskPosition: 'center',
-                          }}
-                        />
-                        <div
-                          style={{
-                            color: showPerplexityDetails ? 'hsl(var(--brand-primary))' : 'black',
-                          }}
-                        >
-                          Insights
-                        </div>
-                      </button>
+                        Insights
+                      </div>
+                    </button>
 
-                      <button
-                        className="outline-none p-2 flex flex-row gap-2"
+                    <button
+                      className="outline-none p-2 flex flex-row gap-2"
+                      style={{
+                        borderBottom: showKYCDetails
+                          ? '2px solid hsl(var(--brand-primary))'
+                          : '',
+                        backgroundColor: showKYCDetails ? 'hsl(var(--brand-primary) / 0.05)' : '',
+                      }}
+                      onClick={() => {
+                        setShowPerpelexityDetails(false)
+                        setShowKycDetails(true)
+                        setShowNotesDetails(false)
+                        setShowAcitivityDetails(false)
+                        setShowCustomVariables(false)
+                      }}
+                    >
+                      <div
                         style={{
-                          borderBottom: showKYCDetails
-                            ? '2px solid hsl(var(--brand-primary))'
-                            : '',
-                          backgroundColor: showKYCDetails ? 'hsl(var(--brand-primary) / 0.05)' : '',
+                          width: 24,
+                          height: 24,
+                          backgroundColor: showKYCDetails
+                            ? 'hsl(var(--brand-primary))'
+                            : '#000000',
+                          WebkitMaskImage: `url(${showKYCDetails
+                            ? '/svgIcons/selectedKycIcon.svg'
+                            : '/svgIcons/unselectedKycIcon.svg'
+                            })`,
+                          maskImage: `url(${showKYCDetails
+                            ? '/svgIcons/selectedKycIcon.svg'
+                            : '/svgIcons/unselectedKycIcon.svg'
+                            })`,
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
                         }}
-                        onClick={() => {
-                          setShowPerpelexityDetails(false)
-                          setShowKycDetails(true)
-                          setShowNotesDetails(false)
-                          setShowAcitivityDetails(false)
-                          setShowCustomVariables(false)
+                      />
+                      <div
+                        style={{
+                          color: showKYCDetails ? 'hsl(var(--brand-primary))' : 'black',
                         }}
                       >
-                        <div
-                          style={{
-                            width: 24,
-                            height: 24,
-                            backgroundColor: showKYCDetails
-                              ? 'hsl(var(--brand-primary))'
-                              : '#000000',
-                            WebkitMaskImage: `url(${showKYCDetails
-                              ? '/svgIcons/selectedKycIcon.svg'
-                              : '/svgIcons/unselectedKycIcon.svg'
-                              })`,
-                            maskImage: `url(${showKYCDetails
-                              ? '/svgIcons/selectedKycIcon.svg'
-                              : '/svgIcons/unselectedKycIcon.svg'
-                              })`,
-                            WebkitMaskSize: 'contain',
-                            maskSize: 'contain',
-                            WebkitMaskRepeat: 'no-repeat',
-                            maskRepeat: 'no-repeat',
-                            WebkitMaskPosition: 'center',
-                            maskPosition: 'center',
-                          }}
-                        />
-                        <div
-                          style={{
-                            color: showKYCDetails ? 'hsl(var(--brand-primary))' : 'black',
-                          }}
-                        >
-                          KYC
-                        </div>
-                      </button>
+                        KYC
+                      </div>
+                    </button>
 
-                      <button
-                        className="outline-none p-2 flex flex-row gap-2"
+                    <button
+                      className="outline-none p-2 flex flex-row gap-2"
+                      style={{
+                        borderBottom: showAcitivityDetails
+                          ? '2px solid hsl(var(--brand-primary))'
+                          : '',
+                        backgroundColor: showAcitivityDetails
+                          ? 'hsl(var(--brand-primary) / 0.05)'
+                          : '',
+                      }}
+                      onClick={() => {
+                        setShowPerpelexityDetails(false)
+                        setShowKycDetails(false)
+                        setShowNotesDetails(false)
+                        setShowAcitivityDetails(true)
+                        setShowCustomVariables(false)
+                      }}
+                    >
+                      <div
                         style={{
-                          borderBottom: showAcitivityDetails
-                            ? '2px solid hsl(var(--brand-primary))'
-                            : '',
+                          width: 24,
+                          height: 24,
                           backgroundColor: showAcitivityDetails
-                            ? 'hsl(var(--brand-primary) / 0.05)'
-                            : '',
+                            ? 'hsl(var(--brand-primary))'
+                            : '#000000',
+                          WebkitMaskImage: `url(${showAcitivityDetails
+                            ? '/svgIcons/selectedActivityIcon.svg'
+                            : '/svgIcons/unselectedActivityIcon.svg'
+                            })`,
+                          maskImage: `url(${showAcitivityDetails
+                            ? '/svgIcons/selectedActivityIcon.svg'
+                            : '/svgIcons/unselectedActivityIcon.svg'
+                            })`,
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
                         }}
-                        onClick={() => {
-                          setShowPerpelexityDetails(false)
-                          setShowKycDetails(false)
-                          setShowNotesDetails(false)
-                          setShowAcitivityDetails(true)
-                          setShowCustomVariables(false)
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: 24,
-                            height: 24,
-                            backgroundColor: showAcitivityDetails
-                              ? 'hsl(var(--brand-primary))'
-                              : '#000000',
-                            WebkitMaskImage: `url(${showAcitivityDetails
-                              ? '/svgIcons/selectedActivityIcon.svg'
-                              : '/svgIcons/unselectedActivityIcon.svg'
-                              })`,
-                            maskImage: `url(${showAcitivityDetails
-                              ? '/svgIcons/selectedActivityIcon.svg'
-                              : '/svgIcons/unselectedActivityIcon.svg'
-                              })`,
-                            WebkitMaskSize: 'contain',
-                            maskSize: 'contain',
-                            WebkitMaskRepeat: 'no-repeat',
-                            maskRepeat: 'no-repeat',
-                            WebkitMaskPosition: 'center',
-                            maskPosition: 'center',
-                          }}
-                        />
-                        <div
-                          style={{
-                            color: showAcitivityDetails ? 'hsl(var(--brand-primary))' : 'black',
-                          }}
-                        >
-                          Activity
-                        </div>
-                      </button>
-
-                      <button
-                        className="outline-none p-2 flex flex-row gap-2"
+                      />
+                      <div
                         style={{
-                          borderBottom: showNotesDetails
-                            ? '2px solid hsl(var(--brand-primary))'
-                            : '',
-                          backgroundColor: showNotesDetails ? 'hsl(var(--brand-primary) / 0.05)' : '',
-                        }}
-                        onClick={() => {
-                          setShowPerpelexityDetails(false)
-                          setShowKycDetails(false)
-                          setShowNotesDetails(true)
-                          setShowAcitivityDetails(false)
-                          setShowCustomVariables(false)
+                          color: showAcitivityDetails ? 'hsl(var(--brand-primary))' : 'black',
                         }}
                       >
-                        <div
-                          style={{
-                            width: 24,
-                            height: 24,
-                            backgroundColor: showNotesDetails
-                              ? 'hsl(var(--brand-primary))'
-                              : '#000000',
-                            WebkitMaskImage: `url(${showNotesDetails
-                              ? '/svgIcons/selectedNotesIcon.svg'
-                              : '/svgIcons/unselectedNotesIcon.svg'
-                              })`,
-                            maskImage: `url(${showNotesDetails
-                              ? '/svgIcons/selectedNotesIcon.svg'
-                              : '/svgIcons/unselectedNotesIcon.svg'
-                              })`,
-                            WebkitMaskSize: 'contain',
-                            maskSize: 'contain',
-                            WebkitMaskRepeat: 'no-repeat',
-                            maskRepeat: 'no-repeat',
-                            WebkitMaskPosition: 'center',
-                            maskPosition: 'center',
-                          }}
+                        Activity
+                      </div>
+                    </button>
+
+                    <button
+                      className="outline-none p-2 flex flex-row gap-2"
+                      style={{
+                        borderBottom: showNotesDetails
+                          ? '2px solid hsl(var(--brand-primary))'
+                          : '',
+                        backgroundColor: showNotesDetails ? 'hsl(var(--brand-primary) / 0.05)' : '',
+                      }}
+                      onClick={() => {
+                        setShowPerpelexityDetails(false)
+                        setShowKycDetails(false)
+                        setShowNotesDetails(true)
+                        setShowAcitivityDetails(false)
+                        setShowCustomVariables(false)
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 24,
+                          height: 24,
+                          backgroundColor: showNotesDetails
+                            ? 'hsl(var(--brand-primary))'
+                            : '#000000',
+                          WebkitMaskImage: `url(${showNotesDetails
+                            ? '/svgIcons/selectedNotesIcon.svg'
+                            : '/svgIcons/unselectedNotesIcon.svg'
+                            })`,
+                          maskImage: `url(${showNotesDetails
+                            ? '/svgIcons/selectedNotesIcon.svg'
+                            : '/svgIcons/unselectedNotesIcon.svg'
+                            })`,
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
+                      />
+                      <div
+                        style={{
+                          color: showNotesDetails ? 'hsl(var(--brand-primary))' : 'black',
+                        }}
+                      >
+                        Notes
+                      </div>
+                    </button>
+                  </div>
+                  <div
+                    className="w-full"
+                    style={{ height: '1px', backgroundColor: '#15151510' }}
+                  />
+
+                  <div style={{ paddingInline: 0 }}>
+                    {showPerplexityDetails &&
+                      (selectedLeadsDetails &&
+                        selectedLeadsDetails.enrichData ? (
+                        <Perplexity
+                          selectedLeadsDetails={selectedLeadsDetails}
                         />
-                        <div
-                          style={{
-                            color: showNotesDetails ? 'hsl(var(--brand-primary))' : 'black',
-                          }}
-                        >
-                          Notes
-                        </div>
-                      </button>
-                    </div>
-                    <div
-                      className="w-full"
-                      style={{ height: '1px', backgroundColor: '#15151510' }}
+                      ) : (
+                        <NoPerplexity
+                          setshowConfirmPerplexity={setshowConfirmPerplexity}
+                          user={userLocalData}
+                          handleEnrichLead={handleEnrichLead}
+                          loading={loading}
+                          creditCost={creditCost}
+                        />
+                      ))}
+
+                    <ConfirmPerplexityModal
+                      showConfirmPerplexity={showConfirmPerplexity}
+                      setshowConfirmPerplexity={setshowConfirmPerplexity}
+                      selectedLeadsDetails={selectedLeadsDetails}
+                      handleEnrichLead={handleEnrichLead}
+                      loading={loading}
+                      creditCost={creditCost}
                     />
 
-                    <div style={{ paddingInline: 0 }}>
-                      {showPerplexityDetails &&
-                        (selectedLeadsDetails &&
-                          selectedLeadsDetails.enrichData ? (
-                          <Perplexity
-                            selectedLeadsDetails={selectedLeadsDetails}
-                          />
-                        ) : (
-                          <NoPerplexity
-                            setshowConfirmPerplexity={setshowConfirmPerplexity}
-                            user={userLocalData}
-                            handleEnrichLead={handleEnrichLead}
-                            loading={loading}
-                            creditCost={creditCost}
-                          />
-                        ))}
-
-                      <ConfirmPerplexityModal
-                        showConfirmPerplexity={showConfirmPerplexity}
-                        setshowConfirmPerplexity={setshowConfirmPerplexity}
-                        selectedLeadsDetails={selectedLeadsDetails}
-                        handleEnrichLead={handleEnrichLead}
-                        loading={loading}
-                        creditCost={creditCost}
-                      />
-
-                      {showKYCDetails && (
-                        <div>
-                          {selectedLeadsDetails?.kycs.length < 1 ? (
-                            <div
-                              className="flex flex-col items-center justify-center w-full mt-12"
-                              style={{ fontWeight: '500', fontsize: 15 }}
-                            >
-                              <div className="h-[51px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">
-                                <Image
-                                  src={'/assets/FAQ.png'}
-                                  height={24}
-                                  width={24}
-                                  alt="*"
-                                />
-                              </div>
-                              <div className="mt-4">
-                                <i style={{ fontWeight: '500', fontsize: 15 }}>
-                                  KYC Data collected from calls will be shown
-                                  here
-                                </i>
-                              </div>
+                    {showKYCDetails && (
+                      <div>
+                        {selectedLeadsDetails?.kycs.length < 1 ? (
+                          <div
+                            className="flex flex-col items-center justify-center w-full mt-12"
+                            style={{ fontWeight: '500', fontsize: 15 }}
+                          >
+                            <div className="h-[51px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">
+                              <Image
+                                src={'/assets/FAQ.png'}
+                                height={24}
+                                width={24}
+                                alt="*"
+                              />
                             </div>
-                          ) : (
-                            <div className="w-full mt-4 pb-12">
-                              {selectedLeadsDetails?.kycs.map((item, index) => {
-                                return (
+                            <div className="mt-4">
+                              <i style={{ fontWeight: '500', fontsize: 15 }}>
+                                KYC Data collected from calls will be shown
+                                here
+                              </i>
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="w-full mt-4 pb-12">
+                            {selectedLeadsDetails?.kycs.map((item, index) => {
+                              return (
+                                <div
+                                  className="w-full flex flex-row gap-2 mt-2"
+                                  key={index}
+                                >
                                   <div
-                                    className="w-full flex flex-row gap-2 mt-2"
-                                    key={index}
-                                  >
-                                    <div
-                                      className="h-full"
-                                      style={{
-                                        width: '2px',
-                                        backgroundColor: 'red',
-                                      }}
-                                    ></div>
-                                    <div className="h-full w-full">
-                                      {/* <div className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
+                                    className="h-full"
+                                    style={{
+                                      width: '2px',
+                                      backgroundColor: 'red',
+                                    }}
+                                  ></div>
+                                  <div className="h-full w-full">
+                                    {/* <div className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
                                             Outcome | <span style={{ fontWeight: "600", fontSize: 12 }} className='text-brand-primary'>
                                                 {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
                                             </span>
                                         </div> */}
-                                      <div
-                                        className="mt-4"
-                                        style={
-                                          {
-                                            // border: "1px solid #00000020", padding: 10, borderRadius: 15
-                                          }
-                                        }
-                                      >
-                                        <div
-                                          style={{
-                                            fontWeight: '500',
-                                            fontSize: 15,
-                                          }}
-                                        >
-                                          {item.question &&
-                                            typeof item.question === 'string'
-                                            ? item.question
-                                              .split('ylz8ibb4uykg29mogltl')
-                                              .join('')
-                                              .trim()
-                                            : ''}
-                                        </div>
-                                        <div
-                                          className="mt-1"
-                                          style={{
-                                            fontWeight: '500',
-                                            fontSize: 13,
-                                            color: '#00000060',
-                                          }}
-                                        >
-                                          {item.answer}
-                                        </div>
-                                      </div>
-                                      <div></div>
-                                    </div>
-                                  </div>
-                                )
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Notes go here */}
-                      {showNotesDetails && (
-                        <div>
-                          {noteDetails?.length < 1 ? (
-                            <div
-                              className="flex flex-col items-center justify-center w-full mt-12"
-                              style={{ fontWeight: '500', fontsize: 15 }}
-                            >
-                              <div className="h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">
-                                <Image
-                                  src={'/assets/notes.png'}
-                                  height={24}
-                                  width={24}
-                                  alt="*"
-                                />
-                              </div>
-                              <div className="mt-4">
-                                <i style={{ fontWeight: '500', fontsize: 15 }}>
-                                  You can add and manage your notes here
-                                </i>
-                              </div>
-                              <button
-                                className="flex flex-row items-center gap-1 mt-2"
-                                onClick={() => {
-                                  setShowAddNotes(true)
-                                }}
-                              >
-                                <Plus size={17} color="hsl(var(--brand-primary))" weight="bold" />
-                                <div className="text-brand-primary">Add Notes</div>
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="">
-                              <div
-                                className=""
-                                style={{ scrollbarWidth: 'none' }}
-                              >
-                                {noteDetails.map((item, index) => {
-                                  return (
                                     <div
-                                      key={index}
-                                      className="border rounded-xl p-4 mb-4 mt-4"
-                                      style={{ border: '1px solid #00000020' }}
+                                      className="mt-4"
+                                      style={
+                                        {
+                                          // border: "1px solid #00000020", padding: 10, borderRadius: 15
+                                        }
+                                      }
                                     >
-                                      <div className="flex flex-row items-center justify-between w-full">
-                                        <div
-                                          style={{
-                                            fontWeight: '500',
-                                            color: '#15151560',
-                                            fontsize: 12,
-                                          }}
-                                        >
-                                          {GetFormattedDateString(
-                                            item?.createdAt,
-                                            true, // Include time
-                                          )}
-                                        </div>
-                                        <div className="flex flex-row items-center gap-2">
-                                          {/* 3-dot menu - only show for manual notes */}
-                                          {item.type === 'manual' && (
-                                            <>
-                                              <button
-                                                onClick={(e) => {
-                                                  setNoteMenuAnchor(e.currentTarget)
-                                                  setSelectedNoteForMenu(item)
-                                                }}
-                                                className="p-1 hover:bg-gray-100 rounded"
-                                                style={{ cursor: 'pointer' }}
-                                              >
-                                                <MoreVertical size={16} color="#6b7280" />
-                                              </button>
-                                              <Menu
-                                                anchorEl={noteMenuAnchor}
-                                                open={Boolean(noteMenuAnchor)}
-                                                onClose={() => {
+                                      <div
+                                        style={{
+                                          fontWeight: '500',
+                                          fontSize: 15,
+                                        }}
+                                      >
+                                        {item.question &&
+                                          typeof item.question === 'string'
+                                          ? item.question
+                                            .split('ylz8ibb4uykg29mogltl')
+                                            .join('')
+                                            .trim()
+                                          : ''}
+                                      </div>
+                                      <div
+                                        className="mt-1"
+                                        style={{
+                                          fontWeight: '500',
+                                          fontSize: 13,
+                                          color: '#00000060',
+                                        }}
+                                      >
+                                        {item.answer}
+                                      </div>
+                                    </div>
+                                    <div></div>
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Notes go here */}
+                    {showNotesDetails && (
+                      <div>
+                        {noteDetails?.length < 1 ? (
+                          <div
+                            className="flex flex-col items-center justify-center w-full mt-12"
+                            style={{ fontWeight: '500', fontsize: 15 }}
+                          >
+                            <div className="h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">
+                              <Image
+                                src={'/assets/notes.png'}
+                                height={24}
+                                width={24}
+                                alt="*"
+                              />
+                            </div>
+                            <div className="mt-4">
+                              <i style={{ fontWeight: '500', fontsize: 15 }}>
+                                You can add and manage your notes here
+                              </i>
+                            </div>
+                            <button
+                              className="flex flex-row items-center gap-1 mt-2"
+                              onClick={() => {
+                                setShowAddNotes(true)
+                              }}
+                            >
+                              <Plus size={17} color="hsl(var(--brand-primary))" weight="bold" />
+                              <div className="text-brand-primary">Add Notes</div>
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="">
+                            <div
+                              className=""
+                              style={{ scrollbarWidth: 'none' }}
+                            >
+                              {noteDetails.map((item, index) => {
+                                return (
+                                  <div
+                                    key={index}
+                                    className="border rounded-xl p-4 mb-4 mt-4"
+                                    style={{ border: '1px solid #00000020' }}
+                                  >
+                                    <div className="flex flex-row items-center justify-between w-full">
+                                      <div
+                                        style={{
+                                          fontWeight: '500',
+                                          color: '#15151560',
+                                          fontsize: 12,
+                                        }}
+                                      >
+                                        {GetFormattedDateString(
+                                          item?.createdAt,
+                                          true, // Include time
+                                        )}
+                                      </div>
+                                      <div className="flex flex-row items-center gap-2">
+                                        {/* 3-dot menu - only show for manual notes */}
+                                        {item.type === 'manual' && (
+                                          <>
+                                            <button
+                                              onClick={(e) => {
+                                                setNoteMenuAnchor(e.currentTarget)
+                                                setSelectedNoteForMenu(item)
+                                              }}
+                                              className="p-1 hover:bg-gray-100 rounded"
+                                              style={{ cursor: 'pointer' }}
+                                            >
+                                              <MoreVertical size={16} color="#6b7280" />
+                                            </button>
+                                            <Menu
+                                              anchorEl={noteMenuAnchor}
+                                              open={Boolean(noteMenuAnchor)}
+                                              onClose={() => {
+                                                setNoteMenuAnchor(null)
+                                                setSelectedNoteForMenu(null)
+                                              }}
+                                              anchorOrigin={{
+                                                vertical: 'bottom',
+                                                horizontal: 'right',
+                                              }}
+                                              transformOrigin={{
+                                                vertical: 'top',
+                                                horizontal: 'right',
+                                              }}
+                                            >
+                                              <MenuItem
+                                                onClick={() => {
+                                                  if (selectedNoteForMenu) {
+                                                    setEditingNote(selectedNoteForMenu)
+                                                    setEditNoteValue(selectedNoteForMenu.note)
+                                                  }
                                                   setNoteMenuAnchor(null)
                                                   setSelectedNoteForMenu(null)
                                                 }}
-                                                anchorOrigin={{
-                                                  vertical: 'bottom',
-                                                  horizontal: 'right',
-                                                }}
-                                                transformOrigin={{
-                                                  vertical: 'top',
-                                                  horizontal: 'right',
+                                                sx={{
+                                                  display: 'flex',
+                                                  alignItems: 'center',
+                                                  gap: 1,
                                                 }}
                                               >
-                                                <MenuItem
-                                                  onClick={() => {
-                                                    if (selectedNoteForMenu) {
-                                                      setEditingNote(selectedNoteForMenu)
-                                                      setEditNoteValue(selectedNoteForMenu.note)
-                                                    }
-                                                    setNoteMenuAnchor(null)
-                                                    setSelectedNoteForMenu(null)
-                                                  }}
-                                                  sx={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: 1,
-                                                  }}
-                                                >
-                                                  <Pencil size={16} color="#6b7280" />
-                                                  <span>Edit</span>
-                                                </MenuItem>
-                                                <MenuItem
-                                                  onClick={() => {
-                                                    if (selectedNoteForMenu) {
-                                                      setDeleteNoteId(selectedNoteForMenu.id)
-                                                      setShowDeleteNoteConfirm(true)
-                                                    }
-                                                    setNoteMenuAnchor(null)
-                                                    setSelectedNoteForMenu(null)
-                                                  }}
-                                                  sx={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: 1,
-                                                    color: '#ef4444',
-                                                  }}
-                                                >
-                                                  <Trash2 size={16} color="#ef4444" />
-                                                  <span>Delete</span>
-                                                </MenuItem>
-                                              </Menu>
-                                            </>
-                                          )}
-                                          {/* Call Summary Icons - COMMENTED OUT: Moved to Activity tab
+                                                <Pencil size={16} color="#6b7280" />
+                                                <span>Edit</span>
+                                              </MenuItem>
+                                              <MenuItem
+                                                onClick={() => {
+                                                  if (selectedNoteForMenu) {
+                                                    setDeleteNoteId(selectedNoteForMenu.id)
+                                                    setShowDeleteNoteConfirm(true)
+                                                  }
+                                                  setNoteMenuAnchor(null)
+                                                  setSelectedNoteForMenu(null)
+                                                }}
+                                                sx={{
+                                                  display: 'flex',
+                                                  alignItems: 'center',
+                                                  gap: 1,
+                                                  color: '#ef4444',
+                                                }}
+                                              >
+                                                <Trash2 size={16} color="#ef4444" />
+                                                <span>Delete</span>
+                                              </MenuItem>
+                                            </Menu>
+                                          </>
+                                        )}
+                                        {/* Call Summary Icons - COMMENTED OUT: Moved to Activity tab
                                           {item.type === 'call_summary' && item.callSummary && (
                                             <div className="flex flex-row items-center gap-2">
                                             Sentiment Icon
@@ -3568,417 +3565,417 @@ const LeadDetails = ({
                                             )}
                                             </div>
                                           )} */}
-                                        </div>
-                                      </div>
-                                      <div
-                                        className="mt-4"
-                                        style={{
-                                          fontWeight: '500',
-                                          color: '#151515',
-                                          fontsize: 15,
-                                        }}
-                                      >
-                                        {item.note}
                                       </div>
                                     </div>
-                                  )
-                                })}
-                              </div>
-                              <div
-                                className="flex flex-col items-start justify-start w-full pb-6"
-                                style={{ fontWeight: '500', fontsize: 15 }}
-                              >
-                                <button
-                                  className="flex flex-row items-center gap-1 mt-2"
-                                  onClick={() => {
-                                    setShowAddNotes(true)
-                                  }}
-                                >
-                                  <Plus
-                                    size={17}
-                                    color="hsl(var(--brand-primary))"
-                                    weight="bold"
-                                  />
-                                  <div className="text-brand-primary">Add Notes</div>
-                                </button>
-                              </div>
+                                    <div
+                                      className="mt-4"
+                                      style={{
+                                        fontWeight: '500',
+                                        color: '#151515',
+                                        fontsize: 15,
+                                      }}
+                                    >
+                                      {item.note}
+                                    </div>
+                                  </div>
+                                )
+                              })}
                             </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Call activity goes here */}
-                      {showAcitivityDetails && (
-                        <div>
-                          {selectedLeadsDetails?.callActivity.length < 1 ? (
                             <div
-                              className="flex flex-col items-center justify-center mt-12 w-full"
+                              className="flex flex-col items-start justify-start w-full pb-6"
                               style={{ fontWeight: '500', fontsize: 15 }}
                             >
-                              <div className="h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">
-                                <Image
-                                  src={'/assets/activityClock.png'}
-                                  height={24}
-                                  width={24}
-                                  alt="*"
+                              <button
+                                className="flex flex-row items-center gap-1 mt-2"
+                                onClick={() => {
+                                  setShowAddNotes(true)
+                                }}
+                              >
+                                <Plus
+                                  size={17}
+                                  color="hsl(var(--brand-primary))"
+                                  weight="bold"
                                 />
-                              </div>
-                              <div className="mt-4">
-                                <i style={{ fontWeight: '500', fontsize: 15 }}>
-                                  All activities related to this lead will be
-                                  shown here
-                                </i>
-                              </div>
+                                <div className="text-brand-primary">Add Notes</div>
+                              </button>
                             </div>
-                          ) : (
-                            <div>
-                              {selectedLeadsDetails?.callActivity.map(
-                                (item, index) => {
-                                  const initialTextLength = Math.ceil(
-                                    item?.transcript?.length * 0.1,
-                                  ) // 40% of the text
-                                  const initialText = item.transcript //?.slice(
-                                  // 0,
-                                  // initialTextLength
-                                  // );
-                                  return (
-                                    <div key={index}>
-                                      <div className="mt-4">
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Call activity goes here */}
+                    {showAcitivityDetails && (
+                      <div>
+                        {selectedLeadsDetails?.callActivity.length < 1 ? (
+                          <div
+                            className="flex flex-col items-center justify-center mt-12 w-full"
+                            style={{ fontWeight: '500', fontsize: 15 }}
+                          >
+                            <div className="h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">
+                              <Image
+                                src={'/assets/activityClock.png'}
+                                height={24}
+                                width={24}
+                                alt="*"
+                              />
+                            </div>
+                            <div className="mt-4">
+                              <i style={{ fontWeight: '500', fontsize: 15 }}>
+                                All activities related to this lead will be
+                                shown here
+                              </i>
+                            </div>
+                          </div>
+                        ) : (
+                          <div>
+                            {selectedLeadsDetails?.callActivity.map(
+                              (item, index) => {
+                                const initialTextLength = Math.ceil(
+                                  item?.transcript?.length * 0.1,
+                                ) // 40% of the text
+                                const initialText = item.transcript //?.slice(
+                                // 0,
+                                // initialTextLength
+                                // );
+                                return (
+                                  <div key={index}>
+                                    <div className="mt-4">
+                                      <div
+                                        className="-ms-4"
+                                        style={{
+                                          fontsize: 15,
+                                          fontWeight: '500',
+                                          color: '#15151560',
+                                        }}
+                                      >
+                                        {GetFormattedDateString(
+                                          item?.createdAt,
+                                          true,
+                                        )}
+                                      </div>
+                                      <div className="w-full flex flex-row items-center gap-2 h-full">
                                         <div
-                                          className="-ms-4"
+                                          className="pb-4 pt-6 ps-4 w-full"
                                           style={{
-                                            fontsize: 15,
-                                            fontWeight: '500',
-                                            color: '#15151560',
+                                            borderLeft: '1px solid #00000020',
                                           }}
                                         >
-                                          {GetFormattedDateString(
-                                            item?.createdAt,
-                                            true,
-                                          )}
-                                        </div>
-                                        <div className="w-full flex flex-row items-center gap-2 h-full">
-                                          <div
-                                            className="pb-4 pt-6 ps-4 w-full"
-                                            style={{
-                                              borderLeft: '1px solid #00000020',
-                                            }}
-                                          >
-                                            <div className="h-full w-full">
-                                              <div className="flex flex-row items-center justify-between">
-                                                <div className="flex flex-row items-center gap-1">
-                                                  <div
-                                                    style={{
-                                                      width: 15,
-                                                      height: 15,
-                                                      backgroundColor: '#000000',
-                                                      WebkitMaskImage: `url(${getCommunicationTypeIcon(item)})`,
-                                                      maskImage: `url(${getCommunicationTypeIcon(item)})`,
-                                                      WebkitMaskSize: 'contain',
-                                                      maskSize: 'contain',
-                                                      WebkitMaskRepeat: 'no-repeat',
-                                                      maskRepeat: 'no-repeat',
-                                                      WebkitMaskPosition: 'center',
-                                                      maskPosition: 'center',
-                                                    }}
-                                                  />
-                                                  <div
-                                                    style={{
-                                                      fontWeight: '600',
-                                                      fontsize: 15,
-                                                    }}
-                                                  >
-                                                    Outcome
-                                                  </div>
-                                                  {/* <div className='text-purple' style={{ fontWeight: "600", fontsize: 12 }}>
-                                                                                                        {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
-                                                                                                    </div> */}
-                                                </div>
-                                                <button
-                                                  className="
-                                                  text-end flex flex-row items-center gap-1 px-2 py-2 rounded-full
-                                                  "
+                                          <div className="h-full w-full">
+                                            <div className="flex flex-row items-center justify-between">
+                                              <div className="flex flex-row items-center gap-1">
+                                                <div
                                                   style={{
-                                                    backgroundColor: '#ececec',
+                                                    width: 15,
+                                                    height: 15,
+                                                    backgroundColor: '#000000',
+                                                    WebkitMaskImage: `url(${getCommunicationTypeIcon(item)})`,
+                                                    maskImage: `url(${getCommunicationTypeIcon(item)})`,
+                                                    WebkitMaskSize: 'contain',
+                                                    maskSize: 'contain',
+                                                    WebkitMaskRepeat: 'no-repeat',
+                                                    maskRepeat: 'no-repeat',
+                                                    WebkitMaskPosition: 'center',
+                                                    maskPosition: 'center',
                                                   }}
-                                                  onClick={() => {
-                                                    handleShowMoreActivityData(
-                                                      item,
-                                                    )
+                                                />
+                                                <div
+                                                  style={{
+                                                    fontWeight: '600',
+                                                    fontsize: 15,
                                                   }}
                                                 >
-                                                  <div
-                                                    className="h-[10px] w-[10px] rounded-full"
-                                                    style={{
-                                                      backgroundColor:
-                                                        showColor(item),
-                                                    }}
-                                                  ></div>
-
-                                                  {getOutcome(item)}
-                                                  {/* {checkCallStatus(item)} */}
-
-                                                  {item.callOutcome !==
-                                                    'No Answer' && (
-                                                      <div>
-                                                        {isExpandedActivity.includes(
-                                                          item.id,
-                                                        ) ? (
-                                                          <div>
-                                                            <CaretUp
-                                                              size={17}
-                                                              weight="bold"
-                                                            />
-                                                          </div>
-                                                        ) : (
-                                                          <div>
-                                                            <CaretDown
-                                                              size={17}
-                                                              weight="bold"
-                                                            />
-                                                          </div>
-                                                        )}
-                                                      </div>
-                                                    )}
-                                                </button>
+                                                  Outcome
+                                                </div>
+                                                {/* <div className='text-purple' style={{ fontWeight: "600", fontsize: 12 }}>
+                                                                                                        {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
+                                                                                                    </div> */}
                                               </div>
-                                              {isExpandedActivity.includes(
-                                                item.id,
-                                              ) &&
-                                                (item.status === 'voicemail' ||
-                                                  item.callOutcome ===
-                                                  'Voicemail' ? (
-                                                  <div className="border rounded mt-2 w-full p-4">
-                                                    <button
-                                                      onClick={() =>
-                                                        handleCopy(item.callId)
-                                                      }
-                                                    >
-                                                      <Image
-                                                        src={
-                                                          '/svgIcons/copy.svg'
-                                                        }
-                                                        height={15}
-                                                        width={15}
-                                                        alt="*"
-                                                      />
-                                                    </button>
-                                                    {item.agent.hasVoicemail ? (
-                                                      <NoVoicemailView
-                                                        showAddBtn={false}
-                                                        title={
-                                                          'Voicemail Delivered'
-                                                        }
-                                                        subTitle={
-                                                          'Delivered during the first missed call'
-                                                        }
-                                                      />
-                                                    ) : (
-                                                      <NoVoicemailView
-                                                        showAddBtn={false}
-                                                        title={
-                                                          'Not able to Leave a Voicemail'
-                                                        }
-                                                        subTitle={
-                                                          'The phone was either a landline or has a full voicemail'
-                                                        }
-                                                      />
-                                                    )}
-                                                  </div>
-                                                ) : (
-                                                  <>
-                                                    <div
-                                                      className="mt-6"
-                                                      style={{
-                                                        border:
-                                                          '1px solid #00000020',
-                                                        borderRadius: '10px',
-                                                        padding: 10,
-                                                        paddingInline: 15,
-                                                      }}
-                                                    >
-                                                      {item.communicationType ===
-                                                        'sms' ||
-                                                        item.communicationType ==
-                                                        'email'
-                                                        ? emailSmsTranscript(
-                                                          item,
-                                                        )
-                                                        : callTranscript(
-                                                          item,
-                                                          initialText,
-                                                        )}
+                                              <button
+                                                className="
+                                                  text-end flex flex-row items-center gap-1 px-2 py-2 rounded-full
+                                                  "
+                                                style={{
+                                                  backgroundColor: '#ececec',
+                                                }}
+                                                onClick={() => {
+                                                  handleShowMoreActivityData(
+                                                    item,
+                                                  )
+                                                }}
+                                              >
+                                                <div
+                                                  className="h-[10px] w-[10px] rounded-full"
+                                                  style={{
+                                                    backgroundColor:
+                                                      showColor(item),
+                                                  }}
+                                                ></div>
 
+                                                {getOutcome(item)}
+                                                {/* {checkCallStatus(item)} */}
+
+                                                {item.callOutcome !==
+                                                  'No Answer' && (
+                                                    <div>
+                                                      {isExpandedActivity.includes(
+                                                        item.id,
+                                                      ) ? (
+                                                        <div>
+                                                          <CaretUp
+                                                            size={17}
+                                                            weight="bold"
+                                                          />
+                                                        </div>
+                                                      ) : (
+                                                        <div>
+                                                          <CaretDown
+                                                            size={17}
+                                                            weight="bold"
+                                                          />
+                                                        </div>
+                                                      )}
                                                     </div>
-                                                  </>
-                                                ))}
+                                                  )}
+                                              </button>
                                             </div>
+                                            {isExpandedActivity.includes(
+                                              item.id,
+                                            ) &&
+                                              (item.status === 'voicemail' ||
+                                                item.callOutcome ===
+                                                'Voicemail' ? (
+                                                <div className="border rounded mt-2 w-full p-4">
+                                                  <button
+                                                    onClick={() =>
+                                                      handleCopy(item.callId)
+                                                    }
+                                                  >
+                                                    <Image
+                                                      src={
+                                                        '/svgIcons/copy.svg'
+                                                      }
+                                                      height={15}
+                                                      width={15}
+                                                      alt="*"
+                                                    />
+                                                  </button>
+                                                  {item.agent.hasVoicemail ? (
+                                                    <NoVoicemailView
+                                                      showAddBtn={false}
+                                                      title={
+                                                        'Voicemail Delivered'
+                                                      }
+                                                      subTitle={
+                                                        'Delivered during the first missed call'
+                                                      }
+                                                    />
+                                                  ) : (
+                                                    <NoVoicemailView
+                                                      showAddBtn={false}
+                                                      title={
+                                                        'Not able to Leave a Voicemail'
+                                                      }
+                                                      subTitle={
+                                                        'The phone was either a landline or has a full voicemail'
+                                                      }
+                                                    />
+                                                  )}
+                                                </div>
+                                              ) : (
+                                                <>
+                                                  <div
+                                                    className="mt-6"
+                                                    style={{
+                                                      border:
+                                                        '1px solid #00000020',
+                                                      borderRadius: '10px',
+                                                      padding: 10,
+                                                      paddingInline: 15,
+                                                    }}
+                                                  >
+                                                    {item.communicationType ===
+                                                      'sms' ||
+                                                      item.communicationType ==
+                                                      'email'
+                                                      ? emailSmsTranscript(
+                                                        item,
+                                                      )
+                                                      : callTranscript(
+                                                        item,
+                                                        initialText,
+                                                      )}
+
+                                                  </div>
+                                                </>
+                                              ))}
                                           </div>
                                         </div>
                                       </div>
                                     </div>
-                                  )
-                                },
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                    <div
-                      style={{
-                        position: 'absolute',
-                        bottom: 20,
-                        right: 20,
-                      }}
-                    >
-                      <div>
-                        {!hideDelete && (
-                          <button
-                            className="flex flex-row gap-2 items-center"
-                            onClick={() => {
-                              // handleDeleteLead()
-
-                              setShowDelModal(true)
-                            }}
-                            style={{
-                              marginTop: 20,
-                              alignSelf: 'end',
-                            }}
-                          >
-                            <Image
-                              src={'/otherAssets/redDeleteIcon.png'}
-                              height={24}
-                              width={24}
-                              alt="del"
-                              style={{
-                                filter:
-                                  'brightness(0) saturate(100%) opacity(0.5)', // Convert to black and make semi-transparent
-                              }}
-                            />
-
-                            <div
-                              style={{
-                                fontSize: 15,
-                                fontWeight: '600',
-                                color: '#15151590',
-                                textDecorationLine: 'underline',
-                              }}
-                            >
-                              Delete
-                            </div>
-                          </button>
+                                  </div>
+                                )
+                              },
+                            )}
+                          </div>
                         )}
                       </div>
-                    </div>
+                    )}
                   </div>
-                </div>
-              )}
-            </div>
-
-            {/* Show Transcript UI Modal*/}
-
-            <Modal
-              open={isExpanded}
-              onClose={() => setIsExpanded(null)}
-              closeAfterTransition
-              BackdropProps={{
-                timeout: 1000,
-                sx: {
-                  backgroundColor: '#00000020',
-                },
-              }}
-            >
-              <Box
-                className="lg:w-4/12 sm:w-4/12 w-6/12"
-                sx={styles.modalsStyle}
-              >
-                <div className="flex flex-row justify-center w-full">
                   <div
-                    className="w-full"
                     style={{
-                      backgroundColor: '#ffffff',
-                      padding: 20,
-                      borderRadius: '13px',
+                      position: 'absolute',
+                      bottom: 20,
+                      right: 20,
                     }}
                   >
-                    <div className="w-full flex flex-row items-center justify-between">
-                      <div className="font-bold text-xl mt-4 mb-4">
-                        Call Transcript
-                      </div>
-                      <div>
+                    <div>
+                      {!hideDelete && (
                         <button
-                          className="font-bold outline-none border-none"
-                          onClick={() => setIsExpanded(null)}
-                        >
-                          <CloseIcon />
-                        </button>
-                      </div>
-                    </div>
-                    <TranscriptViewer callId={isExpanded?.id || ''} />
-                  </div>
-                </div>
-              </Box>
-            </Modal>
-            {/* delete lead modal */}
+                          className="flex flex-row gap-2 items-center"
+                          onClick={() => {
+                            // handleDeleteLead()
 
-            <Modal
-              open={showDelModal}
-              onClose={() => setShowDelModal(false)}
-              closeAfterTransition
-              BackdropProps={{
-                timeout: 1000,
-                sx: {
-                  backgroundColor: '#00000020',
-                  // //backdropFilter: "blur(5px)",
-                },
-              }}
-            >
-              <Box
-                className="lg:w-4/12 sm:w-4/12 w-6/12"
-                sx={styles.modalsStyle}
-              >
-                <div className="flex flex-row justify-center w-full">
-                  <div
-                    className="w-full"
-                    style={{
-                      backgroundColor: '#ffffff',
-                      padding: 20,
-                      borderRadius: '13px',
-                    }}
-                  >
-                    <div className="font-bold text-xl mt-6">
-                      Are you sure you want to delete this lead
-                    </div>
-                    <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
-                      <button
-                        className="w-1/2 font-bold text-xl text-[#6b7280] h-[50px]"
-                        onClick={() => {
-                          setShowDelModal(false)
-                        }}
-                      >
-                        Cancel
-                      </button>
-                      {delLeadLoader ? (
-                        <CircularProgress size={20} />
-                      ) : (
-                        <button
-                          className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
-                          onClick={async () => {
-                            await handleDeleteLead(selectedLeadsDetails)
-                            //  setShowDelModal(false)
+                            setShowDelModal(true)
+                          }}
+                          style={{
+                            marginTop: 20,
+                            alignSelf: 'end',
                           }}
                         >
-                          Delete
+                          <Image
+                            src={'/otherAssets/redDeleteIcon.png'}
+                            height={24}
+                            width={24}
+                            alt="del"
+                            style={{
+                              filter:
+                                'brightness(0) saturate(100%) opacity(0.5)', // Convert to black and make semi-transparent
+                            }}
+                          />
+
+                          <div
+                            style={{
+                              fontSize: 15,
+                              fontWeight: '600',
+                              color: '#15151590',
+                              textDecorationLine: 'underline',
+                            }}
+                          >
+                            Delete
+                          </div>
                         </button>
                       )}
                     </div>
                   </div>
                 </div>
-              </Box>
-            </Modal>
+              </div>
+            )}
           </div>
+
+          {/* Show Transcript UI Modal*/}
+
+          <Modal
+            open={isExpanded}
+            onClose={() => setIsExpanded(null)}
+            closeAfterTransition
+            BackdropProps={{
+              timeout: 1000,
+              sx: {
+                backgroundColor: '#00000020',
+              },
+            }}
+          >
+            <Box
+              className="lg:w-4/12 sm:w-4/12 w-6/12"
+              sx={styles.modalsStyle}
+            >
+              <div className="flex flex-row justify-center w-full">
+                <div
+                  className="w-full"
+                  style={{
+                    backgroundColor: '#ffffff',
+                    padding: 20,
+                    borderRadius: '13px',
+                  }}
+                >
+                  <div className="w-full flex flex-row items-center justify-between">
+                    <div className="font-bold text-xl mt-4 mb-4">
+                      Call Transcript
+                    </div>
+                    <div>
+                      <button
+                        className="font-bold outline-none border-none"
+                        onClick={() => setIsExpanded(null)}
+                      >
+                        <CloseIcon />
+                      </button>
+                    </div>
+                  </div>
+                  <TranscriptViewer callId={isExpanded?.id || ''} />
+                </div>
+              </div>
+            </Box>
+          </Modal>
+          {/* delete lead modal */}
+
+          <Modal
+            open={showDelModal}
+            onClose={() => setShowDelModal(false)}
+            closeAfterTransition
+            BackdropProps={{
+              timeout: 1000,
+              sx: {
+                backgroundColor: '#00000020',
+                // //backdropFilter: "blur(5px)",
+              },
+            }}
+          >
+            <Box
+              className="lg:w-4/12 sm:w-4/12 w-6/12"
+              sx={styles.modalsStyle}
+            >
+              <div className="flex flex-row justify-center w-full">
+                <div
+                  className="w-full"
+                  style={{
+                    backgroundColor: '#ffffff',
+                    padding: 20,
+                    borderRadius: '13px',
+                  }}
+                >
+                  <div className="font-bold text-xl mt-6">
+                    Are you sure you want to delete this lead
+                  </div>
+                  <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
+                    <button
+                      className="w-1/2 font-bold text-xl text-[#6b7280] h-[50px]"
+                      onClick={() => {
+                        setShowDelModal(false)
+                      }}
+                    >
+                      Cancel
+                    </button>
+                    {delLeadLoader ? (
+                      <CircularProgress size={20} />
+                    ) : (
+                      <button
+                        className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                        onClick={async () => {
+                          await handleDeleteLead(selectedLeadsDetails)
+                          //  setShowDelModal(false)
+                        }}
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </Box>
+          </Modal>
         </div>
+      </div>
     </>
   )
 
