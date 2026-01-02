@@ -1003,6 +1003,9 @@ function DialerModal({
           logLevel: 1, // DEBUG level (0=TRACE, 1=DEBUG, 2=INFO, 3=WARN, 4=ERROR, 5=SILENT)
           // Disable automatic error alerts
           allowIncomingWhileBusy: false,
+          // Configure edge for US/Canada users - use US East (ashburn) for best coverage
+          // This ensures device registers in US region, matching phone number configuration
+          edge: 'ashburn', // US East edge - change to 'umatilla' for US West if needed
         } as any)
         
         // #region agent log
@@ -1034,11 +1037,21 @@ function DialerModal({
         const deviceIdentity = (twilioDevice as any).identity
         // Try to get account SID from token
         let accountSid = 'unknown'
+        let edge = 'unknown'
+        let region = 'unknown'
         try {
           const tokenParts = data.token.split('.')
           if (tokenParts.length === 3) {
             const payload = JSON.parse(atob(tokenParts[1]))
             accountSid = payload.iss || 'unknown'
+          }
+          // Try to get edge/region from device's internal state
+          const deviceInternal = twilioDevice as any
+          if (deviceInternal._stream?.edge) {
+            edge = deviceInternal._stream.edge
+          }
+          if (deviceInternal._stream?.region) {
+            region = deviceInternal._stream.region
           }
         } catch (e) {
           // Ignore
@@ -1049,11 +1062,35 @@ function DialerModal({
           identity: deviceIdentity,
           accountSid: accountSid,
           twimlAppSid: (twilioDevice as any).outgoingConnection?.applicationSid || 'unknown',
+          edge: edge,
+          region: region,
         })
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1030', message: 'H1,H4,H5,H6: Device registered event', data: { state: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered, identity: deviceIdentity, accountSid, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H1,H4,H5,H6' }) }).catch(() => { });
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1030', message: 'H1,H4,H5,H6: Device registered event', data: { state: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered, identity: deviceIdentity, accountSid, edge, region, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H1,H4,H5,H6' }) }).catch(() => { });
         // #endregion
         clearTimeout(registrationTimeout)
+        
+        // Explicitly ensure device is listening for incoming calls
+        // This is a workaround for potential edge/region propagation issues
+        console.log('[DialerModal] Device registered - ensuring it stays registered for incoming calls')
+        // Explicitly call register() again to ensure device is actively listening
+        // This helps with edge/region propagation and ensures the device is ready for incoming calls
+        try {
+          if (twilioDevice.state !== 'registered') {
+            console.log('[DialerModal] Device state is not registered, calling register() explicitly')
+            twilioDevice.register()
+          } else {
+            console.log('[DialerModal] Device is already registered, ensuring it stays registered')
+            // Even if registered, call register() again to refresh the registration
+            // This helps with edge propagation and ensures Twilio knows the device is available
+            twilioDevice.register()
+          }
+        } catch (registerError: any) {
+          console.warn('[DialerModal] Error ensuring device registration:', registerError)
+        }
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1070', message: 'H6: Ensuring device stays registered for incoming calls', data: { state: twilioDevice.state, identity: deviceIdentity, edge, region, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H6' }) }).catch(() => { });
+        // #endregion
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:653', message: 'Device registered event fired', data: { state: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
         // #endregion
