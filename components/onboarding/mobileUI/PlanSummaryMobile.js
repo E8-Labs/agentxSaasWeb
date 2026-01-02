@@ -8,12 +8,19 @@ import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
 import { getNextChargeDate } from '@/components/userPlans/UserPlanServices'
 import SignupHeaderMobile from './SignupHeaderMobile'
 import LoaderAnimation from '@/components/animations/LoaderAnimation'
-
-function PlanSummaryMobile({ selectedPlan, onMakePayment, onEditPayment, isRedirecting: isRedirectingProp, handleBack }) {
+import { useUser } from '@/hooks/redux-hooks'
+function PlanSummaryMobile({ selectedPlan,
+   onMakePayment, onEditPayment, isRedirecting: isRedirectingProp, handleBack ,
+  
+  isSubscribing,
+  setIsSubscribing,
+}) {
   const [card, setCard] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [isSubscribing, setIsSubscribing] = useState(false)
+
   const [isRedirecting, setIsRedirecting] = useState(false)
+
+  const {user:reduxUser} = useUser()
 
   useEffect(() => {
     getCardsList()
@@ -154,26 +161,10 @@ function PlanSummaryMobile({ selectedPlan, onMakePayment, onEditPayment, isRedir
                     </div>
                   </>
                 ) : (
-                  <>
-                    <Image
-                      src="/svgIcons/Visa.svg"
-                      alt="Card"
-                      width={40}
-                      height={25}
-                      className="object-contain"
-                    />
-                    <div>
-                      <div className="text-base font-semibold text-black">
-                        **** 1234
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        Expiry: 12/28
-                      </div>
-                    </div>
-                  </>
+                ""
                 )}
               </div>
-              {onEditPayment && (
+              { onEditPayment && card && (
                 <button
                   onClick={onEditPayment}
                   className="text-purple-600 font-medium text-sm hover:text-purple-700"
@@ -199,7 +190,7 @@ function PlanSummaryMobile({ selectedPlan, onMakePayment, onEditPayment, isRedir
                   </div>
                 </div>
                 <div className="text-base font-semibold text-black">
-                  {quantity} x ${formatFractional2(planPrice)}
+                ${formatFractional2(planPrice)}
                 </div>
               </div>
 
@@ -222,7 +213,6 @@ function PlanSummaryMobile({ selectedPlan, onMakePayment, onEditPayment, isRedir
             <div className="flex justify-between items-start">
               <div>
                 <div className="text-lg font-bold text-black">Total:</div>
-                <div className="text-xs text-gray-500 mt-1">plus applicable taxes</div>
               </div>
               <div className="text-2xl font-bold text-black">
                 ${formatFractional2(totalPrice)}
@@ -261,7 +251,8 @@ function PlanSummaryMobile({ selectedPlan, onMakePayment, onEditPayment, isRedir
                 Processing Payment...
               </>
             ) : (
-              'Make Payment'
+
+              selectedPlan?.hasTrial == true ? 'Start Trial' : 'Make Payment'
             )}
           </button>
 

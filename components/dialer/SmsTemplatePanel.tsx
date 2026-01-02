@@ -158,9 +158,9 @@ export default function SmsTemplatePanel({
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="text-sm font-medium text-gray-900 mb-1">
+                      {/* <div className="text-sm font-medium text-gray-900 mb-1">
                         {template.templateName}
-                      </div>
+                      </div> */}
                       {template.content && (
                         <div className="text-xs text-gray-500 line-clamp-2">
                           {template.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
