@@ -1063,7 +1063,7 @@ function DialerModal({
           accountSid: accountSid,
           twimlAppSid: (twilioDevice as any).outgoingConnection?.applicationSid || 'unknown',
           edge: edge,
-          region: region,
+          // region: region,
         })
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1030', message: 'H1,H4,H5,H6: Device registered event', data: { state: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered, identity: deviceIdentity, accountSid, edge, region, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H1,H4,H5,H6' }) }).catch(() => { });
