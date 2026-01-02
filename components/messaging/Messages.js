@@ -55,6 +55,7 @@ const Messages = () => {
   const messagesContainerRef = useRef(null)
   const messagesTopRef = useRef(null)
   const richTextEditorRef = useRef(null)
+  const latestMessageIdRef = useRef(null)
   const [showNewMessageModal, setShowNewMessageModal] = useState(false)
   const [phoneNumbers, setPhoneNumbers] = useState([])
   const [emailAccounts, setEmailAccounts] = useState([])
@@ -508,6 +509,11 @@ const Messages = () => {
 
             // Set messages (newest at bottom)
             setMessages(fetchedMessages)
+            
+            // Update latest message ID ref
+            if (fetchedMessages.length > 0) {
+              latestMessageIdRef.current = fetchedMessages[fetchedMessages.length - 1]?.id || null
+            }
 
             // Check if there are more older messages
             // If we got exactly 500, there might be more. If less, we got all messages.
@@ -598,6 +604,11 @@ const Messages = () => {
             // Set messages (newest at bottom)
             setMessages(fetchedMessages)
             
+            // Update latest message ID ref
+            if (fetchedMessages.length > 0) {
+              latestMessageIdRef.current = fetchedMessages[fetchedMessages.length - 1]?.id || null
+            }
+            
             // Scroll to bottom instantly after DOM update (no visible animation)
             requestAnimationFrame(() => {
               requestAnimationFrame(() => {
@@ -665,6 +676,154 @@ const Messages = () => {
     }
   }, [])
 
+  // Update latest message ID ref when messages change
+  useEffect(() => {
+    if (messages.length > 0) {
+      latestMessageIdRef.current = messages[messages.length - 1]?.id || null
+    } else {
+      latestMessageIdRef.current = null
+    }
+  }, [messages])
+
+  // Poll for new messages every 5 seconds when a thread is selected
+  useEffect(() => {
+    if (!selectedThread?.id) {
+      latestMessageIdRef.current = null
+      return
+    }
+
+    const pollForNewMessages = async () => {
+      try {
+        const localData = localStorage.getItem('User')
+        if (!localData) return
+
+        const userData = JSON.parse(localData)
+        const token = userData.token
+
+        // Get the most recent message ID we currently have from ref
+        const currentLatestMessageId = latestMessageIdRef.current
+        
+        // Only poll if we have messages loaded (initial load will set the ref)
+        if (!currentLatestMessageId) {
+          // Wait for initial load to complete
+          return
+        }
+        
+        console.log(`🔄 [Polling] Checking for new messages in thread ${selectedThread.id}, latest ID: ${currentLatestMessageId}`)
+
+        // Fetch the latest messages (just the most recent ones to check for new messages)
+        // Fetch a larger batch to ensure we get the most recent messages, then take the last ones
+        const response = await axios.get(
+          `${Apis.getMessagesForThread}/${selectedThread.id}/messages`,
+          {
+            params: {
+              limit: 50, // Fetch a larger batch to ensure we get recent messages
+              offset: 0,
+            },
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+
+        if (response.data?.status && response.data?.data) {
+          const allFetchedMessages = response.data.data
+          
+          // Messages are returned in ascending order (oldest first), so get the last ones
+          // Take the last 10 messages to check for new ones
+          const latestMessages = allFetchedMessages.slice(-10)
+          
+          // Get the most recent message from the fetched batch
+          const serverLatestMessage = allFetchedMessages.length > 0 
+            ? allFetchedMessages[allFetchedMessages.length - 1] 
+            : null
+          
+          console.log(`🔄 [Polling] Fetched ${allFetchedMessages.length} messages, server latest ID: ${serverLatestMessage?.id}, current latest ID: ${currentLatestMessageId}`)
+          
+          // Check if there are new messages (messages with IDs greater than our latest)
+          if (currentLatestMessageId && serverLatestMessage) {
+            if (serverLatestMessage.id > currentLatestMessageId) {
+              // Get all messages with IDs greater than our latest from the entire fetched batch
+              const newMessages = allFetchedMessages.filter(
+                (msg) => msg.id > currentLatestMessageId
+              )
+
+              if (newMessages.length > 0) {
+                console.log(`🔄 [Polling] Found ${newMessages.length} new message(s) with IDs:`, newMessages.map(m => m.id))
+                
+                // Append new messages to the current messages
+                setMessages((prevMessages) => {
+                  // Avoid duplicates
+                  const existingIds = new Set(prevMessages.map((m) => m.id))
+                  const uniqueNewMessages = newMessages.filter(
+                    (m) => !existingIds.has(m.id)
+                  )
+                  
+                  if (uniqueNewMessages.length > 0) {
+                    // Sort by ID to maintain order
+                    const allMessages = [...prevMessages, ...uniqueNewMessages].sort(
+                      (a, b) => a.id - b.id
+                    )
+                    
+                    // Update the ref with the new latest message ID
+                    latestMessageIdRef.current = allMessages[allMessages.length - 1]?.id || null
+                    
+                    // Scroll to bottom when new messages arrive
+                    setTimeout(() => {
+                      if (messagesContainerRef.current) {
+                        messagesContainerRef.current.scrollTop = 
+                          messagesContainerRef.current.scrollHeight
+                      }
+                    }, 100)
+                    
+                    return allMessages
+                  }
+                  
+                  return prevMessages
+                })
+
+                // Update thread unread count if needed
+                setThreads((prevThreads) =>
+                  prevThreads.map((t) =>
+                    t.id === selectedThread.id
+                      ? { ...t, unreadCount: (t.unreadCount || 0) + newMessages.length }
+                      : t
+                  )
+                )
+              } else {
+                console.log(`🔄 [Polling] No new messages found (filtered count: ${newMessages.length})`)
+              }
+            } else {
+              console.log(`🔄 [Polling] Server latest (${serverLatestMessage.id}) <= current latest (${currentLatestMessageId}), no new messages`)
+            }
+          } else if (!currentLatestMessageId && allFetchedMessages.length > 0) {
+            // If we don't have any messages yet, but there are messages, fetch them
+            // This handles the case where messages arrive before initial load completes
+            fetchMessages(selectedThread.id, null, false)
+          }
+        }
+      } catch (error) {
+        console.error('Error polling for new messages:', error)
+        // Don't show error to user, just log it
+      }
+    }
+
+    // Poll immediately, then every 5 seconds
+    console.log(`🔄 [Polling] Starting polling for thread ${selectedThread.id}`)
+    pollForNewMessages()
+    const intervalId = setInterval(() => {
+      console.log(`🔄 [Polling] Interval tick for thread ${selectedThread.id}`)
+      pollForNewMessages()
+    }, 5000)
+
+    // Cleanup interval when thread changes or component unmounts
+    return () => {
+      console.log(`🔄 [Polling] Stopping polling for thread ${selectedThread.id}`)
+      clearInterval(intervalId)
+    }
+  }, [selectedThread?.id, fetchMessages])
+
   // Handle thread selection
   const handleThreadSelect = (thread) => {
     setSelectedThread(thread)
@@ -685,6 +844,15 @@ const Messages = () => {
     // Set composer data based on current mode
     const receiverEmail = thread.lead?.email// || thread.receiverEmail || ''
     const receiverPhone = thread.receiverPhoneNumber || thread.lead?.phone || ''
+
+    // Pre-populate CC/BCC from thread if available
+    const threadCcEmails = thread.ccEmails || []
+    const threadBccEmails = thread.bccEmails || []
+    
+    setCcEmails(threadCcEmails)
+    setBccEmails(threadBccEmails)
+    setCcInput('')
+    setBccInput('')
 
     setComposerData((prev) => ({
       ...prev,
@@ -887,18 +1055,23 @@ const Messages = () => {
     if (!content || typeof window === 'undefined') return content
     if (typeof content !== 'string') return content
 
+    // Preserve <br> tags by converting them to newlines before processing
+    // This way they survive the textContent extraction
+    let text = content.replace(/<br\s*\/?>/gi, '\n')
+
     // Extract plain text from HTML if needed for pattern matching
-    let text = content
-    if (typeof document !== 'undefined' && content.includes('<')) {
+    if (typeof document !== 'undefined' && text.includes('<')) {
       try {
         const tempDiv = document.createElement('div')
-        tempDiv.innerHTML = content
-        text = tempDiv.textContent || tempDiv.innerText || content
+        tempDiv.innerHTML = text
+        text = tempDiv.textContent || tempDiv.innerText || text
       } catch (e) {
         // If HTML parsing fails, use original content
-        text = content
+        text = text
       }
     }
+    
+    // Note: We'll convert newlines back to <br> in sanitizeHTML, so we keep them as \n here
 
     // Pattern 1: "Replying to [subject] [sender]" - Gmail style
     // Match patterns like "Replying to test Noah Nega Technical Developer"
@@ -1049,9 +1222,59 @@ const Messages = () => {
     // Remove quoted text first
     const cleanedContent = removeQuotedText(html)
 
-    return DOMPurify.sanitize(cleanedContent || '', {
-      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'span', 'h2', 'h3', 'h4'],
-      ALLOWED_ATTR: ['href', 'target', 'rel'],
+    // Ensure <br> tags are preserved and newlines are converted to <br> if needed
+    let processedContent = cleanedContent || ''
+    
+    // Normalize line endings first (handle \r\n, \r, and \n)
+    processedContent = processedContent.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+    
+    // If content doesn't have HTML tags but has newlines, convert them to <br>
+    if (!/<[^>]+>/.test(processedContent) && processedContent.includes('\n')) {
+      processedContent = processedContent.replace(/\n/g, '<br>')
+    } else if (processedContent.includes('\n')) {
+      // If it has HTML tags but also has newlines, convert newlines to <br>
+      // But preserve existing <br> tags
+      processedContent = processedContent.replace(/\n/g, '<br>')
+    }
+    
+    // Also handle HTML divs that represent line breaks
+    // Gmail/Outlook often use <div> tags for each line
+    // Pattern: <div>text</div> should become text<br>
+    // But be careful not to break nested structures
+    
+    // First, handle the common Gmail pattern: <div dir="ltr">Line 1<div>Line 2</div><div>Line 3</div></div>
+    // This should become: Line 1<br>Line 2<br>Line 3
+    
+    // Step 1: Convert simple divs with just text (no nested tags) - but only if they're direct children
+    // Match: <div>text</div> where text doesn't contain tags
+    processedContent = processedContent.replace(/<div[^>]*>([^<]+)<\/div>/gi, '$1<br>')
+    
+    // Step 2: Handle closing div followed by opening div (represents line break between divs)
+    processedContent = processedContent.replace(/<\/div>\s*<div[^>]*>/gi, '<br>')
+    
+    // Step 3: Clean up empty divs
+    processedContent = processedContent.replace(/<div[^>]*><\/div>/gi, '')
+    
+    // Step 4: Handle nested divs - convert outer div structure to preserve inner content
+    // Pattern: <div><div>text</div></div> should become text<br>
+    processedContent = processedContent.replace(/<div[^>]*><div[^>]*>([^<>]+)<\/div><\/div>/gi, '$1<br>')
+    
+    // Step 5: Remove any remaining div tags that might have attributes but no content
+    processedContent = processedContent.replace(/<div[^>]*><\/div>/gi, '')
+    
+    // Step 6: Remove trailing <br> if at end (but keep if it's meaningful)
+    processedContent = processedContent.replace(/<br>\s*$/gi, '')
+    
+    // Step 7: Also handle any remaining newlines that weren't converted (fallback for content that wasn't processed by backend)
+    processedContent = processedContent.replace(/\n/g, '<br>')
+    
+    // Step 8: Clean up multiple consecutive <br> tags (more than 2) to max 2
+    processedContent = processedContent.replace(/(<br>\s*){3,}/gi, '<br><br>')
+    
+    return DOMPurify.sanitize(processedContent, {
+      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'span', 'h2', 'h3', 'h4', 'div'],
+      ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+      KEEP_CONTENT: true,
     })
   }
 
@@ -1321,6 +1544,12 @@ const Messages = () => {
         formData.append('leadId', selectedThread.leadId)
         formData.append('subject', emailSubject)
         formData.append('body', composerData.body)
+
+        // Add threadId for CC/BCC persistence
+        if (selectedThread?.id) {
+          formData.append('threadId', selectedThread.id.toString())
+          console.log(`📧 Sending email with threadId: ${selectedThread.id} for CC/BCC persistence`)
+        }
 
         // Add replyToMessageId if we found one (for proper Gmail threading)
         if (replyToMessageId) {
