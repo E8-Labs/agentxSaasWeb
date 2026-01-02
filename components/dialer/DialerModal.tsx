@@ -2300,6 +2300,11 @@ function DialerModal({
 
   // Drag handlers
   const handleMouseDown = (e: React.MouseEvent, isCollapsed: boolean = false) => {
+    // Prevent dragging when script, SMS, or email panels are open
+    if (showScriptPanel || showSmsPanel || showEmailPanel) {
+      return // Don't allow dragging when panels are open
+    }
+    
     // Only allow dragging from header area or when clicking on empty space
     const target = e.target as HTMLElement
     if (target.closest('button') || target.closest('input') || target.closest('textarea')) {
