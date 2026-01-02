@@ -913,7 +913,13 @@ const UserAddCard = ({
               >
                 Terms & Conditions
               </a>{' '}
-              and agree to a 12-months license terms. Payments are billed yearly as selected.
+              {
+                reduxUser?.userRole === "agent" && (
+                  <>
+                    and agree to a 12-months license terms. Payments are billed yearly as selected.
+                  </>
+                )
+              }
             </p>
           </div>
         </div>
@@ -1399,8 +1405,13 @@ const UserAddCard = ({
                     >
                       Terms & Conditions
                     </a>
-                    and agree to a 12-month license term. Payments are billed{' '}
-                    {selectedPlan?.duration} as selected.
+                    {
+                      reduxUser?.userRole === "Agency" && (
+                        <>
+                          and agree to a 12-months license terms. Payments are billed yearly as selected.
+                        </>
+                      )
+                    }
                   </div>
                 )}
               </div>

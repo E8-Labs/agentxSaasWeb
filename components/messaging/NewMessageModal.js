@@ -948,7 +948,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                           </button>
                           {
                             (!reduxUser?.planCapabilities?.allowEmails
-                             ) && (
+                            ) && (
                               <UpgradeTagWithModal
                                 reduxUser={reduxUser}
                                 setReduxUser={setReduxUser}
@@ -1026,7 +1026,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                   <label className="text-sm font-medium whitespace-nowrap flex-shrink-0">To:</label>
                   <div className="relative flex-1 min-w-0">
                     {/* Tag Input Container */}
-                    <div 
+                    <div
                       className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
                       style={{ height: '42px', minHeight: '42px', maxWidth: '100%' }}
                       onClick={() => {
@@ -1036,19 +1036,6 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                       {/* Display first selected lead and badge if multiple */}
                       {selectedLeads.length > 0 ? (
                         <>
-                          <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
-                            <span className="text-sm text-gray-700 truncate max-w-[150px]">
-                              {selectedMode === 'email' 
-                                ? (selectedLeads[0].email || `${selectedLeads[0].firstName || ''} ${selectedLeads[0].lastName || ''}`.trim() || 'Lead')
-                                : (selectedLeads[0].phone || `${selectedLeads[0].firstName || ''} ${selectedLeads[0].lastName || ''}`.trim() || 'Lead')
-                              }
-                            </span>
-                            {selectedLeads.length > 1 && (
-                              <span className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0">
-                                +{selectedLeads.length - 1}
-                              </span>
-                            )}
-                          </div>
                           {/* Search Input - Always visible for adding more */}
                           <input
                             type="text"
@@ -1077,6 +1064,20 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                               }
                             }}
                           />
+                          <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
+                            <span className="text-sm text-gray-700 truncate max-w-[150px]">
+                              {selectedMode === 'email'
+                                ? (selectedLeads[0].email || `${selectedLeads[0].firstName || ''} ${selectedLeads[0].lastName || ''}`.trim() || 'Lead')
+                                : (selectedLeads[0].phone || `${selectedLeads[0].firstName || ''} ${selectedLeads[0].lastName || ''}`.trim() || 'Lead')
+                              }
+                            </span>
+                            {selectedLeads.length > 1 && (
+                              <span className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0">
+                                +{selectedLeads.length - 1}
+                              </span>
+                            )}
+                          </div>
+
                         </>
                       ) : (
                         <input
@@ -1172,7 +1173,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                           <label className="text-sm font-medium whitespace-nowrap pt-2">Cc:</label>
                           <div className="relative flex-1 min-w-0">
                             {/* Tag Input Container */}
-                            <div 
+                            <div
                               className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary"
                               style={{ minHeight: '42px' }}
                             >
@@ -1202,7 +1203,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                                 onBlur={handleCcInputBlur}
                                 placeholder={ccEmails.length === 0 ? "Add CC recipients" : ""}
                                 className="flex-1 h-full min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
-                                style={{ 
+                                style={{
                                   height: '100%',
                                   minHeight: '24px',
                                   padding: 0,
@@ -1217,7 +1218,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                           <label className="text-sm font-medium whitespace-nowrap pt-2">Bcc:</label>
                           <div className="relative flex-1 min-w-0">
                             {/* Tag Input Container */}
-                            <div 
+                            <div
                               className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary"
                               style={{ minHeight: '42px' }}
                             >
@@ -1247,7 +1248,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                                 onBlur={handleBccInputBlur}
                                 placeholder={bccEmails.length === 0 ? "Add BCC recipients" : ""}
                                 className="flex-1 h-full min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
-                                style={{ 
+                                style={{
                                   height: '100%',
                                   minHeight: '24px',
                                   padding: 0,
