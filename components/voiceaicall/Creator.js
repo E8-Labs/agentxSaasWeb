@@ -203,7 +203,7 @@ const Creator = ({ agentId, name }) => {
   // User loading messages to fake feedback...
   useEffect(() => {
     if (loading) {
-      setloadingMessage(`${name} is booting up...`)
+      setloadingMessage(`${name.slice(0, 10)} ${name.length > 10 ? '...' : ''} is booting up...`)
 
       const timer = setTimeout(() => {
         setloadingMessage('...getting coffee...')

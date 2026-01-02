@@ -281,12 +281,14 @@ function SMSTempletePopup({
             smsPhoneNumberId: selectedPhone?.id,
           })
         } else {
-          addRow({
-            templateId: createdTemplate.id,
-            communicationType: 'sms',
-            phone: selectedPhone,
-            smsPhoneNumberId: selectedPhone?.id,
-          })
+          if (addRow && typeof addRow === 'function') {
+            addRow({
+              templateId: createdTemplate.id,
+              communicationType: 'sms',
+              phone: selectedPhone,
+              smsPhoneNumberId: selectedPhone?.id,
+            })
+          }
         }
 
         // if (addRow && createdTemplate) {
@@ -945,8 +947,8 @@ function SMSTempletePopup({
               ) : (
                 <button
                   className={`flex flex-row items-center gap-2 px-6 py-3 h-[48px] text-[15px] font-[600] rounded-lg text-white transition-colors ${isSaveDisabled
-                      ? 'bg-gray-400 cursor-not-allowed'
-                      : 'bg-brand-primary hover:bg-brand-primary/90'
+                    ? 'bg-gray-400 cursor-not-allowed'
+                    : 'bg-brand-primary hover:bg-brand-primary/90'
                     }`}
                   disabled={isSaveDisabled}
                   onClick={handleSave}

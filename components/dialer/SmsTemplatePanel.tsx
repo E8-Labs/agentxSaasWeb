@@ -304,7 +304,7 @@ export default function SmsTemplatePanel({
             .map((pn: any) => ({ id: pn.id, phone: pn.phone }))}
           phoneLoading={phoneNumbersLoading}
           communicationType="sms"
-          addRow={null}
+          addRow={()=>{console.log('addRow')}}
           isEditing={isEditingTemplate}
           editingRow={editingTemplate}
           onUpdateRow={null}

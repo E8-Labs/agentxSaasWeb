@@ -979,14 +979,17 @@ const LeadDetails = ({
       // Prepare updated tags array
       const updatedTags = [...(selectedLeadsDetails.tags || []), trimmedTag]
 
-      // Call update lead API with tags
       const ApiData = {
         leadId: selectedLeadsDetails.id,
-        tags: updatedTags,
+        tag: trimmedTag,
+        smartListId: selectedLeadsDetails.sheetId,
+        phoneNumber:selectedLeadsDetails.phone
       }
 
+      console.log('ApiData for add tag is', ApiData)
+
       const ApiPath = Apis.updateLead
-      const response = await axios.post(ApiPath, ApiData, {
+      const response = await axios.put(ApiPath, ApiData, {
         headers: {
           Authorization: 'Bearer ' + AuthToken,
           'Content-Type': 'application/json',
@@ -995,6 +998,7 @@ const LeadDetails = ({
 
       if (response) {
         if (response.data.status === true) {
+          console.log('response of add tag api is', response.data)
           setSelectedLeadsDetails((prevDetails) => ({
             ...prevDetails,
             tags: updatedTags,
@@ -2342,11 +2346,13 @@ const LeadDetails = ({
                           )}
                           {selectedLeadsDetails && (
                             <div className="flex flex-row items-center gap-2">
+                            
                               <Tag
                                 size={16}
                                 color="#000000"
                               />
-                              <div className="flex-1 relative">
+                            
+                              <div className="flex-1 flex flex-row items-center justify-center gap-2">
                                 {/* Existing Tags Display */}
                                 {selectedLeadsDetails?.tags && selectedLeadsDetails.tags.length > 0 && (
                                   <div className="flex flex-row items-center gap-2 flex-wrap mb-2">
@@ -2404,7 +2410,7 @@ const LeadDetails = ({
                                 )}
 
                                 {/* Tag Input Field */}
-                                <div className="relative">
+                                <div className="">
                                   <input
                                     ref={tagInputRef}
                                     type="text"
@@ -2422,8 +2428,9 @@ const LeadDetails = ({
                                         setShowTagSuggestions(false)
                                       }, 200)
                                     }}
+                                  
                                     placeholder={selectedLeadsDetails?.tags && selectedLeadsDetails.tags.length > 0 ? "Add tag..." : "Add tags (press Enter, Space, or Comma)"}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                                    className="w-full text-[12px] px-2 py-1 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
                                     disabled={addTagLoader}
                                   />
                                   
