@@ -69,6 +69,14 @@ const initialState = {
   
   // Protection
   preventClose: false, // true when call is active
+  
+  // Incoming Call Banner
+  incomingCallBanner: {
+    visible: false,
+    callerPhoneNumber: '',
+    callerName: null,
+    leadId: null,
+  },
 }
 
 const dialerSlice = createSlice({
@@ -108,7 +116,7 @@ const dialerSlice = createSlice({
       // #endregion
       state.callStatus = action.payload
       // Auto-set preventClose based on call status
-      state.preventClose = ['in-call', 'ringing', 'connecting'].includes(action.payload)
+      state.preventClose = ['in-call', 'ringing', 'connecting', 'incoming-ringing'].includes(action.payload)
     },
 
     // Set phone numbers with timestamp
@@ -232,6 +240,27 @@ const dialerSlice = createSlice({
     resetDialer: (state) => {
       return initialState
     },
+
+    // Show incoming call banner
+    showIncomingCallBanner: (state, action) => {
+      const { callerPhoneNumber, callerName, leadId } = action.payload
+      state.incomingCallBanner = {
+        visible: true,
+        callerPhoneNumber: callerPhoneNumber || '',
+        callerName: callerName || null,
+        leadId: leadId || null,
+      }
+    },
+
+    // Hide incoming call banner
+    hideIncomingCallBanner: (state) => {
+      state.incomingCallBanner = {
+        visible: false,
+        callerPhoneNumber: '',
+        callerName: null,
+        leadId: null,
+      }
+    },
   },
 })
 
@@ -256,6 +285,8 @@ export const {
   setMinimized,
   updatePosition,
   resetDialer,
+  showIncomingCallBanner,
+  hideIncomingCallBanner,
 } = dialerSlice.actions
 
 // Selectors
@@ -299,6 +330,8 @@ export const selectShouldRefetchEmailAccounts = (state) => {
   const lastFetched = state.dialer.emailAccountsLastFetched
   return isCacheStale(lastFetched, CACHE_DURATION.emailAccounts) || state.dialer.emailAccounts.length === 0
 }
+
+export const selectIncomingCallBanner = (state) => state.dialer.incomingCallBanner
 
 export default dialerSlice.reducer
 

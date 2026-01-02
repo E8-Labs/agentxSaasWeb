@@ -50,6 +50,9 @@ import {
   toggleMinimized,
   setMinimized,
   updatePosition,
+  openDialer,
+  showIncomingCallBanner,
+  hideIncomingCallBanner,
 } from '@/store/slices/dialerSlice'
 
 // @ts-ignore - Twilio Voice SDK types
@@ -67,6 +70,7 @@ const SIMULATE_CALL_FLOW = process.env.NEXT_PUBLIC_SIMULATE_DIALER === 'true'
 // Use window object to persist across module reloads (Next.js HMR can reload modules)
 let globalDeviceStore: Device | null = null
 let globalCallStore: Call | null = null
+let globalIncomingCallStore: Call | null = null
 let globalHasInitialized = false
 let globalIsInitializing = false
 
@@ -169,7 +173,7 @@ const setGlobalIsInitializing = (value: boolean) => {
   }
 }
 
-type CallStatus = 'idle' | 'requesting-mic' | 'connecting' | 'ringing' | 'in-call' | 'ended' | 'error'
+type CallStatus = 'idle' | 'requesting-mic' | 'connecting' | 'ringing' | 'in-call' | 'ended' | 'error' | 'incoming-ringing'
 
 interface DialerModalProps {
   open: boolean
@@ -336,6 +340,14 @@ function DialerModal({
   // This ensures device and call persist across page changes and component remounts
   const [device, setDevice] = useState<Device | null>(getGlobalDevice() || deviceRef.current)
   const [activeCall, setActiveCall] = useState<Call | null>(getGlobalCall() || activeCallRef.current)
+  
+  // Incoming call state
+  const [incomingCall, setIncomingCall] = useState<Call | null>(null)
+  const [incomingCallerInfo, setIncomingCallerInfo] = useState<{
+    from: string
+    to: string
+    callerName?: string
+  } | null>(null)
   
   // Sync refs and window/global store with state when state changes (but preserve if state is lost)
   useEffect(() => {
@@ -642,9 +654,9 @@ function DialerModal({
       }
       
       if ((isClosingRef.current || !dialogJustOpened.current) && !isCallActive) {
-        console.log('[DialerModal] Modal closing, cleaning up device (no active call)')
+        console.log('[DialerModal] Modal closing, but keeping device registered for incoming calls')
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:291', message: 'Cleanup executing', data: { reduxCallStatus, localCallStatus: callStatus }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:291', message: 'Modal closing - preserving device for incoming calls', data: { reduxCallStatus, localCallStatus: callStatus, hasDevice: !!device }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
         // #endregion
 
         // Clear simulation
@@ -653,37 +665,22 @@ function DialerModal({
           simulationTimeoutRef.current = null
         }
 
-        // Only cleanup if no active call exists
-        if (device && !isCallActive) {
-          try {
-            device.destroy()
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:545', message: 'Device destroyed - explicitly clearing window store', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'J' }) }).catch(() => { });
-            // #endregion
-            // Explicitly clear window store only after device is destroyed
-            if (typeof window !== 'undefined') {
-              (window as any).__dialerGlobalDevice = null
-            }
-          } catch (e) {
-            console.error('Error destroying device:', e)
-          }
-          setDevice(null)
-          deviceRef.current = null
-          globalDeviceStore = null // Clear module-level store only (setGlobalDevice preserves window store)
-        }
+        // IMPORTANT: Do NOT destroy the device when modal closes
+        // The device must stay registered to receive incoming calls
+        // Only destroy on explicit cleanup (logout, refresh, etc.)
+        // The device will remain registered in the background
+        console.log('[DialerModal] Device preserved for incoming calls - not destroying')
         
-        // Don't reset device state if there's an active call
+        // Don't reset device state - keep it registered for incoming calls
+        // Only reset call status to idle (not device registration)
         if (!isCallActive) {
           // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:308', message: 'Resetting state to idle', data: { reduxCallStatus, localCallStatus: callStatus }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:308', message: 'Resetting call status to idle, but keeping device registered', data: { reduxCallStatus, localCallStatus: callStatus, deviceRegistered }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
           // #endregion
-          dispatch(updateDeviceState({ deviceRegistered: false }))
+          // Keep deviceRegistered as true - device stays registered for incoming calls
+          // Only reset call status
           updateCallStatusInRedux('idle')
-          // Reset initialization flag when closing (only if no active call)
-          hasInitializedRef.current = false
-          isInitializingRef.current = false
-          setGlobalHasInitialized(false)
-          setGlobalIsInitializing(false)
+          // Don't reset initialization flags - device is still initialized and registered
         } else {
           console.log('[DialerModal] Preserving device and call state - active call in progress')
         }
@@ -963,6 +960,7 @@ function DialerModal({
         hasVoiceGrant: boolean
         hasOutgoingApp: boolean
         identity: any
+        accountSid: any
         exp: any
         iat: any
       } = 'invalid'
@@ -975,9 +973,19 @@ function DialerModal({
             hasVoiceGrant: !!payload.grants?.voice,
             hasOutgoingApp: !!payload.grants?.voice?.outgoing?.application_sid,
             identity: payload.grants?.identity,
+            accountSid: payload.iss, // JWT issuer is the Account SID
             exp: payload.exp,
             iat: payload.iat,
           }
+          // Log Twilio account info for debugging
+          console.log('[DialerModal] Access Token Details:', {
+            accountSid: payload.iss,
+            identity: payload.grants?.identity,
+            twimlAppSid: payload.grants?.voice?.outgoing?.application_sid,
+          })
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:981', message: 'H3,H4: Access token decoded on frontend', data: { accountSid: payload.iss, identity: payload.grants?.identity, twimlAppSid: payload.grants?.voice?.outgoing?.application_sid, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H3,H4' }) }).catch(() => { });
+          // #endregion
         }
       } catch (e) {
         tokenPreview = 'decode_error'
@@ -1023,7 +1031,28 @@ function DialerModal({
       }, 10000)
 
       twilioDevice.on('registered', () => {
-        console.log('Twilio Device registered')
+        const deviceIdentity = (twilioDevice as any).identity
+        // Try to get account SID from token
+        let accountSid = 'unknown'
+        try {
+          const tokenParts = data.token.split('.')
+          if (tokenParts.length === 3) {
+            const payload = JSON.parse(atob(tokenParts[1]))
+            accountSid = payload.iss || 'unknown'
+          }
+        } catch (e) {
+          // Ignore
+        }
+        console.log('[DialerModal] Twilio Device registered:', {
+          state: twilioDevice.state,
+          isRegistered: (twilioDevice as any).isRegistered,
+          identity: deviceIdentity,
+          accountSid: accountSid,
+          twimlAppSid: (twilioDevice as any).outgoingConnection?.applicationSid || 'unknown',
+        })
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1030', message: 'H1,H4,H5,H6: Device registered event', data: { state: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered, identity: deviceIdentity, accountSid, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H1,H4,H5,H6' }) }).catch(() => { });
+        // #endregion
         clearTimeout(registrationTimeout)
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:653', message: 'Device registered event fired', data: { state: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
@@ -1090,11 +1119,32 @@ function DialerModal({
       }, 1000)
       
       twilioDevice.on('unregistered', (reason: string) => {
-        console.log('Twilio Device unregistered:', reason)
+        console.log('[DialerModal] ⚠️ Device unregistered:', {
+          reason,
+          state: twilioDevice.state,
+          identity: (twilioDevice as any).identity,
+        })
+        console.log('[DialerModal] ⚠️ This will prevent incoming calls from working!')
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:330', message: 'Device unregistered', data: { reason, state: twilioDevice.state }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1115', message: 'H1: Device unregistered event', data: { reason, state: twilioDevice.state, identity: (twilioDevice as any).identity, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H1' }) }).catch(() => { });
         // #endregion
         dispatch(updateDeviceState({ deviceRegistered: false }))
+        
+        // Try to re-register if unregistered unexpectedly
+        if (reason && !reason.includes('token')) {
+          console.log('[DialerModal] Attempting to re-register device...')
+          try {
+            twilioDevice.register()
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1130', message: 'H1: Attempting re-registration after unregister', data: { reason, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H1' }) }).catch(() => { });
+            // #endregion
+          } catch (e) {
+            console.error('[DialerModal] Failed to re-register:', e)
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1135', message: 'H1: Re-registration failed', data: { error: String(e), timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H1' }) }).catch(() => { });
+            // #endregion
+          }
+        }
       })
 
       twilioDevice.on('error', (error: any) => {
@@ -1123,15 +1173,73 @@ function DialerModal({
       
       // Listen for warning events (might indicate registration issues)
       twilioDevice.on('warning', (name: string, data: any) => {
-        console.warn('Twilio Device warning:', name, data)
+        console.warn('[DialerModal] Twilio Device warning:', name, data)
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:343', message: 'Device warning event', data: { warningName: name, warningData: data }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
         // #endregion
       })
+      
+      // Listen for state changes to track registration progress
+      const originalState = twilioDevice.state
+      console.log('[DialerModal] Device initial state:', originalState)
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1180', message: 'H5: Device initial state', data: { state: originalState, isRegistered: (twilioDevice as any).isRegistered, identity: (twilioDevice as any).identity, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H5' }) }).catch(() => { });
+      // #endregion
+      
+      // Monitor state changes
+      const stateCheck = setInterval(() => {
+        const currentState = twilioDevice.state
+        if (currentState !== originalState) {
+          console.log('[DialerModal] Device state changed:', {
+            from: originalState,
+            to: currentState,
+            isRegistered: (twilioDevice as any).isRegistered,
+            identity: (twilioDevice as any).identity,
+          })
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1190', message: 'H5: Device state changed', data: { from: originalState, to: currentState, isRegistered: (twilioDevice as any).isRegistered, identity: (twilioDevice as any).identity, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H5' }) }).catch(() => { });
+          // #endregion
+        }
+        // Also log periodic state check to verify device stays registered
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1195', message: 'H5: Periodic device state check', data: { state: currentState, isRegistered: (twilioDevice as any).isRegistered, identity: (twilioDevice as any).identity, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H5' }) }).catch(() => { });
+        // #endregion
+      }, 5000) // Check every 5 seconds
+      
+      // Clear interval after 2 minutes to allow monitoring during test
+      setTimeout(() => clearInterval(stateCheck), 120000)
 
       twilioDevice.on('incoming', (call: Call) => {
-        console.log('Incoming call:', call)
-        // Handle incoming calls if needed
+        console.log('[DialerModal] ✅✅✅ INCOMING CALL EVENT RECEIVED ✅✅✅')
+        console.log('[DialerModal] Incoming call event received:', {
+          callSid: call.parameters?.CallSid,
+          from: call.parameters?.From,
+          to: call.parameters?.To,
+          deviceState: twilioDevice.state,
+          isRegistered: (twilioDevice as any).isRegistered,
+          deviceIdentity: (twilioDevice as any).identity,
+          hasActiveCall: !!activeCall,
+        })
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1190', message: 'H2,H6: Incoming call event received on device', data: { callSid: call.parameters?.CallSid, from: call.parameters?.From, to: call.parameters?.To, deviceState: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered, deviceIdentity: (twilioDevice as any).identity, hasActiveCall: !!activeCall, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H2,H6' }) }).catch(() => { });
+        // #endregion
+        handleIncomingCall(call)
+      })
+      
+      // Log when device is ready to receive incoming calls
+      console.log('[DialerModal] Device incoming call listener set up. Device should receive incoming calls now.')
+      console.log('[DialerModal] Current device state:', {
+        state: twilioDevice.state,
+        isRegistered: (twilioDevice as any).isRegistered,
+        identity: (twilioDevice as any).identity,
+      })
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1205', message: 'H2: Incoming call listener attached', data: { state: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered, identity: (twilioDevice as any).identity, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H2' }) }).catch(() => { });
+      // #endregion
+      
+      // Log device identity when registered
+      twilioDevice.on('registered', () => {
+        console.log('[DialerModal] Device registered with identity:', (twilioDevice as any).identity)
       })
 
 
@@ -1370,6 +1478,17 @@ function DialerModal({
         if (!callEndedInError && callStatus !== 'error') {
         // toast.info('Call ended')
         }
+        
+        // Log device state after call ends to ensure it's still registered for incoming calls
+        console.log('[DialerModal] Call disconnected. Device state:', {
+          state: device?.state,
+          isRegistered: (device as any)?.isRegistered,
+          identity: (device as any)?.identity,
+        })
+        console.log('[DialerModal] Device should still be registered for incoming calls')
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1434', message: 'H1,H5: Device state after outbound call disconnect', data: { deviceState: device?.state, isRegistered: (device as any)?.isRegistered, identity: (device as any)?.identity, callStatus: newStatus, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H1,H5' }) }).catch(() => { });
+        // #endregion
       })
 
       call.on('cancel', () => {
@@ -1424,6 +1543,12 @@ function DialerModal({
       simulationTimeoutRef.current = null
     }
 
+    // If there's an incoming call, reject it
+    if (incomingCall && callStatus === 'incoming-ringing') {
+      handleRejectIncomingCall()
+      return
+    }
+
     if (activeCall) {
       // Only disconnect if it's a real call (not simulation)
       if (SIMULATE_CALL_FLOW && !device) {
@@ -1456,7 +1581,7 @@ function DialerModal({
       // Don't reset callDuration - keep it for the summary
         dispatch(updateCallState({ isMuted: false, isOnHold: false, callEndedInError: false }))
         dispatch(updateUIPanel({ panel: 'script', value: false }))
-    } else if (callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting') {
+    } else if (callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting' || callStatus === 'incoming-ringing') {
       // If there's no active call but status indicates a call was happening, set to ended
       setCallStatus('ended')
       // Stop call duration timer
@@ -1465,6 +1590,237 @@ function DialerModal({
         callDurationIntervalRef.current = null
       }
     }
+  }
+
+  // Lookup lead by phone number
+  const lookupLeadByPhone = async (phoneNumber: string) => {
+    try {
+      const user = JSON.parse(localStorage.getItem('User') || '{}')
+      if (!user?.id) return null
+
+      const response = await fetch(`/api/leads/getLeadByPhone?phone=${encodeURIComponent(phoneNumber)}&userId=${user.id}`)
+      if (!response.ok) return null
+
+      const data = await response.json()
+      // The API returns results array with lead data
+      if (data?.results?.[0]?.result) {
+        return data.results[0].result
+      }
+      // Alternative response format
+      if (data?.lead) {
+        return data.lead
+      }
+      return null
+    } catch (error) {
+      console.error('Error looking up lead by phone:', error)
+      return null
+    }
+  }
+
+  // Setup call event handlers (reusable for both outbound and incoming calls)
+  const setupCallEventHandlers = (call: Call) => {
+    call.on('accept', () => {
+      updateCallStatusInRedux('in-call')
+      // Start call duration timer - use ref to track duration locally for interval
+      callDurationRef.current = 0
+      dispatch(updateCallState({ callDuration: 0 }))
+      if (callDurationIntervalRef.current) {
+        clearInterval(callDurationIntervalRef.current)
+      }
+      callDurationIntervalRef.current = setInterval(() => {
+        callDurationRef.current += 1
+        dispatch(updateCallState({ callDuration: callDurationRef.current }))
+      }, 1000)
+    })
+
+    call.on('disconnect', () => {
+      // Preserve error status if call ended in error
+      const newStatus = callStatus === 'error' || callEndedInError ? 'error' : 'ended'
+      updateCallStatusInRedux(newStatus)
+      setActiveCall(null)
+      activeCallRef.current = null
+      globalCallStore = null // Clear module-level store
+      // Stop call duration timer (but keep the duration value for summary)
+      if (callDurationIntervalRef.current) {
+        clearInterval(callDurationIntervalRef.current)
+        callDurationIntervalRef.current = null
+      }
+      // Don't reset callDuration - keep it for the Call Summary
+      dispatch(updateCallState({ isMuted: false, isOnHold: false }))
+      dispatch(updateUIPanel({ panel: 'script', value: false }))
+    })
+
+    call.on('cancel', () => {
+      updateCallStatusInRedux('ended')
+      setActiveCall(null)
+      activeCallRef.current = null
+      globalCallStore = null // Clear module-level store
+      // Stop call duration timer
+      if (callDurationIntervalRef.current) {
+        clearInterval(callDurationIntervalRef.current)
+        callDurationIntervalRef.current = null
+      }
+      callDurationRef.current = 0
+      dispatch(updateCallState({ callDuration: 0, isMuted: false, isOnHold: false }))
+      dispatch(updateUIPanel({ panel: 'script', value: false }))
+    })
+
+    call.on('error', (error: any) => {
+      console.error('Call error:', error)
+      updateCallStatusInRedux('error')
+      dispatch(updateCallState({ callEndedInError: true }))
+      setActiveCall(null)
+      activeCallRef.current = null
+      globalCallStore = null // Clear module-level store
+      let errorMsg = 'Call failed'
+      if (error.code === 31005) {
+        errorMsg = 'Connection error. The call could not be established. This may be due to network issues or an invalid phone number.'
+      } else if (error.code === 31008) {
+        errorMsg = 'Call rejected. The number may be invalid or unreachable.'
+      } else if (error.code === 31205) {
+        errorMsg = 'Invalid access token. Please refresh and try again.'
+      } else if (error.message) {
+        errorMsg = `Call error: ${error.message}`
+      }
+      toast.error(errorMsg)
+    })
+  }
+
+  // Handle incoming call rejection/cleanup
+  const handleIncomingCallRejected = () => {
+    setIncomingCall(null)
+    setIncomingCallerInfo(null)
+    globalIncomingCallStore = null
+    if (typeof window !== 'undefined') {
+      (window as any).__dialerGlobalIncomingCall = null
+    }
+    dispatch(hideIncomingCallBanner())
+    if (callStatus === 'incoming-ringing') {
+      updateCallStatusInRedux('idle')
+    }
+  }
+
+  // Handle reject incoming call
+  const handleRejectIncomingCall = () => {
+    const callToReject = incomingCall || globalIncomingCallStore || (typeof window !== 'undefined' ? (window as any).__dialerGlobalIncomingCall : null)
+    if (callToReject) {
+      try {
+        callToReject.reject()
+      } catch (error: any) {
+        console.error('Error rejecting incoming call:', error)
+        toast.error('Failed to reject call')
+      }
+    }
+    handleIncomingCallRejected()
+  }
+
+  // Handle accept incoming call
+  const handleAcceptIncomingCall = async () => {
+    // Get call from state, ref, or global store (in case called from banner)
+    const callToAccept = incomingCall || globalIncomingCallStore || (typeof window !== 'undefined' ? (window as any).__dialerGlobalIncomingCall : null)
+    if (!callToAccept) return
+
+    try {
+      // Request microphone permission
+      setCallStatus('requesting-mic')
+      updateCallStatusInRedux('requesting-mic')
+      
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      stream.getTracks().forEach((track) => track.stop()) // Stop immediately, Device will handle it
+
+      // Accept the call
+      callToAccept.accept()
+      
+      // Set as active call
+      setActiveCall(callToAccept)
+      activeCallRef.current = callToAccept
+      setGlobalCall(callToAccept)
+      
+      // Clear incoming call state
+      setIncomingCall(null)
+      setIncomingCallerInfo(null)
+      globalIncomingCallStore = null
+      if (typeof window !== 'undefined') {
+        (window as any).__dialerGlobalIncomingCall = null
+      }
+      dispatch(hideIncomingCallBanner())
+      
+      // Setup event handlers
+      setupCallEventHandlers(callToAccept)
+      
+      // Update status - the 'accept' event will fire and update to 'in-call'
+      updateCallStatusInRedux('ringing')
+    } catch (error: any) {
+      console.error('Error accepting incoming call:', error)
+      updateCallStatusInRedux('error')
+      toast.error(`Failed to accept call: ${error.message}`)
+      handleIncomingCallRejected()
+    }
+  }
+
+  // Handle incoming call
+  const handleIncomingCall = async (call: Call) => {
+    console.log('[DialerModal] Incoming call received:', {
+      hasDevice: !!device,
+      deviceRegistered,
+      deviceState: device?.state,
+      isRegistered: (device as any)?.isRegistered,
+      callParameters: call.parameters,
+    })
+
+    // Check if there's an active call - reject if allowIncomingWhileBusy is false
+    if (activeCall || activeCallRef.current) {
+      // Reject incoming call automatically
+      try {
+        call.reject()
+        toast.info('Incoming call rejected - another call is active')
+      } catch (error: any) {
+        console.error('Error rejecting incoming call:', error)
+      }
+      return
+    }
+
+    // Extract caller information
+    const from = call.parameters?.From || call.parameters?.from || ''
+    const to = call.parameters?.To || call.parameters?.to || ''
+
+    console.log('[DialerModal] Incoming call details:', { from, to, callSid: call.parameters?.CallSid })
+
+    // Store incoming call in state and global store
+    setIncomingCall(call)
+    setIncomingCallerInfo({ from, to })
+    globalIncomingCallStore = call
+    if (typeof window !== 'undefined') {
+      (window as any).__dialerGlobalIncomingCall = call
+    }
+
+    // Update Redux status
+    updateCallStatusInRedux('incoming-ringing')
+
+    // Lookup lead by phone number and show banner
+    lookupLeadByPhone(from).then((lead) => {
+      dispatch(showIncomingCallBanner({
+        callerPhoneNumber: from,
+        callerName: lead ? (lead.name || lead.firstName || '') : null,
+        leadId: lead ? lead.id : null,
+      }))
+    }).catch(() => {
+      // If lookup fails, show banner with just phone number
+      dispatch(showIncomingCallBanner({
+        callerPhoneNumber: from,
+        callerName: null,
+        leadId: null,
+      }))
+    })
+
+    // Set up event listeners for when caller hangs up or call is rejected
+    call.on('cancel', () => {
+      handleIncomingCallRejected()
+    })
+
+    call.on('reject', () => {
+      handleIncomingCallRejected()
+    })
   }
 
   // Handle mute toggle
@@ -1891,6 +2247,7 @@ function DialerModal({
       connecting: 'bg-blue-500',
       ringing: 'bg-blue-500',
       'in-call': 'bg-green-500',
+      'incoming-ringing': 'bg-blue-500',
       ended: 'bg-gray-500',
       error: 'bg-red-500',
     }
@@ -2140,7 +2497,7 @@ function DialerModal({
 
   // Collapsed UI component
   const CollapsedDialer = () => {
-    if (!isMinimized || (callStatus !== 'in-call' && callStatus !== 'ringing' && callStatus !== 'connecting')) {
+    if (!isMinimized || (callStatus !== 'in-call' && callStatus !== 'ringing' && callStatus !== 'connecting' && callStatus !== 'incoming-ringing')) {
       return null
   }
 
@@ -2315,13 +2672,14 @@ function DialerModal({
                           onClick={(e) => {
                             e.stopPropagation()
             // If there's an active call OR call is in any active state, disconnect it immediately
-            // Active states: 'requesting-mic', 'connecting', 'ringing', 'in-call'
+            // Active states: 'requesting-mic', 'connecting', 'ringing', 'in-call', 'incoming-ringing'
             const isActiveCallState = callStatus === 'requesting-mic' || 
                                      callStatus === 'connecting' || 
                                      callStatus === 'ringing' || 
-                                     callStatus === 'in-call'
+                                     callStatus === 'in-call' ||
+                                     callStatus === 'incoming-ringing'
             
-            if (activeCall || isActiveCallState) {
+            if (activeCall || isActiveCallState || incomingCall) {
               handleEndCall()
             }
             // Reset dialer state to idle
@@ -2434,6 +2792,24 @@ function DialerModal({
                       {formatPhoneNumber(selectedInternalNumber.phone)}
                     </div>
                   )}
+                </>
+              ) : callStatus === 'incoming-ringing' ? (
+                <>
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src="/svgIcons/dialer/OLD AGENTX UI/dialer_outoing_green_arrow.svg"
+                      alt="Incoming call"
+                      width={16}
+                      height={16}
+                      style={{ transform: 'rotate(180deg)' }}
+                    />
+                    <span className="text-sm font-semibold text-gray-900">
+                      Incoming
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-500 ml-[24px]">
+                    {incomingCallerInfo?.from ? formatPhoneNumber(incomingCallerInfo.from) : 'Unknown caller'}
+                  </div>
                 </>
               ) : (callStatus === 'ringing' || callStatus === 'in-call' || callStatus === 'connecting') ? (
                 <>
@@ -2673,7 +3049,7 @@ function DialerModal({
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6" style={{ paddingBottom: callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting' ? '80px' : (callStatus === 'ended' || callStatus === 'error') ? '16px' : '24px' }}>
+          <div className="flex-1 overflow-y-auto p-6" style={{ paddingBottom: callStatus === 'in-call' || callStatus === 'ringing' || callStatus === 'connecting' || callStatus === 'incoming-ringing' ? '80px' : (callStatus === 'ended' || callStatus === 'error') ? '16px' : '24px' }}>
           {checkingDialerNumber || initializing ? (
             <div className="text-center py-8">
               <div className="text-sm text-gray-500">Connecting...</div>
@@ -2689,8 +3065,75 @@ function DialerModal({
             </div>
           ) : (
               <div className="space-y-6">
-                {/* Call Status Section - Show when call is active */}
-                {(callStatus === 'ringing' || callStatus === 'in-call' || callStatus === 'connecting') ? (
+                {/* Incoming Call Section */}
+                {callStatus === 'incoming-ringing' ? (
+                  <div className="space-y-4">
+                    {/* Contact Info */}
+                    <div className="flex flex-col items-center space-y-2 py-4">
+                      <div
+                        className="w-20 h-20 rounded-full flex items-center justify-center"
+                        style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.1)' }}
+                      >
+                        <span
+                          className="text-3xl font-semibold"
+                          style={{ color: 'hsl(var(--brand-primary))' }}
+                        >
+                          {leadName ? leadName.charAt(0).toUpperCase() : incomingCallerInfo?.from?.charAt(incomingCallerInfo.from.length - 1) || '?'}
+                        </span>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-semibold text-base">
+                          {leadName || (incomingCallerInfo?.from ? formatPhoneNumber(incomingCallerInfo.from) : 'Unknown Caller')}
+                        </div>
+                        {leadName && incomingCallerInfo?.from && (
+                          <div className="text-sm text-gray-500">{formatPhoneNumber(incomingCallerInfo.from)}</div>
+                        )}
+                        <div className="text-sm text-gray-500 mt-2">Incoming call...</div>
+                      </div>
+                    </div>
+
+                    {/* Accept/Reject Buttons */}
+                    <div className="flex items-center justify-center gap-4 py-4">
+                      {/* Reject Button */}
+                      <button
+                        onClick={handleRejectIncomingCall}
+                        className="flex items-center justify-center transition-colors hover:bg-red-50 bg-white"
+                        style={{
+                          width: '64px',
+                          height: '64px',
+                          borderRadius: '50%',
+                          border: '2px solid #ef4444',
+                          padding: 0,
+                        }}
+                      >
+                        <Phone
+                          size={24}
+                          className="rotate-135"
+                          style={{ color: '#ef4444' }}
+                        />
+                      </button>
+                      
+                      {/* Accept Button */}
+                      <button
+                        onClick={handleAcceptIncomingCall}
+                        className="flex items-center justify-center transition-colors hover:bg-green-50"
+                        style={{
+                          width: '64px',
+                          height: '64px',
+                          borderRadius: '50%',
+                          backgroundColor: '#10b981',
+                          border: '2px solid #10b981',
+                          padding: 0,
+                        }}
+                      >
+                        <Phone
+                          size={24}
+                          style={{ color: 'white' }}
+                        />
+                      </button>
+                    </div>
+                  </div>
+                ) : (callStatus === 'ringing' || callStatus === 'in-call' || callStatus === 'connecting') ? (
                   <div className="space-y-4">
                     {/* Contact Info */}
                     <div className="flex flex-col items-center space-y-2 py-4">
