@@ -40,6 +40,7 @@ import { getPolicyUrls } from '@/utils/getPolicyUrls'
 // import Apis from '../Apis/Apis';
 
 const AgencyAddCard = ({
+  handleBack,
   subscribePlan,
   subscribeLoader,
   fromMYPlansScreen,
@@ -213,10 +214,6 @@ const AgencyAddCard = ({
     return <div>Loading stripe</div>
   } else {
     ////console.log;
-  }
-  const handleBackClick = (e) => {
-    e.preventDefault()
-    handleBack()
   }
   const elementOptions = {
     style: {
@@ -837,7 +834,7 @@ const AgencyAddCard = ({
                           >
                             {`Total Billed ${selectedPlan?.billingCycle || selectedPlan?.duration || 'No Plan Selected'}`}
                           </div>
-                          <div
+                          {/* <div
                             style={{
                               fontWeight: '400',
                               fontSize: 13,
@@ -845,7 +842,7 @@ const AgencyAddCard = ({
                             }}
                           >
                             Next Charge Date {getNextChargeDate(selectedPlan)}
-                          </div>
+                          </div> */}
                         </div>
                         <div style={{ fontWeight: '600', fontSize: 15 }}>
                           {(() => {
@@ -965,39 +962,48 @@ const AgencyAddCard = ({
               </label>
             </div>
 
-            {/* Continue Button */}
-            <button
-              onClick={handleAddCard}
-              disabled={
-                !CardAdded ||
-                !CardExpiry ||
-                !CVC ||
-                addCardLoader ||
-                disableContinue ||
-                isSubscribingRef.current ||
-                !agreeTerms
-              }
-              className={`w-full h-[50px] rounded-xl font-bold text-white text-lg transition-all ${
-                !CardAdded ||
-                !CardExpiry ||
-                !CVC ||
-                addCardLoader ||
-                disableContinue ||
-                isSubscribingRef.current ||
-                !agreeTerms
-                  ? 'bg-gray-300 cursor-not-allowed'
-                  : 'bg-brand-primary hover:opacity-90 shadow-lg active:scale-98'
-              }`}
-            >
-              {addCardLoader ? (
-                <div className="flex items-center justify-center gap-2">
-                  <CircularProgress size={20} color="inherit" />
-                  <span>Processing...</span>
-                </div>
-              ) : (
-                'Continue'
-              )}
-            </button>
+            <div className="flex flex-row justify-between items-center mt-8 w-full">
+              <button
+                onClick={handleBack}
+                className=" text-brand-primary px-4 font-semibold py-4 rounded-xl text-lg hover:bg-gray-200 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              >
+                Back
+              </button>
+
+              {/* Continue Button */}
+              <button
+                onClick={handleAddCard}
+                disabled={
+                  !CardAdded ||
+                  !CardExpiry ||
+                  !CVC ||
+                  addCardLoader ||
+                  disableContinue ||
+                  isSubscribingRef.current ||
+                  !agreeTerms
+                }
+                className={`w-1/2 h-[50px] rounded-xl font-bold text-white text-lg transition-all ${
+                  !CardAdded ||
+                  !CardExpiry ||
+                  !CVC ||
+                  addCardLoader ||
+                  disableContinue ||
+                  isSubscribingRef.current ||
+                  !agreeTerms
+                    ? 'bg-gray-300 cursor-not-allowed'
+                    : 'bg-brand-primary hover:opacity-90 shadow-lg active:scale-98'
+                }`}
+              >
+                {addCardLoader ? (
+                  <div className="flex items-center justify-center gap-2">
+                    <CircularProgress size={20} color="inherit" />
+                    <span>Processing...</span>
+                  </div>
+                ) : (
+                  'Continue'
+                )}
+              </button>
+            </div>
 
             {/* Disclaimer */}
             <p className="text-xs text-center text-gray-500 mt-4">

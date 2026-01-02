@@ -5,10 +5,12 @@ import Image from 'next/image'
 import { Button as ButtonBase } from '../ui/button'
 import { Textarea as TextareaBase } from '../ui/textarea'
 import { Input as InputBase } from '../ui/input'
-import { FileText, Plus, Pencil, X, Check, Hash, Square, Eye, Type, RotateCw, Grid3x3, Minus, Code, ChevronDown, Send, MoreVertical, ArrowLeft } from 'lucide-react'
+import { FileText, Plus, Pencil, X, Check, Hash, Square, Eye, Type, RotateCw, Grid3x3, Minus, Code, ChevronDown, Send, MoreVertical, ArrowLeft, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { Menu, MenuItem } from '@mui/material'
+import { Menu, MenuItem, FormControl, Select } from '@mui/material'
 import { Card as CardBase, CardHeader as CardHeaderBase, CardTitle as CardTitleBase, CardContent as CardContentBase } from '../ui/card'
+import { Dialog as DialogBase, DialogContent as DialogContentBase, DialogDescription as DialogDescriptionBase, DialogFooter as DialogFooterBase, DialogHeader as DialogHeaderBase, DialogTitle as DialogTitleBase } from '../ui/dialog'
+import { getUniquesColumn } from '../globalExtras/GetUniqueColumns'
 
 // Type assertions for components from .jsx files
 const Button = ButtonBase as any
@@ -18,6 +20,12 @@ const Card = CardBase as any
 const CardHeader = CardHeaderBase as any
 const CardTitle = CardTitleBase as any
 const CardContent = CardContentBase as any
+const Dialog = DialogBase as any
+const DialogContent = DialogContentBase as any
+const DialogDescription = DialogDescriptionBase as any
+const DialogFooter = DialogFooterBase as any
+const DialogHeader = DialogHeaderBase as any
+const DialogTitle = DialogTitleBase as any
 
 interface CallingScript {
   id: number
@@ -52,15 +60,33 @@ export default function CallingScript({
   const [saving, setSaving] = useState(false)
   const [scriptMenuAnchor, setScriptMenuAnchor] = useState<null | HTMLElement>(null)
   const [selectedScriptForMenu, setSelectedScriptForMenu] = useState<CallingScript | null>(null)
+  const [uniqueColumns, setUniqueColumns] = useState<string[]>([])
+  const [selectedVariable, setSelectedVariable] = useState('')
+  const [showMoreUniqueColumns, setShowMoreUniqueColumns] = useState(false)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [scriptToDelete, setScriptToDelete] = useState<number | null>(null)
+  const [deleting, setDeleting] = useState(false)
   const titleInputRef = useRef<HTMLInputElement>(null)
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null)
 
-  // Fetch scripts when component mounts or expands
+  // Fetch scripts and unique columns when component mounts or expands
   useEffect(() => {
     if (isExpanded) {
       fetchScripts()
+      fetchUniqueColumns()
     }
   }, [isExpanded])
+
+  const fetchUniqueColumns = async () => {
+    try {
+      const columns = await getUniquesColumn()
+      if (columns && Array.isArray(columns)) {
+        setUniqueColumns(columns)
+      }
+    } catch (error) {
+      console.error('Error fetching unique columns:', error)
+    }
+  }
 
   // Don't auto-select any script - show list by default
 
@@ -126,20 +152,25 @@ export default function CallingScript({
     setSelectedScript(null) // Go back to list view
   }
 
-  const handleDeleteScript = async (scriptId: number) => {
-    if (!confirm('Are you sure you want to delete this script?')) {
-      return
-    }
+  const handleDeleteScript = (scriptId: number) => {
+    setScriptToDelete(scriptId)
+    setShowDeleteConfirm(true)
+  }
+
+  const confirmDeleteScript = async () => {
+    if (!scriptToDelete) return
 
     try {
+      setDeleting(true)
       const token = localStorage.getItem('token') || JSON.parse(localStorage.getItem('User') || '{}').token
 
       if (!token) {
         toast.error('Not authenticated')
+        setDeleting(false)
         return
       }
 
-      const response = await fetch(`/api/calling-scripts/${scriptId}`, {
+      const response = await fetch(`/api/calling-scripts/${scriptToDelete}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -151,15 +182,20 @@ export default function CallingScript({
 
       if (!response.ok) {
         toast.error(data.message || 'Failed to delete script')
+        setDeleting(false)
         return
       }
 
       toast.success('Script deleted successfully')
       await fetchScripts() // Refresh scripts
       setSelectedScript(null) // Go back to list view
+      setShowDeleteConfirm(false)
+      setScriptToDelete(null)
     } catch (error: any) {
       console.error('Error deleting script:', error)
       toast.error('Failed to delete script')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -242,29 +278,31 @@ export default function CallingScript({
       className="flex flex-col h-full w-full border-r border-gray-200 bg-white relative"
       style={{ zIndex: 2000, position: 'relative' }}
     >
-      {/* Header - Title and Add Script button */}
-      <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between" style={{ position: 'relative', zIndex: 2000 }}>
-        <h3 className="font-bold text-xl text-gray-900">
-          Calling script
-        </h3>
-        {!isCreating && !isEditing && (
-          <Button
-            onClick={handleCreateScript}
-            variant="filled"
-            className="rounded-full py-2 px-4 transition-all"
-            style={{ 
-              backgroundColor: '#F9F9F9',
-              border: '1px solid #e5e7eb',
-              color: '#374151',
-              fontSize: '14px',
-              height: 'auto',
-            }}
-          >
-            <Plus size={14} className="mr-1.5" style={{ color: '#374151' }} />
-            Add Script
-          </Button>
-        )}
-      </div>
+      {/* Header - Title and Add Script button - Only show when not viewing a script */}
+      {!selectedScript && (
+        <div className="px-6 py-5 border-b border-gray-200 flex items-center justify-between" style={{ position: 'relative', zIndex: 2000 }}>
+          <h3 className="font-bold text-xl text-gray-900">
+            Script
+          </h3>
+          {!isCreating && !isEditing && (
+            <Button
+              onClick={handleCreateScript}
+              variant="filled"
+              className="rounded-full py-2 px-4 transition-all"
+              style={{ 
+                backgroundColor: '#F9F9F9',
+                border: '1px solid #e5e7eb',
+                color: '#374151',
+                fontSize: '14px',
+                height: 'auto',
+              }}
+            >
+              <Plus size={14} className="mr-1.5" style={{ color: '#374151' }} />
+              Add Script
+            </Button>
+          )}
+        </div>
+      )}
 
       {/* Content Area */}
       <div 
@@ -329,7 +367,80 @@ export default function CallingScript({
               />
             </div>
             <div style={{ position: 'relative', zIndex: 2001 }}>
-              <label className="text-sm font-medium mb-2 block text-gray-700">Content</label>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-sm font-medium block text-gray-700">Script</label>
+                {uniqueColumns && uniqueColumns.length > 0 && (
+                  <FormControl size="small" sx={{ minWidth: 150 }}>
+                    <Select
+                      value={selectedVariable}
+                      onChange={(e) => {
+                        const value = e.target.value as string
+                        setSelectedVariable('')
+                        if (value && contentTextareaRef.current) {
+                          const textarea = contentTextareaRef.current
+                          const start = textarea.selectionStart || 0
+                          const end = textarea.selectionEnd || 0
+                          const variableText = value.startsWith('{') && value.endsWith('}')
+                            ? value
+                            : `{${value}}`
+                          const newContent = editContent.substring(0, start) + variableText + editContent.substring(end)
+                          setEditContent(newContent)
+                          // Set cursor position after inserted variable
+                          setTimeout(() => {
+                            textarea.focus()
+                            textarea.setSelectionRange(start + variableText.length, start + variableText.length)
+                          }, 0)
+                        }
+                      }}
+                      displayEmpty
+                      sx={{
+                        fontSize: '0.875rem',
+                        height: '32px',
+                        backgroundColor: 'white',
+                        '& .MuiOutlinedInput-notchedOutline': {
+                          borderColor: '#d1d5db',
+                        },
+                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--brand-primary))',
+                        },
+                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                          borderColor: 'hsl(var(--brand-primary))',
+                        },
+                      }}
+                      MenuProps={{
+                        PaperProps: {
+                          style: {
+                            maxHeight: '30vh',
+                            overflow: 'auto',
+                            scrollbarWidth: 'none',
+                            zIndex: 2002,
+                          },
+                        },
+                        disablePortal: false,
+                        container: typeof document !== 'undefined' ? document.body : null,
+                        style: {
+                          zIndex: 2002,
+                        },
+                      }}
+                    >
+                      <MenuItem value="" disabled>
+                        <em>Insert Variable</em>
+                      </MenuItem>
+                      {uniqueColumns.map((variable, index) => {
+                        const displayText = variable.startsWith('{') && variable.endsWith('}')
+                          ? variable
+                          : `{${variable}}`
+                        return (
+                          <MenuItem key={index} value={variable}>
+                            {displayText}
+                          </MenuItem>
+                        )
+                      })}
+                    </Select>
+                  </FormControl>
+                )}
+              </div>
+              
               <Textarea
                 ref={contentTextareaRef}
                 value={editContent}
@@ -354,20 +465,13 @@ export default function CallingScript({
               >
                 {saving ? 'Saving...' : isCreating ? 'Create' : 'Save'}
               </Button>
-              <Button
-                onClick={handleCancelEdit}
-                variant="outline"
-                disabled={saving}
-                className="flex-1"
-              >
-                Cancel
-              </Button>
+             
             </div>
           </div>
         ) : selectedScript ? (
           <div className="flex flex-col h-full">
-            {/* Header */}
-            <div className="flex items-center justify-between pb-4 border-b border-gray-200 mb-6">
+            {/* Header - Title and Back button */}
+            <div className="py-5 border-b border-gray-200 flex items-center justify-between" style={{ position: 'relative', zIndex: 2000 }}>
               <div className="flex items-center gap-3">
                 <Button
                   onClick={() => setSelectedScript(null)}
@@ -378,12 +482,9 @@ export default function CallingScript({
                   <ArrowLeft size={16} />
                 </Button>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'hsl(var(--brand-primary) / 0.1)' }}>
-                    <FileText size={20} style={{ color: 'hsl(var(--brand-primary))' }} />
-                  </div>
                   <div>
                     <h3 className="font-semibold text-lg text-gray-900">{selectedScript.title}</h3>
-                    <p className="text-xs text-gray-500 mt-0.5">Calling Script</p>
+                    {/* <p className="text-xs text-gray-500 mt-0.5">Calling Script</p> */}
                   </div>
                 </div>
               </div>
@@ -402,16 +503,18 @@ export default function CallingScript({
             </div>
 
             {/* Content Card */}
-            <Card className="flex-1 border-2" style={{ borderColor: 'hsl(var(--brand-primary) / 0.2)' }}>
-              <CardContent className="p-6">
-                <div className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed" style={{ 
-                  lineHeight: '1.75',
-                  fontSize: '14px',
-                }}>
-                  {selectedScript.content}
-                </div>
-              </CardContent>
-            </Card>
+            <div className="flex-1 overflow-y-auto px-6">
+              <Card className="border-2 mt-6" style={{ borderColor: 'hsl(var(--brand-primary) / 0.2)' }}>
+                <CardContent className="p-6">
+                  <div className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed" style={{ 
+                    lineHeight: '1.75',
+                    fontSize: '14px',
+                  }}>
+                    {selectedScript.content}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         ) : scripts.length > 0 ? (
           <div className="space-y-3 py-4">
@@ -534,9 +637,21 @@ export default function CallingScript({
               setScriptMenuAnchor(null)
               setSelectedScriptForMenu(null)
             }}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              fontSize: 15,
+              fontWeight: 500,
+            }}
           >
-            <Pencil size={14} className="mr-2" />
-            Edit
+            <Image
+              src="/svgIcons/editIcon.svg"
+              alt="Edit"
+              width={18}
+              height={18}
+            />
+            <div>Edit</div>
           </MenuItem>
           <MenuItem
             onClick={() => {
@@ -546,13 +661,65 @@ export default function CallingScript({
               setScriptMenuAnchor(null)
               setSelectedScriptForMenu(null)
             }}
-            style={{ color: '#dc2626' }}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              // justifyContent: 'center',
+              gap: 1,
+              fontSize: 15,
+              fontWeight: 500,
+              color: '#dc2626',
+            }}
           >
-            <X size={14} className="mr-2" />
-            Delete
+            <Image
+              src="/otherAssets/deleteIcon.png"
+              alt="Delete"
+              width={18}
+              height={18}
+            />
+            <div>Delete</div>
           </MenuItem>
         </Menu>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog 
+        open={showDeleteConfirm} 
+        onOpenChange={(open) => {
+          if (!open && !deleting) {
+            setShowDeleteConfirm(false)
+            setScriptToDelete(null)
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Delete Script</DialogTitle>
+            <DialogDescription>
+              Are you sure you want to delete this script?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button
+              onClick={confirmDeleteScript}
+              disabled={deleting}
+              style={{
+                backgroundColor: '#dc2626',
+                color: 'white',
+              }}
+            >
+              {deleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  Deleting...
+                </>
+              ) : (
+                'Delete'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

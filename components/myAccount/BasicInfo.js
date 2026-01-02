@@ -22,6 +22,7 @@ function BasicInfo() {
   const router = useRouter()
   const { setUser: setReduxUser } = useUser()
 
+  const nameRef = useRef(null)
   const emailRef = useRef(null)
   const farmRef = useRef(null)
   const serviceAreaRef = useRef(null)
@@ -1099,7 +1100,7 @@ function BasicInfo() {
       <div style={styles.headingStyle}>Full Name</div>
       <div className="flex items-center w-6/12 mt-2 gap-2">
         <Input
-          readOnly
+          ref={nameRef}
           className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
           style={{
             ...styles.inputStyle,
@@ -1116,8 +1117,8 @@ function BasicInfo() {
           type="text"
           placeholder="Name"
         />
-        {isNameChanged &&
-          (loading ? (
+        {isNameChanged ? (
+          loading ? (
             <CircularProgress size={20} />
           ) : (
             <button
@@ -1128,7 +1129,21 @@ function BasicInfo() {
             >
               Save
             </button>
-          ))}
+          )
+        ) : (
+          <button
+            onClick={() => {
+              nameRef.current?.focus()
+            }}
+          >
+            <Image
+              src={'/svgIcons/editIcon.svg'}
+              width={24}
+              height={24}
+              alt="*"
+            />
+          </button>
+        )}
       </div>
 
       <div style={styles.headingStyle}>Email address</div>

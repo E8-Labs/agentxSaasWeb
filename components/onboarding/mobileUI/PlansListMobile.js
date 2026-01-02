@@ -30,7 +30,7 @@ function PlansListMobile({
 
 
         <div className="flex flex-col items-center h-full w-full min-h-screen">
-            <SignupHeaderMobile title="Get an AI AaaS Agency" description="Gets more done than coffee. Cheaper too.😉" />
+            <SignupHeaderMobile title={reduxUser?.userRole == 'Agency' ? "Get an AI AaaS Agency" : "Grow Your Business"} description={reduxUser?.userRole == 'Agency' ? "Gets more done than coffee. Cheaper too.😉" : "Gets more done than coffee. Cheaper too. Cancel anytime.😉"} />
 
             <div
                 style={{
@@ -67,8 +67,8 @@ function PlansListMobile({
                                 })}
                             </div>
                         )}
-                    <div className="w-full flex md:w-auto flex-col items-center md:items-end justify-center md:justify-end">
-                        <div className="border flex flex-row items-center bg-neutral-100 px-2 gap-[8px] rounded-full py-1.5 w-[90%] md:w-auto justify-center md:justify-start">
+                    <div className="w-auto flex md:w-auto flex-col items-center md:items-end justify-center md:justify-end">
+                        <div className="border flex flex-row items-center bg-neutral-100 px-5 gap-[8px] rounded-full py-1.5 w-[90%] md:w-auto justify-center md:justify-start">
                             {duration?.map((item) => (
                                 <button
                                     key={item.id}
@@ -171,7 +171,16 @@ function PlansListMobile({
                                                     <span>Processing...</span>
                                                 </div>
                                             ) : (
-                                                'Get Started'
+                                                plan?.hasTrial == true ? (
+                                                    <span className="text-base font-normal">
+
+                                                        {plan?.trialValidForDays} Day Free Trial
+                                                    </span>
+                                                ) : (
+                                                    <span className="text-base font-normal">
+                                                        Get Started
+                                                    </span>
+                                                )
                                             )}
                                         </button>
 
@@ -227,7 +236,7 @@ function PlansListMobile({
                                                 </span>
 
                                                 {showPlanDetails && plan.id === selectedPlan?.id ? (
-                                                    renderBrandedIcon('/svgIcons/downArrow.svg', 20, 20)
+                                                    renderBrandedIcon('/svgIcons/upArrow.svg', 20, 20)
                                                 ) : (
                                                     renderBrandedIcon('/svgIcons/downArrow.svg', 20, 20)
                                                 )}
@@ -242,7 +251,7 @@ function PlansListMobile({
                     <div className="text-center py-8 text-gray-500">No plans available</div>
                 )}
             </div>
-        </div>
+        </div >
     )
 }
 

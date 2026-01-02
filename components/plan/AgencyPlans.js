@@ -601,6 +601,8 @@ function AgencyPlans({
                 handleBack={() => {
                   setShowPlanSummary(false)
                 }}
+                setIsSubscribing={setSubPlanLoader}
+                isSubscribing={subPlanLoader !== null}
               />
             ) : (
               <PlansListMobile
@@ -672,9 +674,15 @@ function AgencyPlans({
           >
             <Elements stripe={stripePromise} key="stripe-elements">
               <AgencyAddCard
+                handleBack={() => {
+                  setAddPaymentPopUp(false)
+                  setSubPlanLoader(null)
+                  
+                }}
                 key="agency-add-card"
                 handleClose={handleClose}
                 selectedPlan={selectedPlan}
+              
               />
             </Elements>
           </Box>

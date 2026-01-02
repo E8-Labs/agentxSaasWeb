@@ -131,14 +131,8 @@ export default function SmsTemplatePanel({
               height: 'auto',
             }}
           >
-            <FileText
-              size={14}
-              className="mr-1.5"
-              style={{
-                color: '#374151'
-              }}
-            />
-            Compose New
+            <span className="mr-1.5">✏️</span>
+            Create SMS
           </Button>
         </div>
         <div className="flex-1 overflow-y-auto p-4">
@@ -164,12 +158,12 @@ export default function SmsTemplatePanel({
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <div className="text-sm font-medium text-gray-900 mb-1">
+                      {/* <div className="text-sm font-medium text-gray-900 mb-1">
                         {template.templateName}
-                      </div>
+                      </div> */}
                       {template.content && (
-                        <div className="text-xs text-gray-500 line-clamp-2">
-                          {template.content.replace(/<[^>]*>/g, '').substring(0, 100)}...
+                        <div className="text-xs text-black line-clamp-2">
+                          {template.content.replace(/<[^>]*>/g, '').substring(0, 100)} {template.content.length > 100 ? '...' : ''}
                         </div>
                       )}
                     </div>
@@ -310,7 +304,7 @@ export default function SmsTemplatePanel({
             .map((pn: any) => ({ id: pn.id, phone: pn.phone }))}
           phoneLoading={phoneNumbersLoading}
           communicationType="sms"
-          addRow={null}
+          addRow={()=>{console.log('addRow')}}
           isEditing={isEditingTemplate}
           editingRow={editingTemplate}
           onUpdateRow={null}

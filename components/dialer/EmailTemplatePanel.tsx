@@ -108,8 +108,8 @@ export default function EmailTemplatePanel({
 
   return (
     <>
-      <div 
-        className="w-80 border-r border-gray-200 flex-shrink-0 flex flex-col" 
+      <div
+        className="w-80 border-r border-gray-200 flex-shrink-0 flex flex-col"
         style={{ maxHeight: '60vh', pointerEvents: 'auto' }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -127,14 +127,8 @@ export default function EmailTemplatePanel({
               height: 'auto',
             }}
           >
-            <FileText
-              size={14}
-              className="mr-1.5"
-              style={{
-                color: '#374151'
-              }}
-            />
-            Compose New
+            <span className="mr-1.5">✏️</span>
+            Create Email  
           </Button>
         </div>
         <div className="flex-1 overflow-y-auto p-4">
@@ -152,11 +146,10 @@ export default function EmailTemplatePanel({
                 <div
                   key={template.id}
                   onClick={() => onTemplateSelect(template)}
-                  className={`p-3 border rounded-lg cursor-pointer transition-all ${
-                    selectedTemplate?.id === template.id
+                  className={`p-3 border rounded-lg cursor-pointer transition-all ${selectedTemplate?.id === template.id
                       ? 'border-2 border-purple-500 bg-purple-50'
                       : 'border border-gray-200 hover:border-gray-300'
-                  }`}
+                    }`}
                 >
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -244,7 +237,7 @@ export default function EmailTemplatePanel({
                               const isSelected = selectedEmailAccount?.id === account.id
                               const accountEmail = account.email || account.displayName || account.name || 'Unknown'
                               const provider = account.provider || 'email'
-                              
+
                               return (
                                 <MenuItem
                                   key={account.id}
@@ -336,7 +329,7 @@ export default function EmailTemplatePanel({
           editingRow={editingTemplate}
           onUpdateRow={null}
           selectedGoogleAccount={null}
-          setSelectedGoogleAccount={() => {}}
+          setSelectedGoogleAccount={() => { }}
           onSendEmail={null}
           isLeadEmail={false}
           leadEmail={null}

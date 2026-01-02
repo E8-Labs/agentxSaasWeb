@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Modal, Popover } from '@mui/material'
+import { Box, CircularProgress, Modal, Popover, Tooltip } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import {
   CaretDown,
@@ -7,6 +7,23 @@ import {
   Plus,
   X,
 } from '@phosphor-icons/react'
+import {
+  Phone,
+  Mail,
+  MapPin,
+  Tag,
+  Workflow,
+  Calendar,
+  Copy,
+  FileText,
+  Smile,
+  Frown,
+  Meh,
+  Flame,
+  Sun,
+  Snowflake,
+  ListChecks,
+} from 'lucide-react'
 import axios from 'axios'
 import parsePhoneNumberFromString from 'libphonenumber-js'
 import moment from 'moment'
@@ -19,6 +36,10 @@ import { GetFormattedDateString } from '@/utilities/utility'
 import { getBrandPrimaryHex } from '@/utilities/colorUtils'
 import { AssignTeamMember } from '@/components/onboarding/services/apisServices/ApiService'
 import LeadTeamsAssignedList from './LeadTeamsAssignedList'
+import { callStatusColors } from '@/constants/Constants'
+import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
+import { getAgentsListImage } from '@/utilities/agentUtilities'
+import LeadDetails from './extras/LeadDetails'
 
 function CallWorthyReviewsPopup({ open, close }) {
   const [importantCalls, setImportantCalls] = useState([])
@@ -33,6 +54,9 @@ function CallWorthyReviewsPopup({ open, close }) {
 
   const [primaryColor, setPrimaryColor] = useState('#7902DF')
 
+  // LeadDetails modal state
+  const [showLeadDetailsModal, setShowLeadDetailsModal] = useState(false)
+
   // Team assignment states
   const [myTeam, setMyTeam] = useState([])
   const [myTeamAdmin, setMyTeamAdmin] = useState(null)
@@ -43,13 +67,13 @@ function CallWorthyReviewsPopup({ open, close }) {
     const updateBrandColor = () => {
       setPrimaryColor(getBrandPrimaryHex())
     }
-    
+
     // Set initial color
     updateBrandColor()
-    
+
     // Listen for branding updates
     window.addEventListener('agencyBrandingUpdated', updateBrandColor)
-    
+
     return () => {
       window.removeEventListener('agencyBrandingUpdated', updateBrandColor)
     }
@@ -130,7 +154,7 @@ function CallWorthyReviewsPopup({ open, close }) {
           // Filter duplicates before adding
           const existingIds = (prevData.teamsAssigned || []).map(u => u.id || u.invitedUserId)
           const itemId = item.id || item.invitedUserId || item.invitedUser?.id
-          
+
           // Only add if not already assigned
           if (!existingIds.includes(itemId)) {
             return {
@@ -148,7 +172,7 @@ function CallWorthyReviewsPopup({ open, close }) {
               // Filter duplicates before adding
               const existingIds = (call.teamsAssigned || []).map(u => u.id || u.invitedUserId)
               const itemId = item.id || item.invitedUserId || item.invitedUser?.id
-              
+
               // Only add if not already assigned
               if (!existingIds.includes(itemId)) {
                 return {
@@ -263,7 +287,7 @@ function CallWorthyReviewsPopup({ open, close }) {
             >
               <div className="w-full flex flex-row items-center justify-between">
                 <div style={{ fontSize: 22, fontWeight: '600', color: '#000' }}>
-                  Recommend giving these a listen
+                  Recommend Calls
                 </div>
 
                 <button onClick={close} className="flex flex-row gap-2">
@@ -374,185 +398,50 @@ function CallWorthyReviewsPopup({ open, close }) {
                                 </div>
 
                                 <div className="w-full flex flex-row justify-between items-center">
-                                  <Image
-                                    src={'/assets/manIcon.png'}
-                                    height={23}
-                                    width={23}
-                                    alt="*"
-                                  />
-
-                                  <div className="flex flex-row gap-2">
-                                    {item.tags?.length > 0 ? (
-                                      <div
-                                        className="text-end flex flex-row items-center gap-4"
-                                        style={styles.paragraph}
-                                      >
-                                        {
-                                          // selectedLeadsDetails?.tags?.map.slice(0, 1)
-                                          item?.tags
-                                            .slice(0, 2)
-                                            .map((tag, index) => {
+                                  <div className="flex flex-row items-center gap-2">
+                                  {
+                                    !item.teamsAssigned && (
+                                      <Image
+                                        src={'/assets/manIcon.png'}
+                                        height={23}
+                                        width={23}
+                                        alt="*"
+                                      />
+                                    )
+                                  }
+                                    {/* Team assignments display */}
+                                    {item.teamsAssigned && item.teamsAssigned.length > 0 && (
+                                      <div className="flex flex-row items-center gap-1">
+                                        {item.teamsAssigned.slice(0, 2).map((teamMember, idx) => {
+                                          const memberName = teamMember?.name || teamMember?.invitedUser?.name || ''
                                               return (
                                                 <div
-                                                  key={index}
-                                                  className="flex flex-row items-center gap-4"
-                                                >
-                                                  <div 
-                                                    className="px-2 py-1 rounded-lg"
-                                                    style={{
-                                                      backgroundColor: `hsl(var(--brand-primary, 270 75% 50%) / 0.05)`,
-                                                    }}
-                                                  >
-                                                    <div
-                                                      className="text-[13px]"
-                                                      style={{
-                                                        color: `hsl(var(--brand-primary, 270 75% 50%))`,
-                                                      }}
-                                                    >
-                                                      {tag}
-                                                    </div>
-                                                  </div>
+                                              key={teamMember.id || teamMember.invitedUserId || idx}
+                                              className="h-6 w-6 rounded-full bg-brand-primary flex items-center justify-center text-white text-xs font-semibold"
+                                              title={memberName}
+                                            >
+                                              {memberName.charAt(0).toUpperCase()}
                                                 </div>
                                               )
-                                            })
-                                        }
-                                        <div>
-                                          {item?.tags.length > 2 && (
-                                            <div>+{item?.tags.length - 2}</div>
-                                          )}
+                                        })}
+                                        {item.teamsAssigned.length > 2 && (
+                                          <div className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 text-xs font-semibold">
+                                            +{item.teamsAssigned.length - 2}
                                         </div>
-                                      </div>
-                                    ) : (
-                                      '-'
                                     )}
                                   </div>
-                                </div>
-                              </button>
-                            ),
                           )}
                         </div>
 
-                        <div className="w-8/12 flex flex-col">
-                          <div className="w-full flex flex-col items-center h-full">
-                            {selectedCall && (
-                              <div
-                                className="w-full h-[80vh]"
-                                style={{
-                                  overflow: 'auto',
-                                  scrollbarWidth: 'none',
-                                }}
-                              >
-                                <div>
-                                  <div
-                                    style={{
-                                      padding: 20,
-                                      paddingInline: 30,
-                                    }}
-                                  >
-                                    <div className="flex flex-row items-center justify-between mt-4">
-                                      <div className="flex flex-row items-center gap-4">
-                                        <div
-                                          className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                        >
-                                          {selectedCall?.firstName.slice(0, 1)}
-                                        </div>
-                                        <div
-                                          className="truncate"
-                                        >
-                                          {selectedCall?.firstName}{' '}
-                                          {selectedCall?.lastName}
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="flex flex-row items-center w-full justify-between mt-4">
-                                      <div className="flex flex-row items-center gap-4">
-                                        <EnvelopeSimple
-                                          size={20}
-                                          color="#000000"
-                                        />
-                                        <div style={styles.subHeading}>
-                                          Email Address
-                                        </div>
-                                      </div>
-                                      <div>
-                                        <div
-                                          className="text-end"
-                                          style={styles.paragraph}
-                                        >
-                                          {selectedCall?.email || '-'}
-                                        </div>
-                                      </div>
-                                    </div>
-
-                                    <div className="flex flex-row items--center w-full justify-between mt-4">
-                                      <div className="flex flex-row items-center gap-4">
-                                        {/* <EnvelopeSimple size={20} color='#00000060' /> */}
-                                        <Image
-                                          src={'/svgIcons/call.svg'}
-                                          height={20}
-                                          width={20}
-                                          alt="man"
-                                        />
-                                        <div style={styles.subHeading}>
-                                          Phone Number
-                                        </div>
-                                      </div>
-                                      <div
-                                        className="text-end"
-                                        style={styles.paragraph}
-                                      >
-                                        {/* {selectedLeadsDetails?.phone} */}
-                                        {formatPhoneNumber(
-                                          selectedCall?.phone,
-                                        ) || '-'}
-                                      </div>
-                                    </div>
-
-                                    {selectedCall?.address && (
-                                      <div className="flex flex-row items--center w-full justify-between mt-4">
-                                        <div className="flex flex-row items-center gap-4">
-                                          {/* <EnvelopeSimple size={20} color='#00000060' /> */}
-                                          <Image
-                                            src={'/assets/location.png'}
-                                            height={16}
-                                            width={16}
-                                            alt="man"
-                                          />
-                                          <div style={styles.subHeading}>
-                                            Address
-                                          </div>
-                                        </div>
-                                        <div
-                                          className="text-end"
-                                          style={styles.paragraph}
-                                        >
-                                          {selectedCall?.address || '-'}
-                                        </div>
-                                      </div>
-                                    )}
-
-                                    {selectedCall?.tags.length > 0 && (
-                                      <div className="flex flex-row items--center w-full justify-between mt-4">
-                                        <div className="flex flex-row items-center gap-4">
-                                          <Image
-                                            src={'/assets/tag.png'}
-                                            height={16}
-                                            width={16}
-                                            alt="man"
-                                          />
-                                          <div style={styles.subHeading}>
-                                            Tag
-                                          </div>
-                                        </div>
-                                        {selectedCall?.tags.length > 0 ? (
+                                  <div className="flex flex-row gap-2">
+                                    {item.tags?.length > 0 ? (
                                           <div
                                             className="text-end flex flex-row items-center gap-4"
                                             style={styles.paragraph}
                                           >
                                             {
                                               // selectedLeadsDetails?.tags?.map.slice(0, 1)
-                                              selectedCall?.tags
+                                          item?.tags
                                                 .slice(0, 2)
                                                 .map((tag, index) => {
                                                   return (
@@ -560,10 +449,10 @@ function CallWorthyReviewsPopup({ open, close }) {
                                                       key={index}
                                                       className="flex flex-row items-center gap-4"
                                                     >
-                                                      <div 
+                                                      <div
                                                         className="px-2 py-1 rounded-lg"
                                                         style={{
-                                                          backgroundColor: `hsl(var(--brand-primary, 270 75% 50%) / 0.09)`,
+                                                      backgroundColor: `hsl(var(--brand-primary, 270 75% 50%) / 0.05)`,
                                                         }}
                                                       >
                                                         <div
@@ -580,618 +469,102 @@ function CallWorthyReviewsPopup({ open, close }) {
                                                 })
                                             }
                                             <div>
-                                              {selectedCall?.tags.length >
-                                                2 && (
-                                                <div>
-                                                  +
-                                                  {selectedCall?.tags.length -
-                                                    2}
-                                                </div>
-                                              )}
+                                          {item?.tags.length > 2 && (
+                                            <div>+{item?.tags.length - 2}</div>
+                                                )}
                                             </div>
                                           </div>
                                         ) : (
                                           '-'
                                         )}
-                                      </div>
-                                    )}
-
-                                    {/*
-                                                            <div className="flex flex-row items-center w-full justify-between mt-4">
-                                                                <div className="flex flex-row items-center gap-4">
-                                                                    <Image
-                                                                        src="/assets/pipelineIcon.svg"
-                                                                        height={20}
-                                                                        width={20}
-                                                                        alt="*"
-                                                                        style={{
-                                                                            filter:
-                                                                                "invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)",
-                                                                        }}
-                                                                    />
-                                                                    <div style={styles.subHeading}>Pipeline</div>
-                                                                </div>
-                                                                <div className="text-end" style={styles.paragraph}>
-                                                                    {selectedLeadsDetails?.pipeline
-                                                                        ? selectedLeadsDetails.pipeline.title
-                                                                        : "-"}
-                                                                </div>
-                                                            </div> */}
-                                    {selectedCall?.pipeline && (
-                                      <div className="flex flex-row items--center w-full justify-between mt-4">
-                                        <div className="flex flex-row items-center gap-2">
-                                          {/* <Image src={"/otherAssets/calenderIcon.png"} height={16} width={16} alt='man' /> */}
-                                          <Image
-                                            src="/assets/pipelineIcon.svg"
-                                            height={16}
-                                            width={16}
-                                            alt="*"
-                                            style={{
-                                              filter:
-                                                'invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)',
-                                            }}
-                                          />
-                                          <div style={styles.subHeading}>
-                                            Pipeline
-                                          </div>
-                                        </div>
-                                        <div
-                                          className="text-end"
-                                          style={styles.paragraph}
-                                        >
-                                          {/* {selectedLeadsDetails?.phone} */}
-                                          {selectedCall?.pipeline
-                                            ? selectedCall.pipeline.title
-                                            : '-'}
-                                        </div>
-                                      </div>
-                                    )}
-
-                                    {selectedCall?.stage && (
-                                      <div className="flex flex-row items--center w-full justify-between mt-4">
-                                        <div className="flex flex-row items-center gap-4">
-                                          <Image
-                                            src={'/svgIcons/arrow2.svg'}
-                                            height={25}
-                                            width={25}
-                                            alt="man"
-                                          />
-                                          <div style={styles.subHeading}>
-                                            Stage
-                                          </div>
-                                        </div>
-                                        <div
-                                          className="text-end flex flex-row items-center gap-1"
-                                          style={styles.paragraph}
-                                        >
-                                          <div
-                                            className="h-[10px] max-w-[200px] "
-                                            style={{
-                                              // backgroundColor: "red",
-                                              overflow: 'hidden', // Ensures content is clipped
-                                              whiteSpace: 'nowrap', // Prevents text from wrapping
-                                              textOverflow: 'ellipsis', // Adds the ellipsis
-                                              height: '50px',
-                                            }}
-                                            title={
-                                              selectedCall?.stage?.stageTitle
-                                            } // Optional: Show full text on hover
-                                          >
-                                            {selectedCall?.stage?.stageTitle}
-                                          </div>
-                                        </div>
-                                      </div>
-                                    )}
-
-                                    <div className="w-full mt-4">
-                                      {globalLoader ? (
-                                        <CircularProgress size={25} />
-                                      ) : (
-                                        <LeadTeamsAssignedList
-                                          users={selectedCall?.teamsAssigned || []}
-                                          onAssignClick={(event) => {
-                                            handleShowPopup(event)
-                                          }}
-                                        />
-                                      )}
-                                    </div>
-
-                                    {selectedCall?.booking && (
-                                      <div className="flex flex-row items--center w-full justify-between mt-4">
-                                        <div className="flex flex-row items-center gap-4">
-                                          <Image
-                                            src="/otherAssets/calenderIcon.png"
-                                            height={20}
-                                            width={20}
-                                            alt="*"
-                                            style={{
-                                              filter:
-                                                'invert(9%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(93%)',
-                                            }}
-                                          />
-                                          <div style={styles.subHeading}>
-                                            Appointment
-                                          </div>
-                                        </div>
-                                        <div
-                                          className="text-end"
-                                          style={styles.paragraph}
-                                        >
-                                          {/* {selectedLeadsDetails?.phone} */}
-                                          {GetFormattedDateString(
-                                            selectedCall.booking.datetime,
-                                            true,
-                                          )}
-                                        </div>
-                                      </div>
-                                    )}
-
-                                    {/* Code for custom variables */}
-                                  </div>
-
-                                  <Popover
-                                    id={id}
-                                    open={popoverOpen}
-                                    anchorEl={anchorEl}
-                                    onClose={handleClosePopup}
-                                    anchorOrigin={{
-                                      vertical: 'bottom',
-                                      horizontal: 'left',
-                                    }}
-                                    transformOrigin={{
-                                      vertical: 'top',
-                                      horizontal: 'left',
-                                    }}
-                                    disablePortal={false}
-                                    PaperProps={{
-                                      elevation: 0,
-                                      style: {
-                                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-                                        borderRadius: '10px',
-                                        minWidth: '120px',
-                                        zIndex: 9999,
-                                      },
-                                    }}
-                                  >
-                                    <button
-                                      className="hover:bg-gray-50"
-                                      onClick={() => {
-                                        handleAssignLeadToTeammember(myTeamAdmin)
-                                      }}
-                                    >
-                                      <div className="p-2 w-full flex flex-row items-center justify-start gap-2 ">
-                                        <div className="">
-                                          {myTeamAdmin?.thumb_profile_image ? (
-                                            <Image
-                                              className="rounded-full"
-                                              src={myTeamAdmin.thumb_profile_image}
-                                              height={32}
-                                              width={32}
-                                              alt="*"
-                                              style={{
-                                                borderRaduis: 50,
-                                              }}
-                                            />
-                                          ) : (
-                                            <div
-                                              className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                            >
-                                              {myTeamAdmin?.name?.slice(0, 1)}
-                                            </div>
-                                          )}
-                                        </div>
-                                        <div className="">{myTeamAdmin?.name}</div>
-                                        <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
-                                          Admin
                                         </div>
                                       </div>
                                     </button>
-                                    {myTeam.length > 0 ? (
-                                      <div>
-                                        {myTeam.map((item, index) => {
-                                          return (
-                                            <div
-                                              key={index}
-                                              className="p-2 flex flex-col gap-2"
-                                              style={{ fontWeight: '500', fontSize: 15 }}
-                                            >
-                                              <button
-                                                className="text-start flex flex-row items-center justify-start gap-2 hover:bg-gray-50"
-                                                onClick={() => {
-                                                  handleAssignLeadToTeammember(item)
-                                                }}
-                                              >
-                                                {item?.invitedUser?.thumb_profile_image ? (
-                                                  <Image
-                                                    className="rounded-full"
-                                                    src={
-                                                      item.invitedUser?.thumb_profile_image
-                                                    }
-                                                    height={32}
-                                                    width={32}
-                                                    alt="*"
-                                                    style={{}}
-                                                  />
-                                                ) : (
-                                                  <div
-                                                    className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                                  >
-                                                    {(item?.invitedUser?.name || item?.name)?.slice(0, 1)}
-                                                  </div>
-                                                )}
-                                                {item?.invitedUser?.name || item?.name}
-                                              </button>
+                            ),
+                          )}
                                             </div>
-                                          )
-                                        })}
-                                      </div>
-                                    ) : (
-                                      ''
-                                    )}
-                                  </Popover>
 
-                                  <div style={{ paddingInline: 30 }}>
-                                    <div
-                                      style={{
-                                        fontsize: 22,
-                                        fontWeight: '600',
-                                      }}
-                                    >
-                                      Call Activity
-                                    </div>
-
-                                    <div>
-                                      {selectedCall?.callActivity.length < 1 ? (
-                                        <div
-                                          className="flex flex-col items-center justify-center h-[20vh] w-full"
-                                          style={{
-                                            fontWeight: '500',
-                                            fontsize: 15,
-                                          }}
-                                        >
-                                          <div className="h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">
-                                            <Image
-                                              src={'/assets/activityClock.png'}
-                                              height={24}
-                                              width={24}
-                                              alt="*"
-                                            />
-                                          </div>
-                                          <div className="mt-4">
-                                            <i
-                                              style={{
-                                                fontWeight: '500',
-                                                fontsize: 15,
-                                              }}
-                                            >
-                                              All activities related to this
-                                              lead will be shown here
-                                            </i>
-                                          </div>
-                                        </div>
-                                      ) : (
-                                        <div style={{ paddingInline: 10 }}>
-                                          {selectedCall?.callActivity.map(
-                                            (item, index) => {
-                                              const initialTextLength =
-                                                Math.ceil(
-                                                  item.transcript?.length * 0.1,
-                                                ) // 40% of the text
-                                              const initialText =
-                                                item.transcript?.slice(
-                                                  0,
-                                                  initialTextLength,
-                                                )
-                                              return (
-                                                <div
-                                                  key={index}
-                                                  className="mt-4"
-                                                >
-                                                  <div
-                                                    className="-ms-4"
-                                                    style={{
-                                                      fontsize: 15,
-                                                      fontWeight: '500',
-                                                      color: '#15151560',
-                                                    }}
-                                                  >
-                                                    {GetFormattedDateString(
-                                                      item?.createdAt,
-                                                    )}
-                                                  </div>
-                                                  <div className="w-full flex flex-row items-center gap-4 h-full">
-                                                    <div
-                                                      className="pb-4 pt-6 ps-4 w-full"
-                                                      style={
-                                                        {
-                                                          // borderLeft: "1px solid #00000020",
-                                                        }
-                                                      }
-                                                    >
-                                                      <div className="h-full w-full">
-                                                        <div className="flex flex-row items-center justify-between">
-                                                          <div className="flex flex-row items-center gap-1">
-                                                            <div
-                                                              style={{
-                                                                fontWeight:
-                                                                  '600',
-                                                                fontsize: 15,
-                                                              }}
-                                                            >
-                                                              Outcome
-                                                            </div>
-                                                            {/* <div className='text-purple' style={{ fontWeight: "600", fontsize: 12 }}>
-                                                                                                       {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
-                                                                                                   </div> */}
-                                                          </div>
-                                                          <button
-                                                            className="text-end flex flex-row items-center gap-1"
-                                                            style={
-                                                              styles.paragraph
-                                                            }
-                                                            onClick={() => {
-                                                              handleShowMoreActivityData(
-                                                                item,
-                                                              )
-                                                            }}
-                                                          >
-                                                            <div
-                                                              className="h-[10px] w-[10px] rounded-full"
-                                                              style={{
-                                                                backgroundColor:
-                                                                  selectedCall
-                                                                    ?.stage
-                                                                    ?.defaultColor,
-                                                              }}
-                                                            ></div>
-                                                            {item?.callOutcome
-                                                              ? item?.callOutcome
-                                                              : 'Ongoing'}
-                                                            {/* {checkCallStatus(item)} */}
-                                                            <div>
-                                                              {isExpandedActivity?.includes(
-                                                                item.id,
-                                                              ) ? (
-                                                                <div>
-                                                                  <CaretUp
-                                                                    size={17}
-                                                                    weight="bold"
-                                                                  />
+                        <div className="w-8/12 flex flex-col">
+                          {selectedCall ? (
+                            <div className="w-full h-[80vh] overflow-hidden" style={{ scrollbarWidth: 'none' }}>
+                              <LeadDetails
+                                showDetailsModal={true}
+                                selectedLead={selectedCall.id}
+                                setShowDetailsModal={() => {
+                                  // Prevent closing - always show when call is selected
+                                }}
+                                pipelineId={selectedCall?.pipeline?.id || null}
+                                handleDelLead={(deletedLead) => {
+                                  // Remove deleted lead from the list
+                                  setImportantCalls((prevCalls) =>
+                                    prevCalls.filter((call) => call.id !== deletedLead.id)
+                                  )
+                                  // If deleted lead was selected, select first remaining or clear
+                                  if (selectedCall.id === deletedLead.id) {
+                                    const remaining = importantCalls.filter(
+                                      (call) => call.id !== deletedLead.id
+                                    )
+                                    setSelectedCall(remaining[0] || null)
+                                  }
+                                }}
+                                hideDelete={false}
+                                isPipeline={false}
+                                noBackDrop={true}
+                                renderInline={true}
+                                leadStageUpdated={(stage) => {
+                                  // Update the selected call's stage
+                                  setSelectedCall((prev) => ({
+                                    ...prev,
+                                    stage: stage,
+                                  }))
+                                  // Update in the list
+                                  setImportantCalls((prevCalls) =>
+                                    prevCalls.map((call) =>
+                                      call.id === selectedCall.id
+                                        ? { ...call, stage: stage }
+                                        : call
+                                    )
+                                  )
+                                }}
+                                leadAssignedTeam={(teamMember, lead) => {
+                                  // lead is the updated selectedLeadsDetails object with teamsAssigned
+                                  if (!lead) return
+                                  
+                                  // Update team assignment in selected call
+                                  setSelectedCall((prev) => ({
+                                    ...prev,
+                                    teamsAssigned: lead.teamsAssigned || [],
+                                  }))
+                                  
+                                  // Update in the list to reflect team assignments in left section
+                                  const leadIdToUpdate = lead.id || selectedCall?.id
+                                  setImportantCalls((prevCalls) =>
+                                    prevCalls.map((call) => {
+                                      if (call.id === leadIdToUpdate) {
+                                        return {
+                                          ...call,
+                                          teamsAssigned: lead.teamsAssigned || [],
+                                        }
+                                      }
+                                      return call
+                                    })
+                                  )
+                                }}
+                              />
                                                                 </div>
                                                               ) : (
-                                                                <div>
-                                                                  <CaretDown
-                                                                    size={17}
-                                                                    weight="bold"
-                                                                  />
-                                                                </div>
-                                                              )}
-                                                            </div>
-                                                          </button>
-                                                        </div>
-                                                        {isExpandedActivity?.includes(
-                                                          item.id,
-                                                        ) && (
-                                                          <div
-                                                            className="mt-6"
-                                                            style={{
-                                                              border:
-                                                                '1px solid #00000020',
-                                                              borderRadius:
-                                                                '10px',
-                                                              padding: 10,
-                                                              paddingInline: 15,
-                                                            }}
-                                                          >
-                                                            <div
-                                                              className="mt-4"
-                                                              style={{
-                                                                fontWeight:
-                                                                  '500',
-                                                                fontSize: 12,
-                                                                color:
-                                                                  '#00000070',
-                                                              }}
-                                                            >
-                                                              Transcript
-                                                            </div>
-                                                            <div className="flex flex-row items-center justify-between mt-4">
-                                                              <div
-                                                                style={{
-                                                                  fontWeight:
-                                                                    '500',
-                                                                  fontSize: 15,
-                                                                }}
-                                                              >
-                                                                {moment(
-                                                                  item?.duration *
-                                                                    1000,
-                                                                ).format(
-                                                                  'mm:ss',
-                                                                )}{' '}
-                                                              </div>
-                                                              <button
-                                                                onClick={() => {
-                                                                  if (
-                                                                    item?.recordingUrl
-                                                                  ) {
-                                                                    setShowAudioPlay(
-                                                                      item?.recordingUrl,
-                                                                    )
-                                                                  } else {
-                                                                    setShowNoAudioPlay(
-                                                                      true,
-                                                                    )
-                                                                  }
-                                                                  // window.open(item.recordingUrl, "_blank")
-                                                                }}
-                                                              >
-                                                                <Image
-                                                                  src={
-                                                                    '/assets/play.png'
-                                                                  }
-                                                                  height={35}
-                                                                  width={35}
-                                                                  alt="*"
-                                                                />
-                                                              </button>
-                                                            </div>
-                                                            {item.transcript ? (
-                                                              <div className="w-full">
+                            <div className="w-full h-[80vh] flex items-center justify-center">
                                                                 <div
-                                                                  className="mt-4"
                                                                   style={{
-                                                                    fontWeight:
-                                                                      '600',
-                                                                    fontSize: 15,
-                                                                  }}
-                                                                >
-                                                                  {`${initialText}...`}
-                                                                </div>
-                                                                <button
-                                                                  style={{
-                                                                    fontWeight:
-                                                                      '600',
-                                                                    fontSize: 15,
-                                                                  }}
-                                                                  onClick={() => {
-                                                                    handleReadMoreToggle(
-                                                                      item,
-                                                                    )
-                                                                  }}
-                                                                  className="mt-2 text-black underline"
-                                                                >
-                                                                  Read More
-                                                                </button>
-                                                              </div>
-                                                            ) : (
-                                                              <div
-                                                                style={{
-                                                                  fontWeight:
-                                                                    '600',
-                                                                  fontSize: 15,
-                                                                }}
-                                                              >
-                                                                No transcript
-                                                              </div>
-                                                            )}
-                                                          </div>
-                                                        )}
-                                                      </div>
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                              )
-                                            },
-                                          )}
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* )} */}
-
-                                {/* Modal for audio play */}
-                                <Modal
-                                  open={showAudioPlay}
-                                  onClose={() => setShowAudioPlay(null)}
-                                  closeAfterTransition
-                                  BackdropProps={{
-                                    sx: {
-                                      backgroundColor: '#00000020',
-                                      // //backdropFilter: "blur(5px)",
-                                    },
-                                  }}
-                                >
-                                  <Box
-                                    className="lg:w-3/12 sm:w-5/12 w-8/12"
-                                    sx={styles.modalsStyle}
-                                  >
-                                    <div className="flex flex-row justify-center w-full">
-                                      <div
-                                        className="w-full flex flex-col items-center"
-                                        style={{
-                                          backgroundColor: '#ffffff',
-                                          padding: 20,
-                                          borderRadius: '13px',
-                                        }}
-                                      >
-                                        <audio controls>
-                                          <source
-                                            src={showAudioPlay}
-                                            type="audio/mpeg"
-                                          />
-                                          Your browser does not support the
-                                          audio element.
-                                        </audio>
-                                        <button
-                                          className="text-white w-full h-[50px] rounded-lg mt-4"
-                                          onClick={() => {
-                                            setShowAudioPlay(null)
-                                          }}
-                                          style={{
+                                  fontsize: 24,
                                             fontWeight: '600',
-                                            fontSize: 15,
-                                            backgroundColor: primaryColor,
-                                          }}
-                                        >
-                                          Close
-                                        </button>
-
-                                        {/* Can be use full to add shadow
-                                                                                <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                                  textAlign: 'center',
+                                }}
+                              >
+                                Select a call to view details
                                       </div>
-                                    </div>
-                                  </Box>
-                                </Modal>
-
-                                {/* Modal for Transcript */}
-                                <Modal
-                                  open={!!isExpanded}
-                                  onClose={() => setIsExpanded(null)}
-                                  closeAfterTransition
-                                  BackdropProps={{
-                                    timeout: 1000,
-                                    sx: {
-                                      backgroundColor: '#00000020',
-                                    },
-                                  }}
-                                >
-                                  <Box
-                                    className="lg:w-4/12 sm:w-4/12 w-6/12"
-                                    sx={styles.modalsStyle}
-                                  >
-                                    <div className="flex flex-row justify-center w-full">
-                                      <div
-                                        className="w-full"
-                                        style={{
-                                          backgroundColor: '#ffffff',
-                                          padding: 20,
-                                          borderRadius: '13px',
-                                        }}
-                                      >
-                                        <div className="w-full flex flex-row items-center justify-between">
-                                          <div className="font-bold text-xl mt-4 mb-4">
-                                            Call Transcript
-                                          </div>
-                                          <div>
-                                            <button
-                                              className="font-bold outline-none border-none"
-                                              onClick={() => setIsExpanded(null)}
-                                            >
-                                              <CloseIcon />
-                                            </button>
-                                          </div>
-                                        </div>
-                                        <TranscriptViewer callId={isExpanded?.id || ''} />
-                                      </div>
-                                    </div>
-                                  </Box>
-                                </Modal>
                               </div>
                             )}
-                          </div>
                         </div>
                       </div>
                     ) : (
@@ -1213,6 +586,7 @@ function CallWorthyReviewsPopup({ open, close }) {
           </div>
         </Box>
       </Modal>
+
     </div>
   )
 }

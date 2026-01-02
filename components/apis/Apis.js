@@ -91,6 +91,7 @@ const Apis = {
   getLeadDetails: `${BasePath}api/leads/leadDetail`,
   getStagesList: `${BasePath}api/pipeline/getPipeline`,
   updateLeadStageApi: `${BasePath}api/leads/updateLeadStage`,
+  updateLead: `${BasePath}api/leads/updateLead`,
 
   sendVerificationCode: `${BasePath}api/user/sendVerificationCode`,
   deleteLead: `${BasePath}api/leads/deleteLead`,

@@ -176,11 +176,10 @@ export default function CallSummaryModal({
                     <div
                       key={template.id}
                       onClick={() => setSelectedTemplate(template)}
-                      className={`p-3 border rounded-lg cursor-pointer transition-all ${
-                        selectedTemplate?.id === template.id
+                      className={`p-3 border rounded-lg cursor-pointer transition-all ${selectedTemplate?.id === template.id
                           ? 'border-2 border-purple-500 bg-purple-50'
                           : 'border border-gray-200 hover:border-gray-300'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
@@ -228,16 +227,18 @@ export default function CallSummaryModal({
                     // TODO: Open compose new email modal
                     toast.info('Compose new email feature coming soon')
                   }}
-                  className="w-full rounded-lg border border-gray-300"
+                  variant="filled"
+                  className="w-full rounded-full py-2 px-4 transition-all"
                   style={{
-                    backgroundColor: 'white',
+                    backgroundColor: '#F9F9F9',
+                    border: '1px solid #e5e7eb',
                     color: '#374151',
                     fontSize: '14px',
-                    padding: '8px 16px',
+                    height: 'auto',
                   }}
                 >
-                  <span className="mr-2">✏️</span>
-                  Compose New
+                  <span className="mr-1.5">✏️</span>
+                  Create Email
                 </Button>
               </div>
             </div>

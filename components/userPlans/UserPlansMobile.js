@@ -576,6 +576,8 @@ function UserPlansMobile({
               handleBack={() => {
                 setShowPlanSummary(false)
               }}
+              isSubscribing={subscribeLoader !== null}
+              setIsSubscribing={setSubscribeLoader}
             />
           ) : (
             <PlansListMobile
@@ -659,6 +661,12 @@ function UserPlansMobile({
               addCardFailure={false}
               addCardSuccess={false}
               addCardErrtxt=""
+              handleBack={() => {
+                setSubscribeLoader(null)
+                setAddPaymentPopUp(false)
+                setShouldAutoSubscribe(false)
+
+              }}
             />
           </Elements>
         </Box>

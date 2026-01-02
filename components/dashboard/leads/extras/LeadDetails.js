@@ -83,6 +83,7 @@ import { capitalize } from '@/utilities/StringUtility'
 import { getAgentsListImage } from '@/utilities/agentUtilities'
 import { GetFormattedDateString } from '@/utilities/utility'
 import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
+import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
 
 import NoVoicemailView from '../../myagentX/NoVoicemailView'
 import AgentSelectSnackMessage, {
@@ -108,6 +109,7 @@ const LeadDetails = ({
   noBackDrop = false,
   leadStageUpdated,
   leadAssignedTeam,
+  renderInline = false,
 }) => {
   // //console.log;
   // //console.log;
@@ -151,6 +153,14 @@ const LeadDetails = ({
 
   //code for del tag
   const [DelTagLoader, setDelTagLoader] = useState(null)
+
+  //code for tag input with autocomplete
+  const [tagInputValue, setTagInputValue] = useState('')
+  const [tagSuggestions, setTagSuggestions] = useState([])
+  const [showTagSuggestions, setShowTagSuggestions] = useState(false)
+  const [uniqueColumns, setUniqueColumns] = useState([])
+  const [addTagLoader, setAddTagLoader] = useState(false)
+  const tagInputRef = React.useRef(null)
 
   //code for stages drop down
   const [selectedStage, setSelectedStage] = useState('')
@@ -274,7 +284,20 @@ const LeadDetails = ({
     getNumbers()
     getData()
     getCreditCost()
+    getUniqueColumns()
   }, [])
+
+  // Fetch unique columns for tag autocomplete
+  const getUniqueColumns = async () => {
+    try {
+      const columns = await getUniquesColumn()
+      if (columns && Array.isArray(columns)) {
+        setUniqueColumns(columns)
+      }
+    } catch (error) {
+      console.error('Error fetching unique columns:', error)
+    }
+  }
 
   // get the credit cost
   const getCreditCost = async () => {
@@ -363,6 +386,7 @@ const LeadDetails = ({
       // return;
       let response = await AssignTeamMember(ApiData)
       if (response && response.data && response.data.status === true) {
+        let updatedLead = null
         setSelectedLeadsDetails((prevData) => {
           // Filter duplicates before adding
           const existingIds = (prevData.teamsAssigned || []).map(u => u.id || u.invitedUserId)
@@ -370,14 +394,19 @@ const LeadDetails = ({
 
           // Only add if not already assigned
           if (!existingIds.includes(itemId)) {
-            return {
+            updatedLead = {
               ...prevData,
               teamsAssigned: [...(prevData.teamsAssigned || []), item],
             }
+            return updatedLead
           }
+          updatedLead = prevData
           return prevData
         })
-        leadAssignedTeam(item, selectedLeadsDetails)
+        // Call callback with updated lead data
+        if (updatedLead && leadAssignedTeam) {
+          leadAssignedTeam(item, updatedLead)
+        }
       } else if (response && response.data && response.data.status === false) {
         // Show error message if assignment failed (e.g., duplicate)
         showSnackbar(response.data.message || 'Failed to assign team member', SnackbarTypes.Error)
@@ -408,14 +437,29 @@ const LeadDetails = ({
 
       if (response && response.data && response.data.status === true) {
         // Remove the user from the assigned list
+        let updatedLead = null
         setSelectedLeadsDetails((prevData) => {
-          return {
+          const filteredTeams = (prevData.teamsAssigned || []).filter((user) => {
+            // Check all possible ID fields to match the userId
+            const userIdentifier = user.id || user.invitedUserId || user.invitedUser?.id
+            // Convert both to strings for comparison to handle type mismatches
+            return String(userIdentifier) !== String(userId)
+          })
+          
+          updatedLead = {
             ...prevData,
-            teamsAssigned: (prevData.teamsAssigned || []).filter(
-              (user) => (user.id !== userId && user.invitedUserId !== userId)
-            ),
+            teamsAssigned: filteredTeams,
           }
+          
+          return updatedLead
         })
+        
+        // Call callback with updated lead data to sync with parent component
+        // Use the updatedLead value we just created
+        if (updatedLead && leadAssignedTeam) {
+          leadAssignedTeam(null, updatedLead)
+        }
+        
         showSnackbar(response.data.message || 'Team member unassigned successfully', SnackbarTypes.Success)
       } else if (response && response.data && response.data.status === false) {
         // Show error message if unassignment failed
@@ -907,6 +951,115 @@ const LeadDetails = ({
         return [...prevIds, item.id]
       }
     })
+  }
+
+  //code for adding tag
+  const handleAddTag = async (tagValue) => {
+    if (!tagValue || !tagValue.trim()) return
+
+    const trimmedTag = tagValue.trim()
+    
+    // Check if tag already exists
+    if (selectedLeadsDetails?.tags?.includes(trimmedTag)) {
+      showSnackbar('Tag already exists', SnackbarTypes.Error)
+      setTagInputValue('')
+      return
+    }
+
+    try {
+      setAddTagLoader(true)
+      let AuthToken = null
+
+      const userData = localStorage.getItem('User')
+      if (userData) {
+        const localData = JSON.parse(userData)
+        AuthToken = localData.token
+      }
+
+      // Prepare updated tags array
+      const updatedTags = [...(selectedLeadsDetails.tags || []), trimmedTag]
+
+      const ApiData = {
+        leadId: selectedLeadsDetails.id,
+        tag: trimmedTag,
+        smartListId: selectedLeadsDetails.sheetId,
+        phoneNumber:selectedLeadsDetails.phone
+      }
+
+      console.log('ApiData for add tag is', ApiData)
+
+      const ApiPath = Apis.updateLead
+      const response = await axios.put(ApiPath, ApiData, {
+        headers: {
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response) {
+        if (response.data.status === true) {
+          console.log('response of add tag api is', response.data)
+          setSelectedLeadsDetails((prevDetails) => ({
+            ...prevDetails,
+            tags: updatedTags,
+          }))
+          setTagInputValue('')
+          setShowTagSuggestions(false)
+          showSnackbar('Tag added successfully', SnackbarTypes.Success)
+        } else {
+          showSnackbar(response.data.message || 'Failed to add tag', SnackbarTypes.Error)
+        }
+      }
+    } catch (error) {
+      console.error('Error occurred in update lead api:', error)
+      showSnackbar('Failed to add tag. Please try again.', SnackbarTypes.Error)
+    } finally {
+      setAddTagLoader(false)
+    }
+  }
+
+  // Handle tag input change with autocomplete
+  const handleTagInputChange = (e) => {
+    const value = e.target.value
+    setTagInputValue(value)
+
+    if (value.trim()) {
+      // Filter unique columns that match the input
+      // Also exclude tags that already exist
+      const existingTags = selectedLeadsDetails?.tags || []
+      const filtered = uniqueColumns
+        .filter((col) => {
+          const colLower = col.toLowerCase()
+          const valueLower = value.toLowerCase()
+          // Match if column contains the input value
+          return colLower.includes(valueLower)
+        })
+        .filter((col) => !existingTags.includes(col)) // Exclude existing tags
+      
+      setTagSuggestions(filtered)
+      setShowTagSuggestions(filtered.length > 0)
+    } else {
+      setTagSuggestions([])
+      setShowTagSuggestions(false)
+    }
+  }
+
+  // Handle key events for tag input
+  const handleTagInputKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === ',') {
+      e.preventDefault()
+      const value = tagInputValue.trim()
+      if (value) {
+        handleAddTag(value)
+      }
+    } else if (e.key === 'Escape') {
+      setShowTagSuggestions(false)
+    }
+  }
+
+  // Handle tag suggestion click
+  const handleTagSuggestionClick = (suggestion) => {
+    handleAddTag(suggestion)
   }
 
   //code for del tag api
@@ -1788,39 +1941,9 @@ const LeadDetails = ({
     )
   }
 
-  return (
-    <div className="h-[100svh]">
-      <Drawer
-        open={showDetailsModal}
-        anchor="right"
-        onClose={() => {
-          setShowDetailsModal(false)
-        }}
-        disableEnforceFocus={true}
-        disableAutoFocus={true}
-        disableRestoreFocus={true}
-        PaperProps={{
-          sx: {
-            width: '45%', // Adjust width as needed
-            borderRadius: '20px', // Rounded corners
-            padding: '0px', // Internal padding
-            boxShadow: 3, // Light shadow
-            margin: '1%', // Small margin for better appearance
-            backgroundColor: 'white', // Ensure it's visible
-            height: '96.5vh',
-            overflow: 'hidden',
-            scrollbarWidth: 'none',
-          },
-        }}
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: '#00000020',
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <AgentSelectSnackMessage
+  const mainContent = (
+    <>
+      <AgentSelectSnackMessage
           message={showSnackMsg.message}
           type={showSnackMsg.type}
           isVisible={showSnackMsg.isVisible}
@@ -1851,6 +1974,7 @@ const LeadDetails = ({
                       paddingInline: 30,
                     }}
                   >
+                    {!renderInline && (
                     <div className="w-full flex flex-row items-center justify-between pb-4 border-b">
                       <div style={{ fontSize: 18, fontWeight: '700' }}>
                         More Info
@@ -1863,6 +1987,7 @@ const LeadDetails = ({
                         <CloseIcon />
                       </button>
                     </div>
+                    )}
                     <div>
                       <div className="flex flex-row items-start justify-between mt-4  w-full">
                         <div className="flex flex-col items-start gap-[5px] ">
@@ -2219,84 +2344,118 @@ const LeadDetails = ({
                               </div>
                             </div>
                           )}
-                          {selectedLeadsDetails?.tags.length > 0 && (
+                          {selectedLeadsDetails && (
                             <div className="flex flex-row items-center gap-2">
+                            
                               <Tag
                                 size={16}
                                 color="#000000"
                               />
-                              <div>
-                                {selectedLeadsDetails?.tags.length > 0 ? (
-                                  <div
-                                    className="text-end flex flex-row items-center gap-2 "
-                                  // style={styles.paragraph}
-                                  >
-                                    {
-                                      // selectedLeadsDetails?.tags?.map.slice(0, 1)
-                                      selectedLeadsDetails?.tags
-                                        .slice(0, 2)
-                                        .map((tag, index) => {
-                                          return (
+                            
+                              <div className="flex-1 flex flex-row items-center justify-center gap-2">
+                                {/* Existing Tags Display */}
+                                {selectedLeadsDetails?.tags && selectedLeadsDetails.tags.length > 0 && (
+                                  <div className="flex flex-row items-center gap-2 flex-wrap mb-2">
+                                    {selectedLeadsDetails.tags
+                                      .slice(0, 2)
+                                      .map((tag, index) => {
+                                        return (
+                                          <div
+                                            key={index}
+                                            className="flex flex-row items-center gap-2"
+                                          >
                                             <div
-                                              key={index}
-                                              className="flex flex-row items-center gap-2"
+                                              className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
                                             >
-                                              <div
-                                                className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
-                                              >
-                                                <div
-                                                  className="text-black" //1C55FF10
-                                                >
-                                                  {tag}
-                                                </div>
-                                                {DelTagLoader &&
-                                                  tag.includes(DelTagLoader) ? (
-                                                  <div>
-                                                    <CircularProgress
-                                                      size={15}
-                                                    />
-                                                  </div>
-                                                ) : (
-                                                  <button
-                                                    onClick={() => {
-                                                      handleDelTag(tag)
-                                                    }}
-                                                  >
-                                                    <X
-                                                      size={15}
-                                                      weight="bold"
-                                                      color="#000000"
-                                                    />
-                                                  </button>
-                                                )}
+                                              <div className="text-black">
+                                                {tag}
                                               </div>
+                                              {DelTagLoader &&
+                                                tag.includes(DelTagLoader) ? (
+                                                <div>
+                                                  <CircularProgress
+                                                    size={15}
+                                                  />
+                                                </div>
+                                              ) : (
+                                                <button
+                                                  onClick={() => {
+                                                    handleDelTag(tag)
+                                                  }}
+                                                >
+                                                  <X
+                                                    size={15}
+                                                    weight="bold"
+                                                    color="#000000"
+                                                  />
+                                                </button>
+                                              )}
                                             </div>
-                                          )
-                                        })
-                                    }
-                                    <button
-                                      className="outline-none"
-                                      onClick={() => {
-                                        // console.log(
-                                        //   "tags are",
-                                        //   selectedLeadsDetails?.tags
-                                        // );
-                                        setExtraTagsModal(true)
-                                      }}
-                                    >
-                                      {selectedLeadsDetails?.tags.length >
-                                        2 && (
-                                          <div className="text-black underline">
-                                            +
-                                            {selectedLeadsDetails?.tags.length -
-                                              2}
                                           </div>
-                                        )}
-                                    </button>
+                                        )
+                                      })}
+                                    {selectedLeadsDetails.tags.length > 2 && (
+                                      <button
+                                        className="outline-none"
+                                        onClick={() => {
+                                          setExtraTagsModal(true)
+                                        }}
+                                      >
+                                        <div className="text-black underline">
+                                          +{selectedLeadsDetails.tags.length - 2}
+                                        </div>
+                                      </button>
+                                    )}
                                   </div>
-                                ) : (
-                                  '-'
                                 )}
+
+                                {/* Tag Input Field */}
+                                <div className="">
+                                  <input
+                                    ref={tagInputRef}
+                                    type="text"
+                                    value={tagInputValue}
+                                    onChange={handleTagInputChange}
+                                    onKeyDown={handleTagInputKeyDown}
+                                    onFocus={() => {
+                                      if (tagInputValue.trim() && tagSuggestions.length > 0) {
+                                        setShowTagSuggestions(true)
+                                      }
+                                    }}
+                                    onBlur={() => {
+                                      // Delay to allow click on suggestion
+                                      setTimeout(() => {
+                                        setShowTagSuggestions(false)
+                                      }, 200)
+                                    }}
+                                  
+                                    placeholder={selectedLeadsDetails?.tags && selectedLeadsDetails.tags.length > 0 ? "Add tag..." : "Add tags (press Enter, Space, or Comma)"}
+                                    className="w-full text-[12px] px-2 py-1 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                                    disabled={addTagLoader}
+                                  />
+                                  
+                                  {/* Autocomplete Suggestions Dropdown */}
+                                  {showTagSuggestions && tagSuggestions.length > 0 && (
+                                    <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-auto">
+                                      {tagSuggestions.map((suggestion, index) => (
+                                        <div
+                                          key={index}
+                                          onClick={() => handleTagSuggestionClick(suggestion)}
+                                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                                        >
+                                          {suggestion}
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+
+                                  {/* Loading indicator */}
+                                  {addTagLoader && (
+                                    <div className="absolute right-2 top-2">
+                                      <CircularProgress size={20} />
+                                    </div>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           )}
@@ -3820,6 +3979,52 @@ const LeadDetails = ({
             </Modal>
           </div>
         </div>
+    </>
+  )
+
+  // If renderInline is true, render content directly without Drawer
+  if (renderInline) {
+    return (
+      <div className="w-full h-full overflow-auto" style={{ scrollbarWidth: 'none' }}>
+        {mainContent}
+      </div>
+    )
+  }
+
+  // Otherwise, render with Drawer (original behavior)
+  return (
+    <div className="h-[100svh]">
+      <Drawer
+        open={showDetailsModal}
+        anchor="right"
+        onClose={() => {
+          setShowDetailsModal(false)
+        }}
+        disableEnforceFocus={true}
+        disableAutoFocus={true}
+        disableRestoreFocus={true}
+        PaperProps={{
+          sx: {
+            width: '45%', // Adjust width as needed
+            borderRadius: '20px', // Rounded corners
+            padding: '0px', // Internal padding
+            boxShadow: 3, // Light shadow
+            margin: '1%', // Small margin for better appearance
+            backgroundColor: 'white', // Ensure it's visible
+            height: '96.5vh',
+            overflow: 'hidden',
+            scrollbarWidth: 'none',
+          },
+        }}
+        BackdropProps={{
+          timeout: 100,
+          sx: {
+            backgroundColor: '#00000020',
+            // //backdropFilter: "blur(20px)",
+          },
+        }}
+      >
+        {mainContent}
       </Drawer>
 
       {/* Modal to edit note */}
