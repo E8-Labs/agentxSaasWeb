@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef } from 'react'
 import moment from 'moment'
 import Image from 'next/image'
 import { Paperclip } from '@phosphor-icons/react'
@@ -67,6 +67,7 @@ const EmailBubble = ({
   onAttachmentClick,
   onReplyClick,
   isLastMessage = false,
+  updateComposerFromMessage,
 }) => (
   <>
     <div
@@ -77,9 +78,9 @@ const EmailBubble = ({
       }`}
     >
       {message.subject && (
-        <div className="font-semibold mb-2 relative flex items-start">
+        <div className="font-semibold mb-2 flex items-start">
           <span 
-            className="font-normal cursor-pointer text-xs"
+            className="font-normal cursor-pointer text-xs relative"
             onMouseEnter={(e) => {
               e.stopPropagation()
               setOpenEmailDetailId(message.id)
@@ -90,46 +91,27 @@ const EmailBubble = ({
             }}
           >
             Subject:
-          </span>
-          <div
-            onClick={(e) => {
-              e.stopPropagation()
-              if (onOpenEmailTimeline && message.subject) {
-                onOpenEmailTimeline(message.subject)
-              } else if (setShowEmailTimeline && setEmailTimelineLeadId && selectedThread?.lead?.id) {
-                setShowEmailTimeline(true)
-                setEmailTimelineLeadId(selectedThread.lead.id)
-                if (setEmailTimelineSubject && message.subject) {
-                  setEmailTimelineSubject(message.subject)
-                }
-              }
-            }}
-            className="hover:underline cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis max-w-full flex-1 ml-1 text-xs"
-            title={message.subject}
-          >
-            {message.subject}
-          </div>
-          {openEmailDetailId === message.id && (
-            <div
-              className={`absolute z-50 w-auto min-w-fit max-w-[90vw] rounded-lg shadow-lg border border-gray-200 bg-white text-gray-900 ${
-                isLastMessage 
-                  ? `bottom-full mb-2 ${isOutbound ? 'right-0' : 'left-0'}`
-                  : `mt-2 ${isOutbound ? 'right-0' : 'left-0'}`
-              }`}
-              style={{
-                boxShadow: '0 2px 8px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.1)',
-              }}
-              onMouseEnter={(e) => {
-                e.stopPropagation()
-                setOpenEmailDetailId(message.id)
-              }}
-              onMouseLeave={(e) => {
-                e.stopPropagation()
-                setOpenEmailDetailId(null)
-              }}
-              onClick={(e) => e.stopPropagation()}
-              onMouseDown={(e) => e.stopPropagation()}
-            >
+            {openEmailDetailId === message.id && (
+              <div
+                className={`absolute z-50 w-auto min-w-fit max-w-[90vw] rounded-lg shadow-lg border border-gray-200 bg-white text-gray-900 ${
+                  isLastMessage 
+                    ? `bottom-full mb-1 ${isOutbound ? 'right-full mr-2' : 'left-full ml-2'}`
+                    : `top-full mt-1 ${isOutbound ? 'right-full mr-2' : 'left-full ml-2'}`
+                }`}
+                style={{
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.1)',
+                }}
+                onMouseEnter={(e) => {
+                  e.stopPropagation()
+                  setOpenEmailDetailId(message.id)
+                }}
+                onMouseLeave={(e) => {
+                  e.stopPropagation()
+                  setOpenEmailDetailId(null)
+                }}
+                onClick={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+              >
               <div className="px-2.5 py-2 border-b border-gray-200">
                 <span className="text-[11px] font-medium text-gray-700">Message details</span>
               </div>
@@ -162,8 +144,31 @@ const EmailBubble = ({
                   </div>
                 )
               })()}
-            </div>
-          )}
+              </div>
+            )}
+          </span>
+          <div
+            onClick={(e) => {
+              e.stopPropagation()
+              // Update composer fields from this message when subject is clicked
+              if (updateComposerFromMessage && message.messageType === 'email') {
+                updateComposerFromMessage(message)
+              }
+              if (onOpenEmailTimeline && message.subject) {
+                onOpenEmailTimeline(message.subject)
+              } else if (setShowEmailTimeline && setEmailTimelineLeadId && selectedThread?.lead?.id) {
+                setShowEmailTimeline(true)
+                setEmailTimelineLeadId(selectedThread.lead.id)
+                if (setEmailTimelineSubject && message.subject) {
+                  setEmailTimelineSubject(message.subject)
+                }
+              }
+            }}
+            className="hover:underline cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis max-w-full flex-1 ml-1 text-xs"
+            title={message.subject}
+          >
+            {message.subject}
+          </div>
         </div>
       )}
       <div
@@ -227,6 +232,7 @@ const ConversationView = ({
   setEmailTimelineSubject,
   onReplyClick,
   onOpenEmailTimeline,
+  updateComposerFromMessage,
 }) => {
   // Helper function to normalize email subject for threading comparison
   const normalizeSubject = (subject) => {
@@ -237,6 +243,41 @@ const ConversationView = ({
       .replace(/^\[.*?\]\s*/, '')
       .trim()
   }
+
+  // Track if we've already populated composer from last message for current thread
+  const hasPopulatedComposerRef = useRef(false)
+  const lastThreadIdRef = useRef(null)
+
+  // When messages load, populate composer with last email message's subject, CC, and BCC
+  useEffect(() => {
+    // Reset if thread changed
+    if (selectedThread?.id !== lastThreadIdRef.current) {
+      hasPopulatedComposerRef.current = false
+      lastThreadIdRef.current = selectedThread?.id || null
+    }
+
+    if (!messages || messages.length === 0 || !updateComposerFromMessage || hasPopulatedComposerRef.current) {
+      return
+    }
+
+    // Find the last email message (sorted by createdAt, descending)
+    const emailMessages = messages
+      .filter(msg => msg.messageType === 'email')
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+
+    if (emailMessages.length > 0) {
+      const lastEmailMessage = emailMessages[0]
+      console.log('🔍 [ConversationView] Populating composer from last email message:', {
+        messageId: lastEmailMessage.id,
+        subject: lastEmailMessage.subject,
+        ccEmails: lastEmailMessage.ccEmails,
+        bccEmails: lastEmailMessage.bccEmails,
+      })
+      updateComposerFromMessage(lastEmailMessage)
+      hasPopulatedComposerRef.current = true
+    }
+  }, [messages, updateComposerFromMessage, selectedThread?.id])
+
   if (!selectedThread) return null
 
   const handleAttachmentClick = (enrichedAttachment, message, isImage) => {
@@ -488,6 +529,7 @@ const ConversationView = ({
                           onAttachmentClick={handleAttachmentClick}
                           onReplyClick={onReplyClick}
                           isLastMessage={isLastMessage}
+                          updateComposerFromMessage={updateComposerFromMessage}
                         />
                       ) : (
                         <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} />

@@ -862,8 +862,43 @@ const Messages = () => {
     const receiverPhone = thread.receiverPhoneNumber || thread.lead?.phone || ''
 
     // Pre-populate CC/BCC from thread if available
-    const threadCcEmails = thread.ccEmails || []
-    const threadBccEmails = thread.bccEmails || []
+    // Handle both array format and JSON string format
+    let threadCcEmails = []
+    let threadBccEmails = []
+    
+    if (thread.ccEmails) {
+      if (Array.isArray(thread.ccEmails)) {
+        threadCcEmails = thread.ccEmails
+      } else if (typeof thread.ccEmails === 'string') {
+        try {
+          threadCcEmails = JSON.parse(thread.ccEmails)
+        } catch (e) {
+          console.warn('Failed to parse thread.ccEmails:', e)
+          threadCcEmails = []
+        }
+      }
+    }
+    
+    if (thread.bccEmails) {
+      if (Array.isArray(thread.bccEmails)) {
+        threadBccEmails = thread.bccEmails
+      } else if (typeof thread.bccEmails === 'string') {
+        try {
+          threadBccEmails = JSON.parse(thread.bccEmails)
+        } catch (e) {
+          console.warn('Failed to parse thread.bccEmails:', e)
+          threadBccEmails = []
+        }
+      }
+    }
+    
+    console.log('🔍 [handleThreadSelect] Thread CC/BCC:', {
+      threadId: thread.id,
+      ccEmails: threadCcEmails,
+      bccEmails: threadBccEmails,
+      rawCcEmails: thread.ccEmails,
+      rawBccEmails: thread.bccEmails,
+    })
     
     setCcEmails(threadCcEmails)
     setBccEmails(threadBccEmails)
@@ -1304,12 +1339,67 @@ const Messages = () => {
       .trim()
   }
 
+  // Update composer fields (subject, CC, BCC) from a message
+  const updateComposerFromMessage = (message) => {
+    if (!message || message.messageType !== 'email') return
+
+    // Extract and normalize subject
+    if (message.subject) {
+      const normalizedSubject = normalizeSubject(message.subject)
+      setComposerData((prev) => ({ ...prev, subject: normalizedSubject }))
+    }
+
+    // Extract CC emails
+    let ccEmailsArray = []
+    if (message.ccEmails && Array.isArray(message.ccEmails) && message.ccEmails.length > 0) {
+      ccEmailsArray = message.ccEmails
+    } else if (message.metadata?.cc) {
+      // Try to parse from metadata if it's a string
+      if (typeof message.metadata.cc === 'string') {
+        ccEmailsArray = message.metadata.cc.split(',').map(e => e.trim()).filter(e => e)
+      } else if (Array.isArray(message.metadata.cc)) {
+        ccEmailsArray = message.metadata.cc
+      }
+    }
+
+    // Extract BCC emails
+    let bccEmailsArray = []
+    if (message.bccEmails && Array.isArray(message.bccEmails) && message.bccEmails.length > 0) {
+      bccEmailsArray = message.bccEmails
+    } else if (message.metadata?.bcc) {
+      // Try to parse from metadata if it's a string
+      if (typeof message.metadata.bcc === 'string') {
+        bccEmailsArray = message.metadata.bcc.split(',').map(e => e.trim()).filter(e => e)
+      } else if (Array.isArray(message.metadata.bcc)) {
+        bccEmailsArray = message.metadata.bcc
+      }
+    }
+
+    // Update CC/BCC state
+    if (ccEmailsArray.length > 0) {
+      setCcEmails(ccEmailsArray)
+    }
+    if (bccEmailsArray.length > 0) {
+      setBccEmails(bccEmailsArray)
+    }
+
+    console.log('🔍 [updateComposerFromMessage] Updated composer from message:', {
+      messageId: message.id,
+      subject: message.subject,
+      ccEmails: ccEmailsArray,
+      bccEmails: bccEmailsArray,
+    })
+  }
+
   // Handle reply click
   const handleReplyClick = (message) => {
     if (!message || !selectedThread?.lead?.id) return
 
     // Set the message to reply to
     setReplyToMessage(message)
+
+    // Update composer fields from this message
+    updateComposerFromMessage(message)
 
     // Open EmailTimelineModal with reply mode
     setShowEmailTimeline(true)
@@ -1319,8 +1409,6 @@ const Messages = () => {
     if (message.subject) {
       const normalizedSubject = normalizeSubject(message.subject)
       setEmailTimelineSubject(normalizedSubject)
-      // Also update composer subject for threading
-      setComposerData((prev) => ({ ...prev, subject: normalizedSubject }))
     } else {
       setEmailTimelineSubject(null)
     }
@@ -2261,6 +2349,7 @@ const Messages = () => {
                     setEmailTimelineSubject={setEmailTimelineSubject}
                     onReplyClick={handleReplyClick}
                     onOpenEmailTimeline={handleOpenEmailTimeline}
+                    updateComposerFromMessage={updateComposerFromMessage}
                   />
 
                   {/* Composer */}
