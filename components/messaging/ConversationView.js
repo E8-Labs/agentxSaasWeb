@@ -481,8 +481,8 @@ const ConversationView = ({
                   }
                 >
                   {isReply && parentMessage && (
-                    <div className={`text-xs mb-1 text-gray-500 ${isOutbound ? 'flex justify-end w-full' : 'text-left'}`}>
-                      <div className={`${isOutbound ? 'max-w-[75%] text-right' : ''} px-2`}>
+                    <div className={`text-xs mb-1 text-gray-500 ${isOutbound ? 'flex justify-end w-full pe-2' : 'text-left'}`}>
+                      <div className={`${isOutbound ? 'max-w-[75%] min-w-[220px] text-left' : ''}`}>
                         <span className="italic">
                           Replying to:{' '}
                           {parentMessage.messageType === 'email' && parentMessage.subject
