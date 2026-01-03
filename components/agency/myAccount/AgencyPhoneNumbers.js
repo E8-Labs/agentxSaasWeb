@@ -12,10 +12,10 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import ClaimNumber from '@/components/dashboard/myagentX/ClaimNumber'
-import VideoCard from '@/components/createagent/VideoCard'
 import IntroVideoModal from '@/components/createagent/IntroVideoModal'
 import { HowToVideoTypes } from '@/constants/Constants'
 import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
+import { Play } from 'lucide-react'
 
 function AgencyPhoneNumbers({ selectedAgency }) {
   const [phoneNumbers, setPhoneNumbers] = useState([])
@@ -236,8 +236,8 @@ function AgencyPhoneNumbers({ selectedAgency }) {
   const userData = getUserData()
 
   // Check if Twilio is connected
-  // If user is an Agency, check if twilio exists on the user object
-  const isTwilioConnected = userData?.userRole === 'Agency' && userData?.twilio ? true : false
+  // For agencies, check isTwilioConnected property from user profile
+  const isTwilioConnected = userData?.userRole === 'Agency' && userData?.isTwilioConnected === true
 
   return (
     <div
@@ -260,11 +260,32 @@ function AgencyPhoneNumbers({ selectedAgency }) {
       {/* Header */}
       <div className="mb-6 flex items-start justify-between">
         <div className="flex-1">
-          <div
-            className="text-2xl font-semibold mb-2"
-            style={{ color: '#000' }}
-          >
-            Phone Numbers List
+          <div className="flex flex-row items-center gap-3 mb-2">
+            <div
+              className="text-2xl font-semibold"
+              style={{ color: '#000' }}
+            >
+              Phone Numbers List
+            </div>
+            <div className="flex flex-row items-center gap-2">
+              <button
+                className="text-[13px] font-[500] text-brand-primary outline-none border-none cursor-pointer"
+                onClick={() => {
+                  setShowVideoModal(true)
+                }}
+              >
+                Learn how to setup Global Numbers
+              </button>
+              <Play
+                onClick={() => {
+                  setShowVideoModal(true)
+                }}
+                size={16}
+                weight="bold"
+                className="text-brand-primary cursor-pointer"
+                style={{ color: 'hsl(var(--brand-primary))' }}
+              />
+            </div>
           </div>
           <div className="text-sm" style={{ color: '#666' }}>
             Manage your agency global phone numbers. The global number will be
@@ -272,25 +293,6 @@ function AgencyPhoneNumbers({ selectedAgency }) {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          {/* Video Card */}
-          <div className="hidden lg:block">
-            <VideoCard
-              duration={(() => {
-                const tutorial = getTutorialByType(
-                  HowToVideoTypes.SettingGlobalNumber,
-                )
-                return tutorial?.description || '0:00'
-              })()}
-              horizontal={false}
-              playVideo={() => {
-                setShowVideoModal(true)
-              }}
-              title={
-                getTutorialByType(HowToVideoTypes.SettingGlobalNumber)?.title ||
-                'Setting Global Number'
-              }
-            />
-          </div>
           <Tooltip
             title={
               !isTwilioConnected

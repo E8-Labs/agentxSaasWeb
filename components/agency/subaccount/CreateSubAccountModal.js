@@ -635,28 +635,34 @@ export default function CreateSubAccountModal({
             Create SubAccount
           </h2>
           <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Internal Account?
-            </label>
-            <Switch
-              checked={isInternalAccount}
-              onChange={(e) => setIsInternalAccount(e.target.checked)}
-              disabled={hasInternalAccount}
-              sx={{
-                '& .MuiSwitch-switchBase.Mui-checked': {
-                  color: 'white',
-                },
-                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                  backgroundColor: 'hsl(var(--brand-primary))',
-                },
-                '& .MuiSwitch-switchBase.Mui-disabled': {
-                  color: 'rgba(0, 0, 0, 0.26)',
-                },
-                '& .MuiSwitch-switchBase.Mui-disabled + .MuiSwitch-track': {
-                  backgroundColor: 'rgba(0, 0, 0, 0.12)',
-                },
-              }}
-            />
+            {
+              !hasInternalAccount && (
+                <>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Internal Account?
+                  </label>
+                  <Switch
+                    checked={isInternalAccount}
+                    onChange={(e) => setIsInternalAccount(e.target.checked)}
+                    disabled={hasInternalAccount}
+                    sx={{
+                      '& .MuiSwitch-switchBase.Mui-checked': {
+                        color: 'white',
+                      },
+                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                        backgroundColor: 'hsl(var(--brand-primary))',
+                      },
+                      '& .MuiSwitch-switchBase.Mui-disabled': {
+                        color: 'rgba(0, 0, 0, 0.26)',
+                      },
+                      '& .MuiSwitch-switchBase.Mui-disabled + .MuiSwitch-track': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.12)',
+                      },
+                    }}
+                  />
+                </>
+              )
+            }
             <CloseBtn onClick={onClose} />
           </div>
         </div>

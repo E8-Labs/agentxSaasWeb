@@ -467,7 +467,8 @@ export async function proxy(request) {
   ]
   
   if (webhookRoutes.some(route => pathname.startsWith(route))) {
-    console.log(`🔵 [MIDDLEWARE] Allowing webhook route without auth: ${pathname}`)
+    console.log(`🔵 [MIDDLEWARE] ✅ Allowing webhook route without auth: ${pathname}`)
+    console.log(`🔵 [MIDDLEWARE] Headers:`, JSON.stringify(Object.fromEntries(request.headers.entries()), null, 2))
     return createResponseWithBrandingHeaders(request, agencyBranding)
   }
 
@@ -608,6 +609,12 @@ export async function proxy(request) {
 
 export const config = {
   matcher: [
+    // Include API routes in matcher
+    '/api/dialer/calls/:path*',
+    '/api/dialer/calls/incoming',
+    '/api/dialer/calls/status',
+    '/api/dialer/calls/twiml',
+    // Existing routes
     '/agency', // exact /agency
     '/createagent/:path*',
     '/pipeline/:path*',

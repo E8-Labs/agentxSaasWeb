@@ -15,6 +15,7 @@ import { getStripeLink } from '@/components/onboarding/services/apisServices/Api
 import { HowToVideoTypes } from '@/constants/Constants'
 import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 import StripeDetailsCard from './StripeDetailsCard'
+import { Play } from 'lucide-react'
 
 const ConnectStripe = ({ fullScreen = false }) => {
   const router = useRouter()
@@ -205,7 +206,36 @@ const ConnectStripe = ({ fullScreen = false }) => {
               </div>
             )}
 
-            <div className="w-full flex items-center justify-center">
+
+
+<div className="flex flex-row items-center gap-4">
+          <button
+            className="text-[15px] font-[500] text-brand-primary outline-none border-none cursor-pointer"
+            onClick={() => {
+              setShowVideoModal(true)
+            }}
+          >
+            {'Connect your Stripe account'}
+          </button>
+          <Play onClick={() => {
+              setShowVideoModal(true)
+            }} size={18} 
+          weight='bold'
+          className="text-brand-primary cursor-pointer"
+          
+          style={{ color: 'hsl(var(--brand-primary))' }}
+          />
+          {/* <Image
+            src="/otherAssets/playIcon.jpg"
+            alt="info"
+            width={10}
+            height={10}
+            className="cursor-pointer"
+            onClick={() => setIntroVideoModal2(true)}
+          /> */}
+        </div>
+
+            {/* <div className="w-full flex items-center justify-center">
               <VideoCard
                 horizontal={false}
                 title={
@@ -215,7 +245,7 @@ const ConnectStripe = ({ fullScreen = false }) => {
                 duration={connectBankTutorial?.description || '4:00'}
                 playVideo={() => setShowVideoModal(true)}
               />
-            </div>
+            </div> */}
           </div>
         )}
       </div>

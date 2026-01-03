@@ -143,9 +143,12 @@ const CustomerProfile = ({
           >
             {learnMoreCta}
           </button>
-          <Play size={18} 
+          <Play onClick={() => {
+              setIntroVideoModal2(true)
+            }}
+            size={18} 
           weight='bold'
-          className="text-brand-primary"
+          className="text-brand-primary cursor-pointer"
           
           style={{ color: 'hsl(var(--brand-primary))' }}
           />

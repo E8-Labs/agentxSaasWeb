@@ -11,7 +11,7 @@ const SubDuration = ({ planDuration, setPlanDuration, isEditPlan }) => {
     },
     {
       id: 2,
-      title: 'Quaterly',
+      title: 'Quarterly',
       value: 'quarterly',
     },
     {
