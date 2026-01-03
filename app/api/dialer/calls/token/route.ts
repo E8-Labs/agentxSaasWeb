@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getAuthUser } from '../../auth-helper'
+import { getAuthUser, type AuthUser } from '../../auth-helper'
 
 const BASE_API_URL =
   process.env.NEXT_PUBLIC_BASE_API_URL ||
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Try to get user, but don't fail if it errors
-    let user = null
+    let user: AuthUser | null = null
     try {
       user = await getAuthUser(req)
     } catch (authError) {
