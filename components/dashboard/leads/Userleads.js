@@ -60,6 +60,7 @@ import AssignLead from './AssignLead'
 import LeadLoading from './LeadLoading'
 import AssignLeadAnimation from './assignLeadSlideAnimation/AssignLeadAnimation'
 import LeadDetails from './extras/LeadDetails'
+import { Trash } from 'lucide-react'
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -2416,9 +2417,10 @@ const Userleads = ({
                           PaperProps={{
                             elevation: 0, // This will remove the shadow
                             style: {
-                              boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                              boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1), 0px 1px 3px rgba(0, 0, 0, 0.08)',
                               borderRadius: '10px',
                               width: '120px',
+                              border: '1px solid rgba(0, 0, 0, 0.05)',
                             },
                           }}
                         >
@@ -2436,12 +2438,7 @@ const Userleads = ({
                                 className="text-red flex flex-row items-center gap-1"
                                 onClick={handleDeleteSmartList}
                               >
-                                <Image
-                                  src={'/assets/delIcon.png'}
-                                  height={18}
-                                  width={18}
-                                  alt="*"
-                                />
+                                <Trash size={18} />
                                 <p
                                   className="text-red"
                                   style={{ fontWeight: '00', fontSize: 16 }}

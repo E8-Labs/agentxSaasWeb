@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import React, { useState } from 'react'
 import moment from 'moment'
-import { Search, MoreVertical, Trash2 } from 'lucide-react'
+import { Search, MoreVertical, Trash } from 'lucide-react'
 
 const ThreadsList = ({
   loading,
@@ -236,8 +236,8 @@ const ThreadsList = ({
                                   }}
                                   className="w-full whitespace-nowrap px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                                 >
-                                  <Trash2 size={16} />
-                                  Delete Thread
+                                  <Trash size={16} />
+                                  Delete
                                 </button>
                               </div>
                             </>

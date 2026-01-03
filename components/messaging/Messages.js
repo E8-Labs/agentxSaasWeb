@@ -174,10 +174,26 @@ const Messages = () => {
         )
       }
 
+      // Get CC/BCC from multiple sources
+      let ccValue = ''
+      if (message.ccEmails && Array.isArray(message.ccEmails) && message.ccEmails.length > 0) {
+        ccValue = message.ccEmails.join(', ')
+      } else {
+        ccValue = ensureString(message.metadata?.cc || message.cc || getHeader('cc'))
+      }
+
+      let bccValue = ''
+      if (message.bccEmails && Array.isArray(message.bccEmails) && message.bccEmails.length > 0) {
+        bccValue = message.bccEmails.join(', ')
+      } else {
+        bccValue = ensureString(message.metadata?.bcc || message.bcc || getHeader('bcc'))
+      }
+
       return {
         from: fromEmail || 'Unknown sender',
         to: toEmail || 'Unknown recipient',
-        cc: ensureString(message.metadata?.cc || message.cc || getHeader('cc')),
+        cc: ccValue,
+        bcc: bccValue,
         subject: ensureString(message.subject || getHeader('subject')),
         date: message.createdAt ? moment(message.createdAt).format('MMM D, YYYY, h:mm A') : '',
         mailedBy: ensureString(message.metadata?.mailedBy || getHeader('mailed-by')),
@@ -1329,7 +1345,68 @@ const Messages = () => {
 
   // Get agent/user avatar for outbound messages
   const getAgentAvatar = (message) => {
-    // Priority 1: Agent image or bitmoji
+    // Priority 1: Team member sender (if message was sent by a team member)
+    if (message.senderUser) {
+      console.log('🔍 [getAgentAvatar] Found senderUser:', {
+        messageId: message.id,
+        senderUserId: message.senderUser.id,
+        senderName: message.senderUser.name,
+        senderEmail: message.senderUser.email,
+        hasProfileImage: !!message.senderUser.thumb_profile_image,
+        profileImageUrl: message.senderUser.thumb_profile_image,
+      })
+      
+      // Try team member profile image first
+      if (message.senderUser.thumb_profile_image) {
+        return (
+          <div
+            className="flex items-center justify-center"
+            style={{
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              backgroundColor: 'white',
+              overflow: 'hidden',
+            }}
+          >
+            <img
+              src={message.senderUser.thumb_profile_image}
+              alt={message.senderUser.name || 'Team Member'}
+              className="rounded-full"
+              style={{
+                width: '100%',
+                height: '100%',
+                objectFit: 'cover',
+              }}
+              onError={(e) => {
+                console.error('❌ [getAgentAvatar] Failed to load profile image:', message.senderUser.thumb_profile_image, e)
+              }}
+              onLoad={() => {
+                console.log('✅ [getAgentAvatar] Successfully loaded profile image:', message.senderUser.thumb_profile_image)
+              }}
+            />
+          </div>
+        )
+      }
+      
+      // Fallback to team member name initial
+      const teamMemberName = message.senderUser.name || message.senderUser.email || 'T'
+      const teamMemberLetter = teamMemberName.charAt(0).toUpperCase()
+      console.log('🔍 [getAgentAvatar] Using fallback initial:', teamMemberLetter)
+      return (
+        <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-sm border-2 border-brand-primary">
+          {teamMemberLetter}
+        </div>
+      )
+    }
+    
+    console.log('⚠️ [getAgentAvatar] No senderUser found for message:', {
+      messageId: message.id,
+      hasSenderUser: !!message.senderUser,
+      messageKeys: Object.keys(message),
+    })
+
+    // Priority 2: Agent image or bitmoji
     if (message.agent) {
       // Try agent image first
       if (message.agent.thumb_profile_image) {
@@ -1365,7 +1442,7 @@ const Messages = () => {
       }
     }
 
-    // Priority 2: User profile image
+    // Priority 3: User profile image
     if (userData?.user?.thumb_profile_image) {
       return (
         <Image
@@ -1379,7 +1456,7 @@ const Messages = () => {
       )
     }
 
-    // Priority 3: User profile letter
+    // Priority 4: User profile letter
     const userName = userData?.user?.name || userData?.user?.firstName || 'U'
     const userLetter = userName.charAt(0).toUpperCase()
     return (

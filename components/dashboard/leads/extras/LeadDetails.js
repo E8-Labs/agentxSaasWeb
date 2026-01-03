@@ -2426,7 +2426,7 @@ const LeadDetails = ({
                                     setShowTagSuggestions(false)
                                   }, 200)
                                 }}
-                                placeholder={selectedLeadsDetails?.tags && selectedLeadsDetails.tags.length > 0 ? "Add tag..." : "Add tags (press Enter, Space, or Comma)"}
+                                placeholder={selectedLeadsDetails?.tags && selectedLeadsDetails.tags.length > 0 ? "Add tag..." : "Add tags..."}
                                 className="text-[12px] px-2 py-1 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
                                 style={{ width: '150px' }}
                                 disabled={addTagLoader}

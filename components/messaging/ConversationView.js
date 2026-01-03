@@ -66,6 +66,7 @@ const EmailBubble = ({
   setEmailTimelineSubject,
   onAttachmentClick,
   onReplyClick,
+  isLastMessage = false,
 }) => (
   <>
     <div
@@ -78,7 +79,7 @@ const EmailBubble = ({
       {message.subject && (
         <div className="font-semibold mb-2 relative flex items-start">
           <span 
-            className="font-normal cursor-pointer"
+            className="font-normal cursor-pointer text-xs"
             onMouseEnter={(e) => {
               e.stopPropagation()
               setOpenEmailDetailId(message.id)
@@ -103,16 +104,21 @@ const EmailBubble = ({
                 }
               }
             }}
-            className="hover:underline cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis max-w-full flex-1 ml-1"
+            className="hover:underline cursor-pointer whitespace-nowrap overflow-hidden text-ellipsis max-w-full flex-1 ml-1 text-xs"
             title={message.subject}
           >
             {message.subject}
           </div>
           {openEmailDetailId === message.id && (
             <div
-              className={`absolute z-50 mt-2 w-80 max-w-[90vw] rounded shadow-[0_20px_60px_-25px_rgba(15,23,42,0.35),0_10px_30px_-20px_rgba(15,23,42,0.25)] border border-gray-100 bg-white text-gray-900 ${
-                isOutbound ? 'right-0' : 'left-0'
+              className={`absolute z-50 w-auto min-w-fit max-w-[90vw] rounded-lg shadow-lg border border-gray-200 bg-white text-gray-900 ${
+                isLastMessage 
+                  ? `bottom-full mb-2 ${isOutbound ? 'right-0' : 'left-0'}`
+                  : `mt-2 ${isOutbound ? 'right-0' : 'left-0'}`
               }`}
+              style={{
+                boxShadow: '0 2px 8px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.1)',
+              }}
               onMouseEnter={(e) => {
                 e.stopPropagation()
                 setOpenEmailDetailId(message.id)
@@ -124,8 +130,8 @@ const EmailBubble = ({
               onClick={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}
             >
-              <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
-                <span className="text-sm font-semibold text-gray-800">Message details</span>
+              <div className="px-2.5 py-2 border-b border-gray-200">
+                <span className="text-[11px] font-medium text-gray-700">Message details</span>
               </div>
               {(() => {
                 const details = getEmailDetails(message)
@@ -133,6 +139,7 @@ const EmailBubble = ({
                   { label: 'from', value: details.from },
                   { label: 'to', value: details.to },
                   { label: 'cc', value: details.cc },
+                  { label: 'bcc', value: details.bcc },
                   { label: 'date', value: details.date },
                   { label: 'subject', value: details.subject },
                   { label: 'mailed-by', value: details.mailedBy },
@@ -141,14 +148,14 @@ const EmailBubble = ({
                 ].filter((row) => row.value)
 
                 return (
-                  <div className="px-4 py-3 text-sm text-gray-700 space-y-2">
+                  <div className="px-2.5 py-2 text-[11px] text-gray-600 space-y-1">
                     {rows.length === 0 ? (
-                      <div className="text-xs text-gray-500">No metadata available.</div>
+                      <div className="text-[10px] text-gray-400">No metadata available.</div>
                     ) : (
                       rows.map((row) => (
                         <div key={row.label} className="flex items-start gap-2">
-                          <span className="text-gray-500 capitalize whitespace-nowrap">{row.label}:</span>
-                          <span className="font-medium break-words text-left">{row.value}</span>
+                          <span className="text-gray-500 capitalize whitespace-nowrap min-w-[60px] text-[11px]">{row.label}:</span>
+                          <span className="text-gray-700 break-words text-left text-[11px] leading-relaxed">{row.value}</span>
                         </div>
                       ))
                     )}
@@ -391,6 +398,7 @@ const ConversationView = ({
             return messagesWithDepth.map(({ message, depth, replyToId }, index) => {
             const isOutbound = message.direction === 'outbound'
             const isEmail = message.messageType === 'email'
+            const isLastMessage = index === messagesWithDepth.length - 1
               const parentMessage = replyToId ? messageMap.get(replyToId) : null
               
               // For email messages, only show "Replying to" if the normalized subjects match
@@ -479,6 +487,7 @@ const ConversationView = ({
                           setEmailTimelineSubject={setEmailTimelineSubject}
                           onAttachmentClick={handleAttachmentClick}
                           onReplyClick={onReplyClick}
+                          isLastMessage={isLastMessage}
                         />
                       ) : (
                         <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} />
@@ -499,7 +508,18 @@ const ConversationView = ({
                       )}
                     </div>
 
-                    {isOutbound && <div className="flex-shrink-0">{getAgentAvatar(message)}</div>}
+                    {isOutbound && (
+                      <div className="flex-shrink-0">
+                        {console.log('🔍 [ConversationView] Rendering avatar for message:', {
+                          messageId: message.id,
+                          isOutbound,
+                          hasSenderUser: !!message.senderUser,
+                          senderUser: message.senderUser,
+                          messageDirection: message.direction,
+                        })}
+                        {getAgentAvatar(message)}
+                      </div>
+                    )}
                   </div>
                 </div>
               </React.Fragment>
