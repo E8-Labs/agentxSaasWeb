@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
+import { MessageCircleMore, Mail } from 'lucide-react'
 import { CircularProgress } from '@mui/material'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
@@ -64,6 +65,18 @@ const hasTextContent = (html) => {
   // Fallback for SSR: strip HTML tags and check
   const textOnly = html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim()
   return textOnly.length > 0
+}
+
+// Helper function to strip HTML tags and convert to plain text
+const stripHTML = (html) => {
+  if (!html) return ''
+  if (typeof document !== 'undefined') {
+    const tempDiv = document.createElement('div')
+    tempDiv.innerHTML = html
+    return tempDiv.textContent || tempDiv.innerText || ''
+  }
+  // Fallback for SSR: strip HTML tags
+  return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim()
 }
 
 const MessageComposer = ({
@@ -155,6 +168,34 @@ const MessageComposer = ({
     }
   }, [])
 
+  // Function to render Lucide icon with branding color
+  const renderBrandedLucideIcon = (IconComponent, size = 20, isActive = false) => {
+    if (typeof window === 'undefined') {
+      return <IconComponent size={size} />
+    }
+
+    // Get brand color from CSS variable
+    const root = document.documentElement
+    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')
+
+    // Use brand color when active, muted gray when inactive
+    const iconColor = isActive && brandColor && brandColor.trim()
+      ? `hsl(${brandColor.trim()})`
+      : 'hsl(0 0% 60%)' // Muted gray for inactive state
+
+    return (
+      <IconComponent
+        size={size}
+        style={{
+          color: iconColor,
+          stroke: iconColor,
+          flexShrink: 0,
+          transition: 'color 0.2s ease-in-out, stroke 0.2s ease-in-out',
+        }}
+      />
+    )
+  }
+
   return (
     <div className="mx-4 mb-4 border border-gray-200 rounded-lg bg-white">
       <div className="px-4 py-2">
@@ -162,9 +203,21 @@ const MessageComposer = ({
           <div className="flex items-center gap-6">
             <button
               onClick={() => {
+                // When switching to SMS, preserve SMS body if it exists, otherwise convert email HTML to plain text
+                if (composerMode === 'email' && !composerData.smsBody && composerData.emailBody) {
+                  const plainText = stripHTML(composerData.emailBody)
+                  setComposerData((prev) => ({ 
+                    ...prev, 
+                    to: selectedThread?.receiverPhoneNumber || selectedThread?.lead?.phone || '',
+                    smsBody: plainText.substring(0, SMS_CHAR_LIMIT) // Ensure it doesn't exceed SMS limit
+                  }))
+                } else {
+                  setComposerData((prev) => ({ 
+                    ...prev, 
+                    to: selectedThread?.receiverPhoneNumber || selectedThread?.lead?.phone || ''
+                  }))
+                }
                 setComposerMode('sms')
-                const receiverPhone = selectedThread?.receiverPhoneNumber || selectedThread?.lead?.phone || ''
-                setComposerData((prev) => ({ ...prev, to: receiverPhone }))
                 fetchPhoneNumbers()
                 setIsExpanded(true)
               }}
@@ -172,20 +225,32 @@ const MessageComposer = ({
                 composerMode === 'sms' ? 'text-brand-primary' : 'text-gray-600'
               }`}
             >
-              <img
-                src="/messaging/sms toggle.svg"
-                width={20}
-                height={20}
-                alt="SMS"
-              />
+              {renderBrandedLucideIcon(
+                MessageCircleMore,
+                20,
+                composerMode === 'sms'
+              )}
               <span>SMS</span>
               {composerMode === 'sms' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />}
             </button>
             <button
               onClick={() => {
+                // When switching to Email, preserve email body if it exists, otherwise convert SMS text to HTML
+                if (composerMode === 'sms' && !composerData.emailBody && composerData.smsBody) {
+                  // Convert plain text SMS to HTML format for email
+                  const htmlBody = composerData.smsBody.replace(/\n/g, '<br>')
+                  setComposerData((prev) => ({ 
+                    ...prev, 
+                    to: selectedThread?.receiverEmail || selectedThread?.lead?.email || '',
+                    emailBody: htmlBody
+                  }))
+                } else {
+                  setComposerData((prev) => ({ 
+                    ...prev, 
+                    to: selectedThread?.receiverEmail || selectedThread?.lead?.email || ''
+                  }))
+                }
                 setComposerMode('email')
-                const receiverEmail = selectedThread?.receiverEmail || selectedThread?.lead?.email || ''
-                setComposerData((prev) => ({ ...prev, to: receiverEmail }))
                 setIsExpanded(true)
                 fetchEmailAccounts()
               }}
@@ -193,12 +258,11 @@ const MessageComposer = ({
                 composerMode === 'email' ? 'text-brand-primary' : 'text-gray-600'
               }`}
             >
-              <img
-                src="/messaging/email toggle.svg"
-                width={20}
-                height={20}
-                alt="Email"
-              />
+              {renderBrandedLucideIcon(
+                Mail,
+                20,
+                composerMode === 'email'
+              )}
               <span>Email</span>
               {composerMode === 'email' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />}
             </button>
@@ -209,9 +273,9 @@ const MessageComposer = ({
             aria-label={isExpanded ? 'Collapse' : 'Expand'}
           >
             {isExpanded ? (
-              <CaretUp size={20} className="text-gray-600" />
-            ) : (
               <CaretDown size={20} className="text-gray-600" />
+            ) : (
+              <CaretUp size={20} className="text-gray-600" />
             )}
           </button>
         </div>
@@ -220,12 +284,14 @@ const MessageComposer = ({
           // Collapsed view - show text input with send button
           <div className="mt-2 flex items-center gap-2">
             <Input
-              value={composerData.body}
+              value={composerMode === 'sms' ? composerData.smsBody : stripHTML(composerData.emailBody)}
               onChange={(e) => {
                 if (composerMode === 'sms' && e.target.value.length <= SMS_CHAR_LIMIT) {
-                  setComposerData({ ...composerData, body: e.target.value })
+                  setComposerData({ ...composerData, smsBody: e.target.value })
                 } else if (composerMode === 'email') {
-                  setComposerData({ ...composerData, body: e.target.value })
+                  // Convert plain text to HTML for email
+                  const htmlBody = e.target.value.replace(/\n/g, '<br>')
+                  setComposerData({ ...composerData, emailBody: htmlBody })
                 }
               }}
               onFocus={() => setIsExpanded(true)}
@@ -233,7 +299,8 @@ const MessageComposer = ({
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
-                  if (hasTextContent(composerData.body) && 
+                  const messageBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
+                  if (hasTextContent(messageBody) && 
                       ((composerMode === 'sms' && selectedPhoneNumber && composerData.to) ||
                        (composerMode === 'email' && selectedEmailAccount && composerData.to))) {
                     handleSendMessage()
@@ -248,7 +315,7 @@ const MessageComposer = ({
               onClick={handleSendMessage}
               disabled={
                 sendingMessage ||
-                !hasTextContent(composerData.body) ||
+                !hasTextContent(composerMode === 'sms' ? composerData.smsBody : composerData.emailBody) ||
                 (composerMode === 'email' && (!selectedEmailAccount || !composerData.to)) ||
                 (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
               }
@@ -547,8 +614,8 @@ const MessageComposer = ({
                     <div className="relative">
                       <RichTextEditor
                         ref={richTextEditorRef}
-                        value={composerData.body}
-                        onChange={(html) => setComposerData({ ...composerData, body: html })}
+                        value={composerData.emailBody}
+                        onChange={(html) => setComposerData({ ...composerData, emailBody: html })}
                         placeholder="Type your message..."
                         availableVariables={[]}
                         toolbarPosition="bottom"
@@ -577,7 +644,7 @@ const MessageComposer = ({
                           onClick={handleSendMessage}
                           disabled={
                             sendingMessage ||
-                            !hasTextContent(composerData.body) ||
+                            !hasTextContent(composerMode === 'email' ? composerData.emailBody : composerData.smsBody) ||
                             (composerMode === 'email' && (!selectedEmailAccount || !composerData.to))
                           }
                           className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
@@ -600,10 +667,10 @@ const MessageComposer = ({
                 ) : (
                   <>
                     <textarea
-                      value={composerData.body}
+                      value={composerData.smsBody}
                       onChange={(e) => {
                         if (e.target.value.length <= SMS_CHAR_LIMIT) {
-                          setComposerData({ ...composerData, body: e.target.value })
+                          setComposerData({ ...composerData, smsBody: e.target.value })
                         }
                       }}
                       placeholder="Type your message..."
@@ -614,7 +681,7 @@ const MessageComposer = ({
                     <div className="flex items-center justify-end gap-2 mt-2">
                       <div className="flex items-center gap-2 text-sm text-gray-500">
                         <span>
-                          {composerData.body.length}/{SMS_CHAR_LIMIT} char
+                          {composerData.smsBody.length}/{SMS_CHAR_LIMIT} char
                         </span>
                         <span className="text-gray-300">|</span>
                         <span>{Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left</span>
@@ -623,7 +690,7 @@ const MessageComposer = ({
                         onClick={handleSendMessage}
                         disabled={
                           sendingMessage ||
-                          !hasTextContent(composerData.body) ||
+                          !hasTextContent(composerData.smsBody) ||
                           (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
                         }
                         className="px-6 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button as ButtonBase } from '../ui/button'
 import { toast } from 'sonner'
-import { Mail, MoreVertical, Pencil, X, Loader2, Check, FileText } from 'lucide-react'
+import { Mail, MoreVertical, Pencil, X, Loader2, Check, FileText, Trash, Plus } from 'lucide-react'
 import { Menu, MenuItem } from '@mui/material'
 import EmailTempletePopupBase from '../pipeline/EmailTempletePopup'
 import { getGmailAccounts } from '../pipeline/TempleteServices'
@@ -94,15 +94,13 @@ export default function EmailTemplatePanel({
 
   const handleSendClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
-    // Fetch accounts if needed
+    
+    // Always show the dropdown - it will handle loading and empty states
+    setEmailAccountDropdownAnchor(e.currentTarget)
+    
+    // Fetch accounts if needed (only if not already loading)
     if (emailAccounts.length === 0 && !emailAccountsLoading) {
       await onRefreshEmailAccounts()
-    }
-    // If we have accounts, show dropdown, otherwise send directly
-    if (emailAccounts.length > 0) {
-      setEmailAccountDropdownAnchor(e.currentTarget)
-    } else {
-      toast.error('No email accounts found. Please connect an email account first.')
     }
   }
 
@@ -127,8 +125,8 @@ export default function EmailTemplatePanel({
               height: 'auto',
             }}
           >
-            <span className="mr-1.5">✏️</span>
-            Create Email  
+            <Plus size={14} className="mr-0" />
+            Add Email  
           </Button>
         </div>
         <div className="flex-1 overflow-y-auto p-4">
@@ -369,7 +367,7 @@ export default function EmailTemplatePanel({
             onClick={() => handleDeleteClick(selectedTemplateForMenu)}
             style={{ color: '#dc2626' }}
           >
-            <X size={14} className="mr-2" />
+            <Trash size={14} className="mr-2" />
             Delete
           </MenuItem>
         </Menu>

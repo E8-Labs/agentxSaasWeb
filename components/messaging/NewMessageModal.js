@@ -17,7 +17,7 @@ import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
 import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
 import UpgardView from '@/constants/UpgardView'
 import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
-import { Paperclip, X as XIcon } from 'lucide-react'
+import { Paperclip, X as XIcon, MessageCircleMore, Mail } from 'lucide-react'
 import { FormControl, MenuItem, Select } from '@mui/material'
 import { useUser } from '@/hooks/redux-hooks'
 
@@ -77,7 +77,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
   const [selectedEmailAccount, setSelectedEmailAccount] = useState(null)
   const [selectedPhoneNumberObj, setSelectedPhoneNumberObj] = useState(null)
   const [selectedEmailAccountObj, setSelectedEmailAccountObj] = useState(null)
-  const [messageBody, setMessageBody] = useState('')
+  const [smsMessageBody, setSmsMessageBody] = useState('')
+  const [emailMessageBody, setEmailMessageBody] = useState('')
   const [emailSubject, setEmailSubject] = useState('')
   const [showCC, setShowCC] = useState(false)
   const [showBCC, setShowBCC] = useState(false)
@@ -118,19 +119,10 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
   // Determine if upgrade view should be shown (only for SMS tab)
   const shouldShowUpgradeView = selectedMode === 'sms' && !canSendSMS
 
-  // Function to render icon with branding using mask-image
-  const renderBrandedIcon = (iconPath, width, height, isActive) => {
+  // Function to render Lucide icon with branding color
+  const renderBrandedLucideIcon = (IconComponent, size = 20, isActive = false) => {
     if (typeof window === 'undefined') {
-      return (
-        <div
-          style={{
-            width: width,
-            height: height,
-            minWidth: width,
-            minHeight: height,
-          }}
-        />
-      )
+      return <IconComponent size={size} />
     }
 
     // Get brand color from CSS variable
@@ -138,34 +130,18 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
     const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')
 
     // Use brand color when active, muted gray when inactive
-    const iconColor = isActive
-      ? `hsl(${brandColor.trim() || '270 75% 50%'})`
+    const iconColor = isActive && brandColor && brandColor.trim()
+      ? `hsl(${brandColor.trim()})`
       : 'hsl(0 0% 60%)' // Muted gray for inactive state
 
-    // Use mask-image approach: background color with icon as mask
     return (
-      <Image src={iconPath} alt="icon" width={width} height={height} />
-    )
-    return (
-      <div
+      <IconComponent
+        size={size}
         style={{
-          width: width,
-          height: height,
-          minWidth: width,
-          minHeight: height,
-          backgroundColor: iconColor,
-          WebkitMaskImage: `url(${iconPath})`,
-          WebkitMaskSize: 'contain',
-          WebkitMaskRepeat: 'no-repeat',
-          WebkitMaskPosition: 'center',
-          WebkitMaskMode: 'alpha',
-          maskImage: `url(${iconPath})`,
-          maskSize: 'contain',
-          maskRepeat: 'no-repeat',
-          maskPosition: 'center',
-          maskMode: 'alpha',
-          transition: 'background-color 0.2s ease-in-out',
+          color: iconColor,
+          stroke: iconColor,
           flexShrink: 0,
+          transition: 'color 0.2s ease-in-out, stroke 0.2s ease-in-out',
         }}
       />
     )
@@ -576,7 +552,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
     if (!open) {
       setSelectedLeads([])
       setSearchQuery('')
-      setMessageBody('')
+      setSmsMessageBody('')
+      setEmailMessageBody('')
       setEmailSubject('')
       setCcEmails([])
       setBccEmails([])
@@ -633,6 +610,9 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
 
   // Handle send
   const handleSend = async () => {
+    // Get the appropriate message body based on mode
+    const messageBody = selectedMode === 'sms' ? smsMessageBody : emailMessageBody
+    
     if (selectedLeads.length === 0 || !messageBody.trim()) return
     if (selectedMode === 'email' && !emailSubject.trim()) return
 
@@ -799,9 +779,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                     : 'text-gray-600'
                     }`}
                 >
-                  {renderBrandedIcon(
-                    '/messaging/sms toggle.png',
-                    20,
+                  {renderBrandedLucideIcon(
+                    MessageCircleMore,
                     20,
                     selectedMode === 'sms',
                   )}
@@ -820,9 +799,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                     : 'text-gray-600'
                     }`}
                 >
-                  {renderBrandedIcon(
-                    '/messaging/email toggle.png',
-                    20,
+                  {renderBrandedLucideIcon(
+                    Mail,
                     20,
                     selectedMode === 'email',
                   )}
@@ -1357,8 +1335,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                 {selectedMode === 'email' ? (
                   <RichTextEditor
                     ref={richTextEditorRef}
-                    value={messageBody}
-                    onChange={setMessageBody}
+                    value={emailMessageBody}
+                    onChange={setEmailMessageBody}
                     placeholder="Type your message..."
                     availableVariables={[]}
                     toolbarPosition="bottom"
@@ -1410,11 +1388,11 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                   />
                 ) : (
                   <textarea
-                    value={messageBody}
+                    value={smsMessageBody}
                     onChange={(e) => {
                       // Enforce max 160 characters for SMS
                       if (e.target.value.length <= SMS_CHAR_LIMIT) {
-                        setMessageBody(e.target.value)
+                        setSmsMessageBody(e.target.value)
                       }
                     }}
                     placeholder="Type your message..."
@@ -1439,7 +1417,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                   {selectedMode === 'sms' && (
                     <>
                       <span>
-                        {messageBody.length}/{SMS_CHAR_LIMIT} char
+                        {smsMessageBody.length}/{SMS_CHAR_LIMIT} char
                       </span>
                       <span className="text-gray-300">|</span>
                       <span>
@@ -1453,7 +1431,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                   disabled={
                     sending ||
                     selectedLeads.length === 0 ||
-                    !messageBody.trim() ||
+                    (selectedMode === 'sms' && !smsMessageBody.trim()) ||
+                    (selectedMode === 'email' && !emailMessageBody.trim()) ||
                     (selectedMode === 'email' && !emailSubject.trim()) ||
                     (selectedMode === 'sms' && !selectedPhoneNumber) ||
                     (selectedMode === 'email' && !selectedEmailAccount)

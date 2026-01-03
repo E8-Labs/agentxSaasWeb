@@ -13,7 +13,7 @@ import SmsTemplatePanel from './SmsTemplatePanel'
 import EmailTemplatePanel from './EmailTemplatePanel'
 import { getGmailAccounts } from '../pipeline/TempleteServices'
 import ClaimNumber from '../dashboard/myagentX/ClaimNumber'
-import { ArrowUp, Pause, Mic, MicOff, FileText, StickyNote, X, ChevronDown, Check, Phone, Mail, MessageSquare, MoreVertical, Pencil, Loader2 } from 'lucide-react'
+import { ArrowUp, Pause, Mic, MicOff, FileText, StickyNote, X, ChevronDown, Check, Phone, Mail, MessageSquare, MoreVertical, Pencil, Loader2, MessageCircleMore } from 'lucide-react'
 import { Menu, MenuItem } from '@mui/material'
 import Image from 'next/image'
 import { formatPhoneNumber } from '@/utilities/agentUtilities'
@@ -332,6 +332,7 @@ function DialerModal({
   const simulationTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const hasInitializedRef = useRef(getGlobalHasInitialized()) // Track if dialer has been initialized
   const isInitializingRef = useRef(getGlobalIsInitializing()) // Prevent concurrent initialization
+  const initializationFailedRef = useRef(false) // Track if initialization failed to prevent retry loop
   const dragStartPos = useRef<{ x: number; y: number; mouseX?: number; mouseY?: number }>({ x: 0, y: 0 })
   
   // Local state for non-serializable objects and UI-only state
@@ -708,13 +709,13 @@ function DialerModal({
       return
     }
     
-    if (open && hasDialerNumber && !device && !initializing && !checkingDialerNumber && hasInitializedRef.current) {
+    if (open && hasDialerNumber && !device && !initializing && !checkingDialerNumber && hasInitializedRef.current && !initializationFailedRef.current) {
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:373', message: 'Calling initializeDevice', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
       // #endregion
       // Small delay to ensure state is settled
       const timer = setTimeout(() => {
-        if (!device) { // Double check device wasn't created in the meantime
+        if (!device && !initializationFailedRef.current) { // Double check device wasn't created and initialization didn't fail
         initializeDevice()
         }
       }, 100)
@@ -882,7 +883,7 @@ function DialerModal({
   }
 
   const initializeDevice = async () => {
-    if (initializing || isInitializingRef.current) return
+    if (initializing || isInitializingRef.current || initializationFailedRef.current) return
     if (!hasDialerNumber) {
       // Don't initialize if no dialer number is configured
       return
@@ -890,6 +891,7 @@ function DialerModal({
 
     try {
       isInitializingRef.current = true
+      initializationFailedRef.current = false // Reset failure flag on new attempt
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:545', message: 'Setting initializing=true', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
       // #endregion
@@ -931,7 +933,25 @@ function DialerModal({
         }),
       })
 
-      const data = await response.json()
+      // Check if response is JSON before parsing
+      const contentType = response.headers.get('content-type')
+      let data: any = {}
+      
+      if (contentType && contentType.includes('application/json')) {
+        try {
+          data = await response.json()
+        } catch (parseError) {
+          console.error('Error parsing JSON response:', parseError)
+          const text = await response.text()
+          console.error('Response text:', text.substring(0, 200))
+          throw new Error('Invalid JSON response from server')
+        }
+      } else {
+        // Response is not JSON (likely HTML error page)
+        const text = await response.text()
+        console.error('Non-JSON response received:', text.substring(0, 200))
+        throw new Error(`Server returned ${response.status} ${response.statusText}. Please check your API endpoint.`)
+      }
 
       if (!response.ok) {
         // #region agent log
@@ -1297,9 +1317,13 @@ function DialerModal({
       // #endregion
       dispatch(updateDeviceState({ deviceRegistered: false, initializing: false }))
       isInitializingRef.current = false
+      hasInitializedRef.current = true // Mark as initialized to prevent retry loop
+      initializationFailedRef.current = true // Mark initialization as failed to prevent retry loop
       let errorMsg = 'Failed to initialize dialer'
       if (error.message?.includes('token')) {
         errorMsg = 'Invalid access token. Please try again.'
+      } else if (error.message?.includes('404') || error.message?.includes('Server returned')) {
+        errorMsg = 'Dialer API endpoint not found. Please check your server configuration.'
       } else if (error.message) {
         errorMsg = `Initialization error: ${error.message}`
       }
@@ -3405,7 +3429,7 @@ function DialerModal({
                     </div>
 
                     {/* Call Back Button - 60% width, centered */}
-                    <div className="w-full flex justify-center">
+                    {/* <div className="w-full flex justify-center">
                       <Button
                         onClick={async () => {
                           // Reset call state
@@ -3436,7 +3460,7 @@ function DialerModal({
                         <Phone size={16} className="mr-2" />
                         Call Back
                       </Button>
-                    </div>
+                    </div> */}
 
                     {/* Divider */}
                     <div className="border-t border-dashed border-gray-300 my-3 w-full"></div>
@@ -3525,7 +3549,7 @@ function DialerModal({
                             boxShadow: 'none',
                           }}
                         >
-                          <MessageSquare
+                          <MessageCircleMore
                             size={16}
                             className="mr-2"
                             style={{

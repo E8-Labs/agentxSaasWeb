@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Button as ButtonBase } from '../ui/button'
 import { toast } from 'sonner'
-import { Phone, MoreVertical, Pencil, X, Loader2, FileText } from 'lucide-react'
+import { Phone, MoreVertical, Pencil, X, Loader2, FileText, Plus } from 'lucide-react'
 import { Menu, MenuItem } from '@mui/material'
 import { formatPhoneNumber } from '@/utilities/agentUtilities'
 import SMSTempletePopupBase from '../pipeline/SMSTempletePopup'
@@ -131,8 +131,8 @@ export default function SmsTemplatePanel({
               height: 'auto',
             }}
           >
-            <span className="mr-1.5">✏️</span>
-            Create SMS
+            <Plus size={14} className="mr-0" />
+            Add SMS
           </Button>
         </div>
         <div className="flex-1 overflow-y-auto p-4">

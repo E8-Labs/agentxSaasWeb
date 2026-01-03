@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import axios from 'axios'
 import moment from 'moment'
 import Image from 'next/image'
-import { Paperclip, CaretDown, Plus } from '@phosphor-icons/react'
+import { Paperclip, CaretDown, Plus, X } from '@phosphor-icons/react'
 import { Drawer } from '@mui/material'
 import { toast } from 'sonner'
 
@@ -52,6 +52,12 @@ const EmailTimelineModal = ({
   const richTextEditorRef = useRef(null)
   const [emailDropdownOpen, setEmailDropdownOpen] = useState(false)
   const emailDropdownRef = useRef(null)
+  const [ccEmails, setCcEmails] = useState([])
+  const [bccEmails, setBccEmails] = useState([])
+  const [ccInput, setCcInput] = useState('')
+  const [bccInput, setBccInput] = useState('')
+  const [showCC, setShowCC] = useState(false)
+  const [showBCC, setShowBCC] = useState(false)
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -102,6 +108,16 @@ const EmailTimelineModal = ({
     return `> ${senderName} wrote on ${timestamp}:\n${quotedLines}\n\n`
   }
 
+  // Helper function to parse CC/BCC from message metadata
+  const parseEmailList = (value) => {
+    if (!value) return []
+    if (Array.isArray(value)) return value.filter(e => e && e.trim())
+    if (typeof value === 'string') {
+      return value.split(',').map(e => e.trim()).filter(e => e)
+    }
+    return []
+  }
+
   // Initialize reply fields when replyToMessage changes
   useEffect(() => {
     if (replyToMessage && open) {
@@ -135,6 +151,15 @@ const EmailTimelineModal = ({
         setReplySubject('')
       }
       
+      // Extract CC and BCC from message metadata
+      const ccList = parseEmailList(replyToMessage.metadata?.cc || replyToMessage.cc)
+      const bccList = parseEmailList(replyToMessage.metadata?.bcc || replyToMessage.bcc)
+      
+      setCcEmails(ccList)
+      setBccEmails(bccList)
+      setShowCC(ccList.length > 0)
+      setShowBCC(bccList.length > 0)
+      
       // Keep reply body blank - user will type their own reply
       setReplyBody('')
       
@@ -153,6 +178,12 @@ const EmailTimelineModal = ({
       setReplyToEmail('')
       setReplySubject('')
       setReplyBody('')
+      setCcEmails([])
+      setBccEmails([])
+      setCcInput('')
+      setBccInput('')
+      setShowCC(false)
+      setShowBCC(false)
     }
   }, [replyToMessage, open, subject, selectedThread])
 
@@ -160,7 +191,98 @@ const EmailTimelineModal = ({
     setReplyBody('')
     setReplyToEmail('')
     setReplySubject('')
+    setCcEmails([])
+    setBccEmails([])
+    setCcInput('')
+    setBccInput('')
+    setShowCC(false)
+    setShowBCC(false)
     onClose()
+  }
+
+  // CC/BCC email management functions
+  const addCcEmail = (email) => {
+    const trimmedEmail = email.trim()
+    if (trimmedEmail && !ccEmails.includes(trimmedEmail)) {
+      setCcEmails([...ccEmails, trimmedEmail])
+      setCcInput('')
+    }
+  }
+
+  const removeCcEmail = (email) => {
+    setCcEmails(ccEmails.filter(e => e !== email))
+  }
+
+  const addBccEmail = (email) => {
+    const trimmedEmail = email.trim()
+    if (trimmedEmail && !bccEmails.includes(trimmedEmail)) {
+      setBccEmails([...bccEmails, trimmedEmail])
+      setBccInput('')
+    }
+  }
+
+  const removeBccEmail = (email) => {
+    setBccEmails(bccEmails.filter(e => e !== email))
+  }
+
+  const handleCcInputChange = (e) => {
+    setCcInput(e.target.value)
+  }
+
+  const handleCcInputKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault()
+      if (ccInput.trim()) {
+        addCcEmail(ccInput)
+      }
+    }
+  }
+
+  const handleCcInputBlur = () => {
+    if (ccInput.trim()) {
+      addCcEmail(ccInput)
+    }
+  }
+
+  const handleCcInputPaste = (e) => {
+    e.preventDefault()
+    const pastedText = e.clipboardData.getData('text')
+    const emails = pastedText.split(/[,\s]+/).filter(e => e.trim())
+    emails.forEach(email => {
+      if (email.trim() && !ccEmails.includes(email.trim())) {
+        addCcEmail(email)
+      }
+    })
+  }
+
+  const handleBccInputChange = (e) => {
+    setBccInput(e.target.value)
+  }
+
+  const handleBccInputKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault()
+      if (bccInput.trim()) {
+        addBccEmail(bccInput)
+      }
+    }
+  }
+
+  const handleBccInputBlur = () => {
+    if (bccInput.trim()) {
+      addBccEmail(bccInput)
+    }
+  }
+
+  const handleBccInputPaste = (e) => {
+    e.preventDefault()
+    const pastedText = e.clipboardData.getData('text')
+    const emails = pastedText.split(/[,\s]+/).filter(e => e.trim())
+    emails.forEach(email => {
+      if (email.trim() && !bccEmails.includes(email.trim())) {
+        addBccEmail(email)
+      }
+    })
   }
 
   const handleSend = async () => {
@@ -206,6 +328,14 @@ const EmailTimelineModal = ({
       formData.append('body', replyBody)
       formData.append('emailAccountId', selectedEmailAccount)
       
+      // Add CC and BCC if they exist
+      if (ccEmails.length > 0) {
+        formData.append('cc', ccEmails.join(', '))
+      }
+      if (bccEmails.length > 0) {
+        formData.append('bcc', bccEmails.join(', '))
+      }
+      
       // Add replyToMessageId if replying to a specific message
       if (replyToMessage && replyToMessage.id) {
         formData.append('replyToMessageId', replyToMessage.id.toString())
@@ -226,14 +356,14 @@ const EmailTimelineModal = ({
             whiteSpace: 'nowrap',
           },
         })
-        // Clear reply body but keep subject and email for next reply
+        // Clear reply body but keep subject, email, CC, and BCC for next reply
         setReplyBody('')
         // Don't clear replySubject - keep it for subsequent replies in the same thread
         // Only regenerate if it's empty (shouldn't happen, but safety check)
         if (!replySubject && replyToMessage?.subject) {
           setReplySubject(formatReplySubject(replyToMessage.subject))
         }
-        // Don't clear replyToEmail either - keep it for subsequent replies
+        // Don't clear replyToEmail, CC, or BCC either - keep them for subsequent replies
         if (onSendSuccess) {
           await onSendSuccess()
         }
@@ -487,16 +617,89 @@ const EmailTimelineModal = ({
           <div className="border-t pt-2 mt-2 bg-white">
             <div className="space-y-2">
             
-              {/* Subject field - show when in reply mode */}
-              {replyToMessage && (
+              {/* CC and BCC toggle buttons */}
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowCC(!showCC)}
+                  className={`px-3 py-1 text-xs rounded transition-colors ${
+                    showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Cc
+                </button>
+                <button
+                  onClick={() => setShowBCC(!showBCC)}
+                  className={`px-3 py-1 text-xs rounded transition-colors ${
+                    showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  Bcc
+                </button>
+              </div>
+
+              {/* CC field */}
+              {showCC && (
                 <div className="flex items-center gap-2">
-                  <label className="text-sm font-medium whitespace-nowrap">Subject:</label>
-                  <Input
-                    value={getDisplaySubject()}
-                    readOnly
-                    className="flex-1 bg-gray-50 cursor-not-allowed h-[42px] border-[0.5px] border-gray-200 rounded-lg"
-                    style={{ height: '42px' }}
-                  />
+                  <label className="text-sm font-medium w-16">Cc:</label>
+                  <div className="relative flex-1">
+                    <div className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto">
+                      {ccEmails.map((email, index) => (
+                        <div key={index} className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm">
+                          <span className="text-gray-700">{email}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeCcEmail(email)}
+                            className="text-gray-500 hover:text-gray-700 ml-1"
+                          >
+                            <X size={14} weight="bold" />
+                          </button>
+                        </div>
+                      ))}
+                      <input
+                        type="text"
+                        value={ccInput}
+                        onChange={handleCcInputChange}
+                        onKeyDown={handleCcInputKeyDown}
+                        onPaste={handleCcInputPaste}
+                        onBlur={handleCcInputBlur}
+                        placeholder={ccEmails.length === 0 ? 'Add CC recipients' : ''}
+                        className="flex-1 h-full min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* BCC field */}
+              {showBCC && (
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium w-16">Bcc:</label>
+                  <div className="relative flex-1">
+                    <div className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto">
+                      {bccEmails.map((email, index) => (
+                        <div key={index} className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm">
+                          <span className="text-gray-700">{email}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeBccEmail(email)}
+                            className="text-gray-500 hover:text-gray-700 ml-1"
+                          >
+                            <X size={14} weight="bold" />
+                          </button>
+                        </div>
+                      ))}
+                      <input
+                        type="text"
+                        value={bccInput}
+                        onChange={handleBccInputChange}
+                        onKeyDown={handleBccInputKeyDown}
+                        onPaste={handleBccInputPaste}
+                        onBlur={handleBccInputBlur}
+                        placeholder={bccEmails.length === 0 ? 'Add BCC recipients' : ''}
+                        className="flex-1 h-full min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                      />
+                    </div>
+                  </div>
                 </div>
               )}
 

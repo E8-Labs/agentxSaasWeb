@@ -472,6 +472,17 @@ export async function proxy(request) {
     return createResponseWithBrandingHeaders(request, agencyBranding)
   }
 
+  // ---- Allow API routes with Bearer token authentication ----
+  // API routes that use Authorization headers should bypass cookie-based auth
+  // The route handler will verify the token
+  if (pathname.startsWith('/api/')) {
+    const authHeader = request.headers.get('Authorization')
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      console.log(`🔵 [MIDDLEWARE] ✅ Allowing API route with Bearer token: ${pathname}`)
+      return createResponseWithBrandingHeaders(request, agencyBranding)
+    }
+  }
+
   // ---- Require login for everything else ----
   if (!user) {
     // Not logged in → always send home
@@ -614,6 +625,7 @@ export const config = {
     '/api/dialer/calls/incoming',
     '/api/dialer/calls/status',
     '/api/dialer/calls/twiml',
+    '/api/dialer/calls/token',
     // Existing routes
     '/agency', // exact /agency
     '/createagent/:path*',

@@ -481,15 +481,17 @@ const ConversationView = ({
                   }
                 >
                   {isReply && parentMessage && (
-                    <div className={`text-xs mb-1 ${isOutbound ? 'text-right' : 'text-left'} text-gray-500 px-2`}>
-                      <span className="italic">
-                        Replying to:{' '}
-                        {parentMessage.messageType === 'email' && parentMessage.subject
-                          ? `"${parentMessage.subject.replace(/^Re:\s*/i, '')}"`
-                          : parentMessage.content
-                          ? `"${parentMessage.content.substring(0, 12)}${parentMessage.content.length > 12 ? '...' : ''}"`
-                          : 'message'}
-                      </span>
+                    <div className={`text-xs mb-1 text-gray-500 ${isOutbound ? 'flex justify-end w-full' : 'text-left'}`}>
+                      <div className={`${isOutbound ? 'max-w-[75%] text-right' : ''} px-2`}>
+                        <span className="italic">
+                          Replying to:{' '}
+                          {parentMessage.messageType === 'email' && parentMessage.subject
+                            ? `"${parentMessage.subject.replace(/^Re:\s*/i, '')}"`
+                            : parentMessage.content
+                            ? `"${parentMessage.content.substring(0, 12)}${parentMessage.content.length > 12 ? '...' : ''}"`
+                            : 'message'}
+                        </span>
+                      </div>
                     </div>
                   )}
                   <div

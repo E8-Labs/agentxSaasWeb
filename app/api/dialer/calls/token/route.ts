@@ -13,18 +13,7 @@ const BASE_API_URL =
  */
 export async function POST(req: NextRequest) {
   try {
-    const user = await getAuthUser(req)
-    if (!user) {
-      return NextResponse.json(
-        { status: false, message: 'Not authenticated dialer/calls/token/route.ts' },
-        { status: 401 },
-      )
-    }
-
-    const body = await req.json()
-    const { metadata } = body
-
-    // Get token from request
+    // Get token from request first (before getAuthUser which might fail)
     const authHeader = req.headers.get('Authorization')
     const token = authHeader?.startsWith('Bearer ')
       ? authHeader.split(' ')[1]
@@ -35,6 +24,25 @@ export async function POST(req: NextRequest) {
         { status: false, message: 'No token provided' },
         { status: 401 },
       )
+    }
+
+    // Try to get user, but don't fail if it errors
+    let user = null
+    try {
+      user = await getAuthUser(req)
+    } catch (authError) {
+      console.warn('getAuthUser failed, continuing with token:', authError)
+      // Continue anyway - backend will verify the token
+    }
+
+    let body: any = {}
+    let metadata = null
+    try {
+      body = await req.json()
+      metadata = body.metadata
+    } catch (parseError) {
+      console.warn('Failed to parse request body, continuing without metadata:', parseError)
+      // Continue without metadata
     }
 
     // Call backend API to mint token
@@ -48,7 +56,31 @@ export async function POST(req: NextRequest) {
       cache: 'no-store',
     })
 
-    const data = await response.json()
+    // Check content-type before parsing
+    const contentType = response.headers.get('content-type')
+    let data: any = {}
+    
+    if (contentType && contentType.includes('application/json')) {
+      try {
+        data = await response.json()
+      } catch (parseError) {
+        console.error('Error parsing JSON response from backend:', parseError)
+        const text = await response.text()
+        console.error('Response text:', text.substring(0, 200))
+        return NextResponse.json(
+          { status: false, message: 'Invalid response from backend', error: 'Failed to parse JSON' },
+          { status: 500 }
+        )
+      }
+    } else {
+      // Backend returned non-JSON (likely HTML error page)
+      const text = await response.text()
+      console.error('Backend returned non-JSON response:', text.substring(0, 200))
+      return NextResponse.json(
+        { status: false, message: `Backend error: ${response.status} ${response.statusText}`, error: 'Invalid response format' },
+        { status: response.status || 500 }
+      )
+    }
 
     if (!response.ok) {
       return NextResponse.json(data, { status: response.status })

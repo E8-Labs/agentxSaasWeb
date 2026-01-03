@@ -39,7 +39,8 @@ const Messages = () => {
   const [composerData, setComposerData] = useState({
     to: '',
     subject: '',
-    body: '',
+    smsBody: '',
+    emailBody: '',
     cc: '',
     bcc: '',
     attachments: [],
@@ -909,7 +910,7 @@ const Messages = () => {
       ...prev,
       to: composerMode === 'email' ? receiverEmail : receiverPhone,
       subject: '',
-      body: '',
+      // Don't clear bodies when switching threads - preserve them
     }))
   }
 
@@ -1556,7 +1557,10 @@ const Messages = () => {
 
   // Handle send message
   const handleSendMessage = async () => {
-    if (!selectedThread || !composerData.body.trim()) return
+    // Get the appropriate message body based on mode
+    const messageBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
+    
+    if (!selectedThread || !messageBody.trim()) return
     if (composerMode === 'email' && !composerData.to.trim()) return
     if (sendingMessage) return // Prevent double submission
 
@@ -1578,7 +1582,7 @@ const Messages = () => {
           Apis.sendSMSToLead,
           {
             leadId: selectedThread.leadId,
-            content: composerData.body,
+            content: messageBody,
             smsPhoneNumberId: selectedPhoneNumber || null,
           },
           {
@@ -1597,15 +1601,15 @@ const Messages = () => {
               whiteSpace: 'nowrap',
             },
           })
-          // Reset composer
-          setComposerData({
+          // Reset composer - only clear the SMS body
+          setComposerData((prev) => ({
+            ...prev,
             to: selectedThread.lead?.email || selectedThread.receiverPhoneNumber || '',
-            subject: '',
-            body: '',
+            smsBody: '',
             cc: '',
             bcc: '',
             attachments: [],
-          })
+          }))
 
           // Refresh messages and threads
           setTimeout(() => {
@@ -1708,7 +1712,7 @@ const Messages = () => {
         const formData = new FormData()
         formData.append('leadId', selectedThread.leadId)
         formData.append('subject', emailSubject)
-        formData.append('body', composerData.body)
+        formData.append('body', messageBody)
 
         // Add threadId for CC/BCC persistence
         if (selectedThread?.id) {
@@ -1760,14 +1764,16 @@ const Messages = () => {
           // Prioritize emailTimelineSubject (set when Load More or subject is clicked)
           const preservedSubject = emailTimelineSubject ||
             (composerData.subject && composerData.subject.trim() ? normalizeSubject(composerData.subject) : '')
-          setComposerData({
+          // Reset composer - only clear the email body
+          setComposerData((prev) => ({
+            ...prev,
             to: selectedThread.lead?.email || selectedThread.receiverEmail || '',
             subject: preservedSubject,
-            body: '',
+            emailBody: '',
             cc: '',
             bcc: '',
             attachments: [],
-          })
+          }))
           // Clear CC/BCC arrays and inputs
           setCcEmails([])
           setBccEmails([])
