@@ -19,12 +19,33 @@ function PlanSummaryMobile({ selectedPlan,
   const [loading, setLoading] = useState(true)
 
   const [isRedirecting, setIsRedirecting] = useState(false)
+  const [currentUserPlan, setCurrentUserPlan] = useState(null)
 
   const {user:reduxUser} = useUser()
 
   useEffect(() => {
     getCardsList()
+    getCurrentUserPlan()
   }, [])
+
+  const getCurrentUserPlan = () => {
+    const localData = localStorage.getItem('User')
+    if (localData) {
+      const userData = JSON.parse(localData)
+      const plan = userData.user?.plan
+      console.log('Current user plan from localStorage:', plan)
+      setCurrentUserPlan(plan)
+      return plan
+    }
+    return null
+  }
+
+  const GetMonthCountFronBillingCycle = (billingCycle) => {
+    if (billingCycle === 'monthly') return 1
+    if (billingCycle === 'quarterly') return 3
+    if (billingCycle === 'yearly') return 12
+    return 1
+  }
 
   const getCardsList = async () => {
     try {
@@ -64,20 +85,31 @@ function PlanSummaryMobile({ selectedPlan,
   const planPrice = selectedPlan.discountedPrice || selectedPlan.discountPrice || selectedPlan.originalPrice || 0
   const planTitle = selectedPlan.title || selectedPlan.name || 'Plan'
   
-  // Calculate total based on duration
-  let totalPrice = planPrice
-  let quantity = 1
+  // Calculate duration label
   let durationLabel = 'Monthly Subscription'
-  
   if (planDuration === 'quarterly') {
-    totalPrice = planPrice * 3
-    quantity = 3
     durationLabel = 'Quarterly Subscription'
   } else if (planDuration === 'yearly') {
-    totalPrice = planPrice * 12
-    quantity = 12
     durationLabel = 'Annual Subscription'
   }
+
+  // Calculate total price with trial logic (matching UserAddCardModal)
+  const calculateTotalPrice = () => {
+    // Check if plan has trial and user is subscribing for the first time
+    const hasTrial = selectedPlan?.hasTrial === true
+    const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+
+    // If plan has trial and user has no previous plan, show $0
+    if (hasTrial && isFirstTimeSubscription) {
+      return 0
+    }
+
+    const billingMonths = GetMonthCountFronBillingCycle(planDuration)
+    const monthlyPrice = planPrice
+    return billingMonths * monthlyPrice
+  }
+
+  const totalPrice = calculateTotalPrice()
 
   // Calculate next charge date
   const nextChargeDate = getNextChargeDate(planDuration)
@@ -119,22 +151,22 @@ function PlanSummaryMobile({ selectedPlan,
   const showRedirecting = isRedirectingProp !== undefined ? isRedirectingProp : isRedirecting
 
   return (
-    <div className="flex flex-col items-center h-full w-full min-h-screen">
-      <SignupHeaderMobile  title="Get an AI AaaS Agency" description="Gets more done than coffee. Cheaper too.😉"  />
+    <div className="flex flex-col items-center h-full w-full h-full">
+      <SignupHeaderMobile  title={reduxUser?.userRole == 'Agency' ? "Get an AI AaaS Agency" : "Grow Your Business"}
+       description={reduxUser?.userRole == 'Agency' || reduxUser?.userRole == 'AgencySubAccount' ? "Gets more done than coffee. Cheaper too.😉" : "Gets more done than coffee. Cheaper too. Cancel anytime.😉"}  />
       
       {/* Purple to Pink Gradient Background */}
       <div
         className="flex-1 w-full flex items-center justify-center pb-8"
         style={{
           position: 'absolute',
-          top: '20vh',
+           top: '28vh',
           left: '50%',
           transform: 'translateX(-50%)',
-          minHeight: '60vh',
         }}
       >
         {/* White Card */}
-        <div className="w-[90%] max-w-md bg-white rounded-2xl shadow-2xl px-6 py-4 mt-4">
+        <div className="w-[90%] max-w-md h-auto bg-white rounded-2xl shadow-2xl px-6 py-4 mt-4">
           {/* Title */}
           <h1 className="text-2xl font-bold text-black mb-6">Review & Confirm</h1>
 
@@ -198,11 +230,24 @@ function PlanSummaryMobile({ selectedPlan,
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-sm text-gray-600">Total Billed {planDuration === 'yearly' ? 'Annually' : planDuration === 'quarterly' ? 'Quarterly' : 'Monthly'}:</span>
                   <span className="text-base font-semibold text-black">
-                    ${formatFractional2(totalPrice)}
+                    {(() => {
+                      // Check if plan has trial and user is subscribing for the first time
+                      const hasTrial = selectedPlan?.hasTrial === true
+                      const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+
+                      // If plan has trial and user has no previous plan, show $0
+                      if (hasTrial && isFirstTimeSubscription) {
+                        return '$0'
+                      }
+
+                      const billingMonths = GetMonthCountFronBillingCycle(planDuration)
+                      const monthlyPrice = planPrice
+                      return `$${formatFractional2(billingMonths * monthlyPrice)}`
+                    })()}
                   </span>
                 </div>
                 <div className="text-sm text-gray-500">
-                  Next Charge Date: {moment(nextChargeDate).format('MMMM/DD/YYYY')}
+                  Next Charge: {moment(getNextChargeDate(selectedPlan)).format('MMMM DD,YYYY')}
                 </div>
               </div>
             </div>
@@ -214,8 +259,35 @@ function PlanSummaryMobile({ selectedPlan,
               <div>
                 <div className="text-lg font-bold text-black">Total:</div>
               </div>
-              <div className="text-2xl font-bold text-black">
-                ${formatFractional2(totalPrice)}
+              <div className="flex flex-col items-end">
+                <div className="text-2xl font-bold text-black">
+                  {(() => {
+                    if (!selectedPlan) return '$0'
+
+                    // Check if plan has trial and user is subscribing for the first time
+                    const hasTrial = selectedPlan?.hasTrial === true
+                    const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+
+                    // If plan has trial and user has no previous plan, show $0
+                    if (hasTrial && isFirstTimeSubscription) {
+                      return '$0'
+                    }
+
+                    const billingMonths = GetMonthCountFronBillingCycle(planDuration)
+                    const monthlyPrice = planPrice
+                    return `$${formatFractional2(billingMonths * monthlyPrice)}`
+                  })()}
+                </div>
+                <div
+                  style={{
+                    fontWeight: '400',
+                    fontSize: 13,
+                    marginTop: 4,
+                    color: '#8A8A8A',
+                  }}
+                >
+                  Due Today
+                </div>
               </div>
             </div>
           </div>
@@ -252,11 +324,11 @@ function PlanSummaryMobile({ selectedPlan,
               </>
             ) : (
 
-              selectedPlan?.hasTrial == true ? 'Start Trial' : 'Make Payment'
+              selectedPlan?.hasTrial == true ? 'Start Trial' : 'Continue'
             )}
           </button>
 
-          <div className="w-full flex flex-row  justify-start">
+          <div className="w-full flex flex-row justify-start">
           <button
             onClick={handleBack}
             className=" text-brand-primary font-semibold py-4 rounded-xl text-lg hover:bg-gray-200 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"

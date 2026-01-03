@@ -41,6 +41,7 @@ import {
 } from './UserPlanServices'
 import SignupHeaderMobile from '../onboarding/mobileUI/SignupHeaderMobile'
 import { Checkbox } from '../ui/checkbox'
+import moment from 'moment'
 
 const UserAddCard = ({
   handleBack,
@@ -544,21 +545,20 @@ const UserAddCard = ({
     <div style={{ width: '100%' }}>
       {isSmallScreen ? (
         // Mobile Layout - Matching AgencyAddCard design
-        <div className="flex flex-col items-center h-full w-full min-h-screen bg-gray-100">
+        <div className="flex flex-col items-center h-screen w-full overflow-y-auto bg-gray-100">
           <SignupHeaderMobile
-            title="Grow Your Business"
-            description="Gets more done than coffee. Cheaper too. 😉"
+            title={reduxUser?.userRole == 'Agency' ? "Get an AI AaaS Agency" : "Grow Your Business"}
+            description={reduxUser?.userRole == 'Agency' || reduxUser?.userRole == 'AgencySubAccount' ? "Gets more done than coffee. Cheaper too.😉" : "Gets more done than coffee. Cheaper too. Cancel anytime.😉"}
           />
 
           {/* White Card Container */}
           <div
-            className="w-[90%] max-w-md bg-white rounded-2xl shadow-2xl p-6 mt-4 overflow-y-auto"
+            className="w-[90%] max-w-md bg-white rounded-2xl shadow-2xl p-6 mt-4"
             style={{
               position: 'absolute',
-              top: '20vh',
+              top: '28vh',
               left: '50%',
               transform: 'translateX(-50%)',
-              maxHeight: 'calc(80vh - 10vh)',
             }}
           >
             <h1 className="text-2xl font-bold text-black mb-6">Payment Method</h1>
@@ -758,7 +758,7 @@ const UserAddCard = ({
                         marginTop: 4,
                       }}
                     >
-                      Next Charge Date {getNextChargeDate(selectedPlan)}
+                      Next Charge: {moment(getNextChargeDate(selectedPlan)).format('MMMM DD,YYYY')}
                     </div>
                   </div>
                   <div style={{ fontWeight: '600', fontSize: 15 }}>
@@ -830,32 +830,6 @@ const UserAddCard = ({
                 </div>
               </div>
             )}
-
-            {/* Terms & Conditions Checkbox */}
-            <div className="flex items-center gap-2 mb-6">
-              <Checkbox
-                checked={agreeTerms}
-                onCheckedChange={setAgreeTerms}
-                className="h-5 w-5"
-              />
-              <label className="text-sm text-gray-700">
-                I agree to the{' '}
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault()
-                    const { termsUrl } = getPolicyUrls()
-                    window.open(termsUrl, '_blank')
-                  }}
-                  className="text-brand-primary underline font-semibold"
-                  rel="noopener noreferrer"
-                >
-                  Terms & Condition
-                </a>
-              </label>
-            </div>
-
-
             <div className="flex flex-row justify-between items-center mt-8 w-full">
               <button
                 onClick={handleBack}
@@ -1252,7 +1226,7 @@ const UserAddCard = ({
                         marginTop: '',
                       }}
                     >
-                      Next Charge Date {getNextChargeDate(selectedPlan)}
+                      Next Charge: {moment(getNextChargeDate(selectedPlan)).format('MMMM DD,YYYY')}
                     </div>
                   </div>
                   <div
@@ -1412,6 +1386,8 @@ const UserAddCard = ({
                         </>
                       )
                     }
+                    and agree to a 12-month license term. Payments are billed{' '}
+                    {selectedPlan?.duration} as selected.
                   </div>
                 )}
               </div>

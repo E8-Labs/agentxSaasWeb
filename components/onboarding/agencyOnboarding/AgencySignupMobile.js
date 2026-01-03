@@ -473,7 +473,7 @@ const AgencySignupMobile = ({
 
         <div style={{
           position: 'absolute',
-          top: '20vh',
+          top: '28vh',
           left: '50%',
           transform: 'translateX(-50%)',
 
