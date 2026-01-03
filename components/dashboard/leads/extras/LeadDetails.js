@@ -1,5 +1,7 @@
 import '@madzadev/audio-player/dist/index.css'
 
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import Player from '@madzadev/audio-player'
 import CloseIcon from '@mui/icons-material/Close'
 import {
@@ -55,6 +57,18 @@ import {
   Copy,
   Meh,
   ListChecks,
+  PhoneCall,
+  MessageSquareDotIcon,
+  MessageSquareDot,
+  WorkflowIcon,
+  ChevronDown,
+  MailIcon,
+  PhoneIcon,
+  MapPinIcon,
+  SparkleIcon,
+  CalendarIcon,
+  PlusIcon,
+  TagIcon,
 } from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
@@ -97,6 +111,10 @@ import NoPerplexity from './NoPerplexity'
 import Perplexity from './Perplexity'
 import { useDispatch } from 'react-redux'
 import { openDialer } from '@/store/slices/dialerSlice'
+import DropdownCn from './DropdownCn'
+import MultiSelectDropdownCn from './MultiSelectDropdownCn'
+import { InfoRow, TagPill } from './LeadDetailsCN'
+import { Button } from '@/components/ui/button'
 
 const LeadDetails = ({
   showDetailsModal,
@@ -500,10 +518,10 @@ const LeadDetails = ({
     setPhoneLoading(false)
   }
   //function to handle stages dropdown selection
-  const handleStageChange = (event) => {
-    //// //console.log
-    setSelectedStage(event.target.value)
-    // updateLeadStage();
+  const handleStageChange = (selected) => {
+    const value = typeof selected === 'object' ? selected?.value || selected?.stageTitle : selected
+    if (!value) return
+    setSelectedStage(value)
   }
 
   //function to update stage
@@ -1941,6 +1959,20 @@ const LeadDetails = ({
     )
   }
 
+  const startCallAction = () => {
+    setSendActionAnchor(null)
+    startDialerFlow()
+  }
+  const handleSendAction = (opt) => {
+    if (opt.value === 'email') {
+      setShowEmailModal(true)
+    } else if (opt.value === 'call') {
+      startCallAction()
+    } else if (opt.value === 'sms') {
+      setShowSMSModal(true)
+    }
+  }
+
   const mainContent = (
     <>
       <AgentSelectSnackMessage
@@ -1955,7 +1987,7 @@ const LeadDetails = ({
           })
         }}
       />
-      <div className="flex flex-col w-full h-full  py-2 px-5 rounded-xl">
+      <div className="flex flex-col w-full h-full  py-2 px-1 rounded-xl">
         <div className="w-full flex flex-col items-center h-full">
 
           <div className="w-full">
@@ -1991,8 +2023,8 @@ const LeadDetails = ({
                   <div>
                     <div className="flex flex-row items-start justify-between mt-4  w-full">
                       <div className="flex flex-col items-start gap-[5px] ">
-                        <div className="flex flex-row items-center gap-4">
-                          {selectedLeadsDetails?.agent ? (
+                        <div className="flex flex-row items-center gap-3">
+                          {/* {selectedLeadsDetails?.agent ? (
                             <div className="h-[32px] w-[32px]">
                               {getAgentsListImage(
                                 selectedLeadsDetails?.agent?.agents?.[0]?.agentType === 'outbound'
@@ -2010,177 +2042,35 @@ const LeadDetails = ({
                               {selectedLeadsDetails?.firstName?.slice(0, 1) ||
                                 '-'}
                             </div>
-                          )}
-                          <div
-                            className="truncate"
-                          // onClick={() => handleToggleClick(item.id)}
-                          >
-                            {selectedLeadsDetails?.firstName}{' '}
-                            {selectedLeadsDetails?.lastName}
+                          )} */}
+                          <Avatar className="h-10 w-10 bg-red">
+                            {selectedLeadsDetails?.avatar ? (
+                              <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
+                            ) : (
+                              <AvatarFallback className="text-md font-semibold">{selectedLeadsDetails?.firstName?.slice(0, 1) || 'L'}</AvatarFallback>
+                            )}
+                          </Avatar>
+                          <div className="flex min-w-0 flex-1 items-center gap-3">
+                            <p className="truncate text-lg font-semibold leading-none text-foreground">
+                              {selectedLeadsDetails?.firstName}
+                            </p>
+                            {/* Send Action Dropdown Button */}
+                            <DropdownCn
+                              label="Send"
+                              options={[
+                                { label: 'Email', value: 'email', icon: Mail },
+                                { label: 'Call', value: 'call', icon: PhoneCall },
+                                { label: 'SMS', value: 'sms', icon: MessageSquareDot },
+                              ]}
+                              onSelect={handleSendAction}
+                            />
                           </div>
 
-                          {/* Send Action Dropdown Button */}
-                          <div className="relative">
-                            <button
-                              className="flex flex-row items-center gap-1 px-2 py-1 border border-brand-primary text-brand-primary rounded-lg"
-                              onClick={(e) => setSendActionAnchor(e.currentTarget)}
-                            >
-                              <span className="text-[12px] font-[400]">Send</span>
-                              <CaretDown size={12} weight="bold" />
-                            </button>
-                            <Menu
-                              anchorEl={sendActionAnchor}
-                              open={Boolean(sendActionAnchor)}
-                              onClose={() => setSendActionAnchor(null)}
-                              anchorOrigin={{
-                                vertical: 'bottom',
-                                horizontal: 'left',
-                              }}
-                              transformOrigin={{
-                                vertical: 'top',
-                                horizontal: 'left',
-                              }}
-                              PaperProps={{
-                                style: {
-                                  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-                                  borderRadius: '12px',
-                                  minWidth: '150px',
-                                },
-                              }}
-                            >
-                              {/* Email Option */}
-                              {(selectedLeadsDetails?.email ||
-                                selectedLeadsDetails?.emails?.length > 0) && (
-                                  <MenuItem
-                                    onClick={() => {
-                                      setSendActionAnchor(null)
-                                      if (googleAccounts.length === 0) {
-                                        setShowAuthSelectionPopup(true)
-                                      } else {
-                                        setShowEmailModal(true)
-                                      }
-                                    }}
-                                    disabled={sendEmailLoader}
-                                  >
-                                    <div className="flex flex-row items-center gap-2 w-full">
-                                      <Mail
-                                        size={20}
-                                        color="#000000"
-                                      />
-                                      <span>Email</span>
 
-                                      {!userLocalData?.planCapabilities?.allowEmails && (
-                                        <UpgradeTagWithModal
-                                          reduxUser={userLocalData ? {
-                                            user: userLocalData,
-                                            userRole: userLocalData.userRole
-                                          } : null}
-                                          setReduxUser={async (updatedData) => {
-                                            // Refresh user data after upgrade
-                                            const user = await getProfileDetails()
-                                            if (user) {
-                                              setUserLocalData(user.data.data)
-                                            }
-                                          }}
-                                        />
-                                      )}
-                                    </div>
-                                  </MenuItem>
-                                )}
-                              {/* Text Option */}
-                              {selectedLeadsDetails?.phone && (
-                                <MenuItem
-                                  onClick={() => {
-                                    if (sendSMSLoader ||
-                                      !userLocalData?.planCapabilities
-                                        ?.allowTextMessages ||
-                                      phoneNumbers.length == 0) return
-                                    setSendActionAnchor(null)
-                                    setShowSMSModal(true)
-                                  }}
 
-                                >
-                                  <div className="flex flex-row items-center gap-2 w-full">
-                                    <MessageSquare
-                                      size={20}
-                                      color="#000000"
-                                    />
-                                    <span>Text</span>
-                                    {/* Show upgrade button only if allowTextMessages is false */}
-                                    {!userLocalData?.planCapabilities?.allowTextMessages && (
-                                      <UpgradeTagWithModal
-                                        reduxUser={userLocalData ? {
-                                          user: userLocalData,
-                                          userRole: userLocalData.userRole
-                                        } : null}
-                                        setReduxUser={async (updatedData) => {
-                                          // Refresh user data after upgrade
-                                          const user = await getProfileDetails()
-                                          if (user) {
-                                            setUserLocalData(user.data.data)
-                                          }
-                                        }}
-                                      />
-                                    )}
-                                    {/* Show info icon with tooltip if allowTextMessages is true but no phone numbers */}
-                                    {userLocalData?.planCapabilities
-                                      ?.allowTextMessages &&
-                                      phoneNumbers.length == 0 && (
-                                        <Tooltip
-                                          title="No phone numbers available. Please add an A2P number to send text messages."
-                                          arrow
-                                          placement="top"
-                                          componentsProps={{
-                                            tooltip: {
-                                              sx: {
-                                                backgroundColor: '#ffffff',
-                                                color: '#333',
-                                                fontSize: '14px',
-                                                padding: '10px 15px',
-                                                borderRadius: '8px',
-                                                boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                              },
-                                            },
-                                            arrow: {
-                                              sx: {
-                                                color: '#ffffff',
-                                              },
-                                            },
-                                          }}
-                                        >
-                                          <Image
-                                            src="/agencyIcons/InfoIcon.jpg"
-                                            alt="info"
-                                            width={16}
-                                            height={16}
-                                            className="cursor-pointer rounded-full"
-                                          />
-                                        </Tooltip>
-                                      )}
-                                  </div>
-                                </MenuItem>
-                              )}
-                              {/* Call Option */}
-                              {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' &&
-                                selectedLeadsDetails?.phone && (
-                                  <MenuItem
-                                    onClick={() => {
-                                      setSendActionAnchor(null)
-                                      startDialerFlow()
-                                    }}
-                                  >
-                                    <div className="flex flex-row items-center gap-2 w-full">
-                                      <Phone
-                                        size={20}
-                                        color="#000000"
-                                      />
-                                      <span>Call</span>
-                                    </div>
-                                  </MenuItem>
-                                )}
-                            </Menu>
-                          </div>
 
+
+                          {/* Scoring Progress */}
                           {selectedLeadsDetails?.scoringDetails &&
                             selectedLeadsDetails?.scoringDetails?.questions
                               ?.length > 0 && (
@@ -2205,289 +2095,130 @@ const LeadDetails = ({
                             </div>
                           )}
                         </div>
-                        {/* Email Field */}
-                        {(selectedLeadsDetails?.email ||
-                          selectedLeadsDetails?.emails?.length > 0) && (
-                            <div className="flex flex-row items-center gap-2">
-                              <Mail
-                                size={16}
-                                color="#000000"
-                              />
-                              <div style={styles.heading2}>
-                                {selectedLeadsDetails?.email ? (
-                                  selectedLeadsDetails?.email
-                                ) : (
-                                  <div>
-                                    {selectedLeadsDetails?.emails
-                                      ?.slice(0, 1)
-                                      .map((email, emailIndex) => {
-                                        return (
-                                          <div
-                                            key={emailIndex}
-                                            className="flex flex-row items-center gap-2"
-                                          >
-                                            <div
-                                              className="flex flex-row items-center gap-2 px-1 mt-1 rounded-lg border border-[#00000020]"
-                                              style={styles.paragraph}
-                                            >
-                                              <Image
-                                                src={'/assets/power.png'}
-                                                height={9}
-                                                width={7}
-                                                alt="*"
-                                              />
-                                              <div>
-                                                <span className="text-brand-primary">
-                                                  New
-                                                </span>{' '}
-                                                {email.email}
-                                              </div>
-                                            </div>
-                                            <button
-                                              className="text-brand-primary underline"
-                                              onClick={() => {
-                                                setShowAllEmails(true)
-                                              }}
-                                            >
-                                              {selectedLeadsDetails?.emails
-                                                ?.length > 1
-                                                ? `+${selectedLeadsDetails?.emails
-                                                  ?.length - 1
-                                                }`
-                                                : ''}
-                                            </button>
-                                          </div>
-                                        )
-                                      })}
+                        <div className="space-y-3 text-sm">
+                          {selectedLeadsDetails?.email && <InfoRow icon={<MailIcon className="h-4 w-4" />}>{selectedLeadsDetails?.email}</InfoRow>}
+                          {selectedLeadsDetails?.phone && <InfoRow icon={<PhoneIcon className="h-4 w-4" />}>{selectedLeadsDetails?.phone}</InfoRow>}
+                          {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>{selectedLeadsDetails?.address}</InfoRow>}
+                          <InfoRow icon={<WorkflowIcon className="h-4 w-4" />}>
+                            {selectedLeadsDetails?.pipeline?.title ||
+                              selectedLeadsDetails?.pipeline?.name ||
+                              selectedLeadsDetails?.pipeline ||
+                              '-'}
+                          </InfoRow>
+                          {selectedLeadsDetails?.booking && <InfoRow icon={<CalendarIcon className="h-4 w-4" />}>{selectedLeadsDetails?.booking}</InfoRow>}
+                          <div className="flex items-center gap-2">
+                            <TagIcon className="h-4 w-4 text-muted-foreground" />
+                            {/* <div className="flex flex-wrap gap-2">
+                              {selectedLeadsDetails?.tags?.map((tag) => (
+                                <TagPill key={tag} label={tag} />
+                              ))}
+                            </div> */}
+                            {/* Tags + Input */}
+                            <div className="space-x-2 flex flex-row items-center gap-2">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                {(selectedLeadsDetails?.tags || []).slice(0, 3).map((tag) => (
+                                  
+                                  <TagPill key={tag} label={tag} />
+                                ))}
+                                {selectedLeadsDetails?.tags?.length > 3 && (
+                                  <span className="rounded-full bg-muted px-2 py-1 text-xs font-semibold text-foreground">
+                                    +{selectedLeadsDetails.tags.length - 3}
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="relative">
+                                <input
+                                  ref={tagInputRef}
+                                  type="text"
+                                  value={tagInputValue}
+                                  onChange={handleTagInputChange}
+                                  onKeyDown={handleTagInputKeyDown}
+                                  onFocus={() => {
+                                    if (tagInputValue.trim() && tagSuggestions.length > 0) {
+                                      setShowTagSuggestions(true)
+                                    }
+                                  }}
+                                  onBlur={() => {
+                                    setTimeout(() => {
+                                      setShowTagSuggestions(false)
+                                    }, 200)
+                                  }}
+                                  placeholder={
+                                    selectedLeadsDetails?.tags && selectedLeadsDetails.tags.length > 0
+                                      ? 'Add tag...'
+                                      : 'Add tags...'
+                                  }
+                                  className="w-40 rounded-full border border-muted bg-white px-3 py-2 text-sm focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
+                                  disabled={addTagLoader}
+                                />
+
+                                {showTagSuggestions && tagSuggestions.length > 0 && (
+                                  <div className="absolute z-50 mt-1 w-full max-h-48 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+                                    {tagSuggestions.map((suggestion, index) => (
+                                      <button
+                                        key={index}
+                                        type="button"
+                                        onMouseDown={(e) => e.preventDefault()}
+                                        onClick={() => handleTagSuggestionClick(suggestion)}
+                                        className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100"
+                                      >
+                                        {suggestion}
+                                      </button>
+                                    ))}
+                                  </div>
+                                )}
+
+                                {addTagLoader && (
+                                  <div className="absolute right-2 top-2">
+                                    <CircularProgress size={20} />
                                   </div>
                                 )}
                               </div>
                             </div>
-                          )}
-                        <div>
-                          {selectedLeadsDetails?.email && (
-                            <div className="flex flex-row w-full justify-end">
-                              {selectedLeadsDetails?.emails
-                                ?.slice(0, 1)
-                                .map((email, emailIndex) => {
-                                  return (
-                                    <div
-                                      key={emailIndex}
-                                      className="flex flex-row items-center gap-2"
-                                    >
-                                      <div
-                                        className="flex flex-row items-center gap-2 px-1 mt-1 mb-1 rounded-lg border border-[#00000020]"
-                                        style={styles.paragraph}
-                                      >
-                                        <Image
-                                          src={'/assets/power.png'}
-                                          height={9}
-                                          width={7}
-                                          alt="*"
-                                        />
-                                        <div className="text-[12px] font-[400]">
-                                          <span className="text-brand-primary text-[15px] font-[400]">
-                                            New
-                                          </span>{' '}
-                                          {email.email}
-                                        </div>
-                                      </div>
-                                      <button
-                                        className="text-brand-primary underline"
-                                        onClick={() => {
-                                          setShowAllEmails(true)
-                                        }}
-                                      >
-                                        {selectedLeadsDetails?.emails
-                                          ?.length > 1
-                                          ? `+${selectedLeadsDetails?.emails
-                                            ?.length - 1
-                                          }`
-                                          : ''}
-                                      </button>
-                                    </div>
-                                  )
-                                })}
-                            </div>
-                          )}
-                        </div>
-                        {selectedLeadsDetails?.phone && (
-                          <div className="flex flex-row items-center gap-2">
-                            <Phone
-                              size={16}
-                              color="#000000"
-                            />
-                            <div style={styles.heading2}>
-                              {formatPhoneNumber(
-                                selectedLeadsDetails?.phone,
-                              ) || '-'}
-                            </div>
-                            {selectedLeadsDetails?.cell != null && (
-                              <div
-                                className="rounded-full font-medium justify-center items-center color-[#ffffff] p-0.2 px-2 bg-[#15151580]"
-                                style={{ color: 'white' }}
-                              >
-                                {selectedLeadsDetails?.cell}
-                              </div>
-                            )}
                           </div>
-                        )}
-
-                        {selectedLeadsDetails?.address && (
-                          <div className="flex flex-row items-center gap-2">
-                            <MapPin
-                              size={16}
-                              color="#000000"
+                          <div className="flex items-center gap-2">
+                            <Avatar className="h-8 w-8">
+                              {selectedLeadsDetails?.assignee?.avatar ? (
+                                <AvatarImage src={selectedLeadsDetails?.assignee.avatar} alt={selectedLeadsDetails?.assignee.name} />
+                              ) : (
+                                <AvatarFallback>{selectedLeadsDetails?.assignee?.name?.[0] || 'A'}</AvatarFallback>
+                              )}
+                            </Avatar>
+                            <MultiSelectDropdownCn
+                              label="Assign"
+                              options={(selectedLeadsDetails?.teamsAssigned || []).map((tm) => ({
+                                id: tm.id || tm.invitedUserId,
+                                label: tm.name,
+                                avatar: tm.thumb_profile_image,
+                                selected: true,
+                              }))}
+                              onToggle={(opt, checked) => {
+                                if (checked) {
+                                  handleAssignLeadToTeammember?.(opt.id)
+                                } else {
+                                  handleUnassignLeadFromTeammember?.(opt.id)
+                                }
+                              }}
                             />
-                            <div style={styles.heading2}>
-                              {selectedLeadsDetails?.address || '-'}
-                            </div>
                           </div>
-                        )}
-                        {selectedLeadsDetails && (
-                          <div className="flex w-[40vw] flex-row items-center gap-2 flex-wrap">
-                            <Tag
-                              size={16}
-                              color="#000000"
-                            />
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <WorkflowIcon className="h-4 w-4" />
+                              <span className="text-sm font-medium text-foreground">Custom fields</span>
+                              <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                            <Button variant="link" className="h-auto p-0 text-indigo-primary">
+                              <PlusIcon className="h-4 w-4" />
+                              {selectedLeadsDetails?.customFieldsCount}
+                            </Button>
                             
-                            {/* Existing Tags Display */}
-                            {selectedLeadsDetails?.tags && selectedLeadsDetails.tags.length > 0 && (
-                              <>
-                                {selectedLeadsDetails.tags
-                                  .slice(0, 2)
-                                  .map((tag, index) => {
-                                    return (
-                                      <div
-                                        key={index}
-                                        className="flex flex-row items-center gap-2"
-                                      >
-                                        <div
-                                          className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
-                                        >
-                                          <div className="text-black">
-                                            {tag}
-                                          </div>
-                                          {DelTagLoader &&
-                                            tag.includes(DelTagLoader) ? (
-                                            <div>
-                                              <CircularProgress
-                                                size={15}
-                                              />
-                                            </div>
-                                          ) : (
-                                            <button
-                                              onClick={() => {
-                                                handleDelTag(tag)
-                                              }}
-                                            >
-                                              <X
-                                                size={15}
-                                                weight="bold"
-                                                color="#000000"
-                                              />
-                                            </button>
-                                          )}
-                                        </div>
-                                      </div>
-                                    )
-                                  })}
-                                {selectedLeadsDetails.tags.length > 2 && (
-                                  <button
-                                    className="outline-none"
-                                    onClick={() => {
-                                      setExtraTagsModal(true)
-                                    }}
-                                  >
-                                    <div className="text-black underline">
-                                      +{selectedLeadsDetails.tags.length - 2}
-                                    </div>
-                                  </button>
-                                )}
-                              </>
-                            )}
-
-                            {/* Tag Input Field */}
-                            <div className="relative">
-                              <input
-                                ref={tagInputRef}
-                                type="text"
-                                value={tagInputValue}
-                                onChange={handleTagInputChange}
-                                onKeyDown={handleTagInputKeyDown}
-                                onFocus={() => {
-                                  if (tagInputValue.trim() && tagSuggestions.length > 0) {
-                                    setShowTagSuggestions(true)
-                                  }
-                                }}
-                                onBlur={() => {
-                                  // Delay to allow click on suggestion
-                                  setTimeout(() => {
-                                    setShowTagSuggestions(false)
-                                  }, 200)
-                                }}
-                                placeholder={selectedLeadsDetails?.tags && selectedLeadsDetails.tags.length > 0 ? "Add tag..." : "Add tags..."}
-                                className="text-[12px] px-2 py-1 border border-gray-300 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-transparent"
-                                style={{ width: '150px' }}
-                                disabled={addTagLoader}
-                              />
-
-                              {/* Autocomplete Suggestions Dropdown */}
-                              {showTagSuggestions && tagSuggestions.length > 0 && (
-                                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-auto">
-                                  {tagSuggestions.map((suggestion, index) => (
-                                    <div
-                                      key={index}
-                                      onClick={() => handleTagSuggestionClick(suggestion)}
-                                      className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
-                                    >
-                                      {suggestion}
-                                    </div>
-                                  ))}
-                                </div>
-                              )}
-
-                              {/* Loading indicator */}
-                              {addTagLoader && (
-                                <div className="absolute right-2 top-2">
-                                  <CircularProgress size={20} />
-                                </div>
-                              )}
-                            </div>
                           </div>
-                        )}
-                        {selectedLeadsDetails?.pipeline && (
-                          <div className="flex flex-row items-center gap-2">
-                            <Workflow
-                              size={20}
-                              color="#000000"
-                            />
-                            <div style={styles.heading2}>
-                              {selectedLeadsDetails?.pipeline
-                                ? selectedLeadsDetails?.pipeline?.title
-                                : '-'}
-                            </div>
-                          </div>
-                        )}
-
-                        <div>
-                          {selectedLeadsDetails?.booking && (
-                            <div className="flex flex-row items-center gap-2">
-                              <Calendar
-                                size={16}
-                                color="#000000"
-                              />
-                              <div style={styles.heading2}>
-                                {GetFormattedDateString(
-                                  selectedLeadsDetails.booking.datetime,
-                                  true,
-                                )}
-                              </div>
-                            </div>
-                          )}
                         </div>
+                        
+                        
                       </div>
-
+                      {/* Stage Select Dropdown */}
                       <div className="flex flex-col items-end gap-[5px] absolute top-25 right-10">
                         <div className="flex flex-row items-center gap-2">
                           {/* <Image
@@ -2504,18 +2235,19 @@ const LeadDetails = ({
                               <CircularProgress size={25} />
                             ) : (
                               <>
-                                <div
+                                {/* <div
                                   className="h-[10px] w-[10px] rounded-full"
                                   style={{
                                     backgroundColor:
                                       selectedLeadsDetails?.stage
                                         ?.defaultColor,
                                   }}
-                                ></div>
+                                ></div> */}
 
                                 {updateLeadLoader ? (
                                   <CircularProgress size={20} />
                                 ) : (
+
                                   <SelectStageDropdown
                                     selectedStage={selectedStage}
                                     handleStageChange={handleStageChange}
@@ -3988,6 +3720,8 @@ const LeadDetails = ({
     )
   }
 
+
+
   // Otherwise, render with Drawer (original behavior)
   return (
     <div className="h-[100svh]">
@@ -4002,7 +3736,7 @@ const LeadDetails = ({
         disableRestoreFocus={true}
         PaperProps={{
           sx: {
-            width: '45%', // Adjust width as needed
+            width: '35%', // Adjust width as needed
             borderRadius: '20px', // Rounded corners
             padding: '0px', // Internal padding
             boxShadow: 3, // Light shadow
