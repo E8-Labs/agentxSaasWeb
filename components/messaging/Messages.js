@@ -26,6 +26,7 @@ import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiS
 import { Modal, Box } from '@mui/material'
 import { useUser } from '@/hooks/redux-hooks'
 import UnlockMessagesView from './UnlockMessagesView'
+import MessageHeader from './MessageHeader'
 
 const Messages = () => {
   const [threads, setThreads] = useState([])
@@ -79,6 +80,7 @@ const Messages = () => {
   const threadsRequestIdRef = useRef(0)
 
   // Filter state
+  const [filterType, setFilterType] = useState('all') // 'all' or 'unreplied'
   const [showFilterModal, setShowFilterModal] = useState(false)
   const [selectedTeamMemberIds, setSelectedTeamMemberIds] = useState([]) // Temporary selection in modal
   const [appliedTeamMemberIds, setAppliedTeamMemberIds] = useState([]) // Actually applied filter
@@ -436,6 +438,8 @@ const Messages = () => {
           return dateB - dateA
         })
         console.log('sortedThreads is:', sortedThreads)
+        
+        // Store all threads (for filtering)
         setThreads(sortedThreads)
       } else {
         // Clear threads if no valid response or empty results
@@ -526,7 +530,7 @@ const Messages = () => {
 
             // Set messages (newest at bottom)
             setMessages(fetchedMessages)
-            
+
             // Update latest message ID ref
             if (fetchedMessages.length > 0) {
               latestMessageIdRef.current = fetchedMessages[fetchedMessages.length - 1]?.id || null
@@ -620,12 +624,12 @@ const Messages = () => {
           } else {
             // Set messages (newest at bottom)
             setMessages(fetchedMessages)
-            
+
             // Update latest message ID ref
             if (fetchedMessages.length > 0) {
               latestMessageIdRef.current = fetchedMessages[fetchedMessages.length - 1]?.id || null
             }
-            
+
             // Scroll to bottom instantly after DOM update (no visible animation)
             requestAnimationFrame(() => {
               requestAnimationFrame(() => {
@@ -719,13 +723,13 @@ const Messages = () => {
 
         // Get the most recent message ID we currently have from ref
         const currentLatestMessageId = latestMessageIdRef.current
-        
+
         // Only poll if we have messages loaded (initial load will set the ref)
         if (!currentLatestMessageId) {
           // Wait for initial load to complete
           return
         }
-        
+
         console.log(`🔄 [Polling] Checking for new messages in thread ${selectedThread.id}, latest ID: ${currentLatestMessageId}`)
 
         // Fetch the latest messages (just the most recent ones to check for new messages)
@@ -746,18 +750,18 @@ const Messages = () => {
 
         if (response.data?.status && response.data?.data) {
           const allFetchedMessages = response.data.data
-          
+
           // Messages are returned in ascending order (oldest first), so get the last ones
           // Take the last 10 messages to check for new ones
           const latestMessages = allFetchedMessages.slice(-10)
-          
+
           // Get the most recent message from the fetched batch
-          const serverLatestMessage = allFetchedMessages.length > 0 
-            ? allFetchedMessages[allFetchedMessages.length - 1] 
+          const serverLatestMessage = allFetchedMessages.length > 0
+            ? allFetchedMessages[allFetchedMessages.length - 1]
             : null
-          
+
           console.log(`🔄 [Polling] Fetched ${allFetchedMessages.length} messages, server latest ID: ${serverLatestMessage?.id}, current latest ID: ${currentLatestMessageId}`)
-          
+
           // Check if there are new messages (messages with IDs greater than our latest)
           if (currentLatestMessageId && serverLatestMessage) {
             if (serverLatestMessage.id > currentLatestMessageId) {
@@ -768,7 +772,7 @@ const Messages = () => {
 
               if (newMessages.length > 0) {
                 console.log(`🔄 [Polling] Found ${newMessages.length} new message(s) with IDs:`, newMessages.map(m => m.id))
-                
+
                 // Append new messages to the current messages
                 setMessages((prevMessages) => {
                   // Avoid duplicates
@@ -776,27 +780,27 @@ const Messages = () => {
                   const uniqueNewMessages = newMessages.filter(
                     (m) => !existingIds.has(m.id)
                   )
-                  
+
                   if (uniqueNewMessages.length > 0) {
                     // Sort by ID to maintain order
                     const allMessages = [...prevMessages, ...uniqueNewMessages].sort(
                       (a, b) => a.id - b.id
                     )
-                    
+
                     // Update the ref with the new latest message ID
                     latestMessageIdRef.current = allMessages[allMessages.length - 1]?.id || null
-                    
+
                     // Scroll to bottom when new messages arrive
                     setTimeout(() => {
                       if (messagesContainerRef.current) {
-                        messagesContainerRef.current.scrollTop = 
+                        messagesContainerRef.current.scrollTop =
                           messagesContainerRef.current.scrollHeight
                       }
                     }, 100)
-                    
+
                     return allMessages
                   }
-                  
+
                   return prevMessages
                 })
 
@@ -866,7 +870,7 @@ const Messages = () => {
     // Handle both array format and JSON string format
     let threadCcEmails = []
     let threadBccEmails = []
-    
+
     if (thread.ccEmails) {
       if (Array.isArray(thread.ccEmails)) {
         threadCcEmails = thread.ccEmails
@@ -879,7 +883,7 @@ const Messages = () => {
         }
       }
     }
-    
+
     if (thread.bccEmails) {
       if (Array.isArray(thread.bccEmails)) {
         threadBccEmails = thread.bccEmails
@@ -892,7 +896,7 @@ const Messages = () => {
         }
       }
     }
-    
+
     console.log('🔍 [handleThreadSelect] Thread CC/BCC:', {
       threadId: thread.id,
       ccEmails: threadCcEmails,
@@ -900,7 +904,7 @@ const Messages = () => {
       rawCcEmails: thread.ccEmails,
       rawBccEmails: thread.bccEmails,
     })
-    
+
     setCcEmails(threadCcEmails)
     setBccEmails(threadBccEmails)
     setCcInput('')
@@ -1122,7 +1126,7 @@ const Messages = () => {
         text = text
       }
     }
-    
+
     // Note: We'll convert newlines back to <br> in sanitizeHTML, so we keep them as \n here
 
     // Pattern 1: "Replying to [subject] [sender]" - Gmail style
@@ -1276,10 +1280,10 @@ const Messages = () => {
 
     // Ensure <br> tags are preserved and newlines are converted to <br> if needed
     let processedContent = cleanedContent || ''
-    
+
     // Normalize line endings first (handle \r\n, \r, and \n)
     processedContent = processedContent.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
-    
+
     // If content doesn't have HTML tags but has newlines, convert them to <br>
     if (!/<[^>]+>/.test(processedContent) && processedContent.includes('\n')) {
       processedContent = processedContent.replace(/\n/g, '<br>')
@@ -1288,41 +1292,41 @@ const Messages = () => {
       // But preserve existing <br> tags
       processedContent = processedContent.replace(/\n/g, '<br>')
     }
-    
+
     // Also handle HTML divs that represent line breaks
     // Gmail/Outlook often use <div> tags for each line
     // Pattern: <div>text</div> should become text<br>
     // But be careful not to break nested structures
-    
+
     // First, handle the common Gmail pattern: <div dir="ltr">Line 1<div>Line 2</div><div>Line 3</div></div>
     // This should become: Line 1<br>Line 2<br>Line 3
-    
+
     // Step 1: Convert simple divs with just text (no nested tags) - but only if they're direct children
     // Match: <div>text</div> where text doesn't contain tags
     processedContent = processedContent.replace(/<div[^>]*>([^<]+)<\/div>/gi, '$1<br>')
-    
+
     // Step 2: Handle closing div followed by opening div (represents line break between divs)
     processedContent = processedContent.replace(/<\/div>\s*<div[^>]*>/gi, '<br>')
-    
+
     // Step 3: Clean up empty divs
     processedContent = processedContent.replace(/<div[^>]*><\/div>/gi, '')
-    
+
     // Step 4: Handle nested divs - convert outer div structure to preserve inner content
     // Pattern: <div><div>text</div></div> should become text<br>
     processedContent = processedContent.replace(/<div[^>]*><div[^>]*>([^<>]+)<\/div><\/div>/gi, '$1<br>')
-    
+
     // Step 5: Remove any remaining div tags that might have attributes but no content
     processedContent = processedContent.replace(/<div[^>]*><\/div>/gi, '')
-    
+
     // Step 6: Remove trailing <br> if at end (but keep if it's meaningful)
     processedContent = processedContent.replace(/<br>\s*$/gi, '')
-    
+
     // Step 7: Also handle any remaining newlines that weren't converted (fallback for content that wasn't processed by backend)
     processedContent = processedContent.replace(/\n/g, '<br>')
-    
+
     // Step 8: Clean up multiple consecutive <br> tags (more than 2) to max 2
     processedContent = processedContent.replace(/(<br>\s*){3,}/gi, '<br><br>')
-    
+
     return DOMPurify.sanitize(processedContent, {
       ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'span', 'h2', 'h3', 'h4', 'div'],
       ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
@@ -1444,7 +1448,7 @@ const Messages = () => {
         hasProfileImage: !!message.senderUser.thumb_profile_image,
         profileImageUrl: message.senderUser.thumb_profile_image,
       })
-      
+
       // Try team member profile image first
       if (message.senderUser.thumb_profile_image) {
         return (
@@ -1477,7 +1481,7 @@ const Messages = () => {
           </div>
         )
       }
-      
+
       // Fallback to team member name initial
       const teamMemberName = message.senderUser.name || message.senderUser.email || 'T'
       const teamMemberLetter = teamMemberName.charAt(0).toUpperCase()
@@ -1488,7 +1492,7 @@ const Messages = () => {
         </div>
       )
     }
-    
+
     console.log('⚠️ [getAgentAvatar] No senderUser found for message:', {
       messageId: message.id,
       hasSenderUser: !!message.senderUser,
@@ -1559,7 +1563,7 @@ const Messages = () => {
   const handleSendMessage = async () => {
     // Get the appropriate message body based on mode
     const messageBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
-    
+
     if (!selectedThread || !messageBody.trim()) return
     if (composerMode === 'email' && !composerData.to.trim()) return
     if (sendingMessage) return // Prevent double submission
@@ -2296,31 +2300,70 @@ const Messages = () => {
           <UnlockMessagesView />
         ) : (
 
-          <div className="w-full h-screen flex flex-row bg-white">
-            {/* Left Sidebar - Thread List */}
-            <ThreadsList
-              loading={loading}
-              threads={threads}
-              selectedThread={selectedThread}
-              onSelectThread={handleThreadSelect}
-              onNewMessage={() => setShowNewMessageModal(true)}
-              getLeadName={getLeadName}
-              getThreadDisplayName={getThreadDisplayName}
-              getRecentMessageType={getRecentMessageType}
-              formatUnreadCount={formatUnreadCount}
-              onDeleteThread={handleDeleteThread}
-              searchValue={searchValue}
-              onSearchChange={setSearchValue}
-              onFilterClick={handleOpenFilterModal}
-              selectedTeamMemberIdsCount={appliedTeamMemberIds.length}
-            />
+          <div className="w-full h-screen flex flex-col bg-white">
+            <MessageHeader />
+            <div className="flex-1 flex flex-row">
+              {/* Left Sidebar - Thread List */}
+              {(() => {
+                // Helper function to check if a thread is unreplied
+                // A thread is unreplied if the last message is inbound (from lead)
+                const isUnrepliedThread = (thread) => {
+                  // Check if thread has messages array
+                  if (thread.messages && thread.messages.length > 0) {
+                    // Get the most recent message (first in array if sorted by date desc)
+                    const lastMessage = thread.messages[0]
+                    return lastMessage.direction === 'inbound'
+                  }
+                  
+                  // If no messages array, check if thread has lastMessage property
+                  if (thread.lastMessage) {
+                    return thread.lastMessage.direction === 'inbound'
+                  }
+                  
+                  // If no message info, check thread direction
+                  // Default to unreplied if we can't determine (safer assumption)
+                  return thread.direction === 'inbound' || !thread.direction
+                }
 
-            {/* Right Side - Messages View */}
-            <div className="flex-1 flex flex-col h-screen">
-              {selectedThread ? (
-                <>
-                  {/* Messages Header */}
-                  {/* <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white">
+                // Calculate counts
+                const allCount = threads.length
+                const unrepliedCount = threads.filter(isUnrepliedThread).length
+
+                // Filter threads based on filterType
+                const filteredThreads = filterType === 'unreplied'
+                  ? threads.filter(isUnrepliedThread)
+                  : threads
+
+                return (
+                  <ThreadsList
+                    loading={loading}
+                    threads={filteredThreads}
+                    selectedThread={selectedThread}
+                    onSelectThread={handleThreadSelect}
+                    onNewMessage={() => setShowNewMessageModal(true)}
+                    getLeadName={getLeadName}
+                    getThreadDisplayName={getThreadDisplayName}
+                    getRecentMessageType={getRecentMessageType}
+                    formatUnreadCount={formatUnreadCount}
+                    onDeleteThread={handleDeleteThread}
+                    searchValue={searchValue}
+                    onSearchChange={setSearchValue}
+                    onFilterClick={handleOpenFilterModal}
+                    selectedTeamMemberIdsCount={appliedTeamMemberIds.length}
+                    filterType={filterType}
+                    onFilterTypeChange={setFilterType}
+                    allCount={allCount}
+                    unrepliedCount={unrepliedCount}
+                  />
+                )
+              })()}
+
+              {/* Right Side - Messages View */}
+              <div className="flex-1 flex flex-col h-[90vh]">
+                {selectedThread ? (
+                  <>
+                    {/* Messages Header */}
+                    {/* <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white">
                 <div>
                   <h2 className="text-lg font-semibold text-black">
                     {selectedThread.lead?.firstName || selectedThread.lead?.name || 'Unknown Lead'}
@@ -2329,163 +2372,176 @@ const Messages = () => {
                 </div>
               </div> */}
 
-                  {/* Messages Container */}
-                  <ConversationView
-                    selectedThread={selectedThread}
-                    messages={messages}
-                    messagesLoading={messagesLoading}
-                    loadingOlderMessages={loadingOlderMessages}
-                    messagesContainerRef={messagesContainerRef}
-                    messagesEndRef={messagesEndRef}
-                    messagesTopRef={messagesTopRef}
-                    sanitizeHTML={sanitizeHTML}
-                    getLeadName={getLeadName}
-                    getAgentAvatar={getAgentAvatar}
-                    getImageUrl={getImageUrl}
-                    setImageAttachments={setImageAttachments}
-                    setCurrentImageIndex={setCurrentImageIndex}
-                    setImageModalOpen={setImageModalOpen}
-                    setSnackbar={setSnackbar}
-                    SnackbarTypes={SnackbarTypes}
-                    openEmailDetailId={openEmailDetailId}
-                    setOpenEmailDetailId={setOpenEmailDetailId}
-                    getEmailDetails={getEmailDetails}
-                    setShowEmailTimeline={setShowEmailTimeline}
-                    setEmailTimelineLeadId={setEmailTimelineLeadId}
-                    setEmailTimelineSubject={setEmailTimelineSubject}
-                    onReplyClick={handleReplyClick}
-                    onOpenEmailTimeline={handleOpenEmailTimeline}
-                    updateComposerFromMessage={updateComposerFromMessage}
-                  />
-
-                  {/* Composer */}
-                  <MessageComposer
-                    composerMode={composerMode}
-                    setComposerMode={setComposerMode}
-                    selectedThread={selectedThread}
-                    composerData={composerData}
-                    setComposerData={setComposerData}
-                    fetchPhoneNumbers={fetchPhoneNumbers}
-                    fetchEmailAccounts={fetchEmailAccounts}
-                    showCC={showCC}
-                    setShowCC={setShowCC}
-                    showBCC={showBCC}
-                    setShowBCC={setShowBCC}
-                    ccEmails={ccEmails}
-                    ccInput={ccInput}
-                    handleCcInputChange={handleCcInputChange}
-                    handleCcInputKeyDown={handleCcInputKeyDown}
-                    handleCcInputPaste={handleCcInputPaste}
-                    handleCcInputBlur={handleCcInputBlur}
-                    removeCcEmail={removeCcEmail}
-                    bccEmails={bccEmails}
-                    bccInput={bccInput}
-                    handleBccInputChange={handleBccInputChange}
-                    handleBccInputKeyDown={handleBccInputKeyDown}
-                    handleBccInputPaste={handleBccInputPaste}
-                    handleBccInputBlur={handleBccInputBlur}
-                    removeBccEmail={removeBccEmail}
-                    phoneNumbers={phoneNumbers}
-                    selectedPhoneNumber={selectedPhoneNumber}
-                    setSelectedPhoneNumber={setSelectedPhoneNumber}
-                    emailAccounts={emailAccounts}
-                    selectedEmailAccount={selectedEmailAccount}
-                    setSelectedEmailAccount={setSelectedEmailAccount}
-                    removeAttachment={removeAttachment}
-                    richTextEditorRef={richTextEditorRef}
-                    SMS_CHAR_LIMIT={SMS_CHAR_LIMIT}
-                    handleFileChange={handleFileChange}
-                    handleSendMessage={handleSendMessage}
-                    sendingMessage={sendingMessage}
-                    onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
-                  />
-                </>
-              ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-8">
-                  <div className="mb-6">
-                    <Image
-                      src="/messaging/no message icon.svg"
-                      width={120}
-                      height={120}
-                      alt="No conversation selected"
-                      className="opacity-60"
+                    {/* Messages Container */}
+                    <ConversationView
+                      selectedThread={selectedThread}
+                      messages={messages}
+                      messagesLoading={messagesLoading}
+                      loadingOlderMessages={loadingOlderMessages}
+                      messagesContainerRef={messagesContainerRef}
+                      messagesEndRef={messagesEndRef}
+                      messagesTopRef={messagesTopRef}
+                      sanitizeHTML={sanitizeHTML}
+                      getLeadName={getLeadName}
+                      getAgentAvatar={getAgentAvatar}
+                      getImageUrl={getImageUrl}
+                      setImageAttachments={setImageAttachments}
+                      setCurrentImageIndex={setCurrentImageIndex}
+                      setImageModalOpen={setImageModalOpen}
+                      setSnackbar={setSnackbar}
+                      SnackbarTypes={SnackbarTypes}
+                      openEmailDetailId={openEmailDetailId}
+                      setOpenEmailDetailId={setOpenEmailDetailId}
+                      getEmailDetails={getEmailDetails}
+                      setShowEmailTimeline={setShowEmailTimeline}
+                      setEmailTimelineLeadId={setEmailTimelineLeadId}
+                      setEmailTimelineSubject={setEmailTimelineSubject}
+                      onReplyClick={handleReplyClick}
+                      onOpenEmailTimeline={handleOpenEmailTimeline}
+                      updateComposerFromMessage={updateComposerFromMessage}
                     />
+
+                    {/* Composer */}
+                    <MessageComposer
+                      composerMode={composerMode}
+                      setComposerMode={setComposerMode}
+                      selectedThread={selectedThread}
+                      composerData={composerData}
+                      setComposerData={setComposerData}
+                      fetchPhoneNumbers={fetchPhoneNumbers}
+                      fetchEmailAccounts={fetchEmailAccounts}
+                      showCC={showCC}
+                      setShowCC={setShowCC}
+                      showBCC={showBCC}
+                      setShowBCC={setShowBCC}
+                      ccEmails={ccEmails}
+                      ccInput={ccInput}
+                      handleCcInputChange={handleCcInputChange}
+                      handleCcInputKeyDown={handleCcInputKeyDown}
+                      handleCcInputPaste={handleCcInputPaste}
+                      handleCcInputBlur={handleCcInputBlur}
+                      removeCcEmail={removeCcEmail}
+                      bccEmails={bccEmails}
+                      bccInput={bccInput}
+                      handleBccInputChange={handleBccInputChange}
+                      handleBccInputKeyDown={handleBccInputKeyDown}
+                      handleBccInputPaste={handleBccInputPaste}
+                      handleBccInputBlur={handleBccInputBlur}
+                      removeBccEmail={removeBccEmail}
+                      phoneNumbers={phoneNumbers}
+                      selectedPhoneNumber={selectedPhoneNumber}
+                      setSelectedPhoneNumber={setSelectedPhoneNumber}
+                      emailAccounts={emailAccounts}
+                      selectedEmailAccount={selectedEmailAccount}
+                      setSelectedEmailAccount={setSelectedEmailAccount}
+                      removeAttachment={removeAttachment}
+                      richTextEditorRef={richTextEditorRef}
+                      SMS_CHAR_LIMIT={SMS_CHAR_LIMIT}
+                      handleFileChange={handleFileChange}
+                      handleSendMessage={handleSendMessage}
+                      sendingMessage={sendingMessage}
+                      onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
+                    />
+                  </>
+                ) : (
+                  <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-8">
+                    <div className="mb-6">
+                      <Image
+                        src="/messaging/no message icon.svg"
+                        width={120}
+                        height={120}
+                        alt="No conversation selected"
+                        className="opacity-60"
+                      />
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      No message selected
+                    </h3>
+                    <p className="text-sm text-gray-600 text-center max-w-sm">
+                      Select message to begin conversation
+                    </p>
                   </div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                    No message selected
-                  </h3>
-                  <p className="text-sm text-gray-600 text-center max-w-sm">
-                    Select message to begin conversation
-                  </p>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
 
-            {/* New Message Modal */}
-            <NewMessageModal
-              open={showNewMessageModal}
-              onClose={() => setShowNewMessageModal(false)}
-              onSend={(result) => {
-                // Refresh threads after sending (even if partial success)
-                if (result.sent > 0) {
-                  setTimeout(() => {
-                    fetchThreads(searchValue || "", appliedTeamMemberIds)
-                  }, 1000)
-                }
-              }}
-              mode="email"
-            />
+              {/* New Message Modal */}
+              <NewMessageModal
+                open={showNewMessageModal}
+                onClose={() => setShowNewMessageModal(false)}
+                onSend={(result) => {
+                  // Refresh threads after sending (even if partial success)
+                  if (result.sent > 0) {
+                    setTimeout(() => {
+                      fetchThreads(searchValue || "", appliedTeamMemberIds)
+                    }, 1000)
+                  }
+                }}
+                mode="email"
+              />
 
-            {/* Image Viewer Modal */}
-            {imageModalOpen && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
-                <div className="relative w-full h-full flex items-center justify-center">
-                  {/* Close Button */}
-                  <button
-                    onClick={() => {
-                      setImageModalOpen(false)
-                      setImageAttachments([])
-                      setCurrentImageIndex(0)
-                    }}
-                    className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
-                  >
-                    <X size={24} />
-                  </button>
-
-                  {/* Previous Button */}
-                  {imageAttachments.length > 1 && currentImageIndex > 0 && (
+              {/* Image Viewer Modal */}
+              {imageModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
+                  <div className="relative w-full h-full flex items-center justify-center">
+                    {/* Close Button */}
                     <button
                       onClick={() => {
-                        setCurrentImageIndex(currentImageIndex - 1)
+                        setImageModalOpen(false)
+                        setImageAttachments([])
+                        setCurrentImageIndex(0)
                       }}
-                      className="absolute left-4 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+                      className="absolute top-4 right-4 z-10 p-2 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
                     >
-                      <ChevronLeft size={24} />
+                      <X size={24} />
                     </button>
-                  )}
 
-                  {/* Next Button */}
-                  {imageAttachments.length > 1 && currentImageIndex < imageAttachments.length - 1 && (
-                    <button
-                      onClick={() => {
-                        setCurrentImageIndex(currentImageIndex + 1)
-                      }}
-                      className="absolute right-4 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
-                    >
-                      <ChevronRight size={24} />
-                    </button>
-                  )}
+                    {/* Previous Button */}
+                    {imageAttachments.length > 1 && currentImageIndex > 0 && (
+                      <button
+                        onClick={() => {
+                          setCurrentImageIndex(currentImageIndex - 1)
+                        }}
+                        className="absolute left-4 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+                      >
+                        <ChevronLeft size={24} />
+                      </button>
+                    )}
 
-                  {/* Image or Loading Placeholder */}
-                  <div className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center">
-                    {imageAttachments[currentImageIndex] && getImageUrl(imageAttachments[currentImageIndex], null) ? (
-                      <>
-                        {(() => {
-                          const imageUrl = getImageUrl(imageAttachments[currentImageIndex], null)
-                          const isFromOurServer = isImageFromOurServer(imageUrl)
+                    {/* Next Button */}
+                    {imageAttachments.length > 1 && currentImageIndex < imageAttachments.length - 1 && (
+                      <button
+                        onClick={() => {
+                          setCurrentImageIndex(currentImageIndex + 1)
+                        }}
+                        className="absolute right-4 z-10 p-3 bg-black/50 hover:bg-black/70 rounded-full text-white transition-colors"
+                      >
+                        <ChevronRight size={24} />
+                      </button>
+                    )}
 
-                          // Use Next.js Image for images from our server (Gmail attachments)
-                          if (isFromOurServer) {
+                    {/* Image or Loading Placeholder */}
+                    <div className="relative max-w-[90vw] max-h-[90vh] flex items-center justify-center">
+                      {imageAttachments[currentImageIndex] && getImageUrl(imageAttachments[currentImageIndex], null) ? (
+                        <>
+                          {(() => {
+                            const imageUrl = getImageUrl(imageAttachments[currentImageIndex], null)
+                            const isFromOurServer = isImageFromOurServer(imageUrl)
+
+                            // Use Next.js Image for images from our server (Gmail attachments)
+                            if (isFromOurServer) {
+                              return (
+                                <Image
+                                  src={imageUrl}
+                                  alt={imageAttachments[currentImageIndex]?.fileName || 'Image'}
+                                  width={1920}
+                                  height={1080}
+                                  className="max-w-full max-h-[90vh] object-contain"
+                                  unoptimized
+                                />
+                              )
+                            }
+
+                            // For external images, use Next.js Image with unoptimized prop
                             return (
                               <Image
                                 src={imageUrl}
@@ -2493,209 +2549,197 @@ const Messages = () => {
                                 width={1920}
                                 height={1080}
                                 className="max-w-full max-h-[90vh] object-contain"
+                                style={{ maxWidth: '90vw', maxHeight: '90vh' }}
                                 unoptimized
                               />
                             )
-                          }
+                          })()}
 
-                          // For external images, use Next.js Image with unoptimized prop
-                          return (
-                            <Image
-                              src={imageUrl}
-                              alt={imageAttachments[currentImageIndex]?.fileName || 'Image'}
-                              width={1920}
-                              height={1080}
-                              className="max-w-full max-h-[90vh] object-contain"
-                              style={{ maxWidth: '90vw', maxHeight: '90vh' }}
-                              unoptimized
-                            />
-                          )
-                        })()}
-
-                        {/* Image Info & Download */}
-                        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg flex items-center gap-4">
-                          <span className="text-sm">
-                            {imageAttachments[currentImageIndex]?.fileName || imageAttachments[currentImageIndex]?.originalName || 'Image'}
-                            {imageAttachments.length > 1 && ` (${currentImageIndex + 1} / ${imageAttachments.length})`}
-                          </span>
-                          <button
-                            onClick={() => {
-                              const attachment = imageAttachments[currentImageIndex]
-                              const imageUrl = getImageUrl(attachment, null)
-                              if (imageUrl) {
-                                const a = document.createElement('a')
-                                a.href = imageUrl
-                                a.download = attachment.fileName || attachment.originalName || 'image'
-                                a.target = '_blank'
-                                document.body.appendChild(a)
-                                a.click()
-                                document.body.removeChild(a)
-                              }
-                            }}
-                            className="p-1 hover:bg-white/20 rounded transition-colors"
-                            title="Download image"
-                          >
-                            <Download size={16} />
-                          </button>
-                        </div>
-                      </>
-                    ) : (
-                      <div className="flex flex-col items-center justify-center gap-4 text-white">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
-                        <span className="text-sm">Loading image...</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Email Timeline Modal */}
-            <EmailTimelineModal
-              open={showEmailTimeline}
-              onClose={() => {
-                setShowEmailTimeline(false)
-                setEmailTimelineLeadId(null)
-                // Keep emailTimelineSubject and emailTimelineMessages so we can use them for threading
-                // when sending from the main composer. They'll be cleared when a new thread is selected.
-                // setEmailTimelineSubject(null)
-                // setEmailTimelineMessages([])
-                setReplyToMessage(null)
-              }}
-              leadId={emailTimelineLeadId}
-              subject={emailTimelineSubject}
-              messages={emailTimelineMessages}
-              loading={emailTimelineLoading}
-              selectedThread={selectedThread}
-              emailAccounts={emailAccounts}
-              selectedEmailAccount={selectedEmailAccount}
-              setSelectedEmailAccount={setSelectedEmailAccount}
-              onSendSuccess={async () => {
-                if (emailTimelineLeadId && emailTimelineSubject) {
-                  await fetchEmailTimeline(emailTimelineLeadId, emailTimelineSubject)
-                }
-              }}
-              fetchThreads={fetchThreads}
-              onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
-              replyToMessage={replyToMessage}
-            />
-
-            {/* Auth Selection Popup for Gmail Connection */}
-            <AuthSelectionPopup
-              open={showAuthSelectionPopup}
-              onClose={() => setShowAuthSelectionPopup(false)}
-              onSuccess={() => {
-                setShowAuthSelectionPopup(false)
-                fetchEmailAccounts()
-              }}
-              setShowEmailTempPopup={() => { }}
-              showEmailTempPopup={false}
-              setSelectedGoogleAccount={() => { }}
-            />
-
-            {/* Filter Modal for Team Members */}
-            <Modal
-              open={showFilterModal}
-              onClose={() => setShowFilterModal(false)}
-              closeAfterTransition
-              BackdropProps={{
-                timeout: 1000,
-                sx: {
-                  backgroundColor: '#00000020',
-                },
-              }}
-            >
-              <Box
-                className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh] rounded-[13px]"
-                sx={{
-                  height: 'auto',
-                  bgcolor: 'transparent',
-                  p: 0,
-                  mx: 'auto',
-                  my: '50vh',
-                  transform: 'translateY(-55%)',
-                  borderRadius: '13px',
-                  border: 'none',
-                  outline: 'none',
-                  overflow: 'hidden',
-                }}
-              >
-                <div className="flex flex-col w-full">
-                  <div
-                    className="w-full rounded-[13px] overflow-hidden"
-                    style={{
-                      backgroundColor: '#ffffff',
-                      padding: 20,
-                      paddingInline: 30,
-                      borderRadius: '13px',
-                    }}
-                  >
-                    <div className="flex flex-row items-center justify-between mb-4">
-                      <div style={{ fontWeight: '700', fontSize: 22 }}>
-                        Filter
-                      </div>
-                      <CloseBtn onClick={() => setShowFilterModal(false)} />
-                    </div>
-
-                    <div
-                      className="mt-4"
-                      style={{
-                        maxHeight: '400px',
-                        overflowY: 'auto',
-                        border: '1px solid #00000020',
-                        borderRadius: '13px',
-                        padding: '10px',
-                      }}
-                    >
-                      {filterTeamMembers.length === 0 ? (
-                        <div className="text-center py-8 text-gray-500">
-                          No team members available
-                        </div>
-                      ) : (
-                        filterTeamMembers.map((member) => (
-                          <div
-                            key={member.id}
-                            className="flex flex-row items-center gap-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer"
-                            onClick={() => handleTeamMemberFilterToggle(member.id)}
-                          >
-                            <input
-                              type="checkbox"
-                              checked={selectedTeamMemberIds.includes(member.id)}
-                              onChange={() => handleTeamMemberFilterToggle(member.id)}
-                              onClick={(e) => e.stopPropagation()}
-                              className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
-                            />
-                            <div className="flex flex-col flex-1">
-                              <span className="font-medium text-gray-900">
-                                {member.name}
-                              </span>
-                              {member.email && (
-                                <span className="text-sm text-gray-500">
-                                  {member.email}
-                                </span>
-                              )}
-                            </div>
+                          {/* Image Info & Download */}
+                          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-lg flex items-center gap-4">
+                            <span className="text-sm">
+                              {imageAttachments[currentImageIndex]?.fileName || imageAttachments[currentImageIndex]?.originalName || 'Image'}
+                              {imageAttachments.length > 1 && ` (${currentImageIndex + 1} / ${imageAttachments.length})`}
+                            </span>
+                            <button
+                              onClick={() => {
+                                const attachment = imageAttachments[currentImageIndex]
+                                const imageUrl = getImageUrl(attachment, null)
+                                if (imageUrl) {
+                                  const a = document.createElement('a')
+                                  a.href = imageUrl
+                                  a.download = attachment.fileName || attachment.originalName || 'image'
+                                  a.target = '_blank'
+                                  document.body.appendChild(a)
+                                  a.click()
+                                  document.body.removeChild(a)
+                                }
+                              }}
+                              className="p-1 hover:bg-white/20 rounded transition-colors"
+                              title="Download image"
+                            >
+                              <Download size={16} />
+                            </button>
                           </div>
-                        ))
+                        </>
+                      ) : (
+                        <div className="flex flex-col items-center justify-center gap-4 text-white">
+                          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+                          <span className="text-sm">Loading image...</span>
+                        </div>
                       )}
                     </div>
-
-                    <div className="w-full mt-4">
-                      <button
-                        onClick={handleApplyFilter}
-                        className="bg-purple h-[50px] rounded-xl text-white w-full"
-                        style={{
-                          fontWeight: '600',
-                          fontSize: 16,
-                        }}
-                      >
-                        Apply Filter
-                      </button>
-                    </div>
                   </div>
                 </div>
-              </Box>
-            </Modal>
+              )}
+
+              {/* Email Timeline Modal */}
+              <EmailTimelineModal
+                open={showEmailTimeline}
+                onClose={() => {
+                  setShowEmailTimeline(false)
+                  setEmailTimelineLeadId(null)
+                  // Keep emailTimelineSubject and emailTimelineMessages so we can use them for threading
+                  // when sending from the main composer. They'll be cleared when a new thread is selected.
+                  // setEmailTimelineSubject(null)
+                  // setEmailTimelineMessages([])
+                  setReplyToMessage(null)
+                }}
+                leadId={emailTimelineLeadId}
+                subject={emailTimelineSubject}
+                messages={emailTimelineMessages}
+                loading={emailTimelineLoading}
+                selectedThread={selectedThread}
+                emailAccounts={emailAccounts}
+                selectedEmailAccount={selectedEmailAccount}
+                setSelectedEmailAccount={setSelectedEmailAccount}
+                onSendSuccess={async () => {
+                  if (emailTimelineLeadId && emailTimelineSubject) {
+                    await fetchEmailTimeline(emailTimelineLeadId, emailTimelineSubject)
+                  }
+                }}
+                fetchThreads={fetchThreads}
+                onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
+                replyToMessage={replyToMessage}
+              />
+
+              {/* Auth Selection Popup for Gmail Connection */}
+              <AuthSelectionPopup
+                open={showAuthSelectionPopup}
+                onClose={() => setShowAuthSelectionPopup(false)}
+                onSuccess={() => {
+                  setShowAuthSelectionPopup(false)
+                  fetchEmailAccounts()
+                }}
+                setShowEmailTempPopup={() => { }}
+                showEmailTempPopup={false}
+                setSelectedGoogleAccount={() => { }}
+              />
+
+              {/* Filter Modal for Team Members */}
+              <Modal
+                open={showFilterModal}
+                onClose={() => setShowFilterModal(false)}
+                closeAfterTransition
+                BackdropProps={{
+                  timeout: 1000,
+                  sx: {
+                    backgroundColor: '#00000020',
+                  },
+                }}
+              >
+                <Box
+                  className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh] rounded-[13px]"
+                  sx={{
+                    height: 'auto',
+                    bgcolor: 'transparent',
+                    p: 0,
+                    mx: 'auto',
+                    my: '50vh',
+                    transform: 'translateY(-55%)',
+                    borderRadius: '13px',
+                    border: 'none',
+                    outline: 'none',
+                    overflow: 'hidden',
+                  }}
+                >
+                  <div className="flex flex-col w-full">
+                    <div
+                      className="w-full rounded-[13px] overflow-hidden"
+                      style={{
+                        backgroundColor: '#ffffff',
+                        padding: 20,
+                        paddingInline: 30,
+                        borderRadius: '13px',
+                      }}
+                    >
+                      <div className="flex flex-row items-center justify-between mb-4">
+                        <div style={{ fontWeight: '700', fontSize: 22 }}>
+                          Filter
+                        </div>
+                        <CloseBtn onClick={() => setShowFilterModal(false)} />
+                      </div>
+
+                      <div
+                        className="mt-4"
+                        style={{
+                          maxHeight: '400px',
+                          overflowY: 'auto',
+                          border: '1px solid #00000020',
+                          borderRadius: '13px',
+                          padding: '10px',
+                        }}
+                      >
+                        {filterTeamMembers.length === 0 ? (
+                          <div className="text-center py-8 text-gray-500">
+                            No team members available
+                          </div>
+                        ) : (
+                          filterTeamMembers.map((member) => (
+                            <div
+                              key={member.id}
+                              className="flex flex-row items-center gap-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer"
+                              onClick={() => handleTeamMemberFilterToggle(member.id)}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={selectedTeamMemberIds.includes(member.id)}
+                                onChange={() => handleTeamMemberFilterToggle(member.id)}
+                                onClick={(e) => e.stopPropagation()}
+                                className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
+                              />
+                              <div className="flex flex-col flex-1">
+                                <span className="font-medium text-gray-900">
+                                  {member.name}
+                                </span>
+                                {member.email && (
+                                  <span className="text-sm text-gray-500">
+                                    {member.email}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      <div className="w-full mt-4">
+                        <button
+                          onClick={handleApplyFilter}
+                          className="bg-purple h-[50px] rounded-xl text-white w-full"
+                          style={{
+                            fontWeight: '600',
+                            fontSize: 16,
+                          }}
+                        >
+                          Apply Filter
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </Box>
+              </Modal>
+            </div>
           </div>
         )}
     </>

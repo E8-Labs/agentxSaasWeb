@@ -2,6 +2,11 @@ import Image from 'next/image'
 import React, { useState } from 'react'
 import moment from 'moment'
 import { Search, MoreVertical, Trash } from 'lucide-react'
+import { Input } from '@/components/ui/input'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn } from '@/lib/utils'
+import { Button } from '../ui/button'
+import { TypographyBody } from '@/lib/typography'
 
 const ThreadsList = ({
   loading,
@@ -17,114 +22,80 @@ const ThreadsList = ({
   onSearchChange,
   onFilterClick,
   selectedTeamMemberIdsCount,
+  filterType = 'all', // 'all' or 'unreplied'
+  onFilterTypeChange,
+  allCount = 0,
+  unrepliedCount = 0,
 }) => {
   const [openMenuId, setOpenMenuId] = useState(null)
   return (
-    <div className="w-80 border-r border-gray-200 flex flex-col h-screen bg-white">
-      <div className="px-6 pt-8 pb-6 flex flex-row items-center justify-between rounded">
-        <h1 className="text-3xl font-bold text-black">Messages</h1>
-        {onFilterClick && (
-          <button
-            onClick={onFilterClick}
-            className="outline-none"
-            title="Filter"
-          >
-            <div className="flex flex-row">
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M22 6.5H16"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M6 6.5H2"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M10 10C11.933 10 13.5 8.433 13.5 6.5C13.5 4.567 11.933 3 10 3C8.067 3 6.5 4.567 6.5 6.5C6.5 8.433 8.067 10 10 10Z"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M22 17.5H18"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M8 17.5H2"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-                <path
-                  d="M14 21C15.933 21 17.5 19.433 17.5 17.5C17.5 15.567 15.933 14 14 14C12.067 14 10.5 15.567 10.5 17.5C10.5 19.433 12.067 21 14 21Z"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              {selectedTeamMemberIdsCount > 0 && (
-                <div
-                  className="flex bg-red rounded-full min-w-[24px] px-[2px] h-6 flex-row items-center justify-center text-white flex-shrink-0"
-                  style={{
-                    fontSize: 13,
-                    marginTop: -13,
-                    alignSelf: 'flex-start',
-                    marginLeft: -15,
-                  }}
-                >
-                  {selectedTeamMemberIdsCount < 100
-                    ? selectedTeamMemberIdsCount
-                    : '99+'}
-                </div>
-              )}
-            </div>
+    <div className="w-80 border-r px-2 border-gray-200 flex flex-col h-full bg-white">
+      <div className="w-full flex flex-row items-center justify-between mt-4">
+
+        {/* Toggle Buttons - All / Unreplied */}
+        <div
+          style={{
+            backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+          }}
+          className="p-2 rounded-xl  flex flex-row items-center justify-center gap-2">
+          <button className={cn("px-2 rounded-lg", filterType === 'all' ? 'bg-white' : 'bg-transparent text-brand-primary')} onClick={() => onFilterTypeChange('all')}>
+            <TypographyBody>
+              All <span
+                style={{
+                  backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                }}
+                className="text-brand-primary font-bold px-1 rounded-full">{allCount}</span>
+            </TypographyBody>
           </button>
-        )}
+          <button className={cn("px-2 rounded-lg", filterType === 'unreplied' ? 'bg-white' : 'bg-transparent text-brand-primary')} onClick={() => onFilterTypeChange('unreplied')}>
+            <TypographyBody>
+              Unreplied <span
+                style={{
+                  backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                }}
+                className="text-brand-primary font-bold px-1 rounded-full">{unrepliedCount}</span>
+            </TypographyBody>
+          </button>
+        </div>
+        <button
+          onClick={onNewMessage}
+          className="p-2 bg-brand-primary hover:bg-brand-primary/90 rounded-lg flex items-center justify-center flex-row gap-2 transition-colors"
+        >
+          <TypographyBody className="text-white">
+            New
+          </TypographyBody>
+          <Image
+            src="/messaging/edit chat icon.svg"
+            width={24}
+            height={24}
+            alt="New message"
+            className="filter brightness-0 invert"
+          />
+        </button>
       </div>
 
-      <div className="px-6 pb-4">
-        <div className="relative flex items-center gap-2">
-          <div className="relative flex-1">
-            <input
+        <div className="relative flex items-center gap-2 mt-4">
+          <div className="relative flex-1 ">
+            <Input
               type="text"
               placeholder="Search"
               value={searchValue || ''}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full pl-10 pr-3 py-2.5 bg-gray-50 border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:bg-white"
+              className="pl-10 pr-3 py-2.5 bg-gray-50 border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:bg-white"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           </div>
+
           <button
-            onClick={onNewMessage}
-            className="w-10 h-10 p-0 bg-brand-primary hover:bg-brand-primary/90 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors"
+          onClick={onFilterClick}
           >
-            <Image
-              src="/messaging/edit chat icon.svg"
-              width={24}
-              height={24}
-              alt="New message"
-              className="filter brightness-0 invert"
-            />
+              <Image src="/messaging/filterIcon.svg" width={24} height={24} alt="Filter" />
           </button>
-        </div>
+
+          <button>
+              <Image src="/svgIcons/threeDotsIcon.svg" width={24} height={24} alt="Filter" />
+          </button>
+
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -144,19 +115,18 @@ const ThreadsList = ({
             </p>
           </div>
         ) : (
-          <div className="px-6">
+          <div className="">
             {threads.map((thread) => (
               <div
                 key={thread.id}
                 onClick={() => onSelectThread(thread)}
-                className={`relative py-4 cursor-pointer border-b border-gray-100 last:border-b-0 rounded-lg mx-2 my-1 ${
-                  selectedThread?.id === thread.id ? 'bg-brand-primary/10 text-brand-primary' : 'hover:bg-gray-50'
-                }`}
+                className={`relative py-4 cursor-pointer border-b border-gray-100 last:border-b-0 rounded-lg mx-2 my-1 ${selectedThread?.id === thread.id ? 'bg-brand-primary/10 text-brand-primary' : 'hover:bg-gray-50'
+                  }`}
                 style={
                   selectedThread?.id === thread.id
                     ? {
-                        backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
-                      }
+                      backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                    }
                     : {}
                 }
               >
@@ -166,7 +136,7 @@ const ThreadsList = ({
 
                 <div className="flex items-start gap-3 pl-4">
                   <div className="relative flex-shrink-0">
-                    <div className="w-12 h-12 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-lg">
+                    <div className="w-12 h-12 rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-semibold text-lg">
                       {getLeadName(thread)}
                     </div>
                     {getRecentMessageType(thread) === 'email' ? (
