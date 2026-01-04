@@ -2,7 +2,6 @@
 
 import React from 'react'
 import { FileText, ChevronDown, ChevronUp } from 'lucide-react'
-import Image from 'next/image'
 
 import { Button } from '@/components/ui/button'
 import { capitalize } from '@/utilities/StringUtility'
@@ -20,19 +19,97 @@ const CustomFieldsCN = ({
   onToggleCustomVariables,
   expandedCustomFields,
   onToggleExpandField,
-  columnsLength,
 }) => {
-  const getExtraColumsCount = (columns) => {
-    let count = 0
-    let ExcludedColumns = ['name', 'phone', 'email', 'status', 'stage', 'address']
-    for (const c of columns) {
-      if (!c.isDefault) {
-        if (!ExcludedColumns.includes(c?.title?.toLowerCase() || '')) {
-          count += 1
-        }
+  // Early return if no data
+  if (!leadColumns || !Array.isArray(leadColumns) || leadColumns.length === 0) {
+    return null
+  }
+  
+  if (!selectedLeadsDetails) {
+    return null
+  }
+
+  // Get custom fields that are not default fields and have values
+  const getCustomFields = () => {
+    const excludedColumns = [
+      'Name', 'name',
+      'Phone', 'phone',
+      'address', 'Address',
+      'More', 'more',
+      'Stage', 'stage',
+      'status', 'Status',
+      'email', 'Email',
+      'Email', 'email',
+      'createdAt', 'CreatedAt',
+      'updatedAt', 'UpdatedAt',
+      0,
+    ]
+    
+    return (leadColumns || []).filter((column) => {
+      const columnTitle = column?.title
+      
+      // Exclude if no title
+      if (!columnTitle) {
+        return false
       }
-    }
-    return count
+      
+      // Exclude default columns (case-insensitive)
+      const normalizedTitle = String(columnTitle).trim()
+      if (excludedColumns.some(excluded => 
+        String(excluded).toLowerCase() === normalizedTitle.toLowerCase()
+      )) {
+        return false
+      }
+      
+      // Exclude if column is marked as default
+      if (column?.isDefault === true || column?.idDefault === true) {
+        return false
+      }
+      
+      // Get the value from selectedLeadsDetails
+      const value = selectedLeadsDetails?.[columnTitle]
+      
+      // Check if value exists and is meaningful
+      if (value === undefined || value === null) {
+        return false
+      }
+      
+      // Exclude empty strings and whitespace-only strings
+      if (typeof value === 'string' && value.trim() === '') {
+        return false
+      }
+      
+      // Exclude empty arrays
+      if (Array.isArray(value) && value.length === 0) {
+        return false
+      }
+      
+      // Exclude empty objects
+      if (typeof value === 'object' && Object.keys(value).length === 0) {
+        return false
+      }
+      
+      // Only include if we have a meaningful value
+      return true
+    })
+  }
+
+  const customFields = getCustomFields()
+  const extraCount = customFields.length
+
+  // Debug logging (remove in production)
+  if (process.env.NODE_ENV === 'development') {
+    console.log('CustomFieldsCN Debug:', {
+      leadColumnsCount: leadColumns?.length || 0,
+      customFieldsCount: extraCount,
+      customFields: customFields.map(c => c?.title),
+      selectedLeadsDetailsKeys: selectedLeadsDetails ? Object.keys(selectedLeadsDetails) : [],
+    })
+  }
+
+  // Don't show if there are no custom fields
+  if (extraCount < 1) {
+    return null
   }
 
   const getDetailsColumnData = (column, item) => {
@@ -82,10 +159,6 @@ const CustomFieldsCN = ({
     }
   }
 
-  const extraCount = getExtraColumsCount(columnsLength)
-
-  if (extraCount < 1) return null
-
   return (
     <div className="flex flex-col gap-2 mt-3">
       <div className="flex flex-row items-center justify-between w-full">
@@ -104,7 +177,7 @@ const CustomFieldsCN = ({
         </Button>
         <Button
           variant="link"
-          className="h-auto p-0 text-brand-primary"
+          className="h-auto p-0 text-brand-primary ml-auto"
           onClick={onToggleCustomVariables}
         >
           <TypographyCaption className="text-brand-primary">+{extraCount}</TypographyCaption>
@@ -113,14 +186,7 @@ const CustomFieldsCN = ({
 
       {showCustomVariables && (
         <div className="flex flex-col gap-2 mt-2">
-          {leadColumns.map((column, index) => {
-            if (
-              ['Name', 'Phone', 'address', 'More', 0, 'Stage', 'status'].includes(
-                column?.title,
-              )
-            ) {
-              return null
-            }
+          {customFields.map((column, index) => {
             return (
               <div
                 key={index}
