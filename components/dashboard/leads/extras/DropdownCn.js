@@ -9,12 +9,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { cn } from '@/lib/utils'
 
 /**
  * A pill-shaped split dropdown used across lead details (Send, Payment, Stage).
  * options: [{ label, icon, value, onSelect }]
  */
-const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start' }) => {
+const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start', backgroundClassName }) => {
   const [open, setOpen] = useState(false)
   const scrollContainerRef = useRef(null)
 
@@ -46,11 +47,11 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
     <div className="relative">
       <DropdownMenu open={open} onOpenChange={setOpen}>
         <DropdownMenuTrigger asChild>
-          <button className="flex items-center rounded-md border border-muted/0.9  bg-white px-4 py-[1px] text-base font-regular shadow-sm focus:outline-none">
-            {Icon ? <Icon className="mr-2 h-4 w-4" /> : null}
+          <button className={cn("flex items-center rounded-md border border-muted/0.9 bg-white px-4 py-[1px] text-base font-regular shadow-sm focus:outline-none", backgroundClassName)}>
+            {Icon ? <Icon className={cn("mr-2 h-4 w-4", backgroundClassName?.includes('text-white') && 'text-white')} /> : null}
             <span>{label}</span>
-            <span className="mx-3 h-9 w-px bg-muted/80" />
-            <ChevronDown className="h-4 w-4 text-foreground" />
+            <span className={cn("mx-3 h-9 w-px bg-muted/80", backgroundClassName?.includes('text-white') && 'bg-white/30')} />
+            <ChevronDown className={cn("h-4 w-4 text-foreground", backgroundClassName?.includes('text-white') && 'text-white')} />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent

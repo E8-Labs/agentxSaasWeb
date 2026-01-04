@@ -1,12 +1,13 @@
 import Image from 'next/image'
 import React, { useState } from 'react'
 import moment from 'moment'
-import { Search, MoreVertical, Trash } from 'lucide-react'
+import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { Button } from '../ui/button'
-import { TypographyBody } from '@/lib/typography'
+import { TypographyBody, TypographyCaption, TypographyCaptionSemibold } from '@/lib/typography'
+import DropdownCn from '@/components/dashboard/leads/extras/DropdownCn'
 
 const ThreadsList = ({
   loading,
@@ -57,21 +58,31 @@ const ThreadsList = ({
             </TypographyBody>
           </button>
         </div>
-        <button
-          onClick={onNewMessage}
-          className="p-2 bg-brand-primary hover:bg-brand-primary/90 rounded-lg flex items-center justify-center flex-row gap-2 transition-colors"
-        >
-          <TypographyBody className="text-white">
-            New
-          </TypographyBody>
-          <Image
-            src="/messaging/edit chat icon.svg"
-            width={24}
-            height={24}
-            alt="New message"
-            className="filter brightness-0 invert"
-          />
-        </button>
+        <DropdownCn
+          label="New"
+          options={[
+            {
+              label: 'New Contact',
+              icon: UserPlus,
+              value: 'contact',
+              onSelect: () => onNewMessage && onNewMessage(),
+            },
+            {
+              label: 'New Message',
+              icon: MessageSquare,
+              value: 'message',
+              onSelect: () => onNewMessage && onNewMessage(),
+            },
+            {
+              label: 'New Email',
+              icon: Mail,
+              value: 'email',
+              onSelect: () => onNewMessage && onNewMessage(),
+            },
+          ]}
+          onSelect={(opt) => opt?.onSelect?.()}
+          backgroundClassName="bg-brand-primary hover:bg-brand-primary/90 text-white border-0"
+        />
       </div>
 
         <div className="relative flex items-center gap-2 mt-4">
@@ -120,23 +131,16 @@ const ThreadsList = ({
               <div
                 key={thread.id}
                 onClick={() => onSelectThread(thread)}
-                className={`relative py-4 cursor-pointer border-b border-gray-100 last:border-b-0 rounded-lg mx-2 my-1 ${selectedThread?.id === thread.id ? 'bg-brand-primary/10 text-brand-primary' : 'hover:bg-gray-50'
-                  }`}
-                style={
-                  selectedThread?.id === thread.id
-                    ? {
-                      backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
-                    }
-                    : {}
-                }
+                className={cn(
+                  "relative py-4 cursor-pointer border-b border-gray-100 last:border-b-0 rounded-lg mx-2 my-1",
+                  selectedThread?.id === thread.id 
+                    ? 'bg-thread-selected' 
+                    : 'hover:bg-gray-50'
+                )}
               >
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-full">
-                  <div className="w-full h-full border-l-2 border-dotted border-gray-200"></div>
-                </div>
-
-                <div className="flex items-start gap-3 pl-4">
+                <div className="flex items-start gap-3 pl-3">
                   <div className="relative flex-shrink-0">
-                    <div className="w-12 h-12 rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-semibold text-lg">
+                    <div className="w-12 h-12 rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-xs">
                       {getLeadName(thread)}
                     </div>
                     {getRecentMessageType(thread) === 'email' ? (
@@ -161,21 +165,23 @@ const ThreadsList = ({
                       </div>
                     )}
                     {thread.unreadCount > 0 && formatUnreadCount(thread.unreadCount) && (
-                      <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-brand-primary text-white text-xs flex items-center justify-center font-semibold shadow-sm">
-                        {formatUnreadCount(thread.unreadCount)}
+                      <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-sm">
+                        <TypographyCaptionSemibold className="text-white">
+                          {formatUnreadCount(thread.unreadCount)}
+                        </TypographyCaptionSemibold>
                       </div>
                     )}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-bold text-sm text-black truncate">
+                      <TypographyBody className="font-semibold text-black truncate">
                         {thread.lead?.firstName || thread.lead?.name || 'Unknown Lead'}
-                      </h3>
+                      </TypographyBody>
                       <div className="flex items-center gap-2 ml-2 flex-shrink-0">
-                        <span className="text-xs text-gray-500">
+                        <TypographyCaption className="text-gray-500">
                           {moment(thread.lastMessageAt || thread.createdAt).format('h:mm A')}
-                        </span>
+                        </TypographyCaption>
                         <div className="relative">
                           <button
                             onClick={(e) => {
@@ -215,7 +221,7 @@ const ThreadsList = ({
                         </div>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-500 truncate">
+                    <TypographyCaption className="text-gray-500 truncate">
                       {(() => {
                         const lastMessage = thread.messages?.[0]
                         if (!lastMessage) return 'No messages yet'
@@ -223,7 +229,30 @@ const ThreadsList = ({
                         const prefix = lastMessage.direction === 'outbound' ? 'You: ' : ''
                         return prefix + text.substring(0, 40) + (text.length > 40 ? '...' : '')
                       })()}
-                    </p>
+                    </TypographyCaption>
+                    {/* Hot Lead Tags */}
+                    {thread.lead?.tags && thread.lead.tags.length > 0 && (
+                      <div className="flex items-center gap-2 mt-1">
+                        {thread.lead.tags.map((tag, index) => {
+                          // Check if tag is "Hot lead" or similar
+                          const isHotLead = tag.toLowerCase().includes('hot') || tag.toLowerCase().includes('lead')
+                          if (isHotLead) {
+                            return (
+                              <div
+                                key={index}
+                                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100"
+                              >
+                                <span>🔥</span>
+                                <TypographyCaption className="text-gray-700">
+                                  Hot lead
+                                </TypographyCaption>
+                              </div>
+                            )
+                          }
+                          return null
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

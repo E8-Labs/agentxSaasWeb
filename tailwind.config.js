@@ -61,6 +61,7 @@ module.exports = {
           100: '#F3F4F6',
           800: '#1F2937',
         },
+        'thread-selected': '#F9F9F9',
         card: {
           DEFAULT: 'hsl(var(--card))',
           foreground: 'hsl(var(--card-foreground))',
