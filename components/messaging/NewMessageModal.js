@@ -1141,94 +1141,148 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                 <>
                   {/* CC and BCC on same line when both are shown */}
                   {(showCC || showBCC) && (
-                    <div className="flex items-start gap-4">
+                    <div className="flex items-center gap-4">
                       {showCC && (
-                        <div className="flex items-start gap-2 flex-1 w-full">
-                          <label className="text-sm font-medium whitespace-nowrap pt-2">Cc:</label>
-                          <div className="relative flex-1 min-w-0">
-                            {/* Tag Input Container */}
-                            <div
-                              className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary"
-                              style={{ minHeight: '42px' }}
-                            >
-                              {/* CC Email Tags */}
-                              {ccEmails.map((email, index) => (
-                                <div
-                                  key={`cc-${index}-${email}`}
-                                  className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
-                                >
-                                  <span className="text-gray-700">{email}</span>
-                                  <button
-                                    type="button"
-                                    onClick={() => removeCcEmail(email)}
-                                    className="text-gray-500 hover:text-gray-700 ml-1"
-                                  >
-                                    <XIcon size={14} weight="bold" />
-                                  </button>
+                        <div className="relative flex-1 min-w-0">
+                          {/* Tag Input Container */}
+                          <div
+                            className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
+                            style={{ height: '42px', minHeight: '42px', maxWidth: '100%' }}
+                            onClick={() => {
+                              // Focus the input when clicking the container
+                              const input = document.querySelector('#cc-input')
+                              if (input) input.focus()
+                            }}
+                          >
+                            <span className="text-sm text-gray-500 flex-shrink-0">Cc:</span>
+                            {/* Display CC Email Tags */}
+                            {ccEmails.length > 0 ? (
+                              <>
+                                {/* Search Input - Always visible for adding more */}
+                                <input
+                                  id="cc-input"
+                                  type="text"
+                                  value={ccInput}
+                                  onChange={handleCcInputChange}
+                                  onKeyDown={handleCcInputKeyDown}
+                                  onPaste={handleCcInputPaste}
+                                  onBlur={handleCcInputBlur}
+                                  placeholder=""
+                                  className="flex-1 min-w-[80px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                                  style={{
+                                    height: '100%',
+                                    lineHeight: '42px',
+                                    padding: 0,
+                                    verticalAlign: 'middle',
+                                    maxWidth: '100%'
+                                  }}
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                                <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
+                                  <span className="text-sm text-gray-700 truncate max-w-[150px]">
+                                    {ccEmails[0]}
+                                  </span>
+                                  {ccEmails.length > 1 && (
+                                    <span className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0">
+                                      +{ccEmails.length - 1}
+                                    </span>
+                                  )}
                                 </div>
-                              ))}
-                              {/* CC Input */}
+                              </>
+                            ) : (
                               <input
+                                id="cc-input"
                                 type="text"
                                 value={ccInput}
                                 onChange={handleCcInputChange}
                                 onKeyDown={handleCcInputKeyDown}
                                 onPaste={handleCcInputPaste}
                                 onBlur={handleCcInputBlur}
-                                placeholder={ccEmails.length === 0 ? "Add CC recipients" : ""}
-                                className="flex-1 h-full min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                                placeholder="Add CC recipients"
+                                className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
                                 style={{
                                   height: '100%',
-                                  minHeight: '24px',
+                                  lineHeight: '42px',
                                   padding: 0,
+                                  verticalAlign: 'middle',
+                                  maxWidth: '100%'
                                 }}
+                                onClick={(e) => e.stopPropagation()}
                               />
-                            </div>
+                            )}
+                            <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-1" />
                           </div>
                         </div>
                       )}
                       {showBCC && (
-                        <div className="flex items-start gap-2 flex-1 w-full">
-                          <label className="text-sm font-medium whitespace-nowrap pt-2">Bcc:</label>
-                          <div className="relative flex-1 min-w-0">
-                            {/* Tag Input Container */}
-                            <div
-                              className="flex flex-wrap items-center gap-2 px-3 py-2 min-h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary"
-                              style={{ minHeight: '42px' }}
-                            >
-                              {/* BCC Email Tags */}
-                              {bccEmails.map((email, index) => (
-                                <div
-                                  key={`bcc-${index}-${email}`}
-                                  className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm"
-                                >
-                                  <span className="text-gray-700">{email}</span>
-                                  <button
-                                    type="button"
-                                    onClick={() => removeBccEmail(email)}
-                                    className="text-gray-500 hover:text-gray-700 ml-1"
-                                  >
-                                    <XIcon size={14} weight="bold" />
-                                  </button>
+                        <div className="relative flex-1 min-w-0">
+                          {/* Tag Input Container */}
+                          <div
+                            className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
+                            style={{ height: '42px', minHeight: '42px', maxWidth: '100%' }}
+                            onClick={() => {
+                              // Focus the input when clicking the container
+                              const input = document.querySelector('#bcc-input')
+                              if (input) input.focus()
+                            }}
+                          >
+                            <span className="text-sm text-gray-500 flex-shrink-0">Bcc:</span>
+                            {/* Display BCC Email Tags */}
+                            {bccEmails.length > 0 ? (
+                              <>
+                                {/* Search Input - Always visible for adding more */}
+                                <input
+                                  id="bcc-input"
+                                  type="text"
+                                  value={bccInput}
+                                  onChange={handleBccInputChange}
+                                  onKeyDown={handleBccInputKeyDown}
+                                  onPaste={handleBccInputPaste}
+                                  onBlur={handleBccInputBlur}
+                                  placeholder=""
+                                  className="flex-1 min-w-[80px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                                  style={{
+                                    height: '100%',
+                                    lineHeight: '42px',
+                                    padding: 0,
+                                    verticalAlign: 'middle',
+                                    maxWidth: '100%'
+                                  }}
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                                <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
+                                  <span className="text-sm text-gray-700 truncate max-w-[150px]">
+                                    {bccEmails[0]}
+                                  </span>
+                                  {bccEmails.length > 1 && (
+                                    <span className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0">
+                                      +{bccEmails.length - 1}
+                                    </span>
+                                  )}
                                 </div>
-                              ))}
-                              {/* BCC Input */}
+                              </>
+                            ) : (
                               <input
+                                id="bcc-input"
                                 type="text"
                                 value={bccInput}
                                 onChange={handleBccInputChange}
                                 onKeyDown={handleBccInputKeyDown}
                                 onPaste={handleBccInputPaste}
                                 onBlur={handleBccInputBlur}
-                                placeholder={bccEmails.length === 0 ? "Add BCC recipients" : ""}
-                                className="flex-1 h-full min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                                placeholder="Add BCC recipients"
+                                className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
                                 style={{
                                   height: '100%',
-                                  minHeight: '24px',
+                                  lineHeight: '42px',
                                   padding: 0,
+                                  verticalAlign: 'middle',
+                                  maxWidth: '100%'
                                 }}
+                                onClick={(e) => e.stopPropagation()}
                               />
-                            </div>
+                            )}
+                            <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-1" />
                           </div>
                         </div>
                       )}

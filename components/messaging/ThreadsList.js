@@ -31,7 +31,7 @@ const ThreadsList = ({
 }) => {
   const [openMenuId, setOpenMenuId] = useState(null)
   return (
-    <div className="w-80 border-r px-2 border-gray-200 flex flex-col h-full bg-white">
+    <div className="w-80 border-r px-3 border-gray-200 flex flex-col h-full bg-white">
       <div className="w-full flex flex-row items-center justify-between mt-4">
 
         {/* Toggle Buttons - All / Unreplied */}
@@ -117,33 +117,33 @@ const ThreadsList = ({
                 key={thread.id}
                 onClick={() => onSelectThread(thread)}
                 className={cn(
-                  "relative py-4 cursor-pointer border-b border-gray-100 last:border-b-0 rounded-lg mx-2 my-1",
+                  "relative py-4 cursor-pointer border-b border-gray-100 last:border-b-0 rounded-lg  my-1",
                   selectedThread?.id === thread.id 
                     ? 'bg-thread-selected' 
                     : 'hover:bg-gray-50'
                 )}
               >
-                <div className="flex items-start gap-3 pl-3">
+                <div className="flex items-start gap-3 ">
                   <div className="relative flex-shrink-0">
-                    <div className="w-12 h-12 rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-xs">
+                    <div className="w-8 h-8 rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-xs">
                       {getLeadName(thread)}
                     </div>
                     {getRecentMessageType(thread) === 'email' ? (
-                      <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                      <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
                         <Image
                           src="/messaging/email message type icon.svg"
-                          width={16}
-                          height={16}
+                          width={10}
+                          height={10}
                           alt="Email"
                           className="object-contain"
                         />
                       </div>
                     ) : (
-                      <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
+                      <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
                         <Image
                           src="/messaging/text type message icon.svg"
-                          width={16}
-                          height={16}
+                          width={10}
+                          height={10}
                           alt="SMS"
                           className="object-contain"
                         />
