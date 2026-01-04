@@ -59,8 +59,9 @@ import AgentSelectSnackMessage, {
 import AssignLead from './AssignLead'
 import LeadLoading from './LeadLoading'
 import AssignLeadAnimation from './assignLeadSlideAnimation/AssignLeadAnimation'
-import LeadDetails from './extras/LeadDetails'
+import LeadDetailsCN from './extras/LeadDetailsCN'
 import { Trash } from 'lucide-react'
+import LeadDetails from './extras/LeadDetails'
 
 const Userleads = ({
   handleShowAddLeadModal,
