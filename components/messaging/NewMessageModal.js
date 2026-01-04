@@ -20,6 +20,9 @@ import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
 import { Paperclip, X as XIcon, MessageCircleMore, Mail } from 'lucide-react'
 import { FormControl, MenuItem, Select } from '@mui/material'
 import { useUser } from '@/hooks/redux-hooks'
+import ToggleGroupCN from '@/components/ui/ToggleGroupCN'
+import SplitButtonCN from '@/components/ui/SplitButtonCN'
+import { TypographyCaption } from '@/lib/typography'
 
 // Helper function to get brand primary color as hex
 const getBrandPrimaryHex = () => {
@@ -160,6 +163,24 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
       window.removeEventListener('agencyBrandingUpdated', updateBrandColor)
     }
   }, [])
+
+  // Sync mode prop with selectedMode state when modal opens or mode prop changes
+  useEffect(() => {
+    if (open && mode) {
+      setSelectedMode(mode)
+    }
+  }, [open, mode])
+
+  // Fetch data when modal opens or mode changes
+  useEffect(() => {
+    if (open) {
+      if (selectedMode === 'sms' && canSendSMS) {
+        fetchPhoneNumbers()
+      } else if (selectedMode === 'email') {
+        fetchEmailAccounts()
+      }
+    }
+  }, [open, selectedMode])
 
   // Search leads using the messaging search endpoint
   const searchLeads = async (searchTerm = '') => {
@@ -765,92 +786,62 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
           {/* Content */}
           <div className="flex-1 overflow-y-auto overflow-x-visible p-4 space-y-4" style={{ position: 'relative' }}>
             {/* Mode Tabs */}
-            <div className="flex items-center justify-between border-b">
-              <div className="flex items-center gap-6">
-                <button
-                  onClick={() => {
-                    setSelectedMode('sms')
-                    if (canSendSMS) {
-                      fetchPhoneNumbers()
-                    }
-                  }}
-                  className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative cursor-pointer ${selectedMode === 'sms'
-                    ? 'text-brand-primary'
-                    : 'text-gray-600'
-                    }`}
-                >
-                  {renderBrandedLucideIcon(
-                    MessageCircleMore,
-                    20,
-                    selectedMode === 'sms',
-                  )}
-                  <span>SMS</span>
-                  {selectedMode === 'sms' && (
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
-                  )}
-                </button>
-                <button
-                  onClick={() => {
-                    setSelectedMode('email')
+            <div className="flex items-center justify-between pb-4">
+              <ToggleGroupCN
+                options={[
+                  { label: 'SMS', value: 'sms', icon: MessageCircleMore },
+                  { label: 'Email', value: 'email', icon: Mail },
+                ]}
+                value={selectedMode}
+                onChange={(value) => {
+                  setSelectedMode(value)
+                  if (value === 'sms' && canSendSMS) {
+                    fetchPhoneNumbers()
+                  } else if (value === 'email') {
                     fetchEmailAccounts()
-                  }}
-                  className={`flex items-center gap-2 px-0 py-3 text-sm font-medium relative ${selectedMode === 'email'
-                    ? 'text-brand-primary'
-                    : 'text-gray-600'
-                    }`}
-                >
-                  {renderBrandedLucideIcon(
-                    Mail,
-                    20,
-                    selectedMode === 'email',
-                  )}
-                  <span>Email</span>
-                  {selectedMode === 'email' && (
-                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />
-                  )}
-                </button>
-              </div>
+                  }
+                }}
+              />
               {/* CC and BCC buttons for Email mode - on top right */}
               {selectedMode === 'email' && (
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <button
-                    onClick={() => setShowCC(!showCC)}
-                    className={`px-3 py-1 text-xs rounded transition-colors ${showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                  >
-                    Cc
-                  </button>
-                  <button
-                    onClick={() => setShowBCC(!showBCC)}
-                    className={`px-3 py-1 text-xs rounded transition-colors ${showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }`}
-                  >
-                    Bcc
-                  </button>
-                </div>
+                <SplitButtonCN
+                  buttons={[
+                    {
+                      label: 'Cc',
+                      isSelected: showCC,
+                      onClick: () => setShowCC(!showCC),
+                    },
+                    {
+                      label: 'Bcc',
+                      isSelected: showBCC,
+                      onClick: () => setShowBCC(!showBCC),
+                    },
+                  ]}
+                />
               )}
             </div>
 
-
-            <>
+            <React.Fragment>
               {/* From and To Fields - Same Line */}
               <div className="flex items-center gap-4" ref={leadSearchRef}>
                 {/* From Field */}
-                <div className="flex items-center gap-2 flex-1">
-                  <label className="text-sm font-medium whitespace-nowrap">From:</label>
+                <div className="flex-1 relative">
                   {selectedMode === 'sms' ? (
-                    <div className="flex-1 relative" ref={phoneDropdownRef}>
+                    <div className="relative" ref={phoneDropdownRef}>
                       <button
                         type="button"
                         onClick={() => setPhoneDropdownOpen(!phoneDropdownOpen)}
                         className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
                         style={{ height: '42px' }}
                       >
-                        <span className="text-sm text-gray-700 truncate">
-                          {selectedPhoneNumber
-                            ? phoneNumbers.find((p) => p.id === parseInt(selectedPhoneNumber))?.phone || 'Select phone number'
-                            : 'Select phone number'}
-                        </span>
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <span className="text-sm text-gray-500 flex-shrink-0">From:</span>
+                          <span className="text-sm text-gray-700 truncate">
+                            {selectedPhoneNumber
+                              ? phoneNumbers.find((p) => p.id === parseInt(selectedPhoneNumber))?.phone || 'Select number'
+                              : 'Select number'}
+                          </span>
+                        </div>
                         <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                       </button>
                       {phoneDropdownOpen && (
@@ -913,7 +904,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                       )}
                     </div>
                   ) : (
-                    <div className="flex-1 relative" ref={emailDropdownRef}>
+                    <div className="flex-1 relative">
                       {emailAccounts.length === 0 ? (
 
                         <div className="flex flex-row gap-2 items-center justify-center">
@@ -936,25 +927,29 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                         </div>
                       ) : (
                         <>
-                          <button
-                            type="button"
-                            onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
-                            className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
-                            style={{ height: '42px' }}
-                          >
-                            <span className="text-sm text-gray-700 truncate">
-                              {selectedEmailAccount
-                                ? (() => {
-                                  const account = emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))
-                                  if (!account) return 'Select email account'
-                                  const providerLabel = account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider || ''
-                                  return `${account.email || account.name || account.displayName}${providerLabel ? ` (${providerLabel})` : ''}`
-                                })()
-                                : 'Select email account'}
-                            </span>
-                            <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                          </button>
-                          {emailDropdownOpen && (
+                          <div className="relative" ref={emailDropdownRef}>
+                            <button
+                              type="button"
+                              onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
+                              className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
+                              style={{ height: '42px' }}
+                            >
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                <span className="text-sm text-gray-500 flex-shrink-0">From:</span>
+                                <span className="text-sm truncate">
+                                  {selectedEmailAccount
+                                    ? (() => {
+                                      const account = emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))
+                                      if (!account) return <span className="text-gray-500">Select email account</span>
+                                      const providerLabel = account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider || ''
+                                      return <span className="text-gray-700">{account.email || account.name || account.displayName}{providerLabel ? ` (${providerLabel})` : ''}</span>
+                                    })()
+                                    : <span className="text-gray-500">Select email account</span>}
+                                </span>
+                              </div>
+                              <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                            </button>
+                            {emailDropdownOpen && (
                             <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
                               {emailAccounts.map((account) => (
                                 <button
@@ -992,7 +987,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                                 </button>
                               </div>
                             </div>
-                          )}
+                            )}
+                          </div>
                         </>
                       )}
                     </div>
@@ -1000,17 +996,16 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                 </div>
 
                 {/* To Field */}
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <label className="text-sm font-medium whitespace-nowrap flex-shrink-0">To:</label>
-                  <div className="relative flex-1 min-w-0">
-                    {/* Tag Input Container */}
-                    <div
-                      className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
-                      style={{ height: '42px', minHeight: '42px', maxWidth: '100%' }}
-                      onClick={() => {
-                        setShowLeadList(true)
-                      }}
-                    >
+                <div className="relative flex-1 min-w-0">
+                  {/* Tag Input Container */}
+                  <div
+                    className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
+                    style={{ height: '42px', minHeight: '42px', maxWidth: '100%' }}
+                    onClick={() => {
+                      setShowLeadList(true)
+                    }}
+                  >
+                      <span className="text-sm text-gray-500 flex-shrink-0">To:</span>
                       {/* Display first selected lead and badge if multiple */}
                       {selectedLeads.length > 0 ? (
                         <>
@@ -1027,7 +1022,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                               setShowLeadList(true)
                             }}
                             placeholder=""
-                            className="flex-1 min-w-[80px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                            className="flex-1 min-w-[80px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
                             style={{
                               height: '100%',
                               lineHeight: '42px',
@@ -1069,8 +1064,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                           onFocus={() => {
                             setShowLeadList(true)
                           }}
-                          placeholder="Search leads..."
-                          className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                          placeholder="Search leads"
+                          className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
                           style={{
                             height: '100%',
                             lineHeight: '42px',
@@ -1138,9 +1133,10 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                     )}
                   </div>
                 </div>
-              </div>
+              
+            </React.Fragment>
 
-              {/* Email Fields */}
+            {/* Email Fields */}
               {selectedMode === 'email' && (
                 <>
                   {/* CC and BCC on same line when both are shown */}
@@ -1239,61 +1235,75 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                     </div>
                   )}
 
-                  <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium w-16">Subject:</label>
-                    <Input
-                      value={emailSubject}
-                      onChange={(e) => setEmailSubject(e.target.value)}
-                      placeholder="Email subject"
-                      className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
-                      style={{ height: '42px', maxWidth: 'calc(100% - 200px)' }}
-                    />
-                    {/* Variables dropdown for subject */}
-                    {uniqueColumns && uniqueColumns.length > 0 && (
-                      <FormControl size="small" sx={{ minWidth: 150 }}>
-                        <Select
-                          value={selectedSubjectVariable}
-                          onChange={(e) => {
-                            const value = e.target.value
-                            setSelectedSubjectVariable('')
-                            if (value) {
-                              const variableText = value.startsWith('{') && value.endsWith('}')
-                                ? value
-                                : `{${value}}`
-                              setEmailSubject((prev) => prev + variableText)
-                            }
-                          }}
-                          displayEmpty
-                          sx={{
-                            fontSize: '0.875rem',
-                            height: '42px',
-                            '& .MuiOutlinedInput-notchedOutline': {
-                              borderColor: '#d1d5db',
-                            },
-                            '&:hover .MuiOutlinedInput-notchedOutline': {
-                              borderColor: 'hsl(var(--brand-primary))',
-                            },
-                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                              borderColor: 'hsl(var(--brand-primary))',
-                            },
-                          }}
-                        >
-                          <MenuItem value="" disabled>
-                            <em>Variables</em>
-                          </MenuItem>
-                          {uniqueColumns.map((variable, index) => {
-                            const displayText = variable.startsWith('{') && variable.endsWith('}')
-                              ? variable
-                              : `{${variable}}`
-                            return (
-                              <MenuItem key={index} value={variable}>
-                                {displayText}
-                              </MenuItem>
-                            )
-                          })}
-                        </Select>
-                      </FormControl>
-                    )}
+                  <div className="space-y-2">
+                    {/* Subject Field */}
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1 relative">
+                        <div className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary bg-white">
+                          <span className="text-sm text-gray-500 flex-shrink-0">Subject:</span>
+                          <input
+                            type="text"
+                            value={emailSubject}
+                            onChange={(e) => setEmailSubject(e.target.value)}
+                            placeholder="Enter subject"
+                            className="flex-1 outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                            style={{
+                              height: '100%',
+                              lineHeight: '42px',
+                              padding: 0,
+                            }}
+                          />
+                        </div>
+                      </div>
+                      {/* Variables dropdown for subject */}
+                      {uniqueColumns && uniqueColumns.length > 0 && (
+                        <FormControl size="small" sx={{ minWidth: 150 }}>
+                          <Select
+                            value={selectedSubjectVariable}
+                            onChange={(e) => {
+                              const value = e.target.value
+                              setSelectedSubjectVariable('')
+                              if (value) {
+                                const variableText = value.startsWith('{') && value.endsWith('}')
+                                  ? value
+                                  : `{${value}}`
+                                setEmailSubject((prev) => prev + variableText)
+                              }
+                            }}
+                            displayEmpty
+                            sx={{
+                              fontSize: '0.875rem',
+                              height: '42px',
+                              borderRadius: '8px',
+                              '& .MuiOutlinedInput-notchedOutline': {
+                                borderColor: '#d1d5db',
+                                borderWidth: '0.5px',
+                              },
+                              '&:hover .MuiOutlinedInput-notchedOutline': {
+                                borderColor: 'hsl(var(--brand-primary))',
+                              },
+                              '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                borderColor: 'hsl(var(--brand-primary))',
+                              },
+                            }}
+                          >
+                            <MenuItem value="" disabled>
+                              <em>Variables</em>
+                            </MenuItem>
+                            {uniqueColumns.map((variable, index) => {
+                              const displayText = variable.startsWith('{') && variable.endsWith('}')
+                                ? variable
+                                : `{${variable}}`
+                              return (
+                                <MenuItem key={index} value={variable}>
+                                  {displayText}
+                                </MenuItem>
+                              )
+                            })}
+                          </Select>
+                        </FormControl>
+                      )}
+                    </div>
                   </div>
                 </>
               )}
@@ -1355,10 +1365,12 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                             displayEmpty
                             sx={{
                               fontSize: '0.875rem',
-                              height: '32px',
+                              height: '42px',
+                              borderRadius: '8px',
                               backgroundColor: 'white',
                               '& .MuiOutlinedInput-notchedOutline': {
                                 borderColor: '#d1d5db',
+                                borderWidth: '0.5px',
                               },
                               '&:hover .MuiOutlinedInput-notchedOutline': {
                                 borderColor: 'hsl(var(--brand-primary))',
@@ -1401,7 +1413,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                   />
                 )}
               </div>
-            </>
+            
 
           </div>
 

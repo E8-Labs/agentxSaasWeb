@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils'
 import { Button } from '../ui/button'
 import { TypographyBody, TypographyCaption, TypographyCaptionSemibold } from '@/lib/typography'
 import DropdownCn from '@/components/dashboard/leads/extras/DropdownCn'
+import ToggleGroupCN from '@/components/ui/ToggleGroupCN'
 
 const ThreadsList = ({
   loading,
@@ -34,30 +35,14 @@ const ThreadsList = ({
       <div className="w-full flex flex-row items-center justify-between mt-4">
 
         {/* Toggle Buttons - All / Unreplied */}
-        <div
-          style={{
-            backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
-          }}
-          className="p-2 rounded-xl  flex flex-row items-center justify-center gap-2">
-          <button className={cn("px-2 rounded-lg", filterType === 'all' ? 'bg-white' : 'bg-transparent text-brand-primary')} onClick={() => onFilterTypeChange('all')}>
-            <TypographyBody>
-              All <span
-                style={{
-                  backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
-                }}
-                className="text-brand-primary font-bold px-1 rounded-full">{allCount}</span>
-            </TypographyBody>
-          </button>
-          <button className={cn("px-2 rounded-lg", filterType === 'unreplied' ? 'bg-white' : 'bg-transparent text-brand-primary')} onClick={() => onFilterTypeChange('unreplied')}>
-            <TypographyBody>
-              Unreplied <span
-                style={{
-                  backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
-                }}
-                className="text-brand-primary font-bold px-1 rounded-full">{unrepliedCount}</span>
-            </TypographyBody>
-          </button>
-        </div>
+        <ToggleGroupCN
+          options={[
+            { label: 'All', value: 'all', count: allCount },
+            { label: 'Unreplied', value: 'unreplied', count: unrepliedCount },
+          ]}
+          value={filterType}
+          onChange={onFilterTypeChange}
+        />
         <DropdownCn
           label="New"
           options={[
@@ -65,19 +50,19 @@ const ThreadsList = ({
               label: 'New Contact',
               icon: UserPlus,
               value: 'contact',
-              onSelect: () => onNewMessage && onNewMessage(),
+              onSelect: () => onNewMessage && onNewMessage('contact'),
             },
             {
               label: 'New Message',
               icon: MessageSquare,
               value: 'message',
-              onSelect: () => onNewMessage && onNewMessage(),
+              onSelect: () => onNewMessage && onNewMessage('sms'),
             },
             {
               label: 'New Email',
               icon: Mail,
               value: 'email',
-              onSelect: () => onNewMessage && onNewMessage(),
+              onSelect: () => onNewMessage && onNewMessage('email'),
             },
           ]}
           onSelect={(opt) => opt?.onSelect?.()}

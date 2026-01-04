@@ -59,6 +59,7 @@ const Messages = () => {
   const richTextEditorRef = useRef(null)
   const latestMessageIdRef = useRef(null)
   const [showNewMessageModal, setShowNewMessageModal] = useState(false)
+  const [newMessageMode, setNewMessageMode] = useState('sms')
   const [phoneNumbers, setPhoneNumbers] = useState([])
   const [emailAccounts, setEmailAccounts] = useState([])
   const [selectedPhoneNumber, setSelectedPhoneNumber] = useState(null)
@@ -2340,7 +2341,10 @@ const Messages = () => {
                     threads={filteredThreads}
                     selectedThread={selectedThread}
                     onSelectThread={handleThreadSelect}
-                    onNewMessage={() => setShowNewMessageModal(true)}
+                    onNewMessage={(mode) => {
+                      setNewMessageMode(mode || 'sms')
+                      setShowNewMessageModal(true)
+                    }}
                     getLeadName={getLeadName}
                     getThreadDisplayName={getThreadDisplayName}
                     getRecentMessageType={getRecentMessageType}
@@ -2476,7 +2480,7 @@ const Messages = () => {
                     }, 1000)
                   }
                 }}
-                mode="email"
+                mode={newMessageMode}
               />
 
               {/* Image Viewer Modal */}
