@@ -6,6 +6,14 @@ import React, { useEffect, useState } from 'react'
 
 import getProfileDetails from '@/components/apis/GetProfile'
 import AddCardDetails from '@/components/createagent/addpayment/AddCardDetails'
+import {
+  TypographyBody,
+  TypographyCaption,
+  TypographyBodySemibold,
+  TypographyBodyMedium,
+  TypographyTitle,
+  TypographyH2,
+} from '@/lib/typography'
 
 function NoPerplexity({
   setshowConfirmPerplexity,
@@ -60,18 +68,9 @@ function NoPerplexity({
       {/* {
                 userLocalData?.enrichCredits > 0 ? ( */}
 
-      <div
-        style={{
-          fontSize: 14,
-          fontWeight: '500',
-          color: 'black',
-          alignSelf: 'flex-end',
-          marginTop: '10px',
-          marginBottom: '30px',
-        }}
-      >
+      <TypographyBodyMedium className="self-end mt-[10px] mb-[30px]">
         Credits: {userLocalData?.enrichCredits || 0}
-      </div>
+      </TypographyBodyMedium>
       {/* ) : (
                     <div style={{ marginBottom: '60px' }}></div>
                 )
@@ -93,25 +92,16 @@ function NoPerplexity({
         }}
       />
 
-      <div style={{ fontSize: 16, fontWeight: '600', color: '#000000' }}>
-        Enrich Leads
-      </div>
+      <TypographyTitle>Enrich Leads</TypographyTitle>
 
-      <div
-        style={{
-          fontSize: 15,
-          fontWeight: '500',
-          width: '30vw',
-          textAlign: 'center',
-        }}
-      >
+      <TypographyBodyMedium className="w-[30vw] text-center">
         {`By enriching this lead, you're giving your AI valuable context — pulling in public data to better understand who this person is and how to engage with them.`}
-      </div>
+      </TypographyBodyMedium>
 
       <div className="flex flex-row items-center gap-2">
-        <div style={{ fontSize: 13, fontWeight: '500', color: '#00000060' }}>
+        <TypographyBodyMedium className="text-muted-foreground">
           credit cost (${creditCost?.pricePerLead}/lead)
-        </div>
+        </TypographyBodyMedium>
 
         <Tooltip
           title="This is the cost for us to run the enrichment process."
@@ -168,7 +158,7 @@ function NoPerplexity({
             width={16}
             alt="*"
           />
-          <div>Enrich Lead</div>
+          <TypographyBodyMedium className="text-white">Enrich Lead</TypographyBodyMedium>
         </button>
       )}
 
@@ -196,14 +186,7 @@ function NoPerplexity({
               }}
             >
               <div className="flex flex-row justify-between items-center">
-                <div
-                  style={{
-                    fontSize: 22,
-                    fontWeight: '600',
-                  }}
-                >
-                  Payment Details
-                </div>
+          <TypographyH2>Payment Details</TypographyH2>
                 <button onClick={() => setShowAddCard(false)}>
                   <Image
                     src={'/assets/crossIcon.png'}

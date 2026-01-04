@@ -1,6 +1,14 @@
 import { get } from 'draft-js/lib/DefaultDraftBlockRenderMap'
 import Image from 'next/image'
 import React, { useState } from 'react'
+import {
+  TypographyBody,
+  TypographyCaption,
+  TypographyBodySemibold,
+  TypographyBodyMedium,
+  TypographyH2,
+  TypographyTitle,
+} from '@/lib/typography'
 
 function Perplexity({ selectedLeadsDetails }) {
   let enrichData = selectedLeadsDetails?.enrichData
@@ -51,30 +59,18 @@ function Perplexity({ selectedLeadsDetails }) {
               alt="*"
               // style={{ borderRadius: "50%" }}
             />
-            <div
-              style={{
-                fontSize: 13,
-                fontWeight: '500',
-                color: '#00000060',
-              }}
-            >
+            <TypographyBodyMedium className="text-muted-foreground">
               {item.name}
-            </div>
+            </TypographyBodyMedium>
           </div>
 
-          <div
-            style={{
-              fontSize: 13,
-              fontWeight: '500',
-              height: '50px',
-              overflow: 'auto',
-              textAlign: 'left',
-            }}
+          <TypographyBodyMedium
+            className="h-[50px] overflow-auto text-left"
           >
             {item.description.length > 12
               ? `${item.description.slice(0, 12)}..`
               : item.description}
-          </div>
+          </TypographyBodyMedium>
         </div>
       )
     } else {
@@ -89,28 +85,14 @@ function Perplexity({ selectedLeadsDetails }) {
                 alt="*"
                 // style={{ borderRadius: "50%" }}
               />
-              <div
-                style={{
-                  fontSize: 13,
-                  fontWeight: '500',
-                  color: '#00000060',
-                }}
-              >
+              <TypographyBodyMedium className="text-muted-foreground">
                 {getSourceName(item.url)}
-              </div>
+              </TypographyBodyMedium>
             </div>
 
-            <div
-              style={{
-                fontSize: 13,
-                fontWeight: '500',
-                height: '50px',
-                overflow: 'auto',
-                textAlign: 'left',
-              }}
-            >
+            <TypographyBodyMedium className="h-[50px] overflow-auto text-left">
               {item.url}
-            </div>
+            </TypographyBodyMedium>
           </div>
         </div>
       )
@@ -173,11 +155,9 @@ function Perplexity({ selectedLeadsDetails }) {
                         style={{ borderRadius: "50%" }}
                     /> */}
 
-          <div
-            style={{ fontsize: 22, fontWeight: '700', whiteSpace: 'nowrap' }}
-          >
+          <TypographyH2 className="whitespace-nowrap">
             More {selectedLeadsDetails?.firstName}
-          </div>
+          </TypographyH2>
         </div>
 
         <div className="flex flex-row items-center gap-2 ">
@@ -188,20 +168,12 @@ function Perplexity({ selectedLeadsDetails }) {
             alt="*"
           />
 
-          <div
-            style={{ fontsize: 22, fontWeight: '700', whiteSpace: 'nowrap' }}
-          >
+          <TypographyH2 className="whitespace-nowrap">
             Confidence Score:{' '}
-            <span
-              style={{
-                fontsize: 22,
-                fontWeight: '700',
-                color: 'hsl(var(--brand-primary))',
-              }}
-            >
+            <span className="text-brand-primary">
               {calculateConfidanseScore().toFixed(2)}%
             </span>
-          </div>
+          </TypographyH2>
         </div>
       </div>
       <div className="w-full flex flex-row items-start gap-2">
@@ -246,15 +218,9 @@ function Perplexity({ selectedLeadsDetails }) {
                 style={{ borderRadius: '50%' }}
               />
             </div>
-            <div
-              style={{
-                fontSize: 13,
-                fontWeight: '500',
-                color: '#00000060',
-              }}
-            >
+            <TypographyBodyMedium className="text-muted-foreground">
               +{profiles.length - 6} sources
-            </div>
+            </TypographyBodyMedium>
           </div>
         )}
       </div>
@@ -262,35 +228,27 @@ function Perplexity({ selectedLeadsDetails }) {
       <div className="w-full flex flex-row items-cneter gap-2 mt-5">
         <Image src={'/svgIcons/sparkles.svg'} height={24} width={24} alt="*" />
 
-        <div style={{ fontsize: 16, fontWeight: '700' }}>More detail</div>
+        <TypographyTitle>More detail</TypographyTitle>
       </div>
 
       <div className="flex flex-col items-start w-full">
-        <div
-          className="mt-4"
-          style={{
-            fontWeight: '600',
-            fontSize: 15,
-          }}
-        >
+        <TypographyBodySemibold className="mt-4">
           {enrichData?.summary?.length > 400
             ? isExpanded
               ? `${enrichData.summary}`
               : `${enrichData.summary.slice(0, 400)}...`
             : enrichData.summary}
-        </div>
+        </TypographyBodySemibold>
         {enrichData?.summary?.length > 400 && (
           <button
-            style={{
-              fontWeight: '600',
-              fontSize: 15,
-            }}
             onClick={() => {
               setIsExpanded(!isExpanded)
             }}
             className="mt-2 text-brand-primary underline"
           >
-            {isExpanded ? 'Read Less' : 'Read more'}
+            <TypographyBodySemibold className="text-brand-primary underline">
+              {isExpanded ? 'Read Less' : 'Read more'}
+            </TypographyBodySemibold>
           </button>
         )}
       </div>

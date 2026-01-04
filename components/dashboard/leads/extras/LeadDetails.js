@@ -113,6 +113,8 @@ import NotesTabCN from './NotesTabCN'
 import KYCTabCN from './KYCTabCN'
 import ActivityTabCN from './ActivityTabCN'
 import InsightsTabCN from './InsightsTabCN'
+import CallTranscriptCN from './CallTranscriptCN'
+import EmailSmsTranscriptCN from './EmailSmsTranscriptCN'
 
 const LeadDetails = ({
   showDetailsModal,
@@ -1540,299 +1542,28 @@ const LeadDetails = ({
     }
   }
 
-  const callTranscript = (item, initialText) => {
-    const callSummary = item.callSummary
-    const summaryText = callSummary?.callSummary || null
-    const hasSummary = summaryText && summaryText.trim()
-
-    // Use summary if available, otherwise fallback to transcript
-    const displayText = hasSummary ? summaryText : (item.transcript || 'No summary or transcript available')
-
+  const callTranscript = (item) => {
     return (
-      <div className="flex flex-col">
-        {/* Top row: Duration, Play button, and Icons (Sentiment, Temp, Next Steps) */}
-        <div className="flex flex-row items-center justify-between mt-4">
-          <div className="flex flex-row items-center gap-3">
-            <div
-              style={{
-                fontWeight: '500',
-                fontSize: 15,
-              }}
-            >
-              {moment(item?.duration * 1000).format('mm:ss')}
-            </div>
-            <button
-              onClick={() => {
-                if (item?.recordingUrl) {
-                  setShowAudioPlay({ recordingUrl: item.recordingUrl, callId: item.callId })
+      <CallTranscriptCN
+        item={item}
+        onPlayRecording={(recordingUrl, callId) => {
+          if (recordingUrl) {
+            setShowAudioPlay({ recordingUrl, callId })
                 } else {
                   setShowNoAudioPlay(true)
                 }
               }}
-              className="flex items-center justify-center"
-              style={{
-                width: 35,
-                height: 35,
-              }}
-            >
-              <Image
-                src={'/assets/play.png'}
-                height={35}
-                width={35}
-                alt="Play recording"
-                style={{
-                  filter: 'hue-rotate(0deg) saturate(1) brightness(1)',
-                }}
-              />
-            </button>
-          </div>
-
-          {/* Top right icons: Sentiment, Temperature, Next Steps */}
-          <div className="flex flex-row items-center gap-3">
-            {callSummary?.prospectSentiment && (
-              <Tooltip
-                title={`Sentiment: ${callSummary.prospectSentiment}`}
-                arrow
-                componentsProps={{
-                  tooltip: {
-                    sx: {
-                      backgroundColor: '#ffffff',
-                      color: '#333',
-                      fontSize: '14px',
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                      maxWidth: '300px',
-                    },
-                  },
-                  arrow: {
-                    sx: {
-                      color: '#ffffff',
-                    },
-                  },
-                }}
-              >
-                <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                  {getSentimentIcon(callSummary.prospectSentiment)}
-                </div>
-              </Tooltip>
-            )}
-
-            {callSummary?.leadTemperature && (
-              <Tooltip
-                title={`Temperature: ${callSummary.leadTemperature}`}
-                arrow
-                componentsProps={{
-                  tooltip: {
-                    sx: {
-                      backgroundColor: '#ffffff',
-                      color: '#333',
-                      fontSize: '14px',
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                      maxWidth: '300px',
-                    },
-                  },
-                  arrow: {
-                    sx: {
-                      color: '#ffffff',
-                    },
-                  },
-                }}
-              >
-                <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                  {getTemperatureIconForActivity(callSummary.leadTemperature)}
-                </div>
-              </Tooltip>
-            )}
-
-            {callSummary?.nextSteps && (
-              <Tooltip
-                title={
-                  <div style={{ whiteSpace: 'pre-line' }}>
-                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>Next Steps:</div>
-                    {formatNextStepsForTooltip(callSummary.nextSteps)}
-                  </div>
-                }
-                arrow
-                componentsProps={{
-                  tooltip: {
-                    sx: {
-                      backgroundColor: '#ffffff',
-                      color: '#333',
-                      fontSize: '14px',
-                      padding: '8px 12px',
-                      borderRadius: '8px',
-                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                      maxWidth: '300px',
-                    },
-                  },
-                  arrow: {
-                    sx: {
-                      color: '#ffffff',
-                    },
-                  },
-                }}
-              >
-                <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-                  <ListChecks size={18} color="hsl(var(--brand-primary))" />
-                </div>
-              </Tooltip>
-            )}
-          </div>
-        </div>
-
-        {/* Summary text */}
-        <div className="w-full mt-4">
-          <div
-            style={{
-              fontWeight: '600',
-              fontSize: 15,
-              marginBottom: '8px',
-            }}
-          >
-            Summary:
-          </div>
-          <div
-            style={{
-              fontWeight: '400',
-              fontSize: 15,
-              color: '#151515',
-              lineHeight: '1.5',
-            }}
-          >
-            {displayText}
-          </div>
-        </div>
-
-        {/* Bottom row: Call ID, Transcript icons (left) and Caller name (right) */}
-        <div className="flex flex-row items-center justify-between mt-4">
-          <div className="flex flex-row items-center gap-4">
-            {/* Call ID Icon */}
-            <Tooltip
-              title="Copy Call ID"
-              arrow
-              componentsProps={{
-                tooltip: {
-                  sx: {
-                    backgroundColor: '#ffffff',
-                    color: '#333',
-                    fontSize: '14px',
-                    padding: '6px 10px',
-                    borderRadius: '6px',
-                    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.15)',
-                  },
-                },
-                arrow: {
-                  sx: {
-                    color: '#ffffff',
-                  },
-                },
-              }}
-            >
-              <button
-                onClick={() => handleCopy(item.callId)}
-                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-              >
-                <Copy size={18} color="hsl(var(--brand-primary))" />
-              </button>
-            </Tooltip>
-
-            {/* Transcript Icon */}
-            {item.transcript && (
-              <Tooltip
-                title="Read Transcript"
-                arrow
-                componentsProps={{
-                  tooltip: {
-                    sx: {
-                      backgroundColor: '#ffffff',
-                      color: '#333',
-                      fontSize: '14px',
-                      padding: '6px 10px',
-                      borderRadius: '6px',
-                      boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.15)',
-                    },
-                  },
-                  arrow: {
-                    sx: {
-                      color: '#ffffff',
-                    },
-                  },
-                }}
-              >
-                <button
-                  onClick={() => {
-                    handleReadMoreToggle(item)
-                  }}
-                  style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                >
-                  <FileText size={18} color="hsl(var(--brand-primary))" />
-                </button>
-              </Tooltip>
-            )}
-          </div>
-
-          {/* Caller name (right side) */}
-          {/* <div
-            style={{
-              fontWeight: '500',
-              fontSize: 14,
-              color: '#00000070',
-            }}
-          >
-            By {item.callerName || item.agent?.name || 'Unknown'}
-          </div> */}
-        </div>
-      </div>
+        onCopyCallId={handleCopy}
+        onReadTranscript={handleReadMoreToggle}
+        getSentimentIcon={getSentimentIcon}
+        getTemperatureIconForActivity={getTemperatureIconForActivity}
+        formatNextStepsForTooltip={formatNextStepsForTooltip}
+      />
     )
   }
 
   const emailSmsTranscript = (item) => {
-    return (
-      <div className="flex flex-col items-start gap-2">
-        {item.sentSubject && (
-          <div className="text-base font-semibold text-[#000000]">
-            Subject:  {item.sentSubject}
-          </div>
-        )}
-
-        {item.sentContent && (
-          <div className="flex flex-col items-start gap-2">
-
-            <div className="text-base font-medium text-[#000000] whitespace-pre-wrap">
-              {htmlToPlainText(item.sentContent)}
-            </div>
-          </div>
-        )}
-
-        {item.template?.attachments?.length > 0 && (
-          <div className="flex flex-col items-start gap-2">
-            <div className="text-base font-semibold text-[#00000050]">
-              Attachments
-            </div>
-
-            {/* Attachments */}
-            {item.template?.attachments.map((attachment, index) => (
-              <div key={index} className="flex flex-row items-center gap-2">
-                <div
-                  key={index}
-                  className="text-base font-medium text-[#000000] w-6/12 truncate"
-                  onClick={() => {
-                    window.open(attachment.url, '_blank')
-                  }}
-                >
-                  {attachment.fileName}
-                </div>
-
-                <div>{formatFileSize(attachment.size)}</div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    )
+    return <EmailSmsTranscriptCN item={item} />
   }
 
   const startCallAction = () => {
@@ -2720,14 +2451,14 @@ const LeadDetails = ({
                   <div style={{ paddingInline: 0 }}>
                     {showPerplexityDetails && (
                       <InsightsTabCN
-                        selectedLeadsDetails={selectedLeadsDetails}
-                        showConfirmPerplexity={showConfirmPerplexity}
-                        setshowConfirmPerplexity={setshowConfirmPerplexity}
+                          selectedLeadsDetails={selectedLeadsDetails}
+                      showConfirmPerplexity={showConfirmPerplexity}
+                      setshowConfirmPerplexity={setshowConfirmPerplexity}
                         userLocalData={userLocalData}
-                        handleEnrichLead={handleEnrichLead}
-                        loading={loading}
-                        creditCost={creditCost}
-                      />
+                      handleEnrichLead={handleEnrichLead}
+                      loading={loading}
+                      creditCost={creditCost}
+                    />
                     )}
 
                     {showKYCDetails && (
@@ -2764,8 +2495,8 @@ const LeadDetails = ({
                         callTranscript={callTranscript}
                         emailSmsTranscript={emailSmsTranscript}
                       />
-                    )}
-                  </div>
+                                                      )}
+                                                    </div>
                   <div
                     style={{
                       position: 'absolute',
