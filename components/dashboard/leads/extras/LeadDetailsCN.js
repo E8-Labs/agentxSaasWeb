@@ -81,14 +81,43 @@ export const InfoRow = ({ icon, children }) => (
   </div>
 )
 
-export const TagPill = ({ label }) => (
-  <Badge
-    variant="outline"
-    className="rounded-full border-muted px-3 py-1 bg-muted/40"
-  >
-    <TypographyCaption className="font-medium">{label}</TypographyCaption>
-  </Badge>
-)
+export const TagPill = ({ label, onRemove, isLoading }) => {
+  const handleRemove = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    if (!isLoading && onRemove) {
+      onRemove(label)
+    }
+  }
+
+  return (
+    <Badge
+      variant="outline"
+      className="rounded-full border-border/50 px-3 py-1 bg-muted/50 hover:bg-muted flex items-center gap-1.5 group relative transition-colors shadow-sm"
+    >
+      <TypographyCaption className="font-medium text-foreground">{label}</TypographyCaption>
+      {onRemove && (
+        <button
+          type="button"
+          onClick={handleRemove}
+          onMouseDown={(e) => {
+            e.stopPropagation()
+            e.preventDefault()
+          }}
+          disabled={isLoading}
+          className="ml-1 h-4 w-4 min-w-[16px] flex items-center justify-center hover:bg-destructive/10 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          aria-label={`Remove tag ${label}`}
+        >
+          {isLoading ? (
+            <div className="h-3 w-3 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+          ) : (
+            <X className="h-3 w-3 text-muted-foreground group-hover:text-destructive transition-colors" />
+          )}
+        </button>
+      )}
+    </Badge>
+  )
+}
 
 const ActivityCard = ({ activity }) => (
   <div className="rounded-xl border border-border bg-background p-4 shadow-sm">

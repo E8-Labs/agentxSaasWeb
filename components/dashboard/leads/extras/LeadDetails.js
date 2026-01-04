@@ -196,8 +196,6 @@ const LeadDetails = ({
   const [myTeam, setMyTeam] = useState([])
   const [myTeamAdmin, setMyTeamAdmin] = useState(null)
 
-  //variable for showing modal
-  const [extraTagsModal, setExtraTagsModal] = useState(false)
 
   //variable for gtteam loader
   const [getTeamLoader, setGetTeamLoader] = useState(false)
@@ -1551,10 +1549,10 @@ const LeadDetails = ({
         onPlayRecording={(recordingUrl, callId) => {
           if (recordingUrl) {
             setShowAudioPlay({ recordingUrl, callId })
-          } else {
-            setShowNoAudioPlay(true)
-          }
-        }}
+                } else {
+                  setShowNoAudioPlay(true)
+                }
+              }}
         onCopyCallId={handleCopy}
         onReadTranscript={handleReadMoreToggle}
         getSentimentIcon={getSentimentIcon}
@@ -1631,7 +1629,7 @@ const LeadDetails = ({
                     </div>
                   )}
                   {/* <div> */}
-                  <div className="flex flex-row items-start justify-between mt-4  w-full">
+                    <div className="flex flex-row items-start justify-between mt-4  w-full">
                     <div className="flex flex-col items-start  w-full">
                       <div className="flex flex-row items-between justify-between w-full">
                         <div className="flex flex-row items-center gap-3">
@@ -1750,33 +1748,34 @@ const LeadDetails = ({
                         </div>
                       </div>
                       <div className="space-y-2 text-sm mt-2">
-                        {selectedLeadsDetails?.email && <InfoRow icon={<MailIcon className="h-4 w-4" />}>{selectedLeadsDetails?.email}</InfoRow>}
-                        {selectedLeadsDetails?.phone && <InfoRow icon={<PhoneIcon className="h-4 w-4" />}>{selectedLeadsDetails?.phone}</InfoRow>}
-                        {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>{selectedLeadsDetails?.address}</InfoRow>}
-                        <InfoRow icon={<WorkflowIcon className="h-4 w-4" />}>
-                          {selectedLeadsDetails?.pipeline?.title ||
-                            selectedLeadsDetails?.pipeline?.name ||
-                            selectedLeadsDetails?.pipeline ||
-                            '-'}
-                        </InfoRow>
-                        {selectedLeadsDetails?.booking && <InfoRow icon={<CalendarIcon className="h-4 w-4" />}>{selectedLeadsDetails?.booking}</InfoRow>}
-                        <div className="flex items-center gap-2">
-                          <TagIcon className="h-4 w-4 text-muted-foreground" />
-                          <TagManagerCn
-                            tags={selectedLeadsDetails?.tags || []}
-                            tagInputRef={tagInputRef}
-                            tagInputValue={tagInputValue}
-                            onInputChange={handleTagInputChange}
-                            onInputKeyDown={handleTagInputKeyDown}
-                            showSuggestions={showTagSuggestions}
-                            setShowSuggestions={setShowTagSuggestions}
-                            tagSuggestions={tagSuggestions}
-                            onSuggestionClick={handleTagSuggestionClick}
-                            addTagLoader={addTagLoader}
-                            onCounterClick={() => setExtraTagsModal(true)}
-                          />
-                        </div>
-                        <div className="flex items-center gap-2">
+                          {selectedLeadsDetails?.email && <InfoRow icon={<MailIcon className="h-4 w-4" />}>{selectedLeadsDetails?.email}</InfoRow>}
+                          {selectedLeadsDetails?.phone && <InfoRow icon={<PhoneIcon className="h-4 w-4" />}>{selectedLeadsDetails?.phone}</InfoRow>}
+                          {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>{selectedLeadsDetails?.address}</InfoRow>}
+                          <InfoRow icon={<WorkflowIcon className="h-4 w-4" />}>
+                            {selectedLeadsDetails?.pipeline?.title ||
+                              selectedLeadsDetails?.pipeline?.name ||
+                              selectedLeadsDetails?.pipeline ||
+                              '-'}
+                          </InfoRow>
+                          {selectedLeadsDetails?.booking && <InfoRow icon={<CalendarIcon className="h-4 w-4" />}>{selectedLeadsDetails?.booking}</InfoRow>}
+                          <div className="flex items-center gap-2">
+                            <TagIcon className="h-4 w-4 text-muted-foreground" />
+                            <TagManagerCn
+                              tags={selectedLeadsDetails?.tags || []}
+                              tagInputRef={tagInputRef}
+                              tagInputValue={tagInputValue}
+                              onInputChange={handleTagInputChange}
+                              onInputKeyDown={handleTagInputKeyDown}
+                              showSuggestions={showTagSuggestions}
+                              setShowSuggestions={setShowTagSuggestions}
+                              tagSuggestions={tagSuggestions}
+                              onSuggestionClick={handleTagSuggestionClick}
+                              addTagLoader={addTagLoader}
+                            onRemoveTag={handleDelTag}
+                            delTagLoader={DelTagLoader}
+                            />
+                          </div>
+                          <div className="flex items-center gap-2">
                           {/* <Avatar className="h-8 w-8">
                               {selectedLeadsDetails?.assignee?.avatar ? (
                                 <AvatarImage src={selectedLeadsDetails?.assignee.avatar} alt={selectedLeadsDetails?.assignee.name} />
@@ -1784,43 +1783,43 @@ const LeadDetails = ({
                                 <AvatarFallback>{selectedLeadsDetails?.assignee?.name?.[0] || 'A'}</AvatarFallback>
                             )}
                           </Avatar> */}
-                          <MultiSelectDropdownCn
-                            label="Assign"
-                            options={[
-                              ...(myTeamAdmin ? [myTeamAdmin] : []),
-                              ...(myTeam || []),
-                            ].map((tm) => {
-                              const id = tm.id || tm.invitedUserId
-                              const isSelected = (selectedLeadsDetails?.teamsAssigned || []).some(
-                                (assigned) =>
-                                  String(assigned.id || assigned.invitedUserId || assigned.invitedUser?.id) ===
-                                  String(id),
-                              )
-                              return {
-                                id,
-                                label: tm.name,
-                                avatar: tm.thumb_profile_image,
-                                selected: isSelected,
-                                raw: tm,
-                              }
-                            })}
-                            onToggle={(opt, checked) => {
-                              if (checked) {
-                                handleAssignLeadToTeammember?.(opt.raw || opt)
-                              } else {
-                                handleUnassignLeadFromTeammember?.(opt.id)
-                              }
-                            }}
-                          />
-                        </div>
+                            <MultiSelectDropdownCn
+                              label="Assign"
+                              options={[
+                                ...(myTeamAdmin ? [myTeamAdmin] : []),
+                                ...(myTeam || []),
+                              ].map((tm) => {
+                                const id = tm.id || tm.invitedUserId
+                                const isSelected = (selectedLeadsDetails?.teamsAssigned || []).some(
+                                  (assigned) =>
+                                    String(assigned.id || assigned.invitedUserId || assigned.invitedUser?.id) ===
+                                    String(id),
+                                )
+                                return {
+                                  id,
+                                  label: tm.name,
+                                  avatar: tm.thumb_profile_image,
+                                  selected: isSelected,
+                                  raw: tm,
+                                }
+                              })}
+                              onToggle={(opt, checked) => {
+                                if (checked) {
+                                  handleAssignLeadToTeammember?.(opt.raw || opt)
+                                } else {
+                                  handleUnassignLeadFromTeammember?.(opt.id)
+                                }
+                              }}
+                            />
+                          </div>
+                            </div>
+                        
+                        
                       </div>
-
 
                     </div>
 
-                  </div>
-
-                  {/* <div className="w-full mt-3">
+                    {/* <div className="w-full mt-3">
                       <div className="">
                         {globalLoader ? (
                           <CircularProgress size={25} />
@@ -1853,292 +1852,202 @@ const LeadDetails = ({
                     }}
                   />
 
-                  <AuthSelectionPopup
-                    open={showAuthSelectionPopup}
-                    onClose={() => setShowAuthSelectionPopup(false)}
-                    onSuccess={() => {
-                      setShowEmailModal(true)
-                      setShowAuthSelectionPopup(false)
-                    }}
-                    setShowEmailTempPopup={(value) => {
-                      setShowEmailModal(value)
-                      setShowAuthSelectionPopup(false)
-                    }}
-                    showEmailTempPopup={showEmailModal}
-                    selectedGoogleAccount={selectedGoogleAccount}
-                    setSelectedGoogleAccount={(account) => {
-                      setSelectedGoogleAccount(account)
-                    }}
-                  />
+                    <AuthSelectionPopup
+                      open={showAuthSelectionPopup}
+                      onClose={() => setShowAuthSelectionPopup(false)}
+                      onSuccess={() => {
+                        setShowEmailModal(true)
+                        setShowAuthSelectionPopup(false)
+                      }}
+                      setShowEmailTempPopup={(value) => {
+                        setShowEmailModal(value)
+                        setShowAuthSelectionPopup(false)
+                      }}
+                      showEmailTempPopup={showEmailModal}
+                      selectedGoogleAccount={selectedGoogleAccount}
+                      setSelectedGoogleAccount={(account) => {
+                        setSelectedGoogleAccount(account)
+                      }}
+                    />
 
-                  {/* Modal for All Emails */}
-                  <Modal
-                    open={showAllEmails}
-                    onClose={() => setShowAllEmails(null)}
-                    closeAfterTransition
-                    BackdropProps={{
-                      timeout: 1000,
-                      sx: {
-                        backgroundColor: '#00000020',
-                        // //backdropFilter: "blur(20px)",
-                      },
-                    }}
-                  >
-                    <Box
-                      className="lg:w-5/12 sm:w-full w-8/12"
-                      sx={styles.modalsStyle}
-                    >
-                      <div className="flex flex-row justify-center w-full">
-                        <div
-                          className="sm:w-full w-full"
-                          style={{
-                            backgroundColor: '#ffffff',
-                            padding: 20,
-                            borderRadius: '13px',
-                          }}
-                        >
-                          <div>
-                            {selectedLeadsDetails?.emails.map(
-                              (email, emailIndex) => {
-                                return (
-                                  <div key={emailIndex}>
-                                    <div
-                                      className="flex flex-row items-center gap-2 px-1 mt-2 rounded-lg py-2 border border-[#00000020]"
-                                      style={styles.paragraph}
-                                    >
-                                      <Image
-                                        src={'/assets/power.png'}
-                                        height={9}
-                                        width={7}
-                                        alt="*"
-                                      />
-                                      <div>
-                                        <span className="text-brand-primary">
-                                          New
-                                        </span>{' '}
-                                        {email?.email}
-                                      </div>
-                                    </div>
-                                  </div>
-                                )
-                              },
-                            )}
-                          </div>
-                          <div className="mt-4">
-                            <button
-                              onClick={() => {
-                                setShowAllEmails(false)
-                              }}
-                              className="h-[50px] rounded-xl bg-brand-primary text-white w-full"
-                            >
-                              Close
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </Box>
-                  </Modal>
-
-                  {/* Modal for All Tags */}
-                  <Modal
-                    open={extraTagsModal}
-                    onClose={() => setExtraTagsModal(false)}
-                    closeAfterTransition
-                    BackdropProps={{
-                      timeout: 1000,
-                      sx: {
-                        backgroundColor: '#00000020',
-                        // //backdropFilter: "blur(20px)",
-                      },
-                    }}
-                  >
-                    <Box
-                      className="lg:w-3/12 sm:w-full w-4/12"
-                      sx={styles.modalsStyle}
-                    >
-                      <div className="flex flex-row justify-center w-full">
-                        <div
-                          className="sm:w-full w-full"
-                          style={{
-                            backgroundColor: '#ffffff',
-                            padding: 20,
-                            borderRadius: '13px',
-                          }}
-                        >
-                          <div className="w-full flex items-center justify-between">
-                            <div
-                              style={{
-                                fontsize: 15,
-                                fontWeight: '600',
-                              }}
-                            >
-                              Other Tags
-                            </div>
-                            <div>
-                              <CloseBtn
-                                onClick={() => {
-                                  setExtraTagsModal(false)
-                                }}
-                              />
-                            </div>
-                          </div>
-                          <div className="flex flex-row items-center gap-4 flex-wrap mt-2">
-                            {selectedLeadsDetails?.tags.map(
-                              (tag, index) => {
-                                return (
-                                  <div
-                                    key={index}
-                                    className="flex flex-row items-center gap-2"
-                                  >
-                                    <div
-                                      className="flex flex-row items-center gap-2 px-2 py-1 rounded-lg"
-                                      style={{
-                                        backgroundColor: 'hsl(var(--brand-primary) / 0.1)'
-                                      }}
-                                    >
-                                      <div
-                                        className="text-brand-primary" //1C55FF10
-                                      >
-                                        {tag}
-                                      </div>
-                                      {DelTagLoader &&
-                                        tag.includes(DelTagLoader) ? (
-                                        <div>
-                                          <CircularProgress size={15} />
-                                        </div>
-                                      ) : (
-                                        <button
-                                          onClick={() => {
-                                            handleDelTag(tag)
-                                          }}
-                                        >
-                                          <X
-                                            size={15}
-                                            weight="bold"
-                                            color="hsl(var(--brand-primary))"
-                                          />
-                                        </button>
-                                      )}
-                                    </div>
-                                  </div>
-                                )
-                              },
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </Box>
-                  </Modal>
-
-                  <Popover
-                    id={id}
-                    open={open}
-                    anchorEl={anchorEl}
-                    onClose={handleClosePopup}
-                    anchorOrigin={{
-                      vertical: 'bottom',
-                      horizontal: 'left',
-                    }}
-                    transformOrigin={{
-                      vertical: 'top',
-                      horizontal: 'left',
-                    }}
-                    disablePortal={false}
-                    PaperProps={{
-                      elevation: 0,
-                      style: {
-                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-                        borderRadius: '10px',
-                        minWidth: '120px',
-                        zIndex: 9999,
-                      },
-                    }}
-                  >
-                    <button
-                      className="hover:bg-gray-50"
-                      onClick={() => {
-                        handleAssignLeadToTeammember(myTeamAdmin)
+                    {/* Modal for All Emails */}
+                    <Modal
+                      open={showAllEmails}
+                      onClose={() => setShowAllEmails(null)}
+                      closeAfterTransition
+                      BackdropProps={{
+                        timeout: 1000,
+                        sx: {
+                          backgroundColor: '#00000020',
+                          // //backdropFilter: "blur(20px)",
+                        },
                       }}
                     >
-                      <div className="p-2 w-full flex flex-row items-center justify-start gap-2 ">
-                        <div className="">
-                          {myTeamAdmin?.thumb_profile_image ? (
-                            <Image
-                              className="rounded-full"
-                              src={myTeamAdmin.thumb_profile_image}
-                              height={32}
-                              width={32}
-                              alt="*"
-                              style={{
-                                borderRaduis: 50,
-                              }}
-                            />
-                          ) : (
-                            <div
-                              className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                            // onClick={() => handleToggleClick(item.id)}
-                            >
-                              {myTeamAdmin?.name?.slice(0, 1)}
+                      <Box
+                        className="lg:w-5/12 sm:w-full w-8/12"
+                        sx={styles.modalsStyle}
+                      >
+                        <div className="flex flex-row justify-center w-full">
+                          <div
+                            className="sm:w-full w-full"
+                            style={{
+                              backgroundColor: '#ffffff',
+                              padding: 20,
+                              borderRadius: '13px',
+                            }}
+                          >
+                            <div>
+                              {selectedLeadsDetails?.emails.map(
+                                (email, emailIndex) => {
+                                  return (
+                                    <div key={emailIndex}>
+                                      <div
+                                        className="flex flex-row items-center gap-2 px-1 mt-2 rounded-lg py-2 border border-[#00000020]"
+                                        style={styles.paragraph}
+                                      >
+                                        <Image
+                                          src={'/assets/power.png'}
+                                          height={9}
+                                          width={7}
+                                          alt="*"
+                                        />
+                                        <div>
+                                          <span className="text-brand-primary">
+                                            New
+                                          </span>{' '}
+                                          {email?.email}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )
+                                },
+                              )}
                             </div>
-                          )}
-                        </div>
-                        <div className="">{myTeamAdmin?.name}</div>
-                        <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
-                          Admin
-                        </div>
-                      </div>
-                    </button>
-                    {myTeam.length > 0 ? (
-                      <div>
-                        {myTeam.map((item, index) => {
-                          return (
-                            <div
-                              key={index}
-                              className="p-2 flex flex-col gap-2"
-                              style={{ fontWeight: '500', fontSize: 15 }}
-                            >
+                            <div className="mt-4">
                               <button
-                                className="text-start flex flex-row items-center justify-start gap-2 hover:bg-gray-50"
                                 onClick={() => {
-                                  handleAssignLeadToTeammember(item)
+                                  setShowAllEmails(false)
                                 }}
+                                className="h-[50px] rounded-xl bg-brand-primary text-white w-full"
                               >
-                                {item?.invitedUser?.thumb_profile_image ? (
-                                  <Image
-                                    className="rounded-full"
-                                    src={
-                                      item.invitedUser?.thumb_profile_image
-                                    }
-                                    height={32}
-                                    width={32}
-                                    alt="*"
-                                    style={{}}
-                                  />
-                                ) : (
-                                  <div
-                                    className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                  // onClick={() =>
-                                  //   handleToggleClick(item.id)
-                                  // }
-                                  >
-                                    {item?.name?.slice(0, 1)}
-                                  </div>
-                                )}
-                                {item?.name}
+                                Close
                               </button>
                             </div>
-                          )
-                        })}
-                      </div>
-                    ) : (
-                      ''
-                    )}
-                  </Popover>
+                          </div>
+                        </div>
+                      </Box>
+                    </Modal>
+
+
+                    <Popover
+                      id={id}
+                      open={open}
+                      anchorEl={anchorEl}
+                      onClose={handleClosePopup}
+                      anchorOrigin={{
+                        vertical: 'bottom',
+                        horizontal: 'left',
+                      }}
+                      transformOrigin={{
+                        vertical: 'top',
+                        horizontal: 'left',
+                      }}
+                      disablePortal={false}
+                      PaperProps={{
+                        elevation: 0,
+                        style: {
+                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                          borderRadius: '10px',
+                          minWidth: '120px',
+                          zIndex: 9999,
+                        },
+                      }}
+                    >
+                      <button
+                        className="hover:bg-gray-50"
+                        onClick={() => {
+                          handleAssignLeadToTeammember(myTeamAdmin)
+                        }}
+                      >
+                        <div className="p-2 w-full flex flex-row items-center justify-start gap-2 ">
+                          <div className="">
+                            {myTeamAdmin?.thumb_profile_image ? (
+                              <Image
+                                className="rounded-full"
+                                src={myTeamAdmin.thumb_profile_image}
+                                height={32}
+                                width={32}
+                                alt="*"
+                                style={{
+                                  borderRaduis: 50,
+                                }}
+                              />
+                            ) : (
+                              <div
+                                className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                              // onClick={() => handleToggleClick(item.id)}
+                              >
+                                {myTeamAdmin?.name?.slice(0, 1)}
+                              </div>
+                            )}
+                          </div>
+                          <div className="">{myTeamAdmin?.name}</div>
+                          <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
+                            Admin
+                          </div>
+                        </div>
+                      </button>
+                      {myTeam.length > 0 ? (
+                        <div>
+                          {myTeam.map((item, index) => {
+                            return (
+                              <div
+                                key={index}
+                                className="p-2 flex flex-col gap-2"
+                                style={{ fontWeight: '500', fontSize: 15 }}
+                              >
+                                <button
+                                  className="text-start flex flex-row items-center justify-start gap-2 hover:bg-gray-50"
+                                  onClick={() => {
+                                    handleAssignLeadToTeammember(item)
+                                  }}
+                                >
+                                  {item?.invitedUser?.thumb_profile_image ? (
+                                    <Image
+                                      className="rounded-full"
+                                      src={
+                                        item.invitedUser?.thumb_profile_image
+                                      }
+                                      height={32}
+                                      width={32}
+                                      alt="*"
+                                      style={{}}
+                                    />
+                                  ) : (
+                                    <div
+                                      className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                                    // onClick={() =>
+                                    //   handleToggleClick(item.id)
+                                    // }
+                                    >
+                                      {item?.name?.slice(0, 1)}
+                                    </div>
+                                  )}
+                                  {item?.name}
+                                </button>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      ) : (
+                        ''
+                      )}
+                    </Popover>
 
 
                   {/* </div> */}
 
-                  <div className="w-full mt-12" style={{ paddingInline: 20 }}>
+                  <div className="w-full mt-12" style={{ paddingInline: 0 }}>
                     <TabsCN
                       tabs={[
                         {
@@ -2173,23 +2082,23 @@ const LeadDetails = ({
                       value={activeTab}
                       onValueChange={handleTabChange}
                     />
-                  </div>
+                      </div>
                   <div
-                    className="w-full"
+                    className="w-full mb-2"
                     style={{ height: '1px', backgroundColor: '#15151510' }}
                   />
 
                   <div style={{ paddingInline: 0 }}>
                     {showPerplexityDetails && (
                       <InsightsTabCN
-                        selectedLeadsDetails={selectedLeadsDetails}
-                        showConfirmPerplexity={showConfirmPerplexity}
-                        setshowConfirmPerplexity={setshowConfirmPerplexity}
+                          selectedLeadsDetails={selectedLeadsDetails}
+                      showConfirmPerplexity={showConfirmPerplexity}
+                      setshowConfirmPerplexity={setshowConfirmPerplexity}
                         userLocalData={userLocalData}
-                        handleEnrichLead={handleEnrichLead}
-                        loading={loading}
-                        creditCost={creditCost}
-                      />
+                      handleEnrichLead={handleEnrichLead}
+                      loading={loading}
+                      creditCost={creditCost}
+                    />
                     )}
 
                     {showKYCDetails && (
@@ -2226,8 +2135,8 @@ const LeadDetails = ({
                         callTranscript={callTranscript}
                         emailSmsTranscript={emailSmsTranscript}
                       />
-                    )}
-                  </div>
+                                                      )}
+                                                    </div>
                   <div
                     style={{
                       position: 'absolute',
