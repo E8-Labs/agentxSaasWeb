@@ -1549,10 +1549,10 @@ const LeadDetails = ({
         onPlayRecording={(recordingUrl, callId) => {
           if (recordingUrl) {
             setShowAudioPlay({ recordingUrl, callId })
-                } else {
-                  setShowNoAudioPlay(true)
-                }
-              }}
+          } else {
+            setShowNoAudioPlay(true)
+          }
+        }}
         onCopyCallId={handleCopy}
         onReadTranscript={handleReadMoreToggle}
         getSentimentIcon={getSentimentIcon}
@@ -1604,10 +1604,11 @@ const LeadDetails = ({
               </div>
             ) : (
               <div
-                className="h-[95vh] overflow-auto"
+                className="h-[95vh] overflow-auto w-full"
                 style={{ scrollbarWidth: 'none' }}
               >
                 <div
+                className="flex  flex-col w-full"
                   style={{
                     padding: 20,
                     paddingInline: 30,
@@ -1627,11 +1628,12 @@ const LeadDetails = ({
                       </button>
                     </div>
                   )}
-                  <div>
+                  {/* <div> */}
                     <div className="flex flex-row items-start justify-between mt-4  w-full">
-                      <div className="flex flex-col items-start gap-[5px] ">
-                        <div className="flex flex-row items-center gap-3">
-                          {/* {selectedLeadsDetails?.agent ? (
+                      <div className="flex flex-col items-start  w-full">
+                        <div className="flex flex-row items-between justify-between w-full">
+                          <div className="flex flex-row items-center gap-3">
+                            {/* {selectedLeadsDetails?.agent ? (
                             <div className="h-[32px] w-[32px]">
                               {getAgentsListImage(
                                 selectedLeadsDetails?.agent?.agents?.[0]?.agentType === 'outbound'
@@ -1650,57 +1652,100 @@ const LeadDetails = ({
                                 '-'}
                             </div>
                           )} */}
-                          <Avatar className="h-10 w-10 bg-red">
-                            {selectedLeadsDetails?.avatar ? (
-                              <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
-                            ) : (
-                              <AvatarFallback className="text-md font-semibold">{selectedLeadsDetails?.firstName?.slice(0, 1) || 'L'}</AvatarFallback>
-                            )}
-                          </Avatar>
-                          <div className="flex min-w-0 flex-1 items-center gap-3">
-                            <p className="truncate text-lg font-semibold leading-none text-foreground">
-                              {selectedLeadsDetails?.firstName}
-                            </p>
-                            {/* Send Action Dropdown Button */}
-                            <DropdownCn
-                              label="Send"
-                              options={[
-                                { label: 'Email', value: 'email', icon: Mail },
-                                { label: 'Call', value: 'call', icon: PhoneCall },
-                                { label: 'SMS', value: 'sms', icon: MessageSquareDot },
-                              ]}
-                              onSelect={handleSendAction}
-                            />
-                          </div>
-
-
-
-
-
-                          {/* Scoring Progress */}
-                          {selectedLeadsDetails?.scoringDetails &&
-                            selectedLeadsDetails?.scoringDetails?.questions
-                              ?.length > 0 && (
-                              <ScoringProgress
-                                value={
-                                  selectedLeadsDetails?.scoringDetails
-                                    ?.totalScore
-                                }
-                                maxValue={10}
-                                questions={
-                                  selectedLeadsDetails?.scoringDetails
-                                    ?.questions
-                                }
-                                showTooltip={true}
-                                tooltipTitle="Results"
+                            <Avatar className="h-10 w-10 bg-red">
+                              {selectedLeadsDetails?.avatar ? (
+                                <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
+                              ) : (
+                                <AvatarFallback className="text-md font-semibold">{selectedLeadsDetails?.firstName?.slice(0, 1) || 'L'}</AvatarFallback>
+                              )}
+                            </Avatar>
+                            <div className="flex min-w-0 flex-1 items-center gap-3">
+                              <p className="truncate text-lg font-semibold leading-none text-foreground">
+                                {selectedLeadsDetails?.firstName}
+                              </p>
+                              {/* Send Action Dropdown Button */}
+                              <DropdownCn
+                                label="Send"
+                                options={[
+                                  { label: 'Email', value: 'email', icon: Mail },
+                                  { label: 'Call', value: 'call', icon: PhoneCall },
+                                  { label: 'SMS', value: 'sms', icon: MessageSquareDot },
+                                ]}
+                                onSelect={handleSendAction}
                               />
-                            )}
-
-                          {selectedLeadsDetails?.isOnDncList && (
-                            <div className="rounded-full bg-red justify-center items-center  color-black p-1 px-2">
-                              DNC
                             </div>
-                          )}
+
+
+
+
+
+                            {/* Scoring Progress */}
+                            {selectedLeadsDetails?.scoringDetails &&
+                              selectedLeadsDetails?.scoringDetails?.questions
+                                ?.length > 0 && (
+                                <ScoringProgress
+                                  value={
+                                    selectedLeadsDetails?.scoringDetails
+                                      ?.totalScore
+                                  }
+                                  maxValue={10}
+                                  questions={
+                                    selectedLeadsDetails?.scoringDetails
+                                      ?.questions
+                                  }
+                                  showTooltip={true}
+                                  tooltipTitle="Results"
+                                />
+                              )}
+
+                            {selectedLeadsDetails?.isOnDncList && (
+                              <div className="rounded-full bg-red justify-center items-center  color-black p-1 px-2">
+                                DNC
+                              </div>
+                            )}
+                          </div>
+                          {/* Stage Select Dropdown */}
+                          <div className="flex flex-col align-self-end gap-[5px] ">
+                            <div className="flex flex-row items-center gap-2">
+                              {/* <Image
+                              src={"/assets/arrow.png"}
+                              height={16}
+                              width={16}
+                              alt="man"
+                            /> */}
+                              <div
+                                className="text-end flex flex-row items-center gap-1"
+                                style={styles.paragraph}
+                              >
+                                {stagesListLoader ? (
+                                  <CircularProgress size={25} />
+                                ) : (
+                                  <>
+                                    {/* <div
+                                  className="h-[10px] w-[10px] rounded-full"
+                                  style={{
+                                    backgroundColor:
+                                      selectedLeadsDetails?.stage
+                                        ?.defaultColor,
+                                  }}
+                                ></div> */}
+
+                                    {updateLeadLoader ? (
+                                      <CircularProgress size={20} />
+                                    ) : (
+
+                                      <SelectStageDropdown
+                                        selectedStage={selectedStage}
+                                        handleStageChange={handleStageChange}
+                                        stagesList={stagesList}
+                                        updateLeadStage={updateLeadStage}
+                                      />
+                                    )}
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
                         </div>
                         <div className="space-y-2 text-sm mt-2">
                           {selectedLeadsDetails?.email && <InfoRow icon={<MailIcon className="h-4 w-4" />}>{selectedLeadsDetails?.email}</InfoRow>}
@@ -1776,54 +1821,13 @@ const LeadDetails = ({
                               <PlusIcon className="h-4 w-4" />
                               {selectedLeadsDetails?.customFieldsCount}
                             </Button>
-                            
+
                           </div>
                         </div>
-                        
-                        
-                      </div>
-                      {/* Stage Select Dropdown */}
-                      <div className="flex flex-col items-end gap-[5px] absolute top-25 right-10">
-                        <div className="flex flex-row items-center gap-2">
-                          {/* <Image
-                              src={"/assets/arrow.png"}
-                              height={16}
-                              width={16}
-                              alt="man"
-                            /> */}
-                          <div
-                            className="text-end flex flex-row items-center gap-1"
-                            style={styles.paragraph}
-                          >
-                            {stagesListLoader ? (
-                              <CircularProgress size={25} />
-                            ) : (
-                              <>
-                                {/* <div
-                                  className="h-[10px] w-[10px] rounded-full"
-                                  style={{
-                                    backgroundColor:
-                                      selectedLeadsDetails?.stage
-                                        ?.defaultColor,
-                                  }}
-                                ></div> */}
 
-                                {updateLeadLoader ? (
-                                  <CircularProgress size={20} />
-                                ) : (
 
-                                  <SelectStageDropdown
-                                    selectedStage={selectedStage}
-                                    handleStageChange={handleStageChange}
-                                    stagesList={stagesList}
-                                    updateLeadStage={updateLeadStage}
-                                  />
-                                )}
-                              </>
-                            )}
-                          </div>
-                        </div>
                       </div>
+
                     </div>
 
                     {/* <div className="w-full mt-3">
@@ -1853,38 +1857,38 @@ const LeadDetails = ({
                       ).length
                       return extraCount > 0
                         ? (
-                      <div className="flex flex-row items-center gap-2 mt-3">
-                        <Image
-                          src={'/assets/customsIcon.svg'}
-                          alt="*"
-                          height={16}
-                          width={16}
-                        />
-                        <button
-                          onClick={() => {
-                            setShowCustomVariables(!showCustomVariables)
-                          }}
-                          className="outline-none flex flex-row items-center gap-1"
-                        >
-                          <div style={styles.heading2}>
-                            Custom fields
+                          <div className="flex flex-row items-center gap-2 mt-3">
+                            <Image
+                              src={'/assets/customsIcon.svg'}
+                              alt="*"
+                              height={16}
+                              width={16}
+                            />
+                            <button
+                              onClick={() => {
+                                setShowCustomVariables(!showCustomVariables)
+                              }}
+                              className="outline-none flex flex-row items-center gap-1"
+                            >
+                              <div style={styles.heading2}>
+                                Custom fields
+                              </div>
+                              <div className="text-sm font-semibold text-gray-600">+{extraCount}</div>
+                              {showCustomVariables ? (
+                                <CaretUp
+                                  size={16}
+                                  weight="bold"
+                                  color="#000000"
+                                />
+                              ) : (
+                                <CaretDown
+                                  size={16}
+                                  weight="bold"
+                                  color="#000000"
+                                />
+                              )}
+                            </button>
                           </div>
-                          <div className="text-sm font-semibold text-gray-600">+{extraCount}</div>
-                          {showCustomVariables ? (
-                            <CaretUp
-                              size={16}
-                              weight="bold"
-                              color="#000000"
-                            />
-                          ) : (
-                            <CaretDown
-                              size={16}
-                              weight="bold"
-                              color="#000000"
-                            />
-                          )}
-                        </button>
-                      </div>
                         )
                         : null
                     })()}
@@ -1896,87 +1900,87 @@ const LeadDetails = ({
                             column?.title,
                           ),
                       ) && (
-                        <div className="flex flex-col mt-2 rounded-xl p-2 w-full max-w-full overflow-hidden">
-                          <div className="flex w-full ">
-                            {showCustomVariables && (
-                              <div className="flex flex-col mt-4 gap-1 w-full max-w-full overflow-hidden">
-                                {leadColumns.map((column, index) => {
-                                  if (
-                                    [
-                                      'Name',
-                                      'Phone',
-                                      'address',
-                                      'More',
-                                      0,
-                                      'Stage',
-                                      'status',
-                                    ].includes(column?.title)
-                                  ) {
-                                    return null
-                                  }
-                                  return (
-                                    <div
-                                      key={index}
-                                      className="flex flex-row items-start gap-1 justify-between w-full flex-wrap"
-                                    >
-                                      <div className="flex flex-row items-center gap-4">
-                                        <div style={styles.subHeading}>
-                                          {capitalize(column?.title || '')}
+                          <div className="flex flex-col mt-2 rounded-xl p-2 w-full max-w-full overflow-hidden">
+                            <div className="flex w-full ">
+                              {showCustomVariables && (
+                                <div className="flex flex-col mt-4 gap-1 w-full max-w-full overflow-hidden">
+                                  {leadColumns.map((column, index) => {
+                                    if (
+                                      [
+                                        'Name',
+                                        'Phone',
+                                        'address',
+                                        'More',
+                                        0,
+                                        'Stage',
+                                        'status',
+                                      ].includes(column?.title)
+                                    ) {
+                                      return null
+                                    }
+                                    return (
+                                      <div
+                                        key={index}
+                                        className="flex flex-row items-start gap-1 justify-between w-full flex-wrap"
+                                      >
+                                        <div className="flex flex-row items-center gap-4">
+                                          <div style={styles.subHeading}>
+                                            {capitalize(column?.title || '')}
+                                          </div>
                                         </div>
-                                      </div>
-                                      <div className="flex flex-row whitespace-normal break-words overflow-hidden items-end flex-wrap">
-                                        <div className="flex flex-col items-end flex-grow w-full">
-                                          {getDetailsColumnData(
+                                        <div className="flex flex-row whitespace-normal break-words overflow-hidden items-end flex-wrap">
+                                          <div className="flex flex-col items-end flex-grow w-full">
+                                            {getDetailsColumnData(
+                                              column,
+                                              selectedLeadsDetails,
+                                            )}
+                                          </div>
+                                          {ShowReadMoreButton(
                                             column,
                                             selectedLeadsDetails,
-                                          )}
-                                        </div>
-                                        {ShowReadMoreButton(
-                                          column,
-                                          selectedLeadsDetails,
-                                        ) && (
-                                            <div className="flex items-end justify-end min-w-[120px]">
-                                              <button
-                                                style={{
-                                                  fontWeight: '600',
-                                                  fontSize: 15,
-                                                }}
-                                                onClick={() => {
-                                                  setExpandedCustomFields(
-                                                    (prevFields) =>
-                                                      prevFields.includes(
-                                                        column?.title,
-                                                      )
-                                                        ? prevFields.filter(
-                                                          (field) =>
-                                                            field !==
-                                                            column?.title,
-                                                        )
-                                                        : [
-                                                          ...prevFields,
+                                          ) && (
+                                              <div className="flex items-end justify-end min-w-[120px]">
+                                                <button
+                                                  style={{
+                                                    fontWeight: '600',
+                                                    fontSize: 15,
+                                                  }}
+                                                  onClick={() => {
+                                                    setExpandedCustomFields(
+                                                      (prevFields) =>
+                                                        prevFields.includes(
                                                           column?.title,
-                                                        ],
+                                                        )
+                                                          ? prevFields.filter(
+                                                            (field) =>
+                                                              field !==
+                                                              column?.title,
+                                                          )
+                                                          : [
+                                                            ...prevFields,
+                                                            column?.title,
+                                                          ],
+                                                    )
+                                                  }}
+                                                  className="text-black underline w-[120px]"
+                                                >
+                                                  {expandedCustomFields.includes(
+                                                    column?.title,
                                                   )
-                                                }}
-                                                className="text-black underline w-[120px]"
-                                              >
-                                                {expandedCustomFields.includes(
-                                                  column?.title,
-                                                )
-                                                  ? 'Read Less'
-                                                  : 'Read More'}
-                                              </button>
-                                            </div>
-                                          )}
+                                                    ? 'Read Less'
+                                                    : 'Read More'}
+                                                </button>
+                                              </div>
+                                            )}
+                                        </div>
                                       </div>
-                                    </div>
-                                  )
-                                })}
-                              </div>
-                            )}
+                                    )
+                                  })}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      )}
+                        )}
                     </div>
 
                     <AuthSelectionPopup
@@ -2262,7 +2266,7 @@ const LeadDetails = ({
                     </Popover>
 
                     {/* Code for custom variables */}
-                  </div>
+                  {/* </div> */}
 
                   <div
                     className="w-full flex flex-row items-center justify-between mt-2"
@@ -2451,14 +2455,14 @@ const LeadDetails = ({
                   <div style={{ paddingInline: 0 }}>
                     {showPerplexityDetails && (
                       <InsightsTabCN
-                          selectedLeadsDetails={selectedLeadsDetails}
-                      showConfirmPerplexity={showConfirmPerplexity}
-                      setshowConfirmPerplexity={setshowConfirmPerplexity}
+                        selectedLeadsDetails={selectedLeadsDetails}
+                        showConfirmPerplexity={showConfirmPerplexity}
+                        setshowConfirmPerplexity={setshowConfirmPerplexity}
                         userLocalData={userLocalData}
-                      handleEnrichLead={handleEnrichLead}
-                      loading={loading}
-                      creditCost={creditCost}
-                    />
+                        handleEnrichLead={handleEnrichLead}
+                        loading={loading}
+                        creditCost={creditCost}
+                      />
                     )}
 
                     {showKYCDetails && (
@@ -2495,8 +2499,8 @@ const LeadDetails = ({
                         callTranscript={callTranscript}
                         emailSmsTranscript={emailSmsTranscript}
                       />
-                                                      )}
-                                                    </div>
+                    )}
+                  </div>
                   <div
                     style={{
                       position: 'absolute',
