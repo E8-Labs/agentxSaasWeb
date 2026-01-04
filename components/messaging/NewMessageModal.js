@@ -1237,27 +1237,33 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
 
                   <div className="space-y-2">
                     {/* Subject Field */}
-                    <div className="flex items-center gap-2">
-                      <div className="flex-1 relative">
-                        <div className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary bg-white">
-                          <span className="text-sm text-gray-500 flex-shrink-0">Subject:</span>
-                          <input
-                            type="text"
-                            value={emailSubject}
-                            onChange={(e) => setEmailSubject(e.target.value)}
-                            placeholder="Enter subject"
-                            className="flex-1 outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
-                            style={{
-                              height: '100%',
-                              lineHeight: '42px',
-                              padding: 0,
-                            }}
-                          />
-                        </div>
+                    <div 
+                      className="flex items-center border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary bg-white transition-colors overflow-hidden group/subject-field"
+                      id="subject-field-group"
+                    >
+                      {/* Subject Input Section */}
+                      <div className="flex-1 flex items-center gap-2 px-3 h-[42px]">
+                        <span className="text-sm text-gray-500 flex-shrink-0">Subject:</span>
+                        <input
+                          type="text"
+                          value={emailSubject}
+                          onChange={(e) => setEmailSubject(e.target.value)}
+                          placeholder="Enter subject"
+                          className="flex-1 outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                          style={{
+                            height: '100%',
+                            lineHeight: '42px',
+                            padding: 0,
+                          }}
+                        />
                       </div>
+                      {/* Divider */}
+                      {uniqueColumns && uniqueColumns.length > 0 && (
+                        <div className="w-[2px] h-[42px] bg-gray-200 group-focus-within/subject-field:bg-brand-primary has-focus:bg-brand-primary transition-colors flex-shrink-0"></div>
+                      )}
                       {/* Variables dropdown for subject */}
                       {uniqueColumns && uniqueColumns.length > 0 && (
-                        <FormControl size="small" sx={{ minWidth: 150 }}>
+                        <FormControl size="small" sx={{ minWidth: 150, height: '42px' }}>
                           <Select
                             value={selectedSubjectVariable}
                             onChange={(e) => {
@@ -1274,16 +1280,22 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                             sx={{
                               fontSize: '0.875rem',
                               height: '42px',
-                              borderRadius: '8px',
+                              borderRadius: '0',
+                              border: 'none',
                               '& .MuiOutlinedInput-notchedOutline': {
-                                borderColor: '#d1d5db',
-                                borderWidth: '0.5px',
+                                border: 'none',
                               },
                               '&:hover .MuiOutlinedInput-notchedOutline': {
-                                borderColor: 'hsl(var(--brand-primary))',
+                                border: 'none',
                               },
                               '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                borderColor: 'hsl(var(--brand-primary))',
+                                border: 'none',
+                              },
+                              '& .MuiSelect-select': {
+                                padding: '8px 12px',
+                                height: '42px',
+                                display: 'flex',
+                                alignItems: 'center',
                               },
                             }}
                           >
@@ -1310,18 +1322,25 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
 
               {/* Message Body */}
               <div>
-                <div className="flex items-center justify-between mb-2">
+                <div className="mb-2">
                   <label className="text-sm font-medium block">Message:</label>
-                  {/* Attachment button - moved from footer to main content area */}
-                  {selectedMode === 'email' && (
-                    <div className="flex items-center gap-2">
+                </div>
+                {selectedMode === 'email' ? (
+                  <RichTextEditor
+                    ref={richTextEditorRef}
+                    value={emailMessageBody}
+                    onChange={setEmailMessageBody}
+                    placeholder="Type your message..."
+                    availableVariables={[]}
+                    toolbarPosition="bottom"
+                    attachmentButton={
                       <label className="cursor-pointer">
                         <button
                           type="button"
-                          className="p-2 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200 flex items-center justify-center"
+                          className="p-1.5 hover:bg-gray-100 rounded transition-colors flex items-center justify-center"
                           onClick={() => document.getElementById('new-message-attachment-input')?.click()}
                         >
-                          <Paperclip size={20} className="text-gray-600 hover:text-brand-primary" />
+                          <Paperclip size={18} className="text-gray-600 hover:text-brand-primary" />
                         </button>
                         <input
                           id="new-message-attachment-input"
@@ -1332,24 +1351,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                           onChange={handleFileChange}
                         />
                       </label>
-
-                      {/* Show attachment count if any */}
-                      {attachments && attachments.length > 0 && (
-                        <span className="text-sm text-gray-600">
-                          {attachments.length} file{attachments.length > 1 ? 's' : ''}
-                        </span>
-                      )}
-                    </div>
-                  )}
-                </div>
-                {selectedMode === 'email' ? (
-                  <RichTextEditor
-                    ref={richTextEditorRef}
-                    value={emailMessageBody}
-                    onChange={setEmailMessageBody}
-                    placeholder="Type your message..."
-                    availableVariables={[]}
-                    toolbarPosition="bottom"
+                    }
                     customToolbarElement={
                       uniqueColumns && uniqueColumns.length > 0 ? (
                         <FormControl size="small" sx={{ minWidth: 150 }}>
@@ -1367,16 +1369,15 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                               fontSize: '0.875rem',
                               height: '42px',
                               borderRadius: '8px',
-                              backgroundColor: 'white',
                               '& .MuiOutlinedInput-notchedOutline': {
-                                borderColor: '#d1d5db',
-                                borderWidth: '0.5px',
+                                borderColor: 'transparent',
+                                borderWidth: '0',
                               },
                               '&:hover .MuiOutlinedInput-notchedOutline': {
-                                borderColor: 'hsl(var(--brand-primary))',
+                                borderColor: 'transparent',
                               },
                               '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                borderColor: 'hsl(var(--brand-primary))',
+                                borderColor: 'transparent',
                               },
                             }}
                           >

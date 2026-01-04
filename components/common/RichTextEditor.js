@@ -24,12 +24,14 @@ const RichTextEditor = forwardRef(
       availableVariables = [],
       toolbarPosition = 'top',
       customToolbarElement = null, // Custom element to render on the right side of toolbar
+      attachmentButton = null, // Attachment button to render right after toolbar buttons
       editorHeight = null, // Optional prop to set custom editor height
     },
     ref,
   ) => {
     const quillRef = useRef(null)
     const lastHtmlRef = useRef(value || '')
+    const attachmentButtonRef = useRef(null)
     const [showLinkModal, setShowLinkModal] = useState(false)
     const [linkUrl, setLinkUrl] = useState('')
     const [linkRange, setLinkRange] = useState(null)
@@ -181,6 +183,7 @@ const RichTextEditor = forwardRef(
       }
     }
 
+
     // Expose insertVariable via ref
     useImperativeHandle(ref, () => ({
       insertVariable,
@@ -204,6 +207,12 @@ const RichTextEditor = forwardRef(
             formats={formats}
             placeholder={placeholder}
           />
+          {/* Attachment button right after toolbar buttons */}
+          {attachmentButton && (
+            <div ref={attachmentButtonRef} className="attachment-toolbar-button">
+              {attachmentButton}
+            </div>
+          )}
           {/* Custom toolbar element on the right side */}
           {customToolbarElement && (
             <div className="custom-toolbar-element">
@@ -280,7 +289,7 @@ const RichTextEditor = forwardRef(
           }
 
           .quill-editor-wrapper .ql-toolbar {
-            background: #f9fafb;
+            background: #ffffff;
             border: none !important;
             border-top: none !important;
             border-bottom: none !important;
@@ -289,6 +298,23 @@ const RichTextEditor = forwardRef(
 
           .quill-editor-wrapper {
             position: relative;
+          }
+
+          .quill-editor-wrapper .attachment-toolbar-button {
+            position: absolute;
+            z-index: 10;
+            display: inline-flex;
+            align-items: center;
+            height: 42px;
+            right: 170px;
+          }
+
+          .quill-editor-wrapper.toolbar-top .attachment-toolbar-button {
+            top: 0;
+          }
+
+          .quill-editor-wrapper.toolbar-bottom .attachment-toolbar-button {
+            bottom: 0;
           }
 
           .quill-editor-wrapper .custom-toolbar-element {
