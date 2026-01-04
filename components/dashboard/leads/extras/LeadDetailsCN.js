@@ -30,9 +30,20 @@ import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 
 import DropdownCn from './DropdownCn'
+import NotesTabCN from './NotesTabCN'
+import KYCTabCN from './KYCTabCN'
+import ActivityTabCN from './ActivityTabCN'
+import InsightsTabCN from './InsightsTabCN'
+import CustomFieldsCN from './CustomFieldsCN'
+import {
+  TypographyTitle,
+  TypographyBody,
+  TypographyCaption,
+  TypographyBodyMedium,
+} from '@/lib/typography'
 import {
   Select,
   SelectContent,
@@ -64,18 +75,18 @@ const sampleLead = {
 }
 
 export const InfoRow = ({ icon, children }) => (
-  <div className="flex items-center gap-2 text-sm text-foreground">
+  <div className="flex items-center gap-2">
     <span className="text-muted-foreground">{icon}</span>
-    <div className="leading-6">{children}</div>
+    <TypographyBodyMedium>{children}</TypographyBodyMedium>
   </div>
 )
 
 export const TagPill = ({ label }) => (
   <Badge
     variant="outline"
-    className="rounded-full border-muted text-sm font-medium px-3 py-1 bg-muted/40 text-foreground"
+    className="rounded-full border-muted px-3 py-1 bg-muted/40"
   >
-    {label}
+    <TypographyCaption className="font-medium">{label}</TypographyCaption>
   </Badge>
 )
 
@@ -120,7 +131,7 @@ const CopyIcon = () => (
 )
 
 const leadTabs = [
-  { id: 'perplexity', label: 'Perplexity', icon: <Zap className="h-5 w-5" /> },
+  { id: 'insights', label: 'Insights', icon: <Zap className="h-5 w-5" /> },
   { id: 'kyc', label: 'KYC', icon: <IdCard className="h-5 w-5" /> },
   { id: 'activity', label: 'Activity', icon: <History className="h-5 w-5" /> },
   { id: 'notes', label: 'Notes', icon: <FileText className="h-5 w-5" /> },
@@ -145,14 +156,16 @@ const LeadDetailsCN = ({ showDetailsModal, setShowDetailsModal, leadData }) => {
       <SheetContent side="right" className="p-0 sm:max-w-xl">
         <div className="flex h-full flex-col">
           <div className="flex items-center justify-between border-b px-6 py-4">
-            <h2 className="text-lg font-semibold">More Info</h2>
-            <button
-              className="h-9 w-9 rounded-full hover:bg-muted"
+            <TypographyTitle className="font-semibold">More Info</TypographyTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 rounded-full"
               onClick={() => setShowDetailsModal?.(false)}
               aria-label="Close"
             >
-              <X className="mx-auto h-5 w-5" />
-            </button>
+              <X className="h-5 w-5" />
+            </Button>
           </div>
 
           <ScrollArea className="flex-1">
@@ -167,9 +180,9 @@ const LeadDetailsCN = ({ showDetailsModal, setShowDetailsModal, leadData }) => {
                     )}
                   </Avatar>
                   <div className="flex min-w-0 flex-1 items-center gap-3">
-                    <p className="truncate text-lg font-semibold leading-none text-foreground">
+                    <TypographyTitle className="truncate font-semibold">
                       {lead.name}
-                    </p>
+                    </TypographyTitle>
                     <DropdownCn
                       label="Send"
                       options={[
@@ -181,7 +194,7 @@ const LeadDetailsCN = ({ showDetailsModal, setShowDetailsModal, leadData }) => {
                   </div>
                 </div>
 
-                <div className="flex flex-col items-end gap-2">
+                <div className="relative flex flex-col items-end gap-2">
                   <DropdownCn
                     label="Payment"
                     icon={WalletCards}
@@ -191,24 +204,26 @@ const LeadDetailsCN = ({ showDetailsModal, setShowDetailsModal, leadData }) => {
                       { label: 'History', value: 'history', icon: History },
                     ]}
                   />
-                  <DropdownCn
-                    label={lead.stage || 'Stage'}
-                    align="end"
-                    options={
-                      leadData?.stagesList?.length
-                        ? leadData.stagesList.map((s) => ({
-                            label: s.stageTitle,
-                            value: s.stageTitle,
-                            onSelect: () => leadData?.updateLeadStage?.(s),
-                          }))
-                        : [
-                            { label: 'Booked', value: 'Booked' },
-                            { label: 'Hot Lead', value: 'Hot Lead' },
-                            { label: 'No Stage', value: 'No Stage' },
-                          ]
-                    }
-                    onSelect={(opt) => leadData?.setSelectedStage?.(opt.value)}
-                  />
+                  <div className="relative">
+                    <DropdownCn
+                      label={lead.stage || 'Stage'}
+                      align="end"
+                      options={
+                        leadData?.stagesList?.length
+                          ? leadData.stagesList.map((s) => ({
+                              label: s.stageTitle,
+                              value: s.stageTitle,
+                              onSelect: () => leadData?.updateLeadStage?.(s),
+                            }))
+                          : [
+                              { label: 'Booked', value: 'Booked' },
+                              { label: 'Hot Lead', value: 'Hot Lead' },
+                              { label: 'No Stage', value: 'No Stage' },
+                            ]
+                      }
+                      onSelect={(opt) => leadData?.setSelectedStage?.(opt.value)}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -244,41 +259,72 @@ const LeadDetailsCN = ({ showDetailsModal, setShowDetailsModal, leadData }) => {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <WorkflowIcon />
-                    <span className="text-sm font-medium text-foreground">Custom fields</span>
-                    <ChevronIcon className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <Button variant="link" className="h-auto p-0 text-indigo-primary">
-                    +{lead.customFieldsCount}
-                  </Button>
-                </div>
+                <CustomFieldsCN
+                  leadColumns={leadData?.leadColumns || []}
+                  selectedLeadsDetails={leadData?.selectedLeadsDetails}
+                  showCustomVariables={leadData?.showCustomVariables || false}
+                  onToggleCustomVariables={leadData?.onToggleCustomVariables}
+                  expandedCustomFields={leadData?.expandedCustomFields || []}
+                  onToggleExpandField={leadData?.onToggleExpandField}
+                  columnsLength={leadData?.columnsLength || []}
+                />
               </div>
 
-              <div>
-                <Tabs defaultValue="activity">
-                  <TabsList className="grid w-full grid-cols-4 rounded-none border-b bg-transparent">
-                    {leadTabs.map((tab) => (
-                      <TabsTrigger
-                        key={tab.id}
-                        value={tab.id}
-                        className="flex flex-col items-center gap-2 rounded-none border-b-2 border-transparent px-3 py-3 data-[state=active]:border-indigo-primary data-[state=active]:text-indigo-primary"
-                      >
-                        {tab.icon}
-                        <span className="text-sm font-medium">{tab.label}</span>
-                      </TabsTrigger>
-                    ))}
-                  </TabsList>
-                </Tabs>
-              </div>
+              <div className="mt-6">
+                <Tabs defaultValue="insights" className="w-full">
+                <TabsList className="grid w-full grid-cols-4 rounded-none border-b bg-transparent">
+                  {leadTabs.map((tab) => (
+                    <TabsTrigger
+                      key={tab.id}
+                      value={tab.id}
+                      className="flex flex-col items-center gap-2 rounded-none border-b-2 border-transparent px-3 py-3 data-[state=active]:border-brand-primary data-[state=active]:text-brand-primary"
+                    >
+                      {tab.icon}
+                      <TypographyCaption className="font-medium">{tab.label}</TypographyCaption>
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
 
-              <Separator />
+                <TabsContent value="insights">
+                  <InsightsTabCN
+                    selectedLeadsDetails={leadData?.selectedLeadsDetails}
+                    showConfirmPerplexity={leadData?.showConfirmPerplexity}
+                    setshowConfirmPerplexity={leadData?.setshowConfirmPerplexity}
+                    userLocalData={leadData?.userLocalData}
+                    handleEnrichLead={leadData?.handleEnrichLead}
+                    loading={leadData?.loading}
+                    creditCost={leadData?.creditCost}
+                  />
+                </TabsContent>
 
-              <div className="space-y-3">
-                {lead.activities?.map((activity, idx) => (
-                  <ActivityCard key={idx} activity={activity} />
-                ))}
+                <TabsContent value="kyc">
+                  <KYCTabCN kycs={leadData?.selectedLeadsDetails?.kycs || []} />
+                </TabsContent>
+
+                <TabsContent value="activity">
+                  <ActivityTabCN
+                    callActivity={leadData?.selectedLeadsDetails?.callActivity || []}
+                    isExpandedActivity={leadData?.isExpandedActivity || []}
+                    onToggleExpand={leadData?.onToggleExpand}
+                    onCopyCallId={leadData?.onCopyCallId}
+                    onReadTranscript={leadData?.onReadTranscript}
+                    onPlayRecording={leadData?.onPlayRecording}
+                    getCommunicationTypeIcon={leadData?.getCommunicationTypeIcon}
+                    getOutcome={leadData?.getOutcome}
+                    showColor={leadData?.showColor}
+                    callTranscript={leadData?.callTranscript}
+                    emailSmsTranscript={leadData?.emailSmsTranscript}
+                  />
+                </TabsContent>
+
+                <TabsContent value="notes">
+                  <NotesTabCN
+                    noteDetails={leadData?.noteDetails || []}
+                    selectedLeadsDetails={leadData?.selectedLeadsDetails}
+                    onNotesUpdated={leadData?.onNotesUpdated}
+                  />
+                </TabsContent>
+              </Tabs>
               </div>
             </div>
           </ScrollArea>

@@ -25,7 +25,7 @@ const MultiSelectDropdownCn = ({ label = 'Assign', options = [], onToggle }) => 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center rounded-full border border-muted/70 bg-white px-4 py-2 text-base font-semibold shadow-sm focus:outline-none">
+        <button className="flex items-center rounded-xl border border-muted/70 bg-white px-4 py-2 text-base font-semibold shadow-sm focus:outline-none">
           <Users className="mr-2 h-4 w-4" />
           <span>{label}</span>
           {selectedCount ? (
@@ -39,9 +39,9 @@ const MultiSelectDropdownCn = ({ label = 'Assign', options = [], onToggle }) => 
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="z-[2000] w-60 border border-muted/70 bg-white text-foreground shadow-lg"
+        className="z-[2000] w-64 border border-muted/70 bg-white text-foreground shadow-lg px-1"
       >
-        <DropdownMenuLabel className="text-sm font-semibold text-muted-foreground">
+        <DropdownMenuLabel className="px-2 text-sm font-semibold text-muted-foreground">
           Assign team members
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -50,7 +50,7 @@ const MultiSelectDropdownCn = ({ label = 'Assign', options = [], onToggle }) => 
             <DropdownMenuCheckboxItem
               key={opt.id || opt.value || opt.label}
               checked={!!opt.selected}
-              className="gap-2"
+              className="gap-2 px-2 justify-start"
               onCheckedChange={(checked) => onToggle?.(opt, checked)}
             >
               {opt.avatar ? (

@@ -18,7 +18,6 @@ import {
   Popover,
   Select,
   Snackbar,
-  TextareaAutosize,
   Tooltip,
 } from '@mui/material'
 import {
@@ -51,9 +50,6 @@ import {
   Users,
   FileText,
   MessageSquare,
-  Pencil,
-  Trash2,
-  MoreVertical,
   Copy,
   Meh,
   ListChecks,
@@ -105,16 +101,18 @@ import AgentSelectSnackMessage, {
 } from '../AgentSelectSnackMessage'
 import LeadTeamsAssignedList from '../LeadTeamsAssignedList'
 import SelectStageDropdown from '../StageSelectDropdown'
-import ConfirmPerplexityModal from './CofirmPerplexityModal'
 import DeleteCallLogConfimation from './DeleteCallLogConfimation'
-import NoPerplexity from './NoPerplexity'
-import Perplexity from './Perplexity'
 import { useDispatch } from 'react-redux'
 import { openDialer } from '@/store/slices/dialerSlice'
 import DropdownCn from './DropdownCn'
 import MultiSelectDropdownCn from './MultiSelectDropdownCn'
 import { InfoRow, TagPill } from './LeadDetailsCN'
+import TagManagerCn from './TagManagerCn'
 import { Button } from '@/components/ui/button'
+import NotesTabCN from './NotesTabCN'
+import KYCTabCN from './KYCTabCN'
+import ActivityTabCN from './ActivityTabCN'
+import InsightsTabCN from './InsightsTabCN'
 
 const LeadDetails = ({
   showDetailsModal,
@@ -144,16 +142,10 @@ const LeadDetails = ({
   const [showAllEmails, setShowAllEmails] = useState(false)
 
   //code for buttons of details popup
-  const [showKYCDetails, setShowKycDetails] = useState(false)
-  const [showNotesDetails, setShowNotesDetails] = useState(false)
-  const [showAcitivityDetails, setShowAcitivityDetails] = useState(false)
-  const [showPerplexityDetails, setShowPerpelexityDetails] = useState(true)
+  const [activeTab, setActiveTab] = useState('activity')
 
-  //code for add stage notes
-  const [showAddNotes, setShowAddNotes] = useState(false)
-  const [addNotesValue, setddNotesValue] = useState('')
+  //code for notes - noteDetails is still needed to pass to NotesTabCN
   const [noteDetails, setNoteDetails] = useState([])
-  const [addLeadNoteLoader, setAddLeadNoteLoader] = useState(false)
 
   //code for call activity transcript text
   const [isExpanded, setIsExpanded] = useState(null) // earlier it was empty array
@@ -231,15 +223,7 @@ const LeadDetails = ({
   const [seletedCallLog, setSelectedCallLog] = useState(null)
   const [delCallLoader, setdelCallLoader] = useState(false)
 
-  // Note edit/delete states
-  const [editingNote, setEditingNote] = useState(null)
-  const [editNoteValue, setEditNoteValue] = useState('')
-  const [editNoteLoader, setEditNoteLoader] = useState(false)
-  const [deleteNoteId, setDeleteNoteId] = useState(null)
-  const [deleteNoteLoader, setDeleteNoteLoader] = useState(false)
-  const [showDeleteNoteConfirm, setShowDeleteNoteConfirm] = useState(false)
-  const [noteMenuAnchor, setNoteMenuAnchor] = useState(null)
-  const [selectedNoteForMenu, setSelectedNoteForMenu] = useState(null)
+  // Note edit/delete states - REMOVED: Now handled by NotesTabCN component
 
   // Email functionality states
   const [showEmailModal, setShowEmailModal] = useState(false)
@@ -524,6 +508,16 @@ const LeadDetails = ({
     setSelectedStage(value)
   }
 
+  const showPerplexityDetails = activeTab === 'perplexity'
+  const showKYCDetails = activeTab === 'kyc'
+  const showAcitivityDetails = activeTab === 'activity'
+  const showNotesDetails = activeTab === 'notes'
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab)
+    setShowCustomVariables(false)
+  }
+
   //function to update stage
   const updateLeadStage = async (stage) => {
     try {
@@ -641,6 +635,31 @@ const LeadDetails = ({
     }
   }
 
+  // Handler to refresh notes after add/edit/delete
+  const handleNotesUpdated = async () => {
+    if (!selectedLead) return
+    try {
+      let AuthToken = null
+      const localDetails = localStorage.getItem('User')
+      if (localDetails) {
+        const Data = JSON.parse(localDetails)
+        AuthToken = Data.token
+      }
+      const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedLead}`
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response && response.data) {
+        setNoteDetails(response.data?.data?.notes || [])
+      }
+    } catch (error) {
+      console.error('Error refreshing notes:', error)
+    }
+  }
+
   //function to get the stages list using pipelineId
   const getStagesList = async () => {
     try {
@@ -686,150 +705,7 @@ const LeadDetails = ({
     }
   }
 
-  // Function to handle editing a note
-  const handleEditNote = async () => {
-    try {
-      if (!editingNote || !editNoteValue.trim()) {
-        showSnackbar('Note content cannot be empty', SnackbarTypes.Error)
-        return
-      }
-
-      setEditNoteLoader(true)
-      const localData = localStorage.getItem('User')
-      let AuthToken = null
-      if (localData) {
-        const UserDetails = JSON.parse(localData)
-        AuthToken = UserDetails.token
-      }
-
-      const response = await fetch(
-        `/api/leads/${selectedLeadsDetails.id}/notes/${editingNote.id}`,
-        {
-          method: 'PUT',
-          headers: {
-            Authorization: `Bearer ${AuthToken}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            note: editNoteValue,
-          }),
-        },
-      )
-
-      const data = await response.json()
-
-      if (data.status === true) {
-        // Update the note in the list
-        setNoteDetails((prevNotes) =>
-          prevNotes.map((note) =>
-            note.id === editingNote.id
-              ? { ...note, note: editNoteValue }
-              : note,
-          ),
-        )
-        setEditingNote(null)
-        setEditNoteValue('')
-        showSnackbar('Note updated successfully', SnackbarTypes.Success)
-      } else {
-        showSnackbar(data.message || 'Failed to update note', SnackbarTypes.Error)
-      }
-    } catch (error) {
-      console.error('Error updating note:', error)
-      showSnackbar('Failed to update note. Please try again.', SnackbarTypes.Error)
-    } finally {
-      setEditNoteLoader(false)
-    }
-  }
-
-  // Function to handle deleting a note
-  const handleDeleteNote = async () => {
-    try {
-      if (!deleteNoteId) return
-
-      setDeleteNoteLoader(true)
-      const localData = localStorage.getItem('User')
-      let AuthToken = null
-      if (localData) {
-        const UserDetails = JSON.parse(localData)
-        AuthToken = UserDetails.token
-      }
-
-      const response = await fetch(
-        `/api/leads/${selectedLeadsDetails.id}/notes/${deleteNoteId}`,
-        {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${AuthToken}`,
-            'Content-Type': 'application/json',
-          },
-        },
-      )
-
-      const data = await response.json()
-
-      if (data.status === true) {
-        // Remove the note from the list
-        setNoteDetails((prevNotes) =>
-          prevNotes.filter((note) => note.id !== deleteNoteId),
-        )
-        setDeleteNoteId(null)
-        setShowDeleteNoteConfirm(false)
-        showSnackbar('Note deleted successfully', SnackbarTypes.Success)
-      } else {
-        showSnackbar(data.message || 'Failed to delete note', SnackbarTypes.Error)
-      }
-    } catch (error) {
-      console.error('Error deleting note:', error)
-      showSnackbar('Failed to delete note. Please try again.', SnackbarTypes.Error)
-    } finally {
-      setDeleteNoteLoader(false)
-    }
-  }
-
-  //function to add lead notes
-  const handleAddLeadNotes = async () => {
-    try {
-      setAddLeadNoteLoader(true)
-      const localData = localStorage.getItem('User')
-      let AuthToken = null
-      if (localData) {
-        const UserDetails = JSON.parse(localData)
-        AuthToken = UserDetails.token
-      }
-
-      // //console.log;
-
-      const ApiData = {
-        note: addNotesValue,
-        leadId: selectedLeadsDetails.id,
-      }
-
-      // //console.log;
-
-      const ApiPath = Apis.addLeadNote
-      // return
-      const response = await axios.post(ApiPath, ApiData, {
-        headers: {
-          Authorization: 'Bearer ' + AuthToken,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (response) {
-        // //console.log;
-        // setNoteDetails()
-        if (response.data.status === true) {
-          setShowAddNotes(false)
-          setNoteDetails([response.data.data, ...noteDetails])
-          setddNotesValue('')
-        }
-      }
-    } catch (error) {
-      // console.error("Error occured in add lead note api is:", error);
-    } finally {
-      setAddLeadNoteLoader(false)
-    }
-  }
+  // Note handlers - REMOVED: Now handled by NotesTabCN component
 
   //function to format the phone number
   //function to format the number
@@ -2095,7 +1971,7 @@ const LeadDetails = ({
                             </div>
                           )}
                         </div>
-                        <div className="space-y-3 text-sm">
+                        <div className="space-y-2 text-sm mt-2">
                           {selectedLeadsDetails?.email && <InfoRow icon={<MailIcon className="h-4 w-4" />}>{selectedLeadsDetails?.email}</InfoRow>}
                           {selectedLeadsDetails?.phone && <InfoRow icon={<PhoneIcon className="h-4 w-4" />}>{selectedLeadsDetails?.phone}</InfoRow>}
                           {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>{selectedLeadsDetails?.address}</InfoRow>}
@@ -2108,94 +1984,51 @@ const LeadDetails = ({
                           {selectedLeadsDetails?.booking && <InfoRow icon={<CalendarIcon className="h-4 w-4" />}>{selectedLeadsDetails?.booking}</InfoRow>}
                           <div className="flex items-center gap-2">
                             <TagIcon className="h-4 w-4 text-muted-foreground" />
-                            {/* <div className="flex flex-wrap gap-2">
-                              {selectedLeadsDetails?.tags?.map((tag) => (
-                                <TagPill key={tag} label={tag} />
-                              ))}
-                            </div> */}
-                            {/* Tags + Input */}
-                            <div className="space-x-2 flex flex-row items-center gap-2">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                {(selectedLeadsDetails?.tags || []).slice(0, 3).map((tag) => (
-                                  
-                                  <TagPill key={tag} label={tag} />
-                                ))}
-                                {selectedLeadsDetails?.tags?.length > 3 && (
-                                  <span className="rounded-full bg-muted px-2 py-1 text-xs font-semibold text-foreground">
-                                    +{selectedLeadsDetails.tags.length - 3}
-                                  </span>
-                                )}
-                              </div>
-
-                              <div className="relative">
-                                <input
-                                  ref={tagInputRef}
-                                  type="text"
-                                  value={tagInputValue}
-                                  onChange={handleTagInputChange}
-                                  onKeyDown={handleTagInputKeyDown}
-                                  onFocus={() => {
-                                    if (tagInputValue.trim() && tagSuggestions.length > 0) {
-                                      setShowTagSuggestions(true)
-                                    }
-                                  }}
-                                  onBlur={() => {
-                                    setTimeout(() => {
-                                      setShowTagSuggestions(false)
-                                    }, 200)
-                                  }}
-                                  placeholder={
-                                    selectedLeadsDetails?.tags && selectedLeadsDetails.tags.length > 0
-                                      ? 'Add tag...'
-                                      : 'Add tags...'
-                                  }
-                                  className="w-40 rounded-full border border-muted bg-white px-3 py-2 text-sm focus:border-brand-primary focus:outline-none focus:ring-2 focus:ring-brand-primary/40"
-                                  disabled={addTagLoader}
-                                />
-
-                                {showTagSuggestions && tagSuggestions.length > 0 && (
-                                  <div className="absolute z-50 mt-1 w-full max-h-48 overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg">
-                                    {tagSuggestions.map((suggestion, index) => (
-                                      <button
-                                        key={index}
-                                        type="button"
-                                        onMouseDown={(e) => e.preventDefault()}
-                                        onClick={() => handleTagSuggestionClick(suggestion)}
-                                        className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100"
-                                      >
-                                        {suggestion}
-                                      </button>
-                                    ))}
-                                  </div>
-                                )}
-
-                                {addTagLoader && (
-                                  <div className="absolute right-2 top-2">
-                                    <CircularProgress size={20} />
-                                  </div>
-                                )}
-                              </div>
-                            </div>
+                            <TagManagerCn
+                              tags={selectedLeadsDetails?.tags || []}
+                              tagInputRef={tagInputRef}
+                              tagInputValue={tagInputValue}
+                              onInputChange={handleTagInputChange}
+                              onInputKeyDown={handleTagInputKeyDown}
+                              showSuggestions={showTagSuggestions}
+                              setShowSuggestions={setShowTagSuggestions}
+                              tagSuggestions={tagSuggestions}
+                              onSuggestionClick={handleTagSuggestionClick}
+                              addTagLoader={addTagLoader}
+                              onCounterClick={() => setExtraTagsModal(true)}
+                            />
                           </div>
                           <div className="flex items-center gap-2">
-                            <Avatar className="h-8 w-8">
+                            {/* <Avatar className="h-8 w-8">
                               {selectedLeadsDetails?.assignee?.avatar ? (
                                 <AvatarImage src={selectedLeadsDetails?.assignee.avatar} alt={selectedLeadsDetails?.assignee.name} />
                               ) : (
                                 <AvatarFallback>{selectedLeadsDetails?.assignee?.name?.[0] || 'A'}</AvatarFallback>
-                              )}
-                            </Avatar>
+                            )}
+                          </Avatar> */}
                             <MultiSelectDropdownCn
                               label="Assign"
-                              options={(selectedLeadsDetails?.teamsAssigned || []).map((tm) => ({
-                                id: tm.id || tm.invitedUserId,
-                                label: tm.name,
-                                avatar: tm.thumb_profile_image,
-                                selected: true,
-                              }))}
+                              options={[
+                                ...(myTeamAdmin ? [myTeamAdmin] : []),
+                                ...(myTeam || []),
+                              ].map((tm) => {
+                                const id = tm.id || tm.invitedUserId
+                                const isSelected = (selectedLeadsDetails?.teamsAssigned || []).some(
+                                  (assigned) =>
+                                    String(assigned.id || assigned.invitedUserId || assigned.invitedUser?.id) ===
+                                    String(id),
+                                )
+                                return {
+                                  id,
+                                  label: tm.name,
+                                  avatar: tm.thumb_profile_image,
+                                  selected: isSelected,
+                                  raw: tm,
+                                }
+                              })}
                               onToggle={(opt, checked) => {
                                 if (checked) {
-                                  handleAssignLeadToTeammember?.(opt.id)
+                                  handleAssignLeadToTeammember?.(opt.raw || opt)
                                 } else {
                                   handleUnassignLeadFromTeammember?.(opt.id)
                                 }
@@ -2262,7 +2095,7 @@ const LeadDetails = ({
                       </div>
                     </div>
 
-                    <div className="w-full mt-3">
+                    {/* <div className="w-full mt-3">
                       <div className="">
                         {globalLoader ? (
                           <CircularProgress size={25} />
@@ -2278,9 +2111,17 @@ const LeadDetails = ({
                           />
                         )}
                       </div>
-                    </div>
+                    </div> */}
 
-                    {getExtraColumsCount(columnsLength) >= 1 && (
+                    {(() => {
+                      const extraCount = (leadColumns || []).filter(
+                        (column) =>
+                          !['Name', 'Phone', 'address', 'More', 0, 'Stage', 'status'].includes(
+                            column?.title,
+                          ),
+                      ).length
+                      return extraCount > 0
+                        ? (
                       <div className="flex flex-row items-center gap-2 mt-3">
                         <Image
                           src={'/assets/customsIcon.svg'}
@@ -2297,6 +2138,7 @@ const LeadDetails = ({
                           <div style={styles.heading2}>
                             Custom fields
                           </div>
+                          <div className="text-sm font-semibold text-gray-600">+{extraCount}</div>
                           {showCustomVariables ? (
                             <CaretUp
                               size={16}
@@ -2312,10 +2154,17 @@ const LeadDetails = ({
                           )}
                         </button>
                       </div>
-                    )}
+                        )
+                        : null
+                    })()}
 
                     <div className="flex w-full">
-                      {getExtraColumsCount(columnsLength) >= 1 && (
+                      {(leadColumns || []).some(
+                        (column) =>
+                          !['Name', 'Phone', 'address', 'More', 0, 'Stage', 'status'].includes(
+                            column?.title,
+                          ),
+                      ) && (
                         <div className="flex flex-col mt-2 rounded-xl p-2 w-full max-w-full overflow-hidden">
                           <div className="flex w-full ">
                             {showCustomVariables && (
@@ -2701,13 +2550,7 @@ const LeadDetails = ({
                           ? 'hsl(var(--brand-primary) / 0.05)'
                           : '',
                       }}
-                      onClick={() => {
-                        setShowPerpelexityDetails(true)
-                        setShowKycDetails(false)
-                        setShowNotesDetails(false)
-                        setShowAcitivityDetails(false)
-                        setShowCustomVariables(false)
-                      }}
+                      onClick={() => handleTabChange('perplexity')}
                     >
                       <div
                         style={{
@@ -2749,13 +2592,7 @@ const LeadDetails = ({
                           : '',
                         backgroundColor: showKYCDetails ? 'hsl(var(--brand-primary) / 0.05)' : '',
                       }}
-                      onClick={() => {
-                        setShowPerpelexityDetails(false)
-                        setShowKycDetails(true)
-                        setShowNotesDetails(false)
-                        setShowAcitivityDetails(false)
-                        setShowCustomVariables(false)
-                      }}
+                      onClick={() => handleTabChange('kyc')}
                     >
                       <div
                         style={{
@@ -2799,13 +2636,7 @@ const LeadDetails = ({
                           ? 'hsl(var(--brand-primary) / 0.05)'
                           : '',
                       }}
-                      onClick={() => {
-                        setShowPerpelexityDetails(false)
-                        setShowKycDetails(false)
-                        setShowNotesDetails(false)
-                        setShowAcitivityDetails(true)
-                        setShowCustomVariables(false)
-                      }}
+                      onClick={() => handleTabChange('activity')}
                     >
                       <div
                         style={{
@@ -2847,13 +2678,7 @@ const LeadDetails = ({
                           : '',
                         backgroundColor: showNotesDetails ? 'hsl(var(--brand-primary) / 0.05)' : '',
                       }}
-                      onClick={() => {
-                        setShowPerpelexityDetails(false)
-                        setShowKycDetails(false)
-                        setShowNotesDetails(true)
-                        setShowAcitivityDetails(false)
-                        setShowCustomVariables(false)
-                      }}
+                      onClick={() => handleTabChange('notes')}
                     >
                       <div
                         style={{
@@ -2893,665 +2718,52 @@ const LeadDetails = ({
                   />
 
                   <div style={{ paddingInline: 0 }}>
-                    {showPerplexityDetails &&
-                      (selectedLeadsDetails &&
-                        selectedLeadsDetails.enrichData ? (
-                        <Perplexity
-                          selectedLeadsDetails={selectedLeadsDetails}
-                        />
-                      ) : (
-                        <NoPerplexity
-                          setshowConfirmPerplexity={setshowConfirmPerplexity}
-                          user={userLocalData}
-                          handleEnrichLead={handleEnrichLead}
-                          loading={loading}
-                          creditCost={creditCost}
-                        />
-                      ))}
-
-                    <ConfirmPerplexityModal
-                      showConfirmPerplexity={showConfirmPerplexity}
-                      setshowConfirmPerplexity={setshowConfirmPerplexity}
-                      selectedLeadsDetails={selectedLeadsDetails}
-                      handleEnrichLead={handleEnrichLead}
-                      loading={loading}
-                      creditCost={creditCost}
-                    />
+                    {showPerplexityDetails && (
+                      <InsightsTabCN
+                        selectedLeadsDetails={selectedLeadsDetails}
+                        showConfirmPerplexity={showConfirmPerplexity}
+                        setshowConfirmPerplexity={setshowConfirmPerplexity}
+                        userLocalData={userLocalData}
+                        handleEnrichLead={handleEnrichLead}
+                        loading={loading}
+                        creditCost={creditCost}
+                      />
+                    )}
 
                     {showKYCDetails && (
-                      <div>
-                        {selectedLeadsDetails?.kycs.length < 1 ? (
-                          <div
-                            className="flex flex-col items-center justify-center w-full mt-12"
-                            style={{ fontWeight: '500', fontsize: 15 }}
-                          >
-                            <div className="h-[51px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">
-                              <Image
-                                src={'/assets/FAQ.png'}
-                                height={24}
-                                width={24}
-                                alt="*"
-                              />
-                            </div>
-                            <div className="mt-4">
-                              <i style={{ fontWeight: '500', fontsize: 15 }}>
-                                KYC Data collected from calls will be shown
-                                here
-                              </i>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="w-full mt-4 pb-12">
-                            {selectedLeadsDetails?.kycs.map((item, index) => {
-                              return (
-                                <div
-                                  className="w-full flex flex-row gap-2 mt-2"
-                                  key={index}
-                                >
-                                  <div
-                                    className="h-full"
-                                    style={{
-                                      width: '2px',
-                                      backgroundColor: 'red',
-                                    }}
-                                  ></div>
-                                  <div className="h-full w-full">
-                                    {/* <div className='mt-4' style={{ fontWeight: "600", fontSize: 15 }}>
-                                            Outcome | <span style={{ fontWeight: "600", fontSize: 12 }} className='text-brand-primary'>
-                                                {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
-                                            </span>
-                                        </div> */}
-                                    <div
-                                      className="mt-4"
-                                      style={
-                                        {
-                                          // border: "1px solid #00000020", padding: 10, borderRadius: 15
-                                        }
-                                      }
-                                    >
-                                      <div
-                                        style={{
-                                          fontWeight: '500',
-                                          fontSize: 15,
-                                        }}
-                                      >
-                                        {item.question &&
-                                          typeof item.question === 'string'
-                                          ? item.question
-                                            .split('ylz8ibb4uykg29mogltl')
-                                            .join('')
-                                            .trim()
-                                          : ''}
-                                      </div>
-                                      <div
-                                        className="mt-1"
-                                        style={{
-                                          fontWeight: '500',
-                                          fontSize: 13,
-                                          color: '#00000060',
-                                        }}
-                                      >
-                                        {item.answer}
-                                      </div>
-                                    </div>
-                                    <div></div>
-                                  </div>
-                                </div>
-                              )
-                            })}
-                          </div>
-                        )}
-                      </div>
+                      <KYCTabCN kycs={selectedLeadsDetails?.kycs || []} />
                     )}
 
                     {/* Notes go here */}
                     {showNotesDetails && (
-                      <div>
-                        {noteDetails?.length < 1 ? (
-                          <div
-                            className="flex flex-col items-center justify-center w-full mt-12"
-                            style={{ fontWeight: '500', fontsize: 15 }}
-                          >
-                            <div className="h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">
-                              <Image
-                                src={'/assets/notes.png'}
-                                height={24}
-                                width={24}
-                                alt="*"
-                              />
-                            </div>
-                            <div className="mt-4">
-                              <i style={{ fontWeight: '500', fontsize: 15 }}>
-                                You can add and manage your notes here
-                              </i>
-                            </div>
-                            <button
-                              className="flex flex-row items-center gap-1 mt-2"
-                              onClick={() => {
-                                setShowAddNotes(true)
-                              }}
-                            >
-                              <Plus size={17} color="hsl(var(--brand-primary))" weight="bold" />
-                              <div className="text-brand-primary">Add Notes</div>
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="">
-                            <div
-                              className=""
-                              style={{ scrollbarWidth: 'none' }}
-                            >
-                              {noteDetails.map((item, index) => {
-                                return (
-                                  <div
-                                    key={index}
-                                    className="border rounded-xl p-4 mb-4 mt-4"
-                                    style={{ border: '1px solid #00000020' }}
-                                  >
-                                    <div className="flex flex-row items-center justify-between w-full">
-                                      <div
-                                        style={{
-                                          fontWeight: '500',
-                                          color: '#15151560',
-                                          fontsize: 12,
-                                        }}
-                                      >
-                                        {GetFormattedDateString(
-                                          item?.createdAt,
-                                          true, // Include time
-                                        )}
-                                      </div>
-                                      <div className="flex flex-row items-center gap-2">
-                                        {/* 3-dot menu - only show for manual notes */}
-                                        {item.type === 'manual' && (
-                                          <>
-                                            <button
-                                              onClick={(e) => {
-                                                setNoteMenuAnchor(e.currentTarget)
-                                                setSelectedNoteForMenu(item)
-                                              }}
-                                              className="p-1 hover:bg-gray-100 rounded"
-                                              style={{ cursor: 'pointer' }}
-                                            >
-                                              <MoreVertical size={16} color="#6b7280" />
-                                            </button>
-                                            <Menu
-                                              anchorEl={noteMenuAnchor}
-                                              open={Boolean(noteMenuAnchor)}
-                                              onClose={() => {
-                                                setNoteMenuAnchor(null)
-                                                setSelectedNoteForMenu(null)
-                                              }}
-                                              anchorOrigin={{
-                                                vertical: 'bottom',
-                                                horizontal: 'right',
-                                              }}
-                                              transformOrigin={{
-                                                vertical: 'top',
-                                                horizontal: 'right',
-                                              }}
-                                            >
-                                              <MenuItem
-                                                onClick={() => {
-                                                  if (selectedNoteForMenu) {
-                                                    setEditingNote(selectedNoteForMenu)
-                                                    setEditNoteValue(selectedNoteForMenu.note)
-                                                  }
-                                                  setNoteMenuAnchor(null)
-                                                  setSelectedNoteForMenu(null)
-                                                }}
-                                                sx={{
-                                                  display: 'flex',
-                                                  alignItems: 'center',
-                                                  gap: 1,
-                                                }}
-                                              >
-                                                <Pencil size={16} color="#6b7280" />
-                                                <span>Edit</span>
-                                              </MenuItem>
-                                              <MenuItem
-                                                onClick={() => {
-                                                  if (selectedNoteForMenu) {
-                                                    setDeleteNoteId(selectedNoteForMenu.id)
-                                                    setShowDeleteNoteConfirm(true)
-                                                  }
-                                                  setNoteMenuAnchor(null)
-                                                  setSelectedNoteForMenu(null)
-                                                }}
-                                                sx={{
-                                                  display: 'flex',
-                                                  alignItems: 'center',
-                                                  gap: 1,
-                                                  color: '#ef4444',
-                                                }}
-                                              >
-                                                <Trash2 size={16} color="#ef4444" />
-                                                <span>Delete</span>
-                                              </MenuItem>
-                                            </Menu>
-                                          </>
-                                        )}
-                                        {/* Call Summary Icons - COMMENTED OUT: Moved to Activity tab
-                                          {item.type === 'call_summary' && item.callSummary && (
-                                            <div className="flex flex-row items-center gap-2">
-                                            Sentiment Icon
-                                            {item.callSummary.prospectSentiment && (
-                                              <Tooltip
-                                                title={`Customer Sentiment: ${item.callSummary.prospectSentiment}`}
-                                                arrow
-                                                componentsProps={{
-                                                  tooltip: {
-                                                    sx: {
-                                                      backgroundColor: '#ffffff',
-                                                      color: '#333',
-                                                      fontSize: '14px',
-                                                      padding: '10px 15px',
-                                                      borderRadius: '8px',
-                                                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                                      maxWidth: '300px',
-                                                    },
-                                                  },
-                                                  arrow: {
-                                                    sx: {
-                                                      color: '#ffffff',
-                                                    },
-                                                  },
-                                                }}
-                                              >
-                                                <div
-                                                  style={{
-                                                    cursor: 'pointer',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                  }}
-                                                >
-                                                  <Smile size={16} color="#6b7280" />
-                                                </div>
-                                              </Tooltip>
-                                            )}
-                                            Objections Icon
-                                            {item.callSummary.objectionsRaised && (
-                                              <Tooltip
-                                                title={
-                                                  <div style={{ whiteSpace: 'pre-line' }}>
-                                                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>
-                                                      Objections:
-                                                    </div>
-                                                    {formatObjections(item.callSummary.objectionsRaised)}
-                                                  </div>
-                                                }
-                                                arrow
-                                                componentsProps={{
-                                                  tooltip: {
-                                                    sx: {
-                                                      backgroundColor: '#ffffff',
-                                                      color: '#333',
-                                                      fontSize: '14px',
-                                                      padding: '10px 15px',
-                                                      borderRadius: '8px',
-                                                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                                      maxWidth: '300px',
-                                                    },
-                                                  },
-                                                  arrow: {
-                                                    sx: {
-                                                      color: '#ffffff',
-                                                    },
-                                                  },
-                                                }}
-                                              >
-                                                <div
-                                                  style={{
-                                                    cursor: 'pointer',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                  }}
-                                                >
-                                                  <AlertTriangle size={16} color="#ef4444" />
-                                                </div>
-                                              </Tooltip>
-                                            )}
-                                            Temperature Icon
-                                            {item.callSummary.leadTemperature && (
-                                              <Tooltip
-                                                title={
-                                                  <div style={{ whiteSpace: 'pre-line' }}>
-                                                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>
-                                                      Temperature:
-                                                    </div>
-                                                    {item.callSummary.leadTemperature}
-                                                  </div>
-                                                }
-                                                arrow
-                                                componentsProps={{
-                                                  tooltip: {
-                                                    sx: {
-                                                      backgroundColor: '#ffffff',
-                                                      color: '#333',
-                                                      fontSize: '14px',
-                                                      padding: '10px 15px',
-                                                      borderRadius: '8px',
-                                                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                                      maxWidth: '300px',
-                                                    },
-                                                  },
-                                                  arrow: {
-                                                    sx: {
-                                                      color: '#ffffff',
-                                                    },
-                                                  },
-                                                }}
-                                              >
-                                                <div
-                                                  style={{
-                                                    cursor: 'pointer',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                  }}
-                                                >
-                                                  {getTemperatureIcon(item.callSummary.leadTemperature)}
-                                                </div>
-                                              </Tooltip>
-                                            )}
-                                            Next Steps Icon
-                                            {item.callSummary.nextSteps && (
-                                              <Tooltip
-                                                title={
-                                                  <div style={{ whiteSpace: 'pre-line' }}>
-                                                    <div style={{ fontWeight: '600', marginBottom: '4px' }}>
-                                                      Next Steps:
-                                                    </div>
-                                                    {formatNextSteps(item.callSummary.nextSteps)}
-                                                  </div>
-                                                }
-                                                arrow
-                                                componentsProps={{
-                                                  tooltip: {
-                                                    sx: {
-                                                      backgroundColor: '#ffffff',
-                                                      color: '#333',
-                                                      fontSize: '14px',
-                                                      padding: '10px 15px',
-                                                      borderRadius: '8px',
-                                                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                                                      maxWidth: '300px',
-                                                    },
-                                                  },
-                                                  arrow: {
-                                                    sx: {
-                                                      color: '#ffffff',
-                                                    },
-                                                  },
-                                                }}
-                                              >
-                                                <div
-                                                  style={{
-                                                    cursor: 'pointer',
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                  }}
-                                                >
-                                                  <CheckCircle2 size={16} color="#10b981" />
-                                                </div>
-                                              </Tooltip>
-                                            )}
-                                            </div>
-                                          )} */}
-                                      </div>
-                                    </div>
-                                    <div
-                                      className="mt-4"
-                                      style={{
-                                        fontWeight: '500',
-                                        color: '#151515',
-                                        fontsize: 15,
-                                      }}
-                                    >
-                                      {item.note}
-                                    </div>
-                                  </div>
-                                )
-                              })}
-                            </div>
-                            <div
-                              className="flex flex-col items-start justify-start w-full pb-6"
-                              style={{ fontWeight: '500', fontsize: 15 }}
-                            >
-                              <button
-                                className="flex flex-row items-center gap-1 mt-2"
-                                onClick={() => {
-                                  setShowAddNotes(true)
-                                }}
-                              >
-                                <Plus
-                                  size={17}
-                                  color="hsl(var(--brand-primary))"
-                                  weight="bold"
-                                />
-                                <div className="text-brand-primary">Add Notes</div>
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                      <NotesTabCN
+                        noteDetails={noteDetails}
+                        selectedLeadsDetails={selectedLeadsDetails}
+                        onNotesUpdated={handleNotesUpdated}
+                      />
                     )}
 
                     {/* Call activity goes here */}
-                    {showAcitivityDetails && (
-                      <div>
-                        {selectedLeadsDetails?.callActivity.length < 1 ? (
-                          <div
-                            className="flex flex-col items-center justify-center mt-12 w-full"
-                            style={{ fontWeight: '500', fontsize: 15 }}
-                          >
-                            <div className="h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">
-                              <Image
-                                src={'/assets/activityClock.png'}
-                                height={24}
-                                width={24}
-                                alt="*"
-                              />
-                            </div>
-                            <div className="mt-4">
-                              <i style={{ fontWeight: '500', fontsize: 15 }}>
-                                All activities related to this lead will be
-                                shown here
-                              </i>
-                            </div>
-                          </div>
-                        ) : (
-                          <div>
-                            {selectedLeadsDetails?.callActivity.map(
-                              (item, index) => {
-                                const initialTextLength = Math.ceil(
-                                  item?.transcript?.length * 0.1,
-                                ) // 40% of the text
-                                const initialText = item.transcript //?.slice(
-                                // 0,
-                                // initialTextLength
-                                // );
-                                return (
-                                  <div key={index}>
-                                    <div className="mt-4">
-                                      <div
-                                        className="-ms-4"
-                                        style={{
-                                          fontsize: 15,
-                                          fontWeight: '500',
-                                          color: '#15151560',
-                                        }}
-                                      >
-                                        {GetFormattedDateString(
-                                          item?.createdAt,
-                                          true,
-                                        )}
-                                      </div>
-                                      <div className="w-full flex flex-row items-center gap-2 h-full">
-                                        <div
-                                          className="pb-4 pt-6 ps-4 w-full"
-                                          style={{
-                                            borderLeft: '1px solid #00000020',
-                                          }}
-                                        >
-                                          <div className="h-full w-full">
-                                            <div className="flex flex-row items-center justify-between">
-                                              <div className="flex flex-row items-center gap-1">
-                                                <div
-                                                  style={{
-                                                    width: 15,
-                                                    height: 15,
-                                                    backgroundColor: '#000000',
-                                                    WebkitMaskImage: `url(${getCommunicationTypeIcon(item)})`,
-                                                    maskImage: `url(${getCommunicationTypeIcon(item)})`,
-                                                    WebkitMaskSize: 'contain',
-                                                    maskSize: 'contain',
-                                                    WebkitMaskRepeat: 'no-repeat',
-                                                    maskRepeat: 'no-repeat',
-                                                    WebkitMaskPosition: 'center',
-                                                    maskPosition: 'center',
-                                                  }}
-                                                />
-                                                <div
-                                                  style={{
-                                                    fontWeight: '600',
-                                                    fontsize: 15,
-                                                  }}
-                                                >
-                                                  Outcome
-                                                </div>
-                                                {/* <div className='text-purple' style={{ fontWeight: "600", fontsize: 12 }}>
-                                                                                                        {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
-                                                                                                    </div> */}
-                                              </div>
-                                              <button
-                                                className="
-                                                  text-end flex flex-row items-center gap-1 px-2 py-2 rounded-full
-                                                  "
-                                                style={{
-                                                  backgroundColor: '#ececec',
-                                                }}
-                                                onClick={() => {
-                                                  handleShowMoreActivityData(
-                                                    item,
-                                                  )
-                                                }}
-                                              >
-                                                <div
-                                                  className="h-[10px] w-[10px] rounded-full"
-                                                  style={{
-                                                    backgroundColor:
-                                                      showColor(item),
-                                                  }}
-                                                ></div>
-
-                                                {getOutcome(item)}
-                                                {/* {checkCallStatus(item)} */}
-
-                                                {item.callOutcome !==
-                                                  'No Answer' && (
-                                                    <div>
-                                                      {isExpandedActivity.includes(
-                                                        item.id,
-                                                      ) ? (
-                                                        <div>
-                                                          <CaretUp
-                                                            size={17}
-                                                            weight="bold"
-                                                          />
-                                                        </div>
-                                                      ) : (
-                                                        <div>
-                                                          <CaretDown
-                                                            size={17}
-                                                            weight="bold"
-                                                          />
-                                                        </div>
-                                                      )}
-                                                    </div>
-                                                  )}
-                                              </button>
-                                            </div>
-                                            {isExpandedActivity.includes(
-                                              item.id,
-                                            ) &&
-                                              (item.status === 'voicemail' ||
-                                                item.callOutcome ===
-                                                'Voicemail' ? (
-                                                <div className="border rounded mt-2 w-full p-4">
-                                                  <button
-                                                    onClick={() =>
-                                                      handleCopy(item.callId)
-                                                    }
-                                                  >
-                                                    <Image
-                                                      src={
-                                                        '/svgIcons/copy.svg'
-                                                      }
-                                                      height={15}
-                                                      width={15}
-                                                      alt="*"
-                                                    />
-                                                  </button>
-                                                  {item.agent.hasVoicemail ? (
-                                                    <NoVoicemailView
-                                                      showAddBtn={false}
-                                                      title={
-                                                        'Voicemail Delivered'
-                                                      }
-                                                      subTitle={
-                                                        'Delivered during the first missed call'
-                                                      }
-                                                    />
-                                                  ) : (
-                                                    <NoVoicemailView
-                                                      showAddBtn={false}
-                                                      title={
-                                                        'Not able to Leave a Voicemail'
-                                                      }
-                                                      subTitle={
-                                                        'The phone was either a landline or has a full voicemail'
-                                                      }
-                                                    />
-                                                  )}
-                                                </div>
-                                              ) : (
-                                                <>
-                                                  <div
-                                                    className="mt-6"
-                                                    style={{
-                                                      border:
-                                                        '1px solid #00000020',
-                                                      borderRadius: '10px',
-                                                      padding: 10,
-                                                      paddingInline: 15,
-                                                    }}
-                                                  >
-                                                    {item.communicationType ===
-                                                      'sms' ||
-                                                      item.communicationType ==
-                                                      'email'
-                                                      ? emailSmsTranscript(
-                                                        item,
-                                                      )
-                                                      : callTranscript(
-                                                        item,
-                                                        initialText,
-                                                      )}
-
-                                                  </div>
-                                                </>
-                                              ))}
-                                          </div>
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )
-                              },
-                            )}
-                          </div>
-                        )}
-                      </div>
+                    {activeTab === 'activity' && (
+                      <ActivityTabCN
+                        callActivity={selectedLeadsDetails?.callActivity || []}
+                        isExpandedActivity={isExpandedActivity}
+                        onToggleExpand={handleShowMoreActivityData}
+                        onCopyCallId={handleCopy}
+                        onReadTranscript={handleReadMoreToggle}
+                        onPlayRecording={(recordingUrl, callId) => {
+                          if (recordingUrl) {
+                            setShowAudioPlay({ recordingUrl, callId })
+                          } else {
+                            setShowNoAudioPlay(true)
+                          }
+                        }}
+                        getCommunicationTypeIcon={getCommunicationTypeIcon}
+                        getOutcome={getOutcome}
+                        showColor={showColor}
+                        callTranscript={callTranscript}
+                        emailSmsTranscript={emailSmsTranscript}
+                      />
                     )}
                   </div>
                   <div
@@ -3758,237 +2970,7 @@ const LeadDetails = ({
         {mainContent}
       </Drawer>
 
-      {/* Modal to edit note */}
-      <Modal
-        open={!!editingNote}
-        onClose={() => {
-          setEditingNote(null)
-          setEditNoteValue('')
-        }}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 1000,
-          sx: {
-            backgroundColor: '#00000020',
-          },
-        }}
-      >
-        <Box
-          className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 h-[70vh]"
-          sx={{ ...styles.modalsStyle, scrollbarWidth: 'none' }}
-        >
-          <div className="flex flex-row justify-center w-full h-[50vh]">
-            <div
-              className="w-full"
-              style={{
-                backgroundColor: '#ffffff',
-                padding: 20,
-                paddingInline: 30,
-                borderRadius: '13px',
-                height: '100%',
-              }}
-            >
-              <div style={{ fontWeight: '700', fontsize: 22 }}>
-                Edit your note
-              </div>
-              <div
-                className="mt-4"
-                style={{
-                  height: '70%',
-                  overflow: 'auto',
-                }}
-              >
-                <TextareaAutosize
-                  maxRows={12}
-                  className="outline-none focus:outline-none focus:ring-0 w-full"
-                  style={{
-                    fontsize: 15,
-                    fontWeight: '500',
-                    height: '250px',
-                    border: '1px solid #00000020',
-                    resize: 'none',
-                    borderRadius: '13px',
-                  }}
-                  placeholder="Edit note"
-                  value={editNoteValue}
-                  onChange={(event) => {
-                    setEditNoteValue(event.target.value)
-                  }}
-                />
-              </div>
-              <div className="w-full mt-4 h-[20%] flex flex-row justify-center gap-2">
-                {editNoteLoader ? (
-                  <CircularProgress size={25} />
-                ) : (
-                  <>
-                    <button
-                      className="bg-gray-200 h-[50px] rounded-xl text-gray-700 rounded-xl w-3/12"
-                      style={{
-                        fontWeight: '600',
-                        fontsize: 16,
-                      }}
-                      onClick={() => {
-                        setEditingNote(null)
-                        setEditNoteValue('')
-                      }}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      className="bg-brand-primary h-[50px] rounded-xl text-white rounded-xl w-3/12"
-                      style={{
-                        fontWeight: '600',
-                        fontsize: 16,
-                      }}
-                      onClick={handleEditNote}
-                    >
-                      Update
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </Box>
-      </Modal>
-
-      {/* Modal to confirm note deletion */}
-      <Modal
-        open={showDeleteNoteConfirm}
-        onClose={() => {
-          setShowDeleteNoteConfirm(false)
-          setDeleteNoteId(null)
-        }}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 1000,
-          sx: {
-            backgroundColor: '#00000020',
-          },
-        }}
-      >
-        <Box
-          className="lg:w-4/12 sm:w-4/12 w-6/12"
-          sx={styles.modalsStyle}
-        >
-          <div className="flex flex-row justify-center w-full">
-            <div
-              className="w-full"
-              style={{
-                backgroundColor: '#ffffff',
-                padding: 20,
-                borderRadius: '13px',
-              }}
-            >
-              <div className="font-bold text-xl mt-6">
-                Are you sure you want to delete this note?
-              </div>
-              <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
-                <button
-                  className="w-1/2 font-bold text-xl text-[#6b7280] h-[50px]"
-                  onClick={() => {
-                    setShowDeleteNoteConfirm(false)
-                    setDeleteNoteId(null)
-                  }}
-                >
-                  Cancel
-                </button>
-                {deleteNoteLoader ? (
-                  <CircularProgress size={20} />
-                ) : (
-                  <button
-                    className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
-                    onClick={handleDeleteNote}
-                  >
-                    Delete
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </Box>
-      </Modal>
-
-      {/* Modal to add notes */}
-
-      <Modal
-        open={showAddNotes}
-        onClose={() => setShowAddNotes(false)}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 1000,
-          sx: {
-            backgroundColor: '#00000020',
-          },
-        }}
-      >
-        <Box
-          className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 h-[70vh]"
-          sx={{ ...styles.modalsStyle, scrollbarWidth: 'none' }}
-        >
-          <div className="flex flex-row justify-center w-full h-[50vh]">
-            <div
-              className="w-full"
-              style={{
-                backgroundColor: '#ffffff',
-                padding: 20,
-                paddingInline: 30,
-                borderRadius: '13px',
-                // paddingBottom: 10,
-                // paddingTop: 10,
-                height: '100%',
-              }}
-            >
-              <div style={{ fontWeight: '700', fontsize: 22 }}>
-                Add your notes
-              </div>
-              <div
-                className="mt-4"
-                style={{
-                  height: '70%',
-                  overflow: 'auto',
-                }}
-              >
-                <TextareaAutosize
-                  maxRows={12}
-                  className="outline-none focus:outline-none focus:ring-0 w-full"
-                  style={{
-                    fontsize: 15,
-                    fontWeight: '500',
-                    height: '250px',
-                    border: '1px solid #00000020',
-                    resize: 'none',
-                    borderRadius: '13px',
-                  }}
-                  placeholder="Add notes"
-                  value={addNotesValue}
-                  onChange={(event) => {
-                    setddNotesValue(event.target.value)
-                  }}
-                />
-              </div>
-              <div className="w-full mt-4 h-[20%] flex flex-row justify-center">
-                {addLeadNoteLoader ? (
-                  <CircularProgress size={25} />
-                ) : (
-                  <button
-                    className="bg-brand-primary h-[50px] rounded-xl text-white rounded-xl w-6/12"
-                    style={{
-                      fontWeight: '600',
-                      fontsize: 16,
-                    }}
-                    onClick={() => {
-                      handleAddLeadNotes()
-                    }}
-                  >
-                    Add
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </Box>
-      </Modal>
+      {/* Note modals - REMOVED: Now handled by NotesTabCN component */}
 
       {/* Warning Modal for no voice */}
       <Modal
@@ -4033,48 +3015,7 @@ const LeadDetails = ({
         </Box>
       </Modal>
 
-      {/* Modal for audio play */}
-      {/* <Modal
-        open={showAudioPlay}
-        onClose={() => setShowAudioPlay(null)}
-        closeAfterTransition
-        BackdropProps={{
-          sx: {
-            backgroundColor: "#00000020",
-            // //backdropFilter: "blur(5px)",
-          },
-        }}
-      >
-        <Box className="lg:w-3/12 sm:w-5/12 w-3/12" sx={styles.modalsStyle}>
-          <div className="flex flex-row justify-center">
-            <div
-              className="w-full flex flex-col items-center"
-              style={{
-                backgroundColor: "#ffffff",
-                padding: 20,
-                borderRadius: "13px",
-              }}
-            >
-              
-              <audio controls>
-                <source src={showAudioPlay?.recordingUrl} type="audio/mpeg" />
-                Your browser does not support the audio element.
-              </audio>
-              <button
-                className="text-white w-full h-[50px] rounded-lg bg-brand-primary mt-4"
-                onClick={() => {
-                  setShowAudioPlay(null);
-                }}
-                style={{ fontWeight: "600", fontSize: 15 }}
-              >
-                Close
-              </button>
 
-              
-            </div>
-          </div>
-        </Box>
-      </Modal> */}
 
       <Modal
         open={showAudioPlay}
