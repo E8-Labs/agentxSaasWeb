@@ -639,7 +639,7 @@ export default function CreateSubAccountModal({
               !hasInternalAccount && (
                 <>
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Internal Account?
+                    Internal Use?
                   </label>
                   <Switch
                     checked={isInternalAccount}

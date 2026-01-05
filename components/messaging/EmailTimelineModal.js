@@ -3,7 +3,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import axios from 'axios'
 import moment from 'moment'
-import Image from 'next/image'
 import { Paperclip, CaretDown, Plus, X } from '@phosphor-icons/react'
 import { Drawer } from '@mui/material'
 import { toast } from 'sonner'
@@ -522,15 +521,6 @@ const EmailTimelineModal = ({
                             <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
                               {senderName.charAt(0).toUpperCase()}
                             </div>
-                            <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
-                              <Image
-                                src="/messaging/email message type icon.svg"
-                                width={16}
-                                height={16}
-                                alt="Email"
-                                className="object-contain"
-                              />
-                            </div>
                           </div>
                         )}
 
@@ -588,15 +578,6 @@ const EmailTimelineModal = ({
                                 <div className="relative">
                                   <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
                                     {avatarLetter}
-                                  </div>
-                                  <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
-                                    <Image
-                                      src="/messaging/email message type icon.svg"
-                                      width={16}
-                                      height={16}
-                                      alt="Email"
-                                      className="object-contain"
-                                    />
                                   </div>
                                 </div>
                               )

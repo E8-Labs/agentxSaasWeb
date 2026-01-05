@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react'
 import moment from 'moment'
-import Image from 'next/image'
 import { Paperclip } from '@phosphor-icons/react'
 
 const AttachmentList = ({ message, isOutbound, onAttachmentClick }) => {
@@ -532,15 +531,6 @@ const ConversationView = ({
                         <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
                           {getLeadName(selectedThread)}
                         </div>
-                        {isEmail ? (
-                          <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
-                            <Image src="/messaging/email message type icon.svg" width={16} height={16} alt="Email" className="object-contain" />
-                          </div>
-                        ) : (
-                          <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
-                            <Image src="/messaging/text type message icon.svg" width={16} height={16} alt="SMS" className="object-contain" />
-                          </div>
-                        )}
                       </div>
                     )}
 
