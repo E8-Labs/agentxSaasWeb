@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
-import { MessageCircleMore, Mail } from 'lucide-react'
+import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers } from 'lucide-react'
 import { CircularProgress } from '@mui/material'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
@@ -9,6 +9,9 @@ import UpgardView from '@/constants/UpgardView'
 import { getUserLocalData } from '@/components/constants/constants'
 import { useRouter } from 'next/navigation'
 import { UserRole } from '@/constants/UserRole'
+import axios from 'axios'
+import Apis from '@/components/apis/Apis'
+import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 
 // Helper function to get brand primary color as hex
 const getBrandPrimaryHex = () => {
@@ -118,6 +121,7 @@ const MessageComposer = ({
   handleSendMessage,
   sendingMessage,
   onOpenAuthPopup,
+  onCommentAdded,
 }) => {
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
   const [isExpanded, setIsExpanded] = useState(true)
@@ -127,6 +131,21 @@ const MessageComposer = ({
   const phoneDropdownRef = useRef(null)
   const emailDropdownRef = useRef(null)
   const router = useRouter()
+  
+  // Comment state
+  const [commentBody, setCommentBody] = useState('')
+  const [teamMembers, setTeamMembers] = useState([])
+  const [sendingComment, setSendingComment] = useState(false)
+  const commentEditorRef = useRef(null)
+  const commentEditorContainerRef = useRef(null)
+  
+  // Mention state
+  const [showMentionDropdown, setShowMentionDropdown] = useState(false)
+  const [mentionQuery, setMentionQuery] = useState('')
+  const [mentionPosition, setMentionPosition] = useState({ top: 0, left: 0 })
+  const [filteredTeamMembers, setFilteredTeamMembers] = useState([])
+  const [selectedMentionIndex, setSelectedMentionIndex] = useState(0)
+  const mentionDropdownRef = useRef(null)
 
   // Plan capabilities
   const { planCapabilities } = usePlanCapabilities()
@@ -141,6 +160,10 @@ const MessageComposer = ({
       }
       if (emailDropdownRef.current && !emailDropdownRef.current.contains(event.target)) {
         setEmailDropdownOpen(false)
+      }
+      if (mentionDropdownRef.current && !mentionDropdownRef.current.contains(event.target) &&
+          !commentEditorContainerRef.current?.contains(event.target)) {
+        setShowMentionDropdown(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -167,6 +190,368 @@ const MessageComposer = ({
       setUserData(user)
     }
   }, [])
+
+  // Fetch team members for @ mentions
+  useEffect(() => {
+    const fetchTeamMembers = async () => {
+      try {
+        const response = await getTeamsList()
+        if (response) {
+          const members = []
+          if (response.admin) {
+            members.push({
+              id: response.admin.id,
+              name: response.admin.name,
+              email: response.admin.email,
+            })
+          }
+          if (response.data && response.data.length > 0) {
+            for (const t of response.data) {
+              if (t.status === 'Accepted' && t.invitedUser) {
+                members.push({
+                  id: t.invitedUser.id,
+                  name: t.invitedUser.name,
+                  email: t.invitedUser.email,
+                })
+              }
+            }
+          }
+          setTeamMembers(members)
+          setFilteredTeamMembers(members)
+        }
+      } catch (error) {
+        console.error('Error fetching team members:', error)
+      }
+    }
+    if (composerMode === 'comment') {
+      fetchTeamMembers()
+    }
+  }, [composerMode])
+
+  // Check for @ mentions in editor
+  const checkForMentions = useCallback(() => {
+    if (composerMode !== 'comment' || !commentEditorContainerRef.current) {
+      setShowMentionDropdown(false)
+      return
+    }
+
+    const editorContainer = commentEditorContainerRef.current?.querySelector('.ql-editor')
+    if (!editorContainer) {
+      setShowMentionDropdown(false)
+      return
+    }
+
+    // Get the selection
+    const selection = window.getSelection()
+    if (!selection || selection.rangeCount === 0) {
+      setShowMentionDropdown(false)
+      return
+    }
+
+    const range = selection.getRangeAt(0)
+    
+    // Check if selection is within the editor
+    if (!editorContainer.contains(range.commonAncestorContainer)) {
+      setShowMentionDropdown(false)
+      return
+    }
+
+    // Get text up to cursor position using a simpler approach
+    let text = ''
+    try {
+      // Create a range from start of editor to cursor
+      const textRange = document.createRange()
+      textRange.setStart(editorContainer, 0)
+      textRange.setEnd(range.startContainer, range.startOffset)
+      
+      // Get text content from this range
+      text = textRange.toString() || ''
+    } catch (e) {
+      // Fallback: if range doesn't work, use innerText and approximate
+      const allText = editorContainer.innerText || editorContainer.textContent || ''
+      text = allText
+    }
+
+    const atIndex = text.lastIndexOf('@')
+    
+    if (atIndex === -1) {
+      setShowMentionDropdown(false)
+      return
+    }
+
+    // Check if there's a space after @ (meaning mention is complete)
+    const textAfterAt = text.substring(atIndex + 1)
+    if (textAfterAt.includes(' ') || textAfterAt.includes('\n')) {
+      setShowMentionDropdown(false)
+      return
+    }
+
+    // Get the query after @
+    const query = textAfterAt.toLowerCase()
+    setMentionQuery(query)
+
+    // Filter team members - if query is empty (just "@"), show all members
+    const filtered = query === ''
+      ? teamMembers
+      : teamMembers.filter(member =>
+          member.name.toLowerCase().includes(query) ||
+          member.email.toLowerCase().includes(query)
+        )
+    
+    setFilteredTeamMembers(filtered)
+    setSelectedMentionIndex(0)
+
+    if (filtered.length > 0) {
+      // Get cursor position for dropdown
+      const rect = range.getBoundingClientRect()
+      
+      setMentionPosition({
+        top: rect.bottom + 5,
+        left: rect.left,
+      })
+      setShowMentionDropdown(true)
+    } else {
+      setShowMentionDropdown(false)
+    }
+  }, [composerMode, teamMembers])
+
+  // Handle comment body change and detect @ mentions
+  const handleCommentChange = (html) => {
+    setCommentBody(html)
+    // Use setTimeout to ensure DOM is updated
+    setTimeout(checkForMentions, 50)
+  }
+
+  // Add event listeners for mention detection
+  useEffect(() => {
+    if (composerMode !== 'comment' || !commentEditorContainerRef.current) return
+
+    let cleanup = null
+
+    // Wait a bit for the editor to be ready
+    const timeoutId = setTimeout(() => {
+      const editorContainer = commentEditorContainerRef.current?.querySelector('.ql-editor')
+      if (!editorContainer) return
+
+      // Listen to various events that might indicate typing
+      const handleInput = () => {
+        setTimeout(checkForMentions, 10)
+      }
+
+      const handleKeyDown = (e) => {
+        // Check for @ key specifically (Shift+2 on most keyboards)
+        if (e.key === '@' || (e.key === '2' && e.shiftKey)) {
+          setTimeout(checkForMentions, 10)
+        }
+      }
+
+      const handleKeyUp = (e) => {
+        // Check for @ key or any character
+        if (e.key === '@' || (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey)) {
+          setTimeout(checkForMentions, 10)
+        }
+      }
+
+      const handleSelectionChange = () => {
+        setTimeout(checkForMentions, 10)
+      }
+
+      // Also listen on the container itself
+      const container = commentEditorContainerRef.current
+      
+      editorContainer.addEventListener('input', handleInput, true)
+      editorContainer.addEventListener('keydown', handleKeyDown, true)
+      editorContainer.addEventListener('keyup', handleKeyUp, true)
+      container.addEventListener('click', handleSelectionChange, true)
+      document.addEventListener('selectionchange', handleSelectionChange)
+
+      cleanup = () => {
+        editorContainer.removeEventListener('input', handleInput, true)
+        editorContainer.removeEventListener('keydown', handleKeyDown, true)
+        editorContainer.removeEventListener('keyup', handleKeyUp, true)
+        container.removeEventListener('click', handleSelectionChange, true)
+        document.removeEventListener('selectionchange', handleSelectionChange)
+      }
+    }, 100)
+
+    return () => {
+      clearTimeout(timeoutId)
+      if (cleanup) cleanup()
+    }
+  }, [composerMode, checkForMentions, commentBody])
+
+  // Handle keyboard navigation in mention dropdown
+  useEffect(() => {
+    if (!showMentionDropdown) return
+
+    const handleKeyDown = (e) => {
+      if (!showMentionDropdown || filteredTeamMembers.length === 0) return
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setSelectedMentionIndex((prev) =>
+          prev < filteredTeamMembers.length - 1 ? prev + 1 : prev
+        )
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setSelectedMentionIndex((prev) => (prev > 0 ? prev - 1 : 0))
+      } else if (e.key === 'Enter' || e.key === 'Tab') {
+        e.preventDefault()
+        handleInsertMention(filteredTeamMembers[selectedMentionIndex])
+      } else if (e.key === 'Escape') {
+        e.preventDefault()
+        setShowMentionDropdown(false)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [showMentionDropdown, filteredTeamMembers, selectedMentionIndex])
+
+  // Insert mention into editor
+  const handleInsertMention = (member) => {
+    if (!commentEditorContainerRef.current || !member) return
+
+    const editorContainer = commentEditorContainerRef.current.querySelector('.ql-editor')
+    if (!editorContainer) return
+
+    // Try to access Quill instance
+    const quillWrapper = commentEditorContainerRef.current.querySelector('.quill')
+    if (quillWrapper && quillWrapper.__quill) {
+      const quill = quillWrapper.__quill
+      const selection = quill.getSelection(true)
+      
+      if (!selection) return
+
+      const text = quill.getText(0, selection.index)
+      const atIndex = text.lastIndexOf('@')
+      
+      if (atIndex === -1) return
+
+      // Delete text from @ to cursor
+      quill.deleteText(atIndex, selection.index - atIndex)
+      
+      // Insert mention with formatting
+      const mentionText = `@${member.name} `
+      quill.insertText(atIndex, mentionText)
+      quill.formatText(atIndex, mentionText.length - 1, {
+        color: brandPrimaryColor,
+        bold: true,
+      })
+      
+      // Move cursor after mention
+      quill.setSelection(atIndex + mentionText.length)
+    } else {
+      // Fallback: use DOM manipulation
+      const selection = window.getSelection()
+      if (!selection || selection.rangeCount === 0) return
+
+      const range = selection.getRangeAt(0)
+      const textNode = range.startContainer
+      
+      // Get text up to cursor position
+      let text = ''
+      if (textNode.nodeType === Node.TEXT_NODE) {
+        text = textNode.textContent?.substring(0, range.startOffset) || ''
+      }
+      
+      const atIndex = text.lastIndexOf('@')
+      if (atIndex === -1) return
+
+      // Find the @ position in the DOM
+      let currentText = ''
+      const walker = document.createTreeWalker(
+        editorContainer,
+        NodeFilter.SHOW_TEXT,
+        null
+      )
+      let node
+      let foundAtNode = null
+      let atOffset = 0
+      
+      while ((node = walker.nextNode())) {
+        const nodeText = node.textContent || ''
+        
+        if (currentText.length + nodeText.length >= atIndex) {
+          foundAtNode = node
+          atOffset = atIndex - currentText.length
+          break
+        }
+        
+        currentText += nodeText
+      }
+
+      if (!foundAtNode) return
+
+      // Delete text from @ to cursor
+      const deleteRange = document.createRange()
+      deleteRange.setStart(foundAtNode, atOffset)
+      deleteRange.setEnd(range.startContainer, range.startOffset)
+      deleteRange.deleteContents()
+
+      // Insert mention with formatting
+      const span = document.createElement('span')
+      span.style.color = brandPrimaryColor
+      span.style.fontWeight = 'bold'
+      span.textContent = `@${member.name} `
+      deleteRange.insertNode(span)
+
+      // Move cursor after mention
+      const newRange = document.createRange()
+      newRange.setStartAfter(span)
+      newRange.collapse(true)
+      selection.removeAllRanges()
+      selection.addRange(newRange)
+
+      // Trigger onChange
+      const html = editorContainer.innerHTML
+      setCommentBody(html)
+    }
+
+    setShowMentionDropdown(false)
+    setMentionQuery('')
+  }
+
+  // Handle sending comment
+  const handleSendComment = async () => {
+    if (!hasTextContent(commentBody) || !selectedThread?.leadId) {
+      return
+    }
+
+    try {
+      setSendingComment(true)
+      const localData = localStorage.getItem('User')
+      if (!localData) {
+        return
+      }
+
+      const userData = JSON.parse(localData)
+      const AuthToken = userData.token
+
+      const ApiData = {
+        note: commentBody,
+        leadId: selectedThread.leadId,
+      }
+
+      const response = await axios.post(Apis.addLeadNote, ApiData, {
+        headers: {
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response && response.data && response.data.status === true) {
+        setCommentBody('')
+        if (onCommentAdded) {
+          onCommentAdded()
+        }
+      }
+    } catch (error) {
+      console.error('Error sending comment:', error)
+    } finally {
+      setSendingComment(false)
+    }
+  }
 
   // Function to render Lucide icon with branding color
   const renderBrandedLucideIcon = (IconComponent, size = 20, isActive = false) => {
@@ -266,6 +651,23 @@ const MessageComposer = ({
               <span>Email</span>
               {composerMode === 'email' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />}
             </button>
+            <button
+              onClick={() => {
+                setComposerMode('comment')
+                setIsExpanded(true)
+              }}
+              className={`flex items-center gap-2 px-0 py-2 text-sm font-medium relative ${
+                composerMode === 'comment' ? 'text-brand-primary' : 'text-gray-600'
+              }`}
+            >
+              {renderBrandedLucideIcon(
+                MessageSquare,
+                20,
+                composerMode === 'comment'
+              )}
+              <span>Comment</span>
+              {composerMode === 'comment' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />}
+            </button>
           </div>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
@@ -284,7 +686,13 @@ const MessageComposer = ({
           // Collapsed view - show text input with send button
           <div className="mt-2 flex items-center gap-2">
             <Input
-              value={composerMode === 'sms' ? composerData.smsBody : stripHTML(composerData.emailBody)}
+              value={
+                composerMode === 'sms' 
+                  ? composerData.smsBody 
+                  : composerMode === 'comment'
+                  ? stripHTML(commentBody)
+                  : stripHTML(composerData.emailBody)
+              }
               onChange={(e) => {
                 if (composerMode === 'sms' && e.target.value.length <= SMS_CHAR_LIMIT) {
                   setComposerData({ ...composerData, smsBody: e.target.value })
@@ -292,6 +700,9 @@ const MessageComposer = ({
                   // Convert plain text to HTML for email
                   const htmlBody = e.target.value.replace(/\n/g, '<br>')
                   setComposerData({ ...composerData, emailBody: htmlBody })
+                } else if (composerMode === 'comment') {
+                  const htmlBody = e.target.value.replace(/\n/g, '<br>')
+                  setCommentBody(htmlBody)
                 }
               }}
               onFocus={() => setIsExpanded(true)}
@@ -299,25 +710,33 @@ const MessageComposer = ({
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault()
-                  const messageBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
-                  if (hasTextContent(messageBody) && 
-                      ((composerMode === 'sms' && selectedPhoneNumber && composerData.to) ||
-                       (composerMode === 'email' && selectedEmailAccount && composerData.to))) {
-                    handleSendMessage()
+                  if (composerMode === 'comment') {
+                    if (hasTextContent(commentBody) && selectedThread?.leadId) {
+                      handleSendComment()
+                    }
+                  } else {
+                    const messageBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
+                    if (hasTextContent(messageBody) && 
+                        ((composerMode === 'sms' && selectedPhoneNumber && composerData.to) ||
+                         (composerMode === 'email' && selectedEmailAccount && composerData.to))) {
+                      handleSendMessage()
+                    }
                   }
                 }
               }}
-              placeholder={composerMode === 'sms' ? 'Type your message...' : 'Type your message...'}
+              placeholder={composerMode === 'comment' ? 'Type a comment...' : 'Type your message...'}
               className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
               style={{ height: '42px' }}
             />
             <button
-              onClick={handleSendMessage}
+              onClick={composerMode === 'comment' ? handleSendComment : handleSendMessage}
               disabled={
-                sendingMessage ||
-                !hasTextContent(composerMode === 'sms' ? composerData.smsBody : composerData.emailBody) ||
-                (composerMode === 'email' && (!selectedEmailAccount || !composerData.to)) ||
-                (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
+                composerMode === 'comment'
+                  ? (sendingComment || !hasTextContent(commentBody) || !selectedThread?.leadId)
+                  : (sendingMessage ||
+                     !hasTextContent(composerMode === 'sms' ? composerData.smsBody : composerData.emailBody) ||
+                     (composerMode === 'email' && (!selectedEmailAccount || !composerData.to)) ||
+                     (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to)))
               }
               className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               style={{ height: '42px' }}
@@ -327,8 +746,101 @@ const MessageComposer = ({
           </div>
         ) : (
           <>
-            {/* Upgrade View for SMS Tab */}
-            {shouldShowUpgradeView ? (
+            {/* Comment Tab */}
+            {composerMode === 'comment' ? (
+              <div className="mt-2">
+                <div className="mb-2">
+                  <label className="text-sm font-semibold text-foreground">Comment</label>
+                </div>
+                
+                {/* Comment Input with Formatting Toolbar */}
+                <div ref={commentEditorContainerRef} className="relative border border-brand-primary/20 rounded-lg bg-white">
+                  <RichTextEditor
+                    ref={commentEditorRef}
+                    value={commentBody}
+                    onChange={handleCommentChange}
+                    placeholder="Use @ to mention a teammate. Comments are only visible to your team."
+                    availableVariables={[]}
+                    toolbarPosition="bottom"
+                    customToolbarElement={
+                      <div className="flex items-center gap-2">
+                        <label className="cursor-pointer">
+                          <button 
+                            type="button" 
+                            className="p-1.5 hover:bg-gray-100 rounded transition-colors" 
+                            onClick={() => document.getElementById('comment-attachment-input')?.click()}
+                            title="Attach file"
+                          >
+                            <Paperclip size={18} className="text-gray-600 hover:text-brand-primary" />
+                          </button>
+                          <input
+                            id="comment-attachment-input"
+                            type="file"
+                            accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                            multiple
+                            className="hidden"
+                            onChange={handleFileChange}
+                          />
+                        </label>
+                        <button
+                          onClick={handleSendComment}
+                          disabled={
+                            sendingComment ||
+                            !hasTextContent(commentBody) ||
+                            !selectedThread?.leadId
+                          }
+                          className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                          {sendingComment ? (
+                            <>
+                              <CircularProgress size={16} className="text-white" />
+                              <span className="text-sm">Sending...</span>
+                            </>
+                          ) : (
+                            <>
+                              <span className="text-sm">Send</span>
+                              <PaperPlaneTilt size={16} weight="fill" />
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    }
+                  />
+                  
+                  {/* Mention Dropdown */}
+                  {showMentionDropdown && filteredTeamMembers.length > 0 && (
+                    <div
+                      ref={mentionDropdownRef}
+                      className="fixed z-50 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto min-w-[200px]"
+                      style={{
+                        top: `${mentionPosition.top}px`,
+                        left: `${mentionPosition.left}px`,
+                      }}
+                    >
+                      {filteredTeamMembers.map((member, index) => (
+                        <button
+                          key={member.id}
+                          type="button"
+                          onClick={() => handleInsertMention(member)}
+                          className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors flex items-center gap-2 ${
+                            index === selectedMentionIndex
+                              ? 'bg-brand-primary/10 text-brand-primary'
+                              : 'text-gray-700'
+                          }`}
+                        >
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-bold flex-shrink-0">
+                            {member.name?.[0]?.toUpperCase() || '?'}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium truncate">{member.name}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            ) : shouldShowUpgradeView ? (
               <div className="py-8">
                 <UpgardView
                   title="Unlock Text Messages"
