@@ -9,6 +9,7 @@ import { Button } from '../ui/button'
 import { TypographyBody, TypographyCaption, TypographyCaptionSemibold } from '@/lib/typography'
 import DropdownCn from '@/components/dashboard/leads/extras/DropdownCn'
 import ToggleGroupCN from '@/components/ui/ToggleGroupCN'
+import NewContactDrawer from './NewContactDrawer'
 
 const ThreadsList = ({
   loading,
@@ -35,8 +36,10 @@ const ThreadsList = ({
   onFilterTypeChange,
   allCount = 0,
   unrepliedCount = 0,
+  onContactCreated,
 }) => {
   const [openMenuId, setOpenMenuId] = useState(null)
+  const [showNewContactDrawer, setShowNewContactDrawer] = useState(false)
   const filterButtonRef = useRef(null)
   const filterPopoverRef = useRef(null)
 
@@ -108,7 +111,7 @@ const ThreadsList = ({
               label: 'New Contact',
               icon: UserPlus,
               value: 'contact',
-              onSelect: () => onNewMessage && onNewMessage('contact'),
+              onSelect: () => setShowNewContactDrawer(true),
             },
             {
               label: 'New Message',
@@ -351,6 +354,19 @@ const ThreadsList = ({
           </div>
         )}
       </div>
+
+      {/* New Contact Drawer */}
+      <NewContactDrawer
+        open={showNewContactDrawer}
+        onClose={() => setShowNewContactDrawer(false)}
+        onSuccess={() => {
+          // Refresh threads after contact creation
+          if (onContactCreated) {
+            onContactCreated()
+          }
+          setShowNewContactDrawer(false)
+        }}
+      />
     </div>
   )
 }

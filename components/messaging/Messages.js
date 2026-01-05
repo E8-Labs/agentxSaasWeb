@@ -2365,6 +2365,10 @@ const Messages = () => {
                     onFilterTypeChange={setFilterType}
                     allCount={allCount}
                     unrepliedCount={unrepliedCount}
+                    onContactCreated={() => {
+                      // Refresh threads after contact creation
+                      fetchThreads(searchValue || '', appliedTeamMemberIds)
+                    }}
                   />
                 )
               })()}
