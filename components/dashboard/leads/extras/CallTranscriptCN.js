@@ -11,15 +11,17 @@ import {
   TypographyBodySemibold,
   TypographyBodyMedium,
 } from '@/lib/typography'
+import {
+  getSentimentIcon,
+  getTemperatureIconForActivity,
+  formatNextStepsForTooltip,
+} from './activityUtils'
 
 const CallTranscriptCN = ({
   item,
   onPlayRecording,
   onCopyCallId,
   onReadTranscript,
-  getSentimentIcon,
-  getTemperatureIconForActivity,
-  formatNextStepsForTooltip,
 }) => {
   const callSummary = item.callSummary
   const summaryText = callSummary?.callSummary || null
@@ -33,9 +35,9 @@ const CallTranscriptCN = ({
   return (
     <div className="flex flex-col">
       {/* Top row: Duration, Play button, and Icons (Sentiment, Temp, Next Steps) */}
-      <div className="flex flex-row items-center justify-between mt-4">
+      <div className="flex flex-row items-center justify-between mt-4 text-sm">
         <div className="flex flex-row items-center gap-3">
-          <TypographyBodyMedium>
+          <TypographyBodyMedium className="text-foreground">
             {moment(item?.duration * 1000).format('mm:ss')}
           </TypographyBodyMedium>
           <button
@@ -60,7 +62,7 @@ const CallTranscriptCN = ({
 
         {/* Top right icons: Sentiment, Temperature, Next Steps */}
         <div className="flex flex-row items-center gap-3">
-          {callSummary?.prospectSentiment && getSentimentIcon && (
+          {callSummary?.prospectSentiment && (
             <Tooltip
               title={`Sentiment: ${callSummary.prospectSentiment}`}
               arrow
@@ -91,7 +93,7 @@ const CallTranscriptCN = ({
             </Tooltip>
           )}
 
-          {callSummary?.leadTemperature && getTemperatureIconForActivity && (
+          {callSummary?.leadTemperature && (
             <Tooltip
               title={`Temperature: ${callSummary.leadTemperature}`}
               arrow
@@ -122,7 +124,7 @@ const CallTranscriptCN = ({
             </Tooltip>
           )}
 
-          {callSummary?.nextSteps && formatNextStepsForTooltip && (
+          {callSummary?.nextSteps && (
             <Tooltip
               title={
                 <div style={{ whiteSpace: 'pre-line' }}>
@@ -163,11 +165,13 @@ const CallTranscriptCN = ({
       </div>
 
       {/* Summary text */}
-      <div className="w-full mt-4">
-        <TypographyBodySemibold className="mb-2">Summary:</TypographyBodySemibold>
-        <TypographyBody className="text-foreground leading-normal">
+      <div className="w-full mt-4 text-sm">
+        <TypographyBodySemibold className="mb-2 text-muted-foreground">
+          Summary
+        </TypographyBodySemibold>
+        <TypographyBodyMedium className="text-foreground leading-normal">
           {displayText}
-        </TypographyBody>
+        </TypographyBodyMedium>
       </div>
 
       {/* Bottom row: Call ID, Transcript icons (left) */}

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import moment from 'moment'
 import { Paperclip } from '@phosphor-icons/react'
+import { htmlToPlainText } from '@/utilities/textUtils'
 
 const AttachmentList = ({ message, isOutbound, onAttachmentClick }) => {
   if (!message.metadata?.attachments || message.metadata.attachments.length === 0) return null
@@ -171,14 +172,14 @@ const EmailBubble = ({
         </div>
       )}
       <div
-        className={`prose prose-sm max-w-none ${
+        className={`prose prose-sm max-w-none break-words ${
           isOutbound
-            ? 'text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_p]:!text-white [&_strong]:!text-white [&_em]:!text-white [&_a]:!text-white [&_ul]:!text-white [&_ol]:!text-white [&_li]:!text-white [&_span]:!text-white [&_*]:!text-white'
+            ? 'text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_p]:!text-white [&_strong]:!text-white [&_em]:!text-white [&_a]:!text-white [&_a:hover]:!text-white/80 [&_ul]:!text-white [&_ol]:!text-white [&_li]:!text-white [&_span]:!text-white [&_*]:!text-white'
             : 'text-black'
         }`}
         style={isOutbound ? { color: 'white' } : {}}
         dangerouslySetInnerHTML={{
-          __html: sanitizeHTML(message.content),
+          __html: sanitizeAndLinkifyHTML(message.content, sanitizeHTML),
         }}
       />
 
@@ -216,6 +217,33 @@ const linkifyText = (text) => {
 
   // Preserve newlines
   return linked.replace(/\n/g, '<br />')
+}
+
+// Helper function to sanitize HTML, convert to plain text, and linkify URLs
+const sanitizeAndLinkifyHTML = (html, sanitizeHTML) => {
+  if (!html) return ''
+  
+  // First convert HTML to plain text (this preserves URLs as text)
+  // We do this before sanitizing to ensure URLs aren't broken by HTML processing
+  let plainText = htmlToPlainText(html)
+  
+  // Remove quoted text from plain text (simpler and more reliable than HTML processing)
+  // Remove lines starting with "On ... wrote:"
+  plainText = plainText.replace(/^On\s+.*?wrote:.*$/gmi, '')
+  // Remove lines starting with common email headers
+  plainText = plainText.replace(/^(From|Sent|To|Subject|Date):.*$/gmi, '')
+  // Remove quoted text blocks (lines starting with >)
+  plainText = plainText.replace(/^>.*$/gm, '')
+  // Remove content after common separators
+  const separatorIndex = plainText.search(/^(From|Sent|To|Subject|Date):/m)
+  if (separatorIndex > 0) {
+    plainText = plainText.substring(0, separatorIndex).trim()
+  }
+  // Clean up multiple newlines
+  plainText = plainText.replace(/\n{3,}/g, '\n\n').trim()
+  
+  // Now linkify URLs in the cleaned plain text
+  return linkifyText(plainText)
 }
 
 const MessageBubble = ({ message, isOutbound, onAttachmentClick }) => (

@@ -50,7 +50,6 @@ import {
 } from '@/components/pipeline/TempleteServices'
 import ScoringProgress from '@/components/ui/ScoringProgress'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
-import { callStatusColors } from '@/constants/Constants'
 import { calculateCreditCost } from '@/services/LeadsServices/LeadsServices'
 import { useUser } from '@/hooks/redux-hooks'
 import CircularLoader from '@/utilities/CircularLoader'
@@ -66,6 +65,7 @@ import NoPerplexity from '@/components/dashboard/leads/extras/NoPerplexity'
 import Perplexity from '@/components/dashboard/leads/extras/Perplexity'
 import { Tooltip } from '@mui/material'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
+import ActivityTabCN from '@/components/dashboard/leads/extras/ActivityTabCN'
 
 const AdminLeadDetails = ({
   showDetailsModal,
@@ -869,29 +869,6 @@ const AdminLeadDetails = ({
     }
   }
 
-  const getOutcome = (item) => {
-    if (item.communicationType == 'sms') {
-      return 'Text Sent'
-    } else if (item.communicationType == 'email') {
-      return 'Email Sent'
-    } else if (item.callOutcome) {
-      return item?.callOutcome
-    } else {
-      return 'Ongoing'
-    }
-  }
-
-  const getCommunicationTypeIcon = (item) => {
-    if (item.communicationType == 'sms') {
-      return '/otherAssets/smsIcon.png'
-    } else if (item.communicationType == 'email') {
-      return '/otherAssets/email.png'
-    } else if (item.communicationType == 'call') {
-      return '/otherAssets/callIcon.png'
-    } else if (item.communicationType == 'web') {
-      return '/otherAssets/webhook2.svg'
-    } else return '/otherAssets/callIcon.png'
-  }
 
   // Send email API function
   const sendEmailToLead = async (emailData) => {
@@ -1038,139 +1015,6 @@ const AdminLeadDetails = ({
     }
   }
 
-  const callTranscript = (item, initialText) => {
-    return (
-      <div className="flex flex-col">
-        <div className="flex mt-4 flex-row items-center gap-4">
-          <div
-            className=""
-            style={{
-              fontWeight: '500',
-              fontSize: 12,
-              color: '#00000070',
-            }}
-          >
-            Call ID
-          </div>
-
-          <button onClick={() => handleCopy(item.callId)}>
-            <Image src={'/svgIcons/copy.svg'} height={15} width={15} alt="*" />
-          </button>
-        </div>
-        <div className="flex flex-row items-center justify-between mt-4">
-          <div
-            style={{
-              fontWeight: '500',
-              fontSize: 15,
-            }}
-          >
-            {moment(item?.duration * 1000).format('mm:ss')}{' '}
-          </div>
-          <button
-            onClick={() => {
-              if (item?.recordingUrl) {
-                setShowAudioPlay({ recordingUrl: item.recordingUrl, callId: item.callId })
-              } else {
-                setShowNoAudioPlay(true)
-              }
-            }}
-          >
-            <Image src={'/assets/play.png'} height={35} width={35} alt="*" />
-          </button>
-        </div>
-        {item.transcript ? (
-          <div className="w-full">
-            <div
-              className="mt-4"
-              style={{
-                fontWeight: '600',
-                fontSize: 15,
-              }}
-            >
-              {`${initialText}...`}
-            </div>
-            <div className="w-full flex flex-row items-center justify-between">
-              <button
-                style={{
-                  fontWeight: '600',
-                  fontSize: 15,
-                }}
-                onClick={() => {
-                  handleReadMoreToggle(item)
-                }}
-                className="mt-2 text-black underline"
-              >
-                {'Read Transcript'}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div
-            style={{
-              fontWeight: '600',
-              fontSize: 15,
-            }}
-          >
-            No transcript
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  const emailSmsTranscript = (item) => {
-    return (
-      <div className="flex flex-col items-start gap-2">
-        {item.sentSubject && (
-          <div className="flex flex-col items-start gap-2">
-            <div className="text-base font-semibold text-[#00000050]">
-              Subject
-            </div>
-
-            <div className="text-base font-medium text-[#000000]">
-              {item.sentSubject}
-            </div>
-          </div>
-        )}
-
-        {item.sentContent && (
-          <div className="flex flex-col items-start gap-2">
-            <div className="text-base font-semibold text-[#00000050]">
-              Content
-            </div>
-
-            <div className="text-base font-medium text-[#000000] whitespace-pre-wrap">
-              {htmlToPlainText(item.sentContent)}
-            </div>
-          </div>
-        )}
-
-        {item.template?.attachments?.length > 0 && (
-          <div className="flex flex-col items-start gap-2">
-            <div className="text-base font-semibold text-[#00000050]">
-              Attachments
-            </div>
-
-            {item.template?.attachments.map((attachment, index) => (
-              <div key={index} className="flex flex-row items-center gap-2">
-                <div
-                  key={index}
-                  className="text-base font-medium text-[#000000] w-6/12 truncate"
-                  onClick={() => {
-                    window.open(attachment.url, '_blank')
-                  }}
-                >
-                  {attachment.fileName}
-                </div>
-
-                <div>{formatFileSize(attachment.size)}</div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    )
-  }
 
   const styles = {
     modalsStyle: {
@@ -1219,17 +1063,6 @@ const AdminLeadDetails = ({
     return count
   }
 
-  const showColor = (item) => {
-    let color =
-      callStatusColors[
-        Object.keys(callStatusColors).find(
-          (key) =>
-            key.toLowerCase() === (item?.callOutcome || '').toLowerCase(),
-        )
-      ] || '#000'
-
-    return color
-  }
 
   return (
     <div className="h-[100svh]">
@@ -2669,257 +2502,20 @@ const AdminLeadDetails = ({
 
                         {/* Call activity goes here */}
                         {showAcitivityDetails && (
-                          <div>
-                            {selectedLeadsDetails?.callActivity.length < 1 ? (
-                              <div
-                                className="flex flex-col items-center justify-center mt-12 w-full"
-                                style={{ fontWeight: '500', fontsize: 15 }}
-                              >
-                                <div className="h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">
-                                  <Image
-                                    src={'/assets/activityClock.png'}
-                                    height={24}
-                                    width={24}
-                                    alt="*"
-                                  />
-                                </div>
-                                <div className="mt-4">
-                                  <i
-                                    style={{ fontWeight: '500', fontsize: 15 }}
-                                  >
-                                    All activities related to this lead will be
-                                    shown here
-                                  </i>
-                                </div>
-                              </div>
-                            ) : (
-                              <div>
-                                {selectedLeadsDetails?.callActivity.map(
-                                  (item, index) => {
-                                    const initialTextLength = Math.ceil(
-                                      item?.transcript?.length * 0.1,
-                                    ) // 10% of the text
-                                    const initialText = item.transcript //?.slice(
-                                    // 0,
-                                    // initialTextLength
-                                    // );
-                                    return (
-                                      <div key={index}>
-                                        <div className="mt-4">
-                                          <div
-                                            className="-ms-4"
-                                            style={{
-                                              fontsize: 15,
-                                              fontWeight: '500',
-                                              color: '#15151560',
-                                            }}
-                                          >
-                                            {GetFormattedDateString(
-                                              item?.createdAt,
-                                              true,
-                                            )}
-                                          </div>
-                                          <div className="w-full flex flex-row items-center gap-2 h-full">
-                                            <div
-                                              className="pb-4 pt-6 ps-4 w-full"
-                                              style={{
-                                                borderLeft:
-                                                  '1px solid #00000020',
-                                              }}
-                                            >
-                                              <div className="h-full w-full">
-                                                <div className="flex flex-row items-center justify-between">
-                                                  <div className="flex flex-row items-center gap-1">
-                                                    <Image
-                                                      src={getCommunicationTypeIcon(
-                                                        item,
-                                                      )}
-                                                      height={15}
-                                                      width={15}
-                                                      alt="*"
-                                                    />
-                                                    <div
-                                                      style={{
-                                                        fontWeight: '600',
-                                                        fontsize: 15,
-                                                      }}
-                                                    >
-                                                      Outcome
-                                                    </div>
-                                                  </div>
-                                                  <button
-                                                    className="
-                                                  text-end flex flex-row items-center gap-1 px-2 py-2 rounded-full
-                                                  "
-                                                    style={{
-                                                      backgroundColor:
-                                                        '#ececec',
-                                                    }}
-                                                    onClick={() => {
-                                                      handleShowMoreActivityData(
-                                                        item,
-                                                      )
-                                                    }}
-                                                  >
-                                                    <div
-                                                      className="h-[10px] w-[10px] rounded-full"
-                                                      style={{
-                                                        backgroundColor:
-                                                          showColor(item),
-                                                      }}
-                                                    ></div>
-
-                                                    {getOutcome(item)}
-
-                                                    {item.callOutcome !==
-                                                      'No Answer' && (
-                                                      <div>
-                                                        {isExpandedActivity.includes(
-                                                          item.id,
-                                                        ) ? (
-                                                          <div>
-                                                            <CaretUp
-                                                              size={17}
-                                                              weight="bold"
-                                                            />
-                                                          </div>
-                                                        ) : (
-                                                          <div>
-                                                            <CaretDown
-                                                              size={17}
-                                                              weight="bold"
-                                                            />
-                                                          </div>
-                                                        )}
-                                                      </div>
-                                                    )}
-                                                  </button>
-                                                </div>
-                                                {isExpandedActivity.includes(
-                                                  item.id,
-                                                ) &&
-                                                  (item.status ===
-                                                    'voicemail' ||
-                                                  item.callOutcome ===
-                                                    'Voicemail' ? (
-                                                    <div className="border rounded mt-2 w-full p-4">
-                                                      <button
-                                                        onClick={() =>
-                                                          handleCopy(
-                                                            item.callId,
-                                                          )
-                                                        }
-                                                      >
-                                                        <Image
-                                                          src={
-                                                            '/svgIcons/copy.svg'
-                                                          }
-                                                          height={15}
-                                                          width={15}
-                                                          alt="*"
-                                                        />
-                                                      </button>
-                                                      {item.agent
-                                                        .hasVoicemail ? (
-                                                        <NoVoicemailView
-                                                          showAddBtn={false}
-                                                          title={
-                                                            'Voicemail Delivered'
-                                                          }
-                                                          subTitle={
-                                                            'Delivered during the first missed call'
-                                                          }
-                                                        />
-                                                      ) : (
-                                                        <NoVoicemailView
-                                                          showAddBtn={false}
-                                                          title={
-                                                            'Not able to Leave a Voicemail'
-                                                          }
-                                                          subTitle={
-                                                            'The phone was either a landline or has a full voicemail'
-                                                          }
-                                                        />
-                                                      )}
-                                                    </div>
-                                                  ) : (
-                                                    <>
-                                                      <div
-                                                        className="mt-6"
-                                                        style={{
-                                                          border:
-                                                            '1px solid #00000020',
-                                                          borderRadius: '10px',
-                                                          padding: 10,
-                                                          paddingInline: 15,
-                                                        }}
-                                                      >
-                                                        {item.communicationType ===
-                                                          'sms' ||
-                                                          item.communicationType ==
-                                                          'email'
-                                                          ? emailSmsTranscript(
-                                                            item,
-                                                          )
-                                                          : callTranscript(
-                                                            item,
-                                                            initialText,
-                                                          )}
-
-                                                        <div
-                                                          className="
-                                                        w-full flex flex-row justify-end -mt-2
-                                                        "
-                                                        >
-                                                          <button
-                                                            style={{
-                                                              fontWeight: '600',
-                                                              fontSize: 15,
-                                                              color: '#00000050',
-                                                            }}
-                                                            onClick={() => {
-                                                              setShowConfirmationPopup(
-                                                                  true,
-                                                                )
-                                                              setSelectedCallLog(
-                                                                    item,
-                                                                  )
-                                                                }}
-                                                              >
-                                                            Delete
-                                                              </button>
-
-                                                          <DeleteCallLogConfimation
-                                                            showConfirmationPopup={
-                                                              showConfirmationPopup
-                                                            }
-                                                            setShowConfirmationPopup={
-                                                              setShowConfirmationPopup
-                                                            }
-                                                            onContinue={() => {
-                                                              deleteCallLog(
-                                                                seletedCallLog,
-                                                              )
-                                                            }}
-                                                            loading={
-                                                              delCallLoader
-                                                            }
-                                                          />
-                                                          </div>
-                                                      </div>
-                                                    </>
-                                                  ))}
-                                              </div>
-                                            </div>
-                                          </div>
-                                        </div>
-                                      </div>
-                                    )
-                                  },
-                                )}
-                              </div>
-                            )}
-                          </div>
+                          <ActivityTabCN
+                            callActivity={selectedLeadsDetails?.callActivity || []}
+                            isExpandedActivity={isExpandedActivity}
+                            onToggleExpand={handleShowMoreActivityData}
+                            onCopyCallId={handleCopy}
+                            onReadTranscript={handleReadMoreToggle}
+                            onPlayRecording={(recordingUrl, callId) => {
+                              if (recordingUrl) {
+                                setShowAudioPlay({ recordingUrl, callId })
+                              } else {
+                                setShowNoAudioPlay(true)
+                              }
+                            }}
+                          />
                         )}
                       </div>
                       <div

@@ -467,7 +467,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
   }
 
   return (
-    <div className="w-full items-start">
+    <div className="w-full items-start h-full flex flex-col">
       <div className="flex flex-row items-center justify-between w-full">
         <div className="pl-10 mt-5" style={{ fontSize: 24, fontWeight: '600' }}>
           {'Activity'}
@@ -609,7 +609,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
         </div>
       </div>
 
-      <div className="w-full">
+      <div className="w-full flex-1 flex flex-col min-h-0">
         {activeTab === 'Campaigns' ? (
           <AdminDashboardActiveCall
             isFromAgency={isFromAgency}
@@ -627,9 +627,9 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
             isFromAgency={isFromAgency}
           />
         ) : activeTab === 'All Activities' ? (
-          <div className="w-full">
+          <div className="w-full flex-1 flex flex-col min-h-0">
             <div
-              className="h-[67vh] overflow-y-auto w-full"
+              className="flex-1 overflow-y-auto w-full"
               id="scrollableDiv1"
               style={{ scrollbarWidth: 'none' }}
             >
@@ -669,7 +669,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                 filteredCallDetails.length == 0 &&
                 !isLocalCallsAvailable ? (
                   <div
-                    className={`flex flex-row items-center justify-center mt-12 h-[67vh] overflow-auto`}
+                    className={`flex flex-row items-center justify-center mt-12 flex-1 overflow-auto`}
                   >
                     <CircularProgress size={35} thickness={2} />
                   </div>

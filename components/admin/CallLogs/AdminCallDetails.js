@@ -13,15 +13,12 @@ import {
   TextareaAutosize,
 } from '@mui/material'
 import {
-  CaretDown,
-  CaretUp,
   EnvelopeSimple,
   Plus,
   X,
 } from '@phosphor-icons/react'
 import axios from 'axios'
 import parsePhoneNumberFromString from 'libphonenumber-js'
-import moment from 'moment'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
@@ -34,11 +31,11 @@ import SelectStageDropdown from '@/components/dashboard/leads/StageSelectDropdow
 import DeleteCallLogConfimation from '@/components/dashboard/leads/extras/DeleteCallLogConfimation'
 import NoVoicemailView from '@/components/dashboard/myagentX/NoVoicemailView'
 import { AssignTeamMember } from '@/components/onboarding/services/apisServices/ApiService'
-import { callStatusColors } from '@/constants/Constants'
 import CircularLoader from '@/utilities/CircularLoader'
 import { capitalize } from '@/utilities/StringUtility'
 import { getAgentsListImage } from '@/utilities/agentUtilities'
 import { GetFormattedDateString } from '@/utilities/utility'
+import ActivityTabCN from '@/components/dashboard/leads/extras/ActivityTabCN'
 
 const AdminCallDetails = ({
   selectedLead,
@@ -165,160 +162,13 @@ const AdminCallDetails = ({
   }
 
   const handleReadMoreToggle = (item) => {
-    // setIsExpanded(!isExpanded);
-
     setIsExpanded((prevIds) => {
       if (prevIds.includes(item.id)) {
-        // Unselect the item if it's already selected
         return prevIds.filter((prevId) => prevId !== item.id)
       } else {
-        // Select the item if it's not already selected
         return [...prevIds, item.id]
       }
     })
-  }
-
-  //color
-  const showColor = (item) => {
-    let color =
-      callStatusColors[
-        Object.keys(callStatusColors).find(
-          (key) =>
-            key.toLowerCase() === (item?.callOutcome || '').toLowerCase(),
-        )
-      ] || '#000'
-
-    return color
-  }
-
-  //text of outcome
-  const getOutcome = (item) => {
-    if (item.communicationType == 'sms') {
-      return 'Text Sent'
-    } else if (item.communicationType == 'email') {
-      return 'Email Sent'
-    } else if (item.callOutcome) {
-      return item?.callOutcome
-    } else {
-      return 'Ongoing'
-    }
-  }
-
-  const callTranscript = (item, initialText) => {
-    console.log('Call transcript item is', item)
-    return (
-      <div className="flex flex-col">
-        <div className="flex mt-4 flex-row items-center gap-4">
-          <div
-            className=""
-            style={{
-              fontWeight: '500',
-              fontSize: 12,
-              color: '#00000070',
-            }}
-          >
-            Call ID
-          </div>
-
-          <button onClick={() => handleCopy(item.callId)}>
-            <Image src={'/svgIcons/copy.svg'} height={15} width={15} alt="*" />
-          </button>
-        </div>
-        <div className="flex flex-row items-center justify-between mt-4">
-          <div
-            style={{
-              fontWeight: '500',
-              fontSize: 15,
-            }}
-          >
-            {moment(item?.duration * 1000).format('mm:ss')}{' '}
-          </div>
-          <button
-            onClick={() => {
-              if (item?.recordingUrl) {
-                setShowAudioPlay(item?.recordingUrl)
-              } else {
-                setShowNoAudioPlay(true)
-              }
-              // window.open(item.recordingUrl, "_blank")
-            }}
-          >
-            <Image src={'/assets/play.png'} height={35} width={35} alt="*" />
-          </button>
-        </div>
-        {item.transcript ? (
-          <div className="w-full">
-            <div
-              className="mt-4"
-              style={{
-                fontWeight: '600',
-                fontSize: 15,
-              }}
-            >
-              {/* {item.transcript} */}
-              Test chek 1 `${initialText}...`
-              {isExpanded.includes(item.id)
-                ? `${item.transcript}`
-                : `${initialText}...`}
-            </div>
-            <div className="w-full flex flex-row items-center justify-between">
-              <button
-                style={{
-                  fontWeight: '600',
-                  fontSize: 15,
-                }}
-                onClick={() => {
-                  handleReadMoreToggle(item)
-                }}
-                className="mt-2 text-black underline"
-              >
-                {'Read Transcript'}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <div
-            style={{
-              fontWeight: '600',
-              fontSize: 15,
-            }}
-          >
-            No transcript
-          </div>
-        )}
-      </div>
-    )
-  }
-
-  const emailSmsTranscript = (item) => {
-    console.log('Email sms transcript item is', item)
-    return (
-      <div className="flex flex-col items-start gap-2">
-        {item.sentSubject && (
-          <div className="flex flex-col items-start gap-2">
-            <div className="text-base font-semibold text-[#00000050]">
-              Subject
-            </div>
-
-            <div className="text-base font-medium text-[#000000]">
-              {item.sentSubject}
-            </div>
-          </div>
-        )}
-
-        {item.sentContent && (
-          <div className="flex flex-col items-start gap-2">
-            <div className="text-base font-semibold text-[#00000050]">
-              Content
-            </div>
-
-            <div className="text-base font-medium text-[#000000]">
-              {item.sentContent}
-            </div>
-          </div>
-        )}
-      </div>
-    )
   }
 
   return (
@@ -483,227 +333,20 @@ const AdminCallDetails = ({
                   </div>
 
                   <div>
-                    {selectedLeadsDetails?.callActivity.length < 1 ? (
-                      <div
-                        className="flex flex-col items-center justify-center mt-12 w-full"
-                        style={{ fontWeight: '500', fontsize: 15 }}
-                      >
-                        <div className="h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">
-                          <Image
-                            src={'/assets/activityClock.png'}
-                            height={24}
-                            width={24}
-                            alt="*"
-                          />
-                        </div>
-                        <div className="mt-4">
-                          <i style={{ fontWeight: '500', fontsize: 15 }}>
-                            All activities related to this lead will be shown
-                            here
-                          </i>
-                        </div>
-                      </div>
-                    ) : (
-                      <div>
-                        {selectedLeadsDetails?.callActivity.map(
-                          (item, index) => {
-                            const initialTextLength = Math.ceil(
-                              item.transcript?.length * 0.1,
-                            ) // 40% of the text
-                            const initialText = item.transcript?.slice(
-                              0,
-                              initialTextLength,
-                            )
-                            return (
-                              <div key={index}>
-                                <div className="mt-4">
-                                  <div
-                                    className="-ms-4"
-                                    style={{
-                                      fontsize: 15,
-                                      fontWeight: '500',
-                                      color: '#15151560',
-                                    }}
-                                  >
-                                    {GetFormattedDateString(
-                                      item?.createdAt,
-                                      true,
-                                    )}
-                                  </div>
-                                  <div className="w-full flex flex-row items-center gap-2 h-full">
-                                    <div
-                                      className="pb-4 pt-6 ps-4 w-full"
-                                      style={{
-                                        borderLeft: '1px solid #00000020',
-                                      }}
-                                    >
-                                      <div className="h-full w-full">
-                                        <div className="flex flex-row items-center justify-between">
-                                          <div className="flex flex-row items-center gap-1">
-                                            <div
-                                              style={{
-                                                fontWeight: '600',
-                                                fontsize: 15,
-                                              }}
-                                            >
-                                              Outcome
-                                            </div>
-                                            {/* <div className='text-purple' style={{ fontWeight: "600", fontsize: 12 }}>
-                                                                                                {selectedLeadsDetails?.firstName} {selectedLeadsDetails?.lastName}
-                                                                                            </div> */}
-                                          </div>
-                                          <button
-                                            className="
-                                          text-end flex flex-row items-center gap-1 px-2 py-2 rounded-full
-                                          "
-                                            style={{
-                                              backgroundColor: '#ececec',
-                                            }}
-                                            onClick={() => {
-                                              handleShowMoreActivityData(item)
-                                            }}
-                                          >
-                                            <div
-                                              className="h-[10px] w-[10px] rounded-full"
-                                              style={{
-                                                backgroundColor:
-                                                  showColor(item),
-                                              }}
-                                            ></div>
-                                            {getOutcome(item)}
-                                            {/* {checkCallStatus(item)} */}
-
-                                            {item.callOutcome !==
-                                              'No Answer' && (
-                                              <div>
-                                                {isExpandedActivity.includes(
-                                                  item.id,
-                                                ) ? (
-                                                  <div>
-                                                    <CaretUp
-                                                      size={17}
-                                                      weight="bold"
-                                                    />
-                                                  </div>
-                                                ) : (
-                                                  <div>
-                                                    <CaretDown
-                                                      size={17}
-                                                      weight="bold"
-                                                    />
-                                                  </div>
-                                                )}
-                                              </div>
-                                            )}
-                                          </button>
-                                        </div>
-                                        {isExpandedActivity.includes(item.id) &&
-                                          (item.status === 'voicemail' ||
-                                          item.callOutcome === 'Voicemail' ? (
-                                            <div className="border rounded mt-2 w-full p-4">
-                                              <button
-                                                onClick={() =>
-                                                  handleCopy(item.callId)
-                                                }
-                                              >
-                                                <Image
-                                                  src={'/svgIcons/copy.svg'}
-                                                  height={15}
-                                                  width={15}
-                                                  alt="*"
-                                                />
-                                              </button>
-                                              {item.agent.hasVoicemail ? (
-                                                <NoVoicemailView
-                                                  showAddBtn={false}
-                                                  title={'Voicemail Delivered'}
-                                                  subTitle={
-                                                    'Delivered during the first missed call'
-                                                  }
-                                                />
-                                              ) : (
-                                                <NoVoicemailView
-                                                  showAddBtn={false}
-                                                  title={
-                                                    'Not able to Leave a Voicemail'
-                                                  }
-                                                  subTitle={
-                                                    'The phone was either a landline or has a full voicemail'
-                                                  }
-                                                />
-                                              )}
-                                            </div>
-                                          ) : (
-                                            <>
-                                              <div
-                                                className="mt-6"
-                                                style={{
-                                                  border: '1px solid #00000020',
-                                                  borderRadius: '10px',
-                                                  padding: 10,
-                                                  paddingInline: 15,
-                                                }}
-                                              >
-                                                {item.communicationType ===
-                                                  'sms' ||
-                                                item.communicationType ==
-                                                  'email'
-                                                  ? emailSmsTranscript(item)
-                                                  : callTranscript(
-                                                      item,
-                                                      initialText,
-                                                    )}
-
-                                                <div
-                                                  className="
-                                                w-full flex flex-row justify-end -mt-2
-                                                "
-                                                >
-                                                  <button
-                                                    style={{
-                                                      fontWeight: '600',
-                                                      fontSize: 15,
-                                                      color: '#00000050',
-                                                    }}
-                                                    onClick={() => {
-                                                      setShowConfirmationPopup(
-                                                        true,
-                                                      )
-                                                      setSelectedCallLog(item)
-                                                      //  deleteCallLog(item)
-                                                    }}
-                                                  >
-                                                    Delete
-                                                  </button>
-
-                                                  <DeleteCallLogConfimation
-                                                    showConfirmationPopup={
-                                                      showConfirmationPopup
-                                                    }
-                                                    setShowConfirmationPopup={
-                                                      showConfirmationPopup
-                                                    }
-                                                    onContinue={() => {
-                                                      deleteCallLog(
-                                                        seletedCallLog,
-                                                      )
-                                                    }}
-                                                    loading={delCallLoader}
-                                                  />
-                                                </div>
-                                              </div>
-                                            </>
-                                          ))}
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                            )
-                          },
-                        )}
-                      </div>
-                    )}
+                    <ActivityTabCN
+                      callActivity={selectedLeadsDetails?.callActivity || []}
+                      isExpandedActivity={isExpandedActivity}
+                      onToggleExpand={handleShowMoreActivityData}
+                      onCopyCallId={handleCopy}
+                      onReadTranscript={handleReadMoreToggle}
+                      onPlayRecording={(recordingUrl, callId) => {
+                        if (recordingUrl) {
+                          setShowAudioPlay({ recordingUrl, callId })
+                        } else {
+                          setShowNoAudioPlay(true)
+                        }
+                      }}
+                    />
                   </div>
 
                   <div></div>

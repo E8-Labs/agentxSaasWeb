@@ -28,6 +28,37 @@ const hasTextContent = (html) => {
   return textOnly.length > 0
 }
 
+// Helper function to linkify text (convert URLs to clickable links)
+const linkifyText = (text) => {
+  if (!text) return ''
+
+  // First convert HTML to plain text
+  const plainText = htmlToPlainText(text)
+
+  // Escape HTML to avoid injection when rendering as HTML
+  const escapeHtml = (str) =>
+    str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+
+  const escaped = escapeHtml(plainText)
+
+  // Detect URLs (with or without protocol) and convert to links
+  const urlRegex = /((https?:\/\/|www\.)[^\s<]+)/gi
+
+  const linked = escaped.replace(urlRegex, (match) => {
+    const hasProtocol = match.startsWith('http://') || match.startsWith('https://')
+    const href = hasProtocol ? match : `https://${match}`
+    return `<a href="${href}" class="underline text-brand-primary hover:text-brand-primary/80" target="_blank" rel="noopener noreferrer">${match}</a>`
+  })
+
+  // Preserve newlines
+  return linked.replace(/\n/g, '<br />')
+}
+
 const EmailTimelineModal = ({
   open,
   onClose,
@@ -537,9 +568,12 @@ const EmailTimelineModal = ({
                               </span>
                             </div>
 
-                            <div className={`text-sm whitespace-pre-wrap ${message.direction === 'outbound' ? 'text-white' : 'text-gray-800'}`}>
-                              {htmlToPlainText(message.content || '')}
-                            </div>
+                            <div 
+                              className={`text-sm whitespace-pre-wrap ${message.direction === 'outbound' ? 'text-white [&_a]:!text-white [&_a:hover]:!text-white/80' : 'text-gray-800'}`}
+                              dangerouslySetInnerHTML={{
+                                __html: linkifyText(message.content || ''),
+                              }}
+                            />
 
                             {message.metadata?.attachments && message.metadata.attachments.length > 0 && (
                               <div className="flex flex-col gap-1 mt-3">

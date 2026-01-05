@@ -35,12 +35,7 @@ import parsePhoneNumberFromString from 'libphonenumber-js'
 import {
   Phone,
   View,
-  Smile,
-  Frown,
   AlertTriangle,
-  Flame,
-  Sun,
-  Snowflake,
   CheckCircle2,
   Mail,
   MapPin,
@@ -51,7 +46,6 @@ import {
   FileText,
   MessageSquare,
   Copy,
-  Meh,
   ListChecks,
   PhoneCall,
   MessageSquareDotIcon,
@@ -86,7 +80,6 @@ import {
 } from '@/components/pipeline/TempleteServices'
 import ScoringProgress from '@/components/ui/ScoringProgress'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
-import { callStatusColors } from '@/constants/Constants'
 import { calculateCreditCost } from '@/services/LeadsServices/LeadsServices'
 import CircularLoader from '@/utilities/CircularLoader'
 import { capitalize } from '@/utilities/StringUtility'
@@ -113,8 +106,6 @@ import NotesTabCN from './NotesTabCN'
 import KYCTabCN from './KYCTabCN'
 import ActivityTabCN from './ActivityTabCN'
 import InsightsTabCN from './InsightsTabCN'
-import CallTranscriptCN from './CallTranscriptCN'
-import EmailSmsTranscriptCN from './EmailSmsTranscriptCN'
 import CustomFieldsCN from './CustomFieldsCN'
 import TabsCN from './TabsCN'
 
@@ -1197,33 +1188,6 @@ const LeadDetails = ({
 
   // console.log('enrichData', enrichData)
 
-  const showColor = (item) => {
-    let color =
-      callStatusColors[
-      Object.keys(callStatusColors).find(
-        (key) =>
-          key.toLowerCase() === (item?.callOutcome || '').toLowerCase(),
-      )
-      ] || '#000'
-
-    return color
-  }
-
-  const getCommunicationTypeIcon = (item) => {
-    console.log('item.communication', item.communicationType)
-    // Check if it's a dialer call (callOrigin === 'Dialer' or isWebCall === false for calls)
-    const isDialerCall = item.callOrigin === 'Dialer' || (item.communicationType === 'call' && item.isWebCall === false)
-
-    if (item.communicationType == 'sms') {
-      return '/otherAssets/smsIcon.png'
-    } else if (item.communicationType == 'email') {
-      return '/otherAssets/email.png'
-    } else if (item.communicationType == 'call' || isDialerCall) {
-      return '/otherAssets/callIcon.png'
-    } else if (item.communicationType == 'web') {
-      return '/otherAssets/webhook2.svg'
-    } else return '/otherAssets/callIcon.png'
-  }
 
   const handleCopy = async (id) => {
     try {
@@ -1276,17 +1240,6 @@ const LeadDetails = ({
     }
   }
 
-  const getOutcome = (item) => {
-    if (item.communicationType == 'sms') {
-      return 'Text Sent'
-    } else if (item.communicationType == 'email') {
-      return 'Email Sent'
-    } else if (item.callOutcome) {
-      return item?.callOutcome
-    } else {
-      return 'Ongoing'
-    }
-  }
 
   // Send email API function
   const sendEmailToLead = async (emailData) => {
@@ -1501,70 +1454,6 @@ const LeadDetails = ({
     return <Sun size={16} color="#6b7280" />
   }
 
-  // Helper function to get sentiment icon
-  const getSentimentIcon = (sentiment) => {
-    if (!sentiment) return null
-    const sentimentLower = sentiment.toLowerCase()
-    if (sentimentLower.includes('positive') || sentimentLower.includes('happy') || sentimentLower.includes('excited')) {
-      return <Smile size={18} color="hsl(var(--brand-primary))" />
-    } else if (sentimentLower.includes('negative') || sentimentLower.includes('angry') || sentimentLower.includes('frustrated')) {
-      return <Frown size={18} color="hsl(var(--brand-primary))" />
-    } else {
-      return <Meh size={18} color="hsl(var(--brand-primary))" />
-    }
-  }
-
-  // Helper function to get temperature icon
-  const getTemperatureIconForActivity = (temperature) => {
-    if (!temperature) return null
-    const tempLower = temperature.toLowerCase()
-    if (tempLower.includes('hot')) {
-      return <Flame size={18} color="hsl(var(--brand-primary))" />
-    } else if (tempLower.includes('warm')) {
-      return <Sun size={18} color="hsl(var(--brand-primary))" />
-    } else if (tempLower.includes('cold')) {
-      return <Snowflake size={18} color="hsl(var(--brand-primary))" />
-    }
-    return null
-  }
-
-  // Helper function to format next steps for tooltip
-  const formatNextStepsForTooltip = (nextSteps) => {
-    if (!nextSteps) return 'No next steps'
-    try {
-      const steps = typeof nextSteps === 'string' ? JSON.parse(nextSteps) : nextSteps
-      if (Array.isArray(steps) && steps.length > 0) {
-        return steps.map((step, idx) => `${idx + 1}. ${step}`).join('\n')
-      }
-      return typeof nextSteps === 'string' ? nextSteps : 'No next steps'
-    } catch {
-      return typeof nextSteps === 'string' ? nextSteps : 'No next steps'
-    }
-  }
-
-  const callTranscript = (item) => {
-    return (
-      <CallTranscriptCN
-        item={item}
-        onPlayRecording={(recordingUrl, callId) => {
-          if (recordingUrl) {
-            setShowAudioPlay({ recordingUrl, callId })
-                } else {
-                  setShowNoAudioPlay(true)
-                }
-              }}
-        onCopyCallId={handleCopy}
-        onReadTranscript={handleReadMoreToggle}
-        getSentimentIcon={getSentimentIcon}
-        getTemperatureIconForActivity={getTemperatureIconForActivity}
-        formatNextStepsForTooltip={formatNextStepsForTooltip}
-      />
-    )
-  }
-
-  const emailSmsTranscript = (item) => {
-    return <EmailSmsTranscriptCN item={item} />
-  }
 
   const startCallAction = () => {
     setSendActionAnchor(null)
@@ -2132,11 +2021,6 @@ const LeadDetails = ({
                             setShowNoAudioPlay(true)
                           }
                         }}
-                        getCommunicationTypeIcon={getCommunicationTypeIcon}
-                        getOutcome={getOutcome}
-                        showColor={showColor}
-                        callTranscript={callTranscript}
-                        emailSmsTranscript={emailSmsTranscript}
                       />
                                                       )}
                                                     </div>

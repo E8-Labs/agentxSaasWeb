@@ -4,7 +4,7 @@ import AdminDashboardCallLogs from '@/components/admin/CallLogs/AdminDashboardCa
 
 const Pauseage = () => {
   return (
-    <div className="w-full">
+    <div className="w-full h-screen flex flex-col">
       <AdminDashboardCallLogs isFromAgency={true} />
     </div>
   )
