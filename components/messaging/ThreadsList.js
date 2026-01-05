@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import moment from 'moment'
 import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail } from 'lucide-react'
 import { Input } from '@/components/ui/input'
@@ -22,7 +22,14 @@ const ThreadsList = ({
   onDeleteThread,
   searchValue,
   onSearchChange,
-  onFilterClick,
+  showFilterPopover = false,
+  onFilterToggle,
+  filterTeamMembers = [],
+  selectedTeamMemberIds = [],
+  onSelectTeamMember,
+  onApplyFilter,
+  onClearFilter,
+  hasActiveFilters = false,
   selectedTeamMemberIdsCount,
   filterType = 'all', // 'all' or 'unreplied'
   onFilterTypeChange,
@@ -30,6 +37,57 @@ const ThreadsList = ({
   unrepliedCount = 0,
 }) => {
   const [openMenuId, setOpenMenuId] = useState(null)
+  const filterButtonRef = useRef(null)
+  const filterPopoverRef = useRef(null)
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!showFilterPopover) return
+      const popoverEl = filterPopoverRef.current
+      const buttonEl = filterButtonRef.current
+      if (
+        popoverEl &&
+        !popoverEl.contains(event.target) &&
+        buttonEl &&
+        !buttonEl.contains(event.target)
+      ) {
+        onFilterToggle?.(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showFilterPopover, onFilterToggle])
+
+  const isAllSelected = selectedTeamMemberIds.length === 0
+
+  const renderFilterOption = (option, isAll = false) => {
+    const isSelected = isAll ? isAllSelected : selectedTeamMemberIds.includes(option.id)
+    const nameInitial = option.name?.charAt(0)?.toUpperCase() || '?'
+    const displayInitial = isAll ? 'All' : nameInitial
+
+    return (
+      <button
+        key={isAll ? 'all-members' : option.id}
+        onClick={() => onSelectTeamMember?.(isAll ? null : option.id)}
+        className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors text-left"
+      >
+        <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-700 font-semibold text-sm">
+          {displayInitial}
+        </div>
+        <span className="flex-1 text-sm text-gray-900">{isAll ? 'All Members' : option.name}</span>
+        <span
+          className={cn(
+            'w-5 h-5 rounded-full border-2 flex items-center justify-center',
+            isSelected ? 'border-brand-primary' : 'border-gray-300',
+          )}
+        >
+          {isSelected && <span className="w-2.5 h-2.5 rounded-full bg-brand-primary" />}
+        </span>
+      </button>
+    )
+  }
+
   return (
     <div className="w-80 border-r px-3 border-gray-200 flex flex-col h-full bg-white">
       <div className="w-full flex flex-row items-center justify-between mt-4">
@@ -82,16 +140,57 @@ const ThreadsList = ({
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           </div>
 
-          <button
-          onClick={onFilterClick}
-          >
+          <div className="relative">
+            <button
+              ref={filterButtonRef}
+              onClick={() => onFilterToggle?.(!showFilterPopover)}
+              className="relative p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+            >
               <Image src="/messaging/filterIcon.svg" width={24} height={24} alt="Filter" />
-          </button>
+              {hasActiveFilters && (
+                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-primary border-2 border-white" />
+              )}
+            </button>
+            {showFilterPopover && (
+              <div
+                ref={filterPopoverRef}
+                className="absolute right-0 top-12 z-30 w-64 bg-white rounded-2xl shadow-xl border border-gray-200"
+              >
+                <div className="px-4 pt-3 pb-2 text-sm font-semibold text-gray-600">Filter by</div>
+                <div className="flex flex-col max-h-64 overflow-y-auto pb-2">
+                  {renderFilterOption({}, true)}
+                  {filterTeamMembers.length === 0 ? (
+                    <div className="px-4 py-4 text-sm text-gray-500">No team members available</div>
+                  ) : (
+                    filterTeamMembers.map((member) => renderFilterOption(member, false))
+                  )}
+                </div>
+                <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between gap-2">
+                  <button
+                    onClick={() => {
+                      onClearFilter?.()
+                    }}
+                    className="text-sm text-gray-500 hover:text-gray-700"
+                  >
+                    Clear
+                  </button>
+                  <Button
+                    size="sm"
+                    className="bg-brand-primary hover:bg-brand-primary/90 text-white"
+                    onClick={() => {
+                      onApplyFilter?.()
+                    }}
+                  >
+                    Apply
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
 
-          <button>
-              <Image src="/svgIcons/threeDotsIcon.svg" width={24} height={24} alt="Filter" />
+          <button className="p-1.5 rounded-md hover:bg-gray-100 transition-colors">
+            <Image src="/svgIcons/threeDotsIcon.svg" width={24} height={24} alt="Filter" />
           </button>
-
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -215,6 +314,13 @@ const ThreadsList = ({
                         return prefix + text.substring(0, 40) + (text.length > 40 ? '...' : '')
                       })()}
                     </TypographyCaption>
+                    {thread.lead?.pipelineStage?.stageTitle && (
+                      <div className="inline-flex items-center gap-2 px-2.5 py-1 mt-1 border border-gray-200 rounded-md">
+                        <TypographyCaption className="text-darkGray font-semibold">
+                          {thread.lead.pipelineStage.stageTitle}
+                        </TypographyCaption>
+                      </div>
+                    )}
                     {/* Hot Lead Tags */}
                     {thread.lead?.tags && thread.lead.tags.length > 0 && (
                       <div className="flex items-center gap-2 mt-1">

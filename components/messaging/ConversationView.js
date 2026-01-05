@@ -192,6 +192,33 @@ const EmailBubble = ({
   </>
 )
 
+const linkifyText = (text) => {
+  if (!text) return ''
+
+  // Escape HTML to avoid injection when rendering as HTML
+  const escapeHtml = (str) =>
+    str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+
+  const escaped = escapeHtml(text)
+
+  // Detect URLs (with or without protocol) and convert to links
+  const urlRegex = /((https?:\/\/|www\.)[^\s<]+)/gi
+
+  const linked = escaped.replace(urlRegex, (match) => {
+    const hasProtocol = match.startsWith('http://') || match.startsWith('https://')
+    const href = hasProtocol ? match : `https://${match}`
+    return `<a href="${href}" class="underline text-brand-primary hover:text-brand-primary/80" target="_blank" rel="noopener noreferrer">${match}</a>`
+  })
+
+  // Preserve newlines
+  return linked.replace(/\n/g, '<br />')
+}
+
 const MessageBubble = ({ message, isOutbound, onAttachmentClick }) => (
   <div
     className={`px-4 py-3 ${
@@ -200,7 +227,10 @@ const MessageBubble = ({ message, isOutbound, onAttachmentClick }) => (
         : 'bg-gray-100 text-black rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
     }`}
   >
-    <div className={`whitespace-pre-wrap ${isOutbound ? 'text-white' : 'text-black'}`}>{message.content}</div>
+    <div
+      className={`whitespace-pre-wrap break-words ${isOutbound ? 'text-white' : 'text-black'}`}
+      dangerouslySetInnerHTML={{ __html: linkifyText(message.content || '') }}
+    />
     <AttachmentList message={message} isOutbound={isOutbound} onAttachmentClick={onAttachmentClick} />
     <div className="mt-3 flex items-center justify-end gap-2">
       <span className={`text-xs ${isOutbound ? 'text-white' : 'text-black'}`}>{moment(message.createdAt).format('h:mm A')}</span>

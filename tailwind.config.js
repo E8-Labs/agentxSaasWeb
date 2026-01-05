@@ -28,6 +28,7 @@ module.exports = {
         lightBlue: '#402fff10',
         brdColor: '#15151510',
         grayclr75: '#757575',
+        darkGray: '#666666',
         // Transaction type colors
         blue: {
           100: '#DBEAFE',

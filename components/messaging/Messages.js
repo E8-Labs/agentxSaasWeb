@@ -1,7 +1,6 @@
 'use client'
 
 import { ChevronLeft, ChevronRight, X, Download, Paperclip } from 'lucide-react'
-import CloseBtn from '@/components/globalExtras/CloseBtn'
 import axios from 'axios'
 import DOMPurify from 'dompurify'
 import moment from 'moment'
@@ -23,7 +22,6 @@ import voicesList from '@/components/createagent/Voices'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
-import { Modal, Box } from '@mui/material'
 import { useUser } from '@/hooks/redux-hooks'
 import UnlockMessagesView from './UnlockMessagesView'
 import MessageHeader from './MessageHeader'
@@ -82,10 +80,14 @@ const Messages = () => {
 
   // Filter state
   const [filterType, setFilterType] = useState('all') // 'all' or 'unreplied'
-  const [showFilterModal, setShowFilterModal] = useState(false)
   const [selectedTeamMemberIds, setSelectedTeamMemberIds] = useState([]) // Temporary selection in modal
   const [appliedTeamMemberIds, setAppliedTeamMemberIds] = useState([]) // Actually applied filter
   const [filterTeamMembers, setFilterTeamMembers] = useState([])
+  const [showFilterPopover, setShowFilterPopover] = useState(false)
+  const hasActiveFilters =
+    filterTeamMembers.length > 0 &&
+    appliedTeamMemberIds.length > 0 &&
+    appliedTeamMemberIds.length < filterTeamMembers.length
 
 
   const { user: reduxUser, setUser: setReduxUser, planCapabilities } = useUser()
@@ -413,14 +415,14 @@ const Messages = () => {
         params.teamMemberIds = teamMemberIdsFilter.join(',')
       }
 
-      const response = await axios.get(Apis.getMessageThreads, {
+      const response = await axios.get('/api/messaging/threads', {
         params,
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       })
-      console.log("Api path is ", Apis.getMessageThreads)
+      console.log("Api path is /api/messaging/threads")
       console.log("params is ", params)
       console.log("response is ", response)
 
@@ -1996,7 +1998,7 @@ const Messages = () => {
       }
 
       // Fallback to original behavior: fetch all threads for this lead, then filter for email messages
-      const threadsResponse = await axios.get(Apis.getMessageThreads, {
+      const threadsResponse = await axios.get('/api/messaging/threads', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -2119,22 +2121,20 @@ const Messages = () => {
     getMyTeam()
   }, [])
 
-  // Handler for team member filter selection
-  const handleTeamMemberFilterToggle = (memberId) => {
-    setSelectedTeamMemberIds((prev) => {
-      if (prev.includes(memberId)) {
-        return prev.filter((id) => id !== memberId)
-      } else {
-        return [...prev, memberId]
-      }
-    })
+  // Handler for team member filter selection (single-select + "All")
+  const handleTeamMemberFilterSelect = (memberId = null) => {
+    if (memberId === null) {
+      setSelectedTeamMemberIds([])
+    } else {
+      setSelectedTeamMemberIds([memberId])
+    }
   }
 
   // Handler to apply filter
   const handleApplyFilter = () => {
     const newAppliedIds = [...selectedTeamMemberIds]
     setAppliedTeamMemberIds(newAppliedIds) // Apply the selected filters
-    setShowFilterModal(false)
+    setShowFilterPopover(false)
     // Pass the IDs directly instead of relying on state
     fetchThreads(searchValue || '', newAppliedIds)
   }
@@ -2143,17 +2143,12 @@ const Messages = () => {
   const handleClearFilter = () => {
     setSelectedTeamMemberIds([])
     setAppliedTeamMemberIds([])
-    setShowFilterModal(false)
+    setShowFilterPopover(false)
     // Pass empty array directly instead of relying on state
     fetchThreads(searchValue || '', [])
   }
 
   // When opening the filter modal, sync selectedTeamMemberIds with appliedTeamMemberIds
-  const handleOpenFilterModal = () => {
-    setSelectedTeamMemberIds([...appliedTeamMemberIds])
-    setShowFilterModal(true)
-  }
-
   // Delete thread handler
   const handleDeleteThread = useCallback(async (leadId, threadId) => {
     try {
@@ -2352,7 +2347,19 @@ const Messages = () => {
                     onDeleteThread={handleDeleteThread}
                     searchValue={searchValue}
                     onSearchChange={setSearchValue}
-                    onFilterClick={handleOpenFilterModal}
+                    showFilterPopover={showFilterPopover}
+                    onFilterToggle={(open) => {
+                      if (open) {
+                        setSelectedTeamMemberIds([...appliedTeamMemberIds])
+                      }
+                      setShowFilterPopover(open)
+                    }}
+                    filterTeamMembers={filterTeamMembers}
+                    selectedTeamMemberIds={selectedTeamMemberIds}
+                    onSelectTeamMember={handleTeamMemberFilterSelect}
+                    onApplyFilter={handleApplyFilter}
+                    onClearFilter={handleClearFilter}
+                    hasActiveFilters={hasActiveFilters}
                     selectedTeamMemberIdsCount={appliedTeamMemberIds.length}
                     filterType={filterType}
                     onFilterTypeChange={setFilterType}
@@ -2640,109 +2647,6 @@ const Messages = () => {
                 setSelectedGoogleAccount={() => { }}
               />
 
-              {/* Filter Modal for Team Members */}
-              <Modal
-                open={showFilterModal}
-                onClose={() => setShowFilterModal(false)}
-                closeAfterTransition
-                BackdropProps={{
-                  timeout: 1000,
-                  sx: {
-                    backgroundColor: '#00000020',
-                  },
-                }}
-              >
-                <Box
-                  className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 max-h-[70vh] rounded-[13px]"
-                  sx={{
-                    height: 'auto',
-                    bgcolor: 'transparent',
-                    p: 0,
-                    mx: 'auto',
-                    my: '50vh',
-                    transform: 'translateY(-55%)',
-                    borderRadius: '13px',
-                    border: 'none',
-                    outline: 'none',
-                    overflow: 'hidden',
-                  }}
-                >
-                  <div className="flex flex-col w-full">
-                    <div
-                      className="w-full rounded-[13px] overflow-hidden"
-                      style={{
-                        backgroundColor: '#ffffff',
-                        padding: 20,
-                        paddingInline: 30,
-                        borderRadius: '13px',
-                      }}
-                    >
-                      <div className="flex flex-row items-center justify-between mb-4">
-                        <div style={{ fontWeight: '700', fontSize: 22 }}>
-                          Filter
-                        </div>
-                        <CloseBtn onClick={() => setShowFilterModal(false)} />
-                      </div>
-
-                      <div
-                        className="mt-4"
-                        style={{
-                          maxHeight: '400px',
-                          overflowY: 'auto',
-                          border: '1px solid #00000020',
-                          borderRadius: '13px',
-                          padding: '10px',
-                        }}
-                      >
-                        {filterTeamMembers.length === 0 ? (
-                          <div className="text-center py-8 text-gray-500">
-                            No team members available
-                          </div>
-                        ) : (
-                          filterTeamMembers.map((member) => (
-                            <div
-                              key={member.id}
-                              className="flex flex-row items-center gap-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer"
-                              onClick={() => handleTeamMemberFilterToggle(member.id)}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={selectedTeamMemberIds.includes(member.id)}
-                                onChange={() => handleTeamMemberFilterToggle(member.id)}
-                                onClick={(e) => e.stopPropagation()}
-                                className="w-4 h-4 text-purple-600 rounded focus:ring-purple-500"
-                              />
-                              <div className="flex flex-col flex-1">
-                                <span className="font-medium text-gray-900">
-                                  {member.name}
-                                </span>
-                                {member.email && (
-                                  <span className="text-sm text-gray-500">
-                                    {member.email}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          ))
-                        )}
-                      </div>
-
-                      <div className="w-full mt-4">
-                        <button
-                          onClick={handleApplyFilter}
-                          className="bg-purple h-[50px] rounded-xl text-white w-full"
-                          style={{
-                            fontWeight: '600',
-                            fontSize: 16,
-                          }}
-                        >
-                          Apply Filter
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </Box>
-              </Modal>
             </div>
           </div>
         )}
