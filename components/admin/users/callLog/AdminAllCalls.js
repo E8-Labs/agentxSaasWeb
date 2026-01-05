@@ -660,7 +660,7 @@ function AdminAllCalls({ selectedUser }) {
         </div>
       ) : (
         <div
-          className={`h-[41vh] overflow-auto`}
+          className={`h-[81vh] pb-6 overflow-auto`}
           id="scrollableDiv1"
           style={{ scrollbarWidth: 'none' }}
         >

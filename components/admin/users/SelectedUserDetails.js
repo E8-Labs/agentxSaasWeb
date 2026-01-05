@@ -399,7 +399,7 @@ function SelectedUserDetails({
       <div className="flex flex-col items-center justify-center w-full">
         <div
           style={{ alignSelf: 'center' }}
-          className={`w-full ${agencyUser ? 'h-[100svh] overflow-hidden' : 'h-[80vh]'} bg-white items-center justify-center`}
+          className={`w-full ${agencyUser ? 'h-[100svh] overflow-hidden' : 'h-[90vh]'} items-center justify-center`}
         >
           {/*
                         <div className='flex flex-row items-center justify-between w-full px-4 pt-2'>
@@ -413,7 +413,7 @@ function SelectedUserDetails({
             </div>
           )}
 
-          <div className="flex flex-row items-start w-full">
+          <div className="flex flex-row items-start w-full ">
             <div className='flex flex-col items-start justify-center w-2/12 px-6 ${(from === "admin" || from === "subaccount") ? "":"h-full"}'>
               <div className={`flex flex-row gap-2 items-center justify-start w-full pt-3 ${agencyUser ? 'pt-3':''}`}>
                 <div className="flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white">
