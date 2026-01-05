@@ -1936,9 +1936,10 @@ function DialerModal({
     return `${mins.toString().padStart(2, '0')} Min ${secs.toString().padStart(2, '0')} Sec`
   }
 
-  const fetchEmailTemplates = async () => {
+  const fetchEmailTemplates = async (createdTemplateId?: number) => {
     // Check if we should refetch (cache is stale or empty)
-    if (!shouldRefetchEmailTemplates && emailTemplates.length > 0) {
+    // Always refetch if we have a createdTemplateId to ensure we get the new template
+    if (!shouldRefetchEmailTemplates && emailTemplates.length > 0 && !createdTemplateId) {
       return // Use cached data
     }
     
@@ -1968,6 +1969,14 @@ function DialerModal({
 
       if (data?.status === true && data?.data) {
         dispatch(setEmailTemplates({ templates: data.data, timestamp: Date.now() }))
+        
+        // Auto-select the newly created template
+        if (createdTemplateId) {
+          const newTemplate = data.data.find((t: any) => t.id === createdTemplateId)
+          if (newTemplate) {
+            dispatch(setSelectedTemplate(newTemplate))
+          }
+        }
       } else {
         toast.error('Failed to load email templates')
         dispatch(setLoadingState({ key: 'templates', value: false }))
@@ -1979,9 +1988,10 @@ function DialerModal({
     }
   }
 
-  const fetchSmsTemplates = async () => {
+  const fetchSmsTemplates = async (createdTemplateId?: number) => {
     // Check if we should refetch (cache is stale or empty)
-    if (!shouldRefetchSmsTemplates && smsTemplates.length > 0) {
+    // Always refetch if we have a createdTemplateId to ensure we get the new template
+    if (!shouldRefetchSmsTemplates && smsTemplates.length > 0 && !createdTemplateId) {
       return // Use cached data
     }
     
@@ -2012,6 +2022,14 @@ function DialerModal({
 
       if (data?.status === true && data?.data) {
         dispatch(setSmsTemplates({ templates: data.data, timestamp: Date.now() }))
+        
+        // Auto-select the newly created template
+        if (createdTemplateId) {
+          const newTemplate = data.data.find((t: any) => t.id === createdTemplateId)
+          if (newTemplate) {
+            dispatch(setSelectedTemplate(newTemplate))
+          }
+        }
       } else {
         toast.error('Failed to load SMS templates')
         dispatch(setLoadingState({ key: 'templates', value: false }))

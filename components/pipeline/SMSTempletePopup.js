@@ -297,10 +297,17 @@ function SMSTempletePopup({
         //         communicationType: 'sms',
         //     });
         // }
+        
+        // Pass the created template ID to onClose for auto-selection
+        setTimeout(() => {
+          onClose(createdTemplate?.id)
+        }, 100)
+      } else {
+        // Close without template ID if creation failed
+        setTimeout(() => {
+          onClose()
+        }, 100)
       }
-      setTimeout(() => {
-        onClose()
-      }, 100)
     } catch (error) {
       console.log('error', error)
       // setShowSnackBar({

@@ -419,7 +419,7 @@ function EmailTempletePopup({
     saveEmailLoader ||
     invalidEmails.length > 0
     : // Original validation for pipeline cadence
-    !tempName?.trim() ||
+    // Template name is optional - will be auto-generated from subject or use default if not provided
     !subject?.trim() ||
     !body?.trim() ||
     //    (!ccEmails || ccEmails.length === 0) ||
@@ -806,6 +806,8 @@ function EmailTempletePopup({
 
   const saveEmail = async () => {
     setSaveEmailLoader(true)
+    // Use tempName, newTemplateName, or generate a default name
+    const finalTemplateName = tempName?.trim() || newTemplateName?.trim() || subject?.trim() || 'Email Template'
     let data = {
       communicationType: communicationType,
       subject: subject,
@@ -813,7 +815,7 @@ function EmailTempletePopup({
       ccEmails: ccEmails,
       bccEmails: bccEmails,
       attachments: attachments,
-      templateName: tempName,
+      templateName: finalTemplateName,
     }
 
     // Add userId if selectedUser is provided (for agency/admin creating templates for subaccounts)
@@ -1003,7 +1005,10 @@ function EmailTempletePopup({
         }
       }
 
-      onClose()
+      // Pass the created template ID to onClose for auto-selection
+      // Only pass ID if it's a new template (not editing) or if it's a new template being created
+      const shouldAutoSelect = !isEditing || (createdTemplate && !selectedTemp?.id)
+      onClose(shouldAutoSelect ? createdTemplate?.id : undefined)
     } else {
       setShowSnackBar({
         message: response?.data?.message,

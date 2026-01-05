@@ -131,7 +131,15 @@ const RichTextEditor = forwardRef(
       if (quillRef.current) {
         const editor = quillRef.current.getEditor()
         const selection = editor.getSelection()
-        const cursorPosition = selection ? selection.index : 0
+        // If no selection (cursor lost focus), insert at the end of content
+        let cursorPosition
+        if (selection && selection.index !== null) {
+          cursorPosition = selection.index
+        } else {
+          // Get the length of current content and insert at the end
+          const length = editor.getLength()
+          cursorPosition = length > 1 ? length - 1 : length // Subtract 1 to account for the trailing newline
+        }
         // Wrap variable in curly braces if not already wrapped
         const variableText = variable.startsWith('{') && variable.endsWith('}')
           ? variable

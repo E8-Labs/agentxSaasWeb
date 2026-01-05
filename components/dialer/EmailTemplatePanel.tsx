@@ -24,7 +24,7 @@ interface EmailTemplatePanelProps {
   onSendEmail: (emailAccountId?: number) => void
   onDeleteTemplate: (template: any) => void
   onEditTemplate: (template: any) => void
-  onRefreshTemplates: () => void
+  onRefreshTemplates: (createdTemplateId?: number) => void
   onRefreshEmailAccounts: () => Promise<void>
   onClose: () => void
 }
@@ -53,6 +53,7 @@ export default function EmailTemplatePanel({
   const [editingTemplate, setEditingTemplate] = useState<any>(null)
   const [templateMenuAnchor, setTemplateMenuAnchor] = useState<null | HTMLElement>(null)
   const [selectedTemplateForMenu, setSelectedTemplateForMenu] = useState<any>(null)
+  const [selectedGoogleAccountInPopup, setSelectedGoogleAccountInPopup] = useState<any>(null)
 
   const getProviderLabel = (provider?: string) => {
     if (!provider) return 'Email'
@@ -70,6 +71,7 @@ export default function EmailTemplatePanel({
   const handleComposeNew = () => {
     setIsEditingTemplate(false)
     setEditingTemplate(null)
+    setSelectedGoogleAccountInPopup(null) // Reset selected account when creating new template
     setShowEmailTemplatePopup(true)
   }
 
@@ -315,19 +317,22 @@ export default function EmailTemplatePanel({
       {showEmailTemplatePopup && (
         <EmailTempletePopup
           open={showEmailTemplatePopup}
-          onClose={() => {
+          onClose={(createdTemplateId?: number) => {
             setShowEmailTemplatePopup(false)
             setIsEditingTemplate(false)
             setEditingTemplate(null)
-            onRefreshTemplates()
+            // Don't reset selectedGoogleAccountInPopup here - keep it for next time
+            onRefreshTemplates(createdTemplateId)
           }}
           communicationType="email"
           addRow={null}
           isEditing={isEditingTemplate}
           editingRow={editingTemplate}
           onUpdateRow={null}
-          selectedGoogleAccount={null}
-          setSelectedGoogleAccount={() => { }}
+          selectedGoogleAccount={selectedGoogleAccountInPopup}
+          setSelectedGoogleAccount={(account) => {
+            setSelectedGoogleAccountInPopup(account)
+          }}
           onSendEmail={null}
           isLeadEmail={false}
           leadEmail={null}

@@ -25,7 +25,7 @@ interface SmsTemplatePanelProps {
   onSendSms: (phoneNumberId?: number) => void
   onDeleteTemplate: (template: any) => void
   onEditTemplate: (template: any) => void
-  onRefreshTemplates: () => void
+  onRefreshTemplates: (createdTemplateId?: number) => void
   onClose: () => void
 }
 
@@ -292,11 +292,11 @@ export default function SmsTemplatePanel({
       {showSmsTemplatePopup && (
         <SMSTempletePopup
           open={showSmsTemplatePopup}
-          onClose={() => {
+          onClose={(createdTemplateId?: number) => {
             setShowSmsTemplatePopup(false)
             setIsEditingTemplate(false)
             setEditingTemplate(null)
-            onRefreshTemplates()
+            onRefreshTemplates(createdTemplateId)
           }}
           phoneNumbers={phoneNumbers
             .filter((pn: any) => (pn.isA2PVerified === true || pn.isA2PVerified === 1) && 
