@@ -1757,7 +1757,10 @@ const LeadDetails = ({
                               selectedLeadsDetails?.pipeline ||
                               '-'}
                           </InfoRow>
-                          {selectedLeadsDetails?.booking && <InfoRow icon={<CalendarIcon className="h-4 w-4" />}>{selectedLeadsDetails?.booking}</InfoRow>}
+                          {selectedLeadsDetails?.booking && <div className="flex flex-row items-center gap-2">
+                            <InfoRow icon={<CalendarIcon className="h-4 w-4" />}>{GetFormattedDateString(selectedLeadsDetails?.booking?.datetime, true)}</InfoRow>
+                            <TagPill label={`${selectedLeadsDetails?.booking?.duration} min`} />
+                          </div>}
                           <div className="flex items-center gap-2">
                             <TagIcon className="h-4 w-4 text-muted-foreground" />
                             <TagManagerCn
