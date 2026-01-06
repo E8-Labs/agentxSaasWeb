@@ -95,9 +95,12 @@ export default function TwilioDialer() {
       }
 
       // Initialize Twilio Device
+      // Configure edge for US/Canada users - use US East (ashburn) for best coverage
+      // This ensures device registers in US region, matching phone number configuration
       const twilioDevice = new Device(data.token, {
         logLevel: 1,
-      })
+        edge: 'ashburn', // US East edge - matches phone number inbound processing region (us1)
+      } as any)
 
       twilioDevice.on('registered', () => {
         console.log('Twilio Device registered')
