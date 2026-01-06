@@ -673,12 +673,6 @@ const MessageComposer = ({
       // Get text before deletion for comparison
       const textBeforeDelete = quill.getText()
 
-        quillIndex = atIndex
-      }
-
-      // Get text before deletion for comparison
-      const textBeforeDelete = quill.getText()
-
       // Delete text from @ to cursor
       const deleteLength = currentIndex - quillIndex
       

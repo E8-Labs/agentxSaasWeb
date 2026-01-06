@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { ChevronRight } from 'lucide-react'
+import { ArrowRight, ChevronRight } from 'lucide-react'
 
 import DropdownCn from './extras/DropdownCn'
 
@@ -83,7 +83,7 @@ const SelectStageDropdown = ({
       options={options}
       onSelect={(opt) => handleStageChange?.(opt)}
       align="end"
-      chevronIcon={ChevronRight}
+      chevronIcon={ArrowRight}
       onChevronClick={handleNextStage}
     />
   )
