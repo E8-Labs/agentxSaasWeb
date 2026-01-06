@@ -254,11 +254,6 @@ const sanitizeAndLinkifyHTML = (html, sanitizeHTML) => {
  * (stage changes, team assignments, comments, etc.)
  */
 const SystemMessage = ({ message }) => {
-  // #region agent log
-  if (message.activityType === 'comment') {
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ConversationView.js:250',message:'SystemMessage render - comment message',data:{messageId:message.id,activityType:message.activityType,hasMentionPositions:!!message.mentionPositions,mentionPositionsCount:message.mentionPositions?.length||0,mentionPositions:message.mentionPositions,hasMentionedUsers:!!message.mentionedUsers,mentionedUsersCount:message.mentionedUsers?.length||0,metadata:message.metadata,content:message.content},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'J'})}).catch(()=>{});
-  }
-  // #endregion
   // Parse content and highlight mentions if it's a comment
   const parseContent = (content) => {
     if (!content) return ''
@@ -276,14 +271,8 @@ const SystemMessage = ({ message }) => {
     
     // If it's a comment, highlight @mentions using position-based bolding
     if (message.activityType === 'comment') {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ConversationView.js:267',message:'parseContent - checking mentionPositions',data:{content:content,contentLength:content.length,hasMentionPositions:!!message.mentionPositions,mentionPositions:message.mentionPositions,metadata:message.metadata},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'K'})}).catch(()=>{});
-      // #endregion
       // Use mention positions if available (more reliable than regex)
       if (message.mentionPositions && Array.isArray(message.mentionPositions) && message.mentionPositions.length > 0) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ConversationView.js:270',message:'parseContent - using mentionPositions',data:{mentionPositionsCount:message.mentionPositions.length,mentionPositions:message.mentionPositions,content:content},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'L'})}).catch(()=>{});
-        // #endregion
         // Sort mentions by start position (descending) to process from end to start
         // This prevents position shifts when inserting HTML
         const sortedMentions = [...message.mentionPositions].sort((a, b) => b.start - a.start)
@@ -294,14 +283,8 @@ const SystemMessage = ({ message }) => {
         
         // Process mentions from end to start
         sortedMentions.forEach((mention, idx) => {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ConversationView.js:279',message:'Processing mention',data:{mentionIndex:idx,mention:mention,contentLength:content.length,mentionText:content.substring(mention.start,mention.end),isValid:mention.start>=0&&mention.end<=content.length&&mention.start<mention.end},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'M'})}).catch(()=>{});
-          // #endregion
           // Verify positions are within bounds
           if (mention.start < 0 || mention.end > content.length || mention.start >= mention.end) {
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ConversationView.js:281',message:'Invalid mention position detected',data:{start:mention.start,end:mention.end,contentLength:content.length,mention:mention},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'M'})}).catch(()=>{});
-            // #endregion
             console.warn('⚠️ [SystemMessage] Invalid mention position:', {
               start: mention.start,
               end: mention.end,
