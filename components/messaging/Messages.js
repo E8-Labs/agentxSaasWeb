@@ -6,6 +6,7 @@ import DOMPurify from 'dompurify'
 import moment from 'moment'
 import Image from 'next/image'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
 
 import Apis from '@/components/apis/Apis'
 import RichTextEditor from '@/components/common/RichTextEditor'
@@ -28,6 +29,7 @@ import MessageHeader from './MessageHeader'
 import ConversationHeader from './ConversationHeader'
 
 const Messages = () => {
+  const searchParams = useSearchParams()
   const [threads, setThreads] = useState([])
   const [selectedThread, setSelectedThread] = useState(null)
   const [messages, setMessages] = useState([])
@@ -1949,20 +1951,62 @@ const Messages = () => {
     }
   }, [selectedThread, composerMode])
 
-  // Auto-select first thread when threads are loaded
+  // Auto-select thread when threads are loaded (prioritize threadId from query params)
   useEffect(() => {
     if (!selectedThread && threads.length > 0) {
-      const firstThread = threads[0]
-      setSelectedThread(firstThread)
-      setMessageOffset(0)
-      setHasMoreMessages(true)
-      setMessages([])
-      fetchMessages(firstThread.id, null, false)
-      if (firstThread.unreadCount > 0) {
-        markThreadAsRead(firstThread.id)
+      // Check if threadId is provided in query params (from notification click)
+      const threadIdFromParams = searchParams?.get('threadId')
+      const messageIdFromParams = searchParams?.get('messageId')
+      
+      let threadToSelect = null
+      
+      if (threadIdFromParams) {
+        // Find the thread matching the threadId from query params
+        threadToSelect = threads.find(
+          (t) => t.id.toString() === threadIdFromParams.toString()
+        )
+      }
+      
+      // Fallback to first thread if no match found or no query param
+      if (!threadToSelect) {
+        threadToSelect = threads[0]
+      }
+      
+      if (threadToSelect) {
+        setSelectedThread(threadToSelect)
+        setMessageOffset(0)
+        setHasMoreMessages(true)
+        setMessages([])
+        fetchMessages(threadToSelect.id, null, false)
+        if (threadToSelect.unreadCount > 0) {
+          markThreadAsRead(threadToSelect.id)
+        }
       }
     }
-  }, [threads, selectedThread, fetchMessages, markThreadAsRead])
+  }, [threads, selectedThread, fetchMessages, markThreadAsRead, searchParams])
+
+  // Scroll to specific message when messages are loaded and messageId is in query params
+  useEffect(() => {
+    const messageIdFromParams = searchParams?.get('messageId')
+    if (messageIdFromParams && messages.length > 0 && !messagesLoading) {
+      // Wait a bit for DOM to render, then scroll to message
+      const scrollTimer = setTimeout(() => {
+        const messageElement = document.querySelector(
+          `[data-message-id="${messageIdFromParams}"]`
+        )
+        if (messageElement) {
+          messageElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+          // Highlight the message briefly
+          messageElement.style.backgroundColor = 'rgba(59, 130, 246, 0.1)'
+          setTimeout(() => {
+            messageElement.style.backgroundColor = ''
+          }, 2000)
+        }
+      }, 500)
+      
+      return () => clearTimeout(scrollTimer)
+    }
+  }, [messages, messagesLoading, searchParams])
 
   // Fetch email timeline messages
   const fetchEmailTimeline = useCallback(async (leadId, subject = null) => {

@@ -811,12 +811,13 @@ const ConversationView = ({
                     <SystemMessage message={message} />
                   ) : (
                   <div
+                    data-message-id={message.id}
                     className={`flex flex-col w-full ${isOutbound ? 'items-end pe-2' : 'items-start'} ${isEmail ? 'mb-6' : 'mb-3'} relative`}
                     style={
                       isReply && depth > 0
                         ? {
-                          [isOutbound ? 'marginRight' : 'marginLeft']: `${depth * 24}px`,
-                        }
+                            [isOutbound ? 'marginRight' : 'marginLeft']: `${depth * 24}px`,
+                          }
                         : {}
                     }
                   >

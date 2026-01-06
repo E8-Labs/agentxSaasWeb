@@ -640,11 +640,38 @@ function NotficationsDrawer({ close }) {
     }
   }
 
+  const handleNotificationClick = (item) => {
+    // Handle LeadReplied notification click - route to messaging page
+    if (item.type === NotificationTypes.LeadReplied) {
+      if (item.threadId) {
+        // Build query params for thread and message
+        const params = new URLSearchParams()
+        params.set('threadId', item.threadId.toString())
+        if (item.messageId) {
+          params.set('messageId', item.messageId.toString())
+        }
+        
+        // Close the drawer and navigate to messaging page
+        setShowNotificationDrawer(false)
+        router.push(`/dashboard/messages?${params.toString()}`)
+      } else {
+        // Fallback: just navigate to messages page if threadId is missing
+        setShowNotificationDrawer(false)
+        router.push('/dashboard/messages')
+      }
+    }
+  }
+
   const renderItem = (item, index) => {
+    const isClickable = item.type === NotificationTypes.LeadReplied && item.threadId
+    
     return (
       <div
         key={index}
-        className="w-full flex flex-row justify-between items-start mt-10"
+        className={`w-full flex flex-row justify-between items-start mt-10 ${
+          isClickable ? 'cursor-pointer hover:bg-gray-50 rounded-lg p-2 -m-2' : ''
+        }`}
+        onClick={() => isClickable && handleNotificationClick(item)}
       >
         <div className="flex flex-row items-start gap-6 w-[80%]">
           {getNotificationImage(item)}
