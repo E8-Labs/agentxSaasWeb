@@ -2,6 +2,13 @@ import React, { useEffect, useRef } from 'react'
 import moment from 'moment'
 import { Paperclip } from '@phosphor-icons/react'
 import { htmlToPlainText } from '@/utilities/textUtils'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import CallTranscriptCN from '@/components/dashboard/leads/extras/CallTranscriptCN'
 
 const AttachmentList = ({ message, isOutbound, onAttachmentClick }) => {
   if (!message.metadata?.attachments || message.metadata.attachments.length === 0) return null
@@ -32,9 +39,8 @@ const AttachmentList = ({ message, isOutbound, onAttachmentClick }) => {
               e.preventDefault()
               onAttachmentClick(enrichedAttachment, message, isImage)
             }}
-            className={`text-sm flex items-center gap-2 hover:opacity-80 text-left ${
-              isOutbound ? 'text-white/90' : 'text-brand-primary'
-            }`}
+            className={`text-sm flex items-center gap-2 hover:opacity-80 text-left ${isOutbound ? 'text-white/90' : 'text-brand-primary'
+              }`}
           >
             <Paperclip size={14} />
             <span className="underline">
@@ -71,15 +77,14 @@ const EmailBubble = ({
 }) => (
   <>
     <div
-      className={`px-4 py-3 ${
-        isOutbound
-          ? 'bg-brand-primary text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
-          : 'bg-gray-100 text-black rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
-      }`}
+      className={`px-4 py-2 ${isOutbound
+        ? 'bg-brand-primary text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
+        : 'bg-gray-100 text-black rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
+        }`}
     >
       {message.subject && (
         <div className="font-semibold mb-2 flex items-start">
-          <span 
+          <span
             className="font-normal cursor-pointer text-xs relative"
             onMouseEnter={(e) => {
               e.stopPropagation()
@@ -93,11 +98,10 @@ const EmailBubble = ({
             Subject:
             {openEmailDetailId === message.id && (
               <div
-                className={`absolute z-50 w-auto min-w-fit max-w-[90vw] rounded-lg shadow-lg border border-gray-200 bg-white text-gray-900 ${
-                  isLastMessage 
-                    ? `bottom-full mb-1 ${isOutbound ? 'right-full mr-2' : 'left-full ml-2'}`
-                    : `top-full mt-1 ${isOutbound ? 'right-full mr-2' : 'left-full ml-2'}`
-                }`}
+                className={`absolute z-50 w-auto min-w-fit max-w-[90vw] rounded-lg shadow-lg border border-gray-200 bg-white text-gray-900 ${isLastMessage
+                  ? `bottom-full mb-1 ${isOutbound ? 'right-full mr-2' : 'left-full ml-2'}`
+                  : `top-full mt-1 ${isOutbound ? 'right-full mr-2' : 'left-full ml-2'}`
+                  }`}
                 style={{
                   boxShadow: '0 2px 8px rgba(0,0,0,0.15), 0 0 1px rgba(0,0,0,0.1)',
                 }}
@@ -112,38 +116,38 @@ const EmailBubble = ({
                 onClick={(e) => e.stopPropagation()}
                 onMouseDown={(e) => e.stopPropagation()}
               >
-              <div className="px-2.5 py-2 border-b border-gray-200">
-                <span className="text-[11px] font-medium text-gray-700">Message details</span>
-              </div>
-              {(() => {
-                const details = getEmailDetails(message)
-                const rows = [
-                  { label: 'from', value: details.from },
-                  { label: 'to', value: details.to },
-                  { label: 'cc', value: details.cc },
-                  { label: 'bcc', value: details.bcc },
-                  { label: 'date', value: details.date },
-                  { label: 'subject', value: details.subject },
-                  { label: 'mailed-by', value: details.mailedBy },
-                  { label: 'signed-by', value: details.signedBy },
-                  { label: 'security', value: details.security },
-                ].filter((row) => row.value)
+                <div className="px-2.5 py-2 border-b border-gray-200">
+                  <span className="text-[11px] font-medium text-gray-700">Message details</span>
+                </div>
+                {(() => {
+                  const details = getEmailDetails(message)
+                  const rows = [
+                    { label: 'from', value: details.from },
+                    { label: 'to', value: details.to },
+                    { label: 'cc', value: details.cc },
+                    { label: 'bcc', value: details.bcc },
+                    { label: 'date', value: details.date },
+                    { label: 'subject', value: details.subject },
+                    { label: 'mailed-by', value: details.mailedBy },
+                    { label: 'signed-by', value: details.signedBy },
+                    { label: 'security', value: details.security },
+                  ].filter((row) => row.value)
 
-                return (
-                  <div className="px-2.5 py-2 text-[11px] text-gray-600 space-y-1">
-                    {rows.length === 0 ? (
-                      <div className="text-[10px] text-gray-400">No metadata available.</div>
-                    ) : (
-                      rows.map((row) => (
-                        <div key={row.label} className="flex items-start gap-2">
-                          <span className="text-gray-500 capitalize whitespace-nowrap min-w-[60px] text-[11px]">{row.label}:</span>
-                          <span className="text-gray-700 break-words text-left text-[11px] leading-relaxed">{row.value}</span>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                )
-              })()}
+                  return (
+                    <div className="px-2.5 py-2 text-[11px] text-gray-600 space-y-1">
+                      {rows.length === 0 ? (
+                        <div className="text-[10px] text-gray-400">No metadata available.</div>
+                      ) : (
+                        rows.map((row) => (
+                          <div key={row.label} className="flex items-start gap-2">
+                            <span className="text-gray-500 capitalize whitespace-nowrap min-w-[60px] text-[11px]">{row.label}:</span>
+                            <span className="text-gray-700 break-words text-left text-[11px] leading-relaxed">{row.value}</span>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )
+                })()}
               </div>
             )}
           </span>
@@ -172,11 +176,10 @@ const EmailBubble = ({
         </div>
       )}
       <div
-        className={`prose prose-sm max-w-none break-words ${
-          isOutbound
-            ? 'text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_p]:!text-white [&_strong]:!text-white [&_em]:!text-white [&_a]:!text-white [&_a:hover]:!text-white/80 [&_ul]:!text-white [&_ol]:!text-white [&_li]:!text-white [&_span]:!text-white [&_*]:!text-white'
-            : 'text-black'
-        }`}
+        className={`prose prose-sm max-w-none break-words ${isOutbound
+          ? 'text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_p]:!text-white [&_strong]:!text-white [&_em]:!text-white [&_a]:!text-white [&_a:hover]:!text-white/80 [&_ul]:!text-white [&_ol]:!text-white [&_li]:!text-white [&_span]:!text-white [&_*]:!text-white'
+          : 'text-black'
+          }`}
         style={isOutbound ? { color: 'white' } : {}}
         dangerouslySetInnerHTML={{
           __html: sanitizeAndLinkifyHTML(message.content, sanitizeHTML),
@@ -185,9 +188,10 @@ const EmailBubble = ({
 
       <AttachmentList message={message} isOutbound={isOutbound} onAttachmentClick={onAttachmentClick} />
 
-      <div className="mt-3 flex items-center justify-end gap-3">
-        <span className={`text-xs ${isOutbound ? 'text-white' : 'text-black'}`}>{moment(message.createdAt).format('h:mm A')}</span>
-      </div>
+
+    </div>
+    <div className="mt-1 mr-1 flex items-center justify-end gap-3">
+      <span className={`text-[10px] text-[#00000060]`}>{moment(message.createdAt).format('h:mm A')}</span>
     </div>
   </>
 )
@@ -222,11 +226,11 @@ const linkifyText = (text) => {
 // Helper function to sanitize HTML, convert to plain text, and linkify URLs
 const sanitizeAndLinkifyHTML = (html, sanitizeHTML) => {
   if (!html) return ''
-  
+
   // First convert HTML to plain text (this preserves URLs as text)
   // We do this before sanitizing to ensure URLs aren't broken by HTML processing
   let plainText = htmlToPlainText(html)
-  
+
   // Remove quoted text from plain text (simpler and more reliable than HTML processing)
   // Remove lines starting with "On ... wrote:"
   plainText = plainText.replace(/^On\s+.*?wrote:.*$/gmi, '')
@@ -241,26 +245,266 @@ const sanitizeAndLinkifyHTML = (html, sanitizeHTML) => {
   }
   // Clean up multiple newlines
   plainText = plainText.replace(/\n{3,}/g, '\n\n').trim()
-  
+
   // Now linkify URLs in the cleaned plain text
   return linkifyText(plainText)
 }
 
+/**
+ * SystemMessage component for displaying system activity messages
+ * (stage changes, team assignments, comments, etc.)
+ */
+const SystemMessage = ({ message }) => {
+  // Parse content and highlight mentions if it's a comment
+  const parseContent = (content) => {
+    if (!content) return ''
+    
+    // Escape HTML first
+    const escapeHtml = (str) => {
+      if (!str) return ''
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+    }
+    
+    // If it's a comment, highlight @mentions using position-based bolding
+    if (message.activityType === 'comment') {
+      // Use mention positions if available (more reliable than regex)
+      if (message.mentionPositions && Array.isArray(message.mentionPositions) && message.mentionPositions.length > 0) {
+        // Sort mentions by start position (descending) to process from end to start
+        // This prevents position shifts when inserting HTML
+        const sortedMentions = [...message.mentionPositions].sort((a, b) => b.start - a.start)
+        
+        // Build result array working backwards from end
+        const parts = []
+        let currentIndex = content.length
+        
+        // Process mentions from end to start
+        sortedMentions.forEach((mention, idx) => {
+          // Verify positions are within bounds
+          if (mention.start < 0 || mention.end > content.length || mention.start >= mention.end) {
+            console.warn('⚠️ [SystemMessage] Invalid mention position:', {
+              start: mention.start,
+              end: mention.end,
+              contentLength: content.length,
+            })
+            return
+          }
+          
+          // Add text between this mention and the previous one (if any)
+          if (mention.end < currentIndex) {
+            const textAfter = content.substring(mention.end, currentIndex)
+            parts.unshift(escapeHtml(textAfter))
+          }
+          
+          // Add the mention (bolded)
+          const mentionText = mention.text || content.substring(mention.start, mention.end)
+          const escapedMention = escapeHtml(mentionText)
+          parts.unshift(`<span class="font-semibold text-system-text cursor-pointer hover:underline">${escapedMention}</span>`)
+          
+          currentIndex = mention.start
+        })
+        
+        // Add any remaining text at the beginning
+        if (currentIndex > 0) {
+          const textBefore = content.substring(0, currentIndex)
+          parts.unshift(escapeHtml(textBefore))
+        }
+        
+        // Join all parts and replace newlines
+        let processedContent = parts.join('').replace(/\n/g, '<br>')
+        
+        // Wrap entire content in small text (text-xs) with system-text color
+        return `<span class="text-xs text-system-text">${processedContent}</span>`
+      }
+      
+      // Fallback: if no mention positions, try to extract from metadata directly
+      // Try to extract mentions from metadata if mentionPositions wasn't set
+      let mentionsFromMetadata = []
+      if (message.metadata) {
+        let metadata = message.metadata
+        if (typeof metadata === 'string') {
+          try {
+            metadata = JSON.parse(metadata)
+          } catch (e) {
+            metadata = {}
+          }
+        }
+        mentionsFromMetadata = metadata.mentions || metadata.activityData?.mentions || []
+      }
+      
+      // If we found mentions in metadata, use position-based bolding
+      if (mentionsFromMetadata.length > 0) {
+        const sortedMentions = [...mentionsFromMetadata].sort((a, b) => b.start - a.start)
+        const parts = []
+        let currentIndex = content.length
+        
+        sortedMentions.forEach((mention) => {
+          if (mention.start < 0 || mention.end > content.length || mention.start >= mention.end) {
+            return
+          }
+          
+          if (mention.end < currentIndex) {
+            const textAfter = content.substring(mention.end, currentIndex)
+            parts.unshift(escapeHtml(textAfter))
+          }
+          
+          const mentionText = mention.text || content.substring(mention.start, mention.end)
+          const escapedMention = escapeHtml(mentionText)
+          parts.unshift(`<span class="font-semibold text-system-text cursor-pointer hover:underline">${escapedMention}</span>`)
+          
+          currentIndex = mention.start
+        })
+        
+        if (currentIndex > 0) {
+          const textBefore = content.substring(0, currentIndex)
+          parts.unshift(escapeHtml(textBefore))
+        }
+        
+        let processedContent = parts.join('').replace(/\n/g, '<br>')
+        return `<span class="text-xs text-system-text">${processedContent}</span>`
+      }
+      
+      // Final fallback: use regex matching (for backward compatibility)
+      let escaped = escapeHtml(content)
+      escaped = escaped.replace(/\n/g, '<br>')
+      
+      if (message.mentionedUsers && message.mentionedUsers.length > 0) {
+        message.mentionedUsers.forEach((user) => {
+          // Try to match various patterns for the user
+          const patterns = [
+            user.name ? new RegExp(`@${escapeHtml(user.name).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'gi') : null,
+            user.email ? new RegExp(`@${escapeHtml(user.email.split('@')[0]).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'gi') : null,
+          ].filter(Boolean)
+
+          patterns.forEach((pattern) => {
+            escaped = escaped.replace(pattern, (match) => {
+              // Make mentions semi-bold, clickable, and #0E0E0E color
+              return `<span class="font-semibold text-system-text cursor-pointer hover:underline">${match}</span>`
+            })
+          })
+        })
+      }
+      
+      // Wrap entire content in small text (text-xs) with system-text color
+      return `<span class="text-xs text-system-text">${escaped}</span>`
+    }
+    
+    // For other system messages (stage changes, assignments), parse markdown-style bold (**text**)
+    // Use system-text color (#0E0E0E) for bold text
+    return content.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-system-text">$1</strong>')
+  }
+
+  // Format the date for the tooltip
+  const formatDate = (date) => {
+    if (!date) return ''
+    return moment(date).format('MMMM DD, YYYY [at] h:mm A')
+  }
+
+  const dateString = message.createdAt ? formatDate(message.createdAt) : ''
+
+  // Handle call_summary activity type - render CallTranscriptCN component
+  if (message.activityType === 'call_summary') {
+    const activityData = message.metadata?.activityData || {}
+    const callData = {
+      id: activityData.callId,
+      callId: activityData.synthflowCallId || activityData.callId,
+      duration: activityData.duration || 0,
+      recordingUrl: activityData.recordingUrl,
+      transcript: activityData.transcript,
+      callSummary: activityData.callSummary || {},
+    }
+
+    // Handler functions for call actions
+    const handlePlayRecording = (recordingUrl, callId) => {
+      if (recordingUrl) {
+        window.open(recordingUrl, '_blank')
+      }
+    }
+
+    const handleCopyCallId = (callId) => {
+      if (callId) {
+        navigator.clipboard.writeText(callId)
+        // You might want to show a toast notification here
+      }
+    }
+
+    const handleReadTranscript = (item) => {
+      // You might want to open a transcript modal here
+      console.log('Read transcript for:', item)
+    }
+
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex items-center justify-center my-4 cursor-default">
+              <div className="w-full max-w-2xl px-4">
+                <div className="rounded-xl border border-border bg-background p-4 shadow-sm">
+                  <CallTranscriptCN
+                    item={callData}
+                    onPlayRecording={handlePlayRecording}
+                    onCopyCallId={handleCopyCallId}
+                    onReadTranscript={handleReadTranscript}
+                  />
+                </div>
+              </div>
+            </div>
+          </TooltipTrigger>
+          {dateString && (
+            <TooltipContent>
+              <p>{dateString}</p>
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </TooltipProvider>
+    )
+  }
+
+  // Regular system messages (stage changes, assignments, comments)
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex items-center justify-center my-4 cursor-default">
+            <div className="text-xs text-system-text text-center px-4">
+              <div dangerouslySetInnerHTML={{ __html: parseContent(message.content) }} />
+            </div>
+          </div>
+        </TooltipTrigger>
+        {dateString && (
+          <TooltipContent>
+            <p>{dateString}</p>
+          </TooltipContent>
+        )}
+      </Tooltip>
+    </TooltipProvider>
+  )
+}
+
 const MessageBubble = ({ message, isOutbound, onAttachmentClick }) => (
-  <div
-    className={`px-4 py-3 ${
-      isOutbound
+  <div className="flex flex-col">
+    <div
+      className={`px-4 py-2 ${isOutbound
         ? 'bg-brand-primary text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
         : 'bg-gray-100 text-black rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
-    }`}
-  >
-    <div
-      className={`whitespace-pre-wrap break-words ${isOutbound ? 'text-white' : 'text-black'}`}
-      dangerouslySetInnerHTML={{ __html: linkifyText(message.content || '') }}
-    />
-    <AttachmentList message={message} isOutbound={isOutbound} onAttachmentClick={onAttachmentClick} />
-    <div className="mt-3 flex items-center justify-end gap-2">
-      <span className={`text-xs ${isOutbound ? 'text-white' : 'text-black'}`}>{moment(message.createdAt).format('h:mm A')}</span>
+        }`}
+    >
+      <div
+        className={`prose prose-sm max-w-none break-words whitespace-pre-wrap ${isOutbound
+          ? 'text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_p]:!text-white [&_strong]:!text-white [&_em]:!text-white [&_a]:!text-white [&_a:hover]:!text-white/80 [&_ul]:!text-white [&_ol]:!text-white [&_li]:!text-white [&_span]:!text-white [&_*]:!text-white'
+          : 'text-black'
+          }`}
+        style={isOutbound ? { color: 'white' } : {}}
+        dangerouslySetInnerHTML={{ __html: linkifyText(message.content || '') }}
+      />
+      <AttachmentList message={message} isOutbound={isOutbound} onAttachmentClick={onAttachmentClick} />
+    </div>
+    <div className="flex items-center justify-end gap-2 mt1 mr-1">
+      <span className={`text-[10px] text-[#00000060]`}>{moment(message.createdAt).format('h:mm A')}</span>
     </div>
   </div>
 )
@@ -436,7 +680,7 @@ const ConversationView = ({
           </div>
         </div>
       )}
-      
+
       {messagesLoading && messages.length === 0 ? (
         <div className="text-center text-gray-500 py-8">Loading messages...</div>
       ) : messages.length === 0 ? (
@@ -452,24 +696,24 @@ const ConversationView = ({
             // Build a map of messages by ID for quick lookup
             const messageMap = new Map()
             messages.forEach(msg => messageMap.set(msg.id, msg))
-            
+
             // First, sort ALL messages chronologically (oldest first)
             const sortedMessages = [...messages].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
-            
+
             // Build reply depth map - calculate depth for each message based on reply chain
             const calculateDepth = (msg, depthMap = new Map(), visited = new Set()) => {
               if (depthMap.has(msg.id)) {
                 return depthMap.get(msg.id)
               }
-              
+
               if (visited.has(msg.id)) {
                 // Circular reference - treat as root
                 depthMap.set(msg.id, 0)
                 return 0
               }
-              
+
               visited.add(msg.id)
-              
+
               const replyToId = msg.metadata?.replyToMessageId
               if (replyToId && messageMap.has(replyToId)) {
                 const parentDepth = calculateDepth(messageMap.get(replyToId), depthMap, visited)
@@ -482,23 +726,24 @@ const ConversationView = ({
                 return 0
               }
             }
-            
+
             const depthMap = new Map()
             sortedMessages.forEach(msg => calculateDepth(msg, depthMap))
-            
+
             // Build result with depth information, maintaining chronological order
             const messagesWithDepth = sortedMessages.map(msg => ({
               message: msg,
               depth: depthMap.get(msg.id) || 0,
               replyToId: msg.metadata?.replyToMessageId,
             }))
-            
+
             return messagesWithDepth.map(({ message, depth, replyToId }, index) => {
-            const isOutbound = message.direction === 'outbound'
-            const isEmail = message.messageType === 'email'
-            const isLastMessage = index === messagesWithDepth.length - 1
+              const isOutbound = message.direction === 'outbound'
+              const isEmail = message.messageType === 'email'
+              const isSystem = message.messageType === 'system'
+              const isLastMessage = index === messagesWithDepth.length - 1
               const parentMessage = replyToId ? messageMap.get(replyToId) : null
-              
+
               // For email messages, only show "Replying to" if the normalized subjects match
               // If subjects don't match, it's a new thread, not a reply
               let isReply = false
@@ -511,111 +756,116 @@ const ConversationView = ({
                 // For non-email messages (SMS), use the original logic
                 isReply = true
               }
-              
-            const showDateSeparator =
-              index === 0 ||
+
+              const showDateSeparator =
+                index === 0 ||
                 moment(message.createdAt).format('YYYY-MM-DD') !== moment(messagesWithDepth[index - 1].message.createdAt).format('YYYY-MM-DD')
 
-            return (
-              <React.Fragment key={message.id}>
-                {showDateSeparator && (
-                  <div className="flex items-center justify-center my-6">
-                    <div className="border-t border-gray-200 flex-1"></div>
-                    <span className="px-4 text-xs text-gray-400">
-                      {moment(message.createdAt).format('MMMM DD, YYYY')}
-                    </span>
-                    <div className="border-t border-gray-200 flex-1"></div>
-                  </div>
-                )}
-                <div
-                  className={`flex flex-col w-full ${isOutbound ? 'items-end pe-2' : 'items-start'} ${isEmail ? 'mb-6' : 'mb-3'} relative`}
-                  style={
-                    isReply && depth > 0
-                      ? {
-                          [isOutbound ? 'marginRight' : 'marginLeft']: `${depth * 24}px`,
-                        }
-                      : {}
-                  }
-                >
-                  {isReply && parentMessage && (
-                    <div className={`text-xs mb-1 text-gray-500 ${isOutbound ? 'flex justify-end w-full pe-2' : 'text-left'}`}>
-                      <div className={`${isOutbound ? 'max-w-[75%] min-w-[220px] text-left' : ''}`}>
-                        <span className="italic">
-                          Replying to:{' '}
-                          {parentMessage.messageType === 'email' && parentMessage.subject
-                            ? `"${parentMessage.subject.replace(/^Re:\s*/i, '')}"`
-                            : parentMessage.content
-                            ? `"${parentMessage.content.substring(0, 12)}${parentMessage.content.length > 12 ? '...' : ''}"`
-                            : 'message'}
-                        </span>
-                      </div>
+              return (
+                <React.Fragment key={message.id}>
+                  {showDateSeparator && (
+                    <div className="flex items-center justify-center my-6">
+                      <div className="border-t border-gray-200 flex-1"></div>
+                      <span className="px-4 text-xs text-gray-400">
+                        {moment(message.createdAt).format('MMMM DD, YYYY')}
+                      </span>
+                      <div className="border-t border-gray-200 flex-1"></div>
                     </div>
                   )}
+                  {/* Render system messages (including comments) as centered messages */}
+                  {isSystem ? (
+                    <SystemMessage message={message} />
+                  ) : (
                   <div
-                    className={`flex items-start gap-3 w-full ${isOutbound ? 'justify-end' : 'justify-start'} relative`}
+                    className={`flex flex-col w-full ${isOutbound ? 'items-end pe-2' : 'items-start'} ${isEmail ? 'mb-6' : 'mb-3'} relative`}
+                    style={
+                      isReply && depth > 0
+                        ? {
+                          [isOutbound ? 'marginRight' : 'marginLeft']: `${depth * 24}px`,
+                        }
+                        : {}
+                    }
                   >
-                    {!isOutbound && (
-                      <div className="relative flex-shrink-0">
-                        <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
-                          {getLeadName(selectedThread)}
+                    {isReply && parentMessage && (
+                      <div className={`text-xs mb-1 text-gray-500 ${isOutbound ? 'flex justify-end w-full pe-2' : 'text-left'}`}>
+                        <div className={`${isOutbound ? 'max-w-[75%] min-w-[220px] text-left' : ''}`}>
+                          <span className="italic">
+                            Replying to:{' '}
+                            {parentMessage.messageType === 'email' && parentMessage.subject
+                              ? `"${parentMessage.subject.replace(/^Re:\s*/i, '')}"`
+                              : parentMessage.content
+                                ? `"${parentMessage.content.substring(0, 12)}${parentMessage.content.length > 12 ? '...' : ''}"`
+                                : 'message'}
+                          </span>
                         </div>
                       </div>
                     )}
-
-                    <div className="flex flex-col max-w-[75%] min-w-[220px]">
-                      {isEmail ? (
-                        <EmailBubble
-                          message={message}
-                          isOutbound={isOutbound}
-                          sanitizeHTML={sanitizeHTML}
-                          openEmailDetailId={openEmailDetailId}
-                          setOpenEmailDetailId={setOpenEmailDetailId}
-                          getEmailDetails={getEmailDetails}
-                          selectedThread={selectedThread}
-                          onOpenEmailTimeline={onOpenEmailTimeline}
-                          setShowEmailTimeline={setShowEmailTimeline}
-                          setEmailTimelineLeadId={setEmailTimelineLeadId}
-                          setEmailTimelineSubject={setEmailTimelineSubject}
-                          onAttachmentClick={handleAttachmentClick}
-                          onReplyClick={onReplyClick}
-                          isLastMessage={isLastMessage}
-                          updateComposerFromMessage={updateComposerFromMessage}
-                        />
-                      ) : (
-                        <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} />
+                    <div
+                      className={`flex items-start gap-3 w-full ${isOutbound ? 'justify-end' : 'justify-start'} relative`}
+                    >
+                      {!isOutbound && (
+                        <div className="relative flex-shrink-0">
+                          <div className="w-[26px] h-[26px] rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs">
+                            {getLeadName(selectedThread)}
+                          </div>
+                        </div>
                       )}
-                      {isEmail && !isOutbound && onReplyClick && (
-                        <div className="mt-1 flex justify-end">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              onReplyClick(message)
-                            }}
-                            type="button"
-                            className="text-xs text-gray-600 hover:text-gray-800 hover:underline transition-colors"
-                          >
-                            Reply
-                          </button>
+
+                      <div className="flex flex-col max-w-[75%] min-w-[220px]">
+                        {isEmail ? (
+                          <EmailBubble
+                            message={message}
+                            isOutbound={isOutbound}
+                            sanitizeHTML={sanitizeHTML}
+                            openEmailDetailId={openEmailDetailId}
+                            setOpenEmailDetailId={setOpenEmailDetailId}
+                            getEmailDetails={getEmailDetails}
+                            selectedThread={selectedThread}
+                            onOpenEmailTimeline={onOpenEmailTimeline}
+                            setShowEmailTimeline={setShowEmailTimeline}
+                            setEmailTimelineLeadId={setEmailTimelineLeadId}
+                            setEmailTimelineSubject={setEmailTimelineSubject}
+                            onAttachmentClick={handleAttachmentClick}
+                            onReplyClick={onReplyClick}
+                            isLastMessage={isLastMessage}
+                            updateComposerFromMessage={updateComposerFromMessage}
+                          />
+                        ) : (
+                          <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} />
+                        )}
+                        {isEmail && !isOutbound && onReplyClick && (
+                          <div className="mt-1 flex justify-end">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                onReplyClick(message)
+                              }}
+                              type="button"
+                              className="text-xs text-gray-600 hover:text-gray-800 hover:underline transition-colors"
+                            >
+                              Reply
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {isOutbound && (
+                        <div className="flex-shrink-0">
+                          {console.log('🔍 [ConversationView] Rendering avatar for message:', {
+                            messageId: message.id,
+                            isOutbound,
+                            hasSenderUser: !!message.senderUser,
+                            senderUser: message.senderUser,
+                            messageDirection: message.direction,
+                          })}
+                          {getAgentAvatar(message)}
                         </div>
                       )}
                     </div>
-
-                    {isOutbound && (
-                      <div className="flex-shrink-0">
-                        {console.log('🔍 [ConversationView] Rendering avatar for message:', {
-                          messageId: message.id,
-                          isOutbound,
-                          hasSenderUser: !!message.senderUser,
-                          senderUser: message.senderUser,
-                          messageDirection: message.direction,
-                        })}
-                        {getAgentAvatar(message)}
-                      </div>
-                    )}
                   </div>
-                </div>
-              </React.Fragment>
-            )
+                  )}
+                </React.Fragment>
+              )
             })
           })()}
           <div ref={messagesEndRef} />

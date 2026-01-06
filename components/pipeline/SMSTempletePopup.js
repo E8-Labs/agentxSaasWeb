@@ -53,6 +53,7 @@ function SMSTempletePopup({
   const [selectedVariable, setSelectedVariable] = useState('')
   const textareaRef = useRef(null)
   const [saveSmsLoader, setSaveSmsLoader] = useState(false)
+  const [sendOnlyLoader, setSendOnlyLoader] = useState(false)
   const [showSnackBar, setShowSnackBar] = useState({
     message: '',
     type: SnackbarTypes.Error,
@@ -199,10 +200,38 @@ function SMSTempletePopup({
     }
   }
 
-  const handleSave = async () => {
-    if (isSaveDisabled) return
+  // Handle sending SMS only (without saving template)
+  const handleSendOnly = async () => {
+    // Validate required fields for sending
+    if (!body?.trim()) {
+      setShowSnackBar({
+        message: 'Please enter a message',
+        type: SnackbarTypes.Error,
+      })
+      return
+    }
 
-    setSaveSmsLoader(true)
+    if (isLeadSMS) {
+      // For lead SMS, phone is already provided via leadPhone prop
+      if (!leadPhone) {
+        setShowSnackBar({
+          message: 'Phone number is required',
+          type: SnackbarTypes.Error,
+        })
+        return
+      }
+    } else {
+      // For cadence, phone selection is required
+      if (!selectedPhone) {
+        setShowSnackBar({
+          message: 'Please select a phone number',
+          type: SnackbarTypes.Error,
+        })
+        return
+      }
+    }
+
+    setSendOnlyLoader(true)
     try {
       // Handle lead SMS sending
       if (isLeadSMS && onSendSMS) {
@@ -223,8 +252,116 @@ function SMSTempletePopup({
             // If it returns a promise, wait for it
             try {
               await result
+              setShowSnackBar({
+                message: 'SMS sent successfully',
+                type: SnackbarTypes.Success,
+              })
             } catch (error) {
               console.error('Error in onSendSMS:', error)
+              setShowSnackBar({
+                message: 'Failed to send SMS',
+                type: SnackbarTypes.Error,
+              })
+            } finally {
+              // Reset loader after SMS is sent (with a small delay to ensure it shows)
+              setTimeout(() => {
+                setSendOnlyLoader(false)
+              }, 300)
+            }
+          } else {
+            // If not async, reset loader after a short delay to ensure it's visible
+            setTimeout(() => {
+              setSendOnlyLoader(false)
+            }, 500)
+          }
+        }
+        // Don't close modal - let the parent component handle it
+        return
+      }
+
+      // For cadence (non-lead SMS), sending directly isn't supported
+      // This button is primarily for lead SMS
+      if (!isLeadSMS) {
+        setShowSnackBar({
+          message: 'Use "Save + Send" to add SMS to cadence',
+          type: SnackbarTypes.Error,
+        })
+        setSendOnlyLoader(false)
+        return
+      }
+    } catch (error) {
+      console.error('Error sending SMS:', error)
+      setShowSnackBar({
+        message: 'Failed to send SMS',
+        type: SnackbarTypes.Error,
+      })
+    } finally {
+      setSendOnlyLoader(false)
+    }
+  }
+
+  // Handle saving template and sending SMS
+  const handleSaveAndSend = async () => {
+    if (isSaveDisabled) return
+
+    setSaveSmsLoader(true)
+    try {
+      // Handle lead SMS: save template first, then send
+      if (isLeadSMS && onSendSMS) {
+        // First save as template if we have a template name
+        const templateName = selectedTemplate?.templateName || newTemplateName || 'SMS Template'
+        
+        let templateData = {
+          communicationType: 'sms',
+          templateName: templateName,
+          content: body,
+          phone: selectedPhone?.phone || leadPhone,
+        }
+
+        // Add userId if selectedUser is provided
+        if (selectedUser?.id) {
+          templateData.userId = selectedUser.id
+        }
+
+        // Save template first
+        let templateResponse = null
+        try {
+          templateResponse = await createTemplete(templateData)
+          if (templateResponse?.data?.status === true) {
+            console.log('Template saved successfully')
+          }
+        } catch (templateError) {
+          console.error('Error saving template:', templateError)
+          // Continue with sending even if template save fails
+        }
+
+        // Then send SMS
+        console.log('Sending SMS to lead:', leadPhone)
+        const smsData = {
+          content: body,
+          phone: leadPhone,
+          smsPhoneNumberId: selectedPhone?.id,
+          leadId: leadId,
+        }
+        console.log('smsData', smsData)
+
+        // Wait for onSendSMS to complete if it's async, otherwise call it
+        if (typeof onSendSMS === 'function') {
+          const result = onSendSMS(smsData)
+          if (result && typeof result.then === 'function') {
+            // If it returns a promise, wait for it
+            try {
+              await result
+              setShowSnackBar({
+                message: 'Template saved and SMS sent successfully',
+                type: SnackbarTypes.Success,
+              })
+            } catch (error) {
+              console.error('Error in onSendSMS:', error)
+              setShowSnackBar({
+                message: 'Template saved but failed to send SMS',
+                type: SnackbarTypes.Error,
+              })
             } finally {
               // Reset loader after SMS is sent (with a small delay to ensure it shows)
               setTimeout(() => {
@@ -242,7 +379,7 @@ function SMSTempletePopup({
         return
       }
 
-      // Add your save logic here
+      // For cadence: save template and add to cadence
       // Determine template name: use selected template name, or new template name, or default
       const templateName = selectedTemplate?.templateName || newTemplateName || 'SMS Template'
 
@@ -291,13 +428,6 @@ function SMSTempletePopup({
           }
         }
 
-        // if (addRow && createdTemplate) {
-        //     addRow({
-        //         templateId: createdTemplate.id,
-        //         communicationType: 'sms',
-        //     });
-        // }
-        
         // Pass the created template ID to onClose for auto-selection
         setTimeout(() => {
           onClose(createdTemplate?.id)
@@ -310,10 +440,10 @@ function SMSTempletePopup({
       }
     } catch (error) {
       console.log('error', error)
-      // setShowSnackBar({
-      //     message: "Failed to save SMS template",
-      //     type: SnackbarTypes.Error,
-      // })
+      setShowSnackBar({
+        message: 'Failed to save SMS template',
+        type: SnackbarTypes.Error,
+      })
     } finally {
       // Reset loader for non-lead SMS flows
       // For lead SMS, loader is reset in the try block after onSendSMS completes
@@ -948,7 +1078,26 @@ function SMSTempletePopup({
                 </div>
               </div>
             </div>
-            <div className="w-full flex flex-row items-center justify-end mt-4">
+            <div className="w-full flex flex-row items-center justify-end gap-3 mt-4">
+              {/* Send Text Only Button */}
+              {sendOnlyLoader ? (
+                <CircularProgress size={30} />
+              ) : (
+                <button
+                  className={`flex flex-row items-center gap-2 px-6 py-3 h-[48px] text-[15px] font-[600] rounded-lg text-white transition-colors ${
+                    !body?.trim() || (isLeadSMS ? !leadPhone : !selectedPhone) || sendOnlyLoader
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : 'bg-gray-600 hover:bg-gray-700'
+                  }`}
+                  disabled={!body?.trim() || (isLeadSMS ? !leadPhone : !selectedPhone) || sendOnlyLoader}
+                  onClick={handleSendOnly}
+                >
+                  Send Text
+                  <PaperPlaneTilt size={18} weight="regular" />
+                </button>
+              )}
+
+              {/* Save + Send Button */}
               {saveSmsLoader ? (
                 <CircularProgress size={30} />
               ) : (
@@ -957,11 +1106,11 @@ function SMSTempletePopup({
                     ? 'bg-gray-400 cursor-not-allowed'
                     : 'bg-brand-primary hover:bg-brand-primary/90'
                     }`}
-                  disabled={isSaveDisabled}
-                  onClick={handleSave}
+                  disabled={isSaveDisabled || saveSmsLoader}
+                  onClick={handleSaveAndSend}
                 >
                   {isLeadSMS
-                    ? 'Send'
+                    ? 'Save + Send'
                     : isEditing && !IsDefaultCadence
                       ? 'Update'
                       : 'Create'}{' '}

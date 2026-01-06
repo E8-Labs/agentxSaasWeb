@@ -81,6 +81,7 @@ const Apis = {
   deleteLeadNote: `/api/leads`, // Will be used with noteId in path
   getDashboardData: `${BasePath}api/agent/dashboard`,
   delLeadTag: `${BasePath}api/leads/deleteLeadTag`,
+  delLeadTagPermanently: `${BasePath}api/leads/deleteTagByName`,
   //apis to add card & subscribe plan
   createSetupIntent: `${BasePath}api/user/createSetupIntent`,
   getPaymentIntent: `${BasePath}api/user/getSetupIntent`,
@@ -200,6 +201,8 @@ const Apis = {
 
   //add comment
   addComment: `${BasePath}api/leads/addCommentOnTranscript`,
+  // Post comment in messaging thread
+  postComment: `${BasePath}api/user/messaging/comment`,
   //create onboarding link
   createOnboardingLink: `${BasePath}api/agency/createConnectLink`,
   //setup twillio

@@ -192,9 +192,15 @@ const RichTextEditor = forwardRef(
     }
 
 
-    // Expose insertVariable via ref
+    // Expose insertVariable and getEditor via ref
     useImperativeHandle(ref, () => ({
       insertVariable,
+      getEditor: () => {
+        if (quillRef.current) {
+          return quillRef.current.getEditor()
+        }
+        return null
+      },
     }))
 
     return (

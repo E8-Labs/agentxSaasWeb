@@ -21,6 +21,7 @@ import {
   WalletCards,
   X,
   Zap,
+  Trash2,
 } from 'lucide-react'
 import { useMemo } from 'react'
 
@@ -81,12 +82,20 @@ export const InfoRow = ({ icon, children }) => (
   </div>
 )
 
-export const TagPill = ({ label, onRemove, isLoading }) => {
+export const TagPill = ({ label, onRemove, isLoading, onDeletePermanently, deletePermanentLoader }) => {
   const handleRemove = (e) => {
     e.stopPropagation()
     e.preventDefault()
     if (!isLoading && onRemove) {
       onRemove(label)
+    }
+  }
+
+  const handleDeletePermanently = (e) => {
+    e.stopPropagation()
+    e.preventDefault()
+    if (!deletePermanentLoader && onDeletePermanently) {
+      onDeletePermanently(label)
     }
   }
 
@@ -96,25 +105,48 @@ export const TagPill = ({ label, onRemove, isLoading }) => {
       className="rounded-full border-border/50 px-3 py-1 bg-muted/50 hover:bg-muted flex items-center gap-1.5 group relative transition-colors shadow-sm"
     >
       <TypographyCaption className="font-medium text-foreground">{label}</TypographyCaption>
-      {onRemove && (
-        <button
-          type="button"
-          onClick={handleRemove}
-          onMouseDown={(e) => {
-            e.stopPropagation()
-            e.preventDefault()
-          }}
-          disabled={isLoading}
-          className="ml-1 h-4 w-4 min-w-[16px] flex items-center justify-center hover:bg-destructive/10 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-          aria-label={`Remove tag ${label}`}
-        >
-          {isLoading ? (
-            <div className="h-3 w-3 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
-          ) : (
-            <X className="h-3 w-3 text-muted-foreground group-hover:text-destructive transition-colors" />
-          )}
-        </button>
-      )}
+      <div className="flex items-center gap-0.5 ml-1">
+        {onDeletePermanently && (
+          <button
+            type="button"
+            onClick={handleDeletePermanently}
+            onMouseDown={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+            }}
+            disabled={deletePermanentLoader}
+            className="h-4 w-4 min-w-[16px] flex items-center justify-center hover:bg-destructive/20 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer opacity-0 group-hover:opacity-100"
+            aria-label={`Delete tag ${label} permanently`}
+            title="Delete tag permanently"
+          >
+            {deletePermanentLoader ? (
+              <div className="h-3 w-3 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+            ) : (
+              <Trash2 className="h-3 w-3 text-muted-foreground hover:text-destructive transition-colors" />
+            )}
+          </button>
+        )}
+        {onRemove && (
+          <button
+            type="button"
+            onClick={handleRemove}
+            onMouseDown={(e) => {
+              e.stopPropagation()
+              e.preventDefault()
+            }}
+            disabled={isLoading}
+            className="h-4 w-4 min-w-[16px] flex items-center justify-center hover:bg-destructive/10 rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer opacity-0 group-hover:opacity-100"
+            aria-label={`Remove tag ${label}`}
+            title="Remove tag from lead"
+          >
+            {isLoading ? (
+              <div className="h-3 w-3 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+            ) : (
+              <X className="h-3 w-3 text-muted-foreground hover:text-destructive transition-colors" />
+            )}
+          </button>
+        )}
+      </div>
     </Badge>
   )
 }

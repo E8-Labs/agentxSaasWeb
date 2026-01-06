@@ -25,6 +25,7 @@ import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiS
 import { useUser } from '@/hooks/redux-hooks'
 import UnlockMessagesView from './UnlockMessagesView'
 import MessageHeader from './MessageHeader'
+import ConversationHeader from './ConversationHeader'
 
 const Messages = () => {
   const [threads, setThreads] = useState([])
@@ -1458,8 +1459,8 @@ const Messages = () => {
           <div
             className="flex items-center justify-center"
             style={{
-              width: '32px',
-              height: '32px',
+              width: '26px',
+              height: '26px',
               borderRadius: '50%',
               backgroundColor: 'white',
               overflow: 'hidden',
@@ -1490,7 +1491,7 @@ const Messages = () => {
       const teamMemberLetter = teamMemberName.charAt(0).toUpperCase()
       console.log('🔍 [getAgentAvatar] Using fallback initial:', teamMemberLetter)
       return (
-        <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-sm border-2 border-brand-primary">
+        <div className="w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary">
           {teamMemberLetter}
         </div>
       )
@@ -1510,8 +1511,8 @@ const Messages = () => {
           <Image
             src={message.agent.thumb_profile_image}
             alt="Agent"
-            width={32}
-            height={32}
+            width={26}
+            height={26}
             className="rounded-full"
             style={{ objectFit: 'cover' }}
           />
@@ -1528,8 +1529,8 @@ const Messages = () => {
             <Image
               src={selectedVoice.img}
               alt="Agent"
-              width={32}
-              height={32}
+              width={26}
+              height={26}
               className="rounded-full"
               style={{ objectFit: 'cover' }}
             />
@@ -1544,8 +1545,8 @@ const Messages = () => {
         <Image
           src={userData.user.thumb_profile_image}
           alt="User"
-          width={32}
-          height={32}
+          width={26}
+          height={26}
           className="rounded-full"
           style={{ objectFit: 'cover' }}
         />
@@ -1556,7 +1557,7 @@ const Messages = () => {
     const userName = userData?.user?.name || userData?.user?.firstName || 'U'
     const userLetter = userName.charAt(0).toUpperCase()
     return (
-      <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-sm border-2 border-brand-primary">
+      <div className="w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary">
         {userLetter}
       </div>
     )
@@ -2374,18 +2375,11 @@ const Messages = () => {
               })()}
 
               {/* Right Side - Messages View */}
-              <div className="flex-1 flex flex-col h-[90vh]">
+              <div className="flex-1 flex flex-col h-[93vh]">
                 {selectedThread ? (
                   <>
                     {/* Messages Header */}
-                    {/* <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white">
-                <div>
-                  <h2 className="text-lg font-semibold text-black">
-                    {selectedThread.lead?.firstName || selectedThread.lead?.name || 'Unknown Lead'}
-                  </h2>
-                  <p className="text-sm text-gray-500 mt-0.5">Click here for more info</p>
-                </div>
-              </div> */}
+                    <ConversationHeader selectedThread={selectedThread} getRecentMessageType={getRecentMessageType} formatUnreadCount={formatUnreadCount} getLeadName={getLeadName} />
 
                     {/* Messages Container */}
                     <ConversationView
@@ -2456,6 +2450,19 @@ const Messages = () => {
                       handleSendMessage={handleSendMessage}
                       sendingMessage={sendingMessage}
                       onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
+                      onCommentAdded={(newMessage) => {
+                        // If new message is provided, add it to messages and refresh
+                        if (newMessage) {
+                          setMessages((prev) => [...prev, newMessage])
+                          setTimeout(() => {
+                            if (messagesEndRef.current) {
+                              messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+                            }
+                          }, 100)
+                        }
+                        // Refresh threads to update last message/unread count
+                        fetchThreads(searchValue || "", appliedTeamMemberIds)
+                      }}
                     />
                   </>
                 ) : (
