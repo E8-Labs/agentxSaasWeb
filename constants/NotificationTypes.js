@@ -34,6 +34,7 @@ export const NotificationTypes = {
   TrialTime5MinLeft: 'TrialTime2MinLeft', // when two minutes of trial time is left
   PlanRenewed: 'PlanRenewed',
   SubscriptionRenewed: 'SubscriptionRenewed',
+  PlanSubscribed: 'PlanSubscribed',
   PlanUpgraded: 'PlanUpgraded',
   PlanDowngraded: 'PlanDowngraded',
   PlanCancelled: 'PlanCancelled',
@@ -62,6 +63,6 @@ export const NotificationTypes = {
 
   SubscriptionRenewalIn24Hour: 'SubscriptionRenewalIn24Hour',
   AutoMinuteTopupNotificaiton: 'AutoMinuteTopupNotificaiton',
-  PlanSubscribed: 'PlanSubscribed',
+  LeadReplied: 'LeadReplied', // When a lead replies to a message (push only, no email)
   SubaccountInvitation: 'SubaccountInvitation', // When an agency creates a subaccount and sends invitation email
 }

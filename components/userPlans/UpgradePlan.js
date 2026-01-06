@@ -2221,7 +2221,7 @@ function UpgradePlanContent({
                               href="#"
                               onClick={(e) => {
                                 e.preventDefault()
-                                const { termsUrl } = getPolicyUrls()
+                                const { termsUrl } = getPolicyUrls(selectedUser)
                                 window.open(termsUrl, '_blank')
                               }}
                               className="text-brand-primary hover:text-brand-primary/80 underline transition-colors duration-200 cursor-pointer"

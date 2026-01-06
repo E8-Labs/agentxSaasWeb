@@ -17,7 +17,7 @@ import {
  * 
  * @returns {Object} Object containing termsUrl, privacyUrl, and cancellationUrl
  */
-export const getPolicyUrls = () => {
+export const getPolicyUrls = (selectedUser) => {
   // Default URLs for normal users
   const defaultUrls = {
     termsUrl: termsAndConditionUrl,
@@ -43,9 +43,10 @@ export const getPolicyUrls = () => {
       return defaultUrls
     }
 
-    const parsedUser = JSON.parse(userData)
-    const user = parsedUser?.user || parsedUser
+    const user = selectedUser || JSON.parse(userData)?.user || JSON.parse(userData)
     const userRole = user?.userRole
+    console.log('selectedUser in get policy urls', selectedUser)
+    console.log('user in get policy urls', user)
 
     // For Agency users, return static agency URLs (NOT agencyBranding)
     if (userRole === 'Agency') {
@@ -57,8 +58,8 @@ export const getPolicyUrls = () => {
       // Get agencyBranding from multiple possible locations
       const agencyBranding =
         user?.agencyBranding ||
-        parsedUser?.agencyBranding ||
-        parsedUser?.user?.agencyBranding
+        user?.agencyBranding ||
+        user?.user?.agencyBranding
 
       // If agencyBranding has URLs, use them
       if (

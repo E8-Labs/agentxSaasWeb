@@ -97,6 +97,9 @@ const AgencySignUp = ({
   const [congratsPopup, setCongratsPopup] = useState(false)
 
   const [showResetBtn, setShowResetBtn] = useState(false)
+  const [verifyTitle, setVerifyTitle] = useState('')
+  const [verifyDescription, setVerifyDescription] = useState('')
+  const [showResetConfirmation, setShowResetConfirmation] = useState(false)
 
   const sizeList = [
     { id: 1, label: '1-10', min: 1, max: 10 },
@@ -215,10 +218,29 @@ const AgencySignUp = ({
     return emailPattern.test(email)
   }
 
+  // Handler to show reset confirmation popup
+  const handleResetClick = () => {
+    setShowResetConfirmation(true)
+  }
+
+  // Handler to confirm reset and show verify popup
+  const handleConfirmReset = async () => {
+    setShowResetConfirmation(false)
+   
+    await handleVerifyPopup()
+  }
+
+  // Handler for continue button to set default title/description
+  const handleContinueClick = () => {
+    setVerifyTitle('Verify phone number')
+    setVerifyDescription(`Enter code that was sent to number ending with *${userPhoneNumber.slice(-4)}.`)
+    handleVerifyPopup()
+  }
+
   //code for verify number popup
 
   const handleVerifyPopup = async () => {
-    if (shouldContinue) {
+    if (shouldContinue && !showResetBtn) {
       return
     }
     // let response = await SendVerificationCode(userPhoneNumber, true);
@@ -541,10 +563,11 @@ const AgencySignUp = ({
         if (response.data.status === true) {
           // //console.log;
           setCheckPhoneResponse(response.data)
+          setShowResetBtn(false)
         } else {
           if (response.data.message.includes('Taken')) {
             setShowResetBtn(true)
-          }
+          } 
           setCheckPhoneResponse(response.data)
         }
       }
@@ -888,9 +911,9 @@ const AgencySignUp = ({
                         <CircularProgress size={20} />
                       ) : (
                         <button className="bg-brand-primary text-white px-4 py-2 rounded-md whitespace-nowrap"
-                          onClick={() => handleVerifyPopup()}
+                          onClick={handleResetClick}
                         >
-                          Reset Account
+                          Reset
                         </button>
                       )
                     )
@@ -1016,10 +1039,73 @@ const AgencySignUp = ({
                     width: '100px',
                     alignSelf: 'flex-end',
                   }}
-                  onClick={handleVerifyPopup}
+                  onClick={handleContinueClick}
                 >
                   <span>Continue</span>
                 </div>
+
+                {/* Modal for reset confirmation */}
+                <Modal
+                  open={showResetConfirmation}
+                  closeAfterTransition
+                  BackdropProps={{
+                    timeout: 1000,
+                    sx: {
+                      backgroundColor: '#00000020',
+                    },
+                  }}
+                >
+                  <Box
+                    className="lg:w-7/12 sm:w-full sm:w-10/12 w-full"
+                    sx={styles.verifyPopup}
+                  >
+                    <div className="flex flex-row justify-center w-full">
+                      <div
+                        className="sm:w-7/12 w-full mx-2"
+                        style={{
+                          backgroundColor: '#ffffff',
+                          padding: 20,
+                          borderRadius: '13px',
+                        }}
+                      >
+                        <div className="flex flex-row justify-between items-center">
+                          <div
+                            style={{
+                              fontSize: 26,
+                              fontWeight: '700',
+                            }}
+                          >
+                            Reset Account
+                          </div>
+                          <CloseBtn onClick={() => setShowResetConfirmation(false)} />
+                        </div>
+                        <div
+                          className="mt-4"
+                          style={{ ...styles.inputStyle, color: '#00000060' }}
+                        >
+                          By resetting your account ,you're deleting your existing account. Please confirm
+                        </div>
+                        <div className="flex flex-row gap-3 mt-8">
+                          <button
+                            className="text-gray-500 font-medium text-normal  flex-1"
+                            style={{ height: '50px' }}
+                            onClick={() => setShowResetConfirmation(false)}
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            className="text-white bg-purple outline-none rounded-xl flex-1"
+                            style={{ height: '50px' }}
+                            onClick={handleConfirmReset}
+                          >
+                            Reset
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </Box>
+                </Modal>
+
                 {/* Modal for verify number */}
 
                 <Modal
@@ -1054,7 +1140,7 @@ const AgencySignUp = ({
                               fontWeight: '700',
                             }}
                           >
-                            Verify phone number
+                            {'Verify phone number'}
                           </div>
                           <CloseBtn onClick={handleClose} />
                         </div>
@@ -1062,8 +1148,7 @@ const AgencySignUp = ({
                           className="mt-4"
                           style={{ ...styles.inputStyle, color: '#00000060' }}
                         >
-                          Enter code that was sent to number ending with *
-                          {userPhoneNumber.slice(-4)}.
+                          {`Enter code that was sent to number ending with *${userPhoneNumber.slice(-4)}.`}
                         </div>
                         {/* <VerificationCodeInput /> */}
                         <div
@@ -1262,7 +1347,7 @@ const AgencySignUp = ({
                   type={response.status ? SnackbarTypes.Success : SnackbarTypes.Error}
                 />
 
-                
+
               </div>
             </div>
           </div>
