@@ -49,60 +49,66 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
         })
     }
 
-    // Fetch lead details to get pipeline and stage info
-    useEffect(() => {
-        if (!selectedThread?.leadId) return
-
-        const getLeadDetails = async () => {
-            try {
-                let AuthToken = null
-                const localDetails = localStorage.getItem('User')
-                if (localDetails) {
-                    const Data = JSON.parse(localDetails)
-                    AuthToken = Data.token
-                }
-
-                const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedThread.leadId}`
-                const response = await axios.get(ApiPath, {
-                    headers: {
-                        Authorization: 'Bearer ' + AuthToken,
-                        'Content-Type': 'application/json',
-                    },
-                })
-
-                if (response && response.data && response.data.data) {
-                    setLeadDetails(response.data.data)
-                    setSelectedStage(response.data.data?.stage?.stageTitle || '')
-                    if (response.data.data?.pipeline?.id) {
-                        setPipelineId(response.data.data.pipeline.id)
-                    } else if (response.data.data?.pipelineId) {
-                        setPipelineId(response.data.data.pipelineId)
-                    }
-                    
-                    // Set selected assign value based on lead details
-                    if (response.data.data?.agent?.id) {
-                        setSelectedAssignValue({
-                            type: 'agent',
-                            id: response.data.data.agent.id,
-                        })
-                    } else if (response.data.data?.teamsAssigned && response.data.data.teamsAssigned.length > 0) {
-                        // For now, show the first assigned team member
-                        const firstTeam = response.data.data.teamsAssigned[0]
-                        const teamId = firstTeam.id || firstTeam.invitedUserId || firstTeam.invitedUser?.id
-                        if (teamId) {
-                            setSelectedAssignValue({
-                                type: 'team',
-                                id: String(teamId), // Ensure ID is a string for consistent matching
-                            })
-                        }
-                    }
-                }
-            } catch (error) {
-                console.error('Error fetching lead details:', error)
+    // Function to get the lead details (same as LeadDetails.js)
+    const getLeadDetails = async (selectedLead) => {
+        try {
+            let AuthToken = null
+            const localDetails = localStorage.getItem('User')
+            if (localDetails) {
+                const Data = JSON.parse(localDetails)
+                AuthToken = Data.token
             }
+
+            const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedLead}`
+            console.log('🔍 [ConversationHeader] Fetching lead details, API path:', ApiPath)
+
+            const response = await axios.get(ApiPath, {
+                headers: {
+                    Authorization: 'Bearer ' + AuthToken,
+                    'Content-Type': 'application/json',
+                },
+            })
+
+            if (response && response.data && response.data.data) {
+                console.log('🔍 [ConversationHeader] Lead details fetched:', {
+                    leadId: response.data.data.id,
+                    teamsAssigned: response.data.data.teamsAssigned,
+                    teamsAssignedLength: response.data.data.teamsAssigned?.length || 0,
+                    teamsAssignedStructure: response.data.data.teamsAssigned?.map(t => ({
+                        id: t.id,
+                        invitedUserId: t.invitedUserId,
+                        invitedUser: t.invitedUser,
+                        name: t.name || t.invitedUser?.name,
+                    })),
+                })
+                
+                setLeadDetails(response.data.data)
+                setSelectedStage(response.data.data?.stage?.stageTitle || '')
+                
+                if (response.data.data?.pipeline?.id) {
+                    setPipelineId(response.data.data.pipeline.id)
+                } else if (response.data.data?.pipelineId) {
+                    setPipelineId(response.data.data.pipelineId)
+                }
+            }
+        } catch (error) {
+            console.error('❌ [ConversationHeader] Error fetching lead details:', error)
+        }
+    }
+
+    // Fetch lead details when thread is selected (same pattern as LeadDetails.js)
+    useEffect(() => {
+        if (!selectedThread?.leadId) {
+            setLeadDetails(null)
+            setSelectedStage('')
+            setPipelineId(null)
+            return
         }
 
-        getLeadDetails()
+        getLeadDetails(selectedThread.leadId)
+
+        // Get stages list if pipelineId is available (will be set after lead details are fetched)
+        // This will be handled in a separate useEffect that depends on pipelineId
     }, [selectedThread?.leadId])
 
     // Function to get stages list
@@ -163,8 +169,27 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                 })
 
                 if (response && response.data && response.data.status === true) {
-                    setMyTeam(response.data.data || [])
-                    setMyTeamAdmin(response.data.admin || null)
+                    const teamData = response.data.data || []
+                    const adminData = response.data.admin
+                    
+                    console.log('🔍 [ConversationHeader] Team data fetched:', {
+                        myTeam: teamData,
+                        myTeamAdmin: adminData,
+                        myTeamStructure: teamData.map(t => ({
+                            id: t.id,
+                            invitedUserId: t.invitedUserId,
+                            invitedUser_id: t.invitedUser?.id,
+                            name: t.name,
+                        })),
+                        adminStructure: adminData ? {
+                            id: adminData.id,
+                            invitedUserId: adminData.invitedUserId,
+                            invitedUser_id: adminData.invitedUser?.id,
+                            name: adminData.name,
+                        } : null,
+                    })
+                    setMyTeam(teamData)
+                    setMyTeamAdmin(adminData || null)
                 }
             }
         } catch (e) {
@@ -580,12 +605,40 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                                         ...(myTeamAdmin ? [myTeamAdmin] : []),
                                         ...(myTeam || []),
                                     ].map((tm) => {
+                                        // Get the team member ID - check all possible fields
                                         const id = tm.id || tm.invitedUserId || tm.invitedUser?.id
+                                        
+                                        // Check if this team member is in the assigned teams
                                         const isSelected = (leadDetails?.teamsAssigned || []).some(
-                                            (assigned) =>
-                                                String(assigned.id || assigned.invitedUserId || assigned.invitedUser?.id) ===
-                                                String(id),
+                                            (assigned) => {
+                                                // Check all possible ID fields in the assigned team member
+                                                const assignedId = assigned.id || assigned.invitedUserId || assigned.invitedUser?.id
+                                                
+                                                // Convert both to strings for comparison
+                                                const matches = String(assignedId) === String(id)
+                                                
+                                                return matches
+                                            }
                                         )
+                                        
+                                        // Comprehensive debug logging
+                                        console.log('🔍 [MultiSelect] Team member mapping:', {
+                                            teamMember: {
+                                                id: tm.id,
+                                                invitedUserId: tm.invitedUserId,
+                                                invitedUser_id: tm.invitedUser?.id,
+                                                resolvedId: id,
+                                                name: tm.name,
+                                            },
+                                            isSelected: isSelected,
+                                            teamsAssigned: leadDetails?.teamsAssigned?.map(t => ({
+                                                id: t.id,
+                                                invitedUserId: t.invitedUserId,
+                                                invitedUser_id: t.invitedUser?.id,
+                                                name: t.name,
+                                            })) || [],
+                                        })
+                                        
                                         return {
                                             id,
                                             label: tm.name,

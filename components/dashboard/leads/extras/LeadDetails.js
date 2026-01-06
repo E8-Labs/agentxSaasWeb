@@ -1641,6 +1641,7 @@ const LeadDetails = ({
                                       handleStageChange={handleStageChange}
                                       stagesList={stagesList}
                                       updateLeadStage={updateLeadStage}
+                                      chevronIcon={ChevronDown}
                                     />
                                   )}
                                 </>

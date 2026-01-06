@@ -10,6 +10,7 @@ const SelectStageDropdown = ({
   handleStageChange,
   stagesList,
   updateLeadStage,
+  chevronIcon = ArrowRight
 }) => {
   const options = useMemo(
     () =>
@@ -83,7 +84,7 @@ const SelectStageDropdown = ({
       options={options}
       onSelect={(opt) => handleStageChange?.(opt)}
       align="end"
-      chevronIcon={ArrowRight}
+      chevronIcon={chevronIcon}
       onChevronClick={handleNextStage}
     />
   )
