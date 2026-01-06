@@ -78,9 +78,10 @@ const EmailBubble = ({
   <>
     <div
       className={`px-4 py-2 ${isOutbound
-        ? 'bg-brand-primary text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
+        ? 'text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
         : 'bg-gray-100 text-black rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
         }`}
+      style={isOutbound ? { backgroundColor: 'hsl(var(--brand-primary) / 0.7)' } : {}}
     >
       {message.subject && (
         <div className="font-semibold mb-2 flex items-start">
@@ -317,8 +318,8 @@ const SystemMessage = ({ message }) => {
         // Join all parts and replace newlines
         let processedContent = parts.join('').replace(/\n/g, '<br>')
         
-        // Wrap entire content in small text (text-xs) with system-text color
-        return `<span class="text-xs text-system-text">${processedContent}</span>`
+        // Wrap entire content in small text (text-xs) with black color for gray bubble
+        return `<span class="text-xs text-black">${processedContent}</span>`
       }
       
       // Fallback: if no mention positions, try to extract from metadata directly
@@ -365,7 +366,7 @@ const SystemMessage = ({ message }) => {
         }
         
         let processedContent = parts.join('').replace(/\n/g, '<br>')
-        return `<span class="text-xs text-system-text">${processedContent}</span>`
+        return `<span class="text-xs text-black">${processedContent}</span>`
       }
       
       // Final fallback: use regex matching (for backward compatibility)
@@ -389,8 +390,8 @@ const SystemMessage = ({ message }) => {
         })
       }
       
-      // Wrap entire content in small text (text-xs) with system-text color
-      return `<span class="text-xs text-system-text">${escaped}</span>`
+      // Wrap entire content in small text (text-xs) with black color for gray bubble
+      return `<span class="text-xs text-black">${escaped}</span>`
     }
     
     // For other system messages (stage changes, assignments), parse markdown-style bold (**text**)
@@ -464,7 +465,39 @@ const SystemMessage = ({ message }) => {
     )
   }
 
-  // Regular system messages (stage changes, assignments, comments)
+  // Handle comments with gray bubble background, right-aligned
+  if (message.activityType === 'comment') {
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex flex-col w-full items-end pe-2 mb-3 cursor-default">
+              <div className="flex flex-col max-w-[75%] min-w-[220px]">
+                <div className="px-4 py-2 bg-gray-100 text-black rounded-tl-2xl rounded-bl-2xl rounded-br-2xl">
+                  <div
+                    className="prose prose-sm max-w-none break-words text-xs text-black"
+                    dangerouslySetInnerHTML={{ __html: parseContent(message.content) }}
+                  />
+                </div>
+                <div className="mt-1 mr-1 flex items-center justify-end gap-3">
+                  <span className="text-[10px] text-[#00000060]">
+                    {moment(message.createdAt).format('h:mm A')}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </TooltipTrigger>
+          {dateString && (
+            <TooltipContent>
+              <p>{dateString}</p>
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </TooltipProvider>
+    )
+  }
+
+  // Regular system messages (stage changes, assignments)
   return (
     <TooltipProvider>
       <Tooltip>
@@ -489,9 +522,10 @@ const MessageBubble = ({ message, isOutbound, onAttachmentClick }) => (
   <div className="flex flex-col">
     <div
       className={`px-4 py-2 ${isOutbound
-        ? 'bg-brand-primary text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
+        ? 'text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
         : 'bg-gray-100 text-black rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
         }`}
+      style={isOutbound ? { backgroundColor: 'hsl(var(--brand-primary) / 0.7)' } : {}}
     >
       <div
         className={`prose prose-sm max-w-none break-words whitespace-pre-wrap ${isOutbound

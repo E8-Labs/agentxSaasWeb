@@ -26,6 +26,7 @@ import { cn } from '@/lib/utils'
 import Apis from '@/components/apis/Apis'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 import MultiSelectDropdownCn from '@/components/dashboard/leads/extras/MultiSelectDropdownCn'
+import CloseBtn from '../globalExtras/CloseBtn'
 
 const NewContactDrawer = ({ open, onClose, onSuccess }) => {
   // Form state
@@ -39,21 +40,24 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
   })
   const [selectedPipeline, setSelectedPipeline] = useState(null)
   const [selectedStage, setSelectedStage] = useState(null)
+  const [selectedAgentIds, setSelectedAgentIds] = useState([])
   const [selectedTeamMemberIds, setSelectedTeamMemberIds] = useState([])
-  const [selectedAgent, setSelectedAgent] = useState(null)
 
   // Data state
   const [smartlists, setSmartlists] = useState([])
   const [pipelines, setPipelines] = useState([])
   const [stages, setStages] = useState([])
-  const [teamMembers, setTeamMembers] = useState([])
   const [agents, setAgents] = useState([])
+  const [teamMembers, setTeamMembers] = useState([])
+  const [customFields, setCustomFields] = useState([])
+  const [customFieldValues, setCustomFieldValues] = useState({})
 
   // Loading states
   const [loadingSmartlists, setLoadingSmartlists] = useState(false)
   const [loadingPipelines, setLoadingPipelines] = useState(false)
-  const [loadingTeamMembers, setLoadingTeamMembers] = useState(false)
   const [loadingAgents, setLoadingAgents] = useState(false)
+  const [loadingTeamMembers, setLoadingTeamMembers] = useState(false)
+  const [loadingCustomFields, setLoadingCustomFields] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
   // Validation errors
@@ -67,10 +71,13 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
       setFormData({ firstName: '', lastName: '', email: '', phone: '' })
       setSelectedPipeline(null)
       setSelectedStage(null)
+      setSelectedAgentIds([])
       setSelectedTeamMemberIds([])
-      setSelectedAgent(null)
       setStages([])
       setAgents([])
+      setTeamMembers([])
+      setCustomFields([])
+      setCustomFieldValues({})
       setErrors({})
     }
   }, [open])
@@ -90,7 +97,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
       fetchAgents(selectedPipeline.id)
     } else {
       setAgents([])
-      setSelectedAgent(null)
+      setSelectedAgentIds([])
     }
   }, [open, selectedPipeline])
 
@@ -110,6 +117,15 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
     const smartlist = smartlists.find((s) => s.id.toString() === value)
     setSelectedSmartlist(smartlist)
     setErrors((prev) => ({ ...prev, smartlist: null }))
+    
+    // Extract custom fields from smartlist if available, otherwise fetch them
+    if (smartlist?.id) {
+      if (smartlist.columns && Array.isArray(smartlist.columns)) {
+        extractCustomFields(smartlist.columns)
+      } else {
+        fetchCustomFields(smartlist.id)
+      }
+    }
     
     // Animate in fields after a short delay
     setTimeout(() => {
@@ -231,13 +247,22 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
       )
 
       if (response.data?.status && response.data?.data) {
-        // Filter to only show outbound agents
-        const outboundAgents = response.data.data.filter((agent) => {
+        // Filter to only show outbound agents and flatten the structure
+        const outboundAgents = []
+        response.data.data.forEach((agent) => {
           // Check if agent has sub-agents with outbound type
           if (agent.agents && agent.agents.length > 0) {
-            return agent.agents.some((subAgent) => subAgent.agentType === 'outbound')
+            agent.agents.forEach((subAgent) => {
+              if (subAgent.agentType === 'outbound') {
+                outboundAgents.push({
+                  id: subAgent.id,
+                  name: subAgent.name || agent.name,
+                  thumb_profile_image: subAgent.thumb_profile_image || agent.thumb_profile_image,
+                  raw: subAgent,
+                })
+              }
+            })
           }
-          return false
         })
         setAgents(outboundAgents)
       }
@@ -246,6 +271,72 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
       toast.error('Failed to load agents')
     } finally {
       setLoadingAgents(false)
+    }
+  }
+
+  const extractCustomFields = (columns) => {
+    // Default columns to exclude (case-insensitive)
+    const excludedColumns = [
+      'firstname',
+      'lastname',
+      'email',
+      'phone',
+      'fullname',
+      'address',
+      'name',
+    ]
+
+    // Filter out default columns and get custom fields
+    const customCols = columns
+      .filter((col) => {
+        const columnName = col.columnName?.toLowerCase() || col.toLowerCase()
+        return !excludedColumns.includes(columnName)
+      })
+      .map((col) => ({
+        columnName: typeof col === 'string' ? col : col.columnName,
+        id: col.id || col.columnName || col,
+      }))
+
+    setCustomFields(customCols)
+    // Reset custom field values
+    setCustomFieldValues({})
+  }
+
+  const fetchCustomFields = async (smartlistId) => {
+    try {
+      setLoadingCustomFields(true)
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+
+      const userData = JSON.parse(localData)
+      const token = userData.token
+
+      // Fetch smartlist details to get columns
+      const response = await axios.get(`${Apis.getSheets}?type=manual`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.data?.status && response.data?.data) {
+        // Find the selected smartlist
+        const smartlist = response.data.data.find(
+          (s) => s.id.toString() === smartlistId.toString()
+        )
+
+        if (smartlist?.columns && Array.isArray(smartlist.columns)) {
+          extractCustomFields(smartlist.columns)
+        } else {
+          setCustomFields([])
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching custom fields:', error)
+      toast.error('Failed to load custom fields')
+      setCustomFields([])
+    } finally {
+      setLoadingCustomFields(false)
     }
   }
 
@@ -280,6 +371,15 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
       const userData = JSON.parse(localData)
       const token = userData.token
 
+      // Build extraColumns from custom fields
+      const extraColumns = {}
+      customFields.forEach((field) => {
+        const value = customFieldValues[field.columnName]?.trim() || ''
+        if (value) {
+          extraColumns[field.columnName] = value
+        }
+      })
+
       // Build the payload according to the specified structure
       const payload = {
         sheetName: selectedSmartlist.sheetName,
@@ -291,7 +391,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
             phone: formData.phone.trim() || '',
             email: formData.email.trim() || '',
             address: '', // Not in form, but in example
-            extraColumns: {},
+            extraColumns: extraColumns,
           },
         ],
       }
@@ -301,8 +401,9 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
         payload.pipelineId = selectedPipeline.id.toString()
       }
 
-      if (selectedAgent?.id) {
-        payload.mainAgentIds = [selectedAgent.id.toString()]
+      // Add agent assignments if selected
+      if (selectedAgentIds.length > 0) {
+        payload.mainAgentIds = selectedAgentIds.map((id) => id.toString())
       }
 
       // Add team assignments if selected
@@ -343,6 +444,13 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
     }
   }
 
+  const handleCustomFieldChange = (columnName, value) => {
+    setCustomFieldValues((prev) => ({
+      ...prev,
+      [columnName]: value,
+    }))
+  }
+
   return (
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent
@@ -363,12 +471,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
             <SheetTitle className="text-lg font-semibold text-black">
               New Contact
             </SheetTitle>
-            <button
-              onClick={onClose}
-              className="p-1 hover:bg-gray-100 rounded transition-colors"
-            >
-              <X className="h-4 w-4" />
-            </button>
+            <CloseBtn onClick={onClose} />
           </div>
         </SheetHeader>
 
@@ -474,6 +577,34 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
                 />
               </div>
 
+              {/* Custom Fields */}
+              {loadingCustomFields ? (
+                <div className="px-2 py-1.5 text-sm text-gray-500">
+                  Loading custom fields...
+                </div>
+              ) : customFields.length > 0 ? (
+                <>
+                
+                  <div className="space-y-4">
+                    {customFields.map((field) => (
+                      <div key={field.id || field.columnName} className="flex flex-col gap-1">
+                        <Label className="text-sm text-gray-600">
+                          {field.columnName}
+                        </Label>
+                        <Input
+                          value={customFieldValues[field.columnName] || ''}
+                          onChange={(e) =>
+                            handleCustomFieldChange(field.columnName, e.target.value)
+                          }
+                          placeholder="Type here"
+                          className="h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </>
+              ) : null}
+
               <Separator className="my-4" />
 
               {/* Pipeline and Stage - Side by Side */}
@@ -551,77 +682,75 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
                 </div>
               </div>
 
-              {/* Assign to (Team Members) - Multi-select */}
-              <div className="flex flex-col gap-1">
-                <Label className="text-sm text-gray-600">Assign to</Label>
-                {loadingTeamMembers ? (
-                  <div className="px-2 py-1.5 text-sm text-gray-500">
-                    Loading...
-                  </div>
-                ) : (
-                  <MultiSelectDropdownCn
-                    label="Assign"
-                    options={teamMembers.map((member) => {
-                      const id = member.id || member.invitedUserId
-                      const isSelected = selectedTeamMemberIds.includes(id)
-                      return {
-                        id,
-                        label: member.name,
-                        avatar: member.thumb_profile_image,
-                        selected: isSelected,
-                        raw: member,
-                      }
-                    })}
-                    onToggle={(opt, checked) => {
-                      if (checked) {
-                        setSelectedTeamMemberIds((prev) => [...prev, opt.id])
-                      } else {
-                        setSelectedTeamMemberIds((prev) =>
-                          prev.filter((id) => id !== opt.id)
-                        )
-                      }
-                    }}
-                  />
-                )}
-              </div>
-
-              {/* Agents Dropdown */}
-              <div className="flex flex-col gap-1">
-                <Label className="text-sm text-gray-600">Agent</Label>
-                <Select
-                  value={selectedAgent?.id?.toString() || ''}
-                  onValueChange={(value) => {
-                    const agent = agents.find((a) => a.id.toString() === value)
-                    setSelectedAgent(agent)
-                  }}
-                  disabled={!selectedPipeline || loadingAgents}
-                >
-                  <SelectTrigger className="h-8 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary">
-                    <SelectValue placeholder="Select Agent" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {loadingAgents ? (
-                      <div className="px-2 py-1.5 text-sm text-gray-500">
-                        Loading...
-                      </div>
-                    ) : !selectedPipeline ? (
-                      <div className="px-2 py-1.5 text-sm text-gray-500">
-                        Select pipeline first
-                      </div>
-                    ) : agents.length === 0 ? (
-                      <div className="px-2 py-1.5 text-sm text-gray-500">
-                        No outbound agents available for this pipeline
-                      </div>
-                    ) : (
-                      agents.map((agent) => (
-                        <SelectItem key={agent.id} value={agent.id.toString()}>
-                          {agent.name}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Assign to (Agents and Team Members) - Multi-select - Only show when pipeline is selected */}
+              {selectedPipeline && (
+                <div className="flex flex-col gap-1">
+                  <Label className="text-sm text-gray-600">Assign to</Label>
+                  {loadingAgents || loadingTeamMembers ? (
+                    <div className="px-2 py-1.5 text-sm text-gray-500">
+                      Loading...
+                    </div>
+                  ) : agents.length === 0 && teamMembers.length === 0 ? (
+                    <div className="px-2 py-1.5 text-sm text-gray-500">
+                      No agents or team members available
+                    </div>
+                  ) : (
+                    <MultiSelectDropdownCn
+                      label="Assign"
+                      options={[
+                        // Add agents with a type identifier
+                        ...agents.map((agent) => {
+                          const id = `agent_${agent.id}`
+                          const isSelected = selectedAgentIds.includes(agent.id)
+                          return {
+                            id,
+                            label: agent.name,
+                            avatar: agent.thumb_profile_image,
+                            selected: isSelected,
+                            raw: { ...agent, type: 'agent' },
+                          }
+                        }),
+                        // Add team members with a type identifier
+                        ...teamMembers.map((member) => {
+                          const id = member.id || member.invitedUserId
+                          const memberId = `member_${id}`
+                          const isSelected = selectedTeamMemberIds.includes(id)
+                          return {
+                            id: memberId,
+                            label: member.name,
+                            avatar: member.thumb_profile_image,
+                            selected: isSelected,
+                            raw: { ...member, type: 'member' },
+                          }
+                        }),
+                      ]}
+                      onToggle={(opt, checked) => {
+                        const raw = opt.raw
+                        if (raw.type === 'agent') {
+                          // Handle agent selection
+                          if (checked) {
+                            setSelectedAgentIds((prev) => [...prev, raw.id])
+                          } else {
+                            setSelectedAgentIds((prev) =>
+                              prev.filter((id) => id !== raw.id)
+                            )
+                          }
+                        } else if (raw.type === 'member') {
+                          // Handle team member selection
+                          const memberId = raw.id || raw.invitedUserId
+                          if (checked) {
+                            setSelectedTeamMemberIds((prev) => [...prev, memberId])
+                          } else {
+                            setSelectedTeamMemberIds((prev) =>
+                              prev.filter((id) => id !== memberId)
+                            )
+                          }
+                        }
+                      }}
+                    />
+                  )}
+                </div>
+              )}
 
             </div>
           )}

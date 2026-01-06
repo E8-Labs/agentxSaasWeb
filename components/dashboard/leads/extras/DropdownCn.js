@@ -53,16 +53,18 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
         <div className="flex items-center rounded-md border border-muted/0.9 bg-white shadow-sm">
           {onChevronClick ? (
             <>
-              <button 
-                className={cn("flex items-center px-4 py-[1px] text-base font-regular focus:outline-none rounded-l-md", backgroundClassName)}
-                onClick={() => {
-                  // If there's a chevron click handler, the main button doesn't open dropdown
-                  // This allows split button behavior
-                }}
-              >
-                {Icon ? <Icon className={cn("mr-2 h-4 w-4", backgroundClassName?.includes('text-white') && 'text-white')} /> : null}
-                <span>{label}</span>
-              </button>
+              <DropdownMenuTrigger asChild>
+                <button 
+                  className={cn("flex items-center px-4 py-[1px] text-base font-regular focus:outline-none rounded-l-md hover:bg-muted/50 transition-colors", backgroundClassName)}
+                  onClick={(e) => {
+                    // Open dropdown on label click
+                    e.stopPropagation()
+                  }}
+                >
+                  {Icon ? <Icon className={cn("mr-2 h-4 w-4", backgroundClassName?.includes('text-white') && 'text-white')} /> : null}
+                  <span>{label}</span>
+                </button>
+              </DropdownMenuTrigger>
               <span className={cn("h-9 w-px bg-muted/80", backgroundClassName?.includes('text-white') && 'bg-white/30')} />
               <DropdownMenuTrigger asChild>
                 <button
@@ -71,7 +73,10 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
                     fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DropdownCn.js:63',message:'Chevron button clicked',data:{hasOnChevronClick:!!onChevronClick},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
                     // #endregion
                     e.stopPropagation()
-                    // Don't call onChevronClick here - let the dropdown open
+                    // Call onChevronClick if provided (dropdown will open automatically via DropdownMenuTrigger)
+                    if (onChevronClick) {
+                      onChevronClick()
+                    }
                   }}
                   className={cn("flex items-center justify-center px-2 py-[1px] focus:outline-none rounded-r-md hover:bg-muted/50 transition-colors", backgroundClassName)}
                 >

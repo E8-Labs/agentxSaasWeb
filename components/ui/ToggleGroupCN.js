@@ -31,7 +31,7 @@ const ToggleGroupCN = ({ options = [], value, onChange, className }) => {
             key={option.value}
             onClick={() => onChange(option.value)}
             className={cn(
-              "px-2 rounded-lg transition-colors",
+              "px-2 py-1 rounded-lg transition-colors",
               isSelected ? 'bg-white' : 'bg-transparent text-brand-primary'
             )}
           >

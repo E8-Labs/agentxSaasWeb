@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
 import moment from 'moment'
-import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown } from 'lucide-react'
+import { Search, MoreVertical, Trash, UserPlus, MessageSquare, Mail, ChevronDown, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
@@ -23,6 +23,7 @@ const ThreadsList = ({
   onDeleteThread,
   searchValue,
   onSearchChange,
+  searchLoading = false,
   showFilterPopover = false,
   onFilterToggle,
   filterTeamMembers = [],
@@ -114,7 +115,7 @@ const ThreadsList = ({
               onSelect: () => setShowNewContactDrawer(true),
             },
             {
-              label: 'New Message',
+              label: 'New Text',
               icon: MessageSquare,
               value: 'message',
               onSelect: () => onNewMessage && onNewMessage('sms'),
@@ -141,7 +142,11 @@ const ThreadsList = ({
               onChange={(e) => onSearchChange(e.target.value)}
               className="pl-10 pr-3 py-2.5 bg-gray-50 border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:bg-white"
             />
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            {searchLoading ? (
+              <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 animate-spin" size={18} />
+            ) : (
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+            )}
           </div>
 
           <div className="relative">
@@ -198,7 +203,9 @@ const ThreadsList = ({
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {loading ? (
+        {searchLoading ? (
+          <div className="p-4 text-center text-gray-500">Searching...</div>
+        ) : loading ? (
           <div className="p-4 text-center text-gray-500">Loading threads...</div>
         ) : threads.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-8">

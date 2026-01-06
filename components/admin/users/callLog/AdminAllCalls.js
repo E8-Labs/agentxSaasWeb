@@ -654,13 +654,13 @@ function AdminAllCalls({ selectedUser }) {
 
       {initialLoader && filteredCallDetails.length == 0 ? (
         <div
-          className={`flex flex-row items-center justify-center mt-12 h-[41vh] overflow-auto`}
+          className={`flex flex-row items-center justify-center mt-12 h-[50vh] overflow-auto`}
         >
           <CircularProgress size={35} thickness={2} />
         </div>
       ) : (
         <div
-          className={`h-[45vh] overflow-auto`}
+          className={`h-[50vh] overflow-auto`}
           id="scrollableDiv1"
           style={{ scrollbarWidth: 'none' }}
         >
@@ -702,7 +702,7 @@ function AdminAllCalls({ selectedUser }) {
                   <div
                     key={item.id}
                     style={{ cursor: 'pointer' }}
-                    className="w-full flex flex-row gap-2 items-center mt-5 px-10 hover:bg-[hsl(var(--brand-primary) / 0.05)] py-2"
+                    className="w-full flex flex-row gap-2 items-center mt-5 px-10 hover:bg-[hsl(var(--brand-primary)/0.05)] py-2"
                   >
                     <div
                       className="w-2/12 truncate flex flex-row gap-3 items-center cursor-pointer"
@@ -832,7 +832,7 @@ function AdminAllCalls({ selectedUser }) {
               height: '100svh',
             }}
           >
-            <div className="w-full flex flex-col items-center justify-between h-[60vh] bg-white p-4 rounded-md overflow-auto  ">
+            <div className="w-full flex flex-col items-center justify-between h-[65vh] bg-white p-4 rounded-md overflow-auto  ">
               <div className="mt-2 w-full">
                 <div className="flex flex-row items-center justify-between w-full">
                   <div>Filter</div>

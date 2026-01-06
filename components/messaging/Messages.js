@@ -33,6 +33,7 @@ const Messages = () => {
   const [messages, setMessages] = useState([])
   const [loading, setLoading] = useState(true)
   const [messagesLoading, setMessagesLoading] = useState(false)
+  const [searchLoading, setSearchLoading] = useState(false)
   const [composerMode, setComposerMode] = useState('sms') // 'sms' or 'email'
   const [showCC, setShowCC] = useState(false)
   const [showBCC, setShowBCC] = useState(false)
@@ -390,11 +391,16 @@ const Messages = () => {
   const fetchThreads = useCallback(async (searchQuery = '', teamMemberIdsFilter = []) => {
     console.log('fetchThreads is called')
     const requestId = ++threadsRequestIdRef.current
+    const isSearch = searchQuery && searchQuery.trim()
     try {
       setLoading(true)
+      // Set searchLoading if this is a search operation
+      if (isSearch) {
+        setSearchLoading(true)
+      }
       // Clear threads immediately when starting a new fetch to prevent showing stale data
       // Only clear if there's a search query (to avoid flicker on initial load)
-      if (searchQuery && searchQuery.trim()) {
+      if (isSearch) {
         setThreads([])
       }
 
@@ -459,6 +465,10 @@ const Messages = () => {
       // Only clear loading state for the latest request
       if (requestId === threadsRequestIdRef.current) {
         setLoading(false)
+        // Clear searchLoading if this was a search operation
+        if (isSearch) {
+          setSearchLoading(false)
+        }
       }
     }
   }, [])
@@ -2078,6 +2088,9 @@ const Messages = () => {
     // This prevents showing stale threads while the new search is loading
     if (searchValue && searchValue.trim()) {
       setThreads([])
+      setSearchLoading(true) // Set search loading immediately when search starts
+    } else {
+      setSearchLoading(false) // Clear search loading when search is cleared
     }
 
     const timeoutId = setTimeout(() => {
@@ -2348,6 +2361,7 @@ const Messages = () => {
                     onDeleteThread={handleDeleteThread}
                     searchValue={searchValue}
                     onSearchChange={setSearchValue}
+                    searchLoading={searchLoading}
                     showFilterPopover={showFilterPopover}
                     onFilterToggle={(open) => {
                       if (open) {
@@ -2462,7 +2476,9 @@ const Messages = () => {
                         }
                         // Refresh threads to update last message/unread count
                         fetchThreads(searchValue || "", appliedTeamMemberIds)
+
                       }}
+                      searchLoading={searchLoading}
                     />
                   </>
                 ) : (

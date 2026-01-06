@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useMemo } from 'react'
-import { ArrowRight, ChevronRight } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 
 import DropdownCn from './extras/DropdownCn'
 
@@ -10,7 +10,7 @@ const SelectStageDropdown = ({
   handleStageChange,
   stagesList,
   updateLeadStage,
-  chevronIcon = ArrowRight
+  chevronIcon = ChevronDown
 }) => {
   const options = useMemo(
     () =>
@@ -85,7 +85,7 @@ const SelectStageDropdown = ({
       onSelect={(opt) => handleStageChange?.(opt)}
       align="end"
       chevronIcon={chevronIcon}
-      onChevronClick={handleNextStage}
+      onChevronClick={(opt) => handleStageChange?.(opt)}
     />
   )
 }

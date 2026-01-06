@@ -1,5 +1,5 @@
 import { TypographyBody, TypographyCaptionSemibold } from '@/lib/typography'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import Image from 'next/image'
 import axios from 'axios'
 import { CircularProgress } from '@mui/material'
@@ -10,6 +10,9 @@ import MultiSelectDropdownCn from '@/components/dashboard/leads/extras/MultiSele
 import { AssignTeamMember, UnassignTeamMember } from '@/components/onboarding/services/apisServices/ApiService'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import { useRouter } from 'next/navigation'
+import LeadDetails from '@/components/dashboard/leads/extras/LeadDetails'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
+import { X } from 'lucide-react'
 
 function ConversationHeader({ selectedThread, getRecentMessageType, formatUnreadCount, getLeadName }) {
     const router = useRouter()
@@ -39,6 +42,9 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
         message: '',
         isVisible: false,
     })
+
+    // Lead details modal state
+    const [showLeadDetailsModal, setShowLeadDetailsModal] = useState(false)
 
     // Helper function to show snackbar messages
     const showSnackbar = (message, type = SnackbarTypes.Success) => {
@@ -512,6 +518,19 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
         router.push('/createagent')
     }
 
+    // Get selected team members for display
+    const selectedTeamMembers = useMemo(() => {
+        if (!leadDetails?.teamsAssigned || leadDetails.teamsAssigned.length === 0) {
+            return []
+        }
+        return leadDetails.teamsAssigned.map((assigned) => ({
+            id: assigned.id || assigned.invitedUserId || assigned.invitedUser?.id,
+            name: assigned.name || assigned.invitedUser?.name || 'Unknown',
+            avatar: assigned.thumb_profile_image || assigned.invitedUser?.thumb_profile_image,
+            raw: assigned,
+        }))
+    }, [leadDetails?.teamsAssigned])
+
     return (
         <>
             <AgentSelectSnackMessage
@@ -528,40 +547,27 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             />
         <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-white">
             <div className="flex flex-row items-center gap-2">
-            <div className="relative flex-shrink-0">
+            <div 
+                className="relative flex-shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => {
+                    if (selectedThread?.leadId) {
+                        setShowLeadDetailsModal(true)
+                    }
+                }}
+            >
             <div className="w-8 h-8 rounded-full bg-[#F1F5F9] flex items-center justify-center text-black font-bold text-xs">
                             {getLeadName(selectedThread)}
             </div>
-            {getRecentMessageType(selectedThread) === 'email' ? (
-              <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
-                <Image
-                  src="/messaging/email message type icon.svg"
-                  width={10}
-                  height={10}
-                  alt="Email"
-                  className="object-contain"
-                />
-              </div>
-            ) : (
-              <div className="absolute bottom-0 right-0 translate-y-1/2 w-5 h-5 rounded-full bg-white flex items-center justify-center border border-gray-200 shadow-sm">
-                <Image
-                  src="/messaging/text type message icon.svg"
-                  width={10}
-                  height={10}
-                  alt="SMS"
-                  className="object-contain"
-                />
-              </div>
-            )}
-            {selectedThread.unreadCount > 0 && formatUnreadCount(selectedThread.unreadCount) && (
-              <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-sm">
-                <TypographyCaptionSemibold className="text-white">
-                  {formatUnreadCount(selectedThread.unreadCount)}
-                </TypographyCaptionSemibold>
-              </div>
-            )}
+           
           </div>
-                <TypographyBody>
+                <TypographyBody 
+                    className="cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => {
+                        if (selectedThread?.leadId) {
+                            setShowLeadDetailsModal(true)
+                        }
+                    }}
+                >
                     {selectedThread.lead?.firstName || selectedThread.lead?.name || 'Unknown Lead'}
                 </TypographyBody>
 
@@ -595,69 +601,106 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
 
                     {/* Assign Dropdown (Team Members - MultiSelect) */}
                     {selectedThread.leadId && (
-                        <div className="flex items-center">
+                        <div className="flex items-center gap-2">
                             {(getTeamLoader || agentsLoader || globalLoader) ? (
                                 <CircularProgress size={20} />
                             ) : (
-                                <MultiSelectDropdownCn
-                                    label="Assign"
-                                    options={[
-                                        ...(myTeamAdmin ? [myTeamAdmin] : []),
-                                        ...(myTeam || []),
-                                    ].map((tm) => {
-                                        // Get the team member ID - check all possible fields
-                                        const id = tm.id || tm.invitedUserId || tm.invitedUser?.id
-                                        
-                                        // Check if this team member is in the assigned teams
-                                        const isSelected = (leadDetails?.teamsAssigned || []).some(
-                                            (assigned) => {
-                                                // Check all possible ID fields in the assigned team member
-                                                const assignedId = assigned.id || assigned.invitedUserId || assigned.invitedUser?.id
-                                                
-                                                // Convert both to strings for comparison
-                                                const matches = String(assignedId) === String(id)
-                                                
-                                                return matches
+                                <>
+                                    <MultiSelectDropdownCn
+                                        label="Assign"
+                                        options={[
+                                            ...(myTeamAdmin ? [myTeamAdmin] : []),
+                                            ...(myTeam || []),
+                                        ].map((tm) => {
+                                            // Get the team member ID - check all possible fields
+                                            const id = tm.id || tm.invitedUserId || tm.invitedUser?.id
+                                            
+                                            // Check if this team member is in the assigned teams
+                                            const isSelected = (leadDetails?.teamsAssigned || []).some(
+                                                (assigned) => {
+                                                    // Check all possible ID fields in the assigned team member
+                                                    const assignedId = assigned.id || assigned.invitedUserId || assigned.invitedUser?.id
+                                                    
+                                                    // Convert both to strings for comparison
+                                                    const matches = String(assignedId) === String(id)
+                                                    
+                                                    return matches
+                                                }
+                                            )
+                                            
+                                            // Comprehensive debug logging
+                                            console.log('🔍 [MultiSelect] Team member mapping:', {
+                                                teamMember: {
+                                                    id: tm.id,
+                                                    invitedUserId: tm.invitedUserId,
+                                                    invitedUser_id: tm.invitedUser?.id,
+                                                    resolvedId: id,
+                                                    name: tm.name,
+                                                },
+                                                isSelected: isSelected,
+                                                teamsAssigned: leadDetails?.teamsAssigned?.map(t => ({
+                                                    id: t.id,
+                                                    invitedUserId: t.invitedUserId,
+                                                    invitedUser_id: t.invitedUser?.id,
+                                                    name: t.name,
+                                                })) || [],
+                                            })
+                                            
+                                            return {
+                                                id,
+                                                label: tm.name,
+                                                avatar: tm.thumb_profile_image,
+                                                selected: isSelected,
+                                                raw: tm,
                                             }
-                                        )
-                                        
-                                        // Comprehensive debug logging
-                                        console.log('🔍 [MultiSelect] Team member mapping:', {
-                                            teamMember: {
-                                                id: tm.id,
-                                                invitedUserId: tm.invitedUserId,
-                                                invitedUser_id: tm.invitedUser?.id,
-                                                resolvedId: id,
-                                                name: tm.name,
-                                            },
-                                            isSelected: isSelected,
-                                            teamsAssigned: leadDetails?.teamsAssigned?.map(t => ({
-                                                id: t.id,
-                                                invitedUserId: t.invitedUserId,
-                                                invitedUser_id: t.invitedUser?.id,
-                                                name: t.name,
-                                            })) || [],
-                                        })
-                                        
-                                        return {
-                                            id,
-                                            label: tm.name,
-                                            avatar: tm.thumb_profile_image,
-                                            selected: isSelected,
-                                            raw: tm,
-                                        }
-                                    })}
-                                    onToggle={(opt, checked) => {
-                                        if (checked) {
-                                            handleAssignLeadToTeammember(opt.raw || opt)
-                                        } else {
-                                            const userId = opt.id || opt.raw?.id || opt.raw?.invitedUserId
-                                            if (userId) {
-                                                handleUnassignLeadFromTeammember(userId)
+                                        })}
+                                        onToggle={(opt, checked) => {
+                                            if (checked) {
+                                                handleAssignLeadToTeammember(opt.raw || opt)
+                                            } else {
+                                                const userId = opt.id || opt.raw?.id || opt.raw?.invitedUserId
+                                                if (userId) {
+                                                    handleUnassignLeadFromTeammember(userId)
+                                                }
                                             }
-                                        }
-                                    }}
-                                />
+                                        }}
+                                    />
+                                    
+                                    {/* Selected Team Members Container */}
+                                    {selectedTeamMembers.length > 0 && (
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            {selectedTeamMembers.map((member) => (
+                                                <div
+                                                    key={member.id}
+                                                    className="flex items-center gap-1.5 px-2 py-1 bg-muted/50 rounded-md border border-muted/70"
+                                                >
+                                                    <Avatar className="h-5 w-5">
+                                                        {member.avatar ? (
+                                                            <AvatarImage src={member.avatar} alt={member.name} />
+                                                        ) : (
+                                                            <AvatarFallback className="text-xs">
+                                                                {member.name?.charAt(0)?.toUpperCase() || 'U'}
+                                                            </AvatarFallback>
+                                                        )}
+                                                    </Avatar>
+                                                    <span className="text-xs font-medium text-foreground whitespace-nowrap">
+                                                        {member.name}
+                                                    </span>
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            handleUnassignLeadFromTeammember(member.id)
+                                                        }}
+                                                        className="ml-0.5 hover:bg-muted rounded-sm p-0.5 transition-colors"
+                                                        aria-label={`Remove ${member.name}`}
+                                                    >
+                                                        <X className="h-3 w-3 text-muted-foreground" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </>
                             )}
                         </div>
                     )}
@@ -692,6 +735,17 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                     )} */}
                 </div>
             </div>
+
+            {/* Lead Details Modal */}
+            {showLeadDetailsModal && selectedThread?.leadId && (
+                <LeadDetails
+                    selectedLead={selectedThread.leadId}
+                    pipelineId={pipelineId}
+                    showDetailsModal={showLeadDetailsModal}
+                    setShowDetailsModal={setShowLeadDetailsModal}
+                    hideDelete={true}
+                />
+            )}
         </>
     )
 }

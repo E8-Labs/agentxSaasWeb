@@ -29,13 +29,13 @@ const getBrandPrimaryHex = () => {
       const h = parseInt(hslMatch[1]) / 360
       const s = parseInt(hslMatch[2]) / 100
       const l = parseInt(hslMatch[3]) / 100
-      
+
       const c = (1 - Math.abs(2 * l - 1)) * s
       const x = c * (1 - Math.abs(((h * 6) % 2) - 1))
       const m = l - c / 2
-      
+
       let r = 0, g = 0, b = 0
-      
+
       if (0 <= h && h < 1 / 6) {
         r = c; g = x; b = 0
       } else if (1 / 6 <= h && h < 2 / 6) {
@@ -49,11 +49,11 @@ const getBrandPrimaryHex = () => {
       } else if (5 / 6 <= h && h < 1) {
         r = c; g = 0; b = x
       }
-      
+
       r = Math.round((r + m) * 255)
       g = Math.round((g + m) * 255)
       b = Math.round((b + m) * 255)
-      
+
       return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
     }
   }
@@ -189,6 +189,8 @@ const MessageComposer = ({
   const [subjectVariablesDropdownOpen, setSubjectVariablesDropdownOpen] = useState(false)
   const subjectVariablesDropdownRef = useRef(null)
   const [selectedVariable, setSelectedVariable] = useState('')
+  const [variablesDropdownOpen, setVariablesDropdownOpen] = useState(false)
+  const variablesDropdownRef = useRef(null)
   const [templates, setTemplates] = useState([])
   const [templatesLoading, setTemplatesLoading] = useState(false)
   const [showTemplatesDropdown, setShowTemplatesDropdown] = useState(false)
@@ -218,6 +220,9 @@ const MessageComposer = ({
       if (templatesDropdownRef.current && !templatesDropdownRef.current.contains(event.target)) {
         setShowTemplatesDropdown(false)
       }
+      if (variablesDropdownRef.current && !variablesDropdownRef.current.contains(event.target)) {
+        setVariablesDropdownOpen(false)
+      }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
@@ -227,10 +232,10 @@ const MessageComposer = ({
     const updateBrandColor = () => {
       setBrandPrimaryColor(getBrandPrimaryHex())
     }
-    
+
     updateBrandColor()
     window.addEventListener('agencyBrandingUpdated', updateBrandColor)
-    
+
     return () => {
       window.removeEventListener('agencyBrandingUpdated', updateBrandColor)
     }
@@ -256,36 +261,36 @@ const MessageComposer = ({
     let timeoutId = null
     let rafId1 = null
     let rafId2 = null
-    
+
     // Get the current height before any changes
     const currentHeight = element.scrollHeight
-    
+
     // Set explicit height immediately to lock current height
     setContentHeight(`${currentHeight}px`)
-    
+
     // Force a reflow to ensure the height is set
     void element.offsetHeight
-    
+
     // Enable transition AFTER setting the initial height
     setIsTransitioning(true)
-    
+
     // Wait for React to render the new content
     // Use multiple requestAnimationFrame calls to ensure DOM has fully updated
     rafId1 = requestAnimationFrame(() => {
       rafId2 = requestAnimationFrame(() => {
         // Force another reflow
         void element.offsetHeight
-        
+
         // One more frame to ensure content is rendered
         requestAnimationFrame(() => {
           // Measure new content height after mode change
           const newHeight = element.scrollHeight
-          
+
           // Only animate if heights are different (with small threshold for rounding)
           if (Math.abs(newHeight - currentHeight) > 1) {
             // Animate to new height
             setContentHeight(`${newHeight}px`)
-            
+
             // Reset to auto after transition completes
             timeoutId = setTimeout(() => {
               if (composerContentRef.current) {
@@ -301,7 +306,7 @@ const MessageComposer = ({
         })
       })
     })
-    
+
     return () => {
       if (timeoutId) {
         clearTimeout(timeoutId)
@@ -692,7 +697,7 @@ const MessageComposer = ({
     if (commentEditorRef.current && commentEditorRef.current.getEditor) {
       quill = commentEditorRef.current.getEditor()
     }
-    
+
     if (quill) {
       const selection = quill.getSelection(true)
 
@@ -702,7 +707,7 @@ const MessageComposer = ({
 
       // Get the current selection index
       const currentIndex = selection.index
-      
+
       // Get text up to cursor to find @ position
       // getText includes newlines as \n characters
       const textBeforeCursor = quill.getText(0, currentIndex)
@@ -715,24 +720,24 @@ const MessageComposer = ({
       // Use Quill's getContents to get the delta representation
       // This preserves line breaks and formatting correctly
       const contents = quill.getContents(0, currentIndex)
-      
+
       // Map text position to Quill index by walking through delta ops
       let quillIndex = 0
       let textIndex = 0
-      
+
       for (let i = 0; i < contents.ops.length; i++) {
         const op = contents.ops[i]
         if (op.insert) {
           const insertText = typeof op.insert === 'string' ? op.insert : ''
           const insertLength = insertText.length
-          
+
           // Check if @ is within this op's text
           if (textIndex <= atIndex && atIndex < textIndex + insertLength) {
             // @ is in this op - calculate the exact Quill index
             quillIndex += (atIndex - textIndex)
             break
           }
-          
+
           textIndex += insertLength
           quillIndex += insertLength
         }
@@ -751,7 +756,7 @@ const MessageComposer = ({
 
       // Delete text from @ to cursor
       const deleteLength = currentIndex - quillIndex
-      
+
       if (deleteLength > 0) {
         quill.deleteText(quillIndex, deleteLength)
       }
@@ -759,19 +764,19 @@ const MessageComposer = ({
       // Insert mention with formatting
       const mentionText = `@${member.name} `
       const mentionTextWithoutSpace = `@${member.name}`
-      
+
       // Insert the mention text first without formatting
       quill.insertText(quillIndex, mentionText, 'user')
-      
+
       // Then apply formatting only to the mention text (excluding the trailing space)
       quill.formatText(quillIndex, mentionTextWithoutSpace.length, {
         color: brandPrimaryColor,
         bold: true,
       }, 'user')
-      
+
       // Calculate cursor position after mention
       const newCursorPos = quillIndex + mentionText.length
-      
+
       // Remove any formatting from text after the mention to prevent bleed
       const contentLength = quill.getLength()
       if (newCursorPos < contentLength - 1) {
@@ -784,7 +789,7 @@ const MessageComposer = ({
 
       // Move cursor after mention and remove any active formatting
       quill.setSelection(newCursorPos, 'user')
-      
+
       // Remove any active formatting at cursor position to prevent bleed
       quill.removeFormat(newCursorPos, 0, 'user')
     } else {
@@ -876,7 +881,7 @@ const MessageComposer = ({
 
       // Extract plain text from HTML comment body
       const plainText = stripHTML(commentBody).trim()
-      
+
       if (!plainText) {
         return
       }
@@ -884,25 +889,25 @@ const MessageComposer = ({
       // Extract mentioned user IDs from comment body
       // Match full user names (including spaces) by checking all team members
       const mentionedUserIds = []
-      
+
       // For each team member, check if their name appears as a mention in the content
       for (const member of teamMembers) {
         if (!member.name) continue
-        
+
         // Look for @ followed by the member's name (which may contain spaces)
         const mentionPattern = `@${member.name}`
         const mentionIndex = plainText.indexOf(mentionPattern)
-        
+
         if (mentionIndex !== -1) {
           // Verify it's a valid mention (not part of a longer word)
           const charBefore = mentionIndex > 0 ? plainText[mentionIndex - 1] : ' '
-          const charAfter = mentionIndex + mentionPattern.length < plainText.length 
-            ? plainText[mentionIndex + mentionPattern.length] 
+          const charAfter = mentionIndex + mentionPattern.length < plainText.length
+            ? plainText[mentionIndex + mentionPattern.length]
             : ' '
-          
+
           // Valid mention if preceded by space/start and followed by space/end
           if ((charBefore === ' ' || charBefore === '\n' || mentionIndex === 0) &&
-              (charAfter === ' ' || charAfter === '\n' || mentionIndex + mentionPattern.length === plainText.length)) {
+            (charAfter === ' ' || charAfter === '\n' || mentionIndex + mentionPattern.length === plainText.length)) {
             if (!mentionedUserIds.includes(member.id)) {
               mentionedUserIds.push(member.id)
             }
@@ -981,14 +986,14 @@ const MessageComposer = ({
                 // When switching to SMS, preserve SMS body if it exists, otherwise convert email HTML to plain text
                 if (composerMode === 'email' && !composerData.smsBody && composerData.emailBody) {
                   const plainText = stripHTML(composerData.emailBody)
-                  setComposerData((prev) => ({ 
-                    ...prev, 
+                  setComposerData((prev) => ({
+                    ...prev,
                     to: selectedThread?.receiverPhoneNumber || selectedThread?.lead?.phone || '',
                     smsBody: plainText.substring(0, SMS_CHAR_LIMIT) // Ensure it doesn't exceed SMS limit
                   }))
                 } else {
-                  setComposerData((prev) => ({ 
-                    ...prev, 
+                  setComposerData((prev) => ({
+                    ...prev,
                     to: selectedThread?.receiverPhoneNumber || selectedThread?.lead?.phone || ''
                   }))
                 }
@@ -1006,14 +1011,14 @@ const MessageComposer = ({
                 if (composerMode === 'sms' && !composerData.emailBody && composerData.smsBody) {
                   // Convert plain text SMS to HTML format for email
                   const htmlBody = composerData.smsBody.replace(/\n/g, '<br>')
-                  setComposerData((prev) => ({ 
-                    ...prev, 
+                  setComposerData((prev) => ({
+                    ...prev,
                     to: selectedThread?.receiverEmail || selectedThread?.lead?.email || '',
                     emailBody: htmlBody
                   }))
                 } else {
-                  setComposerData((prev) => ({ 
-                    ...prev, 
+                  setComposerData((prev) => ({
+                    ...prev,
                     to: selectedThread?.receiverEmail || selectedThread?.lead?.email || ''
                   }))
                 }
@@ -1039,15 +1044,15 @@ const MessageComposer = ({
 
               <div className="flex items-center border-[0.5px] border-gray-200 rounded-lg">
                 <SplitButtonCN buttons={[{
-                      label: 'Cc',
-                      isSelected: showCC,
-                      onClick: () => setShowCC(!showCC),
-                    },
-                    {
-                      label: 'Bcc',
-                      isSelected: showBCC,
-                      onClick: () => setShowBCC(!showBCC),
-                    }]} />
+                  label: 'Cc',
+                  isSelected: showCC,
+                  onClick: () => setShowCC(!showCC),
+                },
+                {
+                  label: 'Bcc',
+                  isSelected: showBCC,
+                  onClick: () => setShowBCC(!showBCC),
+                }]} />
                 {/* <button
                   onClick={() => setShowCC(!showCC)}
                   className={`px-3 py-1 text-xs border-r rounded border-gray-200 transition-colors rounded rounded-r-none ${showCC ? 'bg-brand-primary text-white' : 'text-gray-700 hover:bg-gray-200'
@@ -1062,19 +1067,19 @@ const MessageComposer = ({
                 >
                   Bcc
             </button> */}
-          </div>
+              </div>
             )}
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label={isExpanded ? 'Collapse' : 'Expand'}
-          >
-            {isExpanded ? (
-              <CaretDown size={20} className="text-gray-600" />
-            ) : (
-              <CaretUp size={20} className="text-gray-600" />
-            )}
-          </button>
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label={isExpanded ? 'Collapse' : 'Expand'}
+            >
+              {isExpanded ? (
+                <CaretDown size={20} className="text-gray-600" />
+              ) : (
+                <CaretUp size={20} className="text-gray-600" />
+              )}
+            </button>
           </div>
         </div>
 
@@ -1111,11 +1116,11 @@ const MessageComposer = ({
                       handleSendComment()
                     }
                   } else {
-                  const messageBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
-                  if (hasTextContent(messageBody) && 
+                    const messageBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
+                    if (hasTextContent(messageBody) &&
                       ((composerMode === 'sms' && selectedPhoneNumber && composerData.to) ||
-                       (composerMode === 'email' && selectedEmailAccount && composerData.to))) {
-                    handleSendMessage()
+                        (composerMode === 'email' && selectedEmailAccount && composerData.to))) {
+                      handleSendMessage()
                     }
                   }
                 }
@@ -1130,8 +1135,8 @@ const MessageComposer = ({
                 composerMode === 'comment'
                   ? (sendingComment || !hasTextContent(commentBody) || !selectedThread?.leadId)
                   : (sendingMessage ||
-                !hasTextContent(composerMode === 'sms' ? composerData.smsBody : composerData.emailBody) ||
-                (composerMode === 'email' && (!selectedEmailAccount || !composerData.to)) ||
+                    !hasTextContent(composerMode === 'sms' ? composerData.smsBody : composerData.emailBody) ||
+                    (composerMode === 'email' && (!selectedEmailAccount || !composerData.to)) ||
                     (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to)))
               }
               className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
@@ -1260,215 +1265,257 @@ const MessageComposer = ({
               </div>
             ) : (
               <>
-            <div className="flex items-center gap-2 mb-2 px-1">
+                <div className="flex items-center gap-2 mb-2 px-1">
                   <div className="flex border-[0.5px] px-3 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary  items-center gap-2 flex-1">
                     <label className="text-sm text-[#737373] font-medium whitespace-nowrap">From:</label>
-                {composerMode === 'sms' ? (
-                  <div className="flex-1 relative min-w-0" ref={phoneDropdownRef}>
-                    <button
-                      type="button"
-                      onClick={() => setPhoneDropdownOpen(!phoneDropdownOpen)}
+                    {composerMode === 'sms' ? (
+                      <div className="flex-1 relative min-w-0" ref={phoneDropdownRef}>
+                        <button
+                          type="button"
+                          onClick={() => setPhoneDropdownOpen(!phoneDropdownOpen)}
                           className="w-full px-3 py-2 bg-white text-left flex items-center justify-between"
-                    >
-                      <span className="text-sm text-gray-700 truncate">
-                        {selectedPhoneNumber
-                          ? phoneNumbers.find((p) => p.id === parseInt(selectedPhoneNumber))?.phone || 'Select phone number'
-                          : 'Select phone number'}
-                      </span>
-                      <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    </button>
-                    {phoneDropdownOpen && (
-                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
-                        {phoneNumbers.length === 0 ? (
-                          <div className="p-3">
-                            <button
-                              onClick={() => {
-                                const tab = userData?.user?.userRole === UserRole.AgencySubAccount ? 6 : 7
-                                router.push(`/dashboard/myAccount?tab=${tab}`)
-                                setPhoneDropdownOpen(false)
-                              }}
-                              className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
-                            >
-                              <Plus className="w-4 h-4" />
-                              Select Phone Number
-                            </button>
+                        >
+                          <span className="text-sm text-gray-700 truncate">
+                            {selectedPhoneNumber
+                              ? phoneNumbers.find((p) => p.id === parseInt(selectedPhoneNumber))?.phone || 'Select phone number'
+                              : 'Select phone number'}
+                          </span>
+                          <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        </button>
+                        {phoneDropdownOpen && (
+                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                            {phoneNumbers.length === 0 ? (
+                              <div className="p-3">
+                                <button
+                                  onClick={() => {
+                                    const tab = userData?.user?.userRole === UserRole.AgencySubAccount ? 6 : 7
+                                    router.push(`/dashboard/myAccount?tab=${tab}`)
+                                    setPhoneDropdownOpen(false)
+                                  }}
+                                  className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                  Select Phone Number
+                                </button>
+                              </div>
+                            ) : (
+                              <>
+                                {phoneNumbers.map((phone) => (
+                                  <button
+                                    key={phone.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedPhoneNumber(phone.id.toString())
+                                      setPhoneDropdownOpen(false)
+                                    }}
+                                    className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedPhoneNumber === phone.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                                      }`}
+                                  >
+                                    {phone.phone}
+                                  </button>
+                                ))}
+                                <div className="border-t border-gray-200 p-2">
+                                  <button
+                                    onClick={() => {
+                                      router.push('/dashboard/myAccount?tab=7')
+                                      setPhoneDropdownOpen(false)
+                                    }}
+                                    className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
+                                  >
+                                    <Plus className="w-4 h-4" />
+                                    Get A2P Verified Number
+                                  </button>
+                                </div>
+                              </>
+                            )}
                           </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex-1 relative min-w-0" ref={emailDropdownRef}>
+                        {emailAccounts.length === 0 ? (
+                          <button
+                            onClick={() => onOpenAuthPopup && onOpenAuthPopup()}
+                            className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                            style={{ height: '42px' }}
+                          >
+                            Connect Email
+                          </button>
                         ) : (
                           <>
-                            {phoneNumbers.map((phone) => (
-                              <button
-                                key={phone.id}
-                                type="button"
-                                onClick={() => {
-                                  setSelectedPhoneNumber(phone.id.toString())
-                                  setPhoneDropdownOpen(false)
-                                }}
-                                    className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedPhoneNumber === phone.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                                }`}
-                              >
-                                {phone.phone}
-                              </button>
-                            ))}
-                            <div className="border-t border-gray-200 p-2">
-                              <button
-                                onClick={() => {
-                                  router.push('/dashboard/myAccount?tab=7')
-                                  setPhoneDropdownOpen(false)
-                                }}
-                                className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
-                              >
-                                <Plus className="w-4 h-4" />
-                                Get A2P Verified Number
-                              </button>
-                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
+                              className="w-full px-3 py-2 bg-white text-left flex items-center justify-between"
+                            >
+                              <span className="text-sm text-gray-700 truncate">
+                                {selectedEmailAccount
+                                  ? (() => {
+                                    const account = emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))
+                                    if (!account) return 'Select email account'
+                                    const providerLabel = account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider || ''
+                                    return `${account.email || account.name || account.displayName}${providerLabel ? ` (${providerLabel})` : ''}`
+                                  })()
+                                  : 'Select email account'}
+                              </span>
+                              <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                            </button>
+                            {emailDropdownOpen && (
+                              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                                {emailAccounts.map((account) => (
+                                  <button
+                                    key={account.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedEmailAccount(account.id.toString())
+                                      setEmailDropdownOpen(false)
+                                    }}
+                                    className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                                      }`}
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <span>{account.email || account.name || account.displayName}</span>
+                                      {account.provider && (
+                                        <span className="text-xs text-gray-500 ml-2">
+                                          {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </button>
+                                ))}
+                                <div className="border-t border-gray-200 p-2">
+                                  <button
+                                    onClick={() => {
+                                      if (onOpenAuthPopup) {
+                                        onOpenAuthPopup()
+                                      }
+                                      setEmailDropdownOpen(false)
+                                    }}
+                                    className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
+                                  >
+                                    <Plus className="w-4 h-4" />
+                                    Connect Email
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </>
                         )}
                       </div>
                     )}
                   </div>
-                ) : (
-                  <div className="flex-1 relative min-w-0" ref={emailDropdownRef}>
-                    {emailAccounts.length === 0 ? (
-                      <button
-                        onClick={() => onOpenAuthPopup && onOpenAuthPopup()}
-                        className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
-                        style={{ height: '42px' }}
-                      >
-                        Connect Email
-                      </button>
-                    ) : (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
-                              className="w-full px-3 py-2 bg-white text-left flex items-center justify-between"
-                        >
-                          <span className="text-sm text-gray-700 truncate">
-                            {selectedEmailAccount
-                              ? (() => {
-                                  const account = emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))
-                                  if (!account) return 'Select email account'
-                                  const providerLabel = account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider || ''
-                                  return `${account.email || account.name || account.displayName}${providerLabel ? ` (${providerLabel})` : ''}`
-                                })()
-                              : 'Select email account'}
-                          </span>
-                          <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                        </button>
-                        {emailDropdownOpen && (
-                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
-                            {emailAccounts.map((account) => (
-                              <button
-                                key={account.id}
-                                type="button"
-                                onClick={() => {
-                                  setSelectedEmailAccount(account.id.toString())
-                                  setEmailDropdownOpen(false)
-                                }}
-                                    className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                                }`}
+
+
+                </div>
+
+                {composerMode === 'email' && (
+                  <>
+                    {/* CC and BCC fields - shown when toggled - Tag-based design on same line */}
+                    {(showCC || showBCC) && (
+                      <div className="flex items-start gap-4 mb-2 px-1">
+                        {showCC && (
+                          <div className="flex items-start gap-2 flex-1 w-full">
+                            <div className="flex border-[0.5px] px-3 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary  items-center gap-2 flex-1">
+                              <label className="text-sm font-medium whitespace-nowrap">Cc:</label>
+                            <div className="relative flex-1 min-w-0">
+                              {/* Tag Input Container */}
+                              <div
+                                className="flex flex-wrap items-center gap-2 px-3 py-2 "
                               >
-                                <div className="flex items-center justify-between">
-                                  <span>{account.email || account.name || account.displayName}</span>
-                                  {account.provider && (
-                                    <span className="text-xs text-gray-500 ml-2">
-                                      {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
-                                    </span>
-                                  )}
-                                </div>
-                              </button>
-                            ))}
-                            <div className="border-t border-gray-200 p-2">
-                              <button
-                                onClick={() => {
-                                  if (onOpenAuthPopup) {
-                                    onOpenAuthPopup()
-                                  }
-                                  setEmailDropdownOpen(false)
-                                }}
-                                className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
-                              >
-                                <Plus className="w-4 h-4" />
-                                Connect Email
-                              </button>
+                                {/* CC Email Tags */}
+                                {ccEmails.map((email, index) => (
+                                  <div
+                                    key={`cc-${index}-${email}`}
+                                    className="flex items-center gap-1 px-2 py-[1px] bg-gray-100 rounded-full text-sm"
+                                  >
+                                    <span className="text-gray-700">{email}</span>
+                                    <button
+                                      type="button"
+                                      onClick={() => removeCcEmail(email)}
+                                      className="text-gray-500 hover:text-gray-700 ml-1"
+                                    >
+                                      <X size={14} weight="bold" />
+                                    </button>
+                                  </div>
+                                ))}
+                                {/* CC Input */}
+                                <input
+                                  type="text"
+                                  value={ccInput}
+                                  onChange={handleCcInputChange}
+                                  onKeyDown={handleCcInputKeyDown}
+                                  onPaste={handleCcInputPaste}
+                                  onBlur={handleCcInputBlur}
+                                  placeholder={ccEmails.length === 0 ? 'Add CC recipients' : ''}
+                                  className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                                  style={{
+                                    height: '100%',
+                                    minHeight: '24px',
+                                    padding: 0,
+                                  }}
+                                />
+                              </div>
+                              </div>
                             </div>
                           </div>
                         )}
-                      </>
+                        {showBCC && (
+                          <div className="flex items-start gap-2 flex-1 w-full">
+                            <div className="flex border-[0.5px] px-3 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary  items-center gap-2 flex-1">
+                              <label className="text-sm font-medium whitespace-nowrap">Bcc:</label>
+                              <div className="relative flex-1 min-w-0">
+                                {/* Tag Input Container */}
+                                <div
+                                  className="flex flex-wrap items-center gap-2 px-3 py-2 "
+                                >
+                                  {/* BCC Email Tags */}
+                                  {bccEmails.map((email, index) => (
+                                    <div
+                                      key={`bcc-${index}-${email}`}
+                                      className="flex items-center gap-1 px-2 py-[1px] bg-gray-100 rounded-full text-sm"
+                                    >
+                                      <span className="text-gray-700">{email}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => removeBccEmail(email)}
+                                        className="text-gray-500 hover:text-gray-700 ml-1"
+                                      >
+                                        <X size={14} weight="bold" />
+                                      </button>
+                                    </div>
+                                  ))}
+                                  {/* BCC Input */}
+                                  <input
+                                    type="text"
+                                    value={bccInput}
+                                    onChange={handleBccInputChange}
+                                    onKeyDown={handleBccInputKeyDown}
+                                    onPaste={handleBccInputPaste}
+                                    onBlur={handleBccInputBlur}
+                                    placeholder={bccEmails.length === 0 ? 'Add BCC recipients' : ''}
+                                    className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                                    style={{
+                                      height: '100%',
+                                      minHeight: '24px',
+                                      padding: 0,
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     )}
-                  </div>
-                )}
-              </div>
 
-
-            </div>
-
-            {composerMode === 'email' && (
-              <>
-                {showCC && (
-                  <div className="flex items-center gap-2 mb-2 px-1">
-                    <label className="text-sm font-medium w-16">Cc:</label>
-                    <div className="relative flex-1">
-                      <div className="flex flex-wrap items-center gap-2 px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto" style={{ height: '42px', minHeight: '42px' }}>
-                        {ccEmails.map((email, index) => (
-                          <div key={index} className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm">
-                            <span className="text-gray-700">{email}</span>
-                            <button type="button" onClick={() => removeCcEmail(email)} className="text-gray-500 hover:text-gray-700 ml-1">
-                              <X size={14} weight="bold" />
-                            </button>
-                          </div>
-                        ))}
-                        <input
-                          type="text"
-                          value={ccInput}
-                          onChange={handleCcInputChange}
-                          onKeyDown={handleCcInputKeyDown}
-                          onPaste={handleCcInputPaste}
-                          onBlur={handleCcInputBlur}
-                          placeholder={ccEmails.length === 0 ? 'Add CC recipients' : ''}
-                          className="flex-1 h-full min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {showBCC && (
-                  <div className="flex items-center gap-2 mb-2 px-1">
-                    <label className="text-sm font-medium w-16">Bcc:</label>
-                    <div className="relative flex-1">
-                      <div className="flex flex-wrap items-center gap-2 px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto" style={{ height: '42px', minHeight: '42px' }}>
-                        {bccEmails.map((email, index) => (
-                          <div key={index} className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm">
-                            <span className="text-gray-700">{email}</span>
-                            <button type="button" onClick={() => removeBccEmail(email)} className="text-gray-500 hover:text-gray-700 ml-1">
-                              <X size={14} weight="bold" />
-                            </button>
-                          </div>
-                        ))}
-                        <input
-                          type="text"
-                          value={bccInput}
-                          onChange={handleBccInputChange}
-                          onKeyDown={handleBccInputKeyDown}
-                          onPaste={handleBccInputPaste}
-                          onBlur={handleBccInputBlur}
-                          placeholder={bccEmails.length === 0 ? 'Add BCC recipients' : ''}
-                          className="flex-1 h-full min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div className="flex items-center gap-2 mb-2 px-1">
+                    <div className="flex items-center gap-2 mb-2 px-1">
                       <div className="flex border-[0.5px] border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary items-center flex-1 bg-white">
                         <div className="flex items-center gap-2 flex-1 px-3">
                           <label className="text-sm text-[#737373] font-medium whitespace-nowrap">Subject:</label>
                           <input
                             type="text"
-                    value={composerData.subject}
-                    onChange={(e) => setComposerData({ ...composerData, subject: e.target.value })}
+                            value={composerData.subject}
+                            onChange={(e) => setComposerData({ ...composerData, subject: e.target.value })}
                             placeholder="Enter subject"
                             className="flex-1 outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
                           />
@@ -1483,7 +1530,7 @@ const MessageComposer = ({
                             <button
                               type="button"
                               onClick={() => setSubjectVariablesDropdownOpen(!subjectVariablesDropdownOpen)}
-                              className="px-3 w-40 flex items-center justify-between text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                              className="px-3 w-32 flex items-center justify-between text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                             >
                               <span>Variables</span>
                               <CaretDown size={16} className="text-gray-400" />
@@ -1516,82 +1563,74 @@ const MessageComposer = ({
                           </div>
                         )}
                       </div>
-                </div>
-              </>
-              )}
+                    </div>
+                  </>
+                )}
 
-              {/* Message Body and Send Button */}
-              <div className="mb-2 px-1">
-                {composerMode === 'email' ? (
-                  <>
-                    {composerData.attachments.length > 0 && (
-                      <div className="mb-1 flex flex-col gap-1">
-                        {composerData.attachments.map((file, idx) => (
-                          <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded text-sm">
-                            <Paperclip size={14} className="text-gray-500" />
-                            <span className="flex-1 truncate">{file.name}</span>
-                            <span className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</span>
-                            <button onClick={() => removeAttachment(idx)} className="text-red-500 hover:text-red-700 text-lg leading-none">
-                              ×
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                {/* Message Body and Send Button */}
+                <div className="mb-2 px-1">
+                  {composerMode === 'email' ? (
+                    <>
+                      {composerData.attachments.length > 0 && (
+                        <div className="mb-1 flex flex-col gap-1">
+                          {composerData.attachments.map((file, idx) => (
+                            <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded text-sm">
+                              <Paperclip size={14} className="text-gray-500" />
+                              <span className="flex-1 truncate">{file.name}</span>
+                              <span className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</span>
+                              <button onClick={() => removeAttachment(idx)} className="text-red-500 hover:text-red-700 text-lg leading-none">
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
 
-                    {/* Relative container for RichTextEditor and overlapping buttons */}
-                    <div className="relative">
-                      <RichTextEditor
-                        ref={richTextEditorRef}
-                        value={composerData.emailBody}
-                        onChange={(html) => setComposerData({ ...composerData, emailBody: html })}
-                        placeholder="Type your message..."
+                      {/* Relative container for RichTextEditor and overlapping buttons */}
+                      <div className="relative">
+                        <RichTextEditor
+                          ref={richTextEditorRef}
+                          value={composerData.emailBody}
+                          onChange={(html) => setComposerData({ ...composerData, emailBody: html })}
+                          placeholder="Type your message..."
                           availableVariables={uniqueColumns}
-                        toolbarPosition="bottom"
+                          toolbarPosition="bottom"
                           customToolbarElement={
                             uniqueColumns && uniqueColumns.length > 0 ? (
-                              <FormControl size="small" sx={{ minWidth: 150 }}>
-                                <Select
-                                  value={selectedVariable}
-                                  onChange={(e) => {
-                                    const value = e.target.value
-                                    setSelectedVariable('')
-                                    if (value && richTextEditorRef.current) {
-                                      richTextEditorRef.current.insertVariable(value)
-                                    }
-                                  }}
-                                  displayEmpty
-                                  sx={{
-                                    fontSize: '0.875rem',
-                                    height: '42px',
-                                    borderRadius: '8px',
-                                    '& .MuiOutlinedInput-notchedOutline': {
-                                      borderColor: 'transparent',
-                                      borderWidth: '0',
-                                    },
-                                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                                      borderColor: 'transparent',
-                                    },
-                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                      borderColor: 'transparent',
-                                    },
-                                  }}
+                              <div className="relative" ref={variablesDropdownRef}>
+                                <button
+                                  type="button"
+                                  onClick={() => setVariablesDropdownOpen(!variablesDropdownOpen)}
+                                  className="px-3 py-2 w-32 border-gray-200 border-l-[0.5px] border-gray-200 focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary flex items-center justify-between gap-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                                 >
-                                  <MenuItem value="" disabled>
-                                    <em>Variables</em>
-                                  </MenuItem>
-                                  {uniqueColumns.map((variable, index) => {
-                                    const displayText = variable.startsWith('{') && variable.endsWith('}')
-                                      ? variable
-                                      : `{${variable}}`
-                                    return (
-                                      <MenuItem key={index} value={variable}>
-                                        {displayText}
-                                      </MenuItem>
-                                    )
-                                  })}
-                                </Select>
-                              </FormControl>
+                                  <span>Variables</span>
+                                  <CaretDown size={16} className={`text-gray-400 transition-transform ${variablesDropdownOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                                {variablesDropdownOpen && (
+                                  <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto min-w-[200px] z-50">
+                                    {uniqueColumns.map((variable, index) => {
+                                      const displayText = variable.startsWith('{') && variable.endsWith('}')
+                                        ? variable
+                                        : `{${variable}}`
+                                      return (
+                                        <button
+                                          key={index}
+                                          type="button"
+                                          onClick={() => {
+                                            if (richTextEditorRef.current) {
+                                              richTextEditorRef.current.insertVariable(variable)
+                                            }
+                                            setVariablesDropdownOpen(false)
+                                          }}
+                                          className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors text-gray-700"
+                                        >
+                                          {displayText}
+                                        </button>
+                                      )
+                                    })}
+                                  </div>
+                                )}
+                              </div>
                             ) : null
                           }
                         />
@@ -1603,7 +1642,7 @@ const MessageComposer = ({
                         <div className="flex items-center justify-between gap-4 mt-2 pt-2 border-gray-200">
                           {/* My Templates Button with Dropdown */}
                           <div className="relative" ref={templatesDropdownRef}>
-                          <button 
+                            <button
                               onClick={() => {
                                 if (!showTemplatesDropdown) {
                                   fetchTemplates()
@@ -1615,7 +1654,7 @@ const MessageComposer = ({
                               <Image src="/messaging/templateIcon.svg" alt="Templates" width={18} height={18} />
                               <span>My Templates</span>
                               <CaretDown size={16} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
-                          </button>
+                            </button>
 
                             {/* Templates Dropdown */}
                             {showTemplatesDropdown && (
@@ -1660,82 +1699,133 @@ const MessageComposer = ({
                             </div>
 
                             {/* Send Button */}
-                        <button
-                          onClick={handleSendMessage}
-                          disabled={
-                            sendingMessage ||
+                            <button
+                              onClick={handleSendMessage}
+                              disabled={
+                                sendingMessage ||
                                 (composerMode === 'email'
                                   ? (!hasTextContent(composerData.emailBody) || !selectedEmailAccount || !composerData.to)
                                   : (!hasTextContent(composerData.smsBody) || !selectedPhoneNumber || !composerData.to)
                                 )
                               }
                               className="px-6 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                        >
-                          {sendingMessage ? (
-                            <>
-                              <CircularProgress size={16} className="text-white" />
+                            >
+                              {sendingMessage ? (
+                                <>
+                                  <CircularProgress size={16} className="text-white" />
                                   <span>Sending...</span>
-                            </>
-                          ) : (
-                            <>
+                                </>
+                              ) : (
+                                <>
                                   <span>Send</span>
                                   <PaperPlaneTilt size={16} weight="fill" />
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    </div>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        </div>
                       )}
-                  </>
-                ) : (
-                  <>
-                    <textarea
-                      value={composerData.smsBody}
-                      onChange={(e) => {
-                        if (e.target.value.length <= SMS_CHAR_LIMIT) {
-                          setComposerData({ ...composerData, smsBody: e.target.value })
-                        }
-                      }}
-                      placeholder="Type your message..."
-                      maxLength={SMS_CHAR_LIMIT}
-                      className="w-full px-4 py-3 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[100px] resize-none"
-                    />
-                    
-                    <div className="flex items-center justify-end gap-2 mt-2">
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <span>
-                          {composerData.smsBody.length}/{SMS_CHAR_LIMIT} char
-                        </span>
-                        <span className="text-gray-300">|</span>
-                        <span>{Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left</span>
+                    </>
+                  ) : (
+                    <>
+                      <textarea
+                        value={composerData.smsBody}
+                        onChange={(e) => {
+                          if (e.target.value.length <= SMS_CHAR_LIMIT) {
+                            setComposerData({ ...composerData, smsBody: e.target.value })
+                          }
+                        }}
+                        placeholder="Type your message..."
+                        maxLength={SMS_CHAR_LIMIT}
+                        className="w-full px-4 py-3 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[100px] resize-none"
+                      />
+
+                      {/* Footer with Template, Character Count, and Send Button */}
+                      <div className="flex items-center justify-between gap-4 mt-2 pt-2 border-gray-200">
+                        {/* My Templates Button with Dropdown */}
+                        <div className="relative" ref={templatesDropdownRef}>
+                          <button
+                            onClick={() => {
+                              if (!showTemplatesDropdown) {
+                                fetchTemplates()
+                              }
+                              setShowTemplatesDropdown(!showTemplatesDropdown)
+                            }}
+                            className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                          >
+                            <Image src="/messaging/templateIcon.svg" alt="Templates" width={18} height={18} />
+                            <span>My Templates</span>
+                            <CaretDown size={16} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
+                          </button>
+
+                          {/* Templates Dropdown */}
+                          {showTemplatesDropdown && (
+                            <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto z-50">
+                              {templatesLoading ? (
+                                <div className="p-4 text-center">
+                                  <CircularProgress size={20} />
+                                </div>
+                              ) : templates.length === 0 ? (
+                                <div className="p-4 text-center text-sm text-gray-500">
+                                  No templates found
+                                </div>
+                              ) : (
+                                templates.map((template) => (
+                                  <button
+                                    key={template.id || template.templateId}
+                                    onClick={() => handleTemplateSelect(template)}
+                                    className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0"
+                                  >
+                                    <div className="font-medium text-gray-900 truncate">
+                                      {template.templateName || 'Untitled Template'}
+                                    </div>
+                                  </button>
+                                ))
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {/* Character Count and Credits (Center) */}
+                          <div className="flex items-center gap-2 text-sm text-gray-500 flex-1 justify-center">
+                            <span>
+                              {composerData.smsBody.length}/{SMS_CHAR_LIMIT} char
+                            </span>
+                            <span className="text-gray-300">|</span>
+                            <span>
+                              {Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left
+                            </span>
+                          </div>
+
+                          {/* Send Button */}
+                          <button
+                            onClick={handleSendMessage}
+                            disabled={
+                              sendingMessage ||
+                              !hasTextContent(composerData.smsBody) ||
+                              (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
+                            }
+                            className="px-6 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                          >
+                            {sendingMessage ? (
+                              <>
+                                <CircularProgress size={16} className="text-white" />
+                                <span>Sending...</span>
+                              </>
+                            ) : (
+                              <>
+                                <span>Send</span>
+                                <PaperPlaneTilt size={16} weight="fill" />
+                              </>
+                            )}
+                          </button>
+                        </div>
                       </div>
-                      <button
-                        onClick={handleSendMessage}
-                        disabled={
-                          sendingMessage ||
-                          !hasTextContent(composerData.smsBody) ||
-                          (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
-                        }
-                        className="px-6 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                      >
-                        {sendingMessage ? (
-                          <>
-                            <CircularProgress size={16} className="text-white" />
-                            Sending...
-                          </>
-                        ) : (
-                          <>
-                            Send
-                            <PaperPlaneTilt size={16} />
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </>
-          )}
+                    </>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>
