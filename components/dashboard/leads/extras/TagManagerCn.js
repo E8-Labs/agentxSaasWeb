@@ -5,6 +5,9 @@ import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { TagPill } from './LeadDetailsCN'
 import { TypographyBodySemibold } from '@/lib/typography'
+import axios from 'axios'
+import Apis from '@/components/apis/Apis'
+import { Trash2 } from 'lucide-react'
 
 const TagManagerCn = ({
   tags = [],
@@ -20,8 +23,10 @@ const TagManagerCn = ({
   onRemoveTag,
   delTagLoader,
   maxDisplayedTags = 2,
+  onRefreshSuggestions,
 }) => {
   const [showTagsPopover, setShowTagsPopover] = useState(false)
+  const [deletePermanentLoader, setDeletePermanentLoader] = useState(null)
   const displayedTags = useMemo(() => tags.slice(0, maxDisplayedTags), [tags])
   const remainingCount = Math.max(0, tags.length - maxDisplayedTags)
 
@@ -32,6 +37,49 @@ const TagManagerCn = ({
       if (tags.length <= maxDisplayedTags + 1) {
         setShowTagsPopover(false)
       }
+    }
+  }
+
+  const handleDeleteTagPermanently = async (tag) => {
+    try {
+      setDeletePermanentLoader(tag)
+
+      let AuthToken = null
+      const userData = localStorage.getItem('User')
+      if (userData) {
+        const localData = JSON.parse(userData)
+        AuthToken = localData.token
+      }
+
+      if (!AuthToken) {
+        console.error('No auth token found')
+        return
+      }
+
+      const ApiData = {
+        tagName: tag,
+      }
+
+      const ApiPath = Apis.delLeadTagPermanently
+
+
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response?.data?.status === true) {
+        // Refresh the suggestions list
+        if (onRefreshSuggestions) {
+          await onRefreshSuggestions()
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting tag permanently:', error)
+    } finally {
+      setDeletePermanentLoader(null)
     }
   }
 
@@ -72,6 +120,8 @@ const TagManagerCn = ({
                       label={tag} 
                       onRemove={handleRemoveTag}
                       isLoading={delTagLoader === tag}
+                      onDeletePermanently={handleDeleteTagPermanently}
+                      deletePermanentLoader={deletePermanentLoader === tag}
                     />
                   ))}
                 </div>
@@ -104,15 +154,41 @@ const TagManagerCn = ({
         {showSuggestions && tagSuggestions.length > 0 && (
           <div className="absolute z-50 mt-1 w-full max-h-48 overflow-auto rounded-lg border border-border bg-popover shadow-lg">
             {tagSuggestions.map((suggestion, index) => (
-              <button
+              <div
                 key={index}
-                type="button"
-                onMouseDown={(e) => e.preventDefault()}
-                onClick={() => onSuggestionClick?.(suggestion)}
-                className="w-full px-3 py-2 text-left text-sm hover:bg-accent transition-colors first:rounded-t-lg last:rounded-b-lg"
+                className="group flex items-center justify-between px-3 py-2 text-sm hover:bg-accent transition-colors first:rounded-t-lg last:rounded-b-lg"
               >
-                {suggestion}
-              </button>
+                <button
+                  type="button"
+                  onMouseDown={(e) => e.preventDefault()}
+                  onClick={() => onSuggestionClick?.(suggestion)}
+                  className="flex-1 text-left"
+                >
+                  {suggestion}
+                </button>
+                <button
+                  type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                  }}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    handleDeleteTagPermanently(suggestion)
+                  }}
+                  disabled={deletePermanentLoader === suggestion}
+                  className="ml-2 h-5 w-5 min-w-[20px] flex items-center justify-center hover:bg-destructive/20 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer opacity-0 group-hover:opacity-100"
+                  aria-label={`Delete tag ${suggestion} permanently`}
+                  title="Delete tag permanently"
+                >
+                  {deletePermanentLoader === suggestion ? (
+                    <div className="h-3 w-3 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+                  ) : (
+                    <Trash2 className="h-3.5 w-3.5 text-muted-foreground hover:text-destructive transition-colors" />
+                  )}
+                </button>
+              </div>
             ))}
           </div>
         )}

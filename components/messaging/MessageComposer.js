@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
-import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers } from 'lucide-react'
-import { CircularProgress } from '@mui/material'
+import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText } from 'lucide-react'
+import { CircularProgress, FormControl, MenuItem, Select } from '@mui/material'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
 import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
@@ -12,6 +12,9 @@ import { UserRole } from '@/constants/UserRole'
 import axios from 'axios'
 import Apis from '@/components/apis/Apis'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
+import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
+import { getTempletes, getTempleteDetails } from '@/components/pipeline/TempleteServices'
+import Image from 'next/image'
 
 // Helper function to get brand primary color as hex
 const getBrandPrimaryHex = () => {
@@ -24,31 +27,31 @@ const getBrandPrimaryHex = () => {
       const h = parseInt(hslMatch[1]) / 360
       const s = parseInt(hslMatch[2]) / 100
       const l = parseInt(hslMatch[3]) / 100
-      
+
       const c = (1 - Math.abs(2 * l - 1)) * s
       const x = c * (1 - Math.abs(((h * 6) % 2) - 1))
       const m = l - c / 2
-      
+
       let r = 0, g = 0, b = 0
-      
-      if (0 <= h && h < 1/6) {
+
+      if (0 <= h && h < 1 / 6) {
         r = c; g = x; b = 0
-      } else if (1/6 <= h && h < 2/6) {
+      } else if (1 / 6 <= h && h < 2 / 6) {
         r = x; g = c; b = 0
-      } else if (2/6 <= h && h < 3/6) {
+      } else if (2 / 6 <= h && h < 3 / 6) {
         r = 0; g = c; b = x
-      } else if (3/6 <= h && h < 4/6) {
+      } else if (3 / 6 <= h && h < 4 / 6) {
         r = 0; g = x; b = c
-      } else if (4/6 <= h && h < 5/6) {
+      } else if (4 / 6 <= h && h < 5 / 6) {
         r = x; g = 0; b = c
-      } else if (5/6 <= h && h < 1) {
+      } else if (5 / 6 <= h && h < 1) {
         r = c; g = 0; b = x
       }
-      
+
       r = Math.round((r + m) * 255)
       g = Math.round((g + m) * 255)
       b = Math.round((b + m) * 255)
-      
+
       return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
     }
   }
@@ -80,6 +83,12 @@ const stripHTML = (html) => {
   }
   // Fallback for SSR: strip HTML tags
   return html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').trim()
+}
+
+// Helper function to get character count from HTML
+const getCharCountFromHTML = (html) => {
+  if (!html) return 0
+  return stripHTML(html).length
 }
 
 const MessageComposer = ({
@@ -131,14 +140,14 @@ const MessageComposer = ({
   const phoneDropdownRef = useRef(null)
   const emailDropdownRef = useRef(null)
   const router = useRouter()
-  
+
   // Comment state
   const [commentBody, setCommentBody] = useState('')
   const [teamMembers, setTeamMembers] = useState([])
   const [sendingComment, setSendingComment] = useState(false)
   const commentEditorRef = useRef(null)
   const commentEditorContainerRef = useRef(null)
-  
+
   // Mention state
   const [showMentionDropdown, setShowMentionDropdown] = useState(false)
   const [mentionQuery, setMentionQuery] = useState('')
@@ -146,6 +155,17 @@ const MessageComposer = ({
   const [filteredTeamMembers, setFilteredTeamMembers] = useState([])
   const [selectedMentionIndex, setSelectedMentionIndex] = useState(0)
   const mentionDropdownRef = useRef(null)
+
+  // Variables state
+  const [uniqueColumns, setUniqueColumns] = useState([])
+  const [selectedSubjectVariable, setSelectedSubjectVariable] = useState('')
+  const [subjectVariablesDropdownOpen, setSubjectVariablesDropdownOpen] = useState(false)
+  const subjectVariablesDropdownRef = useRef(null)
+  const [selectedVariable, setSelectedVariable] = useState('')
+  const [templates, setTemplates] = useState([])
+  const [templatesLoading, setTemplatesLoading] = useState(false)
+  const [showTemplatesDropdown, setShowTemplatesDropdown] = useState(false)
+  const templatesDropdownRef = useRef(null)
 
   // Plan capabilities
   const { planCapabilities } = usePlanCapabilities()
@@ -162,8 +182,14 @@ const MessageComposer = ({
         setEmailDropdownOpen(false)
       }
       if (mentionDropdownRef.current && !mentionDropdownRef.current.contains(event.target) &&
-          !commentEditorContainerRef.current?.contains(event.target)) {
+        !commentEditorContainerRef.current?.contains(event.target)) {
         setShowMentionDropdown(false)
+      }
+      if (subjectVariablesDropdownRef.current && !subjectVariablesDropdownRef.current.contains(event.target)) {
+        setSubjectVariablesDropdownOpen(false)
+      }
+      if (templatesDropdownRef.current && !templatesDropdownRef.current.contains(event.target)) {
+        setShowTemplatesDropdown(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -174,10 +200,10 @@ const MessageComposer = ({
     const updateBrandColor = () => {
       setBrandPrimaryColor(getBrandPrimaryHex())
     }
-    
+
     updateBrandColor()
     window.addEventListener('agencyBrandingUpdated', updateBrandColor)
-    
+
     return () => {
       window.removeEventListener('agencyBrandingUpdated', updateBrandColor)
     }
@@ -228,6 +254,154 @@ const MessageComposer = ({
     }
   }, [composerMode])
 
+  // Fetch unique columns for variables
+  const fetchUniqueColumns = async () => {
+    try {
+      const user = getUserLocalData()
+      const userId = user?.user?.id
+      const defaultColumns = [
+        '{First Name}',
+        '{Last Name}',
+        '{Email}',
+        '{Phone}',
+        '{Address}',
+      ]
+
+      let res = await getUniquesColumn(userId)
+
+      if (res && Array.isArray(res)) {
+        const mergedColumns = [
+          ...defaultColumns,
+          ...res.filter((col) => !defaultColumns.includes(col)),
+        ]
+        setUniqueColumns(mergedColumns)
+
+        console.log('mergedColumns', mergedColumns)
+      } else {
+        setUniqueColumns(defaultColumns)
+      }
+    } catch (error) {
+      console.error('Error fetching unique columns:', error)
+      setUniqueColumns([
+        '{First Name}',
+        '{Last Name}',
+        '{Email}',
+        '{Phone}',
+        '{Address}',
+      ])
+    }
+  }
+
+  // Fetch templates
+  const fetchTemplates = useCallback(async () => {
+    if (composerMode !== 'email' && composerMode !== 'sms') return
+
+    try {
+      setTemplatesLoading(true)
+      const user = getUserLocalData()
+      const userId = user?.user?.id
+      const communicationType = composerMode === 'email' ? 'email' : 'sms'
+
+      const templatesData = await getTempletes(communicationType, userId)
+      if (templatesData && Array.isArray(templatesData)) {
+        setTemplates(templatesData)
+      } else {
+        setTemplates([])
+      }
+    } catch (error) {
+      console.error('Error fetching templates:', error)
+      setTemplates([])
+    } finally {
+      setTemplatesLoading(false)
+    }
+  }, [composerMode])
+
+  // Fetch unique columns when email mode is active
+  useEffect(() => {
+    if (composerMode === 'email') {
+      fetchUniqueColumns()
+    }
+  }, [composerMode])
+
+  // Fetch templates when dropdown is opened
+  useEffect(() => {
+    if (showTemplatesDropdown && templates.length === 0 && !templatesLoading) {
+      fetchTemplates()
+    }
+  }, [showTemplatesDropdown, composerMode, templates.length, templatesLoading, fetchTemplates])
+
+  // Handle template selection
+  const handleTemplateSelect = async (template) => {
+    if (!template) return
+
+    try {
+      // Fetch full template details
+      const user = getUserLocalData()
+      const userId = user?.user?.id
+      const details = await getTempleteDetails(template, userId)
+
+      if (details) {
+        if (composerMode === 'email') {
+          // Populate email fields
+          setComposerData((prev) => ({
+            ...prev,
+            subject: details.subject || '',
+            emailBody: details.content || '',
+          }))
+
+          // Handle CC/BCC if they exist
+          if (details.ccEmails && Array.isArray(details.ccEmails) && details.ccEmails.length > 0) {
+            // Note: CC/BCC handling would need to be passed up to parent or handled here
+            // For now, we'll just set the email body and subject
+          }
+        } else if (composerMode === 'sms') {
+          // Populate SMS body
+          const smsContent = details.content || ''
+          // Strip HTML if present and limit to SMS character limit
+          const plainText = stripHTML(smsContent)
+          setComposerData((prev) => ({
+            ...prev,
+            smsBody: plainText.substring(0, SMS_CHAR_LIMIT),
+          }))
+        }
+      } else {
+        // Fallback to template object directly
+        if (composerMode === 'email') {
+          setComposerData((prev) => ({
+            ...prev,
+            subject: template.subject || '',
+            emailBody: template.content || '',
+          }))
+        } else if (composerMode === 'sms') {
+          const plainText = stripHTML(template.content || '')
+          setComposerData((prev) => ({
+            ...prev,
+            smsBody: plainText.substring(0, SMS_CHAR_LIMIT),
+          }))
+        }
+      }
+
+      setShowTemplatesDropdown(false)
+    } catch (error) {
+      console.error('Error loading template details:', error)
+      // Fallback to template object
+      if (composerMode === 'email') {
+        setComposerData((prev) => ({
+          ...prev,
+          subject: template.subject || '',
+          emailBody: template.content || '',
+        }))
+      } else if (composerMode === 'sms') {
+        const plainText = stripHTML(template.content || '')
+        setComposerData((prev) => ({
+          ...prev,
+          smsBody: plainText.substring(0, SMS_CHAR_LIMIT),
+        }))
+      }
+      setShowTemplatesDropdown(false)
+    }
+  }
+
   // Check for @ mentions in editor
   const checkForMentions = useCallback(() => {
     if (composerMode !== 'comment' || !commentEditorContainerRef.current) {
@@ -249,7 +423,7 @@ const MessageComposer = ({
     }
 
     const range = selection.getRangeAt(0)
-    
+
     // Check if selection is within the editor
     if (!editorContainer.contains(range.commonAncestorContainer)) {
       setShowMentionDropdown(false)
@@ -263,7 +437,7 @@ const MessageComposer = ({
       const textRange = document.createRange()
       textRange.setStart(editorContainer, 0)
       textRange.setEnd(range.startContainer, range.startOffset)
-      
+
       // Get text content from this range
       text = textRange.toString() || ''
     } catch (e) {
@@ -273,7 +447,7 @@ const MessageComposer = ({
     }
 
     const atIndex = text.lastIndexOf('@')
-    
+
     if (atIndex === -1) {
       setShowMentionDropdown(false)
       return
@@ -294,17 +468,17 @@ const MessageComposer = ({
     const filtered = query === ''
       ? teamMembers
       : teamMembers.filter(member =>
-          member.name.toLowerCase().includes(query) ||
-          member.email.toLowerCase().includes(query)
-        )
-    
+        member.name.toLowerCase().includes(query) ||
+        member.email.toLowerCase().includes(query)
+      )
+
     setFilteredTeamMembers(filtered)
     setSelectedMentionIndex(0)
 
     if (filtered.length > 0) {
       // Get cursor position for dropdown
       const rect = range.getBoundingClientRect()
-      
+
       setMentionPosition({
         top: rect.bottom + 5,
         left: rect.left,
@@ -358,7 +532,7 @@ const MessageComposer = ({
 
       // Also listen on the container itself
       const container = commentEditorContainerRef.current
-      
+
       editorContainer.addEventListener('input', handleInput, true)
       editorContainer.addEventListener('keydown', handleKeyDown, true)
       editorContainer.addEventListener('keyup', handleKeyUp, true)
@@ -420,17 +594,17 @@ const MessageComposer = ({
     if (quillWrapper && quillWrapper.__quill) {
       const quill = quillWrapper.__quill
       const selection = quill.getSelection(true)
-      
+
       if (!selection) return
 
       const text = quill.getText(0, selection.index)
       const atIndex = text.lastIndexOf('@')
-      
+
       if (atIndex === -1) return
 
       // Delete text from @ to cursor
       quill.deleteText(atIndex, selection.index - atIndex)
-      
+
       // Insert mention with formatting
       const mentionText = `@${member.name} `
       quill.insertText(atIndex, mentionText)
@@ -438,7 +612,7 @@ const MessageComposer = ({
         color: brandPrimaryColor,
         bold: true,
       })
-      
+
       // Move cursor after mention
       quill.setSelection(atIndex + mentionText.length)
     } else {
@@ -448,13 +622,13 @@ const MessageComposer = ({
 
       const range = selection.getRangeAt(0)
       const textNode = range.startContainer
-      
+
       // Get text up to cursor position
       let text = ''
       if (textNode.nodeType === Node.TEXT_NODE) {
         text = textNode.textContent?.substring(0, range.startOffset) || ''
       }
-      
+
       const atIndex = text.lastIndexOf('@')
       if (atIndex === -1) return
 
@@ -468,16 +642,16 @@ const MessageComposer = ({
       let node
       let foundAtNode = null
       let atOffset = 0
-      
+
       while ((node = walker.nextNode())) {
         const nodeText = node.textContent || ''
-        
+
         if (currentText.length + nodeText.length >= atIndex) {
           foundAtNode = node
           atOffset = atIndex - currentText.length
           break
         }
-        
+
         currentText += nodeText
       }
 
@@ -585,20 +759,20 @@ const MessageComposer = ({
     <div className="mx-4 mb-4 border border-gray-200 rounded-lg bg-white">
       <div className="px-4 py-2">
         <div className="flex items-center justify-between border-b mb-2">
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-6 ">
             <button
               onClick={() => {
                 // When switching to SMS, preserve SMS body if it exists, otherwise convert email HTML to plain text
                 if (composerMode === 'email' && !composerData.smsBody && composerData.emailBody) {
                   const plainText = stripHTML(composerData.emailBody)
-                  setComposerData((prev) => ({ 
-                    ...prev, 
+                  setComposerData((prev) => ({
+                    ...prev,
                     to: selectedThread?.receiverPhoneNumber || selectedThread?.lead?.phone || '',
                     smsBody: plainText.substring(0, SMS_CHAR_LIMIT) // Ensure it doesn't exceed SMS limit
                   }))
                 } else {
-                  setComposerData((prev) => ({ 
-                    ...prev, 
+                  setComposerData((prev) => ({
+                    ...prev,
                     to: selectedThread?.receiverPhoneNumber || selectedThread?.lead?.phone || ''
                   }))
                 }
@@ -606,9 +780,8 @@ const MessageComposer = ({
                 fetchPhoneNumbers()
                 setIsExpanded(true)
               }}
-              className={`flex items-center gap-2 px-0 py-2 text-sm font-medium relative ${
-                composerMode === 'sms' ? 'text-brand-primary' : 'text-gray-600'
-              }`}
+              className={`flex items-center gap-2 px-0 py-2 text-sm font-medium relative ${composerMode === 'sms' ? 'text-brand-primary' : 'text-gray-600'
+                }`}
             >
               {renderBrandedLucideIcon(
                 MessageCircleMore,
@@ -624,14 +797,14 @@ const MessageComposer = ({
                 if (composerMode === 'sms' && !composerData.emailBody && composerData.smsBody) {
                   // Convert plain text SMS to HTML format for email
                   const htmlBody = composerData.smsBody.replace(/\n/g, '<br>')
-                  setComposerData((prev) => ({ 
-                    ...prev, 
+                  setComposerData((prev) => ({
+                    ...prev,
                     to: selectedThread?.receiverEmail || selectedThread?.lead?.email || '',
                     emailBody: htmlBody
                   }))
                 } else {
-                  setComposerData((prev) => ({ 
-                    ...prev, 
+                  setComposerData((prev) => ({
+                    ...prev,
                     to: selectedThread?.receiverEmail || selectedThread?.lead?.email || ''
                   }))
                 }
@@ -639,9 +812,8 @@ const MessageComposer = ({
                 setIsExpanded(true)
                 fetchEmailAccounts()
               }}
-              className={`flex items-center gap-2 px-0 py-2 text-sm font-medium relative ${
-                composerMode === 'email' ? 'text-brand-primary' : 'text-gray-600'
-              }`}
+              className={`flex items-center gap-2 px-0 py-2 text-sm font-medium relative ${composerMode === 'email' ? 'text-brand-primary' : 'text-gray-600'
+                }`}
             >
               {renderBrandedLucideIcon(
                 Mail,
@@ -656,9 +828,8 @@ const MessageComposer = ({
                 setComposerMode('comment')
                 setIsExpanded(true)
               }}
-              className={`flex items-center gap-2 px-0 py-2 text-sm font-medium relative ${
-                composerMode === 'comment' ? 'text-brand-primary' : 'text-gray-600'
-              }`}
+              className={`flex items-center gap-2 px-0 py-2 text-sm font-medium relative ${composerMode === 'comment' ? 'text-brand-primary' : 'text-gray-600'
+                }`}
             >
               {renderBrandedLucideIcon(
                 MessageSquare,
@@ -669,17 +840,39 @@ const MessageComposer = ({
               {composerMode === 'comment' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />}
             </button>
           </div>
-          <button
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-            aria-label={isExpanded ? 'Collapse' : 'Expand'}
-          >
-            {isExpanded ? (
-              <CaretDown size={20} className="text-gray-600" />
-            ) : (
-              <CaretUp size={20} className="text-gray-600" />
+
+          <div className="flex items-center gap-2">
+
+            {composerMode === 'email' && (
+              <div className="flex items-center border-[0.5px] border-gray-200 rounded-lg">
+                <button
+                  onClick={() => setShowCC(!showCC)}
+                  className={`px-3 py-1 text-xs border-r rounded border-gray-200 transition-colors rounded rounded-r-none ${showCC ? 'bg-brand-primary text-white' : 'text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  Cc
+                </button>
+                <button
+                  onClick={() => setShowBCC(!showBCC)}
+                  className={`px-3 py-1 text-xs transition-colors rounded rounded-l-none ${showBCC ? 'bg-brand-primary text-white' : 'text-gray-700 hover:bg-gray-200'
+                    }`}
+                >
+                  Bcc
+                </button>
+              </div>
             )}
-          </button>
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label={isExpanded ? 'Collapse' : 'Expand'}
+            >
+              {isExpanded ? (
+                <CaretDown size={20} className="text-gray-600" />
+              ) : (
+                <CaretUp size={20} className="text-gray-600" />
+              )}
+            </button>
+          </div>
         </div>
 
         {!isExpanded ? (
@@ -687,11 +880,11 @@ const MessageComposer = ({
           <div className="mt-2 flex items-center gap-2">
             <Input
               value={
-                composerMode === 'sms' 
-                  ? composerData.smsBody 
+                composerMode === 'sms'
+                  ? composerData.smsBody
                   : composerMode === 'comment'
-                  ? stripHTML(commentBody)
-                  : stripHTML(composerData.emailBody)
+                    ? stripHTML(commentBody)
+                    : stripHTML(composerData.emailBody)
               }
               onChange={(e) => {
                 if (composerMode === 'sms' && e.target.value.length <= SMS_CHAR_LIMIT) {
@@ -716,9 +909,9 @@ const MessageComposer = ({
                     }
                   } else {
                     const messageBody = composerMode === 'sms' ? composerData.smsBody : composerData.emailBody
-                    if (hasTextContent(messageBody) && 
-                        ((composerMode === 'sms' && selectedPhoneNumber && composerData.to) ||
-                         (composerMode === 'email' && selectedEmailAccount && composerData.to))) {
+                    if (hasTextContent(messageBody) &&
+                      ((composerMode === 'sms' && selectedPhoneNumber && composerData.to) ||
+                        (composerMode === 'email' && selectedEmailAccount && composerData.to))) {
                       handleSendMessage()
                     }
                   }
@@ -734,9 +927,9 @@ const MessageComposer = ({
                 composerMode === 'comment'
                   ? (sendingComment || !hasTextContent(commentBody) || !selectedThread?.leadId)
                   : (sendingMessage ||
-                     !hasTextContent(composerMode === 'sms' ? composerData.smsBody : composerData.emailBody) ||
-                     (composerMode === 'email' && (!selectedEmailAccount || !composerData.to)) ||
-                     (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to)))
+                    !hasTextContent(composerMode === 'sms' ? composerData.smsBody : composerData.emailBody) ||
+                    (composerMode === 'email' && (!selectedEmailAccount || !composerData.to)) ||
+                    (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to)))
               }
               className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               style={{ height: '42px' }}
@@ -752,7 +945,7 @@ const MessageComposer = ({
                 <div className="mb-2">
                   <label className="text-sm font-semibold text-foreground">Comment</label>
                 </div>
-                
+
                 {/* Comment Input with Formatting Toolbar */}
                 <div ref={commentEditorContainerRef} className="relative border border-brand-primary/20 rounded-lg bg-white">
                   <RichTextEditor
@@ -765,9 +958,9 @@ const MessageComposer = ({
                     customToolbarElement={
                       <div className="flex items-center gap-2">
                         <label className="cursor-pointer">
-                          <button 
-                            type="button" 
-                            className="p-1.5 hover:bg-gray-100 rounded transition-colors" 
+                          <button
+                            type="button"
+                            className="p-1.5 hover:bg-gray-100 rounded transition-colors"
                             onClick={() => document.getElementById('comment-attachment-input')?.click()}
                             title="Attach file"
                           >
@@ -806,7 +999,7 @@ const MessageComposer = ({
                       </div>
                     }
                   />
-                  
+
                   {/* Mention Dropdown */}
                   {showMentionDropdown && filteredTeamMembers.length > 0 && (
                     <div
@@ -822,11 +1015,10 @@ const MessageComposer = ({
                           key={member.id}
                           type="button"
                           onClick={() => handleInsertMention(member)}
-                          className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors flex items-center gap-2 ${
-                            index === selectedMentionIndex
-                              ? 'bg-brand-primary/10 text-brand-primary'
-                              : 'text-gray-700'
-                          }`}
+                          className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors flex items-center gap-2 ${index === selectedMentionIndex
+                            ? 'bg-brand-primary/10 text-brand-primary'
+                            : 'text-gray-700'
+                            }`}
                         >
                           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted text-xs font-bold flex-shrink-0">
                             {member.name?.[0]?.toUpperCase() || '?'}
@@ -852,382 +1044,491 @@ const MessageComposer = ({
                       setUserData({ user: updatedUserData })
                     }
                   }}
-                  setShowSnackMsg={() => {}}
+                  setShowSnackMsg={() => { }}
                 />
               </div>
             ) : (
               <>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="flex items-center gap-2 flex-1">
-                <label className="text-sm font-medium whitespace-nowrap">From:</label>
-                {composerMode === 'sms' ? (
-                  <div className="flex-1 relative min-w-0" ref={phoneDropdownRef}>
-                    <button
-                      type="button"
-                      onClick={() => setPhoneDropdownOpen(!phoneDropdownOpen)}
-                      className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
-                      style={{ height: '42px' }}
-                    >
-                      <span className="text-sm text-gray-700 truncate">
-                        {selectedPhoneNumber
-                          ? phoneNumbers.find((p) => p.id === parseInt(selectedPhoneNumber))?.phone || 'Select phone number'
-                          : 'Select phone number'}
-                      </span>
-                      <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    </button>
-                    {phoneDropdownOpen && (
-                      <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
-                        {phoneNumbers.length === 0 ? (
-                          <div className="p-3">
-                            <button
-                              onClick={() => {
-                                const tab = userData?.user?.userRole === UserRole.AgencySubAccount ? 6 : 7
-                                router.push(`/dashboard/myAccount?tab=${tab}`)
-                                setPhoneDropdownOpen(false)
-                              }}
-                              className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
-                            >
-                              <Plus className="w-4 h-4" />
-                              Select Phone Number
-                            </button>
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="flex border-[0.5px] px-3 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary  items-center gap-2 flex-1">
+                    <label className="text-sm text-[#737373] font-medium whitespace-nowrap">From:</label>
+                    {composerMode === 'sms' ? (
+                      <div className="flex-1 relative min-w-0" ref={phoneDropdownRef}>
+                        <button
+                          type="button"
+                          onClick={() => setPhoneDropdownOpen(!phoneDropdownOpen)}
+                          className="w-full px-3 py-2 bg-white text-left flex items-center justify-between"
+                        >
+                          <span className="text-sm text-gray-700 truncate">
+                            {selectedPhoneNumber
+                              ? phoneNumbers.find((p) => p.id === parseInt(selectedPhoneNumber))?.phone || 'Select phone number'
+                              : 'Select phone number'}
+                          </span>
+                          <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                        </button>
+                        {phoneDropdownOpen && (
+                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                            {phoneNumbers.length === 0 ? (
+                              <div className="p-3">
+                                <button
+                                  onClick={() => {
+                                    const tab = userData?.user?.userRole === UserRole.AgencySubAccount ? 6 : 7
+                                    router.push(`/dashboard/myAccount?tab=${tab}`)
+                                    setPhoneDropdownOpen(false)
+                                  }}
+                                  className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                  Select Phone Number
+                                </button>
+                              </div>
+                            ) : (
+                              <>
+                                {phoneNumbers.map((phone) => (
+                                  <button
+                                    key={phone.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedPhoneNumber(phone.id.toString())
+                                      setPhoneDropdownOpen(false)
+                                    }}
+                                    className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedPhoneNumber === phone.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                                      }`}
+                                  >
+                                    {phone.phone}
+                                  </button>
+                                ))}
+                                <div className="border-t border-gray-200 p-2">
+                                  <button
+                                    onClick={() => {
+                                      router.push('/dashboard/myAccount?tab=7')
+                                      setPhoneDropdownOpen(false)
+                                    }}
+                                    className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
+                                  >
+                                    <Plus className="w-4 h-4" />
+                                    Get A2P Verified Number
+                                  </button>
+                                </div>
+                              </>
+                            )}
                           </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex-1 relative min-w-0" ref={emailDropdownRef}>
+                        {emailAccounts.length === 0 ? (
+                          <button
+                            onClick={() => onOpenAuthPopup && onOpenAuthPopup()}
+                            className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                            style={{ height: '42px' }}
+                          >
+                            Connect Email
+                          </button>
                         ) : (
                           <>
-                            {phoneNumbers.map((phone) => (
-                              <button
-                                key={phone.id}
-                                type="button"
-                                onClick={() => {
-                                  setSelectedPhoneNumber(phone.id.toString())
-                                  setPhoneDropdownOpen(false)
-                                }}
-                                className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${
-                                  selectedPhoneNumber === phone.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                                }`}
-                              >
-                                {phone.phone}
-                              </button>
-                            ))}
-                            <div className="border-t border-gray-200 p-2">
-                              <button
-                                onClick={() => {
-                                  router.push('/dashboard/myAccount?tab=7')
-                                  setPhoneDropdownOpen(false)
-                                }}
-                                className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
-                              >
-                                <Plus className="w-4 h-4" />
-                                Get A2P Verified Number
-                              </button>
-                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
+                              className="w-full px-3 py-2 bg-white text-left flex items-center justify-between"
+                            >
+                              <span className="text-sm text-gray-700 truncate">
+                                {selectedEmailAccount
+                                  ? (() => {
+                                    const account = emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))
+                                    if (!account) return 'Select email account'
+                                    const providerLabel = account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider || ''
+                                    return `${account.email || account.name || account.displayName}${providerLabel ? ` (${providerLabel})` : ''}`
+                                  })()
+                                  : 'Select email account'}
+                              </span>
+                              <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                            </button>
+                            {emailDropdownOpen && (
+                              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                                {emailAccounts.map((account) => (
+                                  <button
+                                    key={account.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedEmailAccount(account.id.toString())
+                                      setEmailDropdownOpen(false)
+                                    }}
+                                    className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                                      }`}
+                                  >
+                                    <div className="flex items-center justify-between">
+                                      <span>{account.email || account.name || account.displayName}</span>
+                                      {account.provider && (
+                                        <span className="text-xs text-gray-500 ml-2">
+                                          {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </button>
+                                ))}
+                                <div className="border-t border-gray-200 p-2">
+                                  <button
+                                    onClick={() => {
+                                      if (onOpenAuthPopup) {
+                                        onOpenAuthPopup()
+                                      }
+                                      setEmailDropdownOpen(false)
+                                    }}
+                                    className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
+                                  >
+                                    <Plus className="w-4 h-4" />
+                                    Connect Email
+                                  </button>
+                                </div>
+                              </div>
+                            )}
                           </>
                         )}
                       </div>
                     )}
                   </div>
-                ) : (
-                  <div className="flex-1 relative min-w-0" ref={emailDropdownRef}>
-                    {emailAccounts.length === 0 ? (
-                      <button
-                        onClick={() => onOpenAuthPopup && onOpenAuthPopup()}
-                        className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
-                        style={{ height: '42px' }}
-                      >
-                        Connect Email
-                      </button>
-                    ) : (
-                      <>
-                        <button
-                          type="button"
-                          onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
-                          className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
-                          style={{ height: '42px' }}
-                        >
-                          <span className="text-sm text-gray-700 truncate">
-                            {selectedEmailAccount
-                              ? (() => {
-                                  const account = emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))
-                                  if (!account) return 'Select email account'
-                                  const providerLabel = account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider || ''
-                                  return `${account.email || account.name || account.displayName}${providerLabel ? ` (${providerLabel})` : ''}`
-                                })()
-                              : 'Select email account'}
-                          </span>
-                          <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                        </button>
-                        {emailDropdownOpen && (
-                          <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
-                            {emailAccounts.map((account) => (
-                              <button
-                                key={account.id}
-                                type="button"
-                                onClick={() => {
-                                  setSelectedEmailAccount(account.id.toString())
-                                  setEmailDropdownOpen(false)
-                                }}
-                                className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${
-                                  selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                                }`}
-                              >
-                                <div className="flex items-center justify-between">
-                                  <span>{account.email || account.name || account.displayName}</span>
-                                  {account.provider && (
-                                    <span className="text-xs text-gray-500 ml-2">
-                                      {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
-                                    </span>
-                                  )}
-                                </div>
-                              </button>
+
+
+                </div>
+
+                {composerMode === 'email' && (
+                  <>
+                    {showCC && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <label className="text-sm font-medium w-16">Cc:</label>
+                        <div className="relative flex-1">
+                          <div className="flex flex-wrap items-center gap-2 px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto" style={{ height: '42px', minHeight: '42px' }}>
+                            {ccEmails.map((email, index) => (
+                              <div key={index} className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm">
+                                <span className="text-gray-700">{email}</span>
+                                <button type="button" onClick={() => removeCcEmail(email)} className="text-gray-500 hover:text-gray-700 ml-1">
+                                  <X size={14} weight="bold" />
+                                </button>
+                              </div>
                             ))}
-                            <div className="border-t border-gray-200 p-2">
-                              <button
-                                onClick={() => {
-                                  if (onOpenAuthPopup) {
-                                    onOpenAuthPopup()
-                                  }
-                                  setEmailDropdownOpen(false)
-                                }}
-                                className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
-                              >
-                                <Plus className="w-4 h-4" />
-                                Connect Email
-                              </button>
-                            </div>
+                            <input
+                              type="text"
+                              value={ccInput}
+                              onChange={handleCcInputChange}
+                              onKeyDown={handleCcInputKeyDown}
+                              onPaste={handleCcInputPaste}
+                              onBlur={handleCcInputBlur}
+                              placeholder={ccEmails.length === 0 ? 'Add CC recipients' : ''}
+                              className="flex-1 h-full min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {showBCC && (
+                      <div className="flex items-center gap-2 mb-2">
+                        <label className="text-sm font-medium w-16">Bcc:</label>
+                        <div className="relative flex-1">
+                          <div className="flex flex-wrap items-center gap-2 px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto" style={{ height: '42px', minHeight: '42px' }}>
+                            {bccEmails.map((email, index) => (
+                              <div key={index} className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm">
+                                <span className="text-gray-700">{email}</span>
+                                <button type="button" onClick={() => removeBccEmail(email)} className="text-gray-500 hover:text-gray-700 ml-1">
+                                  <X size={14} weight="bold" />
+                                </button>
+                              </div>
+                            ))}
+                            <input
+                              type="text"
+                              value={bccInput}
+                              onChange={handleBccInputChange}
+                              onKeyDown={handleBccInputKeyDown}
+                              onPaste={handleBccInputPaste}
+                              onBlur={handleBccInputBlur}
+                              placeholder={bccEmails.length === 0 ? 'Add BCC recipients' : ''}
+                              className="flex-1 h-full min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="flex border-[0.5px] border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary items-center flex-1 bg-white">
+                        <div className="flex items-center gap-2 flex-1 px-3">
+                          <label className="text-sm text-[#737373] font-medium whitespace-nowrap">Subject:</label>
+                          <input
+                            type="text"
+                            value={composerData.subject}
+                            onChange={(e) => setComposerData({ ...composerData, subject: e.target.value })}
+                            placeholder="Enter subject"
+                            className="flex-1 outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                          />
+                        </div>
+                        {/* Divider */}
+                        {uniqueColumns && uniqueColumns.length > 0 && (
+                          <div className="w-[0.5px] h-[36px]  bg-gray-200 flex-shrink-0"></div>
+                        )}
+                        {/* Variables dropdown */}
+                        {uniqueColumns && uniqueColumns.length > 0 && (
+                          <div className="relative flex-shrink-0" ref={subjectVariablesDropdownRef}>
+                            <button
+                              type="button"
+                              onClick={() => setSubjectVariablesDropdownOpen(!subjectVariablesDropdownOpen)}
+                              className="px-3 w-40 flex items-center justify-between text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                            >
+                              <span>Variables</span>
+                              <CaretDown size={16} className="text-gray-400" />
+                            </button>
+                            {subjectVariablesDropdownOpen && (
+                              <div className="absolute z-50 right-0 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto min-w-[200px]">
+                                {uniqueColumns.map((variable, index) => {
+                                  const displayText = variable.startsWith('{') && variable.endsWith('}')
+                                    ? variable
+                                    : `{${variable}}`
+                                  return (
+                                    <button
+                                      key={index}
+                                      type="button"
+                                      onClick={() => {
+                                        const variableText = variable.startsWith('{') && variable.endsWith('}')
+                                          ? variable
+                                          : `{${variable}}`
+                                        setComposerData({ ...composerData, subject: composerData.subject + variableText })
+                                        setSubjectVariablesDropdownOpen(false)
+                                      }}
+                                      className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors text-gray-700"
+                                    >
+                                      {displayText}
+                                    </button>
+                                  )
+                                })}
+                              </div>
+                            )}
                           </div>
                         )}
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2 flex-1">
-                <label className="text-sm font-medium whitespace-nowrap">To:</label>
-                <Input 
-                  value={composerData.to} 
-                  readOnly 
-                  className="flex-1 bg-gray-50 cursor-not-allowed min-w-0 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary" 
-                  style={{ height: '42px' }}
-                />
-              </div>
-
-              {composerMode === 'email' && (
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setShowCC(!showCC)}
-                    className={`px-3 py-1 text-xs rounded transition-colors ${
-                      showCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    Cc
-                  </button>
-                  <button
-                    onClick={() => setShowBCC(!showBCC)}
-                    className={`px-3 py-1 text-xs rounded transition-colors ${
-                      showBCC ? 'bg-brand-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    Bcc
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {composerMode === 'email' && (
-              <>
-                {showCC && (
-                  <div className="flex items-center gap-2 mb-2">
-                    <label className="text-sm font-medium w-16">Cc:</label>
-                    <div className="relative flex-1">
-                      <div className="flex flex-wrap items-center gap-2 px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto" style={{ height: '42px', minHeight: '42px' }}>
-                        {ccEmails.map((email, index) => (
-                          <div key={index} className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm">
-                            <span className="text-gray-700">{email}</span>
-                            <button type="button" onClick={() => removeCcEmail(email)} className="text-gray-500 hover:text-gray-700 ml-1">
-                              <X size={14} weight="bold" />
-                            </button>
-                          </div>
-                        ))}
-                        <input
-                          type="text"
-                          value={ccInput}
-                          onChange={handleCcInputChange}
-                          onKeyDown={handleCcInputKeyDown}
-                          onPaste={handleCcInputPaste}
-                          onBlur={handleCcInputBlur}
-                          placeholder={ccEmails.length === 0 ? 'Add CC recipients' : ''}
-                          className="flex-1 h-full min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
-                        />
                       </div>
                     </div>
-                  </div>
+                  </>
                 )}
 
-                {showBCC && (
-                  <div className="flex items-center gap-2 mb-2">
-                    <label className="text-sm font-medium w-16">Bcc:</label>
-                    <div className="relative flex-1">
-                      <div className="flex flex-wrap items-center gap-2 px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto" style={{ height: '42px', minHeight: '42px' }}>
-                        {bccEmails.map((email, index) => (
-                          <div key={index} className="flex items-center gap-1 px-2 py-1 bg-gray-100 rounded-full text-sm">
-                            <span className="text-gray-700">{email}</span>
-                            <button type="button" onClick={() => removeBccEmail(email)} className="text-gray-500 hover:text-gray-700 ml-1">
-                              <X size={14} weight="bold" />
-                            </button>
-                          </div>
-                        ))}
-                        <input
-                          type="text"
-                          value={bccInput}
-                          onChange={handleBccInputChange}
-                          onKeyDown={handleBccInputKeyDown}
-                          onPaste={handleBccInputPaste}
-                          onBlur={handleBccInputBlur}
-                          placeholder={bccEmails.length === 0 ? 'Add BCC recipients' : ''}
-                          className="flex-1 h-full min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                {/* Message Body and Send Button */}
+                <div className="mb-2">
+                  {composerMode === 'email' ? (
+                    <>
+                      {composerData.attachments.length > 0 && (
+                        <div className="mb-1 flex flex-col gap-1">
+                          {composerData.attachments.map((file, idx) => (
+                            <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded text-sm">
+                              <Paperclip size={14} className="text-gray-500" />
+                              <span className="flex-1 truncate">{file.name}</span>
+                              <span className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</span>
+                              <button onClick={() => removeAttachment(idx)} className="text-red-500 hover:text-red-700 text-lg leading-none">
+                                ×
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Relative container for RichTextEditor and overlapping buttons */}
+                      <div className="relative">
+                        <RichTextEditor
+                          ref={richTextEditorRef}
+                          value={composerData.emailBody}
+                          onChange={(html) => setComposerData({ ...composerData, emailBody: html })}
+                          placeholder="Type your message..."
+                          availableVariables={uniqueColumns}
+                          toolbarPosition="bottom"
+                          customToolbarElement={
+                            uniqueColumns && uniqueColumns.length > 0 ? (
+                              <FormControl size="small" sx={{ minWidth: 150 }}>
+                                <Select
+                                  value={selectedVariable}
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    setSelectedVariable('')
+                                    if (value && richTextEditorRef.current) {
+                                      richTextEditorRef.current.insertVariable(value)
+                                    }
+                                  }}
+                                  displayEmpty
+                                  sx={{
+                                    fontSize: '0.875rem',
+                                    height: '42px',
+                                    borderRadius: '8px',
+                                    '& .MuiOutlinedInput-notchedOutline': {
+                                      borderColor: 'transparent',
+                                      borderWidth: '0',
+                                    },
+                                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                                      borderColor: 'transparent',
+                                    },
+                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                      borderColor: 'transparent',
+                                    },
+                                  }}
+                                >
+                                  <MenuItem value="" disabled>
+                                    <em>Variables</em>
+                                  </MenuItem>
+                                  {uniqueColumns.map((variable, index) => {
+                                    const displayText = variable.startsWith('{') && variable.endsWith('}')
+                                      ? variable
+                                      : `{${variable}}`
+                                    return (
+                                      <MenuItem key={index} value={variable}>
+                                        {displayText}
+                                      </MenuItem>
+                                    )
+                                  })}
+                                </Select>
+                              </FormControl>
+                            ) : null
+                          }
                         />
+
                       </div>
-                    </div>
-                  </div>
-                )}
 
-                <div className="flex items-center gap-2 mb-2">
-                  <label className="text-sm font-medium w-16">Subject:</label>
-                  <Input
-                    value={composerData.subject}
-                    onChange={(e) => setComposerData({ ...composerData, subject: e.target.value })}
-                    placeholder="Email subject"
-                    className="flex-1 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
-                  />
-                </div>
-              </>
-              )}
+                      {/* Footer with Template, Character Count, and Send Button */}
+                      {(composerMode === 'email' || composerMode === 'sms') && (
+                        <div className="flex items-center justify-between gap-4 mt-2 pt-2 border-gray-200">
+                          {/* My Templates Button with Dropdown */}
+                          <div className="relative" ref={templatesDropdownRef}>
+                            <button
+                              onClick={() => {
+                                if (!showTemplatesDropdown) {
+                                  fetchTemplates()
+                                }
+                                setShowTemplatesDropdown(!showTemplatesDropdown)
+                              }}
+                              className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                            >
+                              <Image src="/messaging/templateIcon.svg" alt="Templates" width={18} height={18} />
+                              <span>My Templates</span>
+                              <CaretDown size={16} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
+                            </button>
 
-              {/* Message Body and Send Button */}
-              <div className="mb-2">
-                {composerMode === 'email' ? (
-                  <>
-                    {composerData.attachments.length > 0 && (
-                      <div className="mb-1 flex flex-col gap-1">
-                        {composerData.attachments.map((file, idx) => (
-                          <div key={idx} className="flex items-center gap-2 p-2 bg-gray-50 rounded text-sm">
-                            <Paperclip size={14} className="text-gray-500" />
-                            <span className="flex-1 truncate">{file.name}</span>
-                            <span className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</span>
-                            <button onClick={() => removeAttachment(idx)} className="text-red-500 hover:text-red-700 text-lg leading-none">
-                              ×
+                            {/* Templates Dropdown */}
+                            {showTemplatesDropdown && (
+                              <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto z-50">
+                                {templatesLoading ? (
+                                  <div className="p-4 text-center">
+                                    <CircularProgress size={20} />
+                                  </div>
+                                ) : templates.length === 0 ? (
+                                  <div className="p-4 text-center text-sm text-gray-500">
+                                    No templates found
+                                  </div>
+                                ) : (
+                                  templates.map((template) => (
+                                    <button
+                                      key={template.id || template.templateId}
+                                      onClick={() => handleTemplateSelect(template)}
+                                      className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0"
+                                    >
+                                      <div className="font-medium text-gray-900 truncate">
+                                        {template.templateName || 'Untitled Template'}
+                                      </div>
+                                    </button>
+                                  ))
+                                )}
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-2 ">
+                            {/* Character Count and Credits (Center) */}
+                            <div className="flex items-center gap-2 text-sm text-gray-500 flex-1 justify-center">
+                              <span>
+                                {composerMode === 'email'
+                                  ? `${getCharCountFromHTML(composerData.emailBody)}/120 char`
+                                  : `${composerData.smsBody.length}/${SMS_CHAR_LIMIT} char`
+                                }
+                              </span>
+                              <span className="text-gray-300">|</span>
+                              <span>
+                                {Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left
+                              </span>
+                            </div>
+
+                            {/* Send Button */}
+                            <button
+                              onClick={handleSendMessage}
+                              disabled={
+                                sendingMessage ||
+                                (composerMode === 'email'
+                                  ? (!hasTextContent(composerData.emailBody) || !selectedEmailAccount || !composerData.to)
+                                  : (!hasTextContent(composerData.smsBody) || !selectedPhoneNumber || !composerData.to)
+                                )
+                              }
+                              className="px-6 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                            >
+                              {sendingMessage ? (
+                                <>
+                                  <CircularProgress size={16} className="text-white" />
+                                  <span>Sending...</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>Send</span>
+                                  <PaperPlaneTilt size={16} weight="fill" />
+                                </>
+                              )}
                             </button>
                           </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Relative container for RichTextEditor and overlapping buttons */}
-                    <div className="relative">
-                      <RichTextEditor
-                        ref={richTextEditorRef}
-                        value={composerData.emailBody}
-                        onChange={(html) => setComposerData({ ...composerData, emailBody: html })}
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <textarea
+                        value={composerData.smsBody}
+                        onChange={(e) => {
+                          if (e.target.value.length <= SMS_CHAR_LIMIT) {
+                            setComposerData({ ...composerData, smsBody: e.target.value })
+                          }
+                        }}
                         placeholder="Type your message..."
-                        availableVariables={[]}
-                        toolbarPosition="bottom"
+                        maxLength={SMS_CHAR_LIMIT}
+                        className="w-full px-4 py-3 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[100px] resize-none"
                       />
-                      
-                      {/* Overlapping buttons above toolbar */}
-                      <div className="absolute bottom-[2px] right-0 flex items-center gap-2 z-10 pr-2">
-                        <label className="cursor-pointer">
-                          <button 
-                            type="button" 
-                            className="p-2 hover:bg-white/80 rounded-lg transition-colors bg-white/90 shadow-sm border border-gray-200" 
-                            onClick={() => document.getElementById('attachment-input')?.click()}
-                          >
-                            <Paperclip size={20} className="text-gray-600 hover:text-brand-primary" />
-                          </button>
-                          <input
-                            id="attachment-input"
-                            type="file"
-                            accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                            multiple
-                            className="hidden"
-                            onChange={handleFileChange}
-                          />
-                        </label>
+
+                      <div className="flex items-center justify-end gap-2 mt-2">
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                          <span>
+                            {composerData.smsBody.length}/{SMS_CHAR_LIMIT} char
+                          </span>
+                          <span className="text-gray-300">|</span>
+                          <span>{Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left</span>
+                        </div>
                         <button
                           onClick={handleSendMessage}
                           disabled={
                             sendingMessage ||
-                            !hasTextContent(composerMode === 'email' ? composerData.emailBody : composerData.smsBody) ||
-                            (composerMode === 'email' && (!selectedEmailAccount || !composerData.to))
+                            !hasTextContent(composerData.smsBody) ||
+                            (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
                           }
-                          className="px-4 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                          className="px-6 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                         >
                           {sendingMessage ? (
                             <>
                               <CircularProgress size={16} className="text-white" />
-                              <span className="text-sm">Sending...</span>
+                              Sending...
                             </>
                           ) : (
                             <>
-                              <span className="text-sm">Send</span>
+                              Send
                               <PaperPlaneTilt size={16} />
                             </>
                           )}
                         </button>
                       </div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <textarea
-                      value={composerData.smsBody}
-                      onChange={(e) => {
-                        if (e.target.value.length <= SMS_CHAR_LIMIT) {
-                          setComposerData({ ...composerData, smsBody: e.target.value })
-                        }
-                      }}
-                      placeholder="Type your message..."
-                      maxLength={SMS_CHAR_LIMIT}
-                      className="w-full px-4 py-3 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[100px] resize-none"
-                    />
-                    
-                    <div className="flex items-center justify-end gap-2 mt-2">
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <span>
-                          {composerData.smsBody.length}/{SMS_CHAR_LIMIT} char
-                        </span>
-                        <span className="text-gray-300">|</span>
-                        <span>{Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left</span>
-                      </div>
-                      <button
-                        onClick={handleSendMessage}
-                        disabled={
-                          sendingMessage ||
-                          !hasTextContent(composerData.smsBody) ||
-                          (composerMode === 'sms' && (!selectedPhoneNumber || !composerData.to))
-                        }
-                        className="px-6 py-2 bg-brand-primary text-white rounded-lg shadow-sm hover:bg-brand-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                      >
-                        {sendingMessage ? (
-                          <>
-                            <CircularProgress size={16} className="text-white" />
-                            Sending...
-                          </>
-                        ) : (
-                          <>
-                            Send
-                            <PaperPlaneTilt size={16} />
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            </>
-          )}
+                    </>
+                  )}
+                </div>
+              </>
+            )}
           </>
         )}
       </div>
+
     </div>
   )
 }

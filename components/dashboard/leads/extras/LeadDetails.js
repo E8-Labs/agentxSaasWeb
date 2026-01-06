@@ -288,6 +288,19 @@ const LeadDetails = ({
       const columns = await getUniquesColumn()
       if (columns && Array.isArray(columns)) {
         setUniqueColumns(columns)
+        // Refresh suggestions if there's a current input value
+        if (tagInputValue.trim()) {
+          const existingTags = selectedLeadsDetails?.tags || []
+          const filtered = columns
+            .filter((col) => {
+              const colLower = col.toLowerCase()
+              const valueLower = tagInputValue.toLowerCase()
+              return colLower.includes(valueLower)
+            })
+            .filter((col) => !existingTags.includes(col))
+          setTagSuggestions(filtered)
+          setShowTagSuggestions(filtered.length > 0)
+        }
       }
     } catch (error) {
       console.error('Error fetching unique columns:', error)
@@ -1665,6 +1678,7 @@ const LeadDetails = ({
                               addTagLoader={addTagLoader}
                             onRemoveTag={handleDelTag}
                             delTagLoader={DelTagLoader}
+                            onRefreshSuggestions={getUniqueColumns}
                             />
                           </div>
                           <div className="flex items-center gap-2">
