@@ -5,7 +5,8 @@ import axios from 'axios'
 import { CircularProgress } from '@mui/material'
 import Apis from '@/components/apis/Apis'
 import SelectStageDropdown from '@/components/dashboard/leads/StageSelectDropdown'
-import AssignDropdownCn from '@/components/dashboard/leads/extras/AssignDropdownCn'
+// import AssignDropdownCn from '@/components/dashboard/leads/extras/AssignDropdownCn'
+import MultiSelectDropdownCn from '@/components/dashboard/leads/extras/MultiSelectDropdownCn'
 import { AssignTeamMember, UnassignTeamMember } from '@/components/onboarding/services/apisServices/ApiService'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import { useRouter } from 'next/navigation'
@@ -336,19 +337,34 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             let response = await UnassignTeamMember(ApiData)
 
             if (response && response.data && response.data.status === true) {
-                // Update lead details if available
-                if (leadDetails) {
-                    const filteredTeams = (leadDetails.teamsAssigned || []).filter((user) => {
-                        const userIdentifier = user.id || user.invitedUserId || user.invitedUser?.id
-                        return String(userIdentifier) !== String(userId)
-                    })
+                // Refresh lead details to get updated team assignments
+                if (selectedThread?.leadId) {
+                    const getLeadDetails = async () => {
+                        try {
+                            let AuthToken = null
+                            const localDetails = localStorage.getItem('User')
+                            if (localDetails) {
+                                const Data = JSON.parse(localDetails)
+                                AuthToken = Data.token
+                            }
 
-                    setLeadDetails({
-                        ...leadDetails,
-                        teamsAssigned: filteredTeams,
-                    })
+                            const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedThread.leadId}`
+                            const response = await axios.get(ApiPath, {
+                                headers: {
+                                    Authorization: 'Bearer ' + AuthToken,
+                                    'Content-Type': 'application/json',
+                                },
+                            })
+
+                            if (response && response.data && response.data.data) {
+                                setLeadDetails(response.data.data)
+                            }
+                        } catch (error) {
+                            console.error('Error refreshing lead details:', error)
+                        }
+                    }
+                    getLeadDetails()
                 }
-                setSelectedAssignValue(null)
                 showSnackbar('Team member unassigned successfully', SnackbarTypes.Success)
             } else if (response && response.data && response.data.status === false) {
                 showSnackbar(response.data.message || 'Failed to unassign team member', SnackbarTypes.Error)
@@ -552,8 +568,49 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                 <div className="flex flex-row items-center gap-3">
                     
 
-                    {/* Assign Dropdown (Agents & Team) */}
+                    {/* Assign Dropdown (Team Members - MultiSelect) */}
                     {selectedThread.leadId && (
+                        <div className="flex items-center">
+                            {(getTeamLoader || agentsLoader || globalLoader) ? (
+                                <CircularProgress size={20} />
+                            ) : (
+                                <MultiSelectDropdownCn
+                                    label="Assign"
+                                    options={[
+                                        ...(myTeamAdmin ? [myTeamAdmin] : []),
+                                        ...(myTeam || []),
+                                    ].map((tm) => {
+                                        const id = tm.id || tm.invitedUserId || tm.invitedUser?.id
+                                        const isSelected = (leadDetails?.teamsAssigned || []).some(
+                                            (assigned) =>
+                                                String(assigned.id || assigned.invitedUserId || assigned.invitedUser?.id) ===
+                                                String(id),
+                                        )
+                                        return {
+                                            id,
+                                            label: tm.name,
+                                            avatar: tm.thumb_profile_image,
+                                            selected: isSelected,
+                                            raw: tm,
+                                        }
+                                    })}
+                                    onToggle={(opt, checked) => {
+                                        if (checked) {
+                                            handleAssignLeadToTeammember(opt.raw || opt)
+                                        } else {
+                                            const userId = opt.id || opt.raw?.id || opt.raw?.invitedUserId
+                                            if (userId) {
+                                                handleUnassignLeadFromTeammember(userId)
+                                            }
+                                        }
+                                    }}
+                                />
+                            )}
+                        </div>
+                    )}
+                    
+                    {/* Commented out: Original AssignDropdownCn implementation (Agents & Team) */}
+                    {/* {selectedThread.leadId && (
                         <div className="flex items-center">
                             {(getTeamLoader || agentsLoader || globalLoader) ? (
                                 <CircularProgress size={20} />
@@ -579,7 +636,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                                 />
                             )}
                         </div>
-                    )}
+                    )} */}
                 </div>
             </div>
         </>
