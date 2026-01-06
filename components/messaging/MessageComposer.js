@@ -171,6 +171,9 @@ const MessageComposer = ({
   const [sendingComment, setSendingComment] = useState(false)
   const commentEditorRef = useRef(null)
   const commentEditorContainerRef = useRef(null)
+  const composerContentRef = useRef(null)
+  const [contentHeight, setContentHeight] = useState('auto')
+  const [isTransitioning, setIsTransitioning] = useState(false)
 
   // Mention state
   const [showMentionDropdown, setShowMentionDropdown] = useState(false)
@@ -240,6 +243,77 @@ const MessageComposer = ({
       setUserData(user)
     }
   }, [])
+
+  // Smooth height transition when switching tabs
+  useEffect(() => {
+    if (!isExpanded || !composerContentRef.current) {
+      setContentHeight('auto')
+      setIsTransitioning(false)
+      return
+    }
+
+    const element = composerContentRef.current
+    let timeoutId = null
+    let rafId1 = null
+    let rafId2 = null
+    
+    // Get the current height before any changes
+    const currentHeight = element.scrollHeight
+    
+    // Set explicit height immediately to lock current height
+    setContentHeight(`${currentHeight}px`)
+    
+    // Force a reflow to ensure the height is set
+    void element.offsetHeight
+    
+    // Enable transition AFTER setting the initial height
+    setIsTransitioning(true)
+    
+    // Wait for React to render the new content
+    // Use multiple requestAnimationFrame calls to ensure DOM has fully updated
+    rafId1 = requestAnimationFrame(() => {
+      rafId2 = requestAnimationFrame(() => {
+        // Force another reflow
+        void element.offsetHeight
+        
+        // One more frame to ensure content is rendered
+        requestAnimationFrame(() => {
+          // Measure new content height after mode change
+          const newHeight = element.scrollHeight
+          
+          // Only animate if heights are different (with small threshold for rounding)
+          if (Math.abs(newHeight - currentHeight) > 1) {
+            // Animate to new height
+            setContentHeight(`${newHeight}px`)
+            
+            // Reset to auto after transition completes
+            timeoutId = setTimeout(() => {
+              if (composerContentRef.current) {
+                setContentHeight('auto')
+              }
+              setIsTransitioning(false)
+            }, 350) // Slightly longer than transition duration
+          } else {
+            // Heights are the same, no transition needed
+            setContentHeight('auto')
+            setIsTransitioning(false)
+          }
+        })
+      })
+    })
+    
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId)
+      }
+      if (rafId1) {
+        cancelAnimationFrame(rafId1)
+      }
+      if (rafId2) {
+        cancelAnimationFrame(rafId2)
+      }
+    }
+  }, [composerMode, isExpanded])
 
   // Fetch team members for @ mentions
   useEffect(() => {
@@ -895,7 +969,7 @@ const MessageComposer = ({
   }
 
   return (
-    <div className="mx-4 mb-4  rounded-lg bg-white">
+    <div className="mx-4 mb-0 rounded-lg bg-white">
       <div className="px-4 py-2">
         <div className="flex items-center justify-between border-b mb-2">
           <div className="flex items-center gap-2 pb-1">
@@ -980,7 +1054,7 @@ const MessageComposer = ({
                     }`}
                 >
                   Cc
-                </button>
+            </button>
                 <button
                   onClick={() => setShowBCC(!showBCC)}
                   className={`px-3 py-1 text-xs transition-colors rounded rounded-l-none ${showBCC ? 'bg-brand-primary text-white' : 'text-gray-700 hover:bg-gray-200'
@@ -1067,7 +1141,15 @@ const MessageComposer = ({
             </button>
           </div>
         ) : (
-          <>
+          <div
+            ref={composerContentRef}
+            style={{
+              height: contentHeight,
+              overflow: 'hidden',
+              transition: isTransitioning ? 'height 300ms cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+              willChange: isTransitioning ? 'height' : 'auto',
+            }}
+          >
             {/* Comment Tab */}
             {composerMode === 'comment' ? (
               <div className="mt-2">
@@ -1178,7 +1260,7 @@ const MessageComposer = ({
               </div>
             ) : (
               <>
-            <div className="flex items-center gap-2 mb-2">
+            <div className="flex items-center gap-2 mb-2 px-1">
                   <div className="flex border-[0.5px] px-3 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary  items-center gap-2 flex-1">
                     <label className="text-sm text-[#737373] font-medium whitespace-nowrap">From:</label>
                 {composerMode === 'sms' ? (
@@ -1324,7 +1406,7 @@ const MessageComposer = ({
             {composerMode === 'email' && (
               <>
                 {showCC && (
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-2 px-1">
                     <label className="text-sm font-medium w-16">Cc:</label>
                     <div className="relative flex-1">
                       <div className="flex flex-wrap items-center gap-2 px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto" style={{ height: '42px', minHeight: '42px' }}>
@@ -1352,7 +1434,7 @@ const MessageComposer = ({
                 )}
 
                 {showBCC && (
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-2 px-1">
                     <label className="text-sm font-medium w-16">Bcc:</label>
                     <div className="relative flex-1">
                       <div className="flex flex-wrap items-center gap-2 px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary overflow-y-auto" style={{ height: '42px', minHeight: '42px' }}>
@@ -1379,7 +1461,7 @@ const MessageComposer = ({
                   </div>
                 )}
 
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-2 px-1">
                       <div className="flex border-[0.5px] border-gray-200 rounded-lg focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary items-center flex-1 bg-white">
                         <div className="flex items-center gap-2 flex-1 px-3">
                           <label className="text-sm text-[#737373] font-medium whitespace-nowrap">Subject:</label>
@@ -1439,7 +1521,7 @@ const MessageComposer = ({
               )}
 
               {/* Message Body and Send Button */}
-              <div className="mb-2">
+              <div className="mb-2 px-1">
                 {composerMode === 'email' ? (
                   <>
                     {composerData.attachments.length > 0 && (
@@ -1654,7 +1736,7 @@ const MessageComposer = ({
               </div>
             </>
           )}
-          </>
+          </div>
         )}
       </div>
 

@@ -87,10 +87,13 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                     } else if (response.data.data?.teamsAssigned && response.data.data.teamsAssigned.length > 0) {
                         // For now, show the first assigned team member
                         const firstTeam = response.data.data.teamsAssigned[0]
-                        setSelectedAssignValue({
-                            type: 'team',
-                            id: firstTeam.id || firstTeam.invitedUserId,
-                        })
+                        const teamId = firstTeam.id || firstTeam.invitedUserId || firstTeam.invitedUser?.id
+                        if (teamId) {
+                            setSelectedAssignValue({
+                                type: 'team',
+                                id: String(teamId), // Ensure ID is a string for consistent matching
+                            })
+                        }
                     }
                 }
             } catch (error) {
@@ -562,9 +565,9 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                                         ...(myTeamAdmin ? [myTeamAdmin] : []),
                                         ...(myTeam || []),
                                     ].map((tm) => {
-                                        const id = tm.id || tm.invitedUserId
+                                        const id = tm.id || tm.invitedUserId || tm.invitedUser?.id
                                         return {
-                                            id,
+                                            id: String(id), // Ensure ID is a string for consistent matching
                                             label: tm.name,
                                             avatar: tm.thumb_profile_image,
                                             raw: tm,
