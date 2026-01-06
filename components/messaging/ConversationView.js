@@ -8,6 +8,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import CallTranscriptCN from '@/components/dashboard/leads/extras/CallTranscriptCN'
 
 const AttachmentList = ({ message, isOutbound, onAttachmentClick }) => {
   if (!message.metadata?.attachments || message.metadata.attachments.length === 0) return null
@@ -405,6 +406,65 @@ const SystemMessage = ({ message }) => {
 
   const dateString = message.createdAt ? formatDate(message.createdAt) : ''
 
+  // Handle call_summary activity type - render CallTranscriptCN component
+  if (message.activityType === 'call_summary') {
+    const activityData = message.metadata?.activityData || {}
+    const callData = {
+      id: activityData.callId,
+      callId: activityData.synthflowCallId || activityData.callId,
+      duration: activityData.duration || 0,
+      recordingUrl: activityData.recordingUrl,
+      transcript: activityData.transcript,
+      callSummary: activityData.callSummary || {},
+    }
+
+    // Handler functions for call actions
+    const handlePlayRecording = (recordingUrl, callId) => {
+      if (recordingUrl) {
+        window.open(recordingUrl, '_blank')
+      }
+    }
+
+    const handleCopyCallId = (callId) => {
+      if (callId) {
+        navigator.clipboard.writeText(callId)
+        // You might want to show a toast notification here
+      }
+    }
+
+    const handleReadTranscript = (item) => {
+      // You might want to open a transcript modal here
+      console.log('Read transcript for:', item)
+    }
+
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className="flex items-center justify-center my-4 cursor-default">
+              <div className="w-full max-w-2xl px-4">
+                <div className="rounded-xl border border-border bg-background p-4 shadow-sm">
+                  <CallTranscriptCN
+                    item={callData}
+                    onPlayRecording={handlePlayRecording}
+                    onCopyCallId={handleCopyCallId}
+                    onReadTranscript={handleReadTranscript}
+                  />
+                </div>
+              </div>
+            </div>
+          </TooltipTrigger>
+          {dateString && (
+            <TooltipContent>
+              <p>{dateString}</p>
+            </TooltipContent>
+          )}
+        </Tooltip>
+      </TooltipProvider>
+    )
+  }
+
+  // Regular system messages (stage changes, assignments, comments)
   return (
     <TooltipProvider>
       <Tooltip>
