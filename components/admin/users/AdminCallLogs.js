@@ -52,7 +52,7 @@ function AdminCallLogs({ selectedUser }) {
         ))}
       </div>
 
-      <div className="w-full">
+      <div className="flex  flex-1 w-full  h-[full]">
         {activeTab === 'All Activities' ? (
           <AdminAllCalls selectedUser={selectedUser} />
         ) : (

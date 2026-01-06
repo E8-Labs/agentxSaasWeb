@@ -659,7 +659,7 @@ const AgencyNavBar = () => {
 
       {checkStripeStatusLoader ? (
         <div
-          style={{ position: 'absolute', bottom: 10, right: 10, zIndex: 9999 }}
+          style={{ position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%)', zIndex: 9999 }}
         >
           <div className="flex flex-row items-center gap-4 bg-white rounded-md shadow-lg p-2">
             <CircularProgress size={20} />
