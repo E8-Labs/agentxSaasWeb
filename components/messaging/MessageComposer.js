@@ -15,6 +15,8 @@ import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiS
 import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
 import { getTempletes, getTempleteDetails } from '@/components/pipeline/TempleteServices'
 import Image from 'next/image'
+import MessageComposerTabCN from './MessageComposerTabCN'
+import SplitButtonCN from '../ui/SplitButtonCN'
 
 // Helper function to get brand primary color as hex
 const getBrandPrimaryHex = () => {
@@ -893,11 +895,14 @@ const MessageComposer = ({
   }
 
   return (
-    <div className="mx-4 mb-4 border border-gray-200 rounded-lg bg-white">
+    <div className="mx-4 mb-4  rounded-lg bg-white">
       <div className="px-4 py-2">
         <div className="flex items-center justify-between border-b mb-2">
-          <div className="flex items-center gap-6 ">
-            <button
+          <div className="flex items-center gap-2 pb-1">
+            <MessageComposerTabCN
+              icon={MessageCircleMore}
+              label="SMS"
+              isActive={composerMode === 'sms'}
               onClick={() => {
                 // When switching to SMS, preserve SMS body if it exists, otherwise convert email HTML to plain text
                 if (composerMode === 'email' && !composerData.smsBody && composerData.emailBody) {
@@ -917,18 +922,11 @@ const MessageComposer = ({
                 fetchPhoneNumbers()
                 setIsExpanded(true)
               }}
-              className={`flex items-center gap-2 px-0 py-2 text-sm font-medium relative ${composerMode === 'sms' ? 'text-brand-primary' : 'text-gray-600'
-              }`}
-            >
-              {renderBrandedLucideIcon(
-                MessageCircleMore,
-                20,
-                composerMode === 'sms'
-              )}
-              <span>SMS</span>
-              {composerMode === 'sms' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />}
-            </button>
-            <button
+            />
+            <MessageComposerTabCN
+              icon={Mail}
+              label="Email"
+              isActive={composerMode === 'email'}
               onClick={() => {
                 // When switching to Email, preserve email body if it exists, otherwise convert SMS text to HTML
                 if (composerMode === 'sms' && !composerData.emailBody && composerData.smsBody) {
@@ -949,40 +947,34 @@ const MessageComposer = ({
                 setIsExpanded(true)
                 fetchEmailAccounts()
               }}
-              className={`flex items-center gap-2 px-0 py-2 text-sm font-medium relative ${composerMode === 'email' ? 'text-brand-primary' : 'text-gray-600'
-              }`}
-            >
-              {renderBrandedLucideIcon(
-                Mail,
-                20,
-                composerMode === 'email'
-              )}
-              <span>Email</span>
-              {composerMode === 'email' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />}
-            </button>
-            <button
+            />
+            <MessageComposerTabCN
+              icon={MessageSquare}
+              label="Comment"
+              isActive={composerMode === 'comment'}
               onClick={() => {
                 setComposerMode('comment')
                 setIsExpanded(true)
               }}
-              className={`flex items-center gap-2 px-0 py-2 text-sm font-medium relative ${composerMode === 'comment' ? 'text-brand-primary' : 'text-gray-600'
-                }`}
-            >
-              {renderBrandedLucideIcon(
-                MessageSquare,
-                20,
-                composerMode === 'comment'
-              )}
-              <span>Comment</span>
-              {composerMode === 'comment' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary" />}
-            </button>
+            />
           </div>
 
           <div className="flex items-center gap-2">
 
             {composerMode === 'email' && (
+
               <div className="flex items-center border-[0.5px] border-gray-200 rounded-lg">
-                <button
+                <SplitButtonCN buttons={[{
+                      label: 'Cc',
+                      isSelected: showCC,
+                      onClick: () => setShowCC(!showCC),
+                    },
+                    {
+                      label: 'Bcc',
+                      isSelected: showBCC,
+                      onClick: () => setShowBCC(!showBCC),
+                    }]} />
+                {/* <button
                   onClick={() => setShowCC(!showCC)}
                   className={`px-3 py-1 text-xs border-r rounded border-gray-200 transition-colors rounded rounded-r-none ${showCC ? 'bg-brand-primary text-white' : 'text-gray-700 hover:bg-gray-200'
                     }`}
@@ -995,8 +987,8 @@ const MessageComposer = ({
                     }`}
                 >
                   Bcc
-                </button>
-              </div>
+            </button> */}
+          </div>
             )}
           <button
             onClick={() => setIsExpanded(!isExpanded)}
