@@ -1019,13 +1019,15 @@ function DialerModal({
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:260', message: 'About to create Device', data: { tokenLength: data.token.length }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
         // #endregion
         
+        const configuredEdge = 'ashburn' // US East edge - change to 'umatilla' for US West if needed
+        console.log('[DialerModal] Creating Twilio Device with edge:', configuredEdge)
         twilioDevice = new Device(data.token, {
           logLevel: 1, // DEBUG level (0=TRACE, 1=DEBUG, 2=INFO, 3=WARN, 4=ERROR, 5=SILENT)
           // Disable automatic error alerts
           allowIncomingWhileBusy: false,
           // Configure edge for US/Canada users - use US East (ashburn) for best coverage
           // This ensures device registers in US region, matching phone number configuration
-          edge: 'ashburn', // US East edge - change to 'umatilla' for US West if needed
+          edge: configuredEdge, // US East edge - change to 'umatilla' for US West if needed
         } as any)
         
         // #region agent log
@@ -1059,6 +1061,8 @@ function DialerModal({
         let accountSid = 'unknown'
         let edge = 'unknown'
         let region = 'unknown'
+        const configuredEdge = 'ashburn' // The edge we configured when creating the device
+        
         try {
           const tokenParts = data.token.split('.')
           if (tokenParts.length === 3) {
@@ -1067,15 +1071,32 @@ function DialerModal({
           }
           // Try to get edge/region from device's internal state
           const deviceInternal = twilioDevice as any
+          
+          // Try multiple ways to read the edge
           if (deviceInternal._stream?.edge) {
             edge = deviceInternal._stream.edge
+          } else if (deviceInternal._edge) {
+            edge = deviceInternal._edge
+          } else if (deviceInternal.edge) {
+            edge = deviceInternal.edge
+          } else {
+            // If we can't read it, use the configured edge
+            edge = configuredEdge + ' (configured)'
           }
+          
+          // Try multiple ways to read the region
           if (deviceInternal._stream?.region) {
             region = deviceInternal._stream.region
+          } else if (deviceInternal._region) {
+            region = deviceInternal._region
+          } else if (deviceInternal.region) {
+            region = deviceInternal.region
           }
         } catch (e) {
-          // Ignore
+          // If we can't read it, use the configured edge
+          edge = configuredEdge + ' (configured, read failed)'
         }
+        
         console.log('[DialerModal] Twilio Device registered:', {
           state: twilioDevice.state,
           isRegistered: (twilioDevice as any).isRegistered,
@@ -1084,6 +1105,7 @@ function DialerModal({
           twimlAppSid: (twilioDevice as any).outgoingConnection?.applicationSid || 'unknown',
           edge: edge,
           region: region,
+          configuredEdge: configuredEdge, // Always show what we configured
         })
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1030', message: 'H1,H4,H5,H6: Device registered event', data: { state: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered, identity: deviceIdentity, accountSid, edge, region, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H1,H4,H5,H6' }) }).catch(() => { });
