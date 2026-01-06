@@ -2219,9 +2219,9 @@ function UpgradePlanContent({
                             <div>I agree to</div>
                             <a
                               href="#"
-                              onClick={(e) => {
+                              onClick={async (e) => {
                                 e.preventDefault()
-                                const { termsUrl } = getPolicyUrls(selectedUser)
+                                const { termsUrl } = await getPolicyUrls(selectedUser)
                                 window.open(termsUrl, '_blank')
                               }}
                               className="text-brand-primary hover:text-brand-primary/80 underline transition-colors duration-200 cursor-pointer"
@@ -2418,6 +2418,8 @@ function UpgradePlan({
     message: '',
     isVisible: false,
   })
+
+  console.log('selected user in upgrade plan', selectedUser);
 
   return (
     <Elements stripe={stripePromise}>

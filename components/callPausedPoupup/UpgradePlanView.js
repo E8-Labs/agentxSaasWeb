@@ -296,8 +296,8 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
             <a
               href="#"
               className="text-purple "
-              onClick={() => {
-                const { termsUrl } = getPolicyUrls()
+              onClick={async () => {
+                const { termsUrl } = await getPolicyUrls()
                 window.open(termsUrl, '_blank')
               }}
             >

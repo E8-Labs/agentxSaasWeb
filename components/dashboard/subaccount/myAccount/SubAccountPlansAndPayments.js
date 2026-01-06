@@ -1565,6 +1565,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
           }}
           plan={selectedPlan}
           currentFullPlan={currentPlanDetails}
+          
         />
       ) : (
         // Use original component when subaccount views their own plans

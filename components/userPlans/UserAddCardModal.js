@@ -877,9 +877,9 @@ const UserAddCard = ({
               By continuing you agree to our{' '}
               <a
                 href="#"
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.preventDefault()
-                  const { termsUrl } = getPolicyUrls()
+                  const { termsUrl } = await getPolicyUrls()
                   window.open(termsUrl, '_blank')
                 }}
                 className="text-brand-primary underline font-semibold"

@@ -264,7 +264,10 @@ function NotficationsDrawer({ close }) {
       return renderBrandedIcon('/svgIcons/minsNotIcon.svg', 32, 32)
     } else if (item.type === NotificationTypes.NoCallsIn3Days) {
       return renderBrandedIcon('/svgIcons/callsNotIcon.svg', 37, 37)
-    } else if (item.type === NotificationTypes.InviteAccepted) {
+    } else if (item.type === NotificationTypes.LeadReplied) {
+      return renderBrandedLucideIcon(MessageSquare, 20)
+    }
+    else if (item.type === NotificationTypes.InviteAccepted) {
       return (
         <div
           className="flex rounded-full justify-center items-center bg-black text-white text-md flex-shrink-0"

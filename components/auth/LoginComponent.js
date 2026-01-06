@@ -1409,9 +1409,9 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             <>
               <button
                 className="flex-shrink-0 outline-none"
-                onClick={() => {
+                onClick={async () => {
                   if (typeof window !== 'undefined') {
-                    const { termsUrl } = getPolicyUrls()
+                    const { termsUrl } = await getPolicyUrls()
                     window.open(termsUrl, '_blank')
                   }
                 }}
@@ -1420,9 +1420,9 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               </button>
               <button
                 className="flex-shrink-0 outline-none"
-                onClick={() => {
+                onClick={async () => {
                   if (typeof window !== 'undefined') {
-                    const { privacyUrl } = getPolicyUrls()
+                    const { privacyUrl } = await getPolicyUrls()
                     window.open(privacyUrl, '_blank')
                   }
                 }}
@@ -1441,9 +1441,9 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             >
               <button
                 className="flex-shrink-0 outline-none"
-                onClick={() => {
+                onClick={async () => {
                   if (typeof window !== 'undefined') {
-                    const { termsUrl } = getPolicyUrls()
+                    const { termsUrl } = await getPolicyUrls()
                     window.open(termsUrl, '_blank')
                   }
                 }}
@@ -1452,9 +1452,9 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               </button>
               <button
                 className="flex-shrink-0 outline-none"
-                onClick={() => {
+                onClick={async () => {
                   if (typeof window !== 'undefined') {
-                    const { privacyUrl } = getPolicyUrls()
+                    const { privacyUrl } = await getPolicyUrls()
                     window.open(privacyUrl, '_blank')
                   }
                 }}

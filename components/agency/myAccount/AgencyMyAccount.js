@@ -155,9 +155,9 @@ function AgencyMyAccount({ selectedAgency }) {
                   textTransform: 'none', // Prevents uppercase transformation
                   fontWeight: 'normal', // Optional: Adjust the font weight
                 }}
-                onClick={() => {
+                onClick={async () => {
                   //   setSelectedManu(index + 1);
-                  const { termsUrl, privacyUrl, cancellationUrl } = getPolicyUrls()
+                  const { termsUrl, privacyUrl, cancellationUrl } = await getPolicyUrls()
                   
                   if (item.id === 5) {
                     window.open(termsUrl, '_blank')

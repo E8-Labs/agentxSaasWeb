@@ -2276,9 +2276,10 @@ function UpgradePlanContent({
                             <div>I agree to</div>
                             <a
                               href="#"
-                              onClick={(e) => {
+                              onClick={async (e) => {
                                 e.preventDefault()
-                                const { termsUrl } = getPolicyUrls()
+                                const { termsUrl } = await getPolicyUrls(selectedUser)
+                                console.log('terms url in upgrade plan for user from admin agency', termsUrl);
                                 window.open(termsUrl, '_blank')
                               }}
                               className="text-brand-primary hover:text-brand-primary/80 underline transition-colors duration-200 cursor-pointer"
@@ -2478,6 +2479,8 @@ function UpgradePlanForUserFromAdminAgency({
   selectedUser,
   // setShowSnackMsg = null
 }) {
+
+  console.log('selected user in upgrade plan for user from admin agency', selectedUser);
   const stripePromise = getStripe()
 
   const [showSnackMsg, setShowSnackMsg] = useState({

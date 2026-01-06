@@ -654,9 +654,9 @@ const Page = ({ length = 6, onComplete }) => {
             </div>
             <button
               className="flex-shrink-0 outline-none"
-              onClick={() => {
+              onClick={async () => {
                 if (typeof window !== 'undefined') {
-                  const { termsUrl } = getPolicyUrls()
+                  const { termsUrl } = await getPolicyUrls()
                   window.open(termsUrl, '_blank')
                 }
               }}
@@ -665,9 +665,9 @@ const Page = ({ length = 6, onComplete }) => {
             </button>
             <button
               className="flex-shrink-0 outline-none"
-              onClick={() => {
+              onClick={async () => {
                 if (typeof window !== 'undefined') {
-                  const { privacyUrl } = getPolicyUrls()
+                  const { privacyUrl } = await getPolicyUrls()
                   window.open(privacyUrl, '_blank')
                 }
               }}
@@ -683,8 +683,8 @@ const Page = ({ length = 6, onComplete }) => {
             >
               <button
                 className="flex-shrink-0 outline-none"
-                onClick={() => {
-                  const { termsUrl } = getPolicyUrls()
+                onClick={async () => {
+                  const { termsUrl } = await getPolicyUrls()
                   window.open(termsUrl, '_blank')
                 }}
               >
@@ -692,9 +692,9 @@ const Page = ({ length = 6, onComplete }) => {
               </button>
               <button
                 className="flex-shrink-0 outline-none"
-                onClick={() => {
+                onClick={async () => {
                   if (typeof window !== 'undefined') {
-                    const { privacyUrl } = getPolicyUrls()
+                    const { privacyUrl } = await getPolicyUrls()
                     window.open(privacyUrl, '_blank')
                   }
                 }}

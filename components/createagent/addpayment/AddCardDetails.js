@@ -605,9 +605,9 @@ const AddCardDetails = ({
           <div>I agree to</div>
           <a
             href="#"
-            onClick={(e) => {
+            onClick={async (e) => {
               e.preventDefault()
-              const { termsUrl } = getPolicyUrls()
+              const { termsUrl } = await getPolicyUrls()
               window.open(termsUrl, '_blank')
             }}
             style={{ textDecoration: 'underline', color: 'black', cursor: 'pointer' }} // Underline and color styling

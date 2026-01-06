@@ -276,8 +276,8 @@ function MyAccount() {
     }
   }
 
-  const handleTabSelect = (item, index) => {
-    const { termsUrl, privacyUrl, cancellationUrl } = getPolicyUrls()
+  const handleTabSelect = async (item, index) => {
+    const { termsUrl, privacyUrl, cancellationUrl } = await getPolicyUrls()
     
     if (item.id === 8) {
       window.open(termsUrl, '_blank')
@@ -321,9 +321,9 @@ function MyAccount() {
                   textTransform: 'none', // Prevents uppercase transformation
                   fontWeight: 'normal', // Optional: Adjust the font weight
                 }}
-                onClick={() => {
+                onClick={async () => {
                   //   setSelectedManu(index + 1);
-                  handleTabSelect(item, index)
+                  await handleTabSelect(item, index)
                 }}
               >
                 <div
