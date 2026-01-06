@@ -2450,9 +2450,18 @@ const Messages = () => {
                       handleSendMessage={handleSendMessage}
                       sendingMessage={sendingMessage}
                       onOpenAuthPopup={() => setShowAuthSelectionPopup(true)}
-                      onCommentAdded={() => {
-                        // Refresh messages or notes if needed
-                        console.log('Comment added successfully')
+                      onCommentAdded={(newMessage) => {
+                        // If new message is provided, add it to messages and refresh
+                        if (newMessage) {
+                          setMessages((prev) => [...prev, newMessage])
+                          setTimeout(() => {
+                            if (messagesEndRef.current) {
+                              messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+                            }
+                          }, 100)
+                        }
+                        // Refresh threads to update last message/unread count
+                        fetchThreads(searchValue || "", appliedTeamMemberIds)
                       }}
                     />
                   </>

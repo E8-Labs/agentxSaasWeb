@@ -243,6 +243,180 @@ const sanitizeAndLinkifyHTML = (html, sanitizeHTML) => {
   return linkifyText(plainText)
 }
 
+/**
+ * SystemMessage component for displaying system activity messages
+ * (stage changes, team assignments, comments, etc.)
+ */
+const SystemMessage = ({ message }) => {
+  // #region agent log
+  if (message.activityType === 'comment') {
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ConversationView.js:250',message:'SystemMessage render - comment message',data:{messageId:message.id,activityType:message.activityType,hasMentionPositions:!!message.mentionPositions,mentionPositionsCount:message.mentionPositions?.length||0,mentionPositions:message.mentionPositions,hasMentionedUsers:!!message.mentionedUsers,mentionedUsersCount:message.mentionedUsers?.length||0,metadata:message.metadata,content:message.content},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'J'})}).catch(()=>{});
+  }
+  // #endregion
+  // Parse content and highlight mentions if it's a comment
+  const parseContent = (content) => {
+    if (!content) return ''
+    
+    // Escape HTML first
+    const escapeHtml = (str) => {
+      if (!str) return ''
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+    }
+    
+    // If it's a comment, highlight @mentions using position-based bolding
+    if (message.activityType === 'comment') {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ConversationView.js:267',message:'parseContent - checking mentionPositions',data:{content:content,contentLength:content.length,hasMentionPositions:!!message.mentionPositions,mentionPositions:message.mentionPositions,metadata:message.metadata},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'K'})}).catch(()=>{});
+      // #endregion
+      // Use mention positions if available (more reliable than regex)
+      if (message.mentionPositions && Array.isArray(message.mentionPositions) && message.mentionPositions.length > 0) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ConversationView.js:270',message:'parseContent - using mentionPositions',data:{mentionPositionsCount:message.mentionPositions.length,mentionPositions:message.mentionPositions,content:content},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'L'})}).catch(()=>{});
+        // #endregion
+        // Sort mentions by start position (descending) to process from end to start
+        // This prevents position shifts when inserting HTML
+        const sortedMentions = [...message.mentionPositions].sort((a, b) => b.start - a.start)
+        
+        // Build result array working backwards from end
+        const parts = []
+        let currentIndex = content.length
+        
+        // Process mentions from end to start
+        sortedMentions.forEach((mention, idx) => {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ConversationView.js:279',message:'Processing mention',data:{mentionIndex:idx,mention:mention,contentLength:content.length,mentionText:content.substring(mention.start,mention.end),isValid:mention.start>=0&&mention.end<=content.length&&mention.start<mention.end},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'M'})}).catch(()=>{});
+          // #endregion
+          // Verify positions are within bounds
+          if (mention.start < 0 || mention.end > content.length || mention.start >= mention.end) {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ConversationView.js:281',message:'Invalid mention position detected',data:{start:mention.start,end:mention.end,contentLength:content.length,mention:mention},timestamp:Date.now(),sessionId:'debug-session',runId:'run2',hypothesisId:'M'})}).catch(()=>{});
+            // #endregion
+            console.warn('⚠️ [SystemMessage] Invalid mention position:', {
+              start: mention.start,
+              end: mention.end,
+              contentLength: content.length,
+            })
+            return
+          }
+          
+          // Add text between this mention and the previous one (if any)
+          if (mention.end < currentIndex) {
+            const textAfter = content.substring(mention.end, currentIndex)
+            parts.unshift(escapeHtml(textAfter))
+          }
+          
+          // Add the mention (bolded)
+          const mentionText = mention.text || content.substring(mention.start, mention.end)
+          const escapedMention = escapeHtml(mentionText)
+          parts.unshift(`<span class="font-semibold text-system-text cursor-pointer hover:underline">${escapedMention}</span>`)
+          
+          currentIndex = mention.start
+        })
+        
+        // Add any remaining text at the beginning
+        if (currentIndex > 0) {
+          const textBefore = content.substring(0, currentIndex)
+          parts.unshift(escapeHtml(textBefore))
+        }
+        
+        // Join all parts and replace newlines
+        let processedContent = parts.join('').replace(/\n/g, '<br>')
+        
+        // Wrap entire content in small text (text-xs) with system-text color
+        return `<span class="text-xs text-system-text">${processedContent}</span>`
+      }
+      
+      // Fallback: if no mention positions, try to extract from metadata directly
+      // Try to extract mentions from metadata if mentionPositions wasn't set
+      let mentionsFromMetadata = []
+      if (message.metadata) {
+        let metadata = message.metadata
+        if (typeof metadata === 'string') {
+          try {
+            metadata = JSON.parse(metadata)
+          } catch (e) {
+            metadata = {}
+          }
+        }
+        mentionsFromMetadata = metadata.mentions || metadata.activityData?.mentions || []
+      }
+      
+      // If we found mentions in metadata, use position-based bolding
+      if (mentionsFromMetadata.length > 0) {
+        const sortedMentions = [...mentionsFromMetadata].sort((a, b) => b.start - a.start)
+        const parts = []
+        let currentIndex = content.length
+        
+        sortedMentions.forEach((mention) => {
+          if (mention.start < 0 || mention.end > content.length || mention.start >= mention.end) {
+            return
+          }
+          
+          if (mention.end < currentIndex) {
+            const textAfter = content.substring(mention.end, currentIndex)
+            parts.unshift(escapeHtml(textAfter))
+          }
+          
+          const mentionText = mention.text || content.substring(mention.start, mention.end)
+          const escapedMention = escapeHtml(mentionText)
+          parts.unshift(`<span class="font-semibold text-system-text cursor-pointer hover:underline">${escapedMention}</span>`)
+          
+          currentIndex = mention.start
+        })
+        
+        if (currentIndex > 0) {
+          const textBefore = content.substring(0, currentIndex)
+          parts.unshift(escapeHtml(textBefore))
+        }
+        
+        let processedContent = parts.join('').replace(/\n/g, '<br>')
+        return `<span class="text-xs text-system-text">${processedContent}</span>`
+      }
+      
+      // Final fallback: use regex matching (for backward compatibility)
+      let escaped = escapeHtml(content)
+      escaped = escaped.replace(/\n/g, '<br>')
+      
+      if (message.mentionedUsers && message.mentionedUsers.length > 0) {
+        message.mentionedUsers.forEach((user) => {
+          // Try to match various patterns for the user
+          const patterns = [
+            user.name ? new RegExp(`@${escapeHtml(user.name).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'gi') : null,
+            user.email ? new RegExp(`@${escapeHtml(user.email.split('@')[0]).replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'gi') : null,
+          ].filter(Boolean)
+
+          patterns.forEach((pattern) => {
+            escaped = escaped.replace(pattern, (match) => {
+              // Make mentions semi-bold, clickable, and #0E0E0E color
+              return `<span class="font-semibold text-system-text cursor-pointer hover:underline">${match}</span>`
+            })
+          })
+        })
+      }
+      
+      // Wrap entire content in small text (text-xs) with system-text color
+      return `<span class="text-xs text-system-text">${escaped}</span>`
+    }
+    
+    // For other system messages (stage changes, assignments), parse markdown-style bold (**text**)
+    // Use system-text color (#0E0E0E) for bold text
+    return content.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-system-text">$1</strong>')
+  }
+
+  return (
+    <div className="flex items-center justify-center my-4">
+      <div className="text-xs text-system-text text-center px-4">
+        <div dangerouslySetInnerHTML={{ __html: parseContent(message.content) }} />
+      </div>
+    </div>
+  )
+}
+
 const MessageBubble = ({ message, isOutbound, onAttachmentClick }) => (
   <div className="flex flex-col">
     <div
@@ -494,6 +668,7 @@ const ConversationView = ({
             return messagesWithDepth.map(({ message, depth, replyToId }, index) => {
               const isOutbound = message.direction === 'outbound'
               const isEmail = message.messageType === 'email'
+              const isSystem = message.messageType === 'system'
               const isLastMessage = index === messagesWithDepth.length - 1
               const parentMessage = replyToId ? messageMap.get(replyToId) : null
 
@@ -525,6 +700,10 @@ const ConversationView = ({
                       <div className="border-t border-gray-200 flex-1"></div>
                     </div>
                   )}
+                  {/* Render system messages (including comments) as centered messages */}
+                  {isSystem ? (
+                    <SystemMessage message={message} />
+                  ) : (
                   <div
                     className={`flex flex-col w-full ${isOutbound ? 'items-end pe-2' : 'items-start'} ${isEmail ? 'mb-6' : 'mb-3'} relative`}
                     style={
@@ -612,6 +791,7 @@ const ConversationView = ({
                       )}
                     </div>
                   </div>
+                  )}
                 </React.Fragment>
               )
             })

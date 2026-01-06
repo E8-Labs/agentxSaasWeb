@@ -201,6 +201,8 @@ const Apis = {
 
   //add comment
   addComment: `${BasePath}api/leads/addCommentOnTranscript`,
+  // Post comment in messaging thread
+  postComment: `${BasePath}api/user/messaging/comment`,
   //create onboarding link
   createOnboardingLink: `${BasePath}api/agency/createConnectLink`,
   //setup twillio
