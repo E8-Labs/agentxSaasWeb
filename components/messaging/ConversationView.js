@@ -2,6 +2,12 @@ import React, { useEffect, useRef } from 'react'
 import moment from 'moment'
 import { Paperclip } from '@phosphor-icons/react'
 import { htmlToPlainText } from '@/utilities/textUtils'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
 
 const AttachmentList = ({ message, isOutbound, onAttachmentClick }) => {
   if (!message.metadata?.attachments || message.metadata.attachments.length === 0) return null
@@ -408,12 +414,31 @@ const SystemMessage = ({ message }) => {
     return content.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-system-text">$1</strong>')
   }
 
+  // Format the date for the tooltip
+  const formatDate = (date) => {
+    if (!date) return ''
+    return moment(date).format('MMMM DD, YYYY [at] h:mm A')
+  }
+
+  const dateString = message.createdAt ? formatDate(message.createdAt) : ''
+
   return (
-    <div className="flex items-center justify-center my-4">
-      <div className="text-xs text-system-text text-center px-4">
-        <div dangerouslySetInnerHTML={{ __html: parseContent(message.content) }} />
-      </div>
-    </div>
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <div className="flex items-center justify-center my-4 cursor-default">
+            <div className="text-xs text-system-text text-center px-4">
+              <div dangerouslySetInnerHTML={{ __html: parseContent(message.content) }} />
+            </div>
+          </div>
+        </TooltipTrigger>
+        {dateString && (
+          <TooltipContent>
+            <p>{dateString}</p>
+          </TooltipContent>
+        )}
+      </Tooltip>
+    </TooltipProvider>
   )
 }
 

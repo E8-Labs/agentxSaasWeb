@@ -589,32 +589,169 @@ const MessageComposer = ({
     const editorContainer = commentEditorContainerRef.current.querySelector('.ql-editor')
     if (!editorContainer) return
 
-    // Try to access Quill instance
-    const quillWrapper = commentEditorContainerRef.current.querySelector('.quill')
-    if (quillWrapper && quillWrapper.__quill) {
-      const quill = quillWrapper.__quill
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MessageComposer.js:586',message:'handleInsertMention called',data:{memberName:member.name,hasEditorContainer:!!editorContainer,editorContainerHTML:editorContainer.innerHTML.substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'A'})}).catch(()=>{});
+    // #endregion
+
+    // Try to access Quill instance via RichTextEditor ref
+    let quill = null
+    if (commentEditorRef.current && commentEditorRef.current.getEditor) {
+      quill = commentEditorRef.current.getEditor()
+    }
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MessageComposer.js:597',message:'Checking Quill instance',data:{hasCommentEditorRef:!!commentEditorRef.current,hasGetEditor:!!(commentEditorRef.current&&commentEditorRef.current.getEditor),hasQuill:!!quill},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'N'})}).catch(()=>{});
+    // #endregion
+    
+    if (quill) {
       const selection = quill.getSelection(true)
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MessageComposer.js:600',message:'Got Quill selection',data:{hasSelection:!!selection,selectionIndex:selection?.index,selectionLength:selection?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'O'})}).catch(()=>{});
+      // #endregion
 
-      if (!selection) return
+      if (!selection) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MessageComposer.js:605',message:'No selection found',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'B'})}).catch(()=>{});
+        // #endregion
+        return
+      }
 
-      const text = quill.getText(0, selection.index)
-      const atIndex = text.lastIndexOf('@')
+      // Get the current selection index
+      const currentIndex = selection.index
+      
+      // Get text up to cursor to find @ position
+      // getText includes newlines as \n characters
+      const textBeforeCursor = quill.getText(0, currentIndex)
+      const atIndex = textBeforeCursor.lastIndexOf('@')
 
-      if (atIndex === -1) return
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MessageComposer.js:615',message:'Before mention insertion - initial state',data:{currentIndex:currentIndex,textBeforeCursor:textBeforeCursor,atIndex:atIndex,textBeforeCursorLength:textBeforeCursor.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+
+      if (atIndex === -1) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MessageComposer.js:619',message:'No @ symbol found',data:{textBeforeCursor:textBeforeCursor},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'D'})}).catch(()=>{});
+        // #endregion
+        return
+      }
+
+      // Use Quill's getContents to get the delta representation
+      // This preserves line breaks and formatting correctly
+      const contents = quill.getContents(0, currentIndex)
+      
+      // Map text position to Quill index by walking through delta ops
+      let quillIndex = 0
+      let textIndex = 0
+      
+      for (let i = 0; i < contents.ops.length; i++) {
+        const op = contents.ops[i]
+        if (op.insert) {
+          const insertText = typeof op.insert === 'string' ? op.insert : ''
+          const insertLength = insertText.length
+          
+          // Check if @ is within this op's text
+          if (textIndex <= atIndex && atIndex < textIndex + insertLength) {
+            // @ is in this op - calculate the exact Quill index
+            quillIndex += (atIndex - textIndex)
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MessageComposer.js:638',message:'Found @ in delta op',data:{opIndex:i,insertText:insertText,atIndex:atIndex,textIndex:textIndex,calculatedQuillIndex:quillIndex},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'E'})}).catch(()=>{});
+            // #endregion
+            break
+          }
+          
+          textIndex += insertLength
+          quillIndex += insertLength
+        }
+        // Formatting ops don't affect text position
+      }
+
+      // Ensure quillIndex is valid
+      if (quillIndex < 0) quillIndex = 0
+      if (quillIndex > currentIndex) {
+        // Fallback: if calculation failed, use text-based index
+        quillIndex = atIndex
+      }
+
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MessageComposer.js:655',message:'After delta calculation',data:{quillIndex:quillIndex,currentIndex:currentIndex,atIndex:atIndex,textIndex:textIndex},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'F'})}).catch(()=>{});
+      // #endregion
+
+      // Get text before deletion for comparison
+      const textBeforeDelete = quill.getText()
 
       // Delete text from @ to cursor
-      quill.deleteText(atIndex, selection.index - atIndex)
+      const deleteLength = currentIndex - quillIndex
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MessageComposer.js:663',message:'Before delete operation',data:{quillIndex:quillIndex,deleteLength:deleteLength,textBeforeDelete:textBeforeDelete,textBeforeDeleteLength:textBeforeDelete.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'G'})}).catch(()=>{});
+      // #endregion
+      
+      if (deleteLength > 0) {
+        quill.deleteText(quillIndex, deleteLength)
+      }
+
+      // Get text after deletion
+      const textAfterDelete = quill.getText()
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MessageComposer.js:672',message:'After delete operation',data:{textAfterDelete:textAfterDelete,textAfterDeleteLength:textAfterDelete.length,deletedText:textBeforeDelete.substring(quillIndex,quillIndex+deleteLength)},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'H'})}).catch(()=>{});
+      // #endregion
 
       // Insert mention with formatting
       const mentionText = `@${member.name} `
-      quill.insertText(atIndex, mentionText)
-      quill.formatText(atIndex, mentionText.length - 1, {
+      const mentionTextWithoutSpace = `@${member.name}`
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MessageComposer.js:701',message:'Before insert operation',data:{quillIndex:quillIndex,mentionText:mentionText,textAfterDelete:textAfterDelete},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'I'})}).catch(()=>{});
+      // #endregion
+      
+      // Insert the mention text first without formatting
+      quill.insertText(quillIndex, mentionText, 'user')
+      
+      // Then apply formatting only to the mention text (excluding the trailing space)
+      quill.formatText(quillIndex, mentionTextWithoutSpace.length, {
         color: brandPrimaryColor,
         bold: true,
-      })
+      }, 'user')
+      
+      // Calculate cursor position after mention
+      const newCursorPos = quillIndex + mentionText.length
+      
+      // Remove any formatting from text after the mention to prevent bleed
+      const contentLength = quill.getLength()
+      if (newCursorPos < contentLength - 1) {
+        // Remove formatting from the space and any text after
+        quill.formatText(newCursorPos, contentLength - newCursorPos - 1, {
+          color: false,
+          bold: false,
+        }, 'user')
+      }
 
-      // Move cursor after mention
-      quill.setSelection(atIndex + mentionText.length)
+      // Get text after insert
+      const textAfterInsert = quill.getText()
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MessageComposer.js:725',message:'After insert and format cleanup',data:{textAfterInsert:textAfterInsert,textAfterInsertLength:textAfterInsert.length,newCursorPos:newCursorPos},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'J'})}).catch(()=>{});
+      // #endregion
+
+      // Move cursor after mention and remove any active formatting
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MessageComposer.js:730',message:'Setting cursor position',data:{newCursorPos:newCursorPos,quillIndex:quillIndex,mentionTextLength:mentionText.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'K'})}).catch(()=>{});
+      // #endregion
+      
+      quill.setSelection(newCursorPos, 'user')
+      
+      // Remove any active formatting at cursor position to prevent bleed
+      quill.removeFormat(newCursorPos, 0, 'user')
+      
+      // Verify final state
+      const finalText = quill.getText()
+      const finalSelection = quill.getSelection()
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MessageComposer.js:740',message:'Final state after mention insertion',data:{finalText:finalText,finalTextLength:finalText.length,finalSelectionIndex:finalSelection?.index,finalSelectionLength:finalSelection?.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'L'})}).catch(()=>{});
+      // #endregion
     } else {
       // Fallback: use DOM manipulation
       const selection = window.getSelection()
@@ -704,6 +841,11 @@ const MessageComposer = ({
 
       // Extract plain text from HTML comment body
       const plainText = stripHTML(commentBody).trim()
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MessageComposer.js:843',message:'Extracting mentions from comment',data:{commentBody:commentBody,plainText:plainText,plainTextLength:plainText.length,teamMembersCount:teamMembers.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'M'})}).catch(()=>{});
+      // #endregion
+      
       if (!plainText) {
         return
       }
@@ -711,6 +853,7 @@ const MessageComposer = ({
       // Extract mentioned user IDs from comment body
       // Match full user names (including spaces) by checking all team members
       const mentionedUserIds = []
+      const foundMentions = []
       
       // For each team member, check if their name appears as a mention in the content
       for (const member of teamMembers) {
@@ -720,6 +863,10 @@ const MessageComposer = ({
         const mentionPattern = `@${member.name}`
         const mentionIndex = plainText.indexOf(mentionPattern)
         
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MessageComposer.js:860',message:'Checking team member for mention',data:{memberName:member.name,memberId:member.id,mentionPattern:mentionPattern,mentionIndex:mentionIndex,plainText:plainText},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'N'})}).catch(()=>{});
+        // #endregion
+        
         if (mentionIndex !== -1) {
           // Verify it's a valid mention (not part of a longer word)
           const charBefore = mentionIndex > 0 ? plainText[mentionIndex - 1] : ' '
@@ -727,15 +874,24 @@ const MessageComposer = ({
             ? plainText[mentionIndex + mentionPattern.length] 
             : ' '
           
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MessageComposer.js:870',message:'Validating mention',data:{memberName:member.name,mentionIndex:mentionIndex,charBefore:charBefore,charAfter:charAfter,mentionPattern:mentionPattern,plainTextLength:plainText.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'O'})}).catch(()=>{});
+          // #endregion
+          
           // Valid mention if preceded by space/start and followed by space/end
           if ((charBefore === ' ' || charBefore === '\n' || mentionIndex === 0) &&
               (charAfter === ' ' || charAfter === '\n' || mentionIndex + mentionPattern.length === plainText.length)) {
             if (!mentionedUserIds.includes(member.id)) {
               mentionedUserIds.push(member.id)
+              foundMentions.push({ memberName: member.name, mentionIndex, mentionPattern })
             }
           }
         }
       }
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MessageComposer.js:885',message:'Mention extraction complete',data:{mentionedUserIds:mentionedUserIds,foundMentions:foundMentions,plainText:plainText},timestamp:Date.now(),sessionId:'debug-session',runId:'run3',hypothesisId:'P'})}).catch(()=>{});
+      // #endregion
 
       const ApiData = {
         threadId: selectedThread.id,
