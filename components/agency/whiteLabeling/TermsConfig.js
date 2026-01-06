@@ -177,7 +177,7 @@ const TermsConfig = ({ selectedAgency }) => {
     }
   }
 
-  if (fetching) {
+  if (false) {
     return (
       <div className="w-full flex flex-row justify-center pt-8">
         <div className="text-gray-500">Loading terms & conditions...</div>
@@ -209,6 +209,13 @@ const TermsConfig = ({ selectedAgency }) => {
         }
       />
 
+      {fetching ? (
+        <div className="w-full flex flex-row justify-center pt-8">
+          <div className="text-gray-500">Loading terms & conditions...</div>
+        </div>
+      ) : (
+
+        <> 
       {/* Terms Editor Card */}
       <div className="w-full flex flex-row justify-center pt-8">
         <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
@@ -249,10 +256,12 @@ const TermsConfig = ({ selectedAgency }) => {
               <div className="text-white text-base font-normal leading-relaxed">
                 {loading ? 'Saving...' : 'Save Changes'}
               </div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   )
 }

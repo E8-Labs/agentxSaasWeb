@@ -178,7 +178,7 @@ const CancellationRefundConfig = ({ selectedAgency }) => {
     }
   }
 
-  if (fetching) {
+  if (false) {
     return (
       <div className="w-full flex flex-row justify-center pt-8">
         <div className="text-gray-500">
@@ -212,6 +212,13 @@ const CancellationRefundConfig = ({ selectedAgency }) => {
         }
       />
 
+      {fetching ? (
+        <div className="w-full flex flex-row justify-center pt-8">
+          <div className="text-gray-500">Loading cancellation & refund policy...</div>
+        </div>
+      ) : (
+
+        <> 
       {/* Cancellation & Refund Editor Card */}
       <div className="w-full flex flex-row justify-center pt-8">
         <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
@@ -256,6 +263,8 @@ const CancellationRefundConfig = ({ selectedAgency }) => {
           </div>
         </div>
       </div>
+        </>
+      )}
     </div>
   )
 }

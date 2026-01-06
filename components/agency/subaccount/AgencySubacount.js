@@ -34,6 +34,7 @@ import SlideModal from './SlideModal'
 import SubAccountFilters from './SubAccountFilters'
 import ViewSubAccountPlans from './ViewSubAccountPlans'
 import ViewSubAccountXBar from './ViewSubAccountXBar'
+import AdminAgencyDetails from '@/components/admin/agency/AdminAgencyDetails'
 
 function AgencySubacount({ selectedAgency }) {
   const [subAccountList, setSubAccountsList] = useState([])
@@ -595,7 +596,12 @@ function AgencySubacount({ selectedAgency }) {
       } else {
         setInitialLoader(false)
       }
-      const profileResponse = await getProfileDetails()
+      let profileResponse = null
+      if(selectedAgency) {
+        profileResponse = await AdminAgencyDetails(selectedAgency)
+      } else {
+        profileResponse = await getProfileDetails()
+      }
       if (profileResponse) {
         console.log(
           'habibi twilio status is',

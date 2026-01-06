@@ -132,7 +132,7 @@ const PrivacyConfig = ({ selectedAgency }) => {
       const updateData = {
         privacyText: privacyText,
       }
-      
+
       // Add userId if selectedAgency is provided (admin view)
       if (selectedAgency?.id) {
         updateData.userId = selectedAgency.id
@@ -176,7 +176,7 @@ const PrivacyConfig = ({ selectedAgency }) => {
     }
   }
 
-  if (fetching) {
+  if (false) {
     return (
       <div className="w-full flex flex-row justify-center pt-8">
         <div className="text-gray-500">Loading privacy policy...</div>
@@ -208,50 +208,58 @@ const PrivacyConfig = ({ selectedAgency }) => {
         }
       />
 
-      {/* Privacy Policy Editor Card */}
-      <div className="w-full flex flex-row justify-center pt-8">
-        <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
-          <div className="self-stretch">
-            <div className="text-black text-base font-normal leading-normal mb-2">
-              Privacy Policy Content
-            </div>
-            <RichTextEditor
-              ref={richTextEditorRef}
-              value={privacyText}
-              onChange={(html) => {
-                setPrivacyText(html)
-              }}
-              placeholder="Enter privacy policy text..."
-            />
-          </div>
+      {fetching ? (
+        <div className="w-full flex flex-row justify-center pt-8">
+          <div className="text-gray-500">Loading privacy policy...</div>
+        </div>
+      ) : (
 
-          {/* Save Buttons */}
-          <div className="self-stretch inline-flex justify-between items-center mt-4">
-            {hasChanges() && (
-              <div
-                className="px-4 py-2 bg-white/40 rounded-md outline outline-1 outline-slate-200 flex justify-center items-center gap-2.5 cursor-pointer hover:bg-gray-50 transition-colors"
-                onClick={handleReset}
-              >
-                <div className="text-slate-900 text-base font-normal leading-relaxed">
-                  Reset
+        <>
+          {/* Privacy Policy Editor Card */}
+          <div className="w-full flex flex-row justify-center pt-8">
+            <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
+              <div className="self-stretch">
+                <div className="text-black text-base font-normal leading-normal mb-2">
+                  Privacy Policy Content
+                </div>
+                <RichTextEditor
+                  ref={richTextEditorRef}
+                  value={privacyText}
+                  onChange={(html) => {
+                    setPrivacyText(html)
+                  }}
+                  placeholder="Enter privacy policy text..."
+                />
+              </div>
+
+              {/* Save Buttons */}
+              <div className="self-stretch inline-flex justify-between items-center mt-4">
+                {hasChanges() && (
+                  <div
+                    className="px-4 py-2 bg-white/40 rounded-md outline outline-1 outline-slate-200 flex justify-center items-center gap-2.5 cursor-pointer hover:bg-gray-50 transition-colors"
+                    onClick={handleReset}
+                  >
+                    <div className="text-slate-900 text-base font-normal leading-relaxed">
+                      Reset
+                    </div>
+                  </div>
+                )}
+                <div
+                  className={`px-4 py-2 rounded-md flex justify-center items-center gap-2.5 cursor-pointer transition-colors ${loading
+                      ? 'bg-brand-primary/60 cursor-not-allowed'
+                      : 'bg-brand-primary hover:bg-brand-primary/90'
+                    } ${!hasChanges() ? 'ml-auto' : ''}`}
+                  onClick={loading ? undefined : handleSave}
+                >
+                  <div className="text-white text-base font-normal leading-relaxed">
+                    {loading ? 'Saving...' : 'Save Changes'}
+                  </div>
                 </div>
               </div>
-            )}
-            <div
-              className={`px-4 py-2 rounded-md flex justify-center items-center gap-2.5 cursor-pointer transition-colors ${
-                loading
-                  ? 'bg-brand-primary/60 cursor-not-allowed'
-                  : 'bg-brand-primary hover:bg-brand-primary/90'
-              } ${!hasChanges() ? 'ml-auto' : ''}`}
-              onClick={loading ? undefined : handleSave}
-            >
-              <div className="text-white text-base font-normal leading-relaxed">
-                {loading ? 'Saving...' : 'Save Changes'}
-              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   )
 }
