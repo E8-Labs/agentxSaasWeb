@@ -4,6 +4,7 @@ import { Paperclip } from '@phosphor-icons/react'
 import { htmlToPlainText } from '@/utilities/textUtils'
 import { toast } from 'sonner'
 import { Modal, Box } from '@mui/material'
+import CloseIcon from '@mui/icons-material/Close'
 import {
   Tooltip,
   TooltipContent,
@@ -11,6 +12,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 import CallTranscriptCN from '@/components/dashboard/leads/extras/CallTranscriptCN'
+import { TranscriptViewer } from '@/components/calls/TranscriptViewer'
 
 const AttachmentList = ({ message, isOutbound, onAttachmentClick }) => {
   if (!message.metadata?.attachments || message.metadata.attachments.length === 0) return null
@@ -257,7 +259,7 @@ const sanitizeAndLinkifyHTML = (html, sanitizeHTML) => {
  * SystemMessage component for displaying system activity messages
  * (stage changes, team assignments, comments, etc.)
  */
-const SystemMessage = ({ message, getAgentAvatar, selectedThread }) => {
+const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscript }) => {
   const [showAudioPlay, setShowAudioPlay] = useState(null)
   // Get avatar for comment sender
   const getCommentAvatar = () => {
@@ -530,8 +532,10 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread }) => {
     }
 
     const handleReadTranscript = (item) => {
-      // You might want to open a transcript modal here
-      console.log('Read transcript for:', item)
+      // Call the parent handler to open transcript modal
+      if (onReadTranscript) {
+        onReadTranscript(item)
+      }
     }
 
     return (
@@ -760,6 +764,9 @@ const ConversationView = ({
 }) => {
 
   console.log('🔍 [ConversationView] selectedThread:', selectedThread)
+  
+  // State for transcript modal
+  const [showTranscriptModal, setShowTranscriptModal] = useState(null)
   
   // Helper function to normalize email subject for threading comparison
   const normalizeSubject = (subject) => {
@@ -1000,7 +1007,14 @@ const ConversationView = ({
                   )}
                   {/* Render system messages (including comments) as centered messages */}
                   {isSystem ? (
-                    <SystemMessage message={message} getAgentAvatar={getAgentAvatar} selectedThread={selectedThread} />
+                    <SystemMessage 
+                      message={message} 
+                      getAgentAvatar={getAgentAvatar} 
+                      selectedThread={selectedThread}
+                      onReadTranscript={(item) => {
+                        setShowTranscriptModal(item)
+                      }}
+                    />
                   ) : (
                   <div
                     data-message-id={message.id}
@@ -1098,6 +1112,59 @@ const ConversationView = ({
           <div ref={messagesEndRef} />
         </>
       )}
+
+      {/* Transcript Modal */}
+      <Modal
+        open={!!showTranscriptModal}
+        onClose={() => setShowTranscriptModal(null)}
+        closeAfterTransition
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: '#00000020',
+          },
+        }}
+      >
+        <Box
+          className="lg:w-4/12 sm:w-4/12 w-6/12"
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            boxShadow: 24,
+            outline: 'none',
+          }}
+        >
+          <div className="flex flex-row justify-center w-full">
+            <div
+              className="w-full"
+              style={{
+                backgroundColor: '#ffffff',
+                padding: 20,
+                borderRadius: '13px',
+              }}
+            >
+              <div className="w-full flex flex-row items-center justify-between">
+                <div className="font-bold text-xl mt-4 mb-4">
+                  Call Transcript
+                </div>
+                <div>
+                  <button
+                    className="font-bold outline-none border-none"
+                    onClick={() => setShowTranscriptModal(null)}
+                  >
+                    <CloseIcon />
+                  </button>
+                </div>
+              </div>
+              <TranscriptViewer callId={showTranscriptModal?.callId || showTranscriptModal?.id || ''} />
+            </div>
+          </div>
+        </Box>
+      </Modal>
     </div>
   )
 }
