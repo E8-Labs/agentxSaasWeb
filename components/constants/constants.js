@@ -435,6 +435,7 @@ export const UpgradeTagWithModal = ({
   onModalClose,
   requestFeature = false,
   selectedUser = null,
+  hideTag = false, // New prop to hide the tag button
 }) => {
   const [showUpgradeModal, setShowUpgradeModal] = React.useState(false)
   const [showUnlockPremiumFeaturesPopup, setShowUnlockPremiumFeaturesPopup] =
@@ -517,11 +518,13 @@ export const UpgradeTagWithModal = ({
 
   return (
     <>
-      <UpgradeTag
-        onClick={handleUpgradeClick}
-        className={className}
-        requestFeature={requestFeature}
-      />
+      {!hideTag && (
+        <UpgradeTag
+          onClick={handleUpgradeClick}
+          className={className}
+          requestFeature={requestFeature}
+        />
+      )}
       <UnlockPremiunFeatures
         title={'Enable Live Transfer'}
         open={showUnlockPremiumFeaturesPopup}

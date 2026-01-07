@@ -1677,7 +1677,7 @@ const LeadDetails = ({
                                 ]}
                                 onSelect={handleSendAction}
                               />
-                              {/* Render upgrade modal outside dropdown to avoid re-render issues */}
+                              {/* Render upgrade modal outside dropdown to avoid re-render issues - hideTag=true so it doesn't render the button */}
                               {(dialerCapability.showUpgrade || dialerCapability.showRequestFeature) && (
                                 <UpgradeTagWithModal
                                   reduxUser={reduxUser}
@@ -1685,6 +1685,7 @@ const LeadDetails = ({
                                   requestFeature={dialerCapability.showRequestFeature}
                                   externalTrigger={triggerUpgradeModal > 0}
                                   onModalClose={handleUpgradeModalClose}
+                                  hideTag={true}
                                 />
                               )}
                             </>
