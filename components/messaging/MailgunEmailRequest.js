@@ -30,6 +30,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
   
   // For subaccount custom domain setup
   const [isSubaccount, setIsSubaccount] = useState(false)
+  const [isAgentX, setIsAgentX] = useState(false)
   const [agencyHasMailgun, setAgencyHasMailgun] = useState(true) // Check if agency has Mailgun connected
   const [customDomain, setCustomDomain] = useState('')
   const [creatingDomain, setCreatingDomain] = useState(false)
@@ -40,13 +41,16 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
 
   useEffect(() => {
     if (open) {
-      // Check if user is subaccount
+      // Check if user is subaccount or AgentX
       const userData = getUserLocalData()
       let isSub = false
+      let isAgentXUser = false
       if (userData?.user) {
         const userRole = userData.user.userRole || userData.userRole
         isSub = userRole === 'AgencySubAccount'
+        isAgentXUser = userRole === 'AgentX'
         setIsSubaccount(isSub)
+        setIsAgentX(isAgentXUser)
       }
       
       // Reset agency Mailgun check
@@ -69,25 +73,31 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
 
   // When switching to custom tab, check for existing pending domain
   useEffect(() => {
-    if (activeTab === 'custom' && isSubaccount && !createdDomainIntegration) {
-      const pendingSubaccountDomain = allMailgunIntegrations.find(
+    if (activeTab === 'custom' && (isSubaccount || isAgentX) && !createdDomainIntegration) {
+      const pendingDomain = allMailgunIntegrations.find(
         (integration) => 
-          integration.ownerType === 'subaccount' && 
+          ((integration.ownerType === 'subaccount' && isSubaccount) ||
+           (integration.ownerType === 'agentx' && isAgentX)) && 
           integration.verificationStatus !== 'verified'
       )
-      if (pendingSubaccountDomain) {
-        setCreatedDomainIntegration(pendingSubaccountDomain)
-        setCustomDomain(pendingSubaccountDomain.domain)
+      if (pendingDomain) {
+        setCreatedDomainIntegration(pendingDomain)
+        setCustomDomain(pendingDomain.domain)
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, isSubaccount, allMailgunIntegrations])
+  }, [activeTab, isSubaccount, isAgentX, allMailgunIntegrations])
 
   const fetchMailgunIntegrations = async () => {
     setFetchingIntegrations(true)
     try {
       const userData = getUserLocalData()
       const token = userData?.token
+
+      // Check user role directly from userData
+      const userRole = userData?.user?.userRole || userData?.userRole
+      const isSubaccountUser = userRole === 'AgencySubAccount'
+      const isAgentXUser = userRole === 'AgentX'
 
       const response = await axios.get(Apis.listMailgunIntegrations, {
         headers: {
@@ -100,7 +110,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
         const allIntegrations = response.data.data || []
         
         // For subaccounts, check if agency has Mailgun connected
-        if (isSubaccount) {
+        if (isSubaccountUser) {
           const agencyIntegrations = allIntegrations.filter(
             (integration) => integration.ownerType === 'agency' && 
                            integration.verificationStatus === 'verified' && 
@@ -111,9 +121,10 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
         
         // For first tab: Only show verified domains that can be used for email creation
         // For subaccounts: agency's verified domains + subaccount's own verified domains
+        // For AgentX: platform's verified domains + AgentX's own verified domains
         // For others: only verified and active domains
         let availableIntegrations
-        if (isSubaccount) {
+        if (isSubaccountUser) {
           // Subaccounts can see: agency's verified domains + their own verified domains
           availableIntegrations = allIntegrations.filter(
             (integration) => 
@@ -123,6 +134,18 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
                integration.isActive) ||
               // Or subaccount's own verified domains (only verified ones for email creation)
               (integration.ownerType === 'subaccount' && 
+               integration.verificationStatus === 'verified')
+          )
+        } else if (isAgentXUser) {
+          // AgentX users can see: platform's verified domains + their own verified domains
+          availableIntegrations = allIntegrations.filter(
+            (integration) => 
+              // Platform's verified domains
+              (integration.ownerType === 'platform' && 
+               integration.verificationStatus === 'verified' && 
+               integration.isActive) ||
+              // Or AgentX's own verified domains (only verified ones for email creation)
+              (integration.ownerType === 'agentx' && 
                integration.verificationStatus === 'verified')
           )
         } else {
@@ -142,17 +165,18 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
         // Store all integrations for later use
         setAllMailgunIntegrations(allIntegrations)
         
-        // For subaccounts, check if there's a pending domain they created
+        // For subaccounts and AgentX users, check if there's a pending domain they created
         // If so, set it as createdDomainIntegration so it shows in the "Setup Custom Domain" tab
-        if (isSubaccount && !createdDomainIntegration) {
-          const pendingSubaccountDomain = allIntegrations.find(
+        if ((isSubaccountUser || isAgentXUser) && !createdDomainIntegration) {
+          const pendingDomain = allIntegrations.find(
             (integration) => 
-              integration.ownerType === 'subaccount' && 
+              ((integration.ownerType === 'subaccount' && isSubaccountUser) ||
+               (integration.ownerType === 'agentx' && isAgentXUser)) && 
               integration.verificationStatus !== 'verified'
           )
-          if (pendingSubaccountDomain) {
-            setCreatedDomainIntegration(pendingSubaccountDomain)
-            setCustomDomain(pendingSubaccountDomain.domain)
+          if (pendingDomain) {
+            setCreatedDomainIntegration(pendingDomain)
+            setCustomDomain(pendingDomain.domain)
           }
         }
         
@@ -823,21 +847,23 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
                         </div>
                       </div>
 
-                      {isSubaccount ? (
-                        // Subaccount: Show domain management list
+                      {(isSubaccount || isAgentX) ? (
+                        // Subaccount or AgentX: Show domain management list
                         <>
                           {/* List of connected domains */}
                           {(() => {
-                            const subaccountDomains = allMailgunIntegrations.filter(
-                              (integration) => integration.ownerType === 'subaccount'
+                            const userDomains = allMailgunIntegrations.filter(
+                              (integration) => 
+                                (integration.ownerType === 'subaccount' && isSubaccount) ||
+                                (integration.ownerType === 'agentx' && isAgentX)
                             )
 
                             return (
                               <div className="space-y-4">
-                                {subaccountDomains.length > 0 ? (
+                                {userDomains.length > 0 ? (
                                   <>
                                     <div className="space-y-3">
-                                      {subaccountDomains.map((integration) => (
+                                      {userDomains.map((integration) => (
                                         <div
                                           key={integration.id}
                                           className="border border-gray-200 rounded-lg p-4 hover:border-purple-300 transition-colors"
@@ -914,7 +940,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
                                 {!createdDomainIntegration ? (
                                   <div className="border-t pt-4">
                                     <p className="text-sm font-medium text-gray-700 mb-3">
-                                      {subaccountDomains.length > 0 ? 'Connect Another Domain' : 'Connect Your Domain'}
+                                      {userDomains.length > 0 ? 'Connect Another Domain' : 'Connect Your Domain'}
                                     </p>
                                     <div>
                                       <Label htmlFor="customDomain" className="text-sm font-medium text-gray-700">
