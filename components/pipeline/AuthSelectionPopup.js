@@ -309,7 +309,7 @@ function AuthSelectionPopup({
                 <div className="flex flex-col gap-4 items-center">
                   <button
                     onClick={handleGmailConfirmationPopupOpen}
-                      className="disabled:opacity-60 rounded-full hover:opacity-80 transition-opacity"
+                    className="disabled:opacity-60 rounded-full hover:opacity-80 transition-opacity"
                   >
                     <Image
                       src={'/otherAssets/gmailIcon.png'}
@@ -354,26 +354,25 @@ function AuthSelectionPopup({
         onClose={() => setShowGmailConfirmationPopup(false)}
       >
         <Box className="w-full h-full py-4 flex items-center justify-center">
-          <div className="flex flex-col w-3/12  px-8 py-6 bg-white max-h-[70vh] rounded-2xl">
-            <div className="flex flex-row items-center justify-between w-full">
+          <div className="flex flex-col w-3/12  items-center px-4 py-6 bg-white max-h-[70vh] rounded-2xl">
+            <div className="flex flex-row items-center justify-between w-full mb-2">
               <div className="text-[18px] font-[700] ">
-
-
+                Gmail Alert
               </div>
               <CloseBtn onClick={() => setShowGmailConfirmationPopup(false)} />
             </div>
             <div className="flex flex-col gap-4 items-center">
               <div className="text-[15px] font-[400] mt-2">
-                Due to Gmail security, you'll be able to send gmails from here but you won't receive replies here on assignX. Instead, those replies will be sent to your Gmail inbox.
+                Due to Gmail security, you'll be able to send Gmails from here but you won't receive replies here on AssignX. Instead, those replies will be sent to your Gmail inbox.
 
               </div>
 
 
               <button className="bg-brand-primary text-white px-4 py-2 rounded-md w-7/12"
-              onClick={() => {
-                setShowGmailConfirmationPopup(false)
-                handleGoogleOAuthClick()
-              }}
+                onClick={() => {
+                  setShowGmailConfirmationPopup(false)
+                  handleGoogleOAuthClick()
+                }}
               >
                 Continue
               </button>

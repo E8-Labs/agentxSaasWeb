@@ -12,6 +12,7 @@ import { Plus, Trash2, Paperclip, X, Send } from 'lucide-react'
 import { CaretDown } from '@phosphor-icons/react'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 
 import RichTextEditor from '@/components/common/RichTextEditor'
 import ChipInput from '@/constants/ChipsInput'
@@ -57,8 +58,12 @@ function EmailTempletePopup({
   const richTextEditorRef = useRef(null)
   const emailDropdownRef = useRef(null)
   const attachmentInputRef = useRef(null)
-  const [selectedVariable, setSelectedVariable] = useState('')
-  const [selectedSubjectVariable, setSelectedSubjectVariable] = useState('')
+  const subjectVariablesDropdownRef = useRef(null)
+  const subjectVariablesButtonRef = useRef(null)
+  const variablesDropdownRef = useRef(null)
+  const [subjectVariablesDropdownOpen, setSubjectVariablesDropdownOpen] = useState(false)
+  const [variablesDropdownOpen, setVariablesDropdownOpen] = useState(false)
+  const [subjectDropdownPosition, setSubjectDropdownPosition] = useState({ top: 0, left: 0, width: 0 })
 
   // Removed console.logs that were causing re-renders on every click
 
@@ -108,6 +113,29 @@ function EmailTempletePopup({
   const [shouldUpdate, setShouldUpdate] = useState(false)
 
   const [IsdefaultCadence, setIsdefaultCadence] = useState(null)
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (emailDropdownRef.current && !emailDropdownRef.current.contains(event.target)) {
+        setEmailDropdownOpen(false)
+      }
+      if (subjectVariablesDropdownOpen) {
+        const isClickInsideButton = subjectVariablesButtonRef.current?.contains(event.target)
+        // Check if click is inside the portal dropdown (it's rendered in document.body)
+        const portalDropdown = document.querySelector('.subject-variables-dropdown')
+        const isClickInsideDropdown = portalDropdown?.contains(event.target)
+        if (!isClickInsideButton && !isClickInsideDropdown) {
+          setSubjectVariablesDropdownOpen(false)
+        }
+      }
+      if (variablesDropdownRef.current && !variablesDropdownRef.current.contains(event.target)) {
+        setVariablesDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [subjectVariablesDropdownOpen])
 
   useEffect(() => {
     getColumns()
@@ -1601,7 +1629,7 @@ function EmailTempletePopup({
               {/* Subject Field */}
               <div className="space-y-2">
                 <div
-                  className="flex items-center border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary bg-white transition-colors overflow-hidden group/subject-field"
+                  className="flex items-center border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary bg-white transition-colors overflow-visible group/subject-field"
                   id="subject-field-group"
                 >
                   {/* Subject Input Section */}
@@ -1629,73 +1657,62 @@ function EmailTempletePopup({
                   )}
                   {/* Variables dropdown for subject */}
                   {uniqueColumns && uniqueColumns.length > 0 && (
-                    <FormControl size="small" sx={{ minWidth: 150, height: '42px' }}>
-                      <Select
-                        value={selectedSubjectVariable}
-                        onChange={(e) => {
-                          const value = e.target.value
-                          setSelectedSubjectVariable('')
-                          if (value) {
-                            const variableText = value.startsWith('{') && value.endsWith('}')
-                              ? value
-                              : `{${value}}`
-                            setSubject((prev) => prev + variableText)
-                            setSubjectChanged(true)
+                    <div className="relative flex-shrink-0" ref={subjectVariablesDropdownRef}>
+                      <button
+                        ref={subjectVariablesButtonRef}
+                        type="button"
+                        onClick={() => {
+                          if (subjectVariablesButtonRef.current) {
+                            const rect = subjectVariablesButtonRef.current.getBoundingClientRect()
+                            setSubjectDropdownPosition({
+                              top: rect.bottom + window.scrollY + 4,
+                              left: rect.right + window.scrollX - 200, // 200px is min-w-[200px]
+                              width: 200,
+                            })
                           }
+                          setSubjectVariablesDropdownOpen(!subjectVariablesDropdownOpen)
                         }}
-                        displayEmpty
-                        sx={{
-                          fontSize: '0.875rem',
-                          height: '42px',
-                          borderRadius: '0',
-                          border: 'none',
-                          '& .MuiOutlinedInput-notchedOutline': {
-                            border: 'none',
-                          },
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
-                            border: 'none',
-                          },
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                            border: 'none',
-                          },
-                          '& .MuiSelect-select': {
-                            padding: '8px 12px',
-                            height: '42px',
-                            display: 'flex',
-                            alignItems: 'center',
-                          },
-                        }}
-                        MenuProps={{
-                          PaperProps: {
-                            style: {
-                              maxHeight: '30vh',
-                              overflow: 'auto',
-                              scrollbarWidth: 'none',
-                              zIndex: 1700,
-                            },
-                          },
-                          disablePortal: false,
-                          container: typeof document !== 'undefined' ? document.body : null,
-                          style: {
-                            zIndex: 1700,
-                          },
-                        }}
+                        className="px-3 w-32 flex items-center justify-between text-sm text-gray-700 hover:bg-gray-50 transition-colors h-[42px]"
                       >
-                        <MenuItem value="" disabled>
-                          <em>Variables</em>
-                        </MenuItem>
-                        {uniqueColumns.map((variable, index) => {
-                          const displayText = variable.startsWith('{') && variable.endsWith('}')
-                            ? variable
-                            : `{${variable}}`
-                          return (
-                            <MenuItem key={index} value={variable}>
-                              {displayText}
-                            </MenuItem>
-                          )
-                        })}
-                      </Select>
-                    </FormControl>
+                        <span>Variables</span>
+                        <CaretDown size={16} className={`text-gray-400 transition-transform ${subjectVariablesDropdownOpen ? 'rotate-180' : ''}`} />
+                      </button>
+                      {subjectVariablesDropdownOpen && typeof window !== 'undefined' && createPortal(
+                        <div 
+                          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto min-w-[200px] subject-variables-dropdown" 
+                          style={{ 
+                            zIndex: 1700,
+                            top: `${subjectDropdownPosition.top}px`,
+                            left: `${subjectDropdownPosition.left}px`,
+                            width: `${subjectDropdownPosition.width}px`,
+                          }}
+                        >
+                          {uniqueColumns.map((variable, index) => {
+                            const displayText = variable.startsWith('{') && variable.endsWith('}')
+                              ? variable
+                              : `{${variable}}`
+                            return (
+                              <button
+                                key={index}
+                                type="button"
+                                onClick={() => {
+                                  const variableText = variable.startsWith('{') && variable.endsWith('}')
+                                    ? variable
+                                    : `{${variable}}`
+                                  setSubject((prev) => prev + variableText)
+                                  setSubjectChanged(true)
+                                  setSubjectVariablesDropdownOpen(false)
+                                }}
+                                className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors text-gray-700"
+                              >
+                                {displayText}
+                              </button>
+                            )
+                          })}
+                        </div>,
+                        document.body
+                      )}
+                    </div>
                   )}
                 </div>
               </div>
@@ -1766,69 +1783,40 @@ function EmailTempletePopup({
                         }
                         customToolbarElement={
                           uniqueColumns && uniqueColumns.length > 0 ? (
-                            <FormControl size="small" sx={{ minWidth: 150 }}>
-                              <Select
-                                value={selectedVariable}
-                                onChange={(e) => {
-                                  const value = e.target.value
-                                  setSelectedVariable('')
-                                  if (value && richTextEditorRef.current) {
-                                    richTextEditorRef.current.insertVariable(value)
-                                  }
-                                }}
-                                displayEmpty
-                                sx={{
-                                  fontSize: '0.875rem',
-                                  height: '32px',
-                                  backgroundColor: 'white',
-                                  '& .MuiOutlinedInput-notchedOutline': {
-                                    border: 'none',
-                                    borderWidth: '0',
-                                  },
-                                  '&:hover .MuiOutlinedInput-notchedOutline': {
-                                    border: 'none',
-                                  },
-                                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                    border: 'none',
-                                  },
-                                  '& .MuiSelect-select': {
-                                    padding: '6px 12px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    height: 'auto',
-                                  },
-                                }}
-                                MenuProps={{
-                                  PaperProps: {
-                                    style: {
-                                      maxHeight: '30vh',
-                                      overflow: 'auto',
-                                      scrollbarWidth: 'none',
-                                      zIndex: 1700, // Higher than modal (1500) and backdrop
-                                    },
-                                  },
-                                  disablePortal: false,
-                                  container: typeof document !== 'undefined' ? document.body : null,
-                                  style: {
-                                    zIndex: 1700,
-                                  },
-                                }}
+                            <div className="relative" ref={variablesDropdownRef}>
+                              <button
+                                type="button"
+                                onClick={() => setVariablesDropdownOpen(!variablesDropdownOpen)}
+                                className="px-3 py-2 w-32 border-gray-200 border-l-[0.5px] border-gray-200 focus-within:ring-2 focus-within:ring-brand-primary focus-within:border-brand-primary flex items-center justify-between gap-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                               >
-                                <MenuItem value="" disabled>
-                                  <em>Variables</em>
-                                </MenuItem>
-                                {uniqueColumns.map((variable, index) => {
-                                  const displayText = variable.startsWith('{') && variable.endsWith('}')
-                                    ? variable
-                                    : `{${variable}}`
-                                  return (
-                                    <MenuItem key={index} value={variable}>
-                                      {displayText}
-                                    </MenuItem>
-                                  )
-                                })}
-                              </Select>
-                            </FormControl>
+                                <span>Variables</span>
+                                <CaretDown size={16} className={`text-gray-400 transition-transform ${variablesDropdownOpen ? 'rotate-180' : ''}`} />
+                              </button>
+                              {variablesDropdownOpen && (
+                                <div className="absolute bottom-full left-0 mb-2 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto min-w-[200px]" style={{ zIndex: 1700 }}>
+                                  {uniqueColumns.map((variable, index) => {
+                                    const displayText = variable.startsWith('{') && variable.endsWith('}')
+                                      ? variable
+                                      : `{${variable}}`
+                                    return (
+                                      <button
+                                        key={index}
+                                        type="button"
+                                        onClick={() => {
+                                          if (richTextEditorRef.current) {
+                                            richTextEditorRef.current.insertVariable(variable)
+                                          }
+                                          setVariablesDropdownOpen(false)
+                                        }}
+                                        className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors text-gray-700"
+                                      >
+                                        {displayText}
+                                      </button>
+                                    )
+                                  })}
+                                </div>
+                              )}
+                            </div>
                           ) : null
                         }
                       />

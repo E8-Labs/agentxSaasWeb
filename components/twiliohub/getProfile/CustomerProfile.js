@@ -68,7 +68,7 @@ const CustomerProfile = ({
     : getTutorialByType(HowToVideoTypes.TwilioTrustHub)
 
   const learnMoreCta = isFromAgency
-    ? 'Learn how to connect Twilio and use the video link shared with you.'
+    ? 'Learn how to connect Twilio'
     : 'Learn more about Twilio Trust Hub'
 
   const introVideoTitle =

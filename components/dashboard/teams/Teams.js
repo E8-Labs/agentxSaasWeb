@@ -684,7 +684,7 @@ function Teams({ agencyData, selectedAgency, from }) {
         <div className="flex flex-row items-center gap-3">
           <div style={{ fontSize: 24, fontWeight: '600' }}>Teams</div>
           {reduxUser?.planCapabilities?.allowTeamCollaboration &&
-            reduxUser?.plan.planId != null &&
+            reduxUser?.plan?.planId != null &&
             reduxUser?.planCapabilities?.maxTeamMembers < 1000 && (
               <div
                 style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
@@ -694,7 +694,7 @@ function Teams({ agencyData, selectedAgency, from }) {
             )}
 
           {reduxUser?.planCapabilities?.allowTeamCollaboration &&
-            reduxUser?.plan.planId != null &&
+            reduxUser?.plan?.planId != null &&
             reduxUser?.planCapabilities?.maxTeamMembers < 1000 && (
               <Tooltip
                 title={`Additional team seats are $${reduxUser?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { X, Check, AlertCircle, Copy, ExternalLink, CheckCircle2, Clock } from 'lucide-react'
+import { X, Check, AlertCircle, Copy, ExternalLink, CheckCircle2, Clock, Play } from 'lucide-react'
 import axios from 'axios'
 import { toast } from 'sonner'
 import Apis from '@/components/apis/Apis'
@@ -126,6 +126,11 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
     toast.success('Copied to clipboard')
   }
 
+  const handleLearnMore = () => {
+    // Open Mailgun documentation in a new tab
+    // window.open('https://documentation.mailgun.com/en/latest/user_manual.html#adding-sending-domains', '_blank', 'noopener,noreferrer')
+  }
+
   if (!open) return null
 
   const modalContent = (
@@ -164,6 +169,19 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
         <div className="p-6" style={{ pointerEvents: 'auto' }}>
           {step === 1 && (
             <div className="space-y-4" style={{ pointerEvents: 'auto' }}>
+              <div className="flex items-center justify-between mb-2">
+                <div></div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleLearnMore}
+                  className="flex items-center gap-2 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                  style={{ pointerEvents: 'auto' }}
+                >
+                  <Play size={16} className="fill-blue-600" />
+                  <span>Learn how to connect your Mailgun</span>
+                </Button>
+              </div>
               <div style={{ pointerEvents: 'auto' }}>
                 <Label htmlFor="domain">Domain</Label>
                 <Input
@@ -312,13 +330,13 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
                             </td>
                             <td className="py-3 px-4">
                               <div className="flex items-center gap-2">
-                                <span className="text-sm font-mono text-gray-900 break-all max-w-md">
-                                  {recordValue || '-'}
+                                <span className="text-sm font-mono text-gray-900 whitespace-nowrap">
+                                  {recordValue.slice(0, 20) || '-'}
                                 </span>
                                 {recordValue && (
                                   <button
                                     onClick={() => copyToClipboard(recordValue)}
-                                    className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-100 rounded transition-colors"
+                                    className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
                                     title="Copy to clipboard"
                                   >
                                     <Copy size={14} />

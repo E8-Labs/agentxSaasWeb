@@ -547,7 +547,7 @@ function AdminTeam({ selectedUser, agencyUser }) {
         <div className="flex flex-row items-center gap-3">
           <div style={{ fontSize: 24, fontWeight: '600' }}>Teams</div>
           {selectedUserDetails?.planCapabilities?.allowTeamCollaboration &&
-            selectedUserDetails?.plan.planId != null &&
+            selectedUserDetails?.plan?.planId != null &&
             selectedUserDetails?.planCapabilities?.maxTeamMembers < 1000 && (
               <div
                 style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
@@ -557,7 +557,7 @@ function AdminTeam({ selectedUser, agencyUser }) {
             )}
 
           {selectedUserDetails?.planCapabilities?.allowTeamCollaboration &&
-            selectedUserDetails?.plan.planId != null &&
+            selectedUserDetails?.plan?.planId != null &&
             selectedUserDetails?.planCapabilities?.maxTeamMembers < 1000 && (
               <Tooltip
                 title={`Additional team seats are $${selectedUserDetails?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}
