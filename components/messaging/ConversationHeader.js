@@ -6,7 +6,8 @@ import { CircularProgress } from '@mui/material'
 import Apis from '@/components/apis/Apis'
 import SelectStageDropdown from '@/components/dashboard/leads/StageSelectDropdown'
 // import AssignDropdownCn from '@/components/dashboard/leads/extras/AssignDropdownCn'
-import MultiSelectDropdownCn from '@/components/dashboard/leads/extras/MultiSelectDropdownCn'
+// import MultiSelectDropdownCn from '@/components/dashboard/leads/extras/MultiSelectDropdownCn'
+import TeamAssignDropdownCn from '@/components/dashboard/leads/extras/TeamAssignDropdownCn'
 import { AssignTeamMember, UnassignTeamMember } from '@/components/onboarding/services/apisServices/ApiService'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import { useRouter } from 'next/navigation'
@@ -23,6 +24,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
     const [stagesListLoader, setStagesListLoader] = useState(false)
     const [updateLeadLoader, setUpdateLeadLoader] = useState(false)
     const [pipelineId, setPipelineId] = useState(null)
+    const [pipelineTitle, setPipelineTitle] = useState(null)
 
     // Team management state
     const [myTeam, setMyTeam] = useState([])
@@ -30,6 +32,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
     const [getTeamLoader, setGetTeamLoader] = useState(false)
     const [leadDetails, setLeadDetails] = useState(null)
     const [globalLoader, setGlobalLoader] = useState(false)
+    const [assignmentRefreshKey, setAssignmentRefreshKey] = useState(0)
 
     // Agents state
     const [agentsList, setAgentsList] = useState([])
@@ -56,7 +59,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
     }
 
     // Function to get the lead details (same as LeadDetails.js)
-    const getLeadDetails = async (selectedLead) => {
+    const getLeadDetails = async (selectedLead, retryCount = 0) => {
         try {
             let AuthToken = null
             const localDetails = localStorage.getItem('User')
@@ -66,7 +69,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             }
 
             const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedLead}`
-            console.log('🔍 [ConversationHeader] Fetching lead details, API path:', ApiPath)
+            console.log('🔍 [ConversationHeader] Fetching lead details, API path:', ApiPath, 'retry:', retryCount)
 
             const response = await axios.get(ApiPath, {
                 headers: {
@@ -83,23 +86,38 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                     teamsAssignedStructure: response.data.data.teamsAssigned?.map(t => ({
                         id: t.id,
                         invitedUserId: t.invitedUserId,
-                        invitedUser: t.invitedUser,
+                        invitedUser_id: t.invitedUser?.id,
+                        invitedUser_name: t.invitedUser?.name,
                         name: t.name || t.invitedUser?.name,
+                        fullObject: t, // Log full object for debugging
                     })),
                 })
+                console.log('🔍 [ConversationHeader] Full teamsAssigned array:', JSON.stringify(response.data.data.teamsAssigned, null, 2))
                 
                 setLeadDetails(response.data.data)
                 setSelectedStage(response.data.data?.stage?.stageTitle || '')
                 
                 if (response.data.data?.pipeline?.id) {
                     setPipelineId(response.data.data.pipeline.id)
+                    setPipelineTitle(response.data.data.pipeline.title || null)
                 } else if (response.data.data?.pipelineId) {
                     setPipelineId(response.data.data.pipelineId)
+                    setPipelineTitle(response.data.data.pipeline?.title || null)
+                } else {
+                    setPipelineTitle(null)
                 }
+                
+                return response.data.data
             }
         } catch (error) {
             console.error('❌ [ConversationHeader] Error fetching lead details:', error)
+            // Retry once if this is the first attempt
+            if (retryCount === 0) {
+                await new Promise(resolve => setTimeout(resolve, 200))
+                return getLeadDetails(selectedLead, 1)
+            }
         }
+        return null
     }
 
     // Fetch lead details when thread is selected (same pattern as LeadDetails.js)
@@ -108,6 +126,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             setLeadDetails(null)
             setSelectedStage('')
             setPipelineId(null)
+            setPipelineTitle(null)
             return
         }
 
@@ -309,38 +328,28 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             }
 
             console.log('🔵 [Assign] Team API Data:', ApiData)
+            console.log('🔵 [Assign] Item being assigned:', {
+                item: item,
+                itemId: item.id,
+                itemInvitedUserId: item.invitedUserId,
+                itemInvitedUser_id: item.invitedUser?.id,
+            })
 
             let response = await AssignTeamMember(ApiData)
             console.log('🔵 [Assign] Team assignment response:', response?.data)
+            console.log('🔵 [Assign] Response status:', response?.data?.status)
+            console.log('🔵 [Assign] Response message:', response?.data?.message)
 
             if (response && response.data && response.data.status === true) {
                 // Refresh lead details to get updated team assignments
                 if (selectedThread?.leadId) {
-                    const getLeadDetails = async () => {
-                        try {
-                            let AuthToken = null
-                            const localDetails = localStorage.getItem('User')
-                            if (localDetails) {
-                                const Data = JSON.parse(localDetails)
-                                AuthToken = Data.token
-                            }
-
-                            const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedThread.leadId}`
-                            const response = await axios.get(ApiPath, {
-                                headers: {
-                                    Authorization: 'Bearer ' + AuthToken,
-                                    'Content-Type': 'application/json',
-                                },
-                            })
-
-                            if (response && response.data && response.data.data) {
-                                setLeadDetails(response.data.data)
-                            }
-                        } catch (error) {
-                            console.error('Error refreshing lead details:', error)
-                        }
+                    // Add a small delay to ensure backend has processed the update
+                    await new Promise(resolve => setTimeout(resolve, 150))
+                    const updatedDetails = await getLeadDetails(selectedThread.leadId)
+                    // Force re-render by updating refresh key after state is updated
+                    if (updatedDetails) {
+                        setAssignmentRefreshKey(prev => prev + 1)
                     }
-                    getLeadDetails()
                 }
                 showSnackbar('Team member assigned successfully', SnackbarTypes.Success)
                 return true
@@ -370,31 +379,13 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             if (response && response.data && response.data.status === true) {
                 // Refresh lead details to get updated team assignments
                 if (selectedThread?.leadId) {
-                    const getLeadDetails = async () => {
-                        try {
-                            let AuthToken = null
-                            const localDetails = localStorage.getItem('User')
-                            if (localDetails) {
-                                const Data = JSON.parse(localDetails)
-                                AuthToken = Data.token
-                            }
-
-                            const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedThread.leadId}`
-                            const response = await axios.get(ApiPath, {
-                                headers: {
-                                    Authorization: 'Bearer ' + AuthToken,
-                                    'Content-Type': 'application/json',
-                                },
-                            })
-
-                            if (response && response.data && response.data.data) {
-                                setLeadDetails(response.data.data)
-                            }
-                        } catch (error) {
-                            console.error('Error refreshing lead details:', error)
-                        }
+                    // Add a small delay to ensure backend has processed the update
+                    await new Promise(resolve => setTimeout(resolve, 150))
+                    const updatedDetails = await getLeadDetails(selectedThread.leadId)
+                    // Force re-render by updating refresh key after state is updated
+                    if (updatedDetails) {
+                        setAssignmentRefreshKey(prev => prev + 1)
                     }
-                    getLeadDetails()
                 }
                 showSnackbar('Team member unassigned successfully', SnackbarTypes.Success)
             } else if (response && response.data && response.data.status === false) {
@@ -531,6 +522,71 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
         }))
     }, [leadDetails?.teamsAssigned])
 
+    // Memoize team member options for TeamAssignDropdownCn
+    const teamMemberOptions = useMemo(() => {
+        const options = [
+            ...(myTeamAdmin ? [myTeamAdmin] : []),
+            ...(myTeam || []),
+        ].map((tm) => {
+            // Get the team member ID - check all possible fields
+            // For myTeam items from TeamResource:
+            // - tm.id is the TeamModel id (NOT the user id) - like 90, 91, 92
+            // - tm.invitedUserId is the actual user ID - like 593, 594, 595
+            // - tm.invitedUser.id is also the actual user ID
+            // We need to use invitedUserId or invitedUser.id, NOT tm.id
+            const id = tm.invitedUserId || tm.invitedUser?.id || tm.id
+            
+            // Check if this team member is in the assigned teams
+            const isSelected = (leadDetails?.teamsAssigned || []).some(
+                (assigned) => {
+                    // Check all possible ID fields in the assigned team member
+                    const assignedId = assigned.id || assigned.invitedUserId || assigned.invitedUser?.id
+                    
+                    // Convert both to strings for comparison
+                    const matches = String(assignedId) === String(id)
+                    
+                    if (matches) {
+                        console.log('✅ [teamMemberOptions] Match found:', {
+                            teamMemberId: id,
+                            teamMemberName: tm.name || tm.invitedUser?.name,
+                            assignedId: assignedId,
+                            assignedName: assigned.name || assigned.invitedUser?.name,
+                        })
+                    }
+                    
+                    return matches
+                }
+            )
+            
+            return {
+                id,
+                label: tm.name || tm.invitedUser?.name || 'Unknown',
+                avatar: tm.thumb_profile_image || tm.invitedUser?.thumb_profile_image,
+                selected: isSelected,
+                raw: tm,
+            }
+        })
+        
+        // Log all options for debugging
+        console.log('🔍 [teamMemberOptions] Generated options:', {
+            totalOptions: options.length,
+            selectedCount: options.filter(o => o.selected).length,
+            options: options.map(o => ({
+                id: o.id,
+                label: o.label,
+                selected: o.selected,
+            })),
+            teamsAssignedFromAPI: leadDetails?.teamsAssigned?.map(t => ({
+                id: t.id,
+                invitedUserId: t.invitedUserId,
+                invitedUser_id: t.invitedUser?.id,
+                name: t.name || t.invitedUser?.name,
+            })),
+        })
+        
+        return options
+    }, [myTeamAdmin, myTeam, leadDetails?.teamsAssigned, assignmentRefreshKey])
+
     return (
         <>
             <AgentSelectSnackMessage
@@ -568,7 +624,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                         }
                     }}
                 >
-                    {selectedThread.lead?.firstName || selectedThread.lead?.name || 'Unknown Lead'}
+                    {selectedThread.lead?.firstName || 'Unknown Lead'}
                 </TypographyBody>
 
 
@@ -587,6 +643,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                                             handleStageChange={handleStageChange}
                                             stagesList={stagesList}
                                             updateLeadStage={updateLeadStage}
+                                            pipelineTitle={pipelineTitle}
                                         />
                                     )}
                                 </>
@@ -599,108 +656,24 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                 <div className="flex flex-row items-center gap-3">
                     
 
-                    {/* Assign Dropdown (Team Members - MultiSelect) */}
+                    {/* Assign Dropdown (Team Members - Radio Buttons) */}
                     {selectedThread.leadId && (
                         <div className="flex items-center gap-2">
                             {(getTeamLoader || agentsLoader || globalLoader) ? (
                                 <CircularProgress size={20} />
                             ) : (
-                                <>
-                                    <MultiSelectDropdownCn
-                                        label="Assign"
-                                        options={[
-                                            ...(myTeamAdmin ? [myTeamAdmin] : []),
-                                            ...(myTeam || []),
-                                        ].map((tm) => {
-                                            // Get the team member ID - check all possible fields
-                                            const id = tm.id || tm.invitedUserId || tm.invitedUser?.id
-                                            
-                                            // Check if this team member is in the assigned teams
-                                            const isSelected = (leadDetails?.teamsAssigned || []).some(
-                                                (assigned) => {
-                                                    // Check all possible ID fields in the assigned team member
-                                                    const assignedId = assigned.id || assigned.invitedUserId || assigned.invitedUser?.id
-                                                    
-                                                    // Convert both to strings for comparison
-                                                    const matches = String(assignedId) === String(id)
-                                                    
-                                                    return matches
-                                                }
-                                            )
-                                            
-                                            // Comprehensive debug logging
-                                            console.log('🔍 [MultiSelect] Team member mapping:', {
-                                                teamMember: {
-                                                    id: tm.id,
-                                                    invitedUserId: tm.invitedUserId,
-                                                    invitedUser_id: tm.invitedUser?.id,
-                                                    resolvedId: id,
-                                                    name: tm.name,
-                                                },
-                                                isSelected: isSelected,
-                                                teamsAssigned: leadDetails?.teamsAssigned?.map(t => ({
-                                                    id: t.id,
-                                                    invitedUserId: t.invitedUserId,
-                                                    invitedUser_id: t.invitedUser?.id,
-                                                    name: t.name,
-                                                })) || [],
-                                            })
-                                            
-                                            return {
-                                                id,
-                                                label: tm.name,
-                                                avatar: tm.thumb_profile_image,
-                                                selected: isSelected,
-                                                raw: tm,
-                                            }
-                                        })}
-                                        onToggle={(opt, checked) => {
-                                            if (checked) {
-                                                handleAssignLeadToTeammember(opt.raw || opt)
-                                            } else {
-                                                const userId = opt.id || opt.raw?.id || opt.raw?.invitedUserId
-                                                if (userId) {
-                                                    handleUnassignLeadFromTeammember(userId)
-                                                }
-                                            }
-                                        }}
-                                    />
-                                    
-                                    {/* Selected Team Members Container */}
-                                    {selectedTeamMembers.length > 0 && (
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                            {selectedTeamMembers.map((member) => (
-                                                <div
-                                                    key={member.id}
-                                                    className="flex items-center gap-1.5 px-2 py-1 bg-muted/50 rounded-md border border-muted/70"
-                                                >
-                                                    <Avatar className="h-5 w-5">
-                                                        {member.avatar ? (
-                                                            <AvatarImage src={member.avatar} alt={member.name} />
-                                                        ) : (
-                                                            <AvatarFallback className="text-xs">
-                                                                {member.name?.charAt(0)?.toUpperCase() || 'U'}
-                                                            </AvatarFallback>
-                                                        )}
-                                                    </Avatar>
-                                                    <span className="text-xs font-medium text-foreground whitespace-nowrap">
-                                                        {member.name}
-                                                    </span>
-                                                    <button
-                                                        onClick={(e) => {
-                                                            e.stopPropagation()
-                                                            handleUnassignLeadFromTeammember(member.id)
-                                                        }}
-                                                        className="ml-0.5 hover:bg-muted rounded-sm p-0.5 transition-colors"
-                                                        aria-label={`Remove ${member.name}`}
-                                                    >
-                                                        <X className="h-3 w-3 text-muted-foreground" />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </>
+                                <TeamAssignDropdownCn
+                                    key={`assign-${selectedThread.leadId}-${assignmentRefreshKey}-${leadDetails?.teamsAssigned?.length || 0}`}
+                                    label="Assign"
+                                    teamOptions={teamMemberOptions}
+                                    onToggle={async (teamId, team, shouldAssign) => {
+                                        if (shouldAssign) {
+                                            await handleAssignLeadToTeammember(team.raw || team)
+                                        } else {
+                                            await handleUnassignLeadFromTeammember(teamId)
+                                        }
+                                    }}
+                                />
                             )}
                         </div>
                     )}

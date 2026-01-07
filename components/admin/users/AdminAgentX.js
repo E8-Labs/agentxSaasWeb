@@ -2491,6 +2491,44 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     }
   }
 
+  // State to hold merged user data (selectedUser + localStorage updates)
+  const [mergedUser, setMergedUser] = useState(selectedUser)
+
+  // Update mergedUser when selectedUser changes
+  useEffect(() => {
+    setMergedUser(selectedUser)
+    
+    // Also check localStorage for updated data
+    try {
+      const storedSubAccount = localStorage.getItem('selectedSubAccount')
+      if (storedSubAccount) {
+        const parsedData = JSON.parse(storedSubAccount)
+        if (parsedData.id === selectedUser?.id) {
+          console.log('🔄 [ADMIN-AGENTX] Merging with updated user data from localStorage')
+          setMergedUser(parsedData)
+        }
+      }
+    } catch (error) {
+      console.error('Error reading selectedSubAccount from localStorage:', error)
+    }
+  }, [selectedUser])
+
+  // Listen for refreshSelectedUser event to update mergedUser
+  useEffect(() => {
+    const handleRefreshSelectedUser = (event) => {
+      const { userId, userData } = event.detail || {}
+      if (userId === selectedUser?.id && userData) {
+        console.log('🔄 [ADMIN-AGENTX] Refreshing mergedUser after plan subscription')
+        setMergedUser(userData)
+      }
+    }
+
+    window.addEventListener('refreshSelectedUser', handleRefreshSelectedUser)
+    return () => {
+      window.removeEventListener('refreshSelectedUser', handleRefreshSelectedUser)
+    }
+  }, [selectedUser])
+
   useEffect(() => {
     console.log('selectedUser in useEffect', selectedUser)
     getCalenders()
@@ -2734,9 +2772,11 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   //function to add new agent
   const handleAddNewAgent = (event) => {
     event.preventDefault()
-    console.log('selectedUser create agent', selectedUser)
+    // Use mergedUser which includes latest data from localStorage
+    const userToCheck = mergedUser || selectedUser
+    console.log('selectedUser create agent', userToCheck)
     
-    if (!selectedUser?.plan) {
+    if (!userToCheck?.plan) {
       console.log('User has no plan subscribed')
       setIsVisibleSnack2(true)
       setShowErrorSnack('User has no plan subscribed')
@@ -2744,15 +2784,15 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     }
 
     // Check agent limits before proceeding
-    const currentAgents = selectedUser?.currentUsage?.maxAgents || 0
-    const maxAgents = selectedUser?.planCapabilities?.maxAgents || 0
-    const isFreePlan = selectedUser?.plan === null || selectedUser?.plan?.price === 0
+    const currentAgents = userToCheck?.currentUsage?.maxAgents || 0
+    const maxAgents = userToCheck?.planCapabilities?.maxAgents || 0
+    const isFreePlan = userToCheck?.plan === null || userToCheck?.plan?.price === 0
 
     console.log('Agent limit check:', {
       currentAgents,
       maxAgents,
       isFreePlan,
-      planCapabilities: selectedUser?.planCapabilities,
+      planCapabilities: userToCheck?.planCapabilities,
     })
 
     // Check if user is on free plan and has reached their limit

@@ -81,7 +81,7 @@ const EmailBubble = ({
         ? 'text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
         : 'bg-gray-100 text-black rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
         }`}
-      style={isOutbound ? { backgroundColor: 'hsl(var(--brand-primary) / 0.7)' } : {}}
+      style={isOutbound ? { backgroundColor: 'hsl(var(--brand-primary))' } : {}}
     >
       {message.subject && (
         <div className="font-semibold mb-2 flex items-start">
@@ -525,7 +525,7 @@ const MessageBubble = ({ message, isOutbound, onAttachmentClick }) => (
         ? 'text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
         : 'bg-gray-100 text-black rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
         }`}
-      style={isOutbound ? { backgroundColor: 'hsl(var(--brand-primary) / 0.7)' } : {}}
+      style={isOutbound ? { backgroundColor: 'hsl(var(--brand-primary))' } : {}}
     >
       <div
         className={`prose prose-sm max-w-none break-words whitespace-pre-wrap ${isOutbound

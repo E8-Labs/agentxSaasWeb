@@ -98,7 +98,8 @@ import DeleteCallLogConfimation from './DeleteCallLogConfimation'
 import { useDispatch } from 'react-redux'
 import { openDialer } from '@/store/slices/dialerSlice'
 import DropdownCn from './DropdownCn'
-import MultiSelectDropdownCn from './MultiSelectDropdownCn'
+// import MultiSelectDropdownCn from './MultiSelectDropdownCn'
+import TeamAssignDropdownCn from './TeamAssignDropdownCn'
 import { InfoRow, TagPill } from './LeadDetailsCN'
 import TagManagerCn from './TagManagerCn'
 import { Button } from '@/components/ui/button'
@@ -355,6 +356,16 @@ const LeadDetails = ({
 
           if (response.data.status === true) {
             //console.log;
+            console.log('🔍 [LeadDetails] getMyteam response:', {
+              myTeam: response.data.data,
+              myTeamAdmin: response.data.admin,
+              myTeamStructure: response.data.data?.map(t => ({
+                id: t.id,
+                invitedUserId: t.invitedUserId,
+                invitedUser_id: t.invitedUser?.id,
+                name: t.name || t.invitedUser?.name,
+              })),
+            })
             setMyTeam(response.data.data)
             setMyTeamAdmin(response.data.admin)
           } else {
@@ -375,7 +386,13 @@ const LeadDetails = ({
       //console.log;
       handleClosePopup()
       setGlobalLoader(true)
-      console.log('Item passed is', item)
+      console.log('🔵 [LeadDetails] Item passed is', item)
+      console.log('🔵 [LeadDetails] Item details:', {
+        itemId: item.id,
+        itemInvitedUserId: item.invitedUserId,
+        itemInvitedUser_id: item.invitedUser?.id,
+        itemName: item.name,
+      })
       let ApiData = null
       if (item.invitedUserId) {
         ApiData = {
@@ -388,11 +405,14 @@ const LeadDetails = ({
           teamMemberUserId: item.id,
         }
       }
-      console.log('Api data to send in api is', ApiData)
+      console.log('🔵 [LeadDetails] Api data to send in api is', ApiData)
       // selectedLeadsDetails.id,
       //   item.invitingUserId
       // return;
       let response = await AssignTeamMember(ApiData)
+      console.log('🔵 [LeadDetails] Assignment response:', response?.data)
+      console.log('🔵 [LeadDetails] Response status:', response?.data?.status)
+      console.log('🔵 [LeadDetails] Response message:', response?.data?.message)
       if (response && response.data && response.data.status === true) {
         let updatedLead = null
         setSelectedLeadsDetails((prevData) => {
@@ -626,7 +646,20 @@ const LeadDetails = ({
         ]
         // setLeadColumns(response.data.columns);
         setSelectedLeadsDetails(response.data.data)
-        console.log('Lead details response', response.data.data)
+        console.log('🔍 [LeadDetails] Lead details response:', response.data.data)
+        console.log('🔍 [LeadDetails] Teams assigned count:', response.data.data?.teamsAssigned?.length || 0)
+        console.log('🔍 [LeadDetails] Teams assigned details:', {
+          teamsAssigned: response.data.data?.teamsAssigned,
+          teamsAssignedStructure: response.data.data?.teamsAssigned?.map(t => ({
+            id: t.id,
+            invitedUserId: t.invitedUserId,
+            invitedUser_id: t.invitedUser?.id,
+            invitedUser_name: t.invitedUser?.name,
+            name: t.name || t.invitedUser?.name,
+            fullObject: t, // Log full object for debugging
+          })),
+        })
+        console.log('🔍 [LeadDetails] Full teamsAssigned array:', JSON.stringify(response.data.data?.teamsAssigned, null, 2))
         setSelectedStage(response?.data?.data?.stage?.stageTitle)
         // setSelectedStage(response?.data?.data?.stage?.stageTitle);
         setLeadColumns(dynamicColumns)
@@ -1690,31 +1723,77 @@ const LeadDetails = ({
                                 <AvatarFallback>{selectedLeadsDetails?.assignee?.name?.[0] || 'A'}</AvatarFallback>
                             )}
                           </Avatar> */}
-                            <MultiSelectDropdownCn
+                            <TeamAssignDropdownCn
                               label="Assign"
-                              options={[
+                              teamOptions={[
                                 ...(myTeamAdmin ? [myTeamAdmin] : []),
                                 ...(myTeam || []),
                               ].map((tm) => {
-                                const id = tm.id || tm.invitedUserId
+                                // Get the team member ID - check all possible fields
+                                // For myTeam items from TeamResource:
+                                // - tm.id is the TeamModel id (NOT the user id)
+                                // - tm.invitedUserId is the actual user ID
+                                // - tm.invitedUser.id is also the actual user ID
+                                // We need to use invitedUserId or invitedUser.id, NOT tm.id
+                                const id = tm.invitedUserId || tm.invitedUser?.id || tm.id
+                                
+                                // Log the team member structure
+                                console.log('🔍 [LeadDetails] Processing team member:', {
+                                  tm: tm,
+                                  tmId: tm.id,
+                                  tmInvitedUserId: tm.invitedUserId,
+                                  tmInvitedUser_id: tm.invitedUser?.id,
+                                  finalId: id,
+                                  tmName: tm.name || tm.invitedUser?.name,
+                                })
+                                
                                 const isSelected = (selectedLeadsDetails?.teamsAssigned || []).some(
-                                  (assigned) =>
-                                    String(assigned.id || assigned.invitedUserId || assigned.invitedUser?.id) ===
-                                    String(id),
+                                  (assigned) => {
+                                    // Check all possible ID fields in the assigned team member
+                                    const assignedId = assigned.id || assigned.invitedUserId || assigned.invitedUser?.id
+                                    const matches = String(assignedId) === String(id)
+                                    
+                                    if (matches) {
+                                      console.log('✅ [LeadDetails] Match found:', {
+                                        teamMemberId: id,
+                                        teamMemberName: tm.name || tm.invitedUser?.name,
+                                        assignedId: assignedId,
+                                        assignedName: assigned.name || assigned.invitedUser?.name,
+                                        assignedFullObject: assigned,
+                                      })
+                                    }
+                                    
+                                    return matches
+                                  }
                                 )
+                                
+                                // Log for debugging
+                                if (selectedLeadsDetails?.teamsAssigned && selectedLeadsDetails.teamsAssigned.length > 0) {
+                                  console.log('🔍 [LeadDetails] Team member check:', {
+                                    teamMemberId: id,
+                                    teamMemberName: tm.name || tm.invitedUser?.name,
+                                    isSelected: isSelected,
+                                    teamsAssignedIds: selectedLeadsDetails.teamsAssigned.map(t => ({
+                                      id: t.id,
+                                      invitedUserId: t.invitedUserId,
+                                      invitedUser_id: t.invitedUser?.id,
+                                    })),
+                                  })
+                                }
+                                
                                 return {
                                   id,
-                                  label: tm.name,
-                                  avatar: tm.thumb_profile_image,
+                                  label: tm.name || tm.invitedUser?.name || 'Unknown',
+                                  avatar: tm.thumb_profile_image || tm.invitedUser?.thumb_profile_image,
                                   selected: isSelected,
                                   raw: tm,
                                 }
                               })}
-                              onToggle={(opt, checked) => {
-                                if (checked) {
-                                  handleAssignLeadToTeammember?.(opt.raw || opt)
+                              onToggle={(teamId, team, shouldAssign) => {
+                                if (shouldAssign) {
+                                  handleAssignLeadToTeammember?.(team.raw || team)
                                 } else {
-                                  handleUnassignLeadFromTeammember?.(opt.id)
+                                  handleUnassignLeadFromTeammember?.(teamId)
                                 }
                               }}
                             />

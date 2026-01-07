@@ -951,7 +951,7 @@ const AgencyAddCard = ({
                   href="#"
                   onClick={async (e) => {
                     e.preventDefault()
-                    const { termsUrl } = await getPolicyUrls()
+                    const { termsUrl } = await getPolicyUrls(selectedUser)
                     window.open(termsUrl, '_blank')
                   }}
                   className="text-brand-primary underline font-semibold"
@@ -1012,7 +1012,7 @@ const AgencyAddCard = ({
                 href="#"
                 onClick={async (e) => {
                   e.preventDefault()
-                  const { termsUrl } = await getPolicyUrls()
+                  const { termsUrl } = await getPolicyUrls(selectedUser)
                   window.open(termsUrl, '_blank')
                 }}
                 className="text-brand-primary underline font-semibold"
@@ -1551,7 +1551,7 @@ const AgencyAddCard = ({
                 href="#"
                 onClick={async (e) => {
                   e.preventDefault()
-                  const { termsUrl } = await getPolicyUrls()
+                  const { termsUrl } = await getPolicyUrls(selectedUser)
                   window.open(termsUrl, '_blank')
                 }}
                 style={{ textDecoration: 'underline', color: 'hsl(var(--brand-primary))', cursor: 'pointer' }} // Underline and color styling

@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { MessageSquare } from 'lucide-react'
+import { MessageSquare, AtSign } from 'lucide-react'
 
 import { NotificationTypes } from '@/constants/NotificationTypes'
 import { PersistanceKeys } from '@/constants/Constants'
@@ -380,6 +380,8 @@ function NotficationsDrawer({ close }) {
       return renderBrandedIcon('/svgIcons/resume.svg', 22, 22)
     } else if (item.type === NotificationTypes.LeadReplied) {
       return renderBrandedLucideIcon(MessageSquare, 22)
+    } else if (item.type === NotificationTypes.TeamMemberMentioned) {
+      return renderBrandedLucideIcon(AtSign, 22)
     }
 
     //2Listings
@@ -641,8 +643,11 @@ function NotficationsDrawer({ close }) {
   }
 
   const handleNotificationClick = (item) => {
-    // Handle LeadReplied notification click - route to messaging page
-    if (item.type === NotificationTypes.LeadReplied) {
+    // Handle LeadReplied and TeamMemberMentioned notification click - route to messaging page
+    if (
+      item.type === NotificationTypes.LeadReplied ||
+      item.type === NotificationTypes.TeamMemberMentioned
+    ) {
       if (item.threadId) {
         // Build query params for thread and message
         const params = new URLSearchParams()
@@ -663,7 +668,9 @@ function NotficationsDrawer({ close }) {
   }
 
   const renderItem = (item, index) => {
-    const isClickable = item.type === NotificationTypes.LeadReplied && item.threadId
+    const isClickable = 
+      (item.type === NotificationTypes.LeadReplied || item.type === NotificationTypes.TeamMemberMentioned) && 
+      item.threadId
     
     return (
       <div

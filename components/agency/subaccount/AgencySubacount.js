@@ -7,6 +7,7 @@ import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
 import SelectedUserDetails from '@/components/admin/users/SelectedUserDetails'
+import AdminGetProfileDetails from '@/components/admin/AdminGetProfileDetails'
 import LoaderAnimation from '@/components/animations/LoaderAnimation'
 import Apis from '@/components/apis/Apis'
 import getProfileDetails from '@/components/apis/GetProfile'
@@ -129,6 +130,66 @@ function AgencySubacount({ selectedAgency }) {
     getSubAccounts()
     fetchPlans()
   }, [])
+
+  // Listen for refreshSelectedUser event to update selectedUser after plan subscription
+  useEffect(() => {
+    const handleRefreshSelectedUser = async (event) => {
+      const { userId, userData } = event.detail || {}
+      
+      // Check if this event is for any user in our subaccount list (not just selectedUser)
+      const targetUserId = userId || userData?.id
+      if (!targetUserId) return
+      
+      // Find the user in our list
+      const userInList = subAccountList.find((user) => user.id === targetUserId)
+      if (!userInList) return
+      
+      console.log('🔄 [AGENCY-SUBACCOUNT] Refreshing subaccount after plan subscription:', targetUserId)
+      
+      // If userData is provided, use it directly
+      let refreshedData = userData
+      
+      // Otherwise, fetch fresh data
+      if (!refreshedData) {
+        try {
+          refreshedData = await AdminGetProfileDetails(targetUserId)
+        } catch (error) {
+          console.error('Error refreshing subaccount profile:', error)
+          return
+        }
+      }
+      
+      if (refreshedData) {
+        // Update selectedUser if it matches
+        if (selectedUser && selectedUser.id === targetUserId) {
+          setSelectedUser(refreshedData)
+        }
+        
+        // Update the user in both lists
+        setSubAccountsList((prevList) => {
+          return prevList.map((user) => 
+            user.id === targetUserId ? { ...user, ...refreshedData, plan: refreshedData.plan } : user
+          )
+        })
+        setFilteredList((prevList) => {
+          return prevList.map((user) => 
+            user.id === targetUserId ? { ...user, ...refreshedData, plan: refreshedData.plan } : user
+          )
+        })
+        
+        // Store in localStorage for other screens
+        localStorage.setItem('selectedSubAccount', JSON.stringify(refreshedData))
+        
+        console.log('✅ [AGENCY-SUBACCOUNT] Subaccount updated in list:', refreshedData.plan)
+      }
+    }
+
+    window.addEventListener('refreshSelectedUser', handleRefreshSelectedUser)
+
+    return () => {
+      window.removeEventListener('refreshSelectedUser', handleRefreshSelectedUser)
+    }
+  }, [selectedUser, subAccountList])
 
   // Restore subaccount modal state when returning from pipeline update (only for admin/agency users)
   useEffect(() => {

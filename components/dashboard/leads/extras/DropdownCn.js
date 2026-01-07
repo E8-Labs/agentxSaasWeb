@@ -7,6 +7,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { cn } from '@/lib/utils'
@@ -17,7 +19,7 @@ import { cn } from '@/lib/utils'
  * chevronIcon: Optional custom icon component to replace the default ChevronDown
  * onChevronClick: Optional handler for when the chevron/icon is clicked (for split button behavior)
  */
-const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start', backgroundClassName, chevronIcon: ChevronIcon, onChevronClick }) => {
+const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start', backgroundClassName, chevronIcon: ChevronIcon, onChevronClick, title }) => {
   const [open, setOpen] = useState(false)
   const scrollContainerRef = useRef(null)
 
@@ -103,6 +105,14 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
           align={align}
           className="z-[2000] w-auto min-w-fit max-w-[20rem] border border-muted/70 bg-white text-foreground shadow-lg"
         >
+        {title && (
+          <>
+            <DropdownMenuLabel className="px-2 text-sm font-semibold text-muted-foreground">
+              {title}
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+          </>
+        )}
         {options.length ? (
           options.map((opt) => (
             <DropdownMenuItem

@@ -1416,7 +1416,7 @@ const MessageComposer = ({
                         {showCC && (
                           <div className="flex items-start gap-2 flex-1 w-full">
                             <div className="flex border-[0.5px] px-3 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary  items-center gap-2 flex-1">
-                              <label className="text-sm font-medium whitespace-nowrap">Cc:</label>
+                              <label className="text-sm font-medium whitespace-nowrap text-[#737373]">Cc:</label>
                             <div className="relative flex-1 min-w-0">
                               {/* Tag Input Container */}
                               <div
@@ -1462,7 +1462,7 @@ const MessageComposer = ({
                         {showBCC && (
                           <div className="flex items-start gap-2 flex-1 w-full">
                             <div className="flex border-[0.5px] px-3 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary  items-center gap-2 flex-1">
-                              <label className="text-sm font-medium whitespace-nowrap">Bcc:</label>
+                              <label className="text-sm font-medium whitespace-nowrap text-[#737373]">Bcc:</label>
                               <div className="relative flex-1 min-w-0">
                                 {/* Tag Input Container */}
                                 <div

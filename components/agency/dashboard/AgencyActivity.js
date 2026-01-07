@@ -243,7 +243,10 @@ function AgencyActivity({ user, selectedAgency }) {
       <div
         className=" cursor-pointer grid gap-6 grid-cols-4 md:grid-cols-4 lg:grid-cols-4 px-8 rounded-lg w-[96%]"
         style={{
-          backgroundImage: "url('/daustatback.svg')",
+          backgroundImage:
+            process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
+              ? `linear-gradient(to bottom left, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`
+              : `radial-gradient(circle at top right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

@@ -262,7 +262,7 @@ const SmartRefillCard = ({
         className="ms-2 w-8/12 text-[13px] font-normal"
         style={{ color: isSubaccount ? textColor : '#fff' }}
       >
-        Refill AI credits when it runs low. Keeps your AI active. 12
+        Refill AI credits when it runs low. Keeps your AI active.
       </div>
     </div>
   )

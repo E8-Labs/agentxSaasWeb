@@ -65,4 +65,5 @@ export const NotificationTypes = {
   AutoMinuteTopupNotificaiton: 'AutoMinuteTopupNotificaiton',
   LeadReplied: 'LeadReplied', // When a lead replies to a message (push only, no email)
   SubaccountInvitation: 'SubaccountInvitation', // When an agency creates a subaccount and sends invitation email
+  TeamMemberMentioned: 'TeamMemberMentioned', // When a team member is mentioned in a comment
 }

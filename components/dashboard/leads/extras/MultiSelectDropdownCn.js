@@ -11,6 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { TypographyBody } from './TypographyCN'
 
 /**
  * Pill-shaped multi-select dropdown for assigning team members.
@@ -25,9 +26,11 @@ const MultiSelectDropdownCn = ({ label = 'Assign', options = [], onToggle }) => 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center rounded-xl border border-muted/70 bg-white px-4 py-2 text-base font-semibold shadow-sm focus:outline-none">
+        <button className="flex items-center rounded-xl border border-muted/70 bg-white px-4 py-2 text-base font-regular shadow-sm focus:outline-none">
           <Users className="mr-2 h-4 w-4" />
+          <TypographyBody>
           <span>{label}</span>
+          </TypographyBody>
           {selectedCount ? (
             <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-foreground">
               {selectedCount}
@@ -39,10 +42,10 @@ const MultiSelectDropdownCn = ({ label = 'Assign', options = [], onToggle }) => 
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="z-[2000] w-64 border border-muted/70 bg-white text-foreground shadow-lg px-1"
+        className="z-[2000] w-64 border border-muted/70 bg-white text-foreground shadow-lg px-1 max-h-[300px] overflow-y-auto"
       >
         <DropdownMenuLabel className="px-2 text-sm font-semibold text-muted-foreground">
-          Assign team members
+          Assign agents
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         {options.length ? (
@@ -69,7 +72,7 @@ const MultiSelectDropdownCn = ({ label = 'Assign', options = [], onToggle }) => 
             </DropdownMenuCheckboxItem>
           ))
         ) : (
-          <div className="px-2 py-1.5 text-sm text-muted-foreground">No team members</div>
+          <div className="px-2 py-1.5 text-sm text-muted-foreground">No agents</div>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

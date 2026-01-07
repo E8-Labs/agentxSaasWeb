@@ -18,6 +18,7 @@ import { formatFractional2 } from '../agency/plan/AgencyUtilities'
 import LoaderAnimation from '../animations/LoaderAnimation'
 import Apis from '../apis/Apis'
 import getProfileDetails from '../apis/GetProfile'
+import AdminGetProfileDetails from '../admin/AdminGetProfileDetails'
 import AgencyAddCard from '../createagent/addpayment/AgencyAddCard'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
@@ -360,6 +361,30 @@ function UserPlans({
         console.log('Response of subscribe plan api is', response.data)
         if (response.data.status === true) {
           await refreshUserData()
+          
+          // If subscribing for a subaccount (agency/admin context), refresh the subaccount's profile
+          if (selectedUser && (isFrom === 'SubAccount' || reduxUser?.userRole === 'Agency')) {
+            try {
+              console.log('🔄 [USER-PLANS] Refreshing subaccount profile after plan subscription')
+              const refreshedUserData = await AdminGetProfileDetails(selectedUser.id)
+              
+              if (refreshedUserData) {
+                // Dispatch custom event to notify parent components
+                window.dispatchEvent(
+                  new CustomEvent('refreshSelectedUser', {
+                    detail: { userId: selectedUser.id, userData: refreshedUserData },
+                  }),
+                )
+                
+                // Store updated user data in localStorage for other screens
+                localStorage.setItem('selectedSubAccount', JSON.stringify(refreshedUserData))
+                
+                console.log('✅ [USER-PLANS] Subaccount profile refreshed and event dispatched')
+              }
+            } catch (error) {
+              console.error('Error refreshing subaccount profile after subscription:', error)
+            }
+          }
           
           // Close payment modal if it's open
           setAddPaymentPopUp(false)

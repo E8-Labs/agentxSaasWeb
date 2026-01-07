@@ -22,8 +22,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { Checkbox } from '@/components/ui/checkbox'
 import { cn } from '@/lib/utils'
-import Apis from '@/components/apis/Apis'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 import MultiSelectDropdownCn from '@/components/dashboard/leads/extras/MultiSelectDropdownCn'
 import CloseBtn from '../globalExtras/CloseBtn'
@@ -40,8 +40,9 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
   })
   const [selectedPipeline, setSelectedPipeline] = useState(null)
   const [selectedStage, setSelectedStage] = useState(null)
-  const [selectedAgentIds, setSelectedAgentIds] = useState([])
+  const [selectedAgents, setSelectedAgents] = useState([])
   const [selectedTeamMemberIds, setSelectedTeamMemberIds] = useState([])
+  const [createMessageThread, setCreateMessageThread] = useState(false)
 
   // Data state
   const [smartlists, setSmartlists] = useState([])
@@ -71,7 +72,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
       setFormData({ firstName: '', lastName: '', email: '', phone: '' })
       setSelectedPipeline(null)
       setSelectedStage(null)
-      setSelectedAgentIds([])
+      // setSelectedAgentIds([])
       setSelectedTeamMemberIds([])
       setStages([])
       setAgents([])
@@ -79,6 +80,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
       setCustomFields([])
       setCustomFieldValues({})
       setErrors({})
+      setCreateMessageThread(false)
     }
   }, [open])
 
@@ -97,7 +99,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
       fetchAgents(selectedPipeline.id)
     } else {
       setAgents([])
-      setSelectedAgentIds([])
+      setSelectedAgents([])
     }
   }, [open, selectedPipeline])
 
@@ -169,7 +171,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
       const userData = JSON.parse(localData)
       const token = userData.token
 
-      const response = await axios.get(`${Apis.getPipelines}?liteResource=true`, {
+      const response = await axios.get('/api/pipelines?liteResource=true', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -236,35 +238,57 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
       const userData = JSON.parse(localData)
       const token = userData.token
 
-      const response = await axios.get(
-        `${Apis.getAgents}?pipelineId=${pipelineId}&pipeline=true`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      )
+      // Fetch all agents (same as AssignLead.js)
+      const response = await axios.get('/api/agents', {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
 
       if (response.data?.status && response.data?.data) {
-        // Filter to only show outbound agents and flatten the structure
-        const outboundAgents = []
-        response.data.data.forEach((agent) => {
+        // Step 1: Filter to only agents that have a pipeline and stages (same as AssignLead.js)
+        const agentsWithPipeline = response.data.data.filter((agent) => {
+          return agent.pipeline != null && agent.stages && agent.stages.length > 0
+        })
+
+        // Step 2: Filter by selected pipeline ID
+        const agentsInPipeline = agentsWithPipeline.filter((agent) => {
+          return agent.pipeline?.id?.toString() === pipelineId?.toString()
+        })
+
+        // Step 3: Filter to only show outbound agents with valid phone numbers and flatten the structure
+        // Use a Map to deduplicate by mainAgentId - only keep one sub-agent per main agent
+        const outboundAgentsMap = new Map()
+        agentsInPipeline.forEach((agent) => {
           // Check if agent has sub-agents with outbound type
           if (agent.agents && agent.agents.length > 0) {
             agent.agents.forEach((subAgent) => {
-              if (subAgent.agentType === 'outbound') {
-                outboundAgents.push({
-                  id: subAgent.id,
-                  name: subAgent.name || agent.name,
-                  thumb_profile_image: subAgent.thumb_profile_image || agent.thumb_profile_image,
-                  raw: subAgent,
-                })
+              // Only include outbound agents with valid phone numbers
+              const hasValidPhoneNumber =
+                subAgent.phoneNumber &&
+                subAgent.phoneNumber.trim() !== '' &&
+                subAgent.phoneStatus !== 'inactive'
+              
+              if (subAgent.agentType === 'outbound' && hasValidPhoneNumber) {
+                // Store main agent ID (from agent.id or subAgent.mainAgentId) for pipeline assignment
+                const mainAgentId = agent.id || subAgent.mainAgentId
+                
+                // Only add if we haven't seen this mainAgentId before (deduplicate)
+                if (!outboundAgentsMap.has(mainAgentId)) {
+                  outboundAgentsMap.set(mainAgentId, {
+                    id: subAgent.id, // Sub-agent ID for display/selection
+                    mainAgentId: mainAgentId, // Main agent ID for pipeline assignment
+                    name: subAgent.name || agent.name,
+                    thumb_profile_image: subAgent.thumb_profile_image || agent.thumb_profile_image,
+                    raw: { ...subAgent, mainAgentId },
+                  })
+                }
               }
             })
           }
         })
-        setAgents(outboundAgents)
+        setAgents(Array.from(outboundAgentsMap.values()))
       }
     } catch (error) {
       console.error('Error fetching agents:', error)
@@ -312,7 +336,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
       const token = userData.token
 
       // Fetch smartlist details to get columns
-      const response = await axios.get(`${Apis.getSheets}?type=manual`, {
+      const response = await axios.get('/api/sheets?type=manual', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -402,8 +426,11 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
       }
 
       // Add agent assignments if selected
-      if (selectedAgentIds.length > 0) {
-        payload.mainAgentIds = selectedAgentIds.map((id) => id.toString())
+      // Extract mainAgentIds from selected agent objects and deduplicate
+      if (selectedAgents.length > 0) {
+        payload.mainAgentIds = [
+          ...new Set(selectedAgents.map((agent) => agent.mainAgentId.toString())),
+        ]
       }
 
       // Add team assignments if selected
@@ -415,7 +442,12 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
       payload.batchSize = 5
       payload.startTimeDifFromNow = 0
 
-      const response = await axios.post(Apis.createLead, payload, {
+      // Add createMessageThread parameter
+      if (createMessageThread) {
+        payload.createMessageThread = true
+      }
+
+      const response = await axios.post('/api/leads/create', payload, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -455,7 +487,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent
         side="right"
-        className="!w-[1000px] !max-w-[500px] sm:!max-w-[500px] p-0 flex flex-col"
+        className="!w-[1000px] !max-w-[500px] sm:!max-w-[500px] p-0 flex flex-col [&>button]:hidden"
         style={{
           marginTop: '12px',
           marginBottom: '12px',
@@ -686,63 +718,49 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
               {selectedPipeline && (
                 <div className="flex flex-col gap-1">
                   <Label className="text-sm text-gray-600">Assign to</Label>
-                  {loadingAgents || loadingTeamMembers ? (
+                  {loadingAgents ? (
                     <div className="px-2 py-1.5 text-sm text-gray-500">
                       Loading...
                     </div>
-                  ) : agents.length === 0 && teamMembers.length === 0 ? (
+                  ) : agents.length === 0 ? (
                     <div className="px-2 py-1.5 text-sm text-gray-500">
-                      No agents or team members available
+                      No agents available
                     </div>
                   ) : (
                     <MultiSelectDropdownCn
-                      label="Assign"
-                      options={[
-                        // Add agents with a type identifier
-                        ...agents.map((agent) => {
-                          const id = `agent_${agent.id}`
-                          const isSelected = selectedAgentIds.includes(agent.id)
-                          return {
-                            id,
-                            label: agent.name,
-                            avatar: agent.thumb_profile_image,
-                            selected: isSelected,
-                            raw: { ...agent, type: 'agent' },
-                          }
-                        }),
-                        // Add team members with a type identifier
-                        ...teamMembers.map((member) => {
-                          const id = member.id || member.invitedUserId
-                          const memberId = `member_${id}`
-                          const isSelected = selectedTeamMemberIds.includes(id)
-                          return {
-                            id: memberId,
-                            label: member.name,
-                            avatar: member.thumb_profile_image,
-                            selected: isSelected,
-                            raw: { ...member, type: 'member' },
-                          }
-                        }),
-                      ]}
+                      label="Select"
+                      options={agents.map((agent) => {
+                        const id = `agent_${agent.id}`
+                        // Check if this agent is selected by comparing mainAgentId
+                        const isSelected = selectedAgents.some(
+                          (selectedAgent) => selectedAgent.mainAgentId === agent.mainAgentId
+                        )
+                        return {
+                          id,
+                          label: agent.name,
+                          avatar: agent.thumb_profile_image,
+                          selected: isSelected,
+                          raw: { ...agent, type: 'agent' },
+                        }
+                      })}
                       onToggle={(opt, checked) => {
                         const raw = opt.raw
                         if (raw.type === 'agent') {
-                          // Handle agent selection
+                          // Handle agent selection - store complete agent object
                           if (checked) {
-                            setSelectedAgentIds((prev) => [...prev, raw.id])
+                            setSelectedAgents((prev) => {
+                              // Avoid duplicates by checking mainAgentId
+                              const exists = prev.some(
+                                (agent) => agent.mainAgentId === raw.mainAgentId
+                              )
+                              if (!exists) {
+                                return [...prev, raw]
+                              }
+                              return prev
+                            })
                           } else {
-                            setSelectedAgentIds((prev) =>
-                              prev.filter((id) => id !== raw.id)
-                            )
-                          }
-                        } else if (raw.type === 'member') {
-                          // Handle team member selection
-                          const memberId = raw.id || raw.invitedUserId
-                          if (checked) {
-                            setSelectedTeamMemberIds((prev) => [...prev, memberId])
-                          } else {
-                            setSelectedTeamMemberIds((prev) =>
-                              prev.filter((id) => id !== memberId)
+                            setSelectedAgents((prev) =>
+                              prev.filter((agent) => agent.mainAgentId !== raw.mainAgentId)
                             )
                           }
                         }
@@ -751,6 +769,23 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
                   )}
                 </div>
               )}
+
+              <Separator className="my-4" />
+
+              {/* Create Message Thread Checkbox */}
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="createMessageThread"
+                  checked={createMessageThread}
+                  onCheckedChange={(checked) => setCreateMessageThread(checked === true)}
+                />
+                <Label
+                  htmlFor="createMessageThread"
+                  className="text-sm text-gray-600 cursor-pointer"
+                >
+                  Create message thread for this contact
+                </Label>
+              </div>
 
             </div>
           )}

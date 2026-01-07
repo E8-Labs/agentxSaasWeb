@@ -1289,6 +1289,16 @@ function AdminBilling({ selectedUser, from }) {
           planPrice: plan?.price,
         })
 
+        // Dispatch custom event to notify parent components (like AgencySubacount) to refresh selectedUser
+        window.dispatchEvent(
+          new CustomEvent('refreshSelectedUser', {
+            detail: { userId: selectedUser.id, userData: profileData },
+          }),
+        )
+
+        // Store updated user data in localStorage for other screens to access
+        localStorage.setItem('selectedSubAccount', JSON.stringify(profileData))
+
         return true
       }
     } catch (error) {
