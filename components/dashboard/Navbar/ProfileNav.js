@@ -62,20 +62,20 @@ const ProfileNav = () => {
   const renderCount = useRef(0)
   const mountTime = useRef(Date.now())
   renderCount.current += 1
-  
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'Navbar/ProfileNav.js:60', message: 'ProfileNav mounted', data: { pathname: typeof window !== 'undefined' ? window.location.pathname : 'server', mountTime: mountTime.current, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'J' }) }).catch(() => { });
     }
   }, [])
-  
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'Navbar/ProfileNav.js:68', message: 'ProfileNav render', data: { renderCount: renderCount.current, pathname: typeof window !== 'undefined' ? window.location.pathname : 'server', timeSinceMount: Date.now() - mountTime.current, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'J' }) }).catch(() => { });
     }
   })
   // #endregion
-  
+
   // const [user, setUser] = useState(null)
 
   const { user: reduxUser, setUser: setReduxUser } = useUser();
@@ -83,7 +83,7 @@ const ProfileNav = () => {
   const [plans, setPlans] = useState([]);
   const router = useRouter();
   const pathname = usePathname();
-  
+
   // #region agent log
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -134,7 +134,7 @@ const ProfileNav = () => {
   const [socketStatus, setSocketStatus] = useState('disconnected'); // 'disconnected', 'connecting', 'connected'
   const [loading, setLoading] = useState(false);
   const [localUser, setLocalUser] = useState(null);
-  
+
   // Custom domain detection and branding
   const [isCustomDomain, setIsCustomDomain] = useState(false);
   const [agencyBranding, setAgencyBranding] = useState(null);
@@ -170,7 +170,7 @@ const ProfileNav = () => {
 
             const iconFilter = calculateIconFilter(primaryColor)
             document.documentElement.style.setProperty('--icon-filter', iconFilter)
-            
+
             // Add class to body for CSS-based icon filtering
             document.body.classList.add('custom-domain-branding')
           } catch (error) {
@@ -194,7 +194,7 @@ const ProfileNav = () => {
             document.documentElement.style.setProperty('--brand-primary', primaryHsl)
             const iconFilter = calculateIconFilter(primaryColor)
             document.documentElement.style.setProperty('--icon-filter', iconFilter)
-            
+
             // Ensure body has the class for CSS-based icon filtering
             if (!document.body.classList.contains('custom-domain-branding')) {
               document.body.classList.add('custom-domain-branding')
@@ -481,7 +481,7 @@ const ProfileNav = () => {
       const trialEnd = moment(userData?.nextChargeDate || new Date());
       const today = moment().startOf('day'); // Start of day for accurate day counting
       const trialEndStartOfDay = trialEnd.startOf('day');
-      
+
       // Calculate days remaining: trialEnd - today
       // This gives positive number when trial hasn't ended yet
       let daysLeft = trialEndStartOfDay.diff(today, "days");
@@ -767,17 +767,17 @@ const ProfileNav = () => {
       selected: "/svgIcons/selectedPiplineIcon.svg",
       uneselected: "/svgIcons/unSelectedPipelineIcon.svg",
     },
-    // Show Messages menu only if not production
-    ...(process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' ? [
-      {
-        id: 8,
-        name: "Messages",
-        isBeta: true,
-        href: "/dashboard/messages",
-        selected: "/messaging/icons_chat_menu.svg",
-        uneselected: "/messaging/icons_chat_menu.svg",
-      }
-    ] : []),
+
+
+    {
+      id: 8,
+      name: "Messages",
+      isBeta: true,
+      href: "/dashboard/messages",
+      selected: "/messaging/icons_chat_menu.svg",
+      uneselected: "/messaging/icons_chat_menu.svg",
+    }
+    ,
     {
       id: 5,
       name: "Activity",//"Call Log",
@@ -924,9 +924,9 @@ const ProfileNav = () => {
           }
           if (
             Data?.userRole === "AgencySubAccount" &&
-            (Data?.plan == null || (Data?.plan && Data?.plan?.status !== "active" ))
-              // ||
-              // (Data?.plan && isBalanceLow)) // TODO: @Arslan Please handle this condition properly
+            (Data?.plan == null || (Data?.plan && Data?.plan?.status !== "active"))
+            // ||
+            // (Data?.plan && isBalanceLow)) // TODO: @Arslan Please handle this condition properly
           ) {
             console.log("🔍 [getProfile] AgencySubAccount condition triggered", {
               userRole: Data?.userRole,
@@ -1277,7 +1277,7 @@ const ProfileNav = () => {
         let token = userData.token;
         console.log("token is", token);
 
-        const response = await axios.post(Apis.resumeSubscription,{}, {
+        const response = await axios.post(Apis.resumeSubscription, {}, {
           headers: {
             Authorization: "Bearer " + token,
             "Content-Type": "application/json",
@@ -1288,7 +1288,7 @@ const ProfileNav = () => {
           setSuccessSnack(response.data.message);
           await getProfile();
           setShowPlanPausedBar(false);
-          
+
           // Dispatch event to notify other components that subscription has been resumed
           window.dispatchEvent(
             new CustomEvent("subscriptionResumed", { detail: { update: true } })
@@ -1362,7 +1362,7 @@ const ProfileNav = () => {
                           handleSmartRefill();
                         }}
                       >
-                      {loading ? <CircularProgress size={20} /> :" Turn on Smart Refill "} <span className="text-black"> or </span>
+                        {loading ? <CircularProgress size={20} /> : " Turn on Smart Refill "} <span className="text-black"> or </span>
                       </span>)}  <span
                         className="text-brand-primary underline cursor-pointer"
                         onClick={() => {
@@ -1483,12 +1483,11 @@ const ProfileNav = () => {
                       style={
                         pathname === item.href
                           ? {
-                              '--icon-mask-image': `url(${
-                                pathname === item.href
-                                  ? item.selected
-                                  : item.uneselected
+                            '--icon-mask-image': `url(${pathname === item.href
+                                ? item.selected
+                                : item.uneselected
                               })`,
-                            }
+                          }
                           : {}
                       }
                     >

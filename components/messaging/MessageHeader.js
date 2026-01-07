@@ -9,8 +9,8 @@ function MessageHeader() {
         <div className='w-full p-4 border-b flex flex-row items-center justify-between'>
             <TypographyH3>Messages</TypographyH3>
             <div className='flex flex-row items-center justify-center gap-2'>
-                    <Image className='mb-1' src='/messaging/checkList.svg' alt='add'
-                        width={40} height={40} />
+                    {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && <Image className='mb-1' src='/messaging/checkList.svg' alt='add'
+                        width={40} height={40} /> }
 
                 <NotficationsDrawer/>
             </div>
