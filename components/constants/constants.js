@@ -387,11 +387,21 @@ export const UpgradeTag = ({
   
   return (
     <div
+      data-upgrade-clickable
       className={`flex flex-row items-center gap-1.5 p-2 rounded-lg text-[16px] cursor-pointer transition-colors ${className}`}
       style={{
         color: brandColor,
       }}
-      onClick={onClick}
+      onClick={(e) => {
+        e.stopPropagation()
+        if (onClick) {
+          onClick(e)
+        }
+      }}
+      onMouseDown={(e) => {
+        // Prevent dropdown from closing before click handler fires
+        e.stopPropagation()
+      }}
     >
       <div
         style={{
@@ -466,10 +476,13 @@ export const UpgradeTagWithModal = ({
   }
 
   // Handle external trigger to open modal
+  const prevExternalTriggerRef = React.useRef(false)
   React.useEffect(() => {
-    if (externalTrigger) {
+    // Only trigger if externalTrigger changed from false to true
+    if (externalTrigger && !prevExternalTriggerRef.current) {
       setShowUpgradeModal(true)
     }
+    prevExternalTriggerRef.current = externalTrigger
   }, [externalTrigger])
 
   const handleUpgradeClick = () => {
@@ -488,7 +501,7 @@ export const UpgradeTagWithModal = ({
   const handleModalClose = async (upgradeResult) => {
     setShowUpgradeModal(false)
 
-    // Call external callback if provided
+    // Call external callback if provided (this resets the external trigger)
     if (onModalClose) {
       onModalClose()
     }
@@ -525,7 +538,7 @@ export const UpgradeTagWithModal = ({
         setSelectedPlan={() => {
           console.log('setSelectedPlan is called')
         }}
-        selectedUser = {selectedUser}
+        selectedUser={selectedUser}
         from={from}
       />
     </>

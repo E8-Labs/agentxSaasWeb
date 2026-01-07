@@ -62,12 +62,12 @@ import {
 } from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 
 import Apis from '@/components/apis/Apis'
 import getProfileDetails from '@/components/apis/GetProfile'
 import { TranscriptViewer } from '@/components/calls/TranscriptViewer'
-import { UpgradeTagWithModal } from '@/components/constants/constants'
+import { UpgradeTagWithModal, UpgradeTag } from '@/components/constants/constants'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { AssignTeamMember, UnassignTeamMember } from '@/components/onboarding/services/apisServices/ApiService'
 import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
@@ -100,6 +100,7 @@ import { openDialer } from '@/store/slices/dialerSlice'
 import DropdownCn from './DropdownCn'
 // import MultiSelectDropdownCn from './MultiSelectDropdownCn'
 import TeamAssignDropdownCn from './TeamAssignDropdownCn'
+import { useUser } from '@/hooks/redux-hooks'
 import { InfoRow, TagPill } from './LeadDetailsCN'
 import TagManagerCn from './TagManagerCn'
 import { Button } from '@/components/ui/button'
@@ -267,6 +268,60 @@ const LeadDetails = ({
 
   // Redux dispatch for dialer
   const dispatch = useDispatch()
+  
+  // Get user data from Redux
+  const { user: reduxUser, setUser: setReduxUser } = useUser()
+  
+  // Check dialer capability based on user type
+  const checkDialerCapability = () => {
+    // For AgentX users (not subaccounts)
+    if (!reduxUser?.userRole || reduxUser.userRole !== 'AgencySubAccount') {
+      // Check planCapabilities.allowDialer
+      return {
+        hasAccess: reduxUser?.planCapabilities?.allowDialer === true,
+        showUpgrade: reduxUser?.planCapabilities?.allowDialer !== true,
+        showRequestFeature: false,
+      }
+    }
+    
+    // For subaccounts
+    // First check if parent agency has access
+    const agencyHasAccess = reduxUser?.agencyCapabilities?.allowDialer === true
+    
+    if (!agencyHasAccess) {
+      // Agency doesn't have access - show Request Feature
+      return {
+        hasAccess: false,
+        showUpgrade: false,
+        showRequestFeature: true,
+      }
+    }
+    
+    // Agency has access, check subaccount access
+    const subaccountHasAccess = reduxUser?.planCapabilities?.allowDialer === true
+    
+    return {
+      hasAccess: subaccountHasAccess,
+      showUpgrade: !subaccountHasAccess,
+      showRequestFeature: false,
+    }
+  }
+  
+  const dialerCapability = checkDialerCapability()
+  
+  // State to trigger upgrade modal externally (use counter to ensure it triggers even if already true)
+  const [triggerUpgradeModal, setTriggerUpgradeModal] = React.useState(0)
+  
+  // Handler to trigger upgrade modal
+  const handleUpgradeClick = React.useCallback(() => {
+    // Use counter to ensure modal opens even if state was already true
+    setTriggerUpgradeModal(prev => prev + 1)
+  }, [])
+  
+  // Handler to reset trigger after modal closes
+  const handleUpgradeModalClose = React.useCallback(() => {
+    setTriggerUpgradeModal(0)
+  }, [])
 
   useEffect(() => {
     const getData = async () => {
@@ -1599,15 +1654,40 @@ const LeadDetails = ({
                               {selectedLeadsDetails?.firstName}
                             </p>
                             {/* Send Action Dropdown Button */}
-                            <DropdownCn
-                              label="Send"
-                              options={[
-                                { label: 'Email', value: 'email', icon: Mail },
-                                { label: 'Call', value: 'call', icon: PhoneCall },
-                                { label: 'SMS', value: 'sms', icon: MessageSquareDot },
-                              ]}
-                              onSelect={handleSendAction}
-                            />
+                            <>
+                              <DropdownCn
+                                label="Send"
+                                options={[
+                                  { label: 'Email', value: 'email', icon: Mail },
+                                  {
+                                    label: 'Call',
+                                    value: 'call',
+                                    icon: PhoneCall,
+                                    upgradeTag: (dialerCapability.showUpgrade || dialerCapability.showRequestFeature) ? (
+                                      <UpgradeTag
+                                        onClick={handleUpgradeClick}
+                                        requestFeature={dialerCapability.showRequestFeature}
+                                      />
+                                    ) : null,
+                                    showUpgradeTag: dialerCapability.showUpgrade || dialerCapability.showRequestFeature,
+                                    disabled: !dialerCapability.hasAccess,
+                                    onUpgradeClick: handleUpgradeClick,
+                                  },
+                                  { label: 'SMS', value: 'sms', icon: MessageSquareDot },
+                                ]}
+                                onSelect={handleSendAction}
+                              />
+                              {/* Render upgrade modal outside dropdown to avoid re-render issues */}
+                              {(dialerCapability.showUpgrade || dialerCapability.showRequestFeature) && (
+                                <UpgradeTagWithModal
+                                  reduxUser={reduxUser}
+                                  setReduxUser={setReduxUser}
+                                  requestFeature={dialerCapability.showRequestFeature}
+                                  externalTrigger={triggerUpgradeModal > 0}
+                                  onModalClose={handleUpgradeModalClose}
+                                />
+                              )}
+                            </>
                           </div>
 
 
