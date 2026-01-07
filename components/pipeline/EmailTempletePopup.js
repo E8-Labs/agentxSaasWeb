@@ -1324,25 +1324,57 @@ function EmailTempletePopup({
                     )}
                   </div>
 
-                  <div className='flex flex-row w-full gap-2'>
+                  <div className='flex flex-row w-full gap-2 items-center'>
                     {/* CC and BCC on same line when both are shown */}
                   {showCC && (
-                    <div className="relative flex-1 min-w-0">
-                      {/* Tag Input Container */}
-                      <div
-                        className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
-                        style={{ height: '42px', minHeight: '42px', maxWidth: '100%' }}
-                        onClick={() => {
-                          // Focus the input when clicking the container
-                          const input = document.querySelector('#cc-input')
-                          if (input) input.focus()
-                        }}
-                      >
-                        <span className="text-sm text-gray-500 flex-shrink-0">Cc:</span>
-                        {/* Display CC Email Tags */}
-                        {ccEmails.length > 0 ? (
-                          <>
-                            {/* Search Input - Always visible for adding more */}
+                    <>
+                      <div className="relative flex-1 min-w-0">
+                        {/* Tag Input Container */}
+                        <div
+                          className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
+                          style={{ height: '42px', minHeight: '42px', maxWidth: '100%' }}
+                          onClick={() => {
+                            // Focus the input when clicking the container
+                            const input = document.querySelector('#cc-input')
+                            if (input) input.focus()
+                          }}
+                        >
+                          <span className="text-sm text-gray-500 flex-shrink-0">Cc:</span>
+                          {/* Display CC Email Tags */}
+                          {ccEmails.length > 0 ? (
+                            <>
+                              {/* Search Input - Always visible for adding more */}
+                              <input
+                                id="cc-input"
+                                type="text"
+                                value={ccEmailInput}
+                                onChange={handleCcInputChange}
+                                onKeyDown={handleCcInputKeyDown}
+                                onPaste={handleCcInputPaste}
+                                onBlur={handleCcInputBlur}
+                                placeholder=""
+                                className="flex-1 min-w-[80px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                                style={{
+                                  height: '100%',
+                                  lineHeight: '42px',
+                                  padding: 0,
+                                  verticalAlign: 'middle',
+                                  maxWidth: '100%'
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                              />
+                              <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
+                                <span className="text-sm text-gray-700 truncate max-w-[150px]">
+                                  {ccEmails[0]}
+                                </span>
+                                {ccEmails.length > 1 && (
+                                  <span className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0">
+                                    +{ccEmails.length - 1}
+                                  </span>
+                                )}
+                              </div>
+                            </>
+                          ) : (
                             <input
                               id="cc-input"
                               type="text"
@@ -1351,8 +1383,8 @@ function EmailTempletePopup({
                               onKeyDown={handleCcInputKeyDown}
                               onPaste={handleCcInputPaste}
                               onBlur={handleCcInputBlur}
-                              placeholder=""
-                              className="flex-1 min-w-[80px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                              placeholder="Add CC recipients"
+                              className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
                               style={{
                                 height: '100%',
                                 lineHeight: '42px',
@@ -1362,41 +1394,15 @@ function EmailTempletePopup({
                               }}
                               onClick={(e) => e.stopPropagation()}
                             />
-                            <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
-                              <span className="text-sm text-gray-700 truncate max-w-[150px]">
-                                {ccEmails[0]}
-                              </span>
-                              {ccEmails.length > 1 && (
-                                <span className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0">
-                                  +{ccEmails.length - 1}
-                                </span>
-                              )}
-                            </div>
-                          </>
-                        ) : (
-                          <input
-                            id="cc-input"
-                            type="text"
-                            value={ccEmailInput}
-                            onChange={handleCcInputChange}
-                            onKeyDown={handleCcInputKeyDown}
-                            onPaste={handleCcInputPaste}
-                            onBlur={handleCcInputBlur}
-                            placeholder="Add CC recipients"
-                            className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
-                            style={{
-                              height: '100%',
-                              lineHeight: '42px',
-                              padding: 0,
-                              verticalAlign: 'middle',
-                              maxWidth: '100%'
-                            }}
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        )}
-                        <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-1" />
+                          )}
+                          <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-1" />
+                        </div>
                       </div>
-                    </div>
+                      {/* Separator between CC and BCC */}
+                      {showBCC && (
+                        <div className="w-px h-[42px] bg-gray-300 flex-shrink-0"></div>
+                      )}
+                    </>
                   )}
                   {showBCC && (
                     <div className="relative flex-1 min-w-0">
@@ -1872,7 +1878,7 @@ function EmailTempletePopup({
                 {/* Attachment button - Only show for lead email */}
                 {isLeadEmail && (
                   <>
-                    <label className="cursor-pointer">
+                    {/* <label className="cursor-pointer">
                       <button
                         type="button"
                         className="p-2 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200 flex items-center justify-center"
@@ -1888,7 +1894,7 @@ function EmailTempletePopup({
                         className="hidden"
                         onChange={handleFileChange}
                       />
-                    </label>
+                    </label> */}
 
                     {/* Show attachment count if any */}
                     {attachments && attachments.length > 0 && (
