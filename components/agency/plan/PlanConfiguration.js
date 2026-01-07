@@ -168,6 +168,11 @@ export default function PlanConfiguration({
       stateKey: 'allowEmails',
     },
     {
+      label: 'Dialer',
+      tooltip: 'Enable dialer capabilities for agents. Allow making outbound calls and managing call campaigns.',
+      stateKey: 'allowDialer',
+    },
+    {
       label: 'Lead Scoring',
       tooltip:
         'Enable lead scoring to automatically rate and prioritize leads based on their behavior and engagement.',
@@ -210,6 +215,7 @@ export default function PlanConfiguration({
         voicemail: false,
         allowTextMessages: false,
         allowEmails: false,
+        allowDialer: false,
         twilio: false,
         sendText: false,
         allowTrial: false,
@@ -447,6 +453,10 @@ export default function PlanConfiguration({
           dynamicFeatures?.allowEmails ||
           dynamicFeatures?.allowEmailMessages ||
           false,
+        allowDialer:
+          dynamicFeatures?.allowDialer ||
+          dynamicFeatures?.allowDialerCapability ||
+          false,
         twilio: finalTwilioValue,
         sendText:
           dynamicFeatures?.sendText ||
@@ -581,6 +591,7 @@ export default function PlanConfiguration({
     formData.append('allowVoicemail', features.voicemail)
     formData.append('allowTextMessages', features.allowTextMessages)
     formData.append('allowEmails', features.allowEmails)
+    formData.append('allowDialer', features.allowDialer)
     formData.append('allowTwilio', features.twilio)
     formData.append('allowTrial', features.allowTrial)
     formData.append('allowLeadSource', features.allowLeadSource)
@@ -877,6 +888,10 @@ export default function PlanConfiguration({
         allowEmails:
           dynamicFeatures?.allowEmails ||
           dynamicFeatures?.allowEmailMessages ||
+          false,
+        allowDialer:
+          dynamicFeatures?.allowDialer ||
+          dynamicFeatures?.allowDialerCapability ||
           false,
         twilio: dynamicFeatures?.allowTwilioIntegration,
         allowTeamSeats: dynamicFeatures?.allowTeamCollaboration,

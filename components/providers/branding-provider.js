@@ -10,36 +10,85 @@ import { hexToHsl, calculateIconFilter } from '@/utilities/colorUtils'
  */
 export function BrandingProvider({ children }) {
   const [brandingLoaded, setBrandingLoaded] = useState(false)
-  
-  // #region agent log
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'providers/branding-provider.js:8', message: 'BrandingProvider mounted', data: { pathname: window.location.pathname, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run3', hypothesisId: 'I' }) }).catch(() => { });
-    }
-  }, [])
-  // #endregion
 
   useEffect(() => {
-    // Read branding from cookies client-side
-    const getBrandingFromCookie = () => {
+    
+    // Get branding from multiple sources (same as blocking script)
+    const getBranding = () => {
+      var branding = null;
+      
+      // 1. Try cookie first (set by middleware - most up-to-date)
       try {
         const cookies = document.cookie.split(';')
         const brandingCookie = cookies.find(c => c.trim().startsWith('agencyBranding='))
         
         if (brandingCookie) {
           const value = brandingCookie.split('=')[1]
-          const decoded = decodeURIComponent(value)
-          return JSON.parse(decoded)
+          // Cookie may be double-encoded, try decoding twice
+          let decoded = decodeURIComponent(value)
+          try {
+            branding = JSON.parse(decoded)
+          } catch (e) {
+            // If first decode fails, try decoding again (double-encoded)
+            try {
+              branding = JSON.parse(decodeURIComponent(decoded))
+            } catch (e2) {
+              console.error('[BrandingProvider] Error parsing double-encoded cookie:', e2)
+            }
+          }
         }
       } catch (e) {
         console.error('[BrandingProvider] Error reading branding cookie:', e)
       }
-      return null
+      
+      // 2. Try localStorage 'agencyBranding' key if cookie not found
+      if (!branding) {
+        try {
+          const storedBranding = localStorage.getItem('agencyBranding')
+          if (storedBranding) {
+            branding = JSON.parse(storedBranding)
+          }
+        } catch (e) {
+          // Ignore errors
+        }
+      }
+      
+      // 3. Try User object in localStorage if still not found
+      if (!branding) {
+        try {
+          const userData = localStorage.getItem('User')
+          if (userData) {
+            const parsedUser = JSON.parse(userData)
+            // Check multiple possible locations (no optional chaining for compatibility)
+            branding = 
+              (parsedUser && parsedUser.user && parsedUser.user.agencyBranding) ||
+              (parsedUser && parsedUser.agencyBranding) ||
+              (parsedUser && parsedUser.user && parsedUser.user.agency && parsedUser.user.agency.agencyBranding) ||
+              (parsedUser && parsedUser.agency && parsedUser.agency.agencyBranding)
+          }
+        } catch (e) {
+          // Ignore errors
+        }
+      }
+      
+      return branding
     }
 
     const applyBranding = (branding) => {
       if (!branding) {
-        // Use default colors (space-separated HSL format for CSS variables)
+        // Check if branding colors are already set (by blocking script)
+        // If they are, don't override with defaults
+        const currentPrimary = window.getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim()
+        const isDefaultPurple = currentPrimary === 'hsl(270, 91%, 65%)' || currentPrimary === '270 91% 65%' || currentPrimary === '270 75% 50%'
+        const isBrandingColor = currentPrimary && !isDefaultPurple && currentPrimary !== ''
+        
+        // If branding colors are already set (by blocking script), don't override
+        if (isBrandingColor) {
+          setBrandingLoaded(true)
+          return
+        }
+        
+        // Use default colors only if no branding colors are set
         const defaultPrimary = '270 75% 50%' // #7902DF
         const defaultSecondary = '258 60% 60%' // #8B5CF6
         
@@ -66,13 +115,13 @@ export function BrandingProvider({ children }) {
       setBrandingLoaded(true)
     }
 
-    // Apply branding immediately
-    const branding = getBrandingFromCookie()
+    // Apply branding immediately - check all sources
+    const branding = getBranding()
     applyBranding(branding)
 
     // Also listen for cookie changes (in case branding updates)
     const checkBranding = () => {
-      const newBranding = getBrandingFromCookie()
+      const newBranding = getBranding()
       if (newBranding) {
         applyBranding(newBranding)
       }

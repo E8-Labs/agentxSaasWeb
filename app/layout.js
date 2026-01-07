@@ -98,6 +98,215 @@ export default function RootLayout({ children }) {
             }
           ` }}
         />
+        
+        {/* Blocking script to apply branding immediately before React hydrates */}
+        {/* This prevents the purple flash on page refresh */}
+        <Script
+          id="apply-branding-immediate"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                // Function to apply branding
+                function applyBranding() {
+                  try {
+                  // Helper function to convert hex to HSL (space-separated format)
+                  function hexToHsl(hex) {
+                    if (!hex || typeof hex !== 'string') return '270 75% 50%';
+                    
+                    // Remove # if present
+                    let cleanHex = hex.replace('#', '');
+                    
+                    // Convert 3-digit hex to 6-digit
+                    if (cleanHex.length === 3) {
+                      cleanHex = cleanHex.split('').map(function(char) {
+                        return char + char;
+                      }).join('');
+                    }
+                    
+                    // Validate hex
+                    if (!/^[0-9A-Fa-f]{6}$/.test(cleanHex)) {
+                      return '270 75% 50%';
+                    }
+                    
+                    // Parse RGB values
+                    var r = parseInt(cleanHex.substring(0, 2), 16) / 255;
+                    var g = parseInt(cleanHex.substring(2, 4), 16) / 255;
+                    var b = parseInt(cleanHex.substring(4, 6), 16) / 255;
+                    
+                    // Find min and max
+                    var max = Math.max(r, g, b);
+                    var min = Math.min(r, g, b);
+                    var h, s, l;
+                    
+                    // Calculate lightness
+                    l = (max + min) / 2;
+                    
+                    // Calculate saturation
+                    if (max === min) {
+                      s = 0;
+                      h = 0;
+                    } else {
+                      var delta = max - min;
+                      s = l > 0.5 ? delta / (2 - max - min) : delta / (max + min);
+                      
+                      // Calculate hue
+                      if (max === r) {
+                        h = ((g - b) / delta + (g < b ? 6 : 0)) / 6;
+                      } else if (max === g) {
+                        h = ((b - r) / delta + 2) / 6;
+                      } else {
+                        h = ((r - g) / delta + 4) / 6;
+                      }
+                    }
+                    
+                    // Convert to degrees and percentages
+                    h = Math.round(h * 360);
+                    s = Math.round(s * 100);
+                    l = Math.round(l * 100);
+                    
+                    return h + ' ' + s + '% ' + l + '%';
+                  }
+                  
+                  // Helper function to calculate icon filter
+                  function calculateIconFilter(brandColorHex) {
+                    if (!brandColorHex) {
+                      return 'brightness(0) saturate(100%)';
+                    }
+                    
+                    var hsl = hexToHsl(brandColorHex);
+                    var parts = hsl.split(' ');
+                    var h = parseFloat(parts[0]);
+                    var s = parseFloat(parts[1].replace('%', ''));
+                    var l = parseFloat(parts[2].replace('%', ''));
+                    
+                    var defaultPurpleHue = 270;
+                    var hueDiff = h - defaultPurpleHue;
+                    
+                    // Normalize hue difference
+                    if (hueDiff > 180) hueDiff -= 360;
+                    if (hueDiff < -180) hueDiff += 360;
+                    
+                    var defaultPurpleLightness = 50;
+                    var lightnessDiff = l - defaultPurpleLightness;
+                    var brightnessAdjust = 1 + lightnessDiff / 100;
+                    
+                    return 'brightness(0) saturate(100%) hue-rotate(' + hueDiff + 'deg) brightness(' + brightnessAdjust + ')';
+                  }
+                  
+                  // Get branding from cookie (set by middleware)
+                  function getCookie(name) {
+                    var value = '; ' + document.cookie;
+                    var parts = value.split('; ' + name + '=');
+                    if (parts.length === 2) {
+                      return parts.pop().split(';').shift();
+                    }
+                    return null;
+                  }
+                  
+                  // Try to get branding from multiple sources (in order of priority)
+                  var branding = null;
+                  
+                  // 1. Try cookie first (set by middleware - most up-to-date)
+                  var brandingCookie = getCookie('agencyBranding');
+                  
+                  if (brandingCookie) {
+                    try {
+                      // Cookie may be double-encoded, try decoding twice
+                      var decoded = decodeURIComponent(brandingCookie);
+                      try {
+                        branding = JSON.parse(decoded);
+                      } catch (e) {
+                        // If first decode fails, try decoding again (double-encoded)
+                        branding = JSON.parse(decodeURIComponent(decoded));
+                      }
+                    } catch (e) {
+                      // Ignore parse errors
+                    }
+                  }
+                  
+                  // 2. Try localStorage 'agencyBranding' key
+                  if (!branding) {
+                    try {
+                      var storedBranding = localStorage.getItem('agencyBranding');
+                      if (storedBranding) {
+                        branding = JSON.parse(storedBranding);
+                      }
+                    } catch (e) {
+                      // Ignore errors
+                    }
+                  }
+                  
+                  // 3. Try User object in localStorage (check multiple possible paths)
+                  if (!branding) {
+                    try {
+                      var userData = localStorage.getItem('User');
+                      if (userData) {
+                        var parsedUser = JSON.parse(userData);
+                        // Check multiple possible locations in User object (no optional chaining for compatibility)
+                        branding = 
+                          (parsedUser && parsedUser.user && parsedUser.user.agencyBranding) ||
+                          (parsedUser && parsedUser.agencyBranding) ||
+                          (parsedUser && parsedUser.user && parsedUser.user.agency && parsedUser.user.agency.agencyBranding) ||
+                          (parsedUser && parsedUser.agency && parsedUser.agency.agencyBranding);
+                      }
+                    } catch (e) {
+                      // Ignore errors
+                    }
+                  }
+                  
+                  // Apply branding if found
+                  if (branding && branding.primaryColor) {
+                    var primaryHsl = hexToHsl(branding.primaryColor);
+                    var secondaryHsl = branding.secondaryColor 
+                      ? hexToHsl(branding.secondaryColor) 
+                      : '258 60% 60%';
+                    var iconFilter = calculateIconFilter(branding.primaryColor);
+                    
+                    // Set CSS variables immediately on document.documentElement
+                    // These will override the default purple values from the style tag
+                    var root = document.documentElement;
+                    root.style.setProperty('--brand-primary', primaryHsl);
+                    root.style.setProperty('--brand-secondary', secondaryHsl);
+                    root.style.setProperty('--primary', primaryHsl);
+                    root.style.setProperty('--secondary', secondaryHsl);
+                    root.style.setProperty('--icon-filter', iconFilter);
+                    
+                    // Also update the default style tag to match branding (prevents any flash)
+                    var defaultStyle = document.getElementById('brand-colors-default');
+                    if (defaultStyle && defaultStyle.sheet) {
+                      // Update via stylesheet if possible
+                      try {
+                        var styleSheet = defaultStyle.sheet;
+                        if (styleSheet.cssRules && styleSheet.cssRules[0]) {
+                          styleSheet.cssRules[0].style.setProperty('--brand-primary', primaryHsl);
+                          styleSheet.cssRules[0].style.setProperty('--brand-secondary', secondaryHsl);
+                          styleSheet.cssRules[0].style.setProperty('--primary', primaryHsl);
+                          styleSheet.cssRules[0].style.setProperty('--secondary', secondaryHsl);
+                          styleSheet.cssRules[0].style.setProperty('--icon-filter', iconFilter);
+                        }
+                      } catch (e) {
+                        // Fallback: replace the style tag content
+                        defaultStyle.innerHTML = ':root { --brand-primary: ' + primaryHsl + '; --brand-secondary: ' + secondaryHsl + '; --primary: ' + primaryHsl + '; --secondary: ' + secondaryHsl + '; --icon-filter: ' + iconFilter + '; }';
+                      }
+                    }
+                  }
+                  } catch (e) {
+                    // Silently fail - default colors will be used
+                  }
+                }
+                
+                // Run immediately if document is ready, otherwise wait for it
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', applyBranding);
+                } else {
+                  // Document is already ready, run immediately
+                  applyBranding();
+                }
+              })();
+            `,
+          }}
+        />
         <link rel="manifest" href="/manifest.json" />
 
         {/* Fonts */}
