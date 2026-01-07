@@ -131,7 +131,7 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
   const modalContent = (
     <div
       className="fixed inset-0 bg-black/50 flex items-center justify-center"
-      style={{ zIndex: 100001 }}
+      style={{ zIndex: 1000000, pointerEvents: 'auto', position: 'fixed' }}
       onClick={(e) => {
         // Only close if clicking the backdrop, not the modal content
         if (e.target === e.currentTarget) {
@@ -142,6 +142,14 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
       <div
         className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+        onPointerDown={(e) => e.stopPropagation()}
+        style={{ 
+          pointerEvents: 'auto', 
+          position: 'relative', 
+          zIndex: 10000000,
+          isolation: 'isolate'
+        }}
       >
         <div className="flex items-center justify-between p-6 border-b">
           <h2 className="text-xl font-semibold">Setup Mailgun Domain</h2>
@@ -153,10 +161,10 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="p-6" style={{ pointerEvents: 'auto' }}>
           {step === 1 && (
-            <div className="space-y-4">
-              <div>
+            <div className="space-y-4" style={{ pointerEvents: 'auto' }}>
+              <div style={{ pointerEvents: 'auto' }}>
                 <Label htmlFor="domain">Domain</Label>
                 <Input
                   id="domain"
@@ -166,14 +174,23 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
                   onChange={(e) => setDomain(e.target.value)}
                   className="mt-1"
                   autoComplete="off"
-                  autoFocus
+                  style={{ pointerEvents: 'auto' }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    e.target.focus()
+                  }}
+                  onFocus={(e) => {
+                    e.stopPropagation()
+                  }}
+                  onMouseDown={(e) => e.stopPropagation()}
+                  // autoFocus
                 />
                 <p className="text-sm text-gray-500 mt-1">
                   Enter your email subdomain (e.g., mail.yourdomain.com)
                 </p>
               </div>
 
-              <div>
+              <div style={{ pointerEvents: 'auto' }}>
                 <Label htmlFor="apiKey">Mailgun API Key</Label>
                 <Input
                   id="apiKey"
@@ -183,6 +200,15 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
                   onChange={(e) => setApiKey(e.target.value)}
                   className="mt-1"
                   autoComplete="new-password"
+                  style={{ pointerEvents: 'auto' }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    e.target.focus()
+                  }}
+                  onFocus={(e) => {
+                    e.stopPropagation()
+                  }}
+                  onMouseDown={(e) => e.stopPropagation()}
                 />
                 <p className="text-sm text-gray-500 mt-1">
                   Get your API key from your Mailgun dashboard

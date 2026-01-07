@@ -463,12 +463,16 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       style={{ 
         zIndex: 99999,
         position: 'fixed',
+        pointerEvents: showDomainSetup ? 'none' : 'auto',
       }}
     >
       <div 
         className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 relative" 
         onClick={(e) => e.stopPropagation()}
-        style={{ zIndex: 100000 }}
+        style={{ 
+          zIndex: 100000,
+          pointerEvents: showDomainSetup ? 'none' : 'auto',
+        }}
       >
         <div className="flex items-center justify-between p-6 border-b">
           <div>
