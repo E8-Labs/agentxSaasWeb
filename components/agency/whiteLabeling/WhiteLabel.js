@@ -23,6 +23,7 @@ import TutorialConfig from './TutorialConfig'
 import NotificationConfig from './WhiteLabelingCustomNotifications/NotificationConfig'
 import CancellationRefundConfig from './CancellationRefundConfig'
 import AppLogo from '@/components/common/AppLogo'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 const WhiteLabel = ({ selectedAgency }) => {
   const router = useRouter()
@@ -350,12 +351,16 @@ const WhiteLabel = ({ selectedAgency }) => {
                   height: '16px',
                 }}
               >
-                <Image
+                {/* <Image
                   alt="*"
                   src={'/assets/copyIconPurple.png'}
                   height={16}
                   width={16}
-                />
+                /> */}
+                {
+                  renderBrandedIcon('/assets/copyIconPurple.png', 16, 16)
+                    
+                }
               </div>
               <div
                 style={{ fontSize: '14px', fontWeight: '500', color: 'hsl(var(--brand-primary))' }}

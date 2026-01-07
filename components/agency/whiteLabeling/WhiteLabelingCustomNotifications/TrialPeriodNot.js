@@ -442,8 +442,29 @@ const TrialPeriodNot = ({
                         togglingEnabled === item.notificationType ||
                         togglingEnabled === item.actualNotificationType
                       }
-                      color="primary"
                       size="small"
+                      sx={{
+                        '& .MuiSwitch-switchBase.Mui-checked': {
+                          color: 'hsl(var(--brand-primary))',
+                          '& + .MuiSwitch-track': {
+                            backgroundColor: 'hsl(var(--brand-primary))',
+                            opacity: 1,
+                          },
+                        },
+                        '& .MuiSwitch-switchBase.Mui-checked .MuiSwitch-thumb': {
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                        },
+                        '& .MuiSwitch-thumb': {
+                          backgroundColor: '#9e9e9e',
+                        },
+                        '& .MuiSwitch-track': {
+                          backgroundColor: '#bdbdbd',
+                          opacity: 1,
+                        },
+                        '& .Mui-focusVisible .MuiSwitch-thumb': {
+                          outline: '2px solid hsl(var(--brand-primary))',
+                        },
+                      }}
                     />
                   </Tooltip>
                 </div>

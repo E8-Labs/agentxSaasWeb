@@ -21,15 +21,66 @@ const SmartRefillCard = ({
   //snack messages variables
   const [successSnack, setSuccessSnack] = useState(null)
   const [errorSnack, setErrorSnack] = useState(null)
+  // Helper function to check if user is subaccount/agency
+  const checkIsSubaccount = (localUser, propUser, apiUser) => {
+    return (
+      localUser?.userRole === 'AgencySubAccount' ||
+      localUser?.userRole === 'Agency' ||
+      propUser?.userRole === 'AgencySubAccount' ||
+      propUser?.userRole === 'Agency' ||
+      apiUser?.userRole === 'AgencySubAccount' ||
+      apiUser?.userRole === 'Agency'
+    )
+  }
+
+  // Check subaccount status immediately from available sources
+  const getInitialSubaccountStatus = () => {
+    if (typeof window === 'undefined') return false
+
+    try {
+      // Check localStorage first (immediate)
+      const data = localStorage.getItem('User')
+      if (data) {
+        const parsedUser = JSON.parse(data)
+        if (checkIsSubaccount(parsedUser?.user, selectedUser, null)) {
+          return true
+        }
+      }
+
+      // Check selectedUser prop (immediate)
+      if (selectedUser && checkIsSubaccount(null, selectedUser, null)) {
+        return true
+      }
+    } catch (error) {
+      console.log('Error parsing user data:', error)
+    }
+
+    return false
+  }
+
   //subaccount detection and text color
-  const [isSubaccount, setIsSubaccount] = useState(false)
+  const [isSubaccount, setIsSubaccount] = useState(() =>
+    getInitialSubaccountStatus(),
+  )
   const [textColor, setTextColor] = useState('#fff')
 
   const [userData, setUserData] = useState(null)
 
+  // Calculate text color when isSubaccount changes
+  useEffect(() => {
+    if (isSubaccount && typeof window !== 'undefined') {
+      // Calculate text color based on background
+      const brandPrimary = getComputedStyle(document.documentElement)
+        .getPropertyValue('--brand-primary')
+        .trim()
+      const opacity = 0.4
+      const isLight = isLightColor(brandPrimary, opacity)
+      setTextColor(isLight ? '#000' : '#fff')
+    }
+  }, [isSubaccount])
+
   useEffect(() => {
     selectRefillOption()
-
 
     const getUserData = async () => {
       let user = null
@@ -41,38 +92,29 @@ const SmartRefillCard = ({
     }
 
     getUserData()
+  }, [selectedUser])
 
-    // Check if user is subaccount and calculate text color
+  // Update subaccount status when userData changes (from API)
+  useEffect(() => {
     if (typeof window !== 'undefined') {
       try {
         const data = localStorage.getItem('User')
-        if (data) {
-          const parsedUser = JSON.parse(data)
-          const isSub =
-            parsedUser?.user?.userRole === 'AgencySubAccount' ||
-            userData?.userRole === 'AgencySubAccount'
+        const parsedUser = data ? JSON.parse(data) : null
+        const isSub = checkIsSubaccount(
+          parsedUser?.user,
+          selectedUser,
+          userData,
+        )
 
-          console.log('selectedUser', userData)
-
-
-          console.log('isSub', isSub)
-          setIsSubaccount(isSub)
-
-          if (isSub) {
-            // Calculate text color based on background
-            const brandPrimary = getComputedStyle(document.documentElement)
-              .getPropertyValue('--brand-primary')
-              .trim()
-            const opacity = 0.4
-            const isLight = isLightColor(brandPrimary, opacity)
-            setTextColor(isLight ? '#000' : '#fff')
-          }
-        }
+        console.log('selectedUser', selectedUser)
+        console.log('userData', userData)
+        console.log('isSub', isSub)
+        setIsSubaccount(isSub)
       } catch (error) {
         console.log('Error parsing user data:', error)
       }
     }
-  }, [])
+  }, [userData, selectedUser])
 
   const selectRefillOption = async () => {
     if (selectedUser) {
@@ -220,7 +262,7 @@ const SmartRefillCard = ({
         className="ms-2 w-8/12 text-[13px] font-normal"
         style={{ color: isSubaccount ? textColor : '#fff' }}
       >
-        Refill AI credits when it runs low. Keeps your AI active.
+        Refill AI credits when it runs low. Keeps your AI active. 12
       </div>
     </div>
   )

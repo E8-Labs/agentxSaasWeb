@@ -88,10 +88,11 @@ const SideUI = ({
               />
 
               <div
+              className="text-brand-primary"
                 style={{
                   fontSize: 16,
                   fontWeight: '700',
-                  color: 'white', //: '#7902df'
+                  // color: 'black', //: '#7902df'
                 }}
               >
                 {tag || 'Tag'}
