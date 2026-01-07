@@ -5,11 +5,12 @@ import {
   Box,
   CircularProgress,
   Fade,
-  Link,
+  // Link,
   Modal,
   Snackbar,
   Typography,
 } from '@mui/material'
+import Link from "next/link";
 import { Elements } from '@stripe/react-stripe-js'
 import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
