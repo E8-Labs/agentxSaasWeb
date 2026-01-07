@@ -56,6 +56,53 @@ const AgencyNavBar = () => {
   const router = useRouter()
   const pathname = usePathname()
 
+  // Track current pathname in state to force re-renders when it changes
+  // This ensures the UI updates immediately when navigation occurs
+  const [currentPathname, setCurrentPathname] = useState(
+    typeof window !== 'undefined' ? window.location.pathname : pathname
+  )
+  
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    // Update state when pathname hook changes (Next.js navigation)
+    const updatePathname = () => {
+      const newPathname = window.location.pathname
+      setCurrentPathname(newPathname)
+    }
+
+    // Update immediately
+    updatePathname()
+
+    // Also listen for browser navigation (back/forward)
+    window.addEventListener('popstate', updatePathname)
+
+    // Check periodically to catch window.location updates during navigation
+    // This ensures we catch the exact moment when the URL changes
+    const interval = setInterval(() => {
+      const newPathname = window.location.pathname
+      if (newPathname !== currentPathname) {
+        setCurrentPathname(newPathname)
+      }
+    }, 16) // ~60fps for smooth updates
+
+    return () => {
+      window.removeEventListener('popstate', updatePathname)
+      clearInterval(interval)
+    }
+  }, [pathname, currentPathname])
+
+  // Helper function to check if a menu item is active
+  // Uses window.location.pathname directly for the most accurate, up-to-date pathname
+  // The currentPathname state ensures React re-renders when pathname changes
+  const isActive = (href) => {
+    if (typeof window === 'undefined') return pathname === href
+    
+    // Use window.location.pathname directly - it's always the current, accurate pathname
+    // The state update above ensures React re-renders when this value changes
+    return window.location.pathname === href
+  }
+
   const [loader, setLoader] = useState(false)
 
   const [showPlansPopup, setShowPlansPopup] = useState(false)
@@ -780,15 +827,15 @@ const AgencyNavBar = () => {
                   >
                     <div
                       className={cn(
-                        pathname === item.href
+                        isActive(item.href)
                           ? 'icon-brand-primary'
                           : 'icon-black',
                       )}
                       style={
-                        pathname === item.href
+                        isActive(item.href)
                           ? {
                               '--icon-mask-image': `url(${
-                                pathname === item.href
+                                isActive(item.href)
                                   ? item.selected
                                   : item.uneselected
                               })`,
@@ -798,7 +845,7 @@ const AgencyNavBar = () => {
                     >
                       <Image
                         src={
-                          pathname === item.href
+                          isActive(item.href)
                             ? item.selected
                             : item.uneselected
                         }
@@ -810,7 +857,7 @@ const AgencyNavBar = () => {
                     <div
                       className={cn(
                         'text-sm font-medium',
-                        pathname === item.href
+                        isActive(item.href)
                           ? 'text-brand-primary'
                           : 'text-black',
                       )}
