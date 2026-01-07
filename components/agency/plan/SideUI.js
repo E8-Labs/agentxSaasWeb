@@ -95,7 +95,7 @@ const SideUI = ({
                   // color: 'black', //: '#7902df'
                 }}
               >
-                {tag || 'Tag'}
+                {tag || ''}
               </div>
               <Image
                 src="/svgIcons/enterArrowWhite.svg"

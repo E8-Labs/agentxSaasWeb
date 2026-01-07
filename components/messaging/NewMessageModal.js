@@ -1487,12 +1487,21 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                             }
                           }}
                           displayEmpty
-                          IconComponent={(props) => <ChevronDown {...props} size={16} className="text-gray-400" />}
+                          MenuProps={{
+                            zIndex: 1500,
+                            PaperProps: {
+                              style: {
+                                zIndex: 1500,
+                              },
+                            },
+                          }}
+                          IconComponent={(props) => <ChevronDown {...props} size={24} className="text-gray-400 mr-2" />}
                           sx={{
                             fontSize: '0.875rem',
                             height: '42px',
                             borderRadius: '0',
                             border: 'none',
+                            zIndex: 1500,
                             '& .MuiOutlinedInput-notchedOutline': {
                               border: 'none',
                             },
@@ -1576,11 +1585,12 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                             }
                           }}
                           displayEmpty
-                          IconComponent={(props) => <ChevronDown {...props} size={16} className="text-gray-400" />}
+                          IconComponent={(props) => <ChevronDown {...props} size={24} className="text-gray-400 mr-2" />}
                           sx={{
                             fontSize: '0.875rem',
                             height: '42px',
                             borderRadius: '8px',
+                            zIndex: 1500,
                             '& .MuiOutlinedInput-notchedOutline': {
                               borderColor: 'transparent',
                               borderWidth: '0',
@@ -1658,7 +1668,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                             }
                           }}
                           displayEmpty
-                          IconComponent={(props) => <ChevronDown {...props} size={16} className="text-gray-400" />}
+                          IconComponent={(props) => <ChevronDown {...props} size={24} className="text-gray-400 mr-2" />}
                           sx={{
                             fontSize: '0.875rem',
                             height: '36px',

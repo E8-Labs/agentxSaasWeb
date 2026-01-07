@@ -210,14 +210,10 @@ const ThreadsList = ({
         ) : threads.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-8">
             <h3 className="text-lg font-semibold text-gray-900 mb-2 text-center">
-              {`You don't have any messages`}
+              {`You do't have any messages`}
             </h3>
             <p className="text-sm text-gray-600 text-center max-w-sm">
-              Looks like your inbox is empty, your
-              <br />
-              messages will show up here when you
-              <br />
-              start your campaign.
+              Looks like your inbox is empty
             </p>
           </div>
         ) : (

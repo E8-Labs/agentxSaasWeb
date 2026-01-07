@@ -309,8 +309,83 @@ const LeadDetails = ({
   
   const dialerCapability = checkDialerCapability()
   
+  // Check email capability based on user type
+  const checkEmailCapability = () => {
+    // For AgentX users (not subaccounts)
+    if (!reduxUser?.userRole || reduxUser.userRole !== 'AgencySubAccount') {
+      // Check planCapabilities.allowEmails
+      return {
+        hasAccess: reduxUser?.planCapabilities?.allowEmails === true,
+        showUpgrade: reduxUser?.planCapabilities?.allowEmails !== true,
+        showRequestFeature: false,
+      }
+    }
+    
+    // For subaccounts
+    // First check if parent agency has access
+    const agencyHasAccess = reduxUser?.agencyCapabilities?.allowEmails === true
+    
+    if (!agencyHasAccess) {
+      // Agency doesn't have access - show Request Feature
+      return {
+        hasAccess: false,
+        showUpgrade: false,
+        showRequestFeature: true,
+      }
+    }
+    
+    // Agency has access, check subaccount access
+    const subaccountHasAccess = reduxUser?.planCapabilities?.allowEmails === true
+    
+    return {
+      hasAccess: subaccountHasAccess,
+      showUpgrade: !subaccountHasAccess,
+      showRequestFeature: false,
+    }
+  }
+  
+  // Check SMS capability based on user type
+  const checkSMSCapability = () => {
+    // For AgentX users (not subaccounts)
+    if (!reduxUser?.userRole || reduxUser.userRole !== 'AgencySubAccount') {
+      // Check planCapabilities.allowTextMessages
+      return {
+        hasAccess: reduxUser?.planCapabilities?.allowTextMessages === true,
+        showUpgrade: reduxUser?.planCapabilities?.allowTextMessages !== true,
+        showRequestFeature: false,
+      }
+    }
+    
+    // For subaccounts
+    // First check if parent agency has access
+    const agencyHasAccess = reduxUser?.agencyCapabilities?.allowTextMessages === true
+    
+    if (!agencyHasAccess) {
+      // Agency doesn't have access - show Request Feature
+      return {
+        hasAccess: false,
+        showUpgrade: false,
+        showRequestFeature: true,
+      }
+    }
+    
+    // Agency has access, check subaccount access
+    const subaccountHasAccess = reduxUser?.planCapabilities?.allowTextMessages === true
+    
+    return {
+      hasAccess: subaccountHasAccess,
+      showUpgrade: !subaccountHasAccess,
+      showRequestFeature: false,
+    }
+  }
+  
+  const emailCapability = checkEmailCapability()
+  const smsCapability = checkSMSCapability()
+  
   // State to trigger upgrade modal externally (use counter to ensure it triggers even if already true)
   const [triggerUpgradeModal, setTriggerUpgradeModal] = React.useState(0)
+  const [triggerEmailUpgradeModal, setTriggerEmailUpgradeModal] = React.useState(0)
+  const [triggerSMSUpgradeModal, setTriggerSMSUpgradeModal] = React.useState(0)
   
   // Handler to trigger upgrade modal
   const handleUpgradeClick = React.useCallback(() => {
@@ -318,9 +393,29 @@ const LeadDetails = ({
     setTriggerUpgradeModal(prev => prev + 1)
   }, [])
   
+  // Handler to trigger email upgrade modal
+  const handleEmailUpgradeClick = React.useCallback(() => {
+    setTriggerEmailUpgradeModal(prev => prev + 1)
+  }, [])
+  
+  // Handler to trigger SMS upgrade modal
+  const handleSMSUpgradeClick = React.useCallback(() => {
+    setTriggerSMSUpgradeModal(prev => prev + 1)
+  }, [])
+  
   // Handler to reset trigger after modal closes
   const handleUpgradeModalClose = React.useCallback(() => {
     setTriggerUpgradeModal(0)
+  }, [])
+  
+  // Handler to reset email upgrade modal trigger
+  const handleEmailUpgradeModalClose = React.useCallback(() => {
+    setTriggerEmailUpgradeModal(0)
+  }, [])
+  
+  // Handler to reset SMS upgrade modal trigger
+  const handleSMSUpgradeModalClose = React.useCallback(() => {
+    setTriggerSMSUpgradeModal(0)
   }, [])
 
   useEffect(() => {
@@ -1562,10 +1657,25 @@ const LeadDetails = ({
   }
   const handleSendAction = (opt) => {
     if (opt.value === 'email') {
+      if (!emailCapability.hasAccess) {
+        // Trigger upgrade modal if user doesn't have access
+        handleEmailUpgradeClick()
+        return
+      }
       setShowEmailModal(true)
     } else if (opt.value === 'call') {
+      if (!dialerCapability.hasAccess) {
+        // Trigger upgrade modal if user doesn't have access
+        handleUpgradeClick()
+        return
+      }
       startCallAction()
     } else if (opt.value === 'sms') {
+      if (!smsCapability.hasAccess) {
+        // Trigger upgrade modal if user doesn't have access
+        handleSMSUpgradeClick()
+        return
+      }
       setShowSMSModal(true)
     }
   }
@@ -1658,7 +1768,20 @@ const LeadDetails = ({
                               <DropdownCn
                                 label="Send"
                                 options={[
-                                  { label: 'Email', value: 'email', icon: Mail },
+                                  {
+                                    label: 'Email',
+                                    value: 'email',
+                                    icon: Mail,
+                                    upgradeTag: (emailCapability.showUpgrade || emailCapability.showRequestFeature) ? (
+                                      <UpgradeTag
+                                        onClick={handleEmailUpgradeClick}
+                                        requestFeature={emailCapability.showRequestFeature}
+                                      />
+                                    ) : null,
+                                    showUpgradeTag: emailCapability.showUpgrade || emailCapability.showRequestFeature,
+                                    disabled: !emailCapability.hasAccess,
+                                    onUpgradeClick: handleEmailUpgradeClick,
+                                  },
                                   {
                                     label: 'Call',
                                     value: 'call',
@@ -1673,11 +1796,24 @@ const LeadDetails = ({
                                     disabled: !dialerCapability.hasAccess,
                                     onUpgradeClick: handleUpgradeClick,
                                   },
-                                  { label: 'SMS', value: 'sms', icon: MessageSquareDot },
+                                  {
+                                    label: 'SMS',
+                                    value: 'sms',
+                                    icon: MessageSquareDot,
+                                    upgradeTag: (smsCapability.showUpgrade || smsCapability.showRequestFeature) ? (
+                                      <UpgradeTag
+                                        onClick={handleSMSUpgradeClick}
+                                        requestFeature={smsCapability.showRequestFeature}
+                                      />
+                                    ) : null,
+                                    showUpgradeTag: smsCapability.showUpgrade || smsCapability.showRequestFeature,
+                                    disabled: !smsCapability.hasAccess,
+                                    onUpgradeClick: handleSMSUpgradeClick,
+                                  },
                                 ]}
                                 onSelect={handleSendAction}
                               />
-                              {/* Render upgrade modal outside dropdown to avoid re-render issues - hideTag=true so it doesn't render the button */}
+                              {/* Render upgrade modals outside dropdown to avoid re-render issues - hideTag=true so it doesn't render the button */}
                               {(dialerCapability.showUpgrade || dialerCapability.showRequestFeature) && (
                                 <UpgradeTagWithModal
                                   reduxUser={reduxUser}
@@ -1685,6 +1821,26 @@ const LeadDetails = ({
                                   requestFeature={dialerCapability.showRequestFeature}
                                   externalTrigger={triggerUpgradeModal > 0}
                                   onModalClose={handleUpgradeModalClose}
+                                  hideTag={true}
+                                />
+                              )}
+                              {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
+                                <UpgradeTagWithModal
+                                  reduxUser={reduxUser}
+                                  setReduxUser={setReduxUser}
+                                  requestFeature={emailCapability.showRequestFeature}
+                                  externalTrigger={triggerEmailUpgradeModal > 0}
+                                  onModalClose={handleEmailUpgradeModalClose}
+                                  hideTag={true}
+                                />
+                              )}
+                              {(smsCapability.showUpgrade || smsCapability.showRequestFeature) && (
+                                <UpgradeTagWithModal
+                                  reduxUser={reduxUser}
+                                  setReduxUser={setReduxUser}
+                                  requestFeature={smsCapability.showRequestFeature}
+                                  externalTrigger={triggerSMSUpgradeModal > 0}
+                                  onModalClose={handleSMSUpgradeModalClose}
                                   hideTag={true}
                                 />
                               )}

@@ -91,7 +91,7 @@ const ConnectStripe = ({ fullScreen = false }) => {
         open={showVideoModal}
         onClose={() => setShowVideoModal(false)}
         videoTitle={
-          connectBankTutorial?.title || 'Connect your bank account with Stripe'
+          connectBankTutorial?.title || 'Learn how to connect your Stripe account'
         }
         videoUrl={connectBankVideoUrl}
         videoDescription={connectBankTutorial?.description}
@@ -215,7 +215,7 @@ const ConnectStripe = ({ fullScreen = false }) => {
               setShowVideoModal(true)
             }}
           >
-            {'Connect your Stripe account'}
+            {'Learn how to connect your Stripe account'}
           </button>
           <Play onClick={() => {
               setShowVideoModal(true)

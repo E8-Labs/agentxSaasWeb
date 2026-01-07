@@ -1,7 +1,9 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import moment from 'moment'
 import { Paperclip } from '@phosphor-icons/react'
 import { htmlToPlainText } from '@/utilities/textUtils'
+import { toast } from 'sonner'
+import { Modal, Box } from '@mui/material'
 import {
   Tooltip,
   TooltipContent,
@@ -255,7 +257,57 @@ const sanitizeAndLinkifyHTML = (html, sanitizeHTML) => {
  * SystemMessage component for displaying system activity messages
  * (stage changes, team assignments, comments, etc.)
  */
-const SystemMessage = ({ message }) => {
+const SystemMessage = ({ message, getAgentAvatar, selectedThread }) => {
+  const [showAudioPlay, setShowAudioPlay] = useState(null)
+  // Get avatar for comment sender
+  const getCommentAvatar = () => {
+    if (!message || message.activityType !== 'comment') return null
+    
+    // Use getAgentAvatar if available (for consistency with message avatars)
+    if (getAgentAvatar && typeof getAgentAvatar === 'function') {
+      // Create a message-like object for getAgentAvatar
+      const messageLike = {
+        id: message.id,
+        senderUser: message.senderUser,
+        agent: message.agent,
+        direction: 'outbound', // Comments are always from team members
+      }
+      return getAgentAvatar(messageLike)
+    }
+    
+    // Fallback: check senderUser directly
+    if (message.senderUser?.thumb_profile_image) {
+      return (
+        <div className="w-[26px] h-[26px] rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
+          <img
+            src={message.senderUser.thumb_profile_image}
+            alt={message.senderUser.name || 'Team Member'}
+            className="w-full h-full object-cover rounded-full"
+            onError={(e) => {
+              // Fallback to letter if image fails
+              e.target.style.display = 'none'
+              const parent = e.target.parentElement
+              if (parent) {
+                const name = message.senderUser?.name || message.senderUser?.email || 'T'
+                const letter = name.charAt(0).toUpperCase()
+                parent.className = 'w-[26px] h-[26px] rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs flex-shrink-0'
+                parent.textContent = letter
+              }
+            }}
+          />
+        </div>
+      )
+    }
+    
+    // Fallback to first letter
+    const senderName = message.senderUser?.name || message.senderUser?.email || 'T'
+    const avatarLetter = senderName.charAt(0).toUpperCase()
+    return (
+      <div className="w-[26px] h-[26px] rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs flex-shrink-0">
+        {avatarLetter}
+      </div>
+    )
+  }
   // Parse content and highlight mentions if it's a comment
   const parseContent = (content) => {
     if (!content) return ''
@@ -419,17 +471,61 @@ const SystemMessage = ({ message }) => {
       callSummary: activityData.callSummary || {},
     }
 
+    // Get caller name from senderUser or agent
+    const getCallerName = () => {
+      if (message.senderUser?.name) {
+        return message.senderUser.name
+      }
+      if (message.senderUser?.firstName) {
+        return message.senderUser.firstName
+      }
+      if (message.agent?.name) {
+        return message.agent.name
+      }
+      if (selectedThread?.lead?.firstName) {
+        return selectedThread.lead.firstName
+      }
+      return 'Unknown'
+    }
+
+    const callerName = getCallerName()
+    const callDate = message.createdAt ? moment(message.createdAt).format('MMM D, h:mm A') : ''
+
     // Handler functions for call actions
     const handlePlayRecording = (recordingUrl, callId) => {
       if (recordingUrl) {
-        window.open(recordingUrl, '_blank')
+        setShowAudioPlay({ recordingUrl, callId })
+      } else {
+        toast.error('No recording available', {
+          style: {
+            width: 'fit-content',
+            maxWidth: '400px',
+            whiteSpace: 'nowrap',
+          },
+        })
       }
     }
 
-    const handleCopyCallId = (callId) => {
+    const handleCopyCallId = async (callId) => {
       if (callId) {
-        navigator.clipboard.writeText(callId)
-        // You might want to show a toast notification here
+        try {
+          await navigator.clipboard.writeText(callId)
+          toast.success('Call ID copied to clipboard', {
+            style: {
+              width: 'fit-content',
+              maxWidth: '400px',
+              whiteSpace: 'nowrap',
+            },
+          })
+        } catch (error) {
+          toast.error('Failed to copy Call ID', {
+            style: {
+              width: 'fit-content',
+              maxWidth: '400px',
+              whiteSpace: 'nowrap',
+            },
+          })
+        }
       }
     }
 
@@ -439,29 +535,116 @@ const SystemMessage = ({ message }) => {
     }
 
     return (
-      <TooltipProvider>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <div className="flex items-center justify-center my-4 cursor-default">
-              <div className="w-full max-w-2xl px-4">
-                <div className="rounded-xl border border-border bg-background p-4 shadow-sm">
-                  <CallTranscriptCN
-                    item={callData}
-                    onPlayRecording={handlePlayRecording}
-                    onCopyCallId={handleCopyCallId}
-                    onReadTranscript={handleReadTranscript}
-                  />
+      <>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex flex-col items-center my-4 cursor-default">
+                {/* Activity log: Called by [Name] on [Date] */}
+                <div className="text-xs text-system-text text-center px-4 mb-2">
+                  Called by <strong className="font-semibold">{callerName}</strong> on {callDate}
+                </div>
+                <div className="w-full max-w-2xl px-4">
+                  <div className="rounded-xl border border-border bg-background p-4 shadow-sm">
+                    <CallTranscriptCN
+                      item={callData}
+                      onPlayRecording={handlePlayRecording}
+                      onCopyCallId={handleCopyCallId}
+                      onReadTranscript={handleReadTranscript}
+                    />
+                  </div>
                 </div>
               </div>
+            </TooltipTrigger>
+            {dateString && (
+              <TooltipContent className="bg-black">
+                <p>{dateString}</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
+
+        {/* Audio Player Modal */}
+        <Modal
+          open={!!showAudioPlay}
+          onClose={() => setShowAudioPlay(null)}
+          closeAfterTransition
+          BackdropProps={{
+            sx: {
+              backgroundColor: '#00000020',
+            },
+          }}
+        >
+          <Box
+            className="lg:w-3/12 sm:w-5/12 w-8/12"
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              bgcolor: 'background.paper',
+              borderRadius: 2,
+              boxShadow: 24,
+              outline: 'none',
+            }}
+          >
+            <div className="flex flex-row justify-center">
+              <div
+                className="w-full flex flex-col items-end"
+                style={{
+                  backgroundColor: '#ffffff',
+                  padding: 20,
+                  borderRadius: '13px',
+                }}
+              >
+                <button
+                  className="mb-3"
+                  style={{ fontWeight: '600', fontSize: 15 }}
+                  onClick={() => {
+                    if (showAudioPlay?.callId) {
+                      window.open(`/recordings/${showAudioPlay.callId}`, '_blank')
+                      setShowAudioPlay(null)
+                    }
+                  }}
+                >
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M18 16V8M14 12H22M6 4H10C12.2091 4 14 5.79086 14 8V16C14 18.2091 12.2091 20 10 20H6C3.79086 20 2 18.2091 2 16V8C2 5.79086 3.79086 4 6 4Z"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+
+                <audio
+                  id="custom-audio"
+                  controls
+                  style={{ width: '100%' }}
+                  src={showAudioPlay?.recordingUrl}
+                />
+
+                <button
+                  className="w-full h-[50px] rounded-lg bg-brand-primary text-white mt-4"
+                  style={{ fontWeight: '600', fontSize: 15 }}
+                  onClick={() => {
+                    setShowAudioPlay(null)
+                  }}
+                >
+                  Close
+                </button>
+              </div>
             </div>
-          </TooltipTrigger>
-          {dateString && (
-            <TooltipContent>
-              <p>{dateString}</p>
-            </TooltipContent>
-          )}
-        </Tooltip>
-      </TooltipProvider>
+          </Box>
+        </Modal>
+      </>
     )
   }
 
@@ -472,17 +655,23 @@ const SystemMessage = ({ message }) => {
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="flex flex-col w-full items-end pe-2 mb-3 cursor-default">
-              <div className="flex flex-col max-w-[75%] min-w-[220px]">
-                <div className="px-4 py-2 bg-gray-100 text-black rounded-tl-2xl rounded-bl-2xl rounded-br-2xl">
-                  <div
-                    className="prose prose-sm max-w-none break-words text-xs text-black"
-                    dangerouslySetInnerHTML={{ __html: parseContent(message.content) }}
-                  />
+              <div className="flex items-start gap-3 w-full justify-end">
+                <div className="flex flex-col max-w-[75%] min-w-[220px]">
+                  <div className="px-4 py-2 bg-gray-100 text-black rounded-tl-2xl rounded-bl-2xl rounded-br-2xl">
+                    <div
+                      className="prose prose-sm max-w-none break-words text-xs text-black"
+                      dangerouslySetInnerHTML={{ __html: parseContent(message.content) }}
+                    />
+                  </div>
+                  <div className="mt-1 mr-1 flex items-center justify-end gap-3">
+                    <span className="text-[10px] text-[#00000060]">
+                      {moment(message.createdAt).format('h:mm A')}
+                    </span>
+                  </div>
                 </div>
-                <div className="mt-1 mr-1 flex items-center justify-end gap-3">
-                  <span className="text-[10px] text-[#00000060]">
-                    {moment(message.createdAt).format('h:mm A')}
-                  </span>
+                {/* Profile picture for comment sender */}
+                <div className="flex-shrink-0">
+                  {getCommentAvatar()}
                 </div>
               </div>
             </div>
@@ -811,7 +1000,7 @@ const ConversationView = ({
                   )}
                   {/* Render system messages (including comments) as centered messages */}
                   {isSystem ? (
-                    <SystemMessage message={message} />
+                    <SystemMessage message={message} getAgentAvatar={getAgentAvatar} selectedThread={selectedThread} />
                   ) : (
                   <div
                     data-message-id={message.id}
