@@ -219,8 +219,12 @@ export default function CreateSubAccountModal({
   const [allowTwillio, setAllowTwillio] = useState(false)
   const [isInternalAccount, setIsInternalAccount] = useState(false)
   const [hasInternalAccount, setHasInternalAccount] = useState(false)
+  const [isAgencyUse, setIsAgencyUse] = useState(false)
+  const [showAgencyUseModal, setShowAgencyUseModal] = useState(false)
+  const [hasAgencyUseAccount, setHasAgencyUseAccount] = useState(false)
+  const [internalAccountsCount, setInternalAccountsCount] = useState(0)
 
-  // Check if agency already has an internal account
+  // Check if agency already has an internal account and agency_use account
   useEffect(() => {
     try {
       const userData = localStorage.getItem('User')
@@ -228,17 +232,36 @@ export default function CreateSubAccountModal({
         const parsedUser = JSON.parse(userData)
         const agencyProfile = parsedUser?.user
         const hasInternal = agencyProfile?.hasInternalAccount || false
-        setHasInternalAccount(hasInternal)
+        const hasAgencyUse = agencyProfile?.hasAgencyUseAccount || false
+        const internalCount = agencyProfile?.internalAccountsCount || 0
 
-        // If agency already has an internal account, disable the toggle
-        if (hasInternal) {
+        setHasInternalAccount(hasInternal)
+        setHasAgencyUseAccount(hasAgencyUse)
+        setInternalAccountsCount(internalCount)
+
+        // If agency already has 3 internal accounts, disable the toggle
+        if (internalCount >= 3) {
           setIsInternalAccount(false)
         }
       }
     } catch (error) {
-      console.error('Error checking hasInternalAccount:', error)
+      console.error('Error checking agency account info:', error)
     }
   }, [])
+
+  // Handle internal account toggle change
+  const handleInternalAccountToggle = (checked) => {
+    setIsInternalAccount(checked)
+
+    // If turning ON internal account for the first time (no existing internal accounts)
+    // and agency doesn't already have an agency_use account, show the modal
+    if (checked && internalAccountsCount === 0 && !hasAgencyUseAccount) {
+      setShowAgencyUseModal(true)
+    } else {
+      // For subsequent internal accounts or if agency_use already exists, don't show modal
+      setIsAgencyUse(false)
+    }
+  }
 
   //show sell seats modal
   useEffect(() => {
@@ -585,6 +608,7 @@ export default function CreateSubAccountModal({
       isSmartRefill: isSmartRefill,
       allowSubaccountTwilio: allowTwillio,
       isInternalAccount: isInternalAccount,
+      isAgencyUse: isAgencyUse,
     }
 
     // console.log(fromData);
@@ -614,6 +638,67 @@ export default function CreateSubAccountModal({
 
   return (
     <div className="">
+      {/* Agency Use Confirmation Modal */}
+      <Modal
+        open={showAgencyUseModal}
+        onClose={() => {
+          setShowAgencyUseModal(false)
+          // If user closes modal without selecting, keep internal account but not agency_use
+          setIsAgencyUse(false)
+        }}
+        aria-labelledby="agency-use-modal-title"
+        aria-describedby="agency-use-modal-description"
+      >
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: { xs: '90%', sm: 500 },
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <h2
+            id="agency-use-modal-title"
+            className="text-xl font-semibold text-gray-900 dark:text-white mb-4"
+          >
+            Make this account for Agency Use?
+          </h2>
+          <p
+            id="agency-use-modal-description"
+            className="text-sm text-gray-600 dark:text-gray-400 mb-6"
+          >
+            Agency Use accounts are special internal accounts that automatically
+            track subaccount registrations and subscriptions in a dedicated
+            pipeline. Only one internal account can be designated for agency use.
+          </p>
+          <div className="flex gap-3 justify-end">
+            <button
+              onClick={() => {
+                setIsAgencyUse(false)
+                setShowAgencyUseModal(false)
+              }}
+              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+            >
+              No, just create internal account
+            </button>
+            <button
+              onClick={() => {
+                setIsAgencyUse(true)
+                setShowAgencyUseModal(false)
+              }}
+              className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/80"
+            >
+              Yes, make it agency use
+            </button>
+          </div>
+        </Box>
+      </Modal>
+
       <div
         className="overflow-y-auto scrollbar-hide"
         style={{
@@ -635,34 +720,42 @@ export default function CreateSubAccountModal({
             Create SubAccount
           </h2>
           <div className="flex items-center gap-2">
-            {
-              !hasInternalAccount && (
-                <>
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Internal Use?
-                  </label>
-                  <Switch
-                    checked={isInternalAccount}
-                    onChange={(e) => setIsInternalAccount(e.target.checked)}
-                    disabled={hasInternalAccount}
-                    sx={{
-                      '& .MuiSwitch-switchBase.Mui-checked': {
-                        color: 'white',
-                      },
-                      '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                        backgroundColor: 'hsl(var(--brand-primary))',
-                      },
-                      '& .MuiSwitch-switchBase.Mui-disabled': {
-                        color: 'rgba(0, 0, 0, 0.26)',
-                      },
-                      '& .MuiSwitch-switchBase.Mui-disabled + .MuiSwitch-track': {
-                        backgroundColor: 'rgba(0, 0, 0, 0.12)',
-                      },
-                    }}
-                  />
-                </>
-              )
-            }
+            {internalAccountsCount < 3 && (
+              <>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Internal Use?
+                </label>
+                <Switch
+                  checked={isInternalAccount}
+                  onChange={(e) => handleInternalAccountToggle(e.target.checked)}
+                  disabled={internalAccountsCount >= 3}
+                  sx={{
+                    '& .MuiSwitch-switchBase.Mui-checked': {
+                      color: 'white',
+                    },
+                    '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                      backgroundColor: 'hsl(var(--brand-primary))',
+                    },
+                    '& .MuiSwitch-switchBase.Mui-disabled': {
+                      color: 'rgba(0, 0, 0, 0.26)',
+                    },
+                    '& .MuiSwitch-switchBase.Mui-disabled + .MuiSwitch-track': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.12)',
+                    },
+                  }}
+                />
+              </>
+            )}
+            {internalAccountsCount >= 3 && (
+              <Tooltip
+                title="Maximum 3 internal accounts allowed per agency"
+                arrow
+              >
+                <span className="text-sm text-gray-500 dark:text-gray-400">
+                  Internal accounts limit reached (3/3)
+                </span>
+              </Tooltip>
+            )}
             <CloseBtn onClick={onClose} />
           </div>
         </div>
