@@ -874,6 +874,10 @@ export default function PlanConfiguration({
         apiKey: dynamicFeatures?.allowAPIAccess,
         voicemail: dynamicFeatures?.allowVoicemail,
         allowTextMessages: dynamicFeatures?.allowTextMessages,
+        allowEmails:
+          dynamicFeatures?.allowEmails ||
+          dynamicFeatures?.allowEmailMessages ||
+          false,
         twilio: dynamicFeatures?.allowTwilioIntegration,
         allowTeamSeats: dynamicFeatures?.allowTeamCollaboration,
         sendText: dynamicFeatures?.allowTextMessages,
