@@ -104,6 +104,10 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
         <DropdownMenuContent
           align={align}
           className="z-[2000] w-auto min-w-fit max-w-[20rem] border border-muted/70 bg-white text-foreground shadow-lg"
+          onCloseAutoFocus={(e) => {
+            // Prevent focus from being stolen when dropdown closes
+            e.preventDefault()
+          }}
         >
         {title && (
           <>
@@ -118,10 +122,48 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
             <DropdownMenuItem
               key={opt.value || opt.label}
               className="gap-2 whitespace-nowrap"
-              onSelect={() => handleSelect(opt)}
+              onSelect={(e) => {
+                // Close dropdown immediately for all selections
+                setOpen(false)
+                
+                // If upgrade tag is shown, trigger upgrade modal instead of the action
+                if (opt.showUpgradeTag) {
+                  e.preventDefault()
+                  // Call the upgrade handler if provided
+                  if (opt.onUpgradeClick && typeof opt.onUpgradeClick === 'function') {
+                    opt.onUpgradeClick()
+                  }
+                  return
+                }
+                handleSelect(opt)
+              }}
+              disabled={opt.disabled && !opt.upgradeTag}
             >
-              {opt.icon ? <opt.icon className="h-4 w-4 shrink-0" /> : null}
-              <span className="truncate">{opt.label}</span>
+              <div className="flex items-center justify-between w-full gap-2">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  {opt.icon ? <opt.icon className="h-4 w-4 shrink-0" /> : null}
+                  <span className="truncate">{opt.label}</span>
+                </div>
+                {opt.upgradeTag && (
+                  <div 
+                    onClick={(e) => {
+                      // Stop propagation to prevent menu item's onSelect from firing
+                      e.stopPropagation()
+                      // Close the dropdown immediately so upgrade modal isn't covered
+                      setOpen(false)
+                    }}
+                    onMouseDown={(e) => {
+                      // Stop propagation to prevent dropdown from handling the event
+                      e.stopPropagation()
+                      // Close dropdown on mouseDown to ensure it closes before modal opens
+                      setOpen(false)
+                    }}
+                    className="flex-shrink-0"
+                  >
+                    {opt.upgradeTag}
+                  </div>
+                )}
+              </div>
             </DropdownMenuItem>
           ))
         ) : (

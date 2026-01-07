@@ -1655,13 +1655,22 @@ function UpgradePlanContent({
   return (
     <Modal
       open={open}
-      // open={true}
+      onClose={() => handleClose(false)}
       closeAfterTransition
+      sx={{
+        zIndex: 3000, // Higher than dropdown menu (z-[2000])
+      }}
       BackdropProps={{
         timeout: 100,
         sx: {
           backgroundColor: '#00000020',
           backdropFilter: 'blur(15px)',
+        },
+        onClick: (e) => {
+          // Close modal when clicking backdrop
+          if (e.target === e.currentTarget) {
+            handleClose(false)
+          }
         },
       }}
     >
@@ -2317,6 +2326,8 @@ const styles = {
     borderRadius: 2,
     outline: 'none',
     overflow: 'hidden',
+    zIndex: 3001, // Ensure modal content is above backdrop
+    position: 'relative',
   },
 }
 
