@@ -569,6 +569,9 @@ const ConversationView = ({
   onOpenEmailTimeline,
   updateComposerFromMessage,
 }) => {
+
+  console.log('🔍 [ConversationView] selectedThread:', selectedThread)
+  
   // Helper function to normalize email subject for threading comparison
   const normalizeSubject = (subject) => {
     if (!subject) return ''
