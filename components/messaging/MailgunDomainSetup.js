@@ -312,13 +312,13 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
                             </td>
                             <td className="py-3 px-4">
                               <div className="flex items-center gap-2">
-                                <span className="text-sm font-mono text-gray-900 break-all max-w-md">
-                                  {recordValue || '-'}
+                                <span className="text-sm font-mono text-gray-900 whitespace-nowrap">
+                                  {recordValue.slice(0, 20) || '-'}
                                 </span>
                                 {recordValue && (
                                   <button
                                     onClick={() => copyToClipboard(recordValue)}
-                                    className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-100 rounded transition-colors"
+                                    className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
                                     title="Copy to clipboard"
                                   >
                                     <Copy size={14} />
