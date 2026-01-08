@@ -324,6 +324,9 @@ function UpgardView({
           />
 
           <Elements stripe={stripePromise}>
+            {
+              console.log('Showing Upgrade Popup from Upgrade Plan; No User Passed', showUpgradePlanPopup)
+            }
             <UpgradePlan
               open={showUpgradePlanPopup}
               // setShowSnackMsg={setShowSnackMsg}

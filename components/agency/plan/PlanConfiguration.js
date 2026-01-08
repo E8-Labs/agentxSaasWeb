@@ -169,7 +169,7 @@ export default function PlanConfiguration({
     },
     {
       label: 'Dialer',
-      tooltip: 'Enable dialer capabilities for agents. Allow making outbound calls and managing call campaigns.',
+      tooltip: 'Enable dialer capabilities for users. Allow teams to make outbound calls.',
       stateKey: 'allowDialer',
     },
     {

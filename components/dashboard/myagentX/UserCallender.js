@@ -639,14 +639,17 @@ const UserCalender = ({
                 <button
                   className="text-[13px] font-[500] text-brand-primary"
                   onClick={() => {
-                    console.log('Redux token', reduxToken)
-                    console.log(
-                      `User Capabilities ${JSON.stringify(reduxUser.planCapabilities)} `,
-                    )
-                    if (!reduxUser.planCapabilities.allowCalendarIntegration) {
+                    // Use backend-provided flags
+                    const planCapabilities = reduxUser?.planCapabilities || {}
+                    const shouldShowUpgrade = planCapabilities.shouldShowAllowCalendarUpgrade === true
+                    const shouldShowRequestFeature = planCapabilities.shouldShowCalendarRequestFeature === true
+                    
+                    if (shouldShowUpgrade || shouldShowRequestFeature) {
                       setShowUpgradeModal(true)
-                    } else {
+                    } else if (planCapabilities.allowCalendarIntegration === true) {
                       setShowCalendarConfirmation(true)
+                    } else {
+                      setShowUpgradeModal(true)
                     }
                   }}
                 >

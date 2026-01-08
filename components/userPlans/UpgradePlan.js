@@ -56,6 +56,8 @@ const CardForm = ({
   onCancel,
   haveCards,
 }) => {
+
+  
   return (
     <div className="w-full flex flex-col gap-2 mt-2">
       {haveCards ? (
@@ -236,6 +238,7 @@ function UpgradePlanContent({
   showSnackMsg = null,
   selectedUser,
 }) {
+  console.log("Selected User in Upgrade Plan Content", selectedUser)
   const stripeReact = useStripe()
   const elements = useElements()
 
@@ -703,7 +706,18 @@ function UpgradePlanContent({
   }, [duration])
 
   const getPlans = async () => {
+    console.log('🔍 [UpgradePlan.getPlans] Calling getUserPlans with:', {
+      from,
+      selectedUser: selectedUser ? { 
+        id: selectedUser.id, 
+        role: selectedUser.userRole || selectedUser.role,
+        hasId: !!selectedUser.id,
+        allKeys: Object.keys(selectedUser)
+      } : 'null/undefined',
+    })
+    // Ensure we pass selectedUser even if it's from userLocalData fallback
     let plansList = await getUserPlans(from, selectedUser)
+    console.log('🔍 [UpgradePlan.getPlans] Received plansList:', plansList ? `Array with ${Array.isArray(plansList) ? plansList.length : 'data'} items` : 'null')
     if (plansList) {
       console.log('Plans list found is', plansList)
       const monthly = []
@@ -711,10 +725,14 @@ function UpgradePlanContent({
       const yearly = []
       let freePlan = null
       const UserLocalData = getUserLocalData()
-      if (
-        from === 'SubAccount' ||
-        UserLocalData?.userRole === 'AgencySubAccount'
-      ) {
+      
+      // Determine if we're dealing with a subaccount
+      // Check selectedUser's role if provided (agency viewing subaccount), otherwise check logged-in user's role
+      const isSubAccount = from === 'SubAccount' || 
+                          selectedUser?.userRole === 'AgencySubAccount' ||
+                          UserLocalData?.userRole === 'AgencySubAccount'
+      
+      if (isSubAccount) {
         console.log('Current plan upgrade type is subaccount')
         plansList = plansList?.monthlyPlans || plansList
         plansList?.forEach((plan) => {
@@ -866,20 +884,28 @@ function UpgradePlanContent({
   }
 
   const isPlanCurrent = (item) => {
-    if (!currentUserPlan || !item) {
+    if (!item) {
       return false
     }
 
-    // Compare by planId - currentUserPlan.planId is the database plan ID
+    // When selectedUser is provided (agency/admin viewing subaccount/other user),
+    // use currentFullPlan (selected user's plan) instead of currentUserPlan (logged-in user's plan from localStorage)
+    const planToCompare = selectedUser?.id ? currentFullPlan : currentUserPlan
+    
+    if (!planToCompare) {
+      return false
+    }
+
+    // Compare by planId - planToCompare.planId or planToCompare.id is the database plan ID
     // item.id is the plan ID from the plans list
     // Convert both to numbers for strict comparison
     const itemPlanId = Number(item.id || item.planId)
-    const currentPlanId = Number(currentUserPlan.planId)
+    const currentPlanId = Number(planToCompare.id || planToCompare.planId)
 
     // Only log when there's a potential match to reduce noise
     if (
       itemPlanId === currentPlanId &&
-      currentUserPlan.status !== 'cancelled'
+      planToCompare.status !== 'cancelled'
     ) {
       console.log(
         '✅ isPlanCurrent: plan IDs match - THIS IS THE CURRENT PLAN',
@@ -887,6 +913,7 @@ function UpgradePlanContent({
           itemPlanId,
           currentPlanId,
           itemTitle: item.title || item.name,
+          usingSelectedUserPlan: !!selectedUser?.id,
         },
       )
       return true
@@ -894,11 +921,12 @@ function UpgradePlanContent({
 
     // Fallback comparison by name (if both have names)
     const itemName = item.name || item.title
-    const currentPlanName = currentUserPlan.name
+    const currentPlanName = planToCompare.name || planToCompare.title
     if (itemName && currentPlanName && itemName === currentPlanName) {
       console.log('✅ isPlanCurrent: plan names match', {
         itemName,
         currentPlanName,
+        usingSelectedUserPlan: !!selectedUser?.id,
       })
       return true
     }
@@ -1356,16 +1384,22 @@ function UpgradePlanContent({
   const getButtonText = () => {
     if (!currentSelectedPlan) return 'Select a Plan'
 
+    // When selectedUser is provided (agency/admin viewing subaccount/other user),
+    // use currentFullPlan (selected user's plan) instead of currentUserPlan (logged-in user's plan from localStorage)
+    const planToCompare = selectedUser?.id ? currentFullPlan : currentUserPlan
+    
     // Check user's plan status from userLocalData (not currentFullPlan which is from DB)
     // currentFullPlan comes from database plan list and doesn't have status field
     // getUserLocalData() returns the user object directly, so access plan directly
     // Also check currentUserPlan state which is set from localStorage
     const UserLocalData = getUserLocalData()
-    const planStatus = UserLocalData?.plan?.status || currentUserPlan?.status
+    const planStatus = UserLocalData?.plan?.status || planToCompare?.status || currentUserPlan?.status
+    console.log('🔍 [getButtonText] selectedUser provided:', !!selectedUser?.id)
     console.log('🔍 [getButtonText] UserLocalData:', UserLocalData)
-    console.log('🔍 [getButtonText] currentUserPlan:', currentUserPlan)
+    console.log('🔍 [getButtonText] currentUserPlan (logged-in user):', currentUserPlan)
+    console.log('🔍 [getButtonText] currentFullPlan (selected user):', currentFullPlan)
+    console.log('🔍 [getButtonText] planToCompare (plan being used):', planToCompare)
     console.log('🔍 [getButtonText] currentSelectedPlan:', currentSelectedPlan)
-    console.log('🔍 [getButtonText] currentFullPlan:', currentFullPlan)
     console.log('🔍 [getButtonText] Plan status:', planStatus)
 
     // If plan is cancelled, show "Subscribe" regardless of which plan is selected
@@ -1375,15 +1409,18 @@ function UpgradePlanContent({
     }
 
     // Check if the selected plan is the user's current plan
-    // Compare by planId from currentUserPlan with id from currentSelectedPlan
-    const isCurrentPlan =
-      currentUserPlan &&
-      (currentSelectedPlan.id === currentUserPlan.planId ||
-        currentSelectedPlan.planId === currentUserPlan.planId)
+    // When selectedUser is provided, compare with currentFullPlan (selected user's plan)
+    // Otherwise, compare with currentUserPlan (logged-in user's plan from localStorage)
+    const isCurrentPlan = planToCompare && (
+      currentSelectedPlan.id === planToCompare.id ||
+      currentSelectedPlan.id === planToCompare.planId ||
+      currentSelectedPlan.planId === planToCompare.id ||
+      currentSelectedPlan.planId === planToCompare.planId
+    )
 
     console.log('🔍 [getButtonText] isCurrentPlan:', isCurrentPlan, {
       selectedPlanId: currentSelectedPlan.id,
-      currentPlanId: currentUserPlan?.planId,
+      currentPlanId: planToCompare?.id || planToCompare?.planId,
     })
 
     // If selected plan is the current plan, show "Cancel Subscription"
@@ -1394,29 +1431,29 @@ function UpgradePlanContent({
     }
 
     // If no current plan, show "Subscribe"
-    if (!currentUserPlan) {
+    if (!planToCompare) {
       console.log('🔍 [getButtonText] No current plan, returning Subscribe')
       return 'Subscribe'
     }
 
-    // Try to use currentFullPlan for comparison if available
-    if (currentFullPlan) {
-      const comparison = comparePlans(currentFullPlan, currentSelectedPlan)
-      console.log('🔍 [getButtonText] Comparison result:', comparison)
+    // Use planToCompare (which is currentFullPlan when selectedUser is provided, otherwise currentUserPlan)
+    const comparison = comparePlans(planToCompare, currentSelectedPlan)
+    console.log('🔍 [getButtonText] Comparison result:', comparison)
 
-      if (comparison === 'upgrade') {
-        return 'Upgrade'
-      } else if (comparison === 'downgrade') {
-        return 'Downgrade'
-      }
+    if (comparison === 'upgrade') {
+      return 'Upgrade'
+    } else if (comparison === 'downgrade') {
+      return 'Downgrade'
+    } else if (comparison === 'same') {
+      return 'Cancel Subscription'
     }
 
-    // Fallback: Compare prices directly from currentUserPlan and currentSelectedPlan
+    // Fallback: Compare prices directly from planToCompare and currentSelectedPlan
     // Try multiple possible price fields
     const currentPrice =
-      currentUserPlan?.price ||
-      currentUserPlan?.discountPrice ||
-      currentUserPlan?.discountedPrice ||
+      planToCompare?.price ||
+      planToCompare?.discountPrice ||
+      planToCompare?.discountedPrice ||
       0
     const selectedPrice =
       currentSelectedPlan?.discountPrice ||
@@ -2422,6 +2459,7 @@ function UpgradePlan({
   selectedUser,
   // setShowSnackMsg = null
 }) {
+  console.log("Selected User in Upgrade Plan", selectedUser)
   const stripePromise = getStripe()
 
   const [showSnackMsg, setShowSnackMsg] = useState({
@@ -2430,7 +2468,18 @@ function UpgradePlan({
     isVisible: false,
   })
 
-  console.log('selected user in upgrade plan', selectedUser);
+  console.log('🔍 [UpgradePlan] Component received props:', {
+    open,
+    selectedUser: selectedUser ? { 
+      id: selectedUser.id, 
+      role: selectedUser.userRole || selectedUser.role, 
+      email: selectedUser.email,
+      hasId: !!selectedUser.id,
+      fullObject: selectedUser
+    } : 'null/undefined',
+    from,
+    selectedPlan: selectedPlan ? { id: selectedPlan.id, title: selectedPlan.title } : 'null',
+  });
 
   return (
     <Elements stripe={stripePromise}>

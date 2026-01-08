@@ -297,35 +297,37 @@ function VoiceMailTab({
         }
       />
       {agent?.voicemail == null ? (
-        user?.agencyCapabilities?.allowVoicemail === false ? (
-          <UpgardView
-            title={'Enable Voicemail'}
-            subTitle={
-              'Increase response rate by 10% when you activate voicemails. Your AI can customize each voicemail.'
-            }
-            setShowSnackMsg={setShowSnackMsg}
-          />
-        ) : user?.planCapabilities?.allowVoicemailSettings === false ? (
-          <UpgardView
-            title={'Enable Voicemail'}
-            subTitle={
-              'Increase response rate by 10% when you activate voicemails. Your AI can customize each voicemail.'
-            }
-            setShowSnackMsg={setShowSnackMsg}
-          />
-        ) : (
-          <NoVoicemailView
-            openModal={() => {
-              if (user?.planCapabilities.allowVoicemailSettings) {
-                setShowAddNewPopup(true)
-              } else {
-                setShowUpgradeModal(true)
-              }
-              // console.log('open')
-            }}
-            showAddBtn={true}
-          />
-        )
+        (() => {
+          // Use backend-provided flags
+          const planCapabilities = user?.planCapabilities || {}
+          const shouldShowUpgrade = planCapabilities.shouldShowAllowVoicemailUpgrade === true
+          const shouldShowRequestFeature = planCapabilities.shouldShowVoicemailRequestFeature === true
+          
+          if (shouldShowUpgrade || shouldShowRequestFeature) {
+            return (
+              <UpgardView
+                title={'Enable Voicemail'}
+                subTitle={
+                  'Increase response rate by 10% when you activate voicemails. Your AI can customize each voicemail.'
+                }
+                setShowSnackMsg={setShowSnackMsg}
+              />
+            )
+          } else {
+            return (
+              <NoVoicemailView
+                openModal={() => {
+                  if (user?.planCapabilities?.allowVoicemail === true || user?.planCapabilities?.allowVoicemailSettings === true) {
+                    setShowAddNewPopup(true)
+                  } else {
+                    setShowUpgradeModal(true)
+                  }
+                }}
+                showAddBtn={true}
+              />
+            )
+          }
+        })()
       ) : (
         <div className="w-full flex flex-col gap-3 items-center">
           <div className="w-full flex flex-row items-center justify-between mt-2">

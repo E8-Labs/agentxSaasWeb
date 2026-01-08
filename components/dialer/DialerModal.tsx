@@ -397,10 +397,18 @@ function DialerModal({
   }, [isInitializingRef.current])
   
   const [numberDropdownAnchor, setNumberDropdownAnchor] = useState<null | HTMLElement>(null)
+  const numberDropdownButtonRef = useRef<HTMLButtonElement | null>(null)
   const [sendingEmail, setSendingEmail] = useState(false)
   const [sendingSms, setSendingSms] = useState(false)
   const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null)
   const [showClaimNumberModal, setShowClaimNumberModal] = useState(false)
+  
+  // Function to trigger the number dropdown from external components
+  const triggerNumberDropdown = () => {
+    if (numberDropdownButtonRef.current) {
+      setNumberDropdownAnchor(numberDropdownButtonRef.current)
+    }
+  }
   
   // Sync Redux callStatus to local state
   useEffect(() => {
@@ -2961,6 +2969,7 @@ function DialerModal({
                   <div className="flex items-center justify-between relative">
                     <div style={{ position: 'relative', zIndex: 1000 }}>
                       <button
+                        ref={numberDropdownButtonRef}
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation()
@@ -3157,7 +3166,7 @@ function DialerModal({
                 No internal dialer number configured. Please set one to start making calls.
               </p>
               <div className="flex justify-center">
-                <DialerSettings />
+                <DialerSettings onTriggerDropdown={triggerNumberDropdown} />
               </div>
             </div>
           ) : (

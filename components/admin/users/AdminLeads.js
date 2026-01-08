@@ -56,7 +56,6 @@ import { GetFormattedDateString } from '@/utilities/utility'
 
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import AdminAssignLead from './AdminAssignLead'
-import AdminLeadDetails from './AdminLeadDetails'
 
 const AdminLeads = ({
   handleShowAddLeadModal,
@@ -2698,7 +2697,7 @@ const AdminLeads = ({
             width: '100%',
           }}
         >
-          <AdminLeadDetails
+          <LeadDetails
             selectedUser={selectedUser}
             selectedLead={selectedLeadsDetails?.id}
             pipelineId={selectedLeadsDetails?.pipeline?.id}

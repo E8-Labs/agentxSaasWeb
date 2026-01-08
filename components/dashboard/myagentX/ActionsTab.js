@@ -26,42 +26,40 @@ const ActionsTab = ({
 
   const [selectedActionTab, setSelectedActionTab] = useState(1)
 
-  // Check if user has access to Tools
+  // Use backend-provided flags for capability checks
   const hasToolsAccess = useMemo(() => {
-    // For agency subaccounts, check agency capabilities
-    if (reduxUser?.userRole === 'AgencySubAccount') {
-      return reduxUser?.agencyCapabilities?.allowToolsAndActions === true
-    }
-    // For normal users, check plan capabilities
-    return reduxUser?.planCapabilities?.allowToolsAndActions === true
-  }, [reduxUser])
+    const planCapabilities = reduxUser?.planCapabilities || {}
+    return planCapabilities.allowToolsAndActions === true
+  }, [reduxUser?.planCapabilities])
 
-  // Check if user has access to Lead Scoring
   const hasLeadScoringAccess = useMemo(() => {
-    // For agency subaccounts
-    if (reduxUser?.userRole === 'AgencySubAccount') {
-      // If agencyCapabilities.allowLeadScoring === false, show "Request Feature" button
-      if (reduxUser?.agencyCapabilities?.allowLeadScoring === false) {
-        return false // Will show UpgardView with "Request Feature" button
-      }
-      // If agencyCapabilities.allowLeadScoring === true, check planCapabilities
-      if (reduxUser?.agencyCapabilities?.allowLeadScoring === true) {
-        // If planCapabilities.allowLeadScoring === true, show lead scoring UI
-        // Else show upgrade UI
-        return reduxUser?.planCapabilities?.allowLeadScoring === true
-      }
-      // If agencyCapabilities.allowLeadScoring is undefined/null, default to false
-      return false
-    }
-    // For normal users
-    // If planCapabilities doesn't have allowLeadScoring, return true
-    if (reduxUser?.planCapabilities?.allowLeadScoring === undefined || 
-        reduxUser?.planCapabilities?.allowLeadScoring === null) {
+    const planCapabilities = reduxUser?.planCapabilities || {}
+    // If allowLeadScoring is undefined/null, default to true (backward compatibility)
+    if (planCapabilities.allowLeadScoring === undefined || 
+        planCapabilities.allowLeadScoring === null) {
       return true
     }
-    // Else return the actual value
-    return reduxUser?.planCapabilities?.allowLeadScoring === true
-  }, [reduxUser])
+    return planCapabilities.allowLeadScoring === true
+  }, [reduxUser?.planCapabilities])
+
+  // Get upgrade/request feature flags from backend
+  const shouldShowCalendarUpgrade = useMemo(() => {
+    const planCapabilities = reduxUser?.planCapabilities || {}
+    return planCapabilities.shouldShowAllowCalendarUpgrade === true ||
+           planCapabilities.shouldShowCalendarRequestFeature === true
+  }, [reduxUser?.planCapabilities])
+
+  const shouldShowToolsUpgrade = useMemo(() => {
+    const planCapabilities = reduxUser?.planCapabilities || {}
+    return planCapabilities.shouldShowAllowToolsUpgrade === true ||
+           planCapabilities.shouldShowToolsRequestFeature === true
+  }, [reduxUser?.planCapabilities])
+
+  const shouldShowLeadScoringUpgrade = useMemo(() => {
+    const planCapabilities = reduxUser?.planCapabilities || {}
+    return planCapabilities.shouldShowAllowLeadScoringUpgrade === true ||
+           planCapabilities.shouldShowLeadScoringRequestFeature === true
+  }, [reduxUser?.planCapabilities])
 
   // Always show all tabs
   const actionsTab = [
@@ -102,8 +100,7 @@ const ActionsTab = ({
       </div>
 
       {selectedActionTab === 1 ? (
-        reduxUser?.userRole === 'AgencySubAccount' &&
-        reduxUser?.agencyCapabilities?.allowCalendarIntegration === false ? (
+        shouldShowCalendarUpgrade ? (
           <UpgardView
             setShowSnackMsg={setShowSnackMsg}
             title={'Unlock Calendar Integration'}

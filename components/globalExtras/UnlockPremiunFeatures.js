@@ -148,11 +148,15 @@ const UnlockPremiunFeatures = ({
       open={open}
       onClose={handleClose}
       closeAfterTransition
+      sx={{
+        zIndex: 1500, // Higher than LeadDetails Drawer (1400) to appear on top
+      }}
       BackdropProps={{
         timeout: 100,
         sx: {
           backgroundColor: '#00000040',
           backdropFilter: 'blur(10px)',
+          zIndex: 1500, // Match Modal z-index
         },
       }}
     >

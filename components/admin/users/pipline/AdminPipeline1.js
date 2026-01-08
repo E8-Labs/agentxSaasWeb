@@ -60,7 +60,6 @@ import {
   GetFormattedTimeString,
 } from '@/utilities/utility'
 
-import AdminLeadDetails from '../AdminLeadDetails'
 import PipelineLoading from '@/components/dashboardPipeline/PipelineLoading'
 
 const AdminPipeline1 = ({ selectedUser }) => {
@@ -3874,7 +3873,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
 
       {/* Modal for lead details */}
       {showDetailsModal && (
-        <AdminLeadDetails
+        <LeadDetails
           selectedLead={selectedLeadsDetails?.id}
           pipelineId={pipelineId && pipelineId}
           showDetailsModal={showDetailsModal}

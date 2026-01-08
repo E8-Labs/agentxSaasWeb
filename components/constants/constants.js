@@ -420,7 +420,7 @@ export const UpgradeTag = ({
         className="flex-shrink-0"
       />
       <span style={{ color: brandColor, fontSize: '12px', fontWeight: 400 }}>
-        {requestFeature ? 'Request Feature' : 'Upgrade'}
+        {requestFeature ? 'Request' : 'Upgrade'}
       </span>
     </div>
   )
@@ -436,6 +436,7 @@ export const UpgradeTagWithModal = ({
   requestFeature = false,
   selectedUser = null,
   hideTag = false, // New prop to hide the tag button
+  featureTitle = 'Enable Live Transfer', // Title for the request feature modal
 }) => {
   const [showUpgradeModal, setShowUpgradeModal] = React.useState(false)
   const [showUnlockPremiumFeaturesPopup, setShowUnlockPremiumFeaturesPopup] =
@@ -481,10 +482,16 @@ export const UpgradeTagWithModal = ({
   React.useEffect(() => {
     // Only trigger if externalTrigger changed from false to true
     if (externalTrigger && !prevExternalTriggerRef.current) {
-      setShowUpgradeModal(true)
+      if (requestFeature) {
+        // If requestFeature is true, open the request feature modal
+        setShowUnlockPremiumFeaturesPopup(true)
+      } else {
+        // Otherwise, open the upgrade modal
+        setShowUpgradeModal(true)
+      }
     }
     prevExternalTriggerRef.current = externalTrigger
-  }, [externalTrigger])
+  }, [externalTrigger, requestFeature])
 
   const handleUpgradeClick = () => {
     if (requestFeature) {
@@ -497,6 +504,14 @@ export const UpgradeTagWithModal = ({
   const handleRequestFeature = () => {
     console.log('requestFeature is true')
     setShowUnlockPremiumFeaturesPopup(true)
+  }
+
+  const handleRequestFeatureModalClose = () => {
+    setShowUnlockPremiumFeaturesPopup(false)
+    // Call external callback if provided (this resets the external trigger)
+    if (onModalClose) {
+      onModalClose()
+    }
   }
 
   const handleModalClose = async (upgradeResult) => {
@@ -526,11 +541,9 @@ export const UpgradeTagWithModal = ({
         />
       )}
       <UnlockPremiunFeatures
-        title={'Enable Live Transfer'}
+        title={featureTitle}
         open={showUnlockPremiumFeaturesPopup}
-        handleClose={() => {
-          setShowUnlockPremiumFeaturesPopup(false)
-        }}
+        handleClose={handleRequestFeatureModalClose}
       />
 
       <UpgradePlan

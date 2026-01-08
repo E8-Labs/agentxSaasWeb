@@ -66,6 +66,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 
 import Apis from '@/components/apis/Apis'
 import getProfileDetails from '@/components/apis/GetProfile'
+import AdminGetProfileDetails from '@/components/admin/AdminGetProfileDetails'
 import { TranscriptViewer } from '@/components/calls/TranscriptViewer'
 import { UpgradeTagWithModal, UpgradeTag } from '@/components/constants/constants'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
@@ -123,6 +124,7 @@ const LeadDetails = ({
   leadStageUpdated,
   leadAssignedTeam,
   renderInline = false,
+  selectedUser = null, // Optional prop for admin/agency view
 }) => {
   // //console.log;
   // //console.log;
@@ -272,115 +274,52 @@ const LeadDetails = ({
   // Get user data from Redux
   const { user: reduxUser, setUser: setReduxUser } = useUser()
   
-  // Check dialer capability based on user type
-  const checkDialerCapability = () => {
-    // For AgentX users (not subaccounts)
-    if (!reduxUser?.userRole || reduxUser.userRole !== 'AgencySubAccount') {
-      // Check planCapabilities.allowDialer
-      return {
-        hasAccess: reduxUser?.planCapabilities?.allowDialer === true,
-        showUpgrade: reduxUser?.planCapabilities?.allowDialer !== true,
-        showRequestFeature: false,
-      }
-    }
-    
-    // For subaccounts
-    // First check if parent agency has access
-    const agencyHasAccess = reduxUser?.agencyCapabilities?.allowDialer === true
-    
-    if (!agencyHasAccess) {
-      // Agency doesn't have access - show Request Feature
-      return {
-        hasAccess: false,
-        showUpgrade: false,
-        showRequestFeature: true,
-      }
-    }
-    
-    // Agency has access, check subaccount access
-    const subaccountHasAccess = reduxUser?.planCapabilities?.allowDialer === true
-    
+  // Determine which user's capabilities to use
+  // If selectedUser is provided (admin/agency view), use userLocalData, otherwise use reduxUser
+  const effectiveUser = React.useMemo(() => {
+    return selectedUser?.id ? userLocalData : reduxUser
+  }, [selectedUser?.id, userLocalData, reduxUser])
+  
+  // Use backend-provided flags for capability checks
+  // Backend sets: shouldShowAllowDialerUpgrade, shouldShowDialerRequestFeature, etc.
+  const dialerCapability = React.useMemo(() => {
+    const planCapabilities = effectiveUser?.planCapabilities || {}
     return {
-      hasAccess: subaccountHasAccess,
-      showUpgrade: !subaccountHasAccess,
-      showRequestFeature: false,
+      hasAccess: planCapabilities.allowDialer === true,
+      showUpgrade: planCapabilities.shouldShowAllowDialerUpgrade === true,
+      showRequestFeature: planCapabilities.shouldShowDialerRequestFeature === true,
     }
-  }
+  }, [effectiveUser?.planCapabilities])
   
-  const dialerCapability = checkDialerCapability()
-  
-  // Check email capability based on user type
-  const checkEmailCapability = () => {
-    // For AgentX users (not subaccounts)
-    if (!reduxUser?.userRole || reduxUser.userRole !== 'AgencySubAccount') {
-      // Check planCapabilities.allowEmails
-      return {
-        hasAccess: reduxUser?.planCapabilities?.allowEmails === true,
-        showUpgrade: reduxUser?.planCapabilities?.allowEmails !== true,
-        showRequestFeature: false,
-      }
-    }
-    
-    // For subaccounts
-    // First check if parent agency has access
-    const agencyHasAccess = reduxUser?.agencyCapabilities?.allowEmails === true
-    
-    if (!agencyHasAccess) {
-      // Agency doesn't have access - show Request Feature
-      return {
-        hasAccess: false,
-        showUpgrade: false,
-        showRequestFeature: true,
-      }
-    }
-    
-    // Agency has access, check subaccount access
-    const subaccountHasAccess = reduxUser?.planCapabilities?.allowEmails === true
-    
+  const emailCapability = React.useMemo(() => {
+    const planCapabilities = effectiveUser?.planCapabilities || {}
     return {
-      hasAccess: subaccountHasAccess,
-      showUpgrade: !subaccountHasAccess,
-      showRequestFeature: false,
+      hasAccess: planCapabilities.allowEmails === true,
+      showUpgrade: planCapabilities.shouldShowAllowEmailUpgrade === true,
+      showRequestFeature: planCapabilities.shouldShowEmailRequestFeature === true,
     }
-  }
+  }, [effectiveUser?.planCapabilities])
   
-  // Check SMS capability based on user type
-  const checkSMSCapability = () => {
-    // For AgentX users (not subaccounts)
-    if (!reduxUser?.userRole || reduxUser.userRole !== 'AgencySubAccount') {
-      // Check planCapabilities.allowTextMessages
-      return {
-        hasAccess: reduxUser?.planCapabilities?.allowTextMessages === true,
-        showUpgrade: reduxUser?.planCapabilities?.allowTextMessages !== true,
-        showRequestFeature: false,
-      }
-    }
-    
-    // For subaccounts
-    // First check if parent agency has access
-    const agencyHasAccess = reduxUser?.agencyCapabilities?.allowTextMessages === true
-    
-    if (!agencyHasAccess) {
-      // Agency doesn't have access - show Request Feature
-      return {
-        hasAccess: false,
-        showUpgrade: false,
-        showRequestFeature: true,
-      }
-    }
-    
-    // Agency has access, check subaccount access
-    const subaccountHasAccess = reduxUser?.planCapabilities?.allowTextMessages === true
-    
+  const smsCapability = React.useMemo(() => {
+    const planCapabilities = effectiveUser?.planCapabilities || {}
     return {
-      hasAccess: subaccountHasAccess,
-      showUpgrade: !subaccountHasAccess,
-      showRequestFeature: false,
+      hasAccess: planCapabilities.allowTextMessages === true,
+      showUpgrade: planCapabilities.shouldShowAllowSmsUpgrade === true,
+      showRequestFeature: planCapabilities.shouldShowSmsRequestFeature === true,
     }
-  }
+  }, [effectiveUser?.planCapabilities])
   
-  const emailCapability = checkEmailCapability()
-  const smsCapability = checkSMSCapability()
+  // Memoize the selectedUser to pass to UpgradePlan to prevent it from becoming null on re-renders
+  const memoizedSelectedUserForUpgrade = React.useMemo(() => {
+    // Only use selectedUser prop if it has an id - no fallback to userLocalData
+    // This ensures we're always using the correct selectedUser prop
+    const userToPass = selectedUser?.id ? selectedUser : null
+    console.log('🔍 [LeadDetails] Memoized selectedUser for UpgradePlan:', {
+      selectedUserProp: selectedUser ? { id: selectedUser.id, hasId: !!selectedUser.id } : 'null',
+      memoizedUser: userToPass ? { id: userToPass.id, hasId: !!userToPass.id, userRole: userToPass.userRole } : 'null'
+    })
+    return userToPass
+  }, [selectedUser?.id]) // Only recalculate when selectedUser.id changes
   
   // State to trigger upgrade modal externally (use counter to ensure it triggers even if already true)
   const [triggerUpgradeModal, setTriggerUpgradeModal] = React.useState(0)
@@ -420,9 +359,13 @@ const LeadDetails = ({
 
   useEffect(() => {
     const getData = async () => {
-      let user = await getProfileDetails()
+      // Use AdminGetProfileDetails if selectedUser is provided (admin view), otherwise use getProfileDetails (regular user)
+      let user = selectedUser?.id 
+        ? await AdminGetProfileDetails(selectedUser.id)
+        : await getProfileDetails()
       if (user) {
-        setUserLocalData(user.data.data)
+        // AdminGetProfileDetails returns user directly, getProfileDetails returns { data: { data: user } }
+        setUserLocalData(selectedUser?.id ? user : user.data.data)
         // console.log('user', user)
       }
     }
@@ -431,7 +374,8 @@ const LeadDetails = ({
     getData()
     getCreditCost()
     getUniqueColumns()
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedUser?.id]) // Only depend on selectedUser.id to avoid unnecessary re-runs
 
   // Fetch unique columns for tag autocomplete
   const getUniqueColumns = async () => {
@@ -494,6 +438,12 @@ const LeadDetails = ({
       if (data) {
         let u = JSON.parse(data)
         let path = Apis.getTeam
+        
+        // Add userId parameter if selectedUser is provided (admin view)
+        if (selectedUser?.id) {
+          path = path + `?userId=${selectedUser.id}`
+          console.log('Api path for getting team members for selected user:', path)
+        }
 
         const response = await axios.get(path, {
           headers: {
@@ -653,25 +603,32 @@ const LeadDetails = ({
 
   const getNumbers = async () => {
     console.log('getNumbers is called')
-    let data = localStorage.getItem('selectedUser')
-    let selectedUser = null
-    console.log('data', data)
-    console.log('typeof data', typeof data)
+    
+    // Use selectedUser prop if provided (admin view), otherwise fall back to localStorage (existing behavior)
+    let userId = null
+    if (selectedUser?.id) {
+      // Use prop if provided
+      userId = selectedUser.id
+    } else {
+      // Fall back to localStorage (existing behavior for backward compatibility)
+      let data = localStorage.getItem('selectedUser')
+      console.log('data', data)
+      console.log('typeof data', typeof data)
 
-    // Fix: Check if data exists and is not "undefined" string, then safely parse
-    if (data && data !== 'undefined' && data !== 'null') {
-      try {
-        selectedUser = JSON.parse(data)
-        console.log('selected user data from local', selectedUser)
-      } catch (error) {
-        console.error('Error parsing selectedUser from localStorage:', error)
-        selectedUser = null
+      // Fix: Check if data exists and is not "undefined" string, then safely parse
+      if (data && data !== 'undefined' && data !== 'null') {
+        try {
+          const parsedUser = JSON.parse(data)
+          console.log('selected user data from local', parsedUser)
+          userId = parsedUser?.id
+        } catch (error) {
+          console.error('Error parsing selectedUser from localStorage:', error)
+        }
       }
     }
 
     setPhoneLoading(true)
-    let id = selectedUser?.id
-    let num = await getA2PNumbers(id)
+    let num = await getA2PNumbers(userId)
     if (num) {
       setPhoneNumbers(num)
     }
@@ -1290,10 +1247,12 @@ const LeadDetails = ({
 
   useEffect(() => {
     getGoogleAccounts()
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedUser?.id]) // Only depend on selectedUser.id to avoid unnecessary re-runs
 
   const getGoogleAccounts = async () => {
-    let accounts = await getGmailAccounts()
+    // Use selectedUser.id if provided (admin view), otherwise call without userId (existing behavior)
+    let accounts = await getGmailAccounts(selectedUser?.id)
     setGoogleAccounts(accounts)
     setSelectedGoogleAccount(accounts[0] || null)
   }
@@ -1797,7 +1756,7 @@ const LeadDetails = ({
                                     onUpgradeClick: handleUpgradeClick,
                                   },
                                   {
-                                    label: 'SMS',
+                                    label: 'Text',
                                     value: 'sms',
                                     icon: MessageSquareDot,
                                     upgradeTag: (smsCapability.showUpgrade || smsCapability.showRequestFeature) ? (
@@ -1816,32 +1775,36 @@ const LeadDetails = ({
                               {/* Render upgrade modals outside dropdown to avoid re-render issues - hideTag=true so it doesn't render the button */}
                               {(dialerCapability.showUpgrade || dialerCapability.showRequestFeature) && (
                                 <UpgradeTagWithModal
-                                  reduxUser={reduxUser}
+                                  reduxUser={effectiveUser}
                                   setReduxUser={setReduxUser}
                                   requestFeature={dialerCapability.showRequestFeature}
                                   externalTrigger={triggerUpgradeModal > 0}
                                   onModalClose={handleUpgradeModalClose}
                                   hideTag={true}
+                                  selectedUser={memoizedSelectedUserForUpgrade}
                                 />
                               )}
                               {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
                                 <UpgradeTagWithModal
-                                  reduxUser={reduxUser}
+                                  reduxUser={effectiveUser}
                                   setReduxUser={setReduxUser}
                                   requestFeature={emailCapability.showRequestFeature}
                                   externalTrigger={triggerEmailUpgradeModal > 0}
                                   onModalClose={handleEmailUpgradeModalClose}
                                   hideTag={true}
+                                  selectedUser={memoizedSelectedUserForUpgrade}
+                                  featureTitle="Enable Emails"
                                 />
                               )}
                               {(smsCapability.showUpgrade || smsCapability.showRequestFeature) && (
                                 <UpgradeTagWithModal
-                                  reduxUser={reduxUser}
+                                  reduxUser={effectiveUser}
                                   setReduxUser={setReduxUser}
                                   requestFeature={smsCapability.showRequestFeature}
                                   externalTrigger={triggerSMSUpgradeModal > 0}
                                   onModalClose={handleSMSUpgradeModalClose}
                                   hideTag={true}
+                                  selectedUser={memoizedSelectedUserForUpgrade}
                                 />
                               )}
                             </>
@@ -2535,6 +2498,9 @@ const LeadDetails = ({
         disableEnforceFocus={true}
         disableAutoFocus={true}
         disableRestoreFocus={true}
+        sx={{
+          zIndex: 1400, // Higher than subaccount modals (1300) to appear on top
+        }}
         PaperProps={{
           sx: {
             width: '35%', // Adjust width as needed
@@ -2546,12 +2512,14 @@ const LeadDetails = ({
             height: '96.5vh',
             overflow: 'hidden',
             scrollbarWidth: 'none',
+            zIndex: 1401, // Ensure Paper is above backdrop
           },
         }}
         BackdropProps={{
           timeout: 100,
           sx: {
             backgroundColor: '#00000020',
+            zIndex: 1400, // Match Drawer z-index
             // //backdropFilter: "blur(20px)",
           },
         }}
@@ -2723,9 +2691,13 @@ const LeadDetails = ({
               )
               // Refresh user data after successful upgrade
               const getData = async () => {
-                let user = await getProfileDetails()
+                // Use AdminGetProfileDetails if selectedUser is provided (admin view), otherwise use getProfileDetails (regular user)
+                let user = selectedUser?.id 
+                  ? await AdminGetProfileDetails(selectedUser.id)
+                  : await getProfileDetails()
                 if (user) {
-                  setUserLocalData(user.data.data)
+                  // AdminGetProfileDetails returns user directly, getProfileDetails returns { data: { data: user } }
+                  setUserLocalData(selectedUser?.id ? user : user.data.data)
                 }
               }
               await getData()
@@ -2733,6 +2705,8 @@ const LeadDetails = ({
           }}
           plan={selectedPlan}
           currentFullPlan={currentFullPlan}
+          selectedUser={memoizedSelectedUserForUpgrade}
+          from={effectiveUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : 'User'}
         />
       </Elements>
     </div>

@@ -117,38 +117,87 @@ export const getUserPlans = async (from, selectedUser) => {
     }
 
     let path = Apis.getPlans
+    // When selectedUser is provided (agency viewing another user), use selectedUser's role to determine endpoint
+    // Otherwise, use logged-in user's role
+    const effectiveRole = selectedUser?.userRole || UserLocalData?.userRole
     const role = UserLocalData?.userRole
     const isAgency = role === 'Agency'
     const isSubAccount = role === 'AgencySubAccount'
+    const effectiveIsSubAccount = effectiveRole === 'AgencySubAccount'
     const teamAgency =
       isTeamMember(UserLocalData) && isAgencyTeamMember(UserLocalData)
     const teamSub =
       isTeamMember(UserLocalData) && isSubaccountTeamMember(UserLocalData)
 
+    console.log('🔍 [getUserPlans] Debug info:', {
+      from,
+      selectedUser: selectedUser ? { id: selectedUser.id, role: selectedUser.userRole } : null,
+      loggedInUserRole: role,
+      effectiveRole,
+      effectiveIsSubAccount,
+      isAgency,
+      isSubAccount,
+    })
 
-    if ((from === 'agency' || from === 'Agency')) {
-      console.log('get plans for agency',from,isAgency,teamAgency)
+    // Priority 1: Check if explicitly set via 'from' prop
+    if (from === 'agency' || from === 'Agency') {
+      console.log('✅ Using agency endpoint (from prop)')
       path = Apis.getPlansForAgency
     } else if (from === 'SubAccount') {
-      console.log('get plans for subaccount',from,isSubAccount,teamSub)
+      console.log('✅ Using subaccount endpoint (from prop)')
       path = Apis.getSubAccountPlans
     }
+    // Priority 2: Check if selectedUser is a subaccount (agency viewing subaccount)
+    else if (selectedUser && (selectedUser.userRole === 'AgencySubAccount' || selectedUser?.user?.userRole === 'AgencySubAccount')) {
+      console.log('✅ Using subaccount endpoint (selectedUser is subaccount)')
+      path = Apis.getSubAccountPlans
+    }
+    // Priority 3: Check logged-in user's role
     else if (isAgency || teamAgency) {
-      console.log('get plans for agency',from,isAgency,teamAgency)
+      console.log('✅ Using agency endpoint (logged-in user is agency)')
       path = Apis.getPlansForAgency
     } else if (isSubAccount || teamSub) {
-      console.log('get plans for subaccount',from,isSubAccount,teamSub)
+      console.log('✅ Using subaccount endpoint (logged-in user is subaccount)')
       path = Apis.getSubAccountPlans
     } else {
-      console.log('get plans for user',from)
+      console.log('✅ Using regular user endpoint')
       path = Apis.getPlans
     }
 
-    console.log('path of get plans', path)
-    console.log('Api path for user details view', path)
+    console.log('📋 [getUserPlans] Base path:', path)
+    console.log('📋 [getUserPlans] selectedUser:', selectedUser ? { 
+      id: selectedUser.id, 
+      userId: selectedUser.userId,
+      role: selectedUser.userRole || selectedUser.role,
+      hasId: !!selectedUser.id,
+      hasUserId: !!selectedUser.userId,
+      idType: typeof selectedUser.id,
+      idValue: selectedUser.id,
+      allKeys: Object.keys(selectedUser).slice(0, 10) // First 10 keys
+    } : 'null/undefined')
 
-    if (selectedUser) {
-      path = `${path}?userId=${selectedUser.id}`
+    // Always append userId query param if selectedUser is provided
+    // CRITICAL: For subaccount endpoint, we MUST have userId when selectedUser is provided
+    // Try multiple ways to get the userId
+    const userId = selectedUser?.id || selectedUser?.userId || selectedUser?.user?.id || selectedUser?.user?.userId
+    
+    if (userId) {
+      // Check if path already has query params
+      const separator = path.includes('?') ? '&' : '?'
+      path = `${path}${separator}userId=${userId}`
+      console.log('✅ [getUserPlans] Final path with userId:', path)
+    } else if (path === Apis.getSubAccountPlans) {
+      // If using subaccount endpoint but no userId, log warning
+      console.error('❌ [getUserPlans] CRITICAL: Using subaccount endpoint but no userId found!', {
+        selectedUser: selectedUser ? 'exists but no id' : 'null/undefined',
+        selectedUserKeys: selectedUser ? Object.keys(selectedUser) : [],
+        selectedUserId: selectedUser?.id,
+        selectedUserUserId: selectedUser?.userId,
+        nestedUserId: selectedUser?.user?.id
+      })
+      // Don't proceed without userId for subaccount endpoint - this will cause empty results
+    } else {
+      console.log('ℹ️ [getUserPlans] No userId needed for this endpoint')
     }
     let response
 
@@ -165,8 +214,10 @@ export const getUserPlans = async (from, selectedUser) => {
 
         // Cache the fresh data
         setCachedPlans(plansData, from)
-        if (UserLocalData?.userRole === 'AgencySubAccount') {
-          return response.data.data.monthlyPlans
+        // Return monthlyPlans if the effective user (selectedUser or logged-in user) is a subaccount
+        const effectiveRole = selectedUser?.userRole || UserLocalData?.userRole
+        if (effectiveRole === 'AgencySubAccount') {
+          return response.data.data.monthlyPlans || response.data.data
         }
         return plansData
       } else {

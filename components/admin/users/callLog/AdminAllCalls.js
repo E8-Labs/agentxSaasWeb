@@ -33,8 +33,6 @@ import {
   convertUTCToTimezone,
 } from '@/utilities/utility'
 
-import AdminLeadDetails from '../AdminLeadDetails'
-
 function AdminAllCalls({ selectedUser }) {
   const LimitPerPage = 20
 
@@ -1175,7 +1173,7 @@ function AdminAllCalls({ selectedUser }) {
 
       {/* Code for details view */}
       {showDetailsModal && (
-        <AdminLeadDetails
+        <LeadDetails
           selectedLead={selectedLeadsDetails?.LeadModel?.id}
           pipelineId={selectedLeadsDetails?.PipelineStages?.pipelineId}
           showDetailsModal={showDetailsModal}

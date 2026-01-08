@@ -1900,39 +1900,19 @@ function Page() {
     setShowEditNumberPopup,
     setSelectedNumber,
   }) {
-    const isSubaccount = reduxUser?.userRole === 'AgencySubAccount'
-
-    // For subaccount: check agency capabilities first
-    if (isSubaccount) {
-      // If agency has disabled the feature, show request feature button
-      if (reduxUser?.agencyCapabilities?.allowLiveCallTransfer === false) {
-        return (
-          <UpgradeTagWithModal
-            reduxUser={reduxUser}
-            setReduxUser={setReduxUser}
-            requestFeature={true}
-          />
-        )
-      }
-      // If agency allows it, check plan capabilities
-      if (!reduxUser?.planCapabilities?.allowLiveCallTransfer) {
-        return (
-          <UpgradeTagWithModal
-            reduxUser={reduxUser}
-            setReduxUser={setReduxUser}
-          />
-        )
-      }
-    } else {
-      // For normal user: check plan capabilities directly
-      if (!reduxUser?.planCapabilities?.allowLiveCallTransfer) {
-        return (
-          <UpgradeTagWithModal
-            reduxUser={reduxUser}
-            setReduxUser={setReduxUser}
-          />
-        )
-      }
+    // Use backend-provided flags
+    const planCapabilities = reduxUser?.planCapabilities || {}
+    const shouldShowUpgrade = planCapabilities.shouldShowAllowLiveTransferUpgrade === true
+    const shouldShowRequestFeature = planCapabilities.shouldShowLiveTransferRequestFeature === true
+    
+    if (shouldShowUpgrade || shouldShowRequestFeature) {
+      return (
+        <UpgradeTagWithModal
+          reduxUser={reduxUser}
+          setReduxUser={setReduxUser}
+          requestFeature={shouldShowRequestFeature}
+        />
+      )
     }
 
     // Show live transfer number and edit button if feature is enabled

@@ -71,17 +71,12 @@ function Knowledgebase({ user, agent }) {
   }
 
   function GetNoKbView() {
-    if (user?.agencyCapabilities?.allowKnowledgeBases === false) {
-      return (
-        <UpgardView
-          setShowSnackMsg={setShowSnackMsg}
-          title={'Add Knowledge Base'}
-          subTitle={
-            'Upgrade to teach your AI agent on your own custom data. You can add Youtube videos, website links, documents and more.'
-          }
-        />
-      )
-    } else if (user?.planCapabilities?.allowKnowledgeBases === false) {
+    // Use backend-provided flags
+    const planCapabilities = user?.planCapabilities || {}
+    const shouldShowUpgrade = planCapabilities.shouldShowAllowKnowledgeBaseUpgrade === true
+    const shouldShowRequestFeature = planCapabilities.shouldShowKnowledgeBaseRequestFeature === true
+    
+    if (shouldShowUpgrade || shouldShowRequestFeature) {
       return (
         <UpgardView
           setShowSnackMsg={setShowSnackMsg}
