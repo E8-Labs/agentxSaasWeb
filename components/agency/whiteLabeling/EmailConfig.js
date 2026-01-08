@@ -612,7 +612,7 @@ const EmailConfig = ({ selectedAgency }) => {
       */}
 
       {/* Mailgun Domain Setup Section - Hidden in Production */}
-      {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && (
+      {/* {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && ( */}
         <>
           <div className="w-full flex flex-row justify-center pt-8 pb-12">
             <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
@@ -770,7 +770,7 @@ const EmailConfig = ({ selectedAgency }) => {
             />
           )}
         </>
-      )}
+      {/* )} */}
 
       {/* Snackbar for notifications */}
       <AgentSelectSnackMessage
