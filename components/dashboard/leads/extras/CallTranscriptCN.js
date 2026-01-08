@@ -27,10 +27,10 @@ const CallTranscriptCN = ({
   const summaryText = callSummary?.callSummary || null
   const hasSummary = summaryText && summaryText.trim()
 
-  // Use summary if available, otherwise fallback to transcript
+  // Use summary if available, otherwise show "No summary available"
   const displayText = hasSummary
     ? summaryText
-    : item.transcript || 'No summary or transcript available'
+    : 'No summary available'
 
   return (
     <div className="flex flex-col">
@@ -200,8 +200,20 @@ const CallTranscriptCN = ({
             }}
           >
             <button
-              onClick={() => onCopyCallId?.(item.callId)}
-              style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+              onClick={() => {
+                if (item.callId) {
+                  onCopyCallId?.(item.callId)
+                } else {
+                  console.warn('Call ID is null or undefined, cannot copy')
+                }
+              }}
+              disabled={!item.callId}
+              style={{ 
+                cursor: item.callId ? 'pointer' : 'not-allowed', 
+                display: 'flex', 
+                alignItems: 'center',
+                opacity: item.callId ? 1 : 0.5,
+              }}
             >
               <Copy size={18} color="hsl(var(--brand-primary))" />
             </button>

@@ -464,13 +464,16 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
   // Handle call_summary activity type - render CallTranscriptCN component
   if (message.activityType === 'call_summary') {
     const activityData = message.metadata?.activityData || {}
+    // Use displayCallId if available (prioritizes twilioCallSid for dialer calls), otherwise fallback to synthflowCallId or callId
+    // Ensure we always have a valid callId - convert to string if it's a number
+    const callId = activityData.displayCallId || activityData.twilioCallSid || activityData.synthflowCallId || (activityData.callId ? String(activityData.callId) : null)
     const callData = {
       id: activityData.callId,
-      callId: activityData.synthflowCallId || activityData.callId,
+      callId: callId || String(activityData.callId || ''), // Ensure callId is never null/undefined
       duration: activityData.duration || 0,
       recordingUrl: activityData.recordingUrl,
       transcript: activityData.transcript,
-      callSummary: activityData.callSummary || {},
+      callSummary: activityData.callSummary || null, // Can be null if no summary available
     }
 
     // Get caller name from senderUser or agent
