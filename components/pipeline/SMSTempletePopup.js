@@ -253,7 +253,7 @@ function SMSTempletePopup({
             try {
               await result
               setShowSnackBar({
-                message: 'SMS sent successfully',
+                message: 'Text sent successfully',
                 type: SnackbarTypes.Success,
               })
             } catch (error) {
@@ -353,7 +353,7 @@ function SMSTempletePopup({
             try {
               await result
               setShowSnackBar({
-                message: 'Template saved and SMS sent successfully',
+                message: 'Template saved and Text sent successfully',
                 type: SnackbarTypes.Success,
               })
             } catch (error) {

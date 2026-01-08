@@ -874,7 +874,7 @@ function DialerModal({
 
       // Refresh phone numbers
       await fetchPhoneNumbersWithAgents()
-      toast.success('Internal dialer number updated')
+      toast.success('Internal dialer updated')
       setNumberDropdownAnchor(null)
     } catch (error: any) {
       console.error('Error setting dialer number:', error)
@@ -2128,7 +2128,7 @@ function DialerModal({
       const data = await response.json()
 
       if (data?.status === true) {
-        toast.success('SMS sent successfully')
+        toast.success('Text sent successfully')
         dispatch(setSelectedTemplate(null))
         dispatch(updateUIPanel({ panel: 'sms', value: false }))
       } else {

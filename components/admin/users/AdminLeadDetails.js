@@ -949,7 +949,7 @@ const AdminLeadDetails = ({
       })
 
       if (response.data.status === true) {
-        setShowSuccessSnack('SMS sent successfully!')
+        setShowSuccessSnack('Text sent successfully!')
         setShowSuccessSnack2(true)
         setShowSMSModal(false)
       } else {
