@@ -17,6 +17,7 @@ import { getTempletes, getTempleteDetails } from '@/components/pipeline/Templete
 import Image from 'next/image'
 import MessageComposerTabCN from './MessageComposerTabCN'
 import SplitButtonCN from '../ui/SplitButtonCN'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 // Helper function to get brand primary color as hex
 const getBrandPrimaryHex = () => {
@@ -1651,7 +1652,7 @@ const MessageComposer = ({
                               }}
                               className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
                             >
-                              <Image src="/messaging/templateIcon.svg" alt="Templates" width={18} height={18} />
+                              {renderBrandedIcon("/messaging/templateIcon.svg", 18,18)}
                               <span>My Templates</span>
                               <CaretDown size={16} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
                             </button>
@@ -1753,7 +1754,7 @@ const MessageComposer = ({
                             }}
                             className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
                           >
-                            <Image src="/messaging/templateIcon.svg" alt="Templates" width={18} height={18} />
+                            {renderBrandedIcon("/messaging/templateIcon.svg", 18,18)}
                             <span>My Templates</span>
                             <CaretDown size={16} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
                           </button>

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import axios from 'axios'
 import { toast } from 'sonner'
 import { X, Plus } from 'lucide-react'
@@ -43,6 +43,9 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
   const [selectedAgents, setSelectedAgents] = useState([])
   const [selectedTeamMemberIds, setSelectedTeamMemberIds] = useState([])
   const [createMessageThread, setCreateMessageThread] = useState(false)
+  const [isPipelineSelectOpen, setIsPipelineSelectOpen] = useState(false)
+  const previousPipelineValueRef = useRef(null)
+  const valueChangedRef = useRef(false)
 
   // Data state
   const [smartlists, setSmartlists] = useState([])
@@ -423,11 +426,16 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
       // Add optional fields if selected
       if (selectedPipeline?.id) {
         payload.pipelineId = selectedPipeline.id.toString()
+        
+        // Add stageId if a stage is selected
+        if (selectedStage?.id) {
+          payload.stageId = selectedStage.id.toString()
+        }
       }
 
-      // Add agent assignments if selected
+      // Add agent assignments if selected (only if pipeline is selected)
       // Extract mainAgentIds from selected agent objects and deduplicate
-      if (selectedAgents.length > 0) {
+      if (selectedPipeline?.id && selectedAgents.length > 0) {
         payload.mainAgentIds = [
           ...new Set(selectedAgents.map((agent) => agent.mainAgentId.toString())),
         ]
@@ -644,12 +652,53 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
                 <div className="flex-1 flex flex-col gap-1">
                   <Label className="text-sm text-gray-600">Pipeline</Label>
                   <Select
-                    value={selectedPipeline?.id?.toString() || ''}
+                    value={selectedPipeline?.id?.toString() || '__none__'}
+                    onOpenChange={(open) => {
+                      if (open) {
+                        // Store the current value when dropdown opens
+                        previousPipelineValueRef.current = selectedPipeline?.id?.toString() || '__none__'
+                        valueChangedRef.current = false
+                        setIsPipelineSelectOpen(true)
+                      } else {
+                        // When dropdown closes, check if value didn't change (same item clicked)
+                        const currentValue = selectedPipeline?.id?.toString() || '__none__'
+                        if (isPipelineSelectOpen && !valueChangedRef.current && previousPipelineValueRef.current === currentValue && currentValue !== '__none__') {
+                          // Same item was clicked and value didn't change, toggle it off
+                          setTimeout(() => {
+                            setSelectedPipeline(null)
+                            setSelectedStage(null)
+                            setStages([])
+                            setAgents([])
+                            setSelectedAgents([])
+                          }, 0)
+                        }
+                        setIsPipelineSelectOpen(false)
+                      }
+                    }}
                     onValueChange={(value) => {
-                      const pipeline = pipelines.find(
-                        (p) => p.id.toString() === value
-                      )
-                      setSelectedPipeline(pipeline)
+                      valueChangedRef.current = true
+                      if (value === '__none__') {
+                        // Clear pipeline selection
+                        setSelectedPipeline(null)
+                        setSelectedStage(null)
+                        setStages([])
+                        setAgents([])
+                        setSelectedAgents([])
+                      } else {
+                        const pipeline = pipelines.find(
+                          (p) => p.id.toString() === value
+                        )
+                        // If selecting the same pipeline that's already selected, unselect it
+                        if (selectedPipeline?.id?.toString() === value) {
+                          setSelectedPipeline(null)
+                          setSelectedStage(null)
+                          setStages([])
+                          setAgents([])
+                          setSelectedAgents([])
+                        } else {
+                          setSelectedPipeline(pipeline)
+                        }
+                      }
                     }}
                     disabled={loadingPipelines}
                   >
@@ -666,14 +715,19 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
                           No pipelines available
                         </div>
                       ) : (
-                        pipelines.map((pipeline) => (
-                          <SelectItem
-                            key={pipeline.id}
-                            value={pipeline.id.toString()}
-                          >
-                            {pipeline.title}
+                        <>
+                          <SelectItem value="__none__">
+                            <span className="text-gray-500 italic">Select</span>
                           </SelectItem>
-                        ))
+                          {pipelines.map((pipeline) => (
+                            <SelectItem
+                              key={pipeline.id}
+                              value={pipeline.id.toString()}
+                            >
+                              {pipeline.title}
+                            </SelectItem>
+                          ))}
+                        </>
                       )}
                     </SelectContent>
                   </Select>

@@ -36,11 +36,64 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
   const [filteredList, setFilteredList] = useState([])
 
   const [planType, setPlanType] = useState(initialTab)
+  const [brandColor, setBrandColor] = useState('270 75% 50%') // Default brand color
 
   // Sync planType when initialTab prop changes
   useEffect(() => {
     setPlanType(initialTab)
   }, [initialTab])
+
+  // Update brand color from CSS variable when component mounts or when planType changes
+  useEffect(() => {
+    const updateBrandColor = () => {
+      if (typeof window !== 'undefined') {
+        const root = document.documentElement
+        const color = getComputedStyle(root).getPropertyValue('--brand-primary')
+        if (color) {
+          setBrandColor(color.trim())
+        }
+      }
+    }
+
+    // Update immediately
+    updateBrandColor()
+
+    // Also update when planType changes (in case brand color changed while on another tab)
+    // This ensures icons update when switching tabs
+  }, [planType])
+
+  // Watch for brand color changes using MutationObserver
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const updateBrandColor = () => {
+      const root = document.documentElement
+      const color = getComputedStyle(root).getPropertyValue('--brand-primary')
+      if (color) {
+        setBrandColor(color.trim())
+      }
+    }
+
+    // Create MutationObserver to watch for style changes on document root
+    const observer = new MutationObserver(() => {
+      updateBrandColor()
+    })
+
+    // Observe document root for attribute changes (CSS variables are attributes)
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['style', 'class'],
+      subtree: false,
+    })
+
+    // Also check periodically as a fallback (in case CSS variable changes via stylesheet)
+    const intervalId = setInterval(updateBrandColor, 500)
+
+    return () => {
+      observer.disconnect()
+      clearInterval(intervalId)
+    }
+  }, [])
   const [open, setOpen] = useState(false)
   const [isEditPlan, setIsEditPlan] = useState(false)
   const [initialLoader, setInitialLoader] = useState(true)
@@ -556,13 +609,9 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
       )
     }
 
-    // Get brand color from CSS variable
-    const root = document.documentElement
-    const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')
-    
-    // Use brand color when active, muted gray when inactive
+    // Use brand color from state (which is updated when CSS variable changes)
     const iconColor = isActive
-      ? `hsl(${brandColor.trim() || '270 75% 50%'})`
+      ? `hsl(${brandColor || '270 75% 50%'})`
       : 'hsl(0 0% 50%)' // Muted gray for inactive state
 
     // Use mask-image approach: background color with icon as mask

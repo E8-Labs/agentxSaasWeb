@@ -2687,6 +2687,8 @@ const Messages = () => {
                   // setEmailTimelineMessages([])
                   setReplyToMessage(null)
                 }}
+
+                getLeadName={getLeadName}
                 leadId={emailTimelineLeadId}
                 subject={emailTimelineSubject}
                 messages={emailTimelineMessages}

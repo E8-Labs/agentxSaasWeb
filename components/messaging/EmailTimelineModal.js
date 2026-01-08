@@ -88,6 +88,21 @@ const EmailTimelineModal = ({
   const [bccInput, setBccInput] = useState('')
   const [showCC, setShowCC] = useState(false)
   const [showBCC, setShowBCC] = useState(false)
+  const [imageErrors, setImageErrors] = useState(new Set())
+  const [currentUserData, setCurrentUserData] = useState(null)
+
+  // Get current user data from localStorage on mount
+  useEffect(() => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        const userData = JSON.parse(localData)
+        setCurrentUserData(userData)
+      }
+    } catch (error) {
+      // Silently fail if localStorage access fails
+    }
+  }, [])
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -227,6 +242,7 @@ const EmailTimelineModal = ({
     setBccInput('')
     setShowCC(false)
     setShowBCC(false)
+    setImageErrors(new Set())
     onClose()
   }
 
@@ -470,6 +486,91 @@ const EmailTimelineModal = ({
       : selectedThread?.lead?.firstName || selectedThread?.lead?.name || 'Unknown'
   }
 
+  // Get avatar for a message (profile image or first letter)
+  const getMessageAvatar = (message) => {
+    const isOutbound = message.direction === 'outbound'
+    const senderName = getSenderName(message)
+    const avatarLetter = senderName.charAt(0).toUpperCase()
+    
+    // Create a unique key for this message's avatar
+    const avatarKey = `avatar-${message.id}-${isOutbound ? 'outbound' : 'inbound'}`
+
+    // For outbound messages: check senderUser, agent, or current user profile image
+    if (isOutbound) {
+      // Priority 1: Team member sender profile image
+      if (message.senderUser?.thumb_profile_image && !imageErrors.has(avatarKey)) {
+        return (
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-white flex items-center justify-center">
+            <img
+              src={message.senderUser.thumb_profile_image}
+              alt={message.senderUser.name || 'You'}
+              className="w-full h-full object-cover rounded-full"
+              onError={() => {
+                setImageErrors(prev => new Set([...prev, avatarKey]))
+              }}
+            />
+          </div>
+        )
+      }
+      
+      // Priority 2: Agent profile image
+      if (message.agent?.thumb_profile_image && !imageErrors.has(avatarKey)) {
+        return (
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-white flex items-center justify-center">
+            <img
+              src={message.agent.thumb_profile_image}
+              alt={message.agent.name || 'Agent'}
+              className="w-full h-full object-cover rounded-full"
+              onError={() => {
+                setImageErrors(prev => new Set([...prev, avatarKey]))
+              }}
+            />
+          </div>
+        )
+      }
+      
+      // Priority 3: Current user profile image from localStorage
+      if (currentUserData?.user?.thumb_profile_image && !imageErrors.has(avatarKey)) {
+        return (
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-white flex items-center justify-center">
+            <img
+              src={currentUserData.user.thumb_profile_image}
+              alt={currentUserData.user.name || currentUserData.user.firstName || 'You'}
+              className="w-full h-full object-cover rounded-full"
+              onError={() => {
+                setImageErrors(prev => new Set([...prev, avatarKey]))
+              }}
+            />
+          </div>
+        )
+      }
+    } else {
+      // For inbound messages: check lead profile image
+      const profileImage = selectedThread?.lead?.thumb_profile_image
+      if (profileImage && !imageErrors.has(avatarKey)) {
+        return (
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-white flex items-center justify-center">
+            <img
+              src={profileImage}
+              alt={senderName}
+              className="w-full h-full object-cover rounded-full"
+              onError={() => {
+                setImageErrors(prev => new Set([...prev, avatarKey]))
+              }}
+            />
+          </div>
+        )
+      }
+    }
+
+    // Fallback to first letter
+    return (
+      <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
+        {avatarLetter}
+      </div>
+    )
+  }
+
   return (
     <Drawer
       open={open}
@@ -549,9 +650,7 @@ const EmailTimelineModal = ({
                       >
                         {message.direction !== 'outbound' && (
                           <div className="relative flex-shrink-0">
-                            <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
-                              {senderName.charAt(0).toUpperCase()}
-                            </div>
+                            {getMessageAvatar(message)}
                           </div>
                         )}
 
@@ -606,16 +705,7 @@ const EmailTimelineModal = ({
 
                         {message.direction === 'outbound' && (
                           <div className="flex-shrink-0">
-                            {(() => {
-                              const avatarLetter = senderName.charAt(0).toUpperCase()
-                              return (
-                                <div className="relative">
-                                  <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
-                                    {avatarLetter}
-                                  </div>
-                                </div>
-                              )
-                            })()}
+                            {getMessageAvatar(message)}
                           </div>
                         )}
                       </div>
