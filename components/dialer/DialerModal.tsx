@@ -1217,6 +1217,34 @@ function DialerModal({
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:322', message: 'Device error event', data: { errorCode: error.code, errorMessage: error.message, errorName: error.name, errorTwilioError: error.twilioError?.message, errorTwilioCode: error.twilioError?.code }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
         // #endregion
+        
+        // Check for AccessTokenExpired (20104) error and automatically re-initialize
+        const isTokenExpired = error.code === 20104 || 
+                              error.twilioError?.code === 20104 || 
+                              error.message?.includes('AccessTokenExpired') ||
+                              error.message?.includes('20104')
+        
+        if (isTokenExpired) {
+          console.log('[DialerModal] Access token expired (20104), automatically re-initializing device...')
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1224', message: 'AccessTokenExpired detected, re-initializing', data: { errorCode: error.code, errorTwilioCode: error.twilioError?.code }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
+          // #endregion
+          // Destroy current device and re-initialize
+          try {
+            twilioDevice.destroy()
+          } catch (e) {
+            console.warn('[DialerModal] Error destroying device:', e)
+          }
+          // Reset initialization flags to allow re-initialization
+          isInitializingRef.current = false
+          initializationFailedRef.current = false
+          // Re-initialize after a short delay
+          setTimeout(() => {
+            initializeDevice()
+          }, 1000)
+          return // Don't show error toast or update state, let re-initialization handle it
+        }
+        
         dispatch(updateDeviceState({ deviceRegistered: false, initializing: false }))
         updateCallStatusInRedux('error')
         // Provide user-friendly error messages
