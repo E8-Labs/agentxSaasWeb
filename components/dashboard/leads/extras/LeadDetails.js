@@ -1522,7 +1522,7 @@ const LeadDetails = ({
       })
 
       if (response.data.status === true) {
-        showSnackbar('SMS sent successfully!', SnackbarTypes.Success)
+        showSnackbar('Text sent successfully!', SnackbarTypes.Success)
         setShowSMSModal(false)
       } else {
         showSnackbar(response.data.message || 'Failed to send SMS', SnackbarTypes.Error)
