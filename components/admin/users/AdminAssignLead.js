@@ -374,7 +374,7 @@ const AdminAssignLead = ({
     // return;
 
     try {
-      // setLoader(true);
+      setLoader(true);
       console.log('calling api')
 
       let timer = null
