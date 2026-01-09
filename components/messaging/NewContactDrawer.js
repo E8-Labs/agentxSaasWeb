@@ -47,7 +47,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
   const [selectedTeamMemberIds, setSelectedTeamMemberIds] = useState([])
   const [createMessageThread, setCreateMessageThread] = useState(false)
   const [isPipelineSelectOpen, setIsPipelineSelectOpen] = useState(false)
-  const previousPipelineValueRef = useRef(null)
+  const previousPipelineValueRef = useRef('')
   const valueChangedRef = useRef(false)
 
   // Data state
@@ -370,6 +370,42 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
     }
   }
 
+  // Email validation function
+  const isValidEmail = (email) => {
+    if (!email || !email.trim()) return true // Email is optional, so empty is valid
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    return emailRegex.test(email.trim())
+  }
+
+  // Phone validation function
+  const isValidPhone = (phone) => {
+    if (!phone || !phone.trim()) return false // Phone is required
+    // Phone should have at least 10 digits (country code + number)
+    // react-phone-input-2 includes country code, so we check for minimum length
+    const digitsOnly = phone.replace(/\D/g, '')
+    return digitsOnly.length >= 10
+  }
+
+  // Check if form is valid for enabling/disabling the button
+  const isFormValid = () => {
+    // First Name is required
+    if (!formData.firstName.trim()) {
+      return false
+    }
+    
+    // Phone is required and must be valid
+    if (!formData.phone.trim() || !isValidPhone(formData.phone)) {
+      return false
+    }
+    
+    // If email is provided, it must be valid
+    if (formData.email.trim() && !isValidEmail(formData.email)) {
+      return false
+    }
+    
+    return true
+  }
+
   const validateForm = () => {
     const newErrors = {}
     
@@ -381,6 +417,13 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
     }
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone number is required'
+    } else if (!isValidPhone(formData.phone)) {
+      newErrors.phone = 'Please enter a valid phone number'
+    }
+    
+    // Validate email if provided (email is optional)
+    if (formData.email.trim() && !isValidEmail(formData.email)) {
+      newErrors.email = 'Please enter a valid email address'
     }
 
     setErrors(newErrors)
@@ -485,8 +528,24 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
+    // Clear error for this field when user starts typing
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: null }))
+    }
+    // Real-time validation for email and phone
+    if (field === 'email' && value.trim()) {
+      if (!isValidEmail(value)) {
+        setErrors((prev) => ({ ...prev, email: 'Please enter a valid email address' }))
+      } else {
+        setErrors((prev) => ({ ...prev, email: null }))
+      }
+    }
+    if (field === 'phone' && value.trim()) {
+      if (!isValidPhone(value)) {
+        setErrors((prev) => ({ ...prev, phone: 'Please enter a valid phone number' }))
+      } else {
+        setErrors((prev) => ({ ...prev, phone: null }))
+      }
     }
   }
 
@@ -607,8 +666,14 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
                   placeholder="Type here"
-                  className="h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+                  className={cn(
+                    'h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary',
+                    errors.email && 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                  )}
                 />
+                {errors.email && (
+                  <p className="text-xs text-red-500 mt-0.5">{errors.email}</p>
+                )}
               </div>
 
               {/* Phone Number */}
@@ -703,17 +768,17 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
                 <div className="flex-1 flex flex-col gap-1">
                   <Label className="text-sm text-gray-600">Pipeline</Label>
                   <Select
-                    value={selectedPipeline?.id?.toString() || '__none__'}
+                    value={selectedPipeline?.id?.toString() || ''}
                     onOpenChange={(open) => {
                       if (open) {
                         // Store the current value when dropdown opens
-                        previousPipelineValueRef.current = selectedPipeline?.id?.toString() || '__none__'
+                        previousPipelineValueRef.current = selectedPipeline?.id?.toString() || ''
                         valueChangedRef.current = false
                         setIsPipelineSelectOpen(true)
                       } else {
                         // When dropdown closes, check if value didn't change (same item clicked)
-                        const currentValue = selectedPipeline?.id?.toString() || '__none__'
-                        if (isPipelineSelectOpen && !valueChangedRef.current && previousPipelineValueRef.current === currentValue && currentValue !== '__none__') {
+                        const currentValue = selectedPipeline?.id?.toString() || ''
+                        if (isPipelineSelectOpen && !valueChangedRef.current && previousPipelineValueRef.current === currentValue && currentValue !== '') {
                           // Same item was clicked and value didn't change, toggle it off
                           setTimeout(() => {
                             setSelectedPipeline(null)
@@ -728,7 +793,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
                     }}
                     onValueChange={(value) => {
                       valueChangedRef.current = true
-                      if (value === '__none__') {
+                      if (!value) {
                         // Clear pipeline selection
                         setSelectedPipeline(null)
                         setSelectedStage(null)
@@ -766,19 +831,14 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
                           No pipelines available
                         </div>
                       ) : (
-                        <>
-                          <SelectItem value="__none__">
-                            <span className="text-gray-500">Select</span>
+                        pipelines.map((pipeline) => (
+                          <SelectItem
+                            key={pipeline.id}
+                            value={pipeline.id.toString()}
+                          >
+                            {pipeline.title}
                           </SelectItem>
-                          {pipelines.map((pipeline) => (
-                            <SelectItem
-                              key={pipeline.id}
-                              value={pipeline.id.toString()}
-                            >
-                              {pipeline.title}
-                            </SelectItem>
-                          ))}
-                        </>
+                        ))
                       )}
                     </SelectContent>
                   </Select>
@@ -907,8 +967,8 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={submitting}
-            className="bg-brand-primary hover:bg-brand-primary/90 text-white"
+            disabled={submitting || !isFormValid()}
+            className="bg-brand-primary hover:bg-brand-primary/90 text-white disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {submitting ? (
               'Creating...'
