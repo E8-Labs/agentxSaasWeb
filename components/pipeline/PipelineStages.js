@@ -33,12 +33,14 @@ import ColorPicker from '../dashboardPipeline/ColorPicker'
 import { getAvailabePhoneNumbers } from '../globalExtras/GetAvailableNumbers'
 import { getTeamsList } from '../onboarding/services/apisServices/ApiService'
 import AuthSelectionPopup from './AuthSelectionPopup'
-import EmailTempletePopup from './EmailTempletePopup'
-import SMSTempletePopup from './SMSTempletePopup'
+import NewMessageModal from '../messaging/NewMessageModal'
 import {
   getA2PNumbers,
   getGmailAccounts,
   getTempletes,
+  createTemplete,
+  updateTemplete,
+  getTempleteDetails,
 } from './TempleteServices'
 
 const PipelineStages = ({
@@ -127,8 +129,8 @@ const PipelineStages = ({
   const [templates, setTempletes] = useState([])
   const [tempLoader, setTempLoader] = useState(null)
 
-  const [showEmailTemPopup, setShowEmailTempPopup] = useState(false)
-  const [showSmsTemPopup, setShowSmsTempPopup] = useState(false)
+  const [showMessageModal, setShowMessageModal] = useState(false)
+  const [messageModalMode, setMessageModalMode] = useState('sms') // 'sms' or 'email'
 
   const [phoneNumbers, setPhoneNumbers] = useState([])
   const [phoneLoading, setPhoneLoading] = useState(false)
@@ -219,18 +221,17 @@ const PipelineStages = ({
     if (value != 'call') {
       setSelectedIndex(stageIndex)
       setSelectedType(value)
-      // if (temp && temp.length > 0) {
       if (value === 'email') {
         if (gmailAccounts.length > 0) {
-          setShowEmailTempPopup(true)
+          setMessageModalMode('email')
+          setShowMessageModal(true)
         } else {
           setShowAuthSelectionPopup(true)
         }
-        // setShowAuthSelectionPopup(true)
       } else {
-        setShowSmsTempPopup(true)
+        setMessageModalMode('sms')
+        setShowMessageModal(true)
       }
-      // }
     } else {
       if (isEditing) {
         closeAddMenu(stageIndex)
@@ -243,14 +244,19 @@ const PipelineStages = ({
   }
 
   const handleEditRow = async (stageIndex, row, e) => {
-    if (!row.communicationType) {
+    // Check if this is a default cadence
+    const isDefaultCadence = !row.communicationType
+    
+    if (isDefaultCadence) {
       console.log('default cadence editing')
       localStorage.setItem(
         PersistanceKeys.isDefaultCadenceEditing,
         JSON.stringify({ isdefault: true }),
       )
       openAddMenu(stageIndex, e)
+      return // Don't proceed with editing for default cadence
     }
+    
     console.log('row for edit', row)
     setIsEditing(true)
     setEditingRow(row)
@@ -259,9 +265,11 @@ const PipelineStages = ({
     setSelectedIndex(stageIndex)
 
     if (row.communicationType === 'email') {
-      setShowEmailTempPopup(true)
+      setMessageModalMode('email')
+      setShowMessageModal(true)
     } else if (row.communicationType === 'sms') {
-      setShowSmsTempPopup(true)
+      setMessageModalMode('sms')
+      setShowMessageModal(true)
     }else if (row.communicationType === 'call') {
       openAddMenu(stageIndex, e)
     }
@@ -307,10 +315,10 @@ const PipelineStages = ({
   }, [stages, userData])
 
   useEffect(() => {
-    if (showEmailTemPopup) {
+    if (showMessageModal && messageModalMode === 'email') {
       getTemp()
     }
-  }, [showEmailTemPopup])
+  }, [showMessageModal, messageModalMode])
 
   useEffect(() => {
     getAccounts()
@@ -331,7 +339,7 @@ const PipelineStages = ({
     let temp = await getTempletes(selectedType)
     setTempletes(temp)
     // setTempLoader(null)
-    setShowEmailTempPopup(true)
+    // setShowEmailTempPopup(true)
   }
 
   const getNumbers = async () => {
@@ -1812,9 +1820,15 @@ const PipelineStages = ({
             <AuthSelectionPopup
               open={showAuthSelectionPopup}
               onClose={() => setShowAuthSelectionPopup(false)}
-              onSuccess={getAccounts}
-              showEmailTemPopup={showEmailTemPopup}
-              setShowEmailTempPopup={setShowEmailTempPopup}
+              onSuccess={() => {
+                getAccounts()
+                if (selectedType === 'email') {
+                  setMessageModalMode('email')
+                  setShowMessageModal(true)
+                }
+              }}
+              showEmailTemPopup={false}
+              setShowEmailTempPopup={() => {}}
               setSelectedGoogleAccount={(account) => {
                 console.log(
                   'PipelineStages: setSelectedGoogleAccount called with:',
@@ -1824,61 +1838,37 @@ const PipelineStages = ({
               }}
             />
 
-            <EmailTempletePopup
-              open={showEmailTemPopup}
+            <NewMessageModal
+              open={showMessageModal}
+              mode={messageModalMode}
+              isPipelineMode={true}
+              isEditing={isEditing}
+              editingRow={editingRow}
+              selectedUser={targetUser}
               onClose={() => {
-                setShowEmailTempPopup(false)
+                setShowMessageModal(false)
                 setIsEditing(false)
                 setEditingRow(null)
                 setEditingStageIndex(null)
                 closeAddMenu(selectedIndex)
               }}
-              setSelectedGoogleAccount={(account) => {
-                console.log(
-                  `PipelineStagesEmailTempletePopup: setSelectedGoogleAccount called with: ${account}`,
-                )
-                setSelectedGoogleAccount(account)
-              }}
-              selectedGoogleAccount={selectedGoogleAccount}
-              selectedUser={targetUser}
-              onGoogleAccountChange={(account) => {
-                console.log(
-                  `PipelineStages: onGoogleAccountChange called with: ${account}`,
-                )
-                setSelectedGoogleAccount(account)
-              }}
-              templetes={templates}
-              setTempletes={setTempletes}
-              communicationType={selectedType} // in this varable i have stored selected option value like email or sms
-              addRow={(templateData) => {
-                console.log('PipelineStages: addRow called with:', {
+              onSaveTemplate={(templateData) => {
+                console.log('PipelineStages: onSaveTemplate called with:', {
                   selectedIndex,
                   selectedType,
                   templateData,
                 })
-                addRow(selectedIndex, selectedType, templateData)
-              }}
-              isEditing={isEditing}
-              editingRow={editingRow}
-              onUpdateRow={handleUpdateRow}
-            />
-
-            <SMSTempletePopup
-              open={showSmsTemPopup}
-              onClose={() => {
-                setShowSmsTempPopup(false)
+                if (isEditing && editingRow) {
+                  handleUpdateRow(editingRow.id, templateData)
+                } else {
+                  addRow(selectedIndex, selectedType, templateData)
+                }
+                setShowMessageModal(false)
+                setIsEditing(false)
+                setEditingRow(null)
+                setEditingStageIndex(null)
                 closeAddMenu(selectedIndex)
               }}
-              phoneNumbers={phoneNumbers}
-              phoneLoading={phoneLoading}
-              selectedUser={targetUser}
-              addRow={(templateData) =>
-                addRow(selectedIndex, selectedType, templateData)
-              }
-              communicationType={selectedType}
-              onUpdateRow={handleUpdateRow}
-              isEditing={isEditing}
-              editingRow={editingRow}
             />
 
             {/* Code for add stage modal */}

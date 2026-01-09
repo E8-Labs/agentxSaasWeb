@@ -21,6 +21,7 @@ const TeamAssignDropdownCn = ({
   label = 'Assign',
   teamOptions = [],
   onToggle,
+  withoutBorder = false,
 }) => {
   const selectedTeams = useMemo(
     () => teamOptions.filter((opt) => opt.selected),
@@ -38,7 +39,7 @@ const TeamAssignDropdownCn = ({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center rounded-xl border border-muted/70 bg-white px-4 py-2 text-base font-semibold shadow-sm focus:outline-none">
+        <button className={`flex items-center ${withoutBorder ? '' : 'shadow-sm border px-4 py-2  border-muted/70 rounded-xl '} bg-white text-base font-semibold  focus:outline-none`}>
           <Users className="mr-2 h-4 w-4" />
           <span>{label}</span>
           {selectedTeams.length > 0 && (
@@ -46,8 +47,10 @@ const TeamAssignDropdownCn = ({
               {selectedTeams.length}
             </span>
           )}
-          <span className="mx-3 h-6 w-px bg-muted/80" />
-          <ChevronDown className="h-4 w-4 text-foreground" />
+          {withoutBorder ? null : (
+            <span className="mx-3 h-6 w-px bg-muted/80" />
+          )}
+          <ChevronDown className={`${withoutBorder ? 'ml-4' : ''} h-4 w-4 text-foreground`} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent

@@ -1,9 +1,12 @@
 'use client'
 
+import 'react-phone-input-2/lib/style.css'
+
 import React, { useEffect, useState, useRef } from 'react'
 import axios from 'axios'
 import { toast } from 'sonner'
 import { X, Plus } from 'lucide-react'
+import PhoneInput from 'react-phone-input-2'
 import {
   Sheet,
   SheetContent,
@@ -376,6 +379,9 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
     if (!formData.firstName.trim()) {
       newErrors.firstName = 'First name is required'
     }
+    if (!formData.phone.trim()) {
+      newErrors.phone = 'Phone number is required'
+    }
 
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
@@ -607,14 +613,59 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
 
               {/* Phone Number */}
               <div className="flex flex-col gap-1">
-                <Label className="text-sm text-gray-600">Phone Number</Label>
-                <Input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                  placeholder="Type here"
-                  className="h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
-                />
+                <Label className="text-sm text-gray-600">
+                  Phone Number<span className="text-red-500">*</span>
+                </Label>
+                <div
+                  className={cn(
+                    'rounded-lg border border-gray-200 shadow-sm bg-white focus-within:border-brand-primary focus-within:ring-1 focus-within:ring-brand-primary',
+                    errors.phone && 'border-red-500 focus-within:border-red-500 focus-within:ring-red-500'
+                  )}
+                >
+                  <PhoneInput
+                    country={'us'}
+                    onlyCountries={['us', 'ca', 'mx']}
+                    disableDropdown={false}
+                    countryCodeEditable={false}
+                    disableCountryCode={false}
+                    value={formData.phone}
+                    onChange={(value) => handleInputChange('phone', value)}
+                    placeholder="Enter Phone Number"
+                    containerClass="phone-input-container"
+                    className="outline-none bg-transparent focus:ring-0"
+                    style={{
+                      borderRadius: '8px',
+                      border: 'none',
+                      outline: 'none',
+                      boxShadow: 'none',
+                      width: '100%',
+                    }}
+                    inputStyle={{
+                      width: '100%',
+                      borderWidth: '0px',
+                      backgroundColor: 'transparent',
+                      paddingLeft: '60px',
+                      paddingTop: '8px',
+                      paddingBottom: '8px',
+                      height: '36px',
+                      outline: 'none',
+                      boxShadow: 'none',
+                      fontSize: '14px',
+                    }}
+                    buttonStyle={{
+                      border: 'none',
+                      backgroundColor: 'transparent',
+                      outline: 'none',
+                    }}
+                    dropdownStyle={{
+                      maxHeight: '150px',
+                      overflowY: 'auto',
+                    }}
+                  />
+                </div>
+                {errors.phone && (
+                  <p className="text-xs text-red-500 mt-0.5">{errors.phone}</p>
+                )}
               </div>
 
               {/* Custom Fields */}
@@ -717,7 +768,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
                       ) : (
                         <>
                           <SelectItem value="__none__">
-                            <span className="text-gray-500 italic">Select</span>
+                            <span className="text-gray-500">Select</span>
                           </SelectItem>
                           {pipelines.map((pipeline) => (
                             <SelectItem
@@ -837,7 +888,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
                   htmlFor="createMessageThread"
                   className="text-sm text-gray-600 cursor-pointer"
                 >
-                  Create message thread for this contact
+                  Create message thread
                 </Label>
               </div>
 

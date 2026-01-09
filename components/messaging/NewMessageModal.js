@@ -12,18 +12,20 @@ import Apis from '@/components/apis/Apis'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { getUserLocalData, UpgradeTagWithModal } from '@/components/constants/constants'
+import { PersistanceKeys } from '@/constants/Constants'
 import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
 import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
 import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
 import UpgardView from '@/constants/UpgardView'
 import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
-import { Paperclip, X as XIcon, MessageCircleMore, Mail, AlertTriangle, ChevronDown } from 'lucide-react'
+import { Paperclip, X as XIcon, MessageCircleMore, Mail, AlertTriangle, ChevronDown, Trash2 } from 'lucide-react'
 import { FormControl, MenuItem, Select } from '@mui/material'
 import { useUser } from '@/hooks/redux-hooks'
 import ToggleGroupCN from '@/components/ui/ToggleGroupCN'
 import SplitButtonCN from '@/components/ui/SplitButtonCN'
 import { TypographyCaption } from '@/lib/typography'
-import { getTempletes, getTempleteDetails } from '@/components/pipeline/TempleteServices'
+import { getTempletes, getTempleteDetails, createTemplete, updateTemplete, deleteTemplete } from '@/components/pipeline/TempleteServices'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 // Helper function to strip HTML tags and convert to plain text while preserving line breaks
@@ -102,7 +104,19 @@ const getBrandPrimaryHex = () => {
   return '#7902DF'
 }
 
-const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
+const NewMessageModal = ({
+  open,
+  onClose,
+  onSend,
+  mode = 'sms',
+  // Pipeline mode props
+  isPipelineMode = false,
+  onSaveTemplate = null,
+  isEditing = false,
+  editingRow = null,
+  selectedUser = null,
+  isLeadMode = false,
+}) => {
   const [selectedMode, setSelectedMode] = useState(mode)
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
   const [searchQuery, setSearchQuery] = useState('')
@@ -139,14 +153,20 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
   const [templates, setTemplates] = useState([])
   const [templatesLoading, setTemplatesLoading] = useState(false)
   const [showTemplatesDropdown, setShowTemplatesDropdown] = useState(false)
+  const [selectedTemplate, setSelectedTemplate] = useState(null)
   const richTextEditorRef = useRef(null)
   const searchTimeoutRef = useRef(null)
   const leadSearchRef = useRef(null)
   const phoneDropdownRef = useRef(null)
   const emailDropdownRef = useRef(null)
   const templatesDropdownRef = useRef(null)
+  const attachmentDropdownRef = useRef(null)
+  const attachmentDropdownTimeoutRef = useRef(null)
   const router = useRouter()
-
+  const [IsdefaultCadence, setIsdefaultCadence] = useState(null)
+  const [showAttachmentDropdown, setShowAttachmentDropdown] = useState(false)
+  const [saveAsTemplate, setSaveAsTemplate] = useState(false)
+  const [delTempLoader, setDelTempLoader] = useState(null)
   // Plan capabilities
   const { planCapabilities } = usePlanCapabilities()
 
@@ -213,6 +233,23 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
     }
   }, [open, mode])
 
+  // Check for default cadence flag when modal opens in pipeline mode
+  useEffect(() => {
+    if (isPipelineMode && open) {
+      const isDefault = localStorage.getItem(PersistanceKeys.isDefaultCadenceEditing)
+      if (isDefault) {
+        try {
+          const parsed = JSON.parse(isDefault)
+          setIsdefaultCadence(parsed.isdefault || false)
+        } catch (e) {
+          setIsdefaultCadence(false)
+        }
+      } else {
+        setIsdefaultCadence(false)
+      }
+    }
+  }, [isPipelineMode, open])
+
   // Fetch data when modal opens or mode changes
   useEffect(() => {
     if (open) {
@@ -223,6 +260,100 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
       }
     }
   }, [open, selectedMode])
+
+  // Load template data when editing in pipeline mode
+  useEffect(() => {
+    if (isPipelineMode && isEditing && editingRow && open) {
+      const loadTemplateData = async () => {
+        try {
+          // First fetch templates if not already loaded
+          if (templates.length === 0) {
+            await fetchTemplates()
+          }
+
+          if (editingRow.templateId) {
+            const user = getUserLocalData()
+            const userId = selectedUser?.id || user?.user?.id
+            const details = await getTempleteDetails({ templateId: editingRow.templateId, id: editingRow.templateId }, userId)
+
+            // Find and set the selected template from templates list
+            // Re-fetch templates to ensure we have the latest list
+            const communicationType = selectedMode === 'email' ? 'email' : 'sms'
+            const templatesData = await getTempletes(communicationType, userId)
+            if (templatesData && Array.isArray(templatesData)) {
+              setTemplates(templatesData)
+              const matchingTemplate = templatesData.find(
+                (t) => t.id === editingRow.templateId || t.templateId === editingRow.templateId
+              )
+              if (matchingTemplate) {
+                setSelectedTemplate(matchingTemplate)
+              }
+            }
+
+            if (details) {
+              if (selectedMode === 'email') {
+                setEmailSubject(details.subject || '')
+                setEmailMessageBody(details.content || '')
+                if (details.ccEmails) {
+                  const parsedCc = Array.isArray(details.ccEmails)
+                    ? details.ccEmails
+                    : (typeof details.ccEmails === 'string' ? JSON.parse(details.ccEmails) : [])
+                  setCcEmails(parsedCc)
+                  if (parsedCc.length > 0) setShowCC(true)
+                }
+                if (details.bccEmails) {
+                  const parsedBcc = Array.isArray(details.bccEmails)
+                    ? details.bccEmails
+                    : (typeof details.bccEmails === 'string' ? JSON.parse(details.bccEmails) : [])
+                  setBccEmails(parsedBcc)
+                  if (parsedBcc.length > 0) setShowBCC(true)
+                }
+                if (details.attachments) {
+                  setAttachments(Array.isArray(details.attachments) ? details.attachments : [])
+                }
+              } else if (selectedMode === 'sms') {
+                const plainText = stripHTML(details.content || '')
+                setSmsMessageBody(plainText.substring(0, SMS_CHAR_LIMIT))
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error loading template data:', error)
+        }
+      }
+      loadTemplateData()
+    } else if (!isEditing && open) {
+      // Reset form when not editing
+      setSmsMessageBody('')
+      setEmailMessageBody('')
+      setEmailSubject('')
+      setCcEmails([])
+      setBccEmails([])
+      setAttachments([])
+      setSelectedTemplate(null)
+    }
+  }, [isPipelineMode, isEditing, editingRow, open, selectedMode, selectedUser])
+
+  // Set account/phone when they're loaded and we're editing
+  useEffect(() => {
+    if (isPipelineMode && isEditing && editingRow && open) {
+      if (selectedMode === 'email' && editingRow.emailAccountId && emailAccounts.length > 0) {
+        const accountId = editingRow.emailAccountId.toString()
+        const account = emailAccounts.find((a) => a.id === parseInt(accountId))
+        if (account && selectedEmailAccount !== accountId) {
+          setSelectedEmailAccount(accountId)
+          setSelectedEmailAccountObj(account)
+        }
+      } else if (selectedMode === 'sms' && editingRow.smsPhoneNumberId && phoneNumbers.length > 0) {
+        const phoneId = editingRow.smsPhoneNumberId.toString()
+        const phone = phoneNumbers.find((p) => p.id === parseInt(phoneId))
+        if (phone && selectedPhoneNumber !== phoneId) {
+          setSelectedPhoneNumber(phoneId)
+          setSelectedPhoneNumberObj(phone)
+        }
+      }
+    }
+  }, [isPipelineMode, isEditing, editingRow, open, selectedMode, emailAccounts, phoneNumbers, selectedEmailAccount, selectedPhoneNumber])
 
   // Search leads using the messaging search endpoint
   const searchLeads = async (searchTerm = '') => {
@@ -442,7 +573,13 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
 
   // Handle template selection
   const handleTemplateSelect = async (template) => {
-    if (!template) return
+    if (!template) {
+      setSelectedTemplate(null)
+      return
+    }
+
+    // Set the selected template
+    setSelectedTemplate(template)
 
     try {
       // Fetch full template details
@@ -493,6 +630,43 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
         setSmsMessageBody(plainText.substring(0, SMS_CHAR_LIMIT))
       }
       setShowTemplatesDropdown(false)
+    }
+  }
+
+  // Handle template deletion
+  const handleDeleteTemplate = async (template, e) => {
+    e.stopPropagation() // Prevent template selection when clicking delete
+
+
+    try {
+      setDelTempLoader(template)
+      await deleteTemplete(template)
+      // Remove from templates list - check both id and templateId fields
+      setTemplates((prev) => prev.filter((t) => {
+        const templateId = template.id || template.templateId
+        const tId = t.id || t.templateId
+        return tId !== templateId
+      }))
+      setDelTempLoader(null)
+      // If the deleted template was selected, clear selection
+      if (selectedTemplate && (selectedTemplate.id === template.id || selectedTemplate.templateId === template.templateId)) {
+        setSelectedTemplate(null)
+        // Clear form fields
+        if (selectedMode === 'email') {
+          setEmailSubject('')
+          setEmailMessageBody('')
+          setCcEmails([])
+          setBccEmails([])
+        } else {
+          setSmsMessageBody('')
+        }
+      }
+
+      toast.success('Template deleted successfully')
+    } catch (error) {
+      console.error('Error deleting template:', error)
+      toast.error('Failed to delete template')
+      setDelTempLoader(null)
     }
   }
 
@@ -704,6 +878,11 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
   // Reset when modal closes
   useEffect(() => {
     if (!open) {
+      // Clear attachment dropdown timeout
+      if (attachmentDropdownTimeoutRef.current) {
+        clearTimeout(attachmentDropdownTimeoutRef.current)
+        attachmentDropdownTimeoutRef.current = null
+      }
       setSelectedLeads([])
       setSearchQuery('')
       setSmsMessageBody('')
@@ -719,8 +898,21 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
       setEmailDropdownOpen(false)
       setAttachments([])
       setSelectedVariable('')
+      setSelectedTemplate(null)
+      setShowAttachmentDropdown(false)
+      setSaveAsTemplate(false)
     }
   }, [open])
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (attachmentDropdownTimeoutRef.current) {
+        clearTimeout(attachmentDropdownTimeoutRef.current)
+        attachmentDropdownTimeoutRef.current = null
+      }
+    }
+  }, [])
 
   // Toggle lead selection
   const toggleLeadSelection = (lead) => {
@@ -767,6 +959,223 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
     // Get the appropriate message body based on mode
     const messageBody = selectedMode === 'sms' ? smsMessageBody : emailMessageBody
 
+    // Pipeline mode: create/update template instead of sending
+    if (isPipelineMode) {
+      if (!messageBody.trim()) {
+        toast.error('Please enter a message')
+        return
+      }
+      if (selectedMode === 'email' && !emailSubject.trim()) {
+        toast.error('Please enter a subject')
+        return
+      }
+      if (selectedMode === 'sms' && !selectedPhoneNumber) {
+        toast.error('Please select a phone number')
+        return
+      }
+      if (selectedMode === 'email' && !selectedEmailAccount) {
+        toast.error('Please select an email account')
+        return
+      }
+
+      setSending(true)
+      try {
+        const user = getUserLocalData()
+        const userId = selectedUser?.id || user?.user?.id
+
+        // Generate template name from subject or use default
+        const templateName = selectedMode === 'email'
+          ? (emailSubject?.trim() || 'Email Template')
+          : 'SMS Template'
+
+        let templateData = {
+          communicationType: selectedMode,
+          templateName: templateName,
+          content: messageBody,
+        }
+
+        // Add email-specific fields
+        if (selectedMode === 'email') {
+          templateData.subject = emailSubject
+          templateData.ccEmails = ccEmails
+          templateData.bccEmails = bccEmails
+          templateData.attachments = attachments
+        }
+
+        // Add SMS-specific fields
+        if (selectedMode === 'sms') {
+          const phoneObj = phoneNumbers.find((p) => p.id === parseInt(selectedPhoneNumber))
+          templateData.phone = phoneObj?.phone || ''
+        }
+
+        // Add userId if provided
+        if (userId) {
+          templateData.userId = userId
+        }
+
+        let response = null
+        let isUpdating = false
+
+        // Priority 1: If user selected a template from dropdown, update that template
+        if (selectedTemplate && selectedTemplate.id) {
+          // User selected a template - update it
+          isUpdating = true
+          response = await updateTemplete(templateData, selectedTemplate.id)
+        }
+        // Priority 2: If editing existing row and not default cadence, update the template
+        else if (isEditing && editingRow?.templateId && !IsdefaultCadence) {
+          // Update existing template (not default cadence)
+          isUpdating = true
+          response = await updateTemplete(templateData, editingRow.templateId)
+        }
+        // Priority 3: Otherwise, create new template
+        else {
+          // Create new template (either new or default cadence)
+          isUpdating = false
+          response = await createTemplete(templateData)
+        }
+
+        if (response?.data?.status === true) {
+          const createdTemplate = response?.data?.data
+          toast.success(response?.data?.message || 'Template saved successfully')
+
+          // Call onSaveTemplate with template data for pipeline
+          if (onSaveTemplate) {
+            const pipelineData = {
+              templateId: createdTemplate.id,
+              communicationType: selectedMode,
+            }
+            if (selectedMode === 'email') {
+              pipelineData.emailAccountId = selectedEmailAccount
+            } else if (selectedMode === 'sms') {
+              pipelineData.smsPhoneNumberId = selectedPhoneNumber
+              const phoneObj = phoneNumbers.find((p) => p.id === parseInt(selectedPhoneNumber))
+              pipelineData.phone = phoneObj
+            }
+            onSaveTemplate(pipelineData)
+          }
+
+          // Close modal
+          setTimeout(() => {
+            onClose()
+          }, 500)
+        } else {
+          toast.error(response?.data?.message || 'Failed to save template')
+        }
+      } catch (error) {
+        console.error('Error saving template:', error)
+        toast.error('An error occurred while saving the template')
+      } finally {
+        setSending(false)
+      }
+      return
+
+    } else if (isLeadMode) {
+      // Validation
+      if (!messageBody.trim()) {
+        toast.error('Please enter a message')
+        return
+      }
+      if (selectedMode === 'email' && !emailSubject.trim()) {
+        toast.error('Please enter a subject')
+        return
+      }
+      if (selectedMode === 'sms' && !selectedPhoneNumber) {
+        toast.error('Please select a phone number')
+        return
+      }
+      if (selectedMode === 'email' && !selectedEmailAccount) {
+        toast.error('Please select an email account')
+        return
+      }
+
+      setSending(true)
+      try {
+        // Prepare message data
+        let data = null
+
+        if (selectedMode === 'sms') {
+          // Get phone number string from phoneNumbers array
+          const phoneObj = phoneNumbers.find((p) => p.id === parseInt(selectedPhoneNumber))
+          data = {
+            content: messageBody,
+            phone: selectedPhoneNumber,
+            mode: selectedMode,
+          }
+        } else if (selectedMode === 'email') {
+          data = {
+            subject: emailSubject,
+            content: messageBody, // Use 'content' not 'body' to match sendEmailToLead
+            ccEmails: ccEmails,
+            bccEmails: bccEmails,
+            attachments: attachments,
+            gmailAccountId: selectedEmailAccountObj?.id || selectedEmailAccount,
+            mode: selectedMode,
+          }
+        }
+
+        // Send message
+        if (onSend && data) {
+          await onSend(data)
+        }
+
+        // Create template if "Save as template" is enabled
+        if (saveAsTemplate) {
+          try {
+            const user = getUserLocalData()
+            const userId = user?.user?.id
+
+            // Generate template name from subject or use default
+            const templateName = selectedMode === 'email'
+              ? (emailSubject?.trim() || 'Email Template')
+              : 'SMS Template'
+
+            let templateData = {
+              communicationType: selectedMode,
+              templateName: templateName,
+              content: messageBody,
+            }
+
+            // Add email-specific fields
+            if (selectedMode === 'email') {
+              templateData.subject = emailSubject
+              templateData.ccEmails = ccEmails
+              templateData.bccEmails = bccEmails
+              templateData.attachments = attachments
+              templateData.emailAccountId = selectedEmailAccount
+            }
+
+            // Add SMS-specific fields
+            if (selectedMode === 'sms') {
+              templateData.smsPhoneNumberId = selectedPhoneNumber
+            }
+
+            // Add userId if provided
+            if (userId) {
+              templateData.userId = userId
+            }
+
+            const response = await createTemplete(templateData)
+            if (response?.data?.status === true) {
+              toast.success('Template created successfully')
+            }
+          } catch (error) {
+            console.error('Error creating template:', error)
+            // Don't show error toast as message was already sent
+          }
+        }
+
+        // Note: Modal closing is handled by sendEmailToLead/sendSMSToLead functions
+      } catch (error) {
+        console.error('Error preparing message data:', error)
+        toast.error('An error occurred while preparing the message')
+      } finally {
+        setSending(false)
+      }
+      return
+    }
+
+    // Normal send mode (original functionality)
     if (selectedLeads.length === 0 || !messageBody.trim()) return
     if (selectedMode === 'email' && !emailSubject.trim()) return
 
@@ -912,7 +1321,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
         >
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b">
-            <h2 className="text-xl font-semibold">New Message</h2>
+            <h2 className="text-xl font-semibold">{(isEditing && !IsdefaultCadence) ? 'Update Message ' : 'New Message'}</h2>
             <CloseBtn onClick={onClose} />
           </div>
 
@@ -956,9 +1365,9 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
 
             <React.Fragment>
               {/* From and To Fields - Same Line */}
-              <div className="flex items-center gap-4" ref={leadSearchRef}>
+              <div className={`flex items-center gap-4 ${isPipelineMode ? '' : ''}`} ref={leadSearchRef}>
                 {/* From Field */}
-                <div className="flex-1 relative">
+                <div className={isPipelineMode ? "w-full relative" : "flex-1 relative"}>
                   {selectedMode === 'sms' ? (
                     <div className="relative" ref={phoneDropdownRef}>
                       <button
@@ -997,10 +1406,17 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                                   componentsProps={{
                                     tooltip: {
                                       sx: {
-                                        backgroundColor: '#ffffff',
-                                        color: '#333',
-                                        border: '1px solid #e5e7eb',
-                                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                        backgroundColor: '#ffffff', // Ensure white background
+                                        color: '#333', // Dark text color
+                                        fontSize: '14px',
+                                        padding: '10px 15px',
+                                        borderRadius: '8px',
+                                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                                      },
+                                    },
+                                    arrow: {
+                                      sx: {
+                                        color: '#ffffff', // Match tooltip background
                                       },
                                     },
                                   }}
@@ -1151,21 +1567,65 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                   )}
                 </div>
 
-                {/* To Field */}
-                <div className="relative flex-1 min-w-0">
-                  {/* Tag Input Container */}
-                  <div
-                    className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
-                    style={{ height: '42px', minHeight: '42px', maxWidth: '100%' }}
-                    onClick={() => {
-                      setShowLeadList(true)
-                    }}
-                  >
-                    <span className="text-sm text-gray-500 flex-shrink-0">To:</span>
-                    {/* Display first selected lead and badge if multiple */}
-                    {selectedLeads.length > 0 ? (
-                      <>
-                        {/* Search Input - Always visible for adding more */}
+                {/* To Field - Hidden in pipeline mode and lead mode */}
+                {!isPipelineMode && !isLeadMode && (
+                  <div className="relative flex-1 min-w-0">
+                    {/* Tag Input Container */}
+                    <div
+                      className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
+                      style={{ height: '42px', minHeight: '42px', maxWidth: '100%' }}
+                      onClick={() => {
+                        setShowLeadList(true)
+                      }}
+                    >
+                      <span className="text-sm text-gray-500 flex-shrink-0">To:</span>
+                      {/* Display first selected lead and badge if multiple */}
+                      {selectedLeads.length > 0 ? (
+                        <>
+                          {/* Search Input - Always visible for adding more */}
+                          <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => {
+                              const value = e.target.value
+                              setSearchQuery(value)
+                              setShowLeadList(true)
+                            }}
+                            onFocus={() => {
+                              setShowLeadList(true)
+                            }}
+                            placeholder=""
+                            className="flex-1 min-w-[80px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                            style={{
+                              height: '100%',
+                              lineHeight: '42px',
+                              padding: 0,
+                              verticalAlign: 'middle',
+                              maxWidth: '100%'
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Escape') {
+                                setShowLeadList(false)
+                              }
+                            }}
+                          />
+                          <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
+                            <span className="text-sm text-gray-700 truncate max-w-[150px]">
+                              {selectedMode === 'email'
+                                ? (selectedLeads[0].email || `${selectedLeads[0].firstName || ''} ${selectedLeads[0].lastName || ''}`.trim() || 'Lead')
+                                : (selectedLeads[0].phone || `${selectedLeads[0].firstName || ''} ${selectedLeads[0].lastName || ''}`.trim() || 'Lead')
+                              }
+                            </span>
+                            {selectedLeads.length > 1 && (
+                              <span className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0">
+                                +{selectedLeads.length - 1}
+                              </span>
+                            )}
+                          </div>
+
+                        </>
+                      ) : (
                         <input
                           type="text"
                           value={searchQuery}
@@ -1177,8 +1637,8 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                           onFocus={() => {
                             setShowLeadList(true)
                           }}
-                          placeholder=""
-                          className="flex-1 min-w-[80px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                          placeholder="Search leads"
+                          className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
                           style={{
                             height: '100%',
                             lineHeight: '42px',
@@ -1186,108 +1646,66 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                             verticalAlign: 'middle',
                             maxWidth: '100%'
                           }}
-                          onClick={(e) => e.stopPropagation()}
                           onKeyDown={(e) => {
                             if (e.key === 'Escape') {
                               setShowLeadList(false)
                             }
                           }}
                         />
-                        <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
-                          <span className="text-sm text-gray-700 truncate max-w-[150px]">
-                            {selectedMode === 'email'
-                              ? (selectedLeads[0].email || `${selectedLeads[0].firstName || ''} ${selectedLeads[0].lastName || ''}`.trim() || 'Lead')
-                              : (selectedLeads[0].phone || `${selectedLeads[0].firstName || ''} ${selectedLeads[0].lastName || ''}`.trim() || 'Lead')
-                            }
-                          </span>
-                          {selectedLeads.length > 1 && (
-                            <span className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0">
-                              +{selectedLeads.length - 1}
-                            </span>
-                          )}
-                        </div>
-
-                      </>
-                    ) : (
-                      <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => {
-                          const value = e.target.value
-                          setSearchQuery(value)
-                          setShowLeadList(true)
-                        }}
-                        onFocus={() => {
-                          setShowLeadList(true)
-                        }}
-                        placeholder="Search leads"
-                        className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
-                        style={{
-                          height: '100%',
-                          lineHeight: '42px',
-                          padding: 0,
-                          verticalAlign: 'middle',
-                          maxWidth: '100%'
-                        }}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Escape') {
-                            setShowLeadList(false)
-                          }
-                        }}
-                      />
-                    )}
-                    <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-1" />
-                  </div>
-
-                  {/* Leads List Dropdown - Show when searching or when clicking on field */}
-                  {showLeadList && (
-                    <div className="absolute z-50 w-full mt-1 bg-white border-[0.5px] border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto overflow-x-hidden">
-                      {loading ? (
-                        <div className="p-4 text-center">
-                          <CircularProgress size={24} />
-                        </div>
-                      ) : !searchQuery.trim() ? (
-                        <div className="p-4 text-center text-gray-500 text-sm">
-                          Start typing to search leads...
-                        </div>
-                      ) : filteredLeads.length === 0 ? (
-                        <div className="p-4 text-center text-gray-500 text-sm">
-                          No leads found
-                        </div>
-                      ) : (
-                        filteredLeads.map((lead) => {
-                          const isSelected = selectedLeads.find((l) => l.id === lead.id)
-                          return (
-                            <div
-                              key={lead.id}
-                              onClick={() => toggleLeadSelection(lead)}
-                              className={`p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${isSelected ? 'bg-gray-100' : ''
-                                }`}
-                            >
-                              <div className="flex items-center justify-between gap-2 min-w-0">
-                                <div className="flex-1 min-w-0">
-                                  <div className="font-medium text-sm text-gray-900 truncate">
-                                    {lead.firstName || lead.name || 'Unknown'} {lead.lastName || ''}
-                                  </div>
-                                  <div className="text-xs text-gray-500 mt-1 truncate">
-                                    {selectedMode === 'email'
-                                      ? lead.email || 'No email'
-                                      : lead.phone || 'No phone'}
-                                  </div>
-                                </div>
-                                {isSelected && (
-                                  <div className="w-5 h-5 rounded-full bg-brand-primary flex items-center justify-center flex-shrink-0">
-                                    <Check size={14} className="text-white" />
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                          )
-                        })
                       )}
+                      <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-1" />
                     </div>
-                  )}
-                </div>
+
+                    {/* Leads List Dropdown - Show when searching or when clicking on field */}
+                    {showLeadList && (
+                      <div className="absolute z-50 w-full mt-1 bg-white border-[0.5px] border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto overflow-x-hidden">
+                        {loading ? (
+                          <div className="p-4 text-center">
+                            <CircularProgress size={24} />
+                          </div>
+                        ) : !searchQuery.trim() ? (
+                          <div className="p-4 text-center text-gray-500 text-sm">
+                            Start typing to search leads...
+                          </div>
+                        ) : filteredLeads.length === 0 ? (
+                          <div className="p-4 text-center text-gray-500 text-sm">
+                            No leads found
+                          </div>
+                        ) : (
+                          filteredLeads.map((lead) => {
+                            const isSelected = selectedLeads.find((l) => l.id === lead.id)
+                            return (
+                              <div
+                                key={lead.id}
+                                onClick={() => toggleLeadSelection(lead)}
+                                className={`p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${isSelected ? 'bg-gray-100' : ''
+                                  }`}
+                              >
+                                <div className="flex items-center justify-between gap-2 min-w-0">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="font-medium text-sm text-gray-900 truncate">
+                                      {lead.firstName || lead.name || 'Unknown'} {lead.lastName || ''}
+                                    </div>
+                                    <div className="text-xs text-gray-500 mt-1 truncate">
+                                      {selectedMode === 'email'
+                                        ? lead.email || 'No email'
+                                        : lead.phone || 'No phone'}
+                                    </div>
+                                  </div>
+                                  {isSelected && (
+                                    <div className="w-5 h-5 rounded-full bg-brand-primary flex items-center justify-center flex-shrink-0">
+                                      <Check size={14} className="text-white" />
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )
+                          })
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
             </React.Fragment>
@@ -1542,35 +1960,111 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
 
             {/* Message Body */}
             <div>
-              <div className="mb-2">
-                <label className="text-sm font-medium block">Message:</label>
-              </div>
+
               {selectedMode === 'email' ? (
                 <RichTextEditor
                   ref={richTextEditorRef}
                   value={emailMessageBody}
                   onChange={setEmailMessageBody}
-                  placeholder="Type your message..."
+                  placeholder="Type your message here"
                   availableVariables={uniqueColumns}
                   toolbarPosition="bottom"
                   attachmentButton={
-                    <label className="cursor-pointer">
-                      <button
-                        type="button"
-                        className="p-1.5 hover:bg-gray-100 rounded transition-colors flex items-center justify-center"
-                        onClick={() => document.getElementById('new-message-attachment-input')?.click()}
-                      >
-                        <Paperclip size={18} className="text-gray-600 hover:text-brand-primary" />
-                      </button>
-                      <input
-                        id="new-message-attachment-input"
-                        type="file"
-                        accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                        multiple
-                        className="hidden"
-                        onChange={handleFileChange}
-                      />
-                    </label>
+                    <div
+                      className="relative"
+                      ref={attachmentDropdownRef}
+                      onMouseEnter={() => {
+                        // Clear any pending timeout
+                        if (attachmentDropdownTimeoutRef.current) {
+                          clearTimeout(attachmentDropdownTimeoutRef.current)
+                          attachmentDropdownTimeoutRef.current = null
+                        }
+                        if (attachments.length > 0) {
+                          setShowAttachmentDropdown(true)
+                        }
+                      }}
+                      onMouseLeave={() => {
+                        // Set timeout to hide dropdown after delay
+                        attachmentDropdownTimeoutRef.current = setTimeout(() => {
+                          setShowAttachmentDropdown(false)
+                          attachmentDropdownTimeoutRef.current = null
+                        }, 300) // 300ms delay
+                      }}
+                    >
+                      <label className="cursor-pointer">
+                        <button
+                          type="button"
+                          className="p-1.5 hover:bg-gray-100 rounded transition-colors flex items-center justify-center relative"
+                          onClick={() => document.getElementById('new-message-attachment-input')?.click()}
+                        >
+                          <Paperclip size={18} className="text-gray-600 hover:text-brand-primary" />
+                          {attachments.length > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center">
+                              {attachments.length}
+                            </span>
+                          )}
+                        </button>
+                        <input
+                          id="new-message-attachment-input"
+                          type="file"
+                          accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                          multiple
+                          className="hidden"
+                          onChange={handleFileChange}
+                        />
+                      </label>
+
+                      {/* Attachments Dropdown */}
+                      {showAttachmentDropdown && attachments.length > 0 && (
+                        <div
+                          className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[20vw] bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto z-[2000]"
+                          onMouseEnter={() => {
+                            // Clear any pending timeout when entering dropdown
+                            if (attachmentDropdownTimeoutRef.current) {
+                              clearTimeout(attachmentDropdownTimeoutRef.current)
+                              attachmentDropdownTimeoutRef.current = null
+                            }
+                            setShowAttachmentDropdown(true)
+                          }}
+                          onMouseLeave={() => {
+                            // Set timeout to hide dropdown after delay
+                            attachmentDropdownTimeoutRef.current = setTimeout(() => {
+                              setShowAttachmentDropdown(false)
+                              attachmentDropdownTimeoutRef.current = null
+                            }, 300) // 300ms delay
+                          }}
+                        >
+                          <div className="p-2">
+                            <div className="text-xs font-semibold text-gray-700 mb-2 px-2">
+                              Attachments ({attachments.length})
+                            </div>
+                            <div className="space-y-1">
+                              {attachments.map((file, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-center justify-between gap-2 p-2 hover:bg-gray-50 rounded transition-colors group"
+                                >
+                                  <div className="flex-1 min-w-0">
+                                    <div className="text-sm text-gray-900 truncate">
+                                      {file.name || file.originalName || `File ${index + 1}`}
+                                    </div>
+                                    <div className="text-xs text-gray-500">
+                                      {file.size ? `${(file.size / 1024).toFixed(2)} KB` : ''}
+                                    </div>
+                                  </div>
+                                  <CloseBtn
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      removeAttachment(index)
+                                    }}
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   }
                   customToolbarElement={
                     uniqueColumns && uniqueColumns.length > 0 ? (
@@ -1632,7 +2126,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                         setSmsMessageBody(e.target.value)
                       }
                     }}
-                    placeholder="Type your message..."
+                    placeholder="Type your message here"
                     maxLength={SMS_CHAR_LIMIT}
                     className="w-full px-3 py-2 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[120px] pr-24"
                   />
@@ -1652,7 +2146,7 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                               const variableText = value.startsWith('{') && value.endsWith('}')
                                 ? value
                                 : `{${value}}`
-                              
+
                               // Check if adding variable would exceed limit
                               const newText = smsMessageBody.substring(0, start) + variableText + smsMessageBody.substring(end)
                               if (newText.length <= SMS_CHAR_LIMIT) {
@@ -1714,50 +2208,81 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
           {/* Footer with template dropdown, char count, credits, and send button */}
           {!shouldShowUpgradeView && (
             <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50">
-              {/* My Templates Button with Dropdown */}
-              <div className="relative" ref={templatesDropdownRef}>
-                <button
-                  onClick={() => {
-                    if (!showTemplatesDropdown) {
-                      fetchTemplates()
-                    }
-                    setShowTemplatesDropdown(!showTemplatesDropdown)
-                  }}
-                  className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
-                >
-                  {renderBrandedIcon("/messaging/templateIcon.svg", 18,18)}
-                  <span>My Templates</span>
-                  <CaretDown size={16} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
-                </button>
+              <div className="flex items-center gap-2">
+                {/* My Templates Button with Dropdown */}
+                <div className="relative" ref={templatesDropdownRef}>
+                  <button
+                    onClick={() => {
+                      if (!showTemplatesDropdown) {
+                        fetchTemplates()
+                      }
+                      setShowTemplatesDropdown(!showTemplatesDropdown)
+                    }}
+                    className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
+                  >
+                    {renderBrandedIcon("/messaging/templateIcon.svg", 18, 18)}
+                    <span>Templates</span>
+                    <CaretDown size={16} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
+                  </button>
 
-                {/* Templates Dropdown */}
-                {showTemplatesDropdown && (
-                  <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto z-50">
-                    {templatesLoading ? (
-                      <div className="p-4 text-center">
-                        <CircularProgress size={20} />
-                      </div>
-                    ) : templates.length === 0 ? (
-                      <div className="p-4 text-center text-sm text-gray-500">
-                        No templates found
-                      </div>
-                    ) : (
-                      templates.map((template) => (
-                        <button
-                          key={template.id || template.templateId}
-                          onClick={() => handleTemplateSelect(template)}
-                          className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0"
-                        >
-                          <div className="font-medium text-gray-900 truncate">
-                            {template.templateName || 'Untitled Template'}
+                  {/* Templates Dropdown */}
+                  {showTemplatesDropdown && (
+                    <div className="absolute bottom-full left-0 mb-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto z-50">
+                      {templatesLoading ? (
+                        <div className="p-4 text-center">
+                          <CircularProgress size={20} />
+                        </div>
+                      ) : templates.length === 0 ? (
+                        <div className="p-4 text-center text-sm text-gray-500">
+                          No templates found
+                        </div>
+                      ) : (
+                        templates.map((template) => (
+                          <div
+                            key={template.id || template.templateId}
+                            className="flex items-center justify-between gap-2 px-4 py-2 hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0 group"
+                          >
+                            <button
+                              onClick={() => handleTemplateSelect(template)}
+                              className="flex-1 text-left text-sm min-w-0"
+                            >
+                              <div className="font-medium text-gray-900 truncate">
+                                {template.templateName || 'Untitled Template'}
+                              </div>
+                            </button>
+                            {delTempLoader && ((delTempLoader.id || delTempLoader.templateId) === (template.id || template.templateId)) ? (
+                              <CircularProgress size={16} />
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={(e) => handleDeleteTemplate(template, e)}
+                                className="flex-shrink-0 p-1 rounded transition-colors"
+                                title="Delete template"
+                              >
+                                <Trash2 size={16} className="text-brand-primary" />
+                              </button>
+                            )}
                           </div>
-                        </button>
-                      ))
-                    )}
+                        ))
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Save as template checkbox - only in lead mode */}
+                {isLeadMode && !isPipelineMode && (
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      checked={saveAsTemplate}
+                      onCheckedChange={setSaveAsTemplate}
+                      className="h-5 w-5"
+                    />
+                    <label className="text-sm text-gray-700 cursor-pointer select-none">
+                      Save as template
+                    </label>
                   </div>
                 )}
               </div>
-
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-2 text-sm text-gray-500">
                   {selectedMode === 'sms' ? (
@@ -1771,22 +2296,14 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                       </span>
                     </>
                   ) : (
-                    <>
-                      <span>
-                        {emailMessageBody.replace(/<[^>]*>/g, '').length}/120 char
-                      </span>
-                      <span className="text-gray-300">|</span>
-                      <span>
-                        {Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left
-                      </span>
-                    </>
+                    ""
                   )}
                 </div>
                 <button
                   onClick={handleSend}
                   disabled={
                     sending ||
-                    selectedLeads.length === 0 ||
+                    (!isPipelineMode && !isLeadMode && selectedLeads.length === 0) ||
                     (selectedMode === 'sms' && !smsMessageBody.trim()) ||
                     (selectedMode === 'email' && !emailMessageBody.trim()) ||
                     (selectedMode === 'email' && !emailSubject.trim()) ||
@@ -1798,12 +2315,12 @@ const NewMessageModal = ({ open, onClose, onSend, mode = 'sms' }) => {
                   {sending ? (
                     <>
                       <CircularProgress size={16} className="text-white" />
-                      Sending...
+                      {isPipelineMode ? ((isEditing && !IsdefaultCadence) ? 'Updating...' : 'Saving...') : 'Sending...'}
                     </>
                   ) : (
                     <>
-                      Send
-                      <PaperPlaneTilt size={16} />
+                      {isPipelineMode ? ((isEditing && !IsdefaultCadence) ? 'Update' : 'Save') : 'Send'}
+                      {!isPipelineMode && <PaperPlaneTilt size={16} />}
                     </>
                   )}
                 </button>
