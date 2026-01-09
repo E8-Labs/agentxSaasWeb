@@ -123,10 +123,7 @@ const LoanOfficerSignUp = ({
       id: 2,
       title: 'Virtual Consultations',
     },
-    {
-      id: 3,
-      title: 'Virtual Consultationsr',
-    },
+   
   ]
 
   // Function to get the user's location and set the country code

@@ -1396,7 +1396,7 @@ const NewMessageModal = ({
                         <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                       </button>
                       {phoneDropdownOpen && (
-                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                        <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 flex flex-col">
                           {phoneNumbers.length === 0 ? (
                             <div className="p-3 flex flex-row gap-2 items-center justify-center">
                               <button
@@ -1451,23 +1451,27 @@ const NewMessageModal = ({
                             </div>
                           ) : (
                             <>
-                              {phoneNumbers.map((phone) => (
-                                <button
-                                  key={phone.id}
-                                  type="button"
-                                  onClick={() => {
-                                    const phoneObj = phoneNumbers.find((p) => p.id === phone.id)
-                                    setSelectedPhoneNumber(phone.id.toString())
-                                    setSelectedPhoneNumberObj(phoneObj)
-                                    setPhoneDropdownOpen(false)
-                                  }}
-                                  className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedPhoneNumber === phone.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                                    }`}
-                                >
-                                  {phone.phone}
-                                </button>
-                              ))}
-                              <div className="border-t border-gray-200 p-2">
+                              {/* Scrollable phone numbers list */}
+                              <div className="overflow-y-auto flex-1">
+                                {phoneNumbers.map((phone) => (
+                                  <button
+                                    key={phone.id}
+                                    type="button"
+                                    onClick={() => {
+                                      const phoneObj = phoneNumbers.find((p) => p.id === phone.id)
+                                      setSelectedPhoneNumber(phone.id.toString())
+                                      setSelectedPhoneNumberObj(phoneObj)
+                                      setPhoneDropdownOpen(false)
+                                    }}
+                                    className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedPhoneNumber === phone.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                                      }`}
+                                  >
+                                    {phone.phone}
+                                  </button>
+                                ))}
+                              </div>
+                              {/* Fixed bottom button */}
+                              <div className="border-t border-gray-200 p-2 flex-shrink-0">
                                 <button
                                   onClick={() => {
                                     router.push('/dashboard/myAccount?tab=7')
@@ -1533,31 +1537,35 @@ const NewMessageModal = ({
                               <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                             </button>
                             {emailDropdownOpen && (
-                              <div className="absolute w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto" style={{ zIndex: 1900 }}>
-                                {emailAccounts.map((account) => (
-                                  <button
-                                    key={account.id}
-                                    type="button"
-                                    onClick={() => {
-                                      const accountObj = emailAccounts.find((a) => a.id === account.id)
-                                      setSelectedEmailAccount(account.id.toString())
-                                      setSelectedEmailAccountObj(accountObj)
-                                      setEmailDropdownOpen(false)
-                                    }}
-                                    className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                                      }`}
-                                  >
-                                    <div className="flex items-center justify-between">
-                                      <span>{account.email || account.name || account.displayName}</span>
-                                      {account.provider && (
-                                        <span className="text-xs text-gray-500 ml-2">
-                                          {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </button>
-                                ))}
-                                <div className="border-t border-gray-200 p-2">
+                              <div className="absolute w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 flex flex-col" style={{ zIndex: 1900 }}>
+                                {/* Scrollable email accounts list */}
+                                <div className="overflow-y-auto flex-1">
+                                  {emailAccounts.map((account) => (
+                                    <button
+                                      key={account.id}
+                                      type="button"
+                                      onClick={() => {
+                                        const accountObj = emailAccounts.find((a) => a.id === account.id)
+                                        setSelectedEmailAccount(account.id.toString())
+                                        setSelectedEmailAccountObj(accountObj)
+                                        setEmailDropdownOpen(false)
+                                      }}
+                                      className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                                        }`}
+                                    >
+                                      <div className="flex items-center justify-between">
+                                        <span>{account.email || account.name || account.displayName}</span>
+                                        {account.provider && (
+                                          <span className="text-xs text-gray-500 ml-2">
+                                            {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </button>
+                                  ))}
+                                </div>
+                                {/* Fixed bottom button */}
+                                <div className="border-t border-gray-200 p-2 flex-shrink-0">
                                   <button
                                     onClick={() => {
                                       setShowAuthSelectionPopup(true)

@@ -472,7 +472,7 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
 
 export default SubAccountPlan
 
-function TermsText() {
+export function TermsText() {
   return (
     <div
       className="flex flex-row items-center gap-1"

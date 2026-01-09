@@ -938,29 +938,6 @@ const AgencyAddCard = ({
               </div>
             )}
 
-            {/* Terms & Conditions Checkbox */}
-            <div className="flex items-center gap-2 mb-6">
-              <Checkbox
-                checked={agreeTerms}
-                onCheckedChange={setAgreeTerms}
-                className="h-5 w-5"
-              />
-              <label className="text-sm text-gray-700">
-                I agree to the{' '}
-                <a
-                  href="#"
-                  onClick={async (e) => {
-                    e.preventDefault()
-                    const { termsUrl } = await getPolicyUrls(selectedUser)
-                    window.open(termsUrl, '_blank')
-                  }}
-                  className="text-brand-primary underline font-semibold"
-                  rel="noopener noreferrer"
-                >
-                  Terms & Condition
-                </a>
-              </label>
-            </div>
 
             <div className="flex flex-row justify-between items-center mt-8 w-full">
               <button
@@ -1020,7 +997,7 @@ const AgencyAddCard = ({
               >
                 Terms & Conditions
               </a>{' '}
-              and agree to a 12-months license terms. Payments are billed yearly as selected.
+              and agree to a 12-months license terms. Payments are billed {selectedPlan?.duration} as selected.
             </p>
           </div>
         </div>
