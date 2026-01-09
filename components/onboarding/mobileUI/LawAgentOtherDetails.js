@@ -36,19 +36,15 @@ function LawAgentOtherDetails({
       id: 2,
       title: 'Virtual Consultations',
     },
-    {
-      id: 3,
-      title: 'Virtual Consultationsr',
-    },
   ]
   return (
-    <div>
+    <div className='w-full'>
       <div style={styles.headingStyle} className="mt-6">
         Where do you primarily practice law?
       </div>
       <input
         placeholder="Specific cities, counties, or regions"
-        className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+        className="border w-full border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
         style={{ ...styles.inputStyle, marginTop: '8px' }}
         value={customerService}
         onChange={(e) => {
@@ -88,7 +84,7 @@ function LawAgentOtherDetails({
       </div>
 
       <div
-        className="flex w-full flex-wrap flex-row items-center gap-2"
+        className="flex w-full flex-col items-center gap-2"
         style={{ marginTop: '8px', flexWrap: 'wrap' }}
       >
         {primaryClientTypes.map((item, index) => {
@@ -98,9 +94,8 @@ function LawAgentOtherDetails({
                 onClick={() => {
                   handleSelectClientType(item)
                 }}
-                className="border border-[#00000010] rounded px-4 py-4 outline-none focus:outline-none focus:ring-0"
+                className="border items-start w-full flex flex-row border-[#00000010] rounded px-4 py-4 outline-none focus:outline-none focus:ring-0"
                 style={{
-                  ...styles.inputStyle,
                   borderRadius: '30px',
                   paddingInline: index === 2 && '40px',
                   border: ClientType === item.title ? '2px solid #7902DF' : '',
@@ -131,7 +126,6 @@ function LawAgentOtherDetails({
                 }}
                 className="border border-[#00000010] rounded px-4 py-4 outline-none focus:outline-none focus:ring-0"
                 style={{
-                  ...styles.inputStyle,
                   borderRadius: '30px',
                   paddingInline: index === 2 && '40px',
                   border:
@@ -161,6 +155,7 @@ const styles = {
     fontSize: 15,
     fontWeight: '500',
     borderRadius: '7px',
+    width: '100%',
   },
   errmsg: {
     fontSize: 12,

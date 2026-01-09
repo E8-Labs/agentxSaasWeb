@@ -720,20 +720,13 @@ const UserAddCard = ({
                 <div className="flex flex-row items-start justify-between w-full mb-4">
                   <div>
                     <div style={{ fontWeight: '600', fontSize: 15 }}>
-                      {selectedPlan?.title || 'No Plan Selected'}
+                      {selectedPlan?.title|| selectedPlan?.name || 'No Plan Selected'}
                     </div>
                     <div style={{ fontWeight: '400', fontSize: 13, marginTop: 4 }}>
                       {(() => {
                         const billingCycle = selectedPlan?.billingCycle || selectedPlan?.duration || 'monthly'
                         const cycleLabel = billingCycle.charAt(0).toUpperCase() + billingCycle.slice(1) + ' subscription'
                         return cycleLabel
-                      })()}: $
-                      {(() => {
-                        const price = selectedPlan?.discountedPrice ||
-                          selectedPlan?.discountPrice ||
-                          selectedPlan?.originalPrice ||
-                          0
-                        return formatFractional2(price)
                       })()}
                     </div>
                   </div>
@@ -830,6 +823,31 @@ const UserAddCard = ({
                 </div>
               </div>
             )}
+
+               <div className="flex items-center gap-2 mb-6">
+              <Checkbox
+                checked={agreeTerms}
+                onCheckedChange={setAgreeTerms}
+                className="h-5 w-5"
+              />
+              <label className="text-sm text-gray-700">
+                I agree to the{' '}
+                <a
+                  href="#"
+                  onClick={async (e) => {
+                    e.preventDefault()
+                    const { termsUrl } = await getPolicyUrls(selectedUser)
+                    window.open(termsUrl, '_blank')
+                  }}
+                  className="text-brand-primary underline font-semibold"
+                  rel="noopener noreferrer"
+                >
+                  Terms & Condition
+                </a>
+              </label>
+            </div>
+
+
             <div className="flex flex-row justify-between items-center mt-8 w-full">
               <button
                 onClick={handleBack}
@@ -871,30 +889,6 @@ const UserAddCard = ({
                 )}
               </button>
             </div>
-
-            {/* Disclaimer */}
-            <p className="text-xs text-center text-gray-500 mt-4">
-              By continuing you agree to our{' '}
-              <a
-                href="#"
-                onClick={async (e) => {
-                  e.preventDefault()
-                  const { termsUrl } = await getPolicyUrls()
-                  window.open(termsUrl, '_blank')
-                }}
-                className="text-brand-primary underline font-semibold"
-                rel="noopener noreferrer"
-              >
-                Terms & Conditions
-              </a>{' '}
-              {
-                reduxUser?.userRole === "agent" && (
-                  <>
-                    and agree to a 12-months license terms. Payments are billed yearly as selected.
-                  </>
-                )
-              }
-            </p>
           </div>
         </div>
       ) : (

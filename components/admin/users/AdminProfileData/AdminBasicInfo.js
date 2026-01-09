@@ -201,7 +201,7 @@ function AdminBasicInfo({ selectedUser }) {
     },
     {
       id: 3,
-      title: 'Virtual Consultationsr',
+      title: 'Virtual Consultations',
     },
   ]
 
