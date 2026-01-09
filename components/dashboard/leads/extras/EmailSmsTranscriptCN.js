@@ -6,6 +6,7 @@ import {
   TypographyBody,
   TypographyBodySemibold,
   TypographyBodyMedium,
+  TypographyCaption,
 } from '@/lib/typography'
 import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
 
@@ -13,22 +14,18 @@ const EmailSmsTranscriptCN = ({ item }) => {
   return (
     <div className="flex flex-col items-start gap-2 text-sm">
       {item.sentSubject && (
-        <div className="flex flex-col items-start gap-1">
+        <div className="flex flex-row items-center gap-1">
           <TypographyBodySemibold className="text-muted-foreground">
-            Subject
+            Subject:
           </TypographyBodySemibold>
-          <TypographyBodyMedium className="text-foreground">
-            {item.sentSubject}
-          </TypographyBodyMedium>
+          <TypographyBodyMedium className="text-foreground">{item.sentSubject}</TypographyBodyMedium>
+         
         </div>
       )}
 
       {item.sentContent && (
         <div className="flex flex-col items-start gap-2 w-full">
-          <TypographyBodySemibold className="text-muted-foreground">
-            Content
-          </TypographyBodySemibold>
-          <TypographyBodyMedium className="whitespace-pre-wrap break-words text-foreground leading-normal">
+          <TypographyCaption className="whitespace-pre-wrap break-words text-foreground leading-normal">
             {(() => {
               let content = item.sentContent
               
@@ -57,7 +54,7 @@ const EmailSmsTranscriptCN = ({ item }) => {
               // Now convert HTML to plain text (strips <p>, <div>, etc. tags)
               return htmlToPlainText(content)
             })()}
-          </TypographyBodyMedium>
+          </TypographyCaption>
         </div>
       )}
 
