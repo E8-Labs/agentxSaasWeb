@@ -148,59 +148,88 @@ function AgencySubacount({ selectedAgency }) {
 
   // Scroll event listener for lazy loading
   useEffect(() => {
-    const scrollableDiv = document.getElementById('scrollableDiv1')
-    if (!scrollableDiv) return
-
     let scrollTimeout = null
+    let lastScrollTop = 0
+    let handleScroll = null
 
-    const handleScroll = () => {
-      // Throttle scroll events
+    // Wait a bit for DOM to be ready
+    const timer = setTimeout(() => {
+      const scrollableDiv = document.getElementById('scrollableDiv1')
+      if (!scrollableDiv) {
+        console.log('⚠️ Scrollable div not found')
+        return
+      }
+
+      handleScroll = () => {
+        // Throttle scroll events
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout)
+        }
+
+        scrollTimeout = setTimeout(() => {
+          const { scrollTop, scrollHeight, clientHeight } = scrollableDiv
+          const distanceFromBottom = scrollHeight - scrollTop - clientHeight
+          // Trigger load more when user is within 100px of bottom
+          const threshold = 100
+          
+          // Debug logging (only when near bottom to reduce noise)
+          if (distanceFromBottom < threshold + 50) {
+            console.log('📜 Scroll near bottom:', {
+              distanceFromBottom,
+              threshold,
+              hasMore,
+              loadingMore,
+              initialLoader,
+              isLoadingMoreRef: isLoadingMoreRef.current,
+              currentOffset: currentOffsetRef.current,
+              listLength: filteredList.length,
+            })
+          }
+          
+          if (
+            distanceFromBottom < threshold &&
+            hasMore &&
+            !loadingMore &&
+            !initialLoader &&
+            !isLoadingMoreRef.current
+          ) {
+            console.log('✅ Conditions met, loading more...')
+            
+            // Get current filters and search term
+            const currentFilters = appliedFilters || null
+            const currentSearch = searchValue && searchValue.trim() ? searchValue.trim() : null
+            
+            // Use ref to get current offset synchronously
+            const offsetToUse = currentOffsetRef.current
+            console.log('🚀 Loading more subaccounts...', {
+              offsetToUse,
+              hasMore,
+              loadingMore,
+              isLoadingMoreRef: isLoadingMoreRef.current,
+            })
+            
+            // Call getSubAccounts with the current offset from ref
+            // Don't set the flag here - let getSubAccounts handle it
+            getSubAccounts(currentFilters, currentSearch, true, offsetToUse)
+          }
+        }, 150) // Throttle to 150ms to reduce rapid firing
+      }
+
+      scrollableDiv.addEventListener('scroll', handleScroll)
+    }, 100) // Small delay to ensure DOM is ready
+
+    return () => {
+      clearTimeout(timer)
       if (scrollTimeout) {
         clearTimeout(scrollTimeout)
       }
-
-      scrollTimeout = setTimeout(() => {
-        const { scrollTop, scrollHeight, clientHeight } = scrollableDiv
-        // Trigger load more when user is within 100px of bottom
-        const threshold = 100
-        
-        if (
-          scrollHeight - scrollTop - clientHeight < threshold &&
-          hasMore &&
-          !loadingMore &&
-          !initialLoader &&
-          !isLoadingMoreRef.current
-        ) {
-          // Set flag to prevent duplicate requests immediately
-          isLoadingMoreRef.current = true
-          
-          // Get current filters and search term
-          const currentFilters = appliedFilters || null
-          const currentSearch = searchValue && searchValue.trim() ? searchValue.trim() : null
-          
-          // Use ref to get current offset synchronously
-          const offsetToUse = currentOffsetRef.current
-          console.log('Loading more subaccounts...', {
-            offsetToUse,
-            hasMore,
-            loadingMore,
-          })
-          
-          // Call getSubAccounts with the current offset from ref
-          getSubAccounts(currentFilters, currentSearch, true, offsetToUse)
-        }
-      }, 150) // Throttle to 150ms to reduce rapid firing
-    }
-
-    scrollableDiv.addEventListener('scroll', handleScroll)
-    return () => {
-      scrollableDiv.removeEventListener('scroll', handleScroll)
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout)
+      const scrollableDiv = document.getElementById('scrollableDiv1')
+      if (scrollableDiv && handleScroll) {
+        scrollableDiv.removeEventListener('scroll', handleScroll)
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMore, loadingMore, initialLoader, appliedFilters, searchValue])
+  }, [hasMore, loadingMore, initialLoader, appliedFilters, searchValue, filteredList.length])
 
   // Listen for refreshSelectedUser event to update selectedUser after plan subscription
   useEffect(() => {
@@ -445,16 +474,32 @@ function AgencySubacount({ selectedAgency }) {
 
   // /code for getting the subaccouts list
   const getSubAccounts = async (filterData = null, searchTerm = null, append = false, offset = 0) => {
-    console.log('Trigered get subaccounts', { filterData, searchTerm, append, offset })
+    console.log('🔵 Trigered get subaccounts', { filterData, searchTerm, append, offset, isLoadingMoreRef: isLoadingMoreRef.current })
     
     // If appending (lazy load), check if already loading to prevent duplicates
     if (append) {
       if (isLoadingMoreRef.current) {
-        console.log('Already loading more, skipping duplicate request')
+        console.log('⚠️ Already loading more, skipping duplicate request', {
+          isLoadingMoreRef: isLoadingMoreRef.current,
+          loadingMore,
+        })
         return
       }
+      console.log('✅ Setting loading flags for append mode', {
+        offset,
+        currentOffsetRef: currentOffsetRef.current,
+      })
       setLoadingMore(true)
       isLoadingMoreRef.current = true
+      
+      // Safety timeout to reset flag if request takes too long (10 seconds)
+      setTimeout(() => {
+        if (isLoadingMoreRef.current) {
+          console.warn('⚠️ Loading timeout - resetting flag')
+          isLoadingMoreRef.current = false
+          setLoadingMore(false)
+        }
+      }, 10000)
     } else {
       setInitialLoader(true)
       // Reset pagination when starting fresh
@@ -500,7 +545,7 @@ function AgencySubacount({ selectedAgency }) {
         ApiPAth += '?' + queryParams.join('&')
       }
 
-      console.log('Api path for get subaccounts api is', ApiPAth)
+      console.log('🌐 Making API request:', ApiPAth)
       const Token = AuthToken()
       const response = await axios.get(ApiPAth, {
         headers: {
@@ -509,7 +554,11 @@ function AgencySubacount({ selectedAgency }) {
         },
       })
       
-      console.log('Response of get subaccounts api is', response.data)
+      console.log('✅ API Response received:', {
+        status: response.data?.status,
+        dataLength: response.data?.data?.length,
+        pagination: response.data?.pagination,
+      })
       if (response && response.data) {
         const newAccounts = response.data.data || []
         const pagination = response.data.pagination || {}
@@ -523,7 +572,18 @@ function AgencySubacount({ selectedAgency }) {
         const currentOffset = pagination.offset || offset
         const limit = pagination.limit || 50
         const total = pagination.total || 0
-        const hasMoreData = currentOffset + newAccounts.length < total
+        const returned = pagination.returned || newAccounts.length
+        
+        // Calculate hasMore: if we got fewer items than requested, or if offset + returned < total
+        const hasMoreData = returned === limit && (currentOffset + returned < total)
+        console.log('Pagination calculation:', {
+          currentOffset,
+          returned,
+          limit,
+          total,
+          hasMoreData,
+          calculation: `${currentOffset} + ${returned} < ${total} = ${currentOffset + returned < total}`,
+        })
         setHasMore(hasMoreData)
         
         if (append) {
