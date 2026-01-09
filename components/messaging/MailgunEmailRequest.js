@@ -96,13 +96,21 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
 
       // Check user role directly from userData
       const userRole = userData?.user?.userRole || userData?.userRole
-      const isSubaccountUser = userRole === 'AgencySubAccount'
-      const isAgentXUser = userRole === 'AgentX'
+      
+      // If targetUserId is provided, we're viewing/managing for that user (e.g., agency managing subaccount)
+      // In this case, we should treat it as if we're viewing from the target user's perspective
+      const isViewingForTargetUser = !!targetUserId
+      
+      // Determine if we're viewing as a subaccount or AgentX user
+      // If targetUserId is provided, assume it's a subaccount (most common case for agency managing subaccount)
+      const isSubaccountUser = isViewingForTargetUser ? true : (userRole === 'AgencySubAccount')
+      const isAgentXUser = isViewingForTargetUser ? false : (userRole === 'AgentX')
 
       // Add userId query param if provided (for Agency/Admin viewing domains for subaccount)
       let apiUrl = Apis.listMailgunIntegrations
       if (targetUserId) {
         apiUrl += `?userId=${targetUserId}`
+        console.log('📧 Fetching Mailgun integrations for target user:', targetUserId)
       }
 
       const response = await axios.get(apiUrl, {
@@ -114,6 +122,13 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
 
       if (response.data?.status) {
         const allIntegrations = response.data.data || []
+        
+        console.log('📧 Fetched integrations:', {
+          total: allIntegrations.length,
+          ownerTypes: [...new Set(allIntegrations.map(i => i.ownerType))],
+          isViewingForTargetUser,
+          targetUserId,
+        })
         
         // For subaccounts, check if agency has Mailgun connected
         if (isSubaccountUser) {
@@ -160,6 +175,8 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
             (integration) => integration.verificationStatus === 'verified' && integration.isActive
           )
         }
+        
+        console.log('📧 Available integrations for email creation:', availableIntegrations.length)
         
         setMailgunIntegrations(availableIntegrations)
         if (availableIntegrations.length > 0 && !selectedIntegrationId) {
@@ -326,6 +343,9 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
       // Add userId if provided (for Agency/Admin creating email for subaccount)
       if (targetUserId) {
         requestBody.userId = targetUserId
+        console.log('📧 Creating email for target user:', targetUserId)
+      } else {
+        console.log('📧 Creating email for current user (no targetUserId provided)')
       }
 
       const response = await axios.post(
