@@ -2379,16 +2379,28 @@ const LeadDetails = ({
             open={isExpanded}
             onClose={() => setIsExpanded(null)}
             closeAfterTransition
+            disablePortal={false}
+            container={typeof window !== 'undefined' ? document.body : null}
+            sx={{
+              zIndex: 15000, // Very high z-index to appear above LeadDetails Drawer (1400) and Sheet
+              '& .MuiBackdrop-root': {
+                zIndex: 15000, // Ensure backdrop is also at 15000
+              },
+            }}
             BackdropProps={{
               timeout: 1000,
               sx: {
                 backgroundColor: '#00000020',
+                zIndex: 15000, // Match Modal z-index
               },
             }}
           >
             <Box
               className="lg:w-4/12 sm:w-4/12 w-6/12"
-              sx={styles.modalsStyle}
+              sx={{
+                ...styles.modalsStyle,
+                zIndex: 15001, // Higher than backdrop (15000) to appear on top
+              }}
             >
               <div className="flex flex-row justify-center w-full">
                 <div

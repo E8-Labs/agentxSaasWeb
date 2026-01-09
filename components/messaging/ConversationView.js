@@ -553,7 +553,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                   Called by <strong className="font-semibold">{callerName}</strong> on {callDate}
                 </div>
                 <div className="w-full max-w-2xl px-4">
-                  <div className="rounded-xl border border-border bg-background p-4 shadow-sm">
+                  <div className="rounded-xl border border-border bg-background px-4 pb-2 shadow-sm">
                     <CallTranscriptCN
                       item={callData}
                       onPlayRecording={handlePlayRecording}
@@ -1117,58 +1117,7 @@ const ConversationView = ({
         </>
       )}
 
-      {/* Transcript Modal */}
-      <Modal
-        open={!!showTranscriptModal}
-        onClose={() => setShowTranscriptModal(null)}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 1000,
-          sx: {
-            backgroundColor: '#00000020',
-          },
-        }}
-      >
-        <Box
-          className="lg:w-4/12 sm:w-4/12 w-6/12"
-          sx={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            bgcolor: 'background.paper',
-            borderRadius: 2,
-            boxShadow: 24,
-            outline: 'none',
-          }}
-        >
-          <div className="flex flex-row justify-center w-full">
-            <div
-              className="w-full"
-              style={{
-                backgroundColor: '#ffffff',
-                padding: 20,
-                borderRadius: '13px',
-              }}
-            >
-              <div className="w-full flex flex-row items-center justify-between">
-                <div className="font-bold text-xl mt-4 mb-4">
-                  Call Transcript
-                </div>
-                <div>
-                  <button
-                    className="font-bold outline-none border-none"
-                    onClick={() => setShowTranscriptModal(null)}
-                  >
-                    <CloseIcon />
-                  </button>
-                </div>
-              </div>
-              <TranscriptViewer callId={showTranscriptModal?.callId || showTranscriptModal?.id || ''} />
-            </div>
-          </div>
-        </Box>
-      </Modal>
+     
     </div>
   )
 }

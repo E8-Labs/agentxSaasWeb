@@ -35,7 +35,7 @@ const CallTranscriptCN = ({
   return (
     <div className="flex flex-col">
       {/* Top row: Duration, Play button, and Icons (Sentiment, Temp, Next Steps) */}
-      <div className="flex flex-row items-center justify-between mt-4 text-sm">
+      <div className="flex flex-row items-center justify-between mt-2 text-sm">
         <div className="flex flex-row items-center gap-3">
           <TypographyBodyMedium className="text-foreground">
             {moment(item?.duration * 1000).format('mm:ss')}
