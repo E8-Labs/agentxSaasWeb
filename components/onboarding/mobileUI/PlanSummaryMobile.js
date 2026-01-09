@@ -217,9 +217,18 @@ function PlanSummaryMobile({ selectedPlan,
                   <div className="text-base font-semibold text-black">
                     {planTitle}
                   </div>
-                  <div className="text-sm text-gray-600 mt-1">
-                    {durationLabel}
-                  </div>
+                 {
+                  reduxUser?.userRole == 'Agency'  ? (
+                    <div className="text-sm text-gray-600 mt-1">
+                      Total Annual Commitment: $
+                      {(planPrice * 12)?.toLocaleString()}
+                    </div>
+                  ):(
+                    <div className="text-sm text-gray-600 mt-1">
+                      {durationLabel}
+                    </div>
+                  )
+                }
                 </div>
                 <div className="text-base font-semibold text-black">
                 ${formatFractional2(planPrice)}
