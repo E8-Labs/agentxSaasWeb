@@ -248,10 +248,11 @@ const sanitizeAndLinkifyHTML = (html, sanitizeHTML) => {
   if (separatorIndex > 0) {
     plainText = plainText.substring(0, separatorIndex).trim()
   }
-  // Clean up multiple newlines
+  // Clean up multiple newlines (but preserve single and double newlines for line breaks)
   plainText = plainText.replace(/\n{3,}/g, '\n\n').trim()
 
   // Now linkify URLs in the cleaned plain text
+  // linkifyText will convert newlines to <br /> tags automatically
   return linkifyText(plainText)
 }
 

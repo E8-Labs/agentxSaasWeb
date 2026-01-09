@@ -12,6 +12,10 @@ export function htmlToPlainText(html) {
     return html || ''
   }
 
+  // IMPORTANT: Convert <br> and <br/> tags to newlines BEFORE processing
+  // This preserves line breaks that would otherwise be lost
+  html = html.replace(/<br\s*\/?>/gi, '\n')
+
   // Check if content is already plain text (no HTML tags)
   const hasHtmlTags = /<[^>]+>/g.test(html)
   
@@ -28,16 +32,18 @@ export function htmlToPlainText(html) {
     // Get text content and clean it up
     let text = tempDiv.textContent || tempDiv.innerText || ''
     
-    // Clean up extra whitespace
+    // Clean up extra whitespace (but preserve newlines from <br> tags)
+    // Replace multiple spaces with single space, but keep newlines
     text = text
-      .replace(/\s+/g, ' ') // Replace multiple spaces with single space
-      .replace(/\n\s*\n/g, '\n') // Replace multiple newlines with single newline
+      .replace(/[ \t]+/g, ' ') // Replace multiple spaces/tabs with single space
+      .replace(/\n{3,}/g, '\n\n') // Replace 3+ newlines with double newline
       .trim()
     
     return text
   }
 
   // Fallback for server-side: basic regex-based HTML tag removal
+  // Note: <br> tags were already converted to \n above
   return html
     .replace(/<[^>]+>/g, '') // Remove HTML tags
     .replace(/&nbsp;/g, ' ') // Replace &nbsp; with space
@@ -46,7 +52,8 @@ export function htmlToPlainText(html) {
     .replace(/&gt;/g, '>') // Replace &gt; with >
     .replace(/&quot;/g, '"') // Replace &quot; with "
     .replace(/&#39;/g, "'") // Replace &#39; with '
-    .replace(/\s+/g, ' ') // Replace multiple spaces with single space
+    .replace(/[ \t]+/g, ' ') // Replace multiple spaces/tabs with single space (but keep newlines)
+    .replace(/\n{3,}/g, '\n\n') // Replace 3+ newlines with double newline
     .trim()
 }
 
