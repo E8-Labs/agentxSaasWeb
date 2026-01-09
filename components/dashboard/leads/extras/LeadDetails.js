@@ -2042,6 +2042,7 @@ const LeadDetails = ({
                   />
 
                     <AuthSelectionPopup
+                      selectedUser={selectedUser}
                       open={showAuthSelectionPopup}
                       onClose={() => setShowAuthSelectionPopup(false)}
                       onSuccess={() => {

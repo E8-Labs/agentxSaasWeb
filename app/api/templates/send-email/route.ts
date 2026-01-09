@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
 
     // Get request body
     const body = await req.json()
-    const { leadId, templateId, emailAccountId } = body
+    const { leadId, templateId, emailAccountId, userId } = body
 
     // Validate required fields
     if (!leadId || !templateId) {
@@ -86,6 +86,7 @@ export async function POST(req: NextRequest) {
         templateId,
         emailAccountId,
         to: leadEmail,
+        ...(userId && { userId }), // Pass userId if provided
       }),
       cache: 'no-store',
     })

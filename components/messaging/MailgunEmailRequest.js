@@ -14,6 +14,7 @@ import MailgunDomainSetup from './MailgunDomainSetup'
 import ViewDnsRecordsModal from './ViewDnsRecordsModal'
 
 const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
+  console.log("Target User ID in MailgunEmailRequest", targetUserId)
   const [mailgunIntegrations, setMailgunIntegrations] = useState([])
   const [allMailgunIntegrations, setAllMailgunIntegrations] = useState([]) // Store all integrations for checking pending domains
   const [availableDomains, setAvailableDomains] = useState([]) // For subdomain creation
@@ -104,7 +105,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
       // - For subaccount: agency's domains + subaccount's own domains
       // - For AgentX: platform domains (admin's) + AgentX's own domains
       let apiUrl = Apis.listMailgunIntegrations
-      if (targetUserId) {
+      if (targetUserId && targetUserId !== userData?.user?.id) {
         apiUrl += `?userId=${targetUserId}`
       }
 

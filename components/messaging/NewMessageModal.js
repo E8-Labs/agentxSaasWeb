@@ -2422,6 +2422,7 @@ const NewMessageModal = ({
 
     {/* Auth Selection Popup for Gmail Connection - Outside main Modal */}
     <AuthSelectionPopup
+      selectedUser={selectedUser}
       open={showAuthSelectionPopup}
       onClose={() => setShowAuthSelectionPopup(false)}
       onSuccess={() => {
@@ -2441,7 +2442,7 @@ const NewMessageModal = ({
           })
         }
       }}
-      selectedUser={getSelectedUser()}
+      // selectedUser={getSelectedUser()}
     />
   </>
   )
