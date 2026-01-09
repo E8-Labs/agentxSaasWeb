@@ -94,23 +94,18 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
       const userData = getUserLocalData()
       const token = userData?.token
 
-      // Check user role directly from userData
+      // Check user role directly from userData (for determining if current user is subaccount/AgentX)
       const userRole = userData?.user?.userRole || userData?.userRole
-      
-      // If targetUserId is provided, we're viewing/managing for that user (e.g., agency managing subaccount)
-      // In this case, we should treat it as if we're viewing from the target user's perspective
-      const isViewingForTargetUser = !!targetUserId
-      
-      // Determine if we're viewing as a subaccount or AgentX user
-      // If targetUserId is provided, assume it's a subaccount (most common case for agency managing subaccount)
-      const isSubaccountUser = isViewingForTargetUser ? true : (userRole === 'AgencySubAccount')
-      const isAgentXUser = isViewingForTargetUser ? false : (userRole === 'AgentX')
+      const isSubaccountUser = userRole === 'AgencySubAccount'
+      const isAgentXUser = userRole === 'AgentX'
 
       // Add userId query param if provided (for Agency/Admin viewing domains for subaccount)
+      // Backend will return appropriate domains based on target user's role:
+      // - For subaccount: agency's domains + subaccount's own domains
+      // - For AgentX: platform domains (admin's) + AgentX's own domains
       let apiUrl = Apis.listMailgunIntegrations
       if (targetUserId) {
         apiUrl += `?userId=${targetUserId}`
-        console.log('📧 Fetching Mailgun integrations for target user:', targetUserId)
       }
 
       const response = await axios.get(apiUrl, {
@@ -123,60 +118,31 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
       if (response.data?.status) {
         const allIntegrations = response.data.data || []
         
-        console.log('📧 Fetched integrations:', {
-          total: allIntegrations.length,
-          ownerTypes: [...new Set(allIntegrations.map(i => i.ownerType))],
-          isViewingForTargetUser,
-          targetUserId,
-        })
+        // Backend already returns the correct domains based on targetUserId
+        // No need for additional filtering by ownerType - just filter by verification status
         
-        // For subaccounts, check if agency has Mailgun connected
-        if (isSubaccountUser) {
-          const agencyIntegrations = allIntegrations.filter(
-            (integration) => integration.ownerType === 'agency' && 
-                           integration.verificationStatus === 'verified' && 
-                           integration.isActive
-          )
-          setAgencyHasMailgun(agencyIntegrations.length > 0)
+        // Check if agency/platform has Mailgun connected (for subaccount/AgentX context)
+        // This is determined by checking if any returned integrations are agency/platform type
+        const hasAgencyOrPlatformDomains = allIntegrations.some(
+          (integration) => 
+            (integration.ownerType === 'agency' || integration.ownerType === 'platform') &&
+            integration.verificationStatus === 'verified' &&
+            integration.isActive
+        )
+        
+        // For subaccounts or when viewing for subaccount, check if agency has Mailgun
+        if (isSubaccountUser || (targetUserId && allIntegrations.some(i => i.ownerType === 'agency'))) {
+          setAgencyHasMailgun(hasAgencyOrPlatformDomains)
         }
         
-        // For first tab: Only show verified domains that can be used for email creation
-        // For subaccounts: agency's verified domains + subaccount's own verified domains
-        // For AgentX: platform's verified domains + AgentX's own verified domains
-        // For others: only verified and active domains
-        let availableIntegrations
-        if (isSubaccountUser) {
-          // Subaccounts can see: agency's verified domains + their own verified domains
-          availableIntegrations = allIntegrations.filter(
-            (integration) => 
-              // Agency's verified domains
-              (integration.ownerType === 'agency' && 
-               integration.verificationStatus === 'verified' && 
-               integration.isActive) ||
-              // Or subaccount's own verified domains (only verified ones for email creation)
-              (integration.ownerType === 'subaccount' && 
-               integration.verificationStatus === 'verified')
-          )
-        } else if (isAgentXUser) {
-          // AgentX users can see: platform's verified domains + their own verified domains
-          availableIntegrations = allIntegrations.filter(
-            (integration) => 
-              // Platform's verified domains
-              (integration.ownerType === 'platform' && 
-               integration.verificationStatus === 'verified' && 
-               integration.isActive) ||
-              // Or AgentX's own verified domains (only verified ones for email creation)
-              (integration.ownerType === 'agentx' && 
-               integration.verificationStatus === 'verified')
-          )
-        } else {
-          // For non-subaccounts, only show verified and active
-          availableIntegrations = allIntegrations.filter(
-            (integration) => integration.verificationStatus === 'verified' && integration.isActive
-          )
-        }
+        // Backend already returns the correct domains based on targetUserId:
+        // - For subaccount: agency's domains + subaccount's own domains
+        // - For AgentX: platform domains (admin's) + AgentX's own domains
+        // We just need to filter for verified domains that can be used for email creation
+        const availableIntegrations = allIntegrations.filter(
+          (integration) => integration.verificationStatus === 'verified' && integration.isActive
+        )
         
-        console.log('📧 Available integrations for email creation:', availableIntegrations.length)
         
         setMailgunIntegrations(availableIntegrations)
         if (availableIntegrations.length > 0 && !selectedIntegrationId) {
