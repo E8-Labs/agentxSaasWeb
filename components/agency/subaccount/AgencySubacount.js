@@ -105,6 +105,12 @@ function AgencySubacount({ selectedAgency }) {
   const [showXBarPopup, setShowXBarPopup] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  // Pagination state for lazy scroll
+  const [paginationOffset, setPaginationOffset] = useState(0)
+  const [hasMore, setHasMore] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [totalCount, setTotalCount] = useState(0)
+
   //redux data
   useEffect(() => {
     refreshUserData()
@@ -130,6 +136,41 @@ function AgencySubacount({ selectedAgency }) {
     getSubAccounts()
     fetchPlans()
   }, [])
+
+  // Scroll event listener for lazy loading
+  useEffect(() => {
+    const scrollableDiv = document.getElementById('scrollableDiv1')
+    if (!scrollableDiv) return
+
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = scrollableDiv
+      // Trigger load more when user is within 100px of bottom
+      const threshold = 100
+      
+      if (
+        scrollHeight - scrollTop - clientHeight < threshold &&
+        hasMore &&
+        !loadingMore &&
+        !initialLoader
+      ) {
+        console.log('Loading more subaccounts...', {
+          currentOffset: paginationOffset,
+          hasMore,
+          loadingMore,
+        })
+        // Get current filters and search term
+        const currentFilters = appliedFilters || null
+        const currentSearch = searchValue && searchValue.trim() ? searchValue.trim() : null
+        getSubAccounts(currentFilters, currentSearch, true, paginationOffset)
+      }
+    }
+
+    scrollableDiv.addEventListener('scroll', handleScroll)
+    return () => {
+      scrollableDiv.removeEventListener('scroll', handleScroll)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasMore, loadingMore, initialLoader, paginationOffset, appliedFilters, searchValue])
 
   // Listen for refreshSelectedUser event to update selectedUser after plan subscription
   useEffect(() => {
@@ -373,23 +414,30 @@ function AgencySubacount({ selectedAgency }) {
   }
 
   // /code for getting the subaccouts list
-  const getSubAccounts = async (filterData = null, searchTerm = null) => {
-    console.log('Trigered get subaccounts')
-    if (filterData) {
-      console.log('Trigered get subaccounts to filter', filterData)
-    }
-    if (searchTerm) {
-      console.log('Trigered get subaccounts with search', searchTerm)
-    }
-    try {
+  const getSubAccounts = async (filterData = null, searchTerm = null, append = false, offset = 0) => {
+    console.log('Trigered get subaccounts', { filterData, searchTerm, append, offset })
+    
+    // If appending (lazy load), use loadingMore; otherwise use initialLoader
+    if (append) {
+      setLoadingMore(true)
+    } else {
       setInitialLoader(true)
+      // Reset pagination when starting fresh
+      setPaginationOffset(0)
+      setHasMore(true)
+    }
 
+    try {
       let ApiPAth = Apis.getAgencySubAccount
       const queryParams = []
 
       if (selectedAgency) {
         queryParams.push(`userId=${selectedAgency.id}`)
       }
+
+      // Add pagination parameters
+      queryParams.push(`offset=${offset}`)
+      queryParams.push(`limit=50`) // Default limit from backend
 
       // Add search parameter if provided
       if (searchTerm && searchTerm.trim()) {
@@ -411,28 +459,52 @@ function AgencySubacount({ selectedAgency }) {
         })
       }
 
-      // minSpent=100000&minBalance=430&maxSpent=6000&maxBalance=1000
-
       if (queryParams.length > 0) {
         ApiPAth += '?' + queryParams.join('&')
       }
 
       console.log('Api path for get subaccounts api is', ApiPAth)
       const Token = AuthToken()
-      // console.log(Token);
       const response = await axios.get(ApiPAth, {
         headers: {
           Authorization: 'Bearer ' + Token,
           'Content-Type': 'application/json',
         },
       })
-      console.log('Response of get subaccounts api 1 is', response)
-      if (response) {
-        console.log('Response of get subaccounts api is', response.data)
-        setSubAccountsList(response.data.data)
-        setFilteredList(response.data.data)
+      
+      console.log('Response of get subaccounts api is', response.data)
+      if (response && response.data) {
+        const newAccounts = response.data.data || []
+        const pagination = response.data.pagination || {}
+        
+        // Update total count
+        if (pagination.total !== undefined) {
+          setTotalCount(pagination.total)
+        }
+        
+        // Update hasMore based on pagination
+        const currentOffset = pagination.offset || offset
+        const limit = pagination.limit || 50
+        const total = pagination.total || 0
+        const hasMoreData = currentOffset + newAccounts.length < total
+        setHasMore(hasMoreData)
+        
+        if (append) {
+          // Append new accounts to existing list
+          setSubAccountsList((prev) => [...prev, ...newAccounts])
+          setFilteredList((prev) => [...prev, ...newAccounts])
+          setPaginationOffset(currentOffset + newAccounts.length)
+        } else {
+          // Replace list with new data
+          setSubAccountsList(newAccounts)
+          setFilteredList(newAccounts)
+          setPaginationOffset(newAccounts.length)
+        }
+        
         setInitialLoader(false)
-        if (filterData) {
+        setLoadingMore(false)
+        
+        if (filterData && !append) {
           setShowFilterModal(false)
           setShowSnackMessage('Filter Applied')
           setShowSnackType(SnackbarTypes.Success)
@@ -441,6 +513,7 @@ function AgencySubacount({ selectedAgency }) {
     } catch (error) {
       console.error('Error occured in getsub accounts is', error)
       setInitialLoader(false)
+      setLoadingMore(false)
     }
   }
 
@@ -767,7 +840,7 @@ function AgencySubacount({ selectedAgency }) {
                 color: 'white',
               }}
             >
-              Total Sub Accounts: {filteredList?.length || 0}
+              Total Sub Accounts: {totalCount > 0 ? totalCount : (filteredList?.length || 0)}
             </div>
 
             <button
@@ -1168,6 +1241,24 @@ function AgencySubacount({ selectedAgency }) {
                     </Popover>
                   </div>
                 ))}
+                
+                {/* Loading indicator for lazy scroll */}
+                {loadingMore && (
+                  <div className="w-full flex flex-row items-center justify-center py-4">
+                    <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                    <span className="ml-2 text-sm text-gray-600">Loading more...</span>
+                  </div>
+                )}
+                
+                {/* End of list indicator */}
+                {!hasMore && filteredList.length > 0 && (
+                  <div className="w-full flex flex-row items-center justify-center py-4">
+                    <span className="text-sm text-gray-500">
+                      End of list
+                      {/* Showing {filteredList.length} of {totalCount} subaccounts */}
+                    </span>
+                  </div>
+                )}
               </div>
             ) : (
               <div
