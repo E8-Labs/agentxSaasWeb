@@ -1300,6 +1300,14 @@ const NewMessageModal = ({
         onClose={onClose}
         aria-labelledby="new-message-modal"
         aria-describedby="new-message-description"
+        sx={{
+          zIndex: 1500, // Higher than LeadDetails Drawer (1400) to appear on top
+        }}
+        BackdropProps={{
+          sx: {
+            zIndex: 1500, // Match Modal z-index
+          },
+        }}
       >
         <Box
           sx={{
@@ -1311,12 +1319,13 @@ const NewMessageModal = ({
             bgcolor: 'background.paper',
             borderRadius: 2,
             boxShadow: 24,
+            zIndex: 1501, // Higher than backdrop (1500) to appear on top
             p: 0,
             maxHeight: '90vh',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'visible', // Allow tooltips to escape modal bounds
-            zIndex: 1300, // Ensure modal is above other content
+            zIndex: 1501, // Higher than backdrop (1500) to appear on top
           }}
         >
           {/* Header */}
@@ -1522,7 +1531,7 @@ const NewMessageModal = ({
                               <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                             </button>
                             {emailDropdownOpen && (
-                              <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+                              <div className="absolute w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto" style={{ zIndex: 1900 }}>
                                 {emailAccounts.map((account) => (
                                   <button
                                     key={account.id}
@@ -1906,11 +1915,23 @@ const NewMessageModal = ({
                           }}
                           displayEmpty
                           MenuProps={{
-                            zIndex: 1500,
+                            disablePortal: false,
+                            container: typeof document !== 'undefined' ? document.body : null,
                             PaperProps: {
                               style: {
-                                zIndex: 1500,
+                                zIndex: 1800, // Higher than NewMessageModal (1501) to appear on top
+                                position: 'fixed', // Ensure it's positioned correctly when portaled
+                                maxHeight: '300px', // Fixed height for scrolling
+                                overflow: 'auto', // Enable scrolling
                               },
+                            },
+                            MenuListProps: {
+                              style: {
+                                zIndex: 1800,
+                              },
+                            },
+                            style: {
+                              zIndex: 1800,
                             },
                           }}
                           IconComponent={(props) => <ChevronDown {...props} size={24} className="text-gray-400 mr-2" />}
@@ -1919,7 +1940,7 @@ const NewMessageModal = ({
                             height: '42px',
                             borderRadius: '0',
                             border: 'none',
-                            zIndex: 1500,
+                            zIndex: 1800,
                             '& .MuiOutlinedInput-notchedOutline': {
                               border: 'none',
                             },
@@ -2079,12 +2100,32 @@ const NewMessageModal = ({
                             }
                           }}
                           displayEmpty
+                          MenuProps={{
+                            disablePortal: false,
+                            container: typeof document !== 'undefined' ? document.body : null,
+                            PaperProps: {
+                              style: {
+                                zIndex: 1800, // Higher than NewMessageModal (1501) to appear on top
+                                position: 'fixed', // Ensure it's positioned correctly when portaled
+                                maxHeight: '300px', // Fixed height for scrolling
+                                overflow: 'auto', // Enable scrolling
+                              },
+                            },
+                            MenuListProps: {
+                              style: {
+                                zIndex: 1800,
+                              },
+                            },
+                            style: {
+                              zIndex: 1800,
+                            },
+                          }}
                           IconComponent={(props) => <ChevronDown {...props} size={24} className="text-gray-400 mr-2" />}
                           sx={{
                             fontSize: '0.875rem',
                             height: '42px',
                             borderRadius: '8px',
-                            zIndex: 1500,
+                            zIndex: 1, // Lower z-index for the button itself, menu has its own z-index
                             '& .MuiOutlinedInput-notchedOutline': {
                               borderColor: 'transparent',
                               borderWidth: '0',
@@ -2162,12 +2203,33 @@ const NewMessageModal = ({
                             }
                           }}
                           displayEmpty
+                          MenuProps={{
+                            disablePortal: false,
+                            container: typeof document !== 'undefined' ? document.body : null,
+                            PaperProps: {
+                              style: {
+                                zIndex: 1800, // Higher than NewMessageModal (1501) to appear on top
+                                position: 'fixed', // Ensure it's positioned correctly when portaled
+                                maxHeight: '300px', // Fixed height for scrolling
+                                overflow: 'auto', // Enable scrolling
+                              },
+                            },
+                            MenuListProps: {
+                              style: {
+                                zIndex: 1800,
+                              },
+                            },
+                            style: {
+                              zIndex: 1800,
+                            },
+                          }}
                           IconComponent={(props) => <ChevronDown {...props} size={24} className="text-gray-400 mr-2" />}
                           sx={{
                             fontSize: '0.875rem',
                             height: '36px',
                             borderRadius: '8px',
                             backgroundColor: 'white',
+                            zIndex: 1, // Lower z-index for the button itself, menu has its own z-index
                             '& .MuiOutlinedInput-notchedOutline': {
                               borderColor: '#e5e7eb',
                               borderWidth: '1px',

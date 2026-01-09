@@ -188,10 +188,25 @@ function AuthSelectionPopup({
 
   return (
     <>
-      <Modal open={open} onClose={onClose}>
+      <Modal 
+        open={open} 
+        onClose={onClose}
+        sx={{
+          zIndex: 1600, // Higher than NewMessageModal (1500) to appear on top
+        }}
+        BackdropProps={{
+          sx: {
+            zIndex: 1600, // Match Modal z-index
+          },
+        }}
+      >
         <Box
           className="w-full h-full py-4 flex items-center justify-center"
-          sx={{ ...styles.modalsStyle }}
+          sx={{ 
+            ...styles.modalsStyle,
+            position: 'relative',
+            zIndex: 1601, // Higher than backdrop (1600) to appear on top
+          }}
         >
           <div className="flex flex-col w-3/12  px-8 py-6 bg-white max-h-[70vh] rounded-2xl">
             <AgentSelectSnackMessage
@@ -352,8 +367,22 @@ function AuthSelectionPopup({
       <Modal
         open={showGmailConfirmationPopup}
         onClose={() => setShowGmailConfirmationPopup(false)}
+        sx={{
+          zIndex: 1700, // Higher than AuthSelectionPopup (1600) to appear on top
+        }}
+        BackdropProps={{
+          sx: {
+            zIndex: 1700, // Match Modal z-index
+          },
+        }}
       >
-        <Box className="w-full h-full py-4 flex items-center justify-center">
+        <Box 
+          className="w-full h-full py-4 flex items-center justify-center"
+          sx={{
+            position: 'relative',
+            zIndex: 1701, // Higher than backdrop (1700) to appear on top
+          }}
+        >
           <div className="flex flex-col w-3/12  items-center px-4 py-6 bg-white max-h-[70vh] rounded-2xl">
             <div className="flex flex-row items-center justify-between w-full mb-2">
               <div className="text-[18px] font-[700] ">

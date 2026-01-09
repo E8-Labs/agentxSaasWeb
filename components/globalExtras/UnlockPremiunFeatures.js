@@ -149,19 +149,30 @@ const UnlockPremiunFeatures = ({
       onClose={handleClose}
       closeAfterTransition
       sx={{
-        zIndex: 1500, // Higher than LeadDetails Drawer (1400) to appear on top
+        zIndex: 10000, // Higher than dropdown menu (9999) and LeadDetails Drawer (1400) to appear on top
       }}
       BackdropProps={{
         timeout: 100,
         sx: {
           backgroundColor: '#00000040',
           backdropFilter: 'blur(10px)',
-          zIndex: 1500, // Match Modal z-index
+          zIndex: 10000, // Match Modal z-index
         },
       }}
     >
-      <Box className="flex justify-center items-center w-full h-full">
-        <div className="bg-white rounded-2xl p-8 max-w-lg w-[90%] relative shadow-2xl">
+      <Box 
+        className="flex justify-center items-center w-full h-full"
+        sx={{
+          position: 'relative',
+          zIndex: 10001, // Higher than backdrop (10000) to appear on top
+        }}
+      >
+        <div 
+          className="bg-white rounded-2xl p-8 max-w-lg w-[90%] relative shadow-2xl"
+          style={{
+            zIndex: 10001, // Ensure content is above backdrop
+          }}
+        >
           {/* Show snack message */}
           <AgentSelectSnackMessage
             isVisible={snackMsg !== null}

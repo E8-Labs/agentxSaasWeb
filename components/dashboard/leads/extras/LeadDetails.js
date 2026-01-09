@@ -1491,18 +1491,6 @@ const LeadDetails = ({
     }
   }
 
-  // Handler for NewMessageModal onSend callback
-  const handleMessageSent = (result) => {
-    if (result.success) {
-      showSnackbar(
-        `Message${result.total > 1 ? 's' : ''} sent successfully to ${result.sent} lead${result.sent > 1 ? 's' : ''}`,
-        SnackbarTypes.Success
-      )
-    } else {
-      showSnackbar('Failed to send message. Please try again.', SnackbarTypes.Error)
-    }
-  }
-
   const startDialerFlow = () => {
     if (!selectedLeadsDetails?.phone) {
       setShowSnackMsg({
@@ -2666,7 +2654,6 @@ const LeadDetails = ({
         selectedUser={reduxUser}
         setReduxUser={setReduxUser}
         isLeadMode={true}
-       
       />
 
       {/* Dialer Modal is now rendered in app/dashboard/layout.js */}
