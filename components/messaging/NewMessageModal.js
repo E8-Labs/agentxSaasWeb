@@ -1376,14 +1376,14 @@ const NewMessageModal = ({
               {/* From and To Fields - Same Line */}
               <div className={`flex items-center gap-4 ${isPipelineMode ? '' : ''}`} ref={leadSearchRef}>
                 {/* From Field */}
-                <div className={isPipelineMode ? "w-full relative" : "flex-1 relative"}>
+                <div className={isPipelineMode ? "w-full relative" : "flex-1 relative min-w-0"} style={{ flexBasis: 0 }}>
                   {selectedMode === 'sms' ? (
                     <div className="relative" ref={phoneDropdownRef}>
                       <button
                         type="button"
                         onClick={() => setPhoneDropdownOpen(!phoneDropdownOpen)}
-                        className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
-                        style={{ height: '42px' }}
+                        className="w-full px-3 py-2 h-[42px] border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
+                        style={{ height: '42px', borderColor: '#E2E8F0', borderWidth: '1px' }}
                       >
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           <span className="text-sm text-gray-500 flex-shrink-0">From:</span>
@@ -1485,13 +1485,14 @@ const NewMessageModal = ({
                       )}
                     </div>
                   ) : (
-                    <div className="flex-1 relative">
+                    <div className="flex-1 relative min-w-0" style={{ flexBasis: 0 }}>
                       {emailAccounts.length === 0 ? (
 
                         <div className="flex flex-row gap-2 items-center justify-center">
                           <button
                             onClick={() => setShowAuthSelectionPopup(true)}
-                            className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                            className="w-full px-3 py-2 h-[42px] border rounded-[8px] text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                            style={{ borderColor: '#E2E8F0', borderWidth: '1px' }}
                             style={{ height: '42px' }}
                           >
                             Connect Email
@@ -1512,7 +1513,8 @@ const NewMessageModal = ({
                             <button
                               type="button"
                               onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
-                              className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
+                              className="w-full px-3 py-2 h-[42px] border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
+                              style={{ borderColor: '#E2E8F0', borderWidth: '1px' }}
                               style={{ height: '42px' }}
                             >
                               <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -1578,10 +1580,11 @@ const NewMessageModal = ({
 
                 {/* To Field - Hidden in pipeline mode and lead mode */}
                 {!isPipelineMode && !isLeadMode && (
-                  <div className="relative flex-1 min-w-0">
+                  <div className="relative flex-1 min-w-0" style={{ flexBasis: 0 }}>
                     {/* Tag Input Container */}
                     <div
-                      className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
+                      className="flex items-center gap-2 px-3 h-[42px] border rounded-[8px] focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
+                      style={{ borderColor: '#E2E8F0', borderWidth: '1px' }}
                       style={{ height: '42px', minHeight: '42px', maxWidth: '100%' }}
                       onClick={() => {
                         setShowLeadList(true)
@@ -1667,7 +1670,7 @@ const NewMessageModal = ({
 
                     {/* Leads List Dropdown - Show when searching or when clicking on field */}
                     {showLeadList && (
-                      <div className="absolute z-50 w-full mt-1 bg-white border-[0.5px] border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto overflow-x-hidden">
+                      <div className="absolute w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto overflow-x-hidden" style={{ zIndex: 1900 }}>
                         {loading ? (
                           <div className="p-4 text-center">
                             <CircularProgress size={24} />
@@ -1729,7 +1732,8 @@ const NewMessageModal = ({
                       <div className="relative flex-1 min-w-0">
                         {/* Tag Input Container */}
                         <div
-                          className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
+                          className="flex items-center gap-2 px-3 h-[42px] border rounded-[8px] focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
+                      style={{ borderColor: '#E2E8F0', borderWidth: '1px' }}
                           style={{ height: '42px', minHeight: '42px', maxWidth: '100%' }}
                           onClick={() => {
                             // Focus the input when clicking the container
@@ -1801,7 +1805,8 @@ const NewMessageModal = ({
                       <div className="relative flex-1 min-w-0">
                         {/* Tag Input Container */}
                         <div
-                          className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
+                          className="flex items-center gap-2 px-3 h-[42px] border rounded-[8px] focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
+                      style={{ borderColor: '#E2E8F0', borderWidth: '1px' }}
                           style={{ height: '42px', minHeight: '42px', maxWidth: '100%' }}
                           onClick={() => {
                             // Focus the input when clicking the container
@@ -1875,7 +1880,8 @@ const NewMessageModal = ({
                 <div className="space-y-2">
                   {/* Subject Field */}
                   <div
-                    className="flex items-center border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary bg-white transition-colors overflow-hidden group/subject-field"
+                    className="flex items-center border rounded-[8px] focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary bg-white transition-colors overflow-hidden group/subject-field"
+                    style={{ borderColor: '#E2E8F0', borderWidth: '1px' }}
                     id="subject-field-group"
                   >
                     {/* Subject Input Section */}
@@ -2169,7 +2175,8 @@ const NewMessageModal = ({
                     }}
                     placeholder="Type your message here"
                     maxLength={SMS_CHAR_LIMIT}
-                    className="w-full px-3 py-2 border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[120px] pr-24"
+                    className="w-full px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[120px] pr-24"
+                    style={{ borderColor: '#E2E8F0', borderWidth: '1px' }}
                   />
                   {/* Variables dropdown for SMS */}
                   {uniqueColumns && uniqueColumns.length > 0 && (
