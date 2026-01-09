@@ -2044,6 +2044,7 @@ const LeadDetails = ({
                                   handleUnassignLeadFromTeammember?.(teamId)
                                 }
                               }}
+                              withoutBorder={true}
                             />
                           </div>
                             </div>
