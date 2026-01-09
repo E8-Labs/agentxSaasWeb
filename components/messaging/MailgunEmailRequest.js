@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label'
 import MailgunDomainSetup from './MailgunDomainSetup'
 import ViewDnsRecordsModal from './ViewDnsRecordsModal'
 
-const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
+const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
   const [mailgunIntegrations, setMailgunIntegrations] = useState([])
   const [allMailgunIntegrations, setAllMailgunIntegrations] = useState([]) // Store all integrations for checking pending domains
   const [availableDomains, setAvailableDomains] = useState([]) // For subdomain creation
@@ -99,7 +99,13 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       const isSubaccountUser = userRole === 'AgencySubAccount'
       const isAgentXUser = userRole === 'AgentX'
 
-      const response = await axios.get(Apis.listMailgunIntegrations, {
+      // Add userId query param if provided (for Agency/Admin viewing domains for subaccount)
+      let apiUrl = Apis.listMailgunIntegrations
+      if (targetUserId) {
+        apiUrl += `?userId=${targetUserId}`
+      }
+
+      const response = await axios.get(apiUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -197,7 +203,13 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       const userData = getUserLocalData()
       const token = userData?.token
 
-      const response = await axios.get(Apis.getAvailableDomains, {
+      // Add userId query param if provided (for Agency/Admin viewing available domains for subaccount)
+      let apiUrl = Apis.getAvailableDomains
+      if (targetUserId) {
+        apiUrl += `?userId=${targetUserId}`
+      }
+
+      const response = await axios.get(apiUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -234,12 +246,19 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       const userData = getUserLocalData()
       const token = userData?.token
 
+      const requestBody = {
+        parentMailgunIntegrationId: parseInt(selectedParentDomainId),
+        subdomainPrefix: subdomainPrefix.toLowerCase(),
+      }
+      
+      // Add userId if provided (for Agency/Admin creating subdomain for subaccount)
+      if (targetUserId) {
+        requestBody.userId = targetUserId
+      }
+
       const response = await axios.post(
         Apis.createMailgunSubdomain,
-        {
-          parentMailgunIntegrationId: parseInt(selectedParentDomainId),
-          subdomainPrefix: subdomainPrefix.toLowerCase(),
-        },
+        requestBody,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -298,13 +317,20 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       const userData = getUserLocalData()
       const token = userData?.token
 
+      const requestBody = {
+        mailgunIntegrationId: parseInt(selectedIntegrationId),
+        email,
+        displayName: displayName || emailPrefix,
+      }
+      
+      // Add userId if provided (for Agency/Admin creating email for subaccount)
+      if (targetUserId) {
+        requestBody.userId = targetUserId
+      }
+
       const response = await axios.post(
         Apis.requestMailgunEmail,
-        {
-          mailgunIntegrationId: parseInt(selectedIntegrationId),
-          email,
-          displayName: displayName || emailPrefix,
-        },
+        requestBody,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -349,10 +375,19 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       const userData = getUserLocalData()
       const token = userData?.token
 
-      // For subaccounts, don't send API key - backend will use agency's
+      // Build request body
+      const requestBody = { domain: customDomain }
+      
+      // Add userId if provided (for Agency/Admin creating domain for subaccount)
+      if (targetUserId) {
+        requestBody.userId = targetUserId
+        // When creating for another user, API key is required (it's their own Mailgun account)
+        // Note: This should be handled by the UI - if targetUserId is provided, user should provide API key
+      }
+
       const response = await axios.post(
         Apis.createMailgunIntegration,
-        { domain: customDomain },
+        requestBody,
         {
           headers: {
             Authorization: `Bearer ${token}`,
