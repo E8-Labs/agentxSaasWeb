@@ -32,6 +32,15 @@ function AuthSelectionPopup({
   setSelectedGoogleAccount,
   selectedUser,
 }) {
+  // Get userId from URL query params as fallback (for agency managing subaccount)
+  const getUserIdFromUrl = () => {
+    if (typeof window === 'undefined') return null
+    const urlParams = new URLSearchParams(window.location.search)
+    return urlParams.get('userId')
+  }
+  
+  // Determine targetUserId: prefer selectedUser.id, fallback to URL param
+  const targetUserId = selectedUser?.id || getUserIdFromUrl()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [showSnack, setShowSnack] = useState({
@@ -348,6 +357,7 @@ function AuthSelectionPopup({
             onSuccess()
           }
         }}
+        targetUserId={targetUserId}
       />
       <Modal
         open={showGmailConfirmationPopup}
