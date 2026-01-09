@@ -240,10 +240,6 @@ function BasicInfo() {
       id: 2,
       title: 'Virtual Consultations',
     },
-    {
-      id: 3,
-      title: 'Virtual Consultationsr',
-    },
   ]
 
   //fetching the data
