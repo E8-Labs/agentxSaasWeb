@@ -68,6 +68,7 @@ import Apis from '@/components/apis/Apis'
 import getProfileDetails from '@/components/apis/GetProfile'
 import AdminGetProfileDetails from '@/components/admin/AdminGetProfileDetails'
 import { TranscriptViewer } from '@/components/calls/TranscriptViewer'
+import CallTranscriptModal from '@/components/dashboard/leads/extras/CallTranscriptModal'
 import { UpgradeTagWithModal, UpgradeTag } from '@/components/constants/constants'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { AssignTeamMember, UnassignTeamMember } from '@/components/onboarding/services/apisServices/ApiService'
@@ -2373,62 +2374,16 @@ const LeadDetails = ({
             )}
           </div>
 
-          {/* Show Transcript UI Modal*/}
-
-          <Modal
-            open={isExpanded}
-            onClose={() => setIsExpanded(null)}
-            closeAfterTransition
-            disablePortal={false}
-            container={typeof window !== 'undefined' ? document.body : null}
-            sx={{
-              zIndex: 15000, // Very high z-index to appear above LeadDetails Drawer (1400) and Sheet
-              '& .MuiBackdrop-root': {
-                zIndex: 15000, // Ensure backdrop is also at 15000
-              },
+          {/* Show Transcript UI Modal - Using unified CallTranscriptModal component */}
+          <CallTranscriptModal
+            open={!!isExpanded}
+            onClose={(open) => {
+              if (!open) {
+                setIsExpanded(null)
+              }
             }}
-            BackdropProps={{
-              timeout: 1000,
-              sx: {
-                backgroundColor: '#00000020',
-                zIndex: 15000, // Match Modal z-index
-              },
-            }}
-          >
-            <Box
-              className="lg:w-4/12 sm:w-4/12 w-6/12"
-              sx={{
-                ...styles.modalsStyle,
-                zIndex: 15001, // Higher than backdrop (15000) to appear on top
-              }}
-            >
-              <div className="flex flex-row justify-center w-full">
-                <div
-                  className="w-full"
-                  style={{
-                    backgroundColor: '#ffffff',
-                    padding: 20,
-                    borderRadius: '13px',
-                  }}
-                >
-                  <div className="w-full flex flex-row items-center justify-between">
-                    <div className="font-bold text-xl mt-4 mb-4">
-                      Call Transcript
-                    </div>
-                    <div>
-                      <button
-                        className="font-bold outline-none border-none"
-                        onClick={() => setIsExpanded(null)}
-                      >
-                        <CloseIcon />
-                      </button>
-                    </div>
-                  </div>
-                  <TranscriptViewer callId={isExpanded?.id || ''} />
-                </div>
-              </div>
-            </Box>
-          </Modal>
+            callId={isExpanded?.id || isExpanded?.callId || ''}
+          />
           {/* delete lead modal */}
 
           <Modal

@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/tooltip'
 import CallTranscriptCN from '@/components/dashboard/leads/extras/CallTranscriptCN'
 import { TranscriptViewer } from '@/components/calls/TranscriptViewer'
+import CallTranscriptModal from '@/components/dashboard/leads/extras/CallTranscriptModal'
 
 const AttachmentList = ({ message, isOutbound, onAttachmentClick }) => {
   if (!message.metadata?.attachments || message.metadata.attachments.length === 0) return null
@@ -1117,7 +1118,16 @@ const ConversationView = ({
         </>
       )}
 
-     
+      {/* Call Transcript Modal */}
+      <CallTranscriptModal
+        open={!!showTranscriptModal}
+        onClose={(open) => {
+          if (!open) {
+            setShowTranscriptModal(null)
+          }
+        }}
+        callId={showTranscriptModal?.callId || showTranscriptModal?.id || ''}
+      />
     </div>
   )
 }
