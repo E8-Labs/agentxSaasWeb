@@ -266,7 +266,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
   // Get avatar for comment sender
   const getCommentAvatar = () => {
     if (!message || message.activityType !== 'comment') return null
-    
+
     // Use getAgentAvatar if available (for consistency with message avatars)
     if (getAgentAvatar && typeof getAgentAvatar === 'function') {
       // Create a message-like object for getAgentAvatar
@@ -278,7 +278,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
       }
       return getAgentAvatar(messageLike)
     }
-    
+
     // Fallback: check senderUser directly
     if (message.senderUser?.thumb_profile_image) {
       return (
@@ -302,7 +302,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
         </div>
       )
     }
-    
+
     // Fallback to first letter
     const senderName = message.senderUser?.name || message.senderUser?.email || 'T'
     const avatarLetter = senderName.charAt(0).toUpperCase()
@@ -315,7 +315,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
   // Parse content and highlight mentions if it's a comment
   const parseContent = (content) => {
     if (!content) return ''
-    
+
     // Escape HTML first
     const escapeHtml = (str) => {
       if (!str) return ''
@@ -326,7 +326,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
         .replace(/"/g, '&quot;')
         .replace(/'/g, '&#39;')
     }
-    
+
     // If it's a comment, highlight @mentions using position-based bolding
     if (message.activityType === 'comment') {
       // Use mention positions if available (more reliable than regex)
@@ -334,11 +334,11 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
         // Sort mentions by start position (descending) to process from end to start
         // This prevents position shifts when inserting HTML
         const sortedMentions = [...message.mentionPositions].sort((a, b) => b.start - a.start)
-        
+
         // Build result array working backwards from end
         const parts = []
         let currentIndex = content.length
-        
+
         // Process mentions from end to start
         sortedMentions.forEach((mention, idx) => {
           // Verify positions are within bounds
@@ -350,34 +350,34 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
             })
             return
           }
-          
+
           // Add text between this mention and the previous one (if any)
           if (mention.end < currentIndex) {
             const textAfter = content.substring(mention.end, currentIndex)
             parts.unshift(escapeHtml(textAfter))
           }
-          
+
           // Add the mention (bolded)
           const mentionText = mention.text || content.substring(mention.start, mention.end)
           const escapedMention = escapeHtml(mentionText)
           parts.unshift(`<span class="font-semibold text-system-text cursor-pointer hover:underline">${escapedMention}</span>`)
-          
+
           currentIndex = mention.start
         })
-        
+
         // Add any remaining text at the beginning
         if (currentIndex > 0) {
           const textBefore = content.substring(0, currentIndex)
           parts.unshift(escapeHtml(textBefore))
         }
-        
+
         // Join all parts and replace newlines
         let processedContent = parts.join('').replace(/\n/g, '<br>')
-        
+
         // Wrap entire content in small text (text-xs) with black color for gray bubble
         return `<span class="text-xs text-black">${processedContent}</span>`
       }
-      
+
       // Fallback: if no mention positions, try to extract from metadata directly
       // Try to extract mentions from metadata if mentionPositions wasn't set
       let mentionsFromMetadata = []
@@ -392,43 +392,43 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
         }
         mentionsFromMetadata = metadata.mentions || metadata.activityData?.mentions || []
       }
-      
+
       // If we found mentions in metadata, use position-based bolding
       if (mentionsFromMetadata.length > 0) {
         const sortedMentions = [...mentionsFromMetadata].sort((a, b) => b.start - a.start)
         const parts = []
         let currentIndex = content.length
-        
+
         sortedMentions.forEach((mention) => {
           if (mention.start < 0 || mention.end > content.length || mention.start >= mention.end) {
             return
           }
-          
+
           if (mention.end < currentIndex) {
             const textAfter = content.substring(mention.end, currentIndex)
             parts.unshift(escapeHtml(textAfter))
           }
-          
+
           const mentionText = mention.text || content.substring(mention.start, mention.end)
           const escapedMention = escapeHtml(mentionText)
           parts.unshift(`<span class="font-semibold text-system-text cursor-pointer hover:underline">${escapedMention}</span>`)
-          
+
           currentIndex = mention.start
         })
-        
+
         if (currentIndex > 0) {
           const textBefore = content.substring(0, currentIndex)
           parts.unshift(escapeHtml(textBefore))
         }
-        
+
         let processedContent = parts.join('').replace(/\n/g, '<br>')
         return `<span class="text-xs text-black">${processedContent}</span>`
       }
-      
+
       // Final fallback: use regex matching (for backward compatibility)
       let escaped = escapeHtml(content)
       escaped = escaped.replace(/\n/g, '<br>')
-      
+
       if (message.mentionedUsers && message.mentionedUsers.length > 0) {
         message.mentionedUsers.forEach((user) => {
           // Try to match various patterns for the user
@@ -445,11 +445,11 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
           })
         })
       }
-      
+
       // Wrap entire content in small text (text-xs) with black color for gray bubble
       return `<span class="text-xs text-black">${escaped}</span>`
     }
-    
+
     // For other system messages (stage changes, assignments), parse markdown-style bold (**text**)
     // Use system-text color (#0E0E0E) for bold text
     return content.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-system-text">$1</strong>')
@@ -489,10 +489,10 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
       if (message.agent?.name) {
         return message.agent.name
       }
-      if (selectedThread?.lead?.firstName) {
-        return selectedThread.lead.firstName
-      }
-      return 'Unknown'
+      // if (selectedThread?.lead?.firstName) {
+      //   return selectedThread.lead.firstName
+      // }
+      return 'Admin'
     }
 
     const callerName = getCallerName()
@@ -550,9 +550,20 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
             <TooltipTrigger asChild>
               <div className="flex flex-col items-center my-4 cursor-default">
                 {/* Activity log: Called by [Name] on [Date] */}
-                <div className="text-xs text-system-text text-center px-4 mb-2">
-                  Called by <strong className="font-semibold">{callerName}</strong> on {callDate}
-                </div>
+
+                {
+                  callerName === 'Admin' ?
+                    (<div className="text-xs text-system-text text-center px-4 mb-2">
+                      <strong className="font-semibold">{callerName}</strong> was called on {callDate}
+                    </div>) :
+                    (
+
+                      <div className="text-xs text-system-text text-center px-4 mb-2">
+                        Called by <strong className="font-semibold">{callerName}</strong> on {callDate}
+                      </div>
+                    )
+                }
+
                 <div className="w-full max-w-2xl px-4">
                   <div className="rounded-xl border border-border bg-background px-4 pb-2 shadow-sm">
                     <CallTranscriptCN
@@ -769,10 +780,10 @@ const ConversationView = ({
 }) => {
 
   console.log('🔍 [ConversationView] selectedThread:', selectedThread)
-  
+
   // State for transcript modal
   const [showTranscriptModal, setShowTranscriptModal] = useState(null)
-  
+
   // Helper function to normalize email subject for threading comparison
   const normalizeSubject = (subject) => {
     if (!subject) return ''
@@ -1012,103 +1023,103 @@ const ConversationView = ({
                   )}
                   {/* Render system messages (including comments) as centered messages */}
                   {isSystem ? (
-                    <SystemMessage 
-                      message={message} 
-                      getAgentAvatar={getAgentAvatar} 
+                    <SystemMessage
+                      message={message}
+                      getAgentAvatar={getAgentAvatar}
                       selectedThread={selectedThread}
                       onReadTranscript={(item) => {
                         setShowTranscriptModal(item)
                       }}
                     />
                   ) : (
-                  <div
-                    data-message-id={message.id}
-                    className={`flex flex-col w-full ${isOutbound ? 'items-end pe-2' : 'items-start'} ${isEmail ? 'mb-6' : 'mb-3'} relative`}
-                    style={
-                      isReply && depth > 0
-                        ? {
+                    <div
+                      data-message-id={message.id}
+                      className={`flex flex-col w-full ${isOutbound ? 'items-end pe-2' : 'items-start'} ${isEmail ? 'mb-6' : 'mb-3'} relative`}
+                      style={
+                        isReply && depth > 0
+                          ? {
                             [isOutbound ? 'marginRight' : 'marginLeft']: `${depth * 24}px`,
                           }
-                        : {}
-                    }
-                  >
-                    {isReply && parentMessage && (
-                      <div className={`text-xs mb-1 text-gray-500 ${isOutbound ? 'flex justify-end w-full pe-2' : 'text-left'}`}>
-                        <div className={`${isOutbound ? 'max-w-[75%] min-w-[220px] text-left' : ''}`}>
-                          <span className="italic">
-                            Replying to:{' '}
-                            {parentMessage.messageType === 'email' && parentMessage.subject
-                              ? `"${parentMessage.subject.replace(/^Re:\s*/i, '')}"`
-                              : parentMessage.content
-                                ? `"${parentMessage.content.substring(0, 12)}${parentMessage.content.length > 12 ? '...' : ''}"`
-                                : 'message'}
-                          </span>
-                        </div>
-                      </div>
-                    )}
-                    <div
-                      className={`flex items-start gap-3 w-full ${isOutbound ? 'justify-end' : 'justify-start'} relative`}
+                          : {}
+                      }
                     >
-                      {!isOutbound && (
-                        <div className="relative flex-shrink-0">
-                          <div className="w-[26px] h-[26px] rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs">
-                            {getLeadName(selectedThread)}
+                      {isReply && parentMessage && (
+                        <div className={`text-xs mb-1 text-gray-500 ${isOutbound ? 'flex justify-end w-full pe-2' : 'text-left'}`}>
+                          <div className={`${isOutbound ? 'max-w-[75%] min-w-[220px] text-left' : ''}`}>
+                            <span className="italic">
+                              Replying to:{' '}
+                              {parentMessage.messageType === 'email' && parentMessage.subject
+                                ? `"${parentMessage.subject.replace(/^Re:\s*/i, '')}"`
+                                : parentMessage.content
+                                  ? `"${parentMessage.content.substring(0, 12)}${parentMessage.content.length > 12 ? '...' : ''}"`
+                                  : 'message'}
+                            </span>
                           </div>
                         </div>
                       )}
-
-                      <div className="flex flex-col max-w-[75%] min-w-[220px]">
-                        {isEmail ? (
-                          <EmailBubble
-                            message={message}
-                            isOutbound={isOutbound}
-                            sanitizeHTML={sanitizeHTML}
-                            openEmailDetailId={openEmailDetailId}
-                            setOpenEmailDetailId={setOpenEmailDetailId}
-                            getEmailDetails={getEmailDetails}
-                            selectedThread={selectedThread}
-                            onOpenEmailTimeline={onOpenEmailTimeline}
-                            setShowEmailTimeline={setShowEmailTimeline}
-                            setEmailTimelineLeadId={setEmailTimelineLeadId}
-                            setEmailTimelineSubject={setEmailTimelineSubject}
-                            onAttachmentClick={handleAttachmentClick}
-                            onReplyClick={onReplyClick}
-                            isLastMessage={isLastMessage}
-                            updateComposerFromMessage={updateComposerFromMessage}
-                          />
-                        ) : (
-                          <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} />
+                      <div
+                        className={`flex items-start gap-3 w-full ${isOutbound ? 'justify-end' : 'justify-start'} relative`}
+                      >
+                        {!isOutbound && (
+                          <div className="relative flex-shrink-0">
+                            <div className="w-[26px] h-[26px] rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold text-xs">
+                              {getLeadName(selectedThread)}
+                            </div>
+                          </div>
                         )}
-                        {isEmail && !isOutbound && onReplyClick && (
-                          <div className="mt-1 flex justify-end">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                onReplyClick(message)
-                              }}
-                              type="button"
-                              className="text-xs text-gray-600 hover:text-gray-800 hover:underline transition-colors"
-                            >
-                              Reply
-                            </button>
+
+                        <div className="flex flex-col max-w-[75%] min-w-[220px]">
+                          {isEmail ? (
+                            <EmailBubble
+                              message={message}
+                              isOutbound={isOutbound}
+                              sanitizeHTML={sanitizeHTML}
+                              openEmailDetailId={openEmailDetailId}
+                              setOpenEmailDetailId={setOpenEmailDetailId}
+                              getEmailDetails={getEmailDetails}
+                              selectedThread={selectedThread}
+                              onOpenEmailTimeline={onOpenEmailTimeline}
+                              setShowEmailTimeline={setShowEmailTimeline}
+                              setEmailTimelineLeadId={setEmailTimelineLeadId}
+                              setEmailTimelineSubject={setEmailTimelineSubject}
+                              onAttachmentClick={handleAttachmentClick}
+                              onReplyClick={onReplyClick}
+                              isLastMessage={isLastMessage}
+                              updateComposerFromMessage={updateComposerFromMessage}
+                            />
+                          ) : (
+                            <MessageBubble message={message} isOutbound={isOutbound} onAttachmentClick={handleAttachmentClick} />
+                          )}
+                          {isEmail && !isOutbound && onReplyClick && (
+                            <div className="mt-1 flex justify-end">
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  onReplyClick(message)
+                                }}
+                                type="button"
+                                className="text-xs text-gray-600 hover:text-gray-800 hover:underline transition-colors"
+                              >
+                                Reply
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {isOutbound && (
+                          <div className="flex-shrink-0">
+                            {console.log('🔍 [ConversationView] Rendering avatar for message:', {
+                              messageId: message.id,
+                              isOutbound,
+                              hasSenderUser: !!message.senderUser,
+                              senderUser: message.senderUser,
+                              messageDirection: message.direction,
+                            })}
+                            {getAgentAvatar(message)}
                           </div>
                         )}
                       </div>
-
-                      {isOutbound && (
-                        <div className="flex-shrink-0">
-                          {console.log('🔍 [ConversationView] Rendering avatar for message:', {
-                            messageId: message.id,
-                            isOutbound,
-                            hasSenderUser: !!message.senderUser,
-                            senderUser: message.senderUser,
-                            messageDirection: message.direction,
-                          })}
-                          {getAgentAvatar(message)}
-                        </div>
-                      )}
                     </div>
-                  </div>
                   )}
                 </React.Fragment>
               )
