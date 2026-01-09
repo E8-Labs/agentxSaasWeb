@@ -340,7 +340,7 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
                           </div>
                           <div className="flex flex-row items-center">
                             <div className="flex flex-row justify-start items-center">
-                              {item.originalPrice && (
+                              {item.originalPrice>0 && (
                                 <div style={styles.originalPrice}>
                                   ${formatDecimalValue(item.originalPrice)}
                                 </div>

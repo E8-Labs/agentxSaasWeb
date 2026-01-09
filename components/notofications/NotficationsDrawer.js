@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { MessageSquare, AtSign } from 'lucide-react'
+import { MessageSquare, AtSign, Mail } from 'lucide-react'
 
 import { NotificationTypes } from '@/constants/NotificationTypes'
 import { PersistanceKeys } from '@/constants/Constants'
@@ -266,6 +266,10 @@ function NotficationsDrawer({ close }) {
       return renderBrandedIcon('/svgIcons/callsNotIcon.svg', 37, 37)
     } else if (item.type === NotificationTypes.LeadReplied) {
       return renderBrandedLucideIcon(MessageSquare, 20)
+    } else if (item.type === NotificationTypes.LeadReplyEmail) {
+      return renderBrandedLucideIcon(Mail, 20)
+    } else if (item.type === NotificationTypes.LeadReplySms) {
+      return renderBrandedLucideIcon(MessageSquare, 20)
     }
     else if (item.type === NotificationTypes.InviteAccepted) {
       return (
@@ -379,6 +383,10 @@ function NotficationsDrawer({ close }) {
     } else if (item.type === NotificationTypes.AccountResumed) {
       return renderBrandedIcon('/svgIcons/resume.svg', 22, 22)
     } else if (item.type === NotificationTypes.LeadReplied) {
+      return renderBrandedLucideIcon(MessageSquare, 22)
+    } else if (item.type === NotificationTypes.LeadReplyEmail) {
+      return renderBrandedLucideIcon(Mail, 22)
+    } else if (item.type === NotificationTypes.LeadReplySms) {
       return renderBrandedLucideIcon(MessageSquare, 22)
     } else if (item.type === NotificationTypes.TeamMemberMentioned) {
       return renderBrandedLucideIcon(AtSign, 22)
@@ -643,9 +651,11 @@ function NotficationsDrawer({ close }) {
   }
 
   const handleNotificationClick = (item) => {
-    // Handle LeadReplied and TeamMemberMentioned notification click - route to messaging page
+    // Handle LeadReplied, LeadReplyEmail, LeadReplySms and TeamMemberMentioned notification click - route to messaging page
     if (
       item.type === NotificationTypes.LeadReplied ||
+      item.type === NotificationTypes.LeadReplyEmail ||
+      item.type === NotificationTypes.LeadReplySms ||
       item.type === NotificationTypes.TeamMemberMentioned
     ) {
       if (item.threadId) {
@@ -669,7 +679,10 @@ function NotficationsDrawer({ close }) {
 
   const renderItem = (item, index) => {
     const isClickable = 
-      (item.type === NotificationTypes.LeadReplied || item.type === NotificationTypes.TeamMemberMentioned) && 
+      (item.type === NotificationTypes.LeadReplied ||
+       item.type === NotificationTypes.LeadReplyEmail || 
+       item.type === NotificationTypes.LeadReplySms || 
+       item.type === NotificationTypes.TeamMemberMentioned) && 
       item.threadId
     
     return (

@@ -1,4 +1,4 @@
-'use client'
+ 'use client'
 
 import { useMemo, useState } from 'react'
 import { Input } from '@/components/ui/input'
@@ -148,9 +148,8 @@ const TagManagerCn = ({
           }}
           placeholder={tags.length > 0 ? 'Add tag...' : 'Add tags...'}
           disabled={addTagLoader}
-          className="w-40 rounded-full border-2 border-border/50 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-0 focus:border-primary focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors shadow-sm hover:border-border"
+          className="w-[7vw] rounded-full border border-border/50 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-0 focus:border-primary focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 transition-colors shadow-sm hover:border-border"
         />
-
         {showSuggestions && tagSuggestions.length > 0 && (
           <div className="absolute z-50 mt-1 w-full max-h-48 overflow-auto rounded-lg border border-border bg-popover shadow-lg">
             {tagSuggestions.map((suggestion, index) => (

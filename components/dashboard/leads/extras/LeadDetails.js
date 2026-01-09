@@ -71,9 +71,7 @@ import { UpgradeTagWithModal, UpgradeTag } from '@/components/constants/constant
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { AssignTeamMember, UnassignTeamMember } from '@/components/onboarding/services/apisServices/ApiService'
 import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
-// import EmailTempletePopup from "../../pipeline/EmailTempletePopup";
-import EmailTempletePopup from '@/components/pipeline/EmailTempletePopup'
-import SMSTempletePopup from '@/components/pipeline/SMSTempletePopup'
+import NewMessageModal from '@/components/messaging/NewMessageModal'
 import {
   getA2PNumbers,
   getGmailAccounts,
@@ -220,15 +218,13 @@ const LeadDetails = ({
 
   // Note edit/delete states - REMOVED: Now handled by NotesTabCN component
 
-  // Email functionality states
-  const [showEmailModal, setShowEmailModal] = useState(false)
+  // Message modal states (unified for Email and SMS)
+  const [showMessageModal, setShowMessageModal] = useState(false)
+  const [messageModalMode, setMessageModalMode] = useState('email') // 'email' or 'sms'
   const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null)
-  const [sendEmailLoader, setSendEmailLoader] = useState(false)
-
-  // SMS functionality states
-  const [showSMSModal, setShowSMSModal] = useState(false)
   const [phoneNumbers, setPhoneNumbers] = useState([])
   const [phoneLoading, setPhoneLoading] = useState(false)
+  const [sendEmailLoader, setSendEmailLoader] = useState(false)
   const [sendSMSLoader, setSendSMSLoader] = useState(false)
 
   const [googleAccounts, setGoogleAccounts] = useState([])
@@ -1441,7 +1437,7 @@ const LeadDetails = ({
   const sendEmailToLead = async (emailData) => {
     try {
       console.log('Sending email to lead', emailData)
-      console.log('selectedGoogleAccount', selectedGoogleAccount)
+      console.log('gmailAccountId', emailData.gmailAccountId)
       setSendEmailLoader(true)
 
       const localData = localStorage.getItem('User')
@@ -1457,9 +1453,10 @@ const LeadDetails = ({
       formData.append('subject', emailData.subject || '')
       formData.append('content', emailData.content || '')
       formData.append('ccEmails', JSON.stringify(emailData.ccEmails || []))
+      formData.append('bccEmails', JSON.stringify(emailData.bccEmails || []))
       formData.append(
         'emailAccountId',
-        JSON.stringify(selectedGoogleAccount.id || []),
+        JSON.stringify(emailData.gmailAccountId || []),
       )
 
       // Add attachments if any
@@ -1478,7 +1475,7 @@ const LeadDetails = ({
 
       if (response.data.status === true) {
         showSnackbar('Email sent successfully!', SnackbarTypes.Success)
-        setShowEmailModal(false)
+        setShowMessageModal(false)
       } else {
         showSnackbar(response.data.message || 'Failed to send email', SnackbarTypes.Error)
       }
@@ -1508,7 +1505,7 @@ const LeadDetails = ({
       formData.append('leadPhone', selectedLeadsDetails?.phone || '')
       formData.append('content', smsData.content || '')
       formData.append('phone', smsData.phone || '')
-      formData.append('leadId', smsData.leadId || '')
+      formData.append('leadId', selectedLeadsDetails?.id || '')
 
       //print form data
       formData.forEach((value, key) => {
@@ -1523,7 +1520,7 @@ const LeadDetails = ({
 
       if (response.data.status === true) {
         showSnackbar('Text sent successfully!', SnackbarTypes.Success)
-        setShowSMSModal(false)
+        setShowMessageModal(false)
       } else {
         showSnackbar(response.data.message || 'Failed to send SMS', SnackbarTypes.Error)
       }
@@ -1532,6 +1529,18 @@ const LeadDetails = ({
       showSnackbar('Failed to send SMS. Please try again.', SnackbarTypes.Error)
     } finally {
       setSendSMSLoader(false)
+    }
+  }
+
+  // Handler for NewMessageModal onSend callback
+  const handleMessageSent = (result) => {
+    if (result.success) {
+      showSnackbar(
+        `Message${result.total > 1 ? 's' : ''} sent successfully to ${result.sent} lead${result.sent > 1 ? 's' : ''}`,
+        SnackbarTypes.Success
+      )
+    } else {
+      showSnackbar('Failed to send message. Please try again.', SnackbarTypes.Error)
     }
   }
 
@@ -1662,7 +1671,8 @@ const LeadDetails = ({
         handleEmailUpgradeClick()
         return
       }
-      setShowEmailModal(true)
+      setMessageModalMode('email')
+      setShowMessageModal(true)
     } else if (opt.value === 'call') {
       if (!dialerCapability.hasAccess) {
         // Trigger upgrade modal if user doesn't have access
@@ -1676,7 +1686,8 @@ const LeadDetails = ({
         handleSMSUpgradeClick()
         return
       }
-      setShowSMSModal(true)
+      setMessageModalMode('sms')
+      setShowMessageModal(true)
     }
   }
 
@@ -1797,7 +1808,7 @@ const LeadDetails = ({
                                     onUpgradeClick: handleUpgradeClick,
                                   },
                                   {
-                                    label: 'SMS',
+                                    label: 'Text',
                                     value: 'sms',
                                     icon: MessageSquareDot,
                                     upgradeTag: (smsCapability.showUpgrade || smsCapability.showRequestFeature) ? (
@@ -2079,14 +2090,18 @@ const LeadDetails = ({
                       open={showAuthSelectionPopup}
                       onClose={() => setShowAuthSelectionPopup(false)}
                       onSuccess={() => {
-                        setShowEmailModal(true)
+                        setMessageModalMode('email')
+                        setShowMessageModal(true)
                         setShowAuthSelectionPopup(false)
                       }}
                       setShowEmailTempPopup={(value) => {
-                        setShowEmailModal(value)
+                        if (value) {
+                          setMessageModalMode('email')
+                          setShowMessageModal(true)
+                        }
                         setShowAuthSelectionPopup(false)
                       }}
-                      showEmailTempPopup={showEmailModal}
+                      showEmailTempPopup={showMessageModal && messageModalMode === 'email'}
                       selectedGoogleAccount={selectedGoogleAccount}
                       setSelectedGoogleAccount={(account) => {
                         setSelectedGoogleAccount(account)
@@ -2667,41 +2682,22 @@ const LeadDetails = ({
         </Box>
       </Modal>
 
-      {/* Email Template Modal */}
-      <EmailTempletePopup
-        open={showEmailModal}
-        onClose={() => setShowEmailModal(false)}
-        communicationType="email"
-        addRow={null}
-        isEditing={false}
-        editingRow={null}
-        onUpdateRow={null}
-        selectedGoogleAccount={selectedGoogleAccount}
-        setSelectedGoogleAccount={setSelectedGoogleAccount}
-        onSendEmail={sendEmailToLead}
-        isLeadEmail={true}
-        leadEmail={
-          selectedLeadsDetails?.email ||
-          selectedLeadsDetails?.emails?.[0]?.email
-        }
-        leadId={selectedLeadsDetails?.id}
-      />
-
-      {/* SMS Template Modal */}
-      <SMSTempletePopup
-        open={showSMSModal}
-        onClose={() => setShowSMSModal(false)}
-        phoneNumbers={phoneNumbers}
-        phoneLoading={phoneLoading}
-        communicationType="sms"
-        addRow={null}
-        isEditing={false}
-        editingRow={null}
-        onUpdateRow={null}
-        onSendSMS={sendSMSToLead}
-        isLeadSMS={true}
-        leadPhone={selectedLeadsDetails?.phone}
-        leadId={selectedLeadsDetails?.id}
+      {/* Unified Message Modal (Email and SMS) */}
+      <NewMessageModal
+        open={showMessageModal}
+        onClose={() => setShowMessageModal(false)}
+        onSend={async (data) => {
+          if(data.mode === 'sms') {
+            await sendSMSToLead(data)
+          }else if(data.mode === 'email') {
+            await sendEmailToLead(data)
+          }
+        }}
+        mode={messageModalMode}
+        selectedUser={reduxUser}
+        setReduxUser={setReduxUser}
+        isLeadMode={true}
+       
       />
 
       {/* Dialer Modal is now rendered in app/dashboard/layout.js */}
