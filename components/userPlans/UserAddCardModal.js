@@ -727,13 +727,6 @@ const UserAddCard = ({
                         const billingCycle = selectedPlan?.billingCycle || selectedPlan?.duration || 'monthly'
                         const cycleLabel = billingCycle.charAt(0).toUpperCase() + billingCycle.slice(1) + ' subscription'
                         return cycleLabel
-                      })()}: $
-                      {(() => {
-                        const price = selectedPlan?.discountedPrice ||
-                          selectedPlan?.discountPrice ||
-                          selectedPlan?.originalPrice ||
-                          0
-                        return formatFractional2(price)
                       })()}
                     </div>
                   </div>
