@@ -2439,9 +2439,8 @@ const Messages = ({ selectedUser = null }) => {
         planCapabilities?.allowTextMessages === false && planCapabilities?.allowEmails === false ? (
           <UnlockMessagesView />
         ) : (
-
-          <div className="w-full h-full flex flex-col bg-white">
-            <MessageHeader selectedUser={selectedUser}/>
+          <div className={`w-full ${selectedUser ? 'h-full' : 'h-screen'} flex flex-col bg-white`}>
+            <MessageHeader selectedThread={selectedThread} selectedUser={selectedUser} />
             <div className="flex-1 flex flex-row">
               {/* Left Sidebar - Thread List */}
               {(() => {

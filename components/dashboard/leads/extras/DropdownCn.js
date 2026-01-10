@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils'
  * chevronIcon: Optional custom icon component to replace the default ChevronDown
  * onChevronClick: Optional handler for when the chevron/icon is clicked (for split button behavior)
  */
-const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start', backgroundClassName, chevronIcon: ChevronIcon, onChevronClick, title }) => {
+const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start', backgroundClassName, chevronIcon: ChevronIcon, onChevronClick, title, className, hideChevron = false, iconColor }) => {
   const [open, setOpen] = useState(false)
   const scrollContainerRef = useRef(null)
 
@@ -27,6 +27,15 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
     onSelect?.(opt)
     opt?.onSelect?.(opt)
     setOpen(false)
+  }
+
+  // Handle open change to prevent modal closing when dropdown closes
+  const handleOpenChange = (newOpen, event) => {
+    // Prevent event from propagating when toggling dropdown
+    if (event) {
+      event.stopPropagation()
+    }
+    setOpen(newOpen)
   }
 
   // Close dropdown on scroll to prevent floating issue
@@ -51,52 +60,77 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
 
   return (
     <div className="relative">
-      <DropdownMenu open={open} onOpenChange={setOpen}>
-        <div className="flex items-center rounded-md border border-muted/0.9 bg-white shadow-sm">
+      <DropdownMenu open={open} onOpenChange={handleOpenChange}>
+        <div className={cn("flex items-center rounded-md border border-muted/0.9 bg-white shadow-sm", className)}>
           {onChevronClick ? (
             <>
               <DropdownMenuTrigger asChild>
                 <button 
-                  className={cn("flex items-center px-4 py-[1px] text-base font-regular focus:outline-none rounded-l-md hover:bg-muted/50 transition-colors", backgroundClassName)}
+                  className={cn("flex items-center px-4 py-[1px] text-base font-regular focus:outline-none rounded-l-md hover:bg-muted/50 transition-colors h-[36px]", backgroundClassName)}
+                  onMouseDown={(e) => {
+                    // Prevent event from bubbling up to modal close handler
+                    e.stopPropagation()
+                  }}
                   onClick={(e) => {
-                    // Open dropdown on label click
+                    // Prevent event from bubbling up to modal close handler
                     e.stopPropagation()
                   }}
                 >
-                  {Icon ? <Icon className={cn("mr-2 h-4 w-4", backgroundClassName?.includes('text-white') && 'text-white')} /> : null}
+                  {Icon ? <Icon className={cn("mr-2 h-4 w-4", backgroundClassName?.includes('text-white') && 'text-white')} style={iconColor ? { color: iconColor } : undefined} /> : null}
                   <span>{label}</span>
                 </button>
               </DropdownMenuTrigger>
-              <span className={cn("h-9 w-px bg-muted/80", backgroundClassName?.includes('text-white') && 'bg-white/30')} />
-              <DropdownMenuTrigger asChild>
-                <button
-                  onClick={(e) => {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DropdownCn.js:63',message:'Chevron button clicked',data:{hasOnChevronClick:!!onChevronClick},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
-                    // #endregion
-                    e.stopPropagation()
-                    // Call onChevronClick if provided (dropdown will open automatically via DropdownMenuTrigger)
-                    if (onChevronClick) {
-                      onChevronClick()
-                    }
-                  }}
-                  className={cn("flex items-center justify-center px-2 py-[1px] focus:outline-none rounded-r-md hover:bg-muted/50 transition-colors", backgroundClassName)}
-                >
-                  <IconComponent className={cn("h-4 w-4 text-foreground", backgroundClassName?.includes('text-white') && 'text-white')} />
-                </button>
-              </DropdownMenuTrigger>
+              {!hideChevron && (
+                <>
+                  <span className={cn("h-9 w-px bg-muted/80", backgroundClassName?.includes('text-white') && 'bg-white/30')} />
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      onMouseDown={(e) => {
+                        // Prevent event from bubbling up to modal close handler
+                        e.stopPropagation()
+                      }}
+                      onClick={(e) => {
+                        // Prevent event from bubbling up to modal close handler
+                        e.stopPropagation()
+                        // Call onChevronClick if provided (dropdown will open automatically via DropdownMenuTrigger)
+                        if (onChevronClick) {
+                          onChevronClick()
+                        }
+                      }}
+                      className={cn("flex items-center justify-center px-2 py-[1px] focus:outline-none rounded-r-md hover:bg-muted/50 transition-colors h-[36px]", backgroundClassName)}
+                    >
+                      <IconComponent className={cn("h-4 w-4 text-foreground", backgroundClassName?.includes('text-white') && 'text-white')} />
+                    </button>
+                  </DropdownMenuTrigger>
+                </>
+              )}
             </>
           ) : (
             <DropdownMenuTrigger asChild>
-              <button className={cn("flex items-center focus:outline-none rounded-md", backgroundClassName)}>
+              <button 
+                className={cn("flex items-center focus:outline-none rounded-md h-[36px]", backgroundClassName)}
+                style={{ cursor: 'pointer' }}
+                onMouseDown={(e) => {
+                  // Prevent event from bubbling up to modal close handler
+                  e.stopPropagation()
+                }}
+                onClick={(e) => {
+                  // Prevent event from bubbling up to modal close handler
+                  e.stopPropagation()
+                }}
+              >
                 <div className="flex items-center px-4 py-[1px] text-base font-regular">
-                  {Icon ? <Icon className={cn("mr-2 h-4 w-4", backgroundClassName?.includes('text-white') && 'text-white')} /> : null}
+                  {Icon ? <Icon className={cn("mr-2 h-4 w-4", backgroundClassName?.includes('text-white') && 'text-white')} style={iconColor ? { color: iconColor } : undefined} /> : null}
                   <span>{label}</span>
                 </div>
-                <span className={cn("h-9 w-px bg-muted/80", backgroundClassName?.includes('text-white') && 'bg-white/30')} />
-                <div className="flex items-center justify-center w-8">
-                  <IconComponent className={cn("h-4 w-4 text-foreground", backgroundClassName?.includes('text-white') && 'text-white')} />
-                </div>
+                {!hideChevron && (
+                  <>
+                    <span className={cn("h-9 w-px bg-muted/80", backgroundClassName?.includes('text-white') && 'bg-white/30')} />
+                    <div className="flex items-center justify-center w-8">
+                      <IconComponent className={cn("h-4 w-4 text-foreground", backgroundClassName?.includes('text-white') && 'text-white')} />
+                    </div>
+                  </>
+                )}
               </button>
             </DropdownMenuTrigger>
           )}
@@ -107,6 +141,15 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
           onCloseAutoFocus={(e) => {
             // Prevent focus from being stolen when dropdown closes
             e.preventDefault()
+          }}
+          onInteractOutside={(e) => {
+            // Prevent closing the modal when clicking outside dropdown content
+            // Only prevent if clicking inside the task board
+            const taskBoard = document.querySelector('[data-task-board]')
+            const isInsideTaskBoard = taskBoard && taskBoard.contains(e.target)
+            if (isInsideTaskBoard) {
+              e.preventDefault()
+            }
           }}
         >
         {title && (
