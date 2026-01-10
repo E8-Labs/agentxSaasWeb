@@ -66,6 +66,7 @@ export default function PlanConfiguration({
   const [trialValidForDays, setTrialValidForDays] = useState('')
   //upgrade Plan popup variable
   const [showUpgradePlanPopup, setShowUpgradePlanPopup] = useState(false)
+  const [currentAgencyPlan, setCurrentAgencyPlan] = useState(null)
   //custom features
   const [customFeatures, setCustomFeatures] = useState([])
   const [allowedFeatures, setAllowedFeatures] = useState([])
@@ -228,6 +229,23 @@ export default function PlanConfiguration({
       setCostPerAdditionalSeat('')
     }
   }, [open, isEditPlan, configurationData])
+
+  // Initialize current agency plan when component opens or selectedAgency changes
+  useEffect(() => {
+    if (open) {
+      // Get current agency plan
+      if (selectedAgency?.plan) {
+        setCurrentAgencyPlan(selectedAgency.plan)
+      } else {
+        // Get from localStorage (same as fetchAgencyAllowedFeatures)
+        const localData = localStorage.getItem('User')
+        if (localData) {
+          const LD = JSON.parse(localData)
+          setCurrentAgencyPlan(LD?.user?.plan || null)
+        }
+      }
+    }
+  }, [open, selectedAgency])
 
   //check for seats features
   useEffect(() => {
@@ -906,7 +924,24 @@ export default function PlanConfiguration({
   }
 
   //open upgrade plan popup
-  const handleUpgradePlanModalClick = () => {
+  const handleUpgradePlanModalClick = async () => {
+    // Get current agency plan before opening modal
+    try {
+      // First try to get from selectedAgency if it has plan data
+      if (selectedAgency?.plan) {
+        setCurrentAgencyPlan(selectedAgency.plan)
+      } else {
+        // Otherwise get from localStorage (same as fetchAgencyAllowedFeatures)
+        const localData = localStorage.getItem('User')
+        if (localData) {
+          const LD = JSON.parse(localData)
+          setCurrentAgencyPlan(LD?.user?.plan || null)
+        }
+      }
+    } catch (error) {
+      console.error('Error getting agency plan:', error)
+      // Still open modal even if plan fetch fails
+    }
     setShowUpgradePlanPopup(true)
   }
 
@@ -1295,8 +1330,9 @@ export default function PlanConfiguration({
               fetchAgencyAllowedFeatures()
               setShowUpgradePlanPopup(false)
             }}
-            from="addPlan"
+            from="agency"
             selectedUser={selectedAgency}
+            currentFullPlan={currentAgencyPlan}
           />
         </div>
       </Box>

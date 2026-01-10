@@ -45,7 +45,7 @@ const ActivityTile = ({
 
   return (
     <div className="mt-4">
-      <TypographyCaption className="text-muted-foreground -ms-4">
+      <TypographyCaption className="text-black -ms-4">
         {GetFormattedDateString(item?.createdAt, true)}
       </TypographyCaption>
       <div className="w-full flex flex-row items-center gap-2 h-full">

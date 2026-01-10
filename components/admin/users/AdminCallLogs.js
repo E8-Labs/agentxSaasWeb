@@ -19,7 +19,7 @@ function AdminCallLogs({ selectedUser }) {
   return (
     <div className="w-full h-full bg-blue flex flex-col items-center overflow-hidden">
       <div
-        className=" w-full flex flex-row justify-between items-center px-4"
+        className=" w-full h-full flex flex-row justify-between items-center px-4"
         // style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
       >
         {/* Slider code */}
@@ -52,7 +52,7 @@ function AdminCallLogs({ selectedUser }) {
         ))}
       </div>
 
-      <div className="flex  flex-1 w-full  h-[full]">
+      <div className="flex  flex-1 w-full  h-full">
         {activeTab === 'All Activities' ? (
           <AdminAllCalls selectedUser={selectedUser} />
         ) : (

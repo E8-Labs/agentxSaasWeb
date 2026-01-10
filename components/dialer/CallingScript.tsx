@@ -750,16 +750,18 @@ export default function CallingScript({
         }}
       >
         <DialogContent 
-          className="sm:max-w-[325px] w-full !max-h-none !h-auto !overflow-visible !p-4" 
+          className="sm:max-w-[325px] w-full !max-h-none !h-auto !overflow-visible !px-4 !py-2" 
           style={{ height: 'auto', maxHeight: 'none', overflow: 'visible', padding: '1rem' }}
         >
           <DialogHeader className="!mb-2">
             <DialogTitle>Delete Script</DialogTitle>
-            <DialogDescription>
+            
+          </DialogHeader>
+
+          <DialogDescription className="!mb-2">
               Are you sure you want to delete this script?
             </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 !mt-2">
+          <DialogFooter className="gap-2">
             <Button
               onClick={confirmDeleteScript}
               disabled={deleting}
