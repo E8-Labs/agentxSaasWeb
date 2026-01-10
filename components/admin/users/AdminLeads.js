@@ -275,6 +275,13 @@ const AdminLeads = ({
     }
   }, [inputs])
 
+  // #region agent log
+  // Loader visibility debug: confirm state flips during pagination
+  useEffect(() => {
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLeads.js:loaderEffect',message:'Loader state changed',data:{moreLeadsLoader,sheetsLoader,hasMore,isLoadingMoreRef:isLoadingMoreRef.current,FilterLeadsLength:FilterLeads.length,SelectedSheetId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'V'})}).catch(()=>{});
+  }, [moreLeadsLoader, sheetsLoader, hasMore, SelectedSheetId])
+  // #endregion
+
   useEffect(() => {
     // Scroll to the bottom when inputs change
     setFilterLeads([])
@@ -752,6 +759,10 @@ const AdminLeads = ({
       })
       setMoreLeadsLoader(true)
       isLoadingMoreRef.current = true
+
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLeads.js:appendLoaderOn',message:'Append loader ON',data:{currentCursor,nextCursorRef:nextCursorRef.current,moreLeadsLoaderState:'set-true',isLoadingMoreRef:isLoadingMoreRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'L'})}).catch(()=>{});
+      // #endregion
     } else {
       setSheetsLoader(true)
       // Reset cursor when starting fresh
@@ -922,6 +933,10 @@ const AdminLeads = ({
         setMoreLeadsLoader(false)
         setSheetsLoader(false)
         isLoadingMoreRef.current = false // Reset flag after request completes
+
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLeads.js:appendLoaderOff',message:'Append loader OFF (finally)',data:{append,currentCursorAtCall:currentCursor,currentRequestVersion,activeRequestVersion:requestVersion.current,hasMore,nextCursorRef:nextCursorRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'L'})}).catch(()=>{});
+        // #endregion
       }
     }
   }
@@ -2162,6 +2177,28 @@ const AdminLeads = ({
                     ref={setLeadsScrollRootEl}
                     style={{ scrollbarWidth: 'none', height: agencyUser ? '75vh' : '70vh', maxHeight: agencyUser ? '75vh' : '70vh' }}
                   >
+                    {/* Global (fixed) loading pill so it's always visible */}
+                    {(moreLeadsLoader || sheetsLoader) && hasMore && (
+                      <div className="pointer-events-none fixed bottom-6 left-1/2 z-[9999] -translate-x-1/2">
+                        <div className="flex flex-row items-center gap-2 rounded-full border border-black/10 bg-white/95 px-4 py-2 shadow-lg backdrop-blur">
+                          <CircularProgress
+                            size={18}
+                            sx={{ color: 'hsl(var(--brand-primary))' }}
+                          />
+                          <span
+                            style={{
+                              fontWeight: '500',
+                              fontFamily: 'inter',
+                              fontSize: 12,
+                              color: '#00000080',
+                            }}
+                          >
+                            Loading more…
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
                     <InfiniteScroll
                       isLoading={moreLeadsLoader || sheetsLoader}
                       hasMore={hasMore}
@@ -2258,7 +2295,7 @@ const AdminLeads = ({
 
                       {/* Visible loading overlay (so you can see it even when we prefetch) */}
                       {(moreLeadsLoader || sheetsLoader) && hasMore && (
-                        <div className="pointer-events-none absolute bottom-3 left-0 w-full flex justify-center">
+                        <div className="pointer-events-none absolute bottom-3 left-0 z-50 w-full flex justify-center">
                           <div className="flex flex-row items-center gap-2 rounded-full border border-black/10 bg-white/90 px-3 py-2 shadow-sm backdrop-blur">
                             <CircularProgress
                               size={18}
