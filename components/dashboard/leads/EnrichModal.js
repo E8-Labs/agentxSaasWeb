@@ -20,6 +20,8 @@ export default function EnrichModal({
   processedData,
   setCreditCost,
   creditCost,
+  targetUserId,
+  targetUserDetails,
 }) {
   const stripePromise = getStripe()
 
@@ -38,17 +40,47 @@ export default function EnrichModal({
 
   useEffect(() => {
     const getCreditCost = async () => {
-      console.log('processedData', processedData)
+      console.log('processedData EnrichModal is', processedData)
+
+      // Check if processedData exists and has data
+      if (!processedData || !Array.isArray(processedData) || processedData.length === 0) {
+        console.warn('processedData is empty or undefined in EnrichModal')
+        return
+      }
 
       const leadCount = processedData.length
-      const isAgencySubAccount = userData?.user?.userRole === 'AgencySubAccount'
+      
+      // Determine which user's role to check for minimum enforcement
+      // If targetUserId is provided, check the target user's role from targetUserDetails
+      // Otherwise, check the logged-in user's role
+      const loggedInUserIsAgencySubAccount = userData?.user?.userRole === 'AgencySubAccount'
+      const targetUserIsAgencySubAccount = targetUserId && targetUserDetails 
+        ? targetUserDetails.userRole === 'AgencySubAccount'
+        : false
+      
+      // Check if minimum should be enforced (either logged-in user or target user is AgencySubAccount)
+      const shouldEnforceMinimum = (loggedInUserIsAgencySubAccount && !targetUserId) || targetUserIsAgencySubAccount
+
+      // Prepare data object for API call
+      let data = {
+        leadCount: leadCount,
+        type: 'enrichment',
+      }
+      // Include userId if targetUserId is provided (for admin/agency adding leads for subaccount/user)
+      if (targetUserId) {
+        data.userId = targetUserId
+      }
 
       // Check if we need to enforce minimum for agency subaccount
-      if (isAgencySubAccount && leadCount < 100) {
+      if (shouldEnforceMinimum && leadCount < 100) {
         // Calculate cost for 100 leads (minimum requirement)
         let minimumData = {
           leadCount: 100,
           type: 'enrichment',
+        }
+        // Include userId if targetUserId is provided (for admin/agency adding leads for subaccount/user)
+        if (targetUserId) {
+          minimumData.userId = targetUserId
         }
         const minimumCostData = await calculateCreditCost(minimumData)
         console.log('minimumCostData for 100 leads', minimumCostData)
@@ -62,33 +94,47 @@ export default function EnrichModal({
         setOriginalLeadCount(leadCount)
 
         // Also get the cost for the actual lead count to show comparison
-        let data = {
-          leadCount: leadCount,
-          type: 'enrichment',
-        }
-        const creditCost = await calculateCreditCost(data)
-        console.log('creditCost', creditCost)
-        console.log('creditCost pricePerLead:', creditCost?.pricePerLead)
-        console.log('creditCost pricing:', creditCost?.pricing)
-        setCreditCost(creditCost)
+        const calculatedCreditCost = await calculateCreditCost(data)
+        console.log('creditCost', calculatedCreditCost)
+        console.log('creditCost pricePerLead:', calculatedCreditCost?.pricePerLead)
+        console.log('creditCost pricing:', calculatedCreditCost?.pricing)
+        setCreditCost(calculatedCreditCost)
       } else {
         // Normal flow - calculate for actual lead count
-        let data = {
-          leadCount: leadCount,
-          type: 'enrichment',
+        // When targetUserId is provided, the API will handle minimum enforcement based on target user's role
+        const calculatedCreditCost = await calculateCreditCost(data)
+        console.log('creditCost calculated:', calculatedCreditCost)
+        
+        // Check if the API response indicates minimum enforcement
+        // The API returns isMinimumEnforced flag and minimumRequired field
+        if (calculatedCreditCost && typeof calculatedCreditCost === 'object' && !calculatedCreditCost.message) {
+          setCreditCost(calculatedCreditCost)
+          
+          // Check if API enforced minimum (for target users who are AgencySubAccount)
+          if (calculatedCreditCost.isMinimumEnforced && calculatedCreditCost.minimumRequired === 100) {
+            // API enforced minimum - set minimum cost
+            setMinimumCost(calculatedCreditCost)
+            setIsMinimumEnforced(true)
+            setOriginalLeadCount(calculatedCreditCost.originalLeadCount || leadCount)
+          } else {
+            setIsMinimumEnforced(false)
+            setMinimumCost(null)
+            setOriginalLeadCount(leadCount)
+          }
+        } else {
+          // Fallback if API returns error or unexpected format
+          console.error('Error calculating credit cost:', calculatedCreditCost)
+          setCreditCost(null)
+          setIsMinimumEnforced(false)
+          setMinimumCost(null)
+          setOriginalLeadCount(leadCount)
         }
-        const creditCost = await calculateCreditCost(data)
-        console.log('creditCost', creditCost)
-        setCreditCost(creditCost)
-        setIsMinimumEnforced(false)
-        setMinimumCost(null)
-        setOriginalLeadCount(leadCount)
       }
     }
-    if (showenrichModal && userData) {
+    if (showenrichModal && userData && processedData && processedData.length > 0) {
       getCreditCost()
     }
-  }, [showenrichModal, userData])
+  }, [showenrichModal, userData, processedData, targetUserId, targetUserDetails])
 
   const handleEnrichFalse = () => {
     setIsEnrichToggle(false)
@@ -164,22 +210,59 @@ export default function EnrichModal({
                   Enrich Lead
                 </div>
 
-                {isMinimumEnforced && minimumCost && (
-                  <div
-                    style={{
-                      fontSize: 14,
-                      fontWeight: '600',
-                      color: 'hsl(var(--brand-primary))',
-                      textAlign: 'center',
-                      width: '30vw',
-                      padding: '8px 12px',
-                      backgroundColor: '#F4F0F5',
-                      borderRadius: '8px',
-                    }}
-                  >
-                    {`${originalLeadCount} leads selected. Minimum payment is for 100 leads. You will be charged $${(minimumCost?.totalCharge || 0).toFixed(2)} for 100 leads.`}
-                  </div>
-                )}
+                {isMinimumEnforced && minimumCost && (() => {
+                  // Get the correct enrichment price from userSettings (prioritize target user's price)
+                  const getEnrichmentPrice = () => {
+                    // Priority 1: If targetUserId is provided (admin/agency adding for subaccount), use target user's enrichment price
+                    if (targetUserId && targetUserDetails?.userSettings) {
+                      const enrichmentPrice = targetUserDetails.userSettings.enrichmentPrice
+                      const isUpselling = targetUserDetails.userSettings.upsellEnrichment
+                      if (isUpselling && enrichmentPrice != null) {
+                        return enrichmentPrice
+                      }
+                    }
+                    
+                    // Priority 2: Use logged-in user's enrichment price if available
+                    if (userData?.user?.userSettings) {
+                      const enrichmentPrice = userData.user.userSettings.enrichmentPrice
+                      const isUpselling = userData.user.userSettings.upsellEnrichment
+                      if (isUpselling && enrichmentPrice != null) {
+                        return enrichmentPrice
+                      }
+                    }
+                    
+                    // Priority 3: Use the calculated price from API response
+                    if (minimumCost?.pricePerLead) {
+                      return minimumCost.pricePerLead
+                    }
+                    if (minimumCost?.pricing?.agencyPrice) {
+                      return minimumCost.pricing.agencyPrice
+                    }
+                    
+                    // Fallback to default
+                    return 0.05
+                  }
+                  
+                  const enrichmentPrice = getEnrichmentPrice()
+                  const totalChargeFor100Leads = enrichmentPrice * 100
+                  
+                  return (
+                    <div
+                      style={{
+                        fontSize: 14,
+                        fontWeight: '600',
+                        color: 'hsl(var(--brand-primary))',
+                        textAlign: 'center',
+                        width: '30vw',
+                        padding: '8px 12px',
+                        backgroundColor: '#F4F0F5',
+                        borderRadius: '8px',
+                      }}
+                    >
+                      {`${originalLeadCount} leads selected. Minimum payment is for 100 leads. You will be charged $${totalChargeFor100Leads.toFixed(2)} for 100 leads.`}
+                    </div>
+                  )
+                })()}
 
                 <div className="flex flex-row gap-2 items-center">
                   <div
@@ -190,13 +273,40 @@ export default function EnrichModal({
                     }}
                   >
                     credit cost ($
-                    {isMinimumEnforced && minimumCost
-                      ? minimumCost?.pricePerLead ||
-                        minimumCost?.pricing?.agencyPrice ||
-                        '0.05'
-                      : creditCost?.pricePerLead ||
-                        creditCost?.pricing?.agencyPrice ||
-                        '0.05'}
+                    {(() => {
+                      // Priority 1: If targetUserId is provided (admin/agency adding for subaccount), use target user's enrichment price
+                      if (targetUserId && targetUserDetails?.userSettings) {
+                        const enrichmentPrice = targetUserDetails.userSettings.enrichmentPrice
+                        const isUpselling = targetUserDetails.userSettings.upsellEnrichment
+                        if (isUpselling && enrichmentPrice != null) {
+                          return enrichmentPrice.toFixed(2)
+                        }
+                      }
+                      
+                      // Priority 2: Use logged-in user's enrichment price if available
+                      if (userData?.user?.userSettings) {
+                        const enrichmentPrice = userData.user.userSettings.enrichmentPrice
+                        const isUpselling = userData.user.userSettings.upsellEnrichment
+                        if (isUpselling && enrichmentPrice != null) {
+                          return enrichmentPrice.toFixed(2)
+                        }
+                      }
+                      
+                      // Priority 3: Use the calculated price from API response
+                      if (isMinimumEnforced && minimumCost) {
+                        return minimumCost?.pricePerLead?.toFixed(2) ||
+                          minimumCost?.pricing?.agencyPrice?.toFixed(2) ||
+                          '0.05'
+                      }
+                      if (creditCost) {
+                        return creditCost?.pricePerLead?.toFixed(2) ||
+                          creditCost?.pricing?.agencyPrice?.toFixed(2) ||
+                          '0.05'
+                      }
+                      
+                      // Fallback to default
+                      return '0.05'
+                    })()}
                     /lead)
                   </div>
 
