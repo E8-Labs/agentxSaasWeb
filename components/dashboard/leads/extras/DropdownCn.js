@@ -90,9 +90,6 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
                         e.stopPropagation()
                       }}
                       onClick={(e) => {
-                        // #region agent log
-                        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DropdownCn.js:63',message:'Chevron button clicked',data:{hasOnChevronClick:!!onChevronClick},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
-                        // #endregion
                         // Prevent event from bubbling up to modal close handler
                         e.stopPropagation()
                         // Call onChevronClick if provided (dropdown will open automatically via DropdownMenuTrigger)
@@ -114,16 +111,10 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
                 className={cn("flex items-center focus:outline-none rounded-md h-[36px]", backgroundClassName)}
                 style={{ cursor: 'pointer' }}
                 onMouseDown={(e) => {
-                  // #region agent log
-                  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DropdownCn.js:115',message:'Dropdown trigger mousedown',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                  // #endregion
                   // Prevent event from bubbling up to modal close handler
                   e.stopPropagation()
                 }}
                 onClick={(e) => {
-                  // #region agent log
-                  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DropdownCn.js:120',message:'Dropdown trigger click',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                  // #endregion
                   // Prevent event from bubbling up to modal close handler
                   e.stopPropagation()
                 }}
@@ -152,16 +143,10 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
             e.preventDefault()
           }}
           onInteractOutside={(e) => {
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DropdownCn.js:145',message:'onInteractOutside triggered',data:{targetTag:e.target.tagName,hasTaskBoard:!!document.querySelector('[data-task-board]')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-            // #endregion
             // Prevent closing the modal when clicking outside dropdown content
             // Only prevent if clicking inside the task board
             const taskBoard = document.querySelector('[data-task-board]')
             const isInsideTaskBoard = taskBoard && taskBoard.contains(e.target)
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DropdownCn.js:150',message:'onInteractOutside check',data:{isInsideTaskBoard,hasTaskBoard:!!taskBoard},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-            // #endregion
             if (isInsideTaskBoard) {
               e.preventDefault()
             }

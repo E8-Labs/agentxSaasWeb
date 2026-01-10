@@ -253,10 +253,6 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
     const handleClickOutside = (event) => {
       const target = event.target
       
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TaskBoard.js:253',message:'Click outside handler triggered',data:{targetTag:target.tagName,targetClass:target.className,hasTaskBoardRef:!!taskBoardRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix-v3',hypothesisId:'D'})}).catch(()=>{});
-      // #endregion
-      
       // CRITICAL FIX: Check if click originated from inside task board using composed path
       // This catches clicks on dropdown triggers/content even if they're in portals
       const path = event.composedPath && event.composedPath() || []
@@ -268,21 +264,12 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
       // Also check direct target containment (for non-portal elements)
       const isInsideTaskBoard = taskBoardRef.current && taskBoardRef.current.contains(target)
       const shouldNotClose = clickOriginatedInTaskBoard || isInsideTaskBoard
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TaskBoard.js:260',message:'Checking if inside task board',data:{isInsideTaskBoard,clickOriginatedInTaskBoard,shouldNotClose,pathLength:path.length,hasTaskBoardRef:!!taskBoardRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix-v5',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
       if (shouldNotClose) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TaskBoard.js:268',message:'Click inside task board, not closing modal',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix-v5',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         return
       }
       
       // Don't close if clicking the button that opened it
       if (buttonRef?.current && buttonRef.current.contains(target)) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TaskBoard.js:270',message:'Click on trigger button, ignoring',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix-v4',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         return
       }
 
@@ -291,28 +278,16 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
       const hasOpenDropdown = document.querySelector('[data-radix-dropdown-menu-content][data-state="open"]') ||
                               document.querySelector('[data-radix-popover-content][data-state="open"]') ||
                               document.querySelector('[role="menu"][data-state="open"]')
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TaskBoard.js:277',message:'Checking for open dropdowns (outside task board)',data:{hasOpenDropdown:!!hasOpenDropdown},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix-v4',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
       if (hasOpenDropdown) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TaskBoard.js:281',message:'Open dropdown detected (outside), not closing modal',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix-v4',hypothesisId:'A'})}).catch(()=>{});
-        // #endregion
         return
       }
 
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TaskBoard.js:285',message:'Closing modal - click outside with no open dropdowns',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix-v4',hypothesisId:'A'})}).catch(()=>{});
-      // #endregion
       // Close if clicking outside (on backdrop) and no dropdowns are open
       onClose()
     }
 
     // Use capture phase to catch events early, but with a small delay to let dropdowns handle their events first
     const timeoutId = setTimeout(() => {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TaskBoard.js:289',message:'Attaching click outside listener',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
-      // #endregion
       document.addEventListener('mousedown', handleClickOutside, true)
     }, 50)
 
