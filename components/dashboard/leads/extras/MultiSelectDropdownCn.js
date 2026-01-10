@@ -44,6 +44,7 @@ const MultiSelectDropdownCn = ({ label = 'Assign', options = [], onToggle }) => 
       <DropdownMenuTrigger asChild>
         <button 
           className="flex items-center rounded-lg border border-gray-300 bg-white px-2 py-2 text-base font-regular shadow-sm focus:outline-none hover:bg-gray-50 h-[36px]"
+          style={{ cursor: 'pointer' }}
           onMouseDown={(e) => {
             // #region agent log
             fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MultiSelectDropdownCn.js:47',message:'MultiSelect trigger mousedown',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});

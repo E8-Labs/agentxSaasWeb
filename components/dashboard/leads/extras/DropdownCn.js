@@ -112,6 +112,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
             <DropdownMenuTrigger asChild>
               <button 
                 className={cn("flex items-center focus:outline-none rounded-md h-[36px]", backgroundClassName)}
+                style={{ cursor: 'pointer' }}
                 onMouseDown={(e) => {
                   // #region agent log
                   fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'DropdownCn.js:115',message:'Dropdown trigger mousedown',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});

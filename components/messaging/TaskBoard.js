@@ -257,15 +257,23 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
       fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TaskBoard.js:253',message:'Click outside handler triggered',data:{targetTag:target.tagName,targetClass:target.className,hasTaskBoardRef:!!taskBoardRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix-v3',hypothesisId:'D'})}).catch(()=>{});
       // #endregion
       
-      // SIMPLIFIED FIX: If clicking inside task board, NEVER close the modal
-      // This allows all interactions (dropdowns, buttons, inputs) to work normally
+      // CRITICAL FIX: Check if click originated from inside task board using composed path
+      // This catches clicks on dropdown triggers/content even if they're in portals
+      const path = event.composedPath && event.composedPath() || []
+      const clickOriginatedInTaskBoard = path.some((node) => {
+        if (!node || !taskBoardRef.current) return false
+        // Check if this node or any of its parents is inside the task board
+        return taskBoardRef.current.contains(node)
+      })
+      // Also check direct target containment (for non-portal elements)
       const isInsideTaskBoard = taskBoardRef.current && taskBoardRef.current.contains(target)
+      const shouldNotClose = clickOriginatedInTaskBoard || isInsideTaskBoard
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TaskBoard.js:260',message:'Checking if inside task board',data:{isInsideTaskBoard,hasTaskBoardRef:!!taskBoardRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix-v4',hypothesisId:'A'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TaskBoard.js:260',message:'Checking if inside task board',data:{isInsideTaskBoard,clickOriginatedInTaskBoard,shouldNotClose,pathLength:path.length,hasTaskBoardRef:!!taskBoardRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix-v5',hypothesisId:'A'})}).catch(()=>{});
       // #endregion
-      if (isInsideTaskBoard) {
+      if (shouldNotClose) {
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TaskBoard.js:264',message:'Click inside task board, not closing modal',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix-v4',hypothesisId:'A'})}).catch(()=>{});
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TaskBoard.js:268',message:'Click inside task board, not closing modal',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix-v5',hypothesisId:'A'})}).catch(()=>{});
         // #endregion
         return
       }

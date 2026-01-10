@@ -36,6 +36,7 @@ const TaskForm = ({
   const [selectedAssignees, setSelectedAssignees] = useState(
     task?.assignedMembers?.map((m) => m.id) || [],
   )
+  const [datePickerOpen, setDatePickerOpen] = useState(false)
 
   // Priority options
   const priorityOptions = [
@@ -206,36 +207,45 @@ const TaskForm = ({
           />
 
           {/* Due Date */}
-          <Popover>
+          <Popover open={datePickerOpen} onOpenChange={(open) => {
+            setDatePickerOpen(open)
+          }}>
             <PopoverTrigger asChild>
               <button
                 type="button"
-                className="flex items-center gap-1 px-2 py-2 rounded-lg border border-gray-300 bg-white cursor-pointer hover:bg-gray-50 h-[36px]"
+                className="flex items-center gap-1 px-2 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 h-[36px]"
+                style={{ cursor: 'pointer' }}
                 onMouseDown={(e) => {
-                  // #region agent log
-                  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TaskForm.js:214',message:'Date picker trigger mousedown',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                  // #endregion
-                  // Prevent event from bubbling up to modal close handler
+                  // Stop propagation on mousedown to prevent TaskBoard handler from interfering
                   e.stopPropagation()
                 }}
                 onClick={(e) => {
-                  // #region agent log
-                  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TaskForm.js:219',message:'Date picker trigger click',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-                  // #endregion
-                  // Prevent event from bubbling up to modal close handler
-                  e.stopPropagation()
+                  // Manually toggle if PopoverTrigger doesn't handle it
+                  if (!datePickerOpen) {
+                    setDatePickerOpen(true)
+                  }
                 }}
               >
-                <CalendarIcon className="h-4 w-4 text-muted-foreground" />
-                <TypographyBody className="text-muted-foreground">
+                <CalendarIcon className="h-4 w-4 text-muted-foreground pointer-events-none" />
+                <TypographyBody className="text-muted-foreground pointer-events-none">
                   {dueDateDisplay || 'Due Date'}
                 </TypographyBody>
-                <ChevronDown className="h-3 w-3 text-muted-foreground ml-1" />
+                <ChevronDown className="h-3 w-3 text-muted-foreground ml-1 pointer-events-none" />
               </button>
             </PopoverTrigger>
             <PopoverContent 
-              className="w-auto p-0 z-[9999]" 
+              className="w-auto p-0" 
               align="start"
+              style={{ zIndex: 200 }}
+              onInteractOutside={(e) => {
+                // Only prevent if clicking inside the task board (to prevent modal from closing)
+                // Otherwise, let the popover close normally
+                const taskBoard = document.querySelector('[data-task-board]')
+                const isInsideTaskBoard = taskBoard && taskBoard.contains(e.target)
+                if (isInsideTaskBoard) {
+                  e.preventDefault()
+                }
+              }}
             >
               <div className="p-3 space-y-3">
                 {/* Quick select buttons */}
