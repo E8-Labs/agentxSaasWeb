@@ -2523,7 +2523,9 @@ const Messages = ({ selectedUser = null }) => {
                 {selectedThread ? (
                   <>
                     {/* Messages Header */}
-                    <ConversationHeader selectedThread={selectedThread} getRecentMessageType={getRecentMessageType} formatUnreadCount={formatUnreadCount} getLeadName={getLeadName} />
+                    <ConversationHeader
+                    selectedUser={selectedUser}
+                    selectedThread={selectedThread} getRecentMessageType={getRecentMessageType} formatUnreadCount={formatUnreadCount} getLeadName={getLeadName} />
 
                     {/* Messages Container */}
                     <ConversationView

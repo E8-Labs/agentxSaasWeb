@@ -20,6 +20,7 @@ import { TypographyBody } from './TypographyCN'
 const TeamAssignDropdownCn = ({
   label = 'Assign',
   teamOptions = [],
+  selectedUser = null,
   onToggle,
   withoutBorder = false,
 }) => {

@@ -15,7 +15,7 @@ import LeadDetails from '@/components/dashboard/leads/extras/LeadDetails'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { X } from 'lucide-react'
 
-function ConversationHeader({ selectedThread, getRecentMessageType, formatUnreadCount, getLeadName }) {
+function ConversationHeader({ selectedThread, getRecentMessageType, formatUnreadCount, getLeadName, selectedUser }) {
     const router = useRouter()
     
     // Stage management state
@@ -147,7 +147,10 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                 AuthToken = Data.token
             }
 
-            const ApiPath = `${Apis.getStagesList}?pipelineId=${pipelineId}&liteResource=true`
+            let ApiPath = `${Apis.getStagesList}?pipelineId=${pipelineId}&liteResource=true`
+            if (selectedUser) {
+                ApiPath = `${Apis.getStagesList}?pipelineId=${pipelineId}&liteResource=true&userId=${selectedUser.id}`
+            }
             const response = await axios.get(ApiPath, {
                 headers: {
                     Authorization: 'Bearer ' + AuthToken,
@@ -186,6 +189,9 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             if (data) {
                 let u = JSON.parse(data)
                 let path = Apis.getTeam
+                if (selectedUser) {
+                    path = `${Apis.getTeam}?userId=${selectedUser.id}`
+                }
 
                 const response = await axios.get(path, {
                     headers: {
@@ -276,10 +282,16 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                 AuthToken = Data.token
             }
 
-            const ApiData = {
+            let ApiData = {
                 leadId: selectedThread.leadId,
                 stageId: stage.id,
             }
+
+            if (selectedUser) {
+                ApiData.userId = selectedUser.id
+            }
+            console.log('🔵 [updateLeadStage] ApiData:', ApiData)
+
 
             const ApiPath = Apis.updateLeadStageApi
             const response = await axios.post(ApiPath, ApiData, {
@@ -312,7 +324,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
     }
 
     // Function to assign lead to team member
-    const handleAssignLeadToTeammember = async (item) => {
+    const handleAssignLeadToTeammember = async (item, selectedUser) => {
         try {
             let ApiData = null
             if (item.invitedUserId) {
@@ -325,6 +337,10 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                     leadId: selectedThread.leadId,
                     teamMemberUserId: item.id,
                 }
+            }
+
+            if (selectedUser) {
+                ApiData.userId = selectedUser.id
             }
 
             console.log('🔵 [Assign] Team API Data:', ApiData)
@@ -366,12 +382,16 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
     }
 
     // Function to unassign lead from team member
-    const handleUnassignLeadFromTeammember = async (userId) => {
+    const handleUnassignLeadFromTeammember = async (userId, selectedUser) => {
         try {
             setGlobalLoader(true)
             let ApiData = {
                 leadId: selectedThread.leadId,
                 teamMemberUserId: userId,
+            }
+
+            if (selectedUser) {
+                ApiData.userId = selectedUser.id
             }
 
             let response = await UnassignTeamMember(ApiData)
@@ -644,6 +664,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                                             stagesList={stagesList}
                                             updateLeadStage={updateLeadStage}
                                             pipelineTitle={pipelineTitle}
+                                            selectedUser={selectedUser}
                                         />
                                     )}
                                 </>
@@ -663,14 +684,15 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                                 <CircularProgress size={20} />
                             ) : (
                                 <TeamAssignDropdownCn
+                                    selectedUser={selectedUser}
                                     key={`assign-${selectedThread.leadId}-${assignmentRefreshKey}-${leadDetails?.teamsAssigned?.length || 0}`}
                                     label="Assign"
                                     teamOptions={teamMemberOptions}
                                     onToggle={async (teamId, team, shouldAssign) => {
                                         if (shouldAssign) {
-                                            await handleAssignLeadToTeammember(team.raw || team)
+                                            await handleAssignLeadToTeammember(team.raw || team, selectedUser)
                                         } else {
-                                            await handleUnassignLeadFromTeammember(teamId)
+                                            await handleUnassignLeadFromTeammember(teamId, selectedUser)
                                         }
                                     }}
                                 />
@@ -702,6 +724,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                                     selectedValue={selectedAssignValue}
                                     onSelect={handleAssignSelect}
                                     onCreateAgent={handleCreateAgent}
+                                    selectedUser={selectedUser}
                                 />
                             )}
                         </div>
