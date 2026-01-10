@@ -3,6 +3,7 @@ import './globals.css'
 
 import localFont from 'next/font/local'
 import Script from 'next/script'
+import { headers } from 'next/headers'
 
 import { Toaster } from '../components/ui/sonner'
 
@@ -26,9 +27,34 @@ const geistMono = localFont({
 /**
  * Dynamic Metadata Generator
  * Reads branding from cookies to set page title and favicon references
+ * Uses agency logo and custom domain for Open Graph meta tags
  */
 export async function generateMetadata() {
   const branding = await getServerBranding()
+  
+  // Get hostname from headers to determine current domain
+  const headersList = await headers()
+  const hostname = headersList.get('host') || ''
+  
+  // Determine protocol (http for localhost, https for production)
+  const isLocalhost = hostname.includes('localhost') || hostname.includes('127.0.0.1')
+  const protocol = isLocalhost ? 'http' : 'https'
+  
+  // Build base URL using current hostname
+  const baseUrl = hostname ? `${protocol}://${hostname}` : 'https://app.assignx.ai'
+  
+  // Use agency logo if available, otherwise fall back to default
+  const logoUrl = branding?.logoUrl || `${baseUrl}/thumbOrbSmall.png`
+  // Ensure logo URL is absolute (Open Graph requires absolute URLs)
+  const absoluteLogoUrl = logoUrl.startsWith('http') 
+    ? logoUrl 
+    : `${baseUrl}${logoUrl.startsWith('/') ? logoUrl : `/${logoUrl}`}`
+  
+  // Use larger logo for Twitter card
+  const twitterLogoUrl = branding?.logoUrl || `${baseUrl}/thumbOrb.png`
+  const absoluteTwitterLogoUrl = twitterLogoUrl.startsWith('http')
+    ? twitterLogoUrl
+    : `${baseUrl}${twitterLogoUrl.startsWith('/') ? twitterLogoUrl : `/${twitterLogoUrl}`}`
 
   // Create a cache-busting hash from faviconUrl to force browser refetch when branding changes
   const faviconHash = branding?.faviconUrl
@@ -49,13 +75,15 @@ export async function generateMetadata() {
         : 'Code AI for Sales & Support',
       description:
         'Create your AI agent to operate across your sales and support team. Gets more done than coffee. Cheaper too.',
-      url: 'https://app.assignx.ai/createagent',
+      url: `${baseUrl}/createagent`,
       images: [
         {
-          url: 'https://app.assignx.ai/thumbOrbSmall.png',
+          url: absoluteLogoUrl,
           width: 276,
           height: 276,
-          alt: 'Thumbnail Alt Text',
+          alt: branding?.companyName 
+            ? `${branding.companyName} Logo` 
+            : 'Thumbnail Alt Text',
         },
       ],
       type: 'website',
@@ -67,7 +95,7 @@ export async function generateMetadata() {
         : 'Code AI for Sales & Support - AssignX',
       description:
         'Create your AI agent to operate across your sales and support team. Gets more done than coffee. Cheaper too.',
-      images: ['https://app.assignx.ai/thumbOrb.png'],
+      images: [absoluteTwitterLogoUrl],
     },
   }
 }

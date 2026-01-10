@@ -155,6 +155,16 @@ const SubAccountUserType = ({ onClose, userData, onContinue }) => {
       userType: 'ReceptionAgent',
       roundedImage: false,
     },
+    {
+      id: 15,
+      title: 'Creator Agent',
+      agentType: 'Creator Agent',
+      // icon: "/usertype/avt2.png",
+      icon: '/agencyIcons/agentsView/creatorAgent.jpg',
+      areaOfFocusTitle: 'What area do you focus on?',
+      userType: 'Creator',
+      roundedImage: false,
+    },
   ]
 
   return (

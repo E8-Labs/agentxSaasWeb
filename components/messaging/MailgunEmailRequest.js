@@ -13,7 +13,8 @@ import { Label } from '@/components/ui/label'
 import MailgunDomainSetup from './MailgunDomainSetup'
 import ViewDnsRecordsModal from './ViewDnsRecordsModal'
 
-const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
+const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
+  console.log("Target User ID in MailgunEmailRequest", targetUserId)
   const [mailgunIntegrations, setMailgunIntegrations] = useState([])
   const [allMailgunIntegrations, setAllMailgunIntegrations] = useState([]) // Store all integrations for checking pending domains
   const [availableDomains, setAvailableDomains] = useState([]) // For subdomain creation
@@ -94,12 +95,21 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       const userData = getUserLocalData()
       const token = userData?.token
 
-      // Check user role directly from userData
+      // Check user role directly from userData (for determining if current user is subaccount/AgentX)
       const userRole = userData?.user?.userRole || userData?.userRole
       const isSubaccountUser = userRole === 'AgencySubAccount'
       const isAgentXUser = userRole === 'AgentX'
 
-      const response = await axios.get(Apis.listMailgunIntegrations, {
+      // Add userId query param if provided (for Agency/Admin viewing domains for subaccount)
+      // Backend will return appropriate domains based on target user's role:
+      // - For subaccount: agency's domains + subaccount's own domains
+      // - For AgentX: platform domains (admin's) + AgentX's own domains
+      let apiUrl = Apis.listMailgunIntegrations
+      if (targetUserId && targetUserId !== userData?.user?.id) {
+        apiUrl += `?userId=${targetUserId}`
+      }
+
+      const response = await axios.get(apiUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -109,51 +119,31 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       if (response.data?.status) {
         const allIntegrations = response.data.data || []
         
-        // For subaccounts, check if agency has Mailgun connected
-        if (isSubaccountUser) {
-          const agencyIntegrations = allIntegrations.filter(
-            (integration) => integration.ownerType === 'agency' && 
-                           integration.verificationStatus === 'verified' && 
-                           integration.isActive
-          )
-          setAgencyHasMailgun(agencyIntegrations.length > 0)
+        // Backend already returns the correct domains based on targetUserId
+        // No need for additional filtering by ownerType - just filter by verification status
+        
+        // Check if agency/platform has Mailgun connected (for subaccount/AgentX context)
+        // This is determined by checking if any returned integrations are agency/platform type
+        const hasAgencyOrPlatformDomains = allIntegrations.some(
+          (integration) => 
+            (integration.ownerType === 'agency' || integration.ownerType === 'platform') &&
+            integration.verificationStatus === 'verified' &&
+            integration.isActive
+        )
+        
+        // For subaccounts or when viewing for subaccount, check if agency has Mailgun
+        if (isSubaccountUser || (targetUserId && allIntegrations.some(i => i.ownerType === 'agency'))) {
+          setAgencyHasMailgun(hasAgencyOrPlatformDomains)
         }
         
-        // For first tab: Only show verified domains that can be used for email creation
-        // For subaccounts: agency's verified domains + subaccount's own verified domains
-        // For AgentX: platform's verified domains + AgentX's own verified domains
-        // For others: only verified and active domains
-        let availableIntegrations
-        if (isSubaccountUser) {
-          // Subaccounts can see: agency's verified domains + their own verified domains
-          availableIntegrations = allIntegrations.filter(
-            (integration) => 
-              // Agency's verified domains
-              (integration.ownerType === 'agency' && 
-               integration.verificationStatus === 'verified' && 
-               integration.isActive) ||
-              // Or subaccount's own verified domains (only verified ones for email creation)
-              (integration.ownerType === 'subaccount' && 
-               integration.verificationStatus === 'verified')
-          )
-        } else if (isAgentXUser) {
-          // AgentX users can see: platform's verified domains + their own verified domains
-          availableIntegrations = allIntegrations.filter(
-            (integration) => 
-              // Platform's verified domains
-              (integration.ownerType === 'platform' && 
-               integration.verificationStatus === 'verified' && 
-               integration.isActive) ||
-              // Or AgentX's own verified domains (only verified ones for email creation)
-              (integration.ownerType === 'agentx' && 
-               integration.verificationStatus === 'verified')
-          )
-        } else {
-          // For non-subaccounts, only show verified and active
-          availableIntegrations = allIntegrations.filter(
-            (integration) => integration.verificationStatus === 'verified' && integration.isActive
-          )
-        }
+        // Backend already returns the correct domains based on targetUserId:
+        // - For subaccount: agency's domains + subaccount's own domains
+        // - For AgentX: platform domains (admin's) + AgentX's own domains
+        // We just need to filter for verified domains that can be used for email creation
+        const availableIntegrations = allIntegrations.filter(
+          (integration) => integration.verificationStatus === 'verified' && integration.isActive
+        )
+        
         
         setMailgunIntegrations(availableIntegrations)
         if (availableIntegrations.length > 0 && !selectedIntegrationId) {
@@ -197,7 +187,13 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       const userData = getUserLocalData()
       const token = userData?.token
 
-      const response = await axios.get(Apis.getAvailableDomains, {
+      // Add userId query param if provided (for Agency/Admin viewing available domains for subaccount)
+      let apiUrl = Apis.getAvailableDomains
+      if (targetUserId) {
+        apiUrl += `?userId=${targetUserId}`
+      }
+
+      const response = await axios.get(apiUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -234,12 +230,19 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       const userData = getUserLocalData()
       const token = userData?.token
 
+      const requestBody = {
+        parentMailgunIntegrationId: parseInt(selectedParentDomainId),
+        subdomainPrefix: subdomainPrefix.toLowerCase(),
+      }
+      
+      // Add userId if provided (for Agency/Admin creating subdomain for subaccount)
+      if (targetUserId) {
+        requestBody.userId = targetUserId
+      }
+
       const response = await axios.post(
         Apis.createMailgunSubdomain,
-        {
-          parentMailgunIntegrationId: parseInt(selectedParentDomainId),
-          subdomainPrefix: subdomainPrefix.toLowerCase(),
-        },
+        requestBody,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -298,13 +301,23 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       const userData = getUserLocalData()
       const token = userData?.token
 
+      const requestBody = {
+        mailgunIntegrationId: parseInt(selectedIntegrationId),
+        email,
+        displayName: displayName || emailPrefix,
+      }
+      
+      // Add userId if provided (for Agency/Admin creating email for subaccount)
+      if (targetUserId) {
+        requestBody.userId = targetUserId
+        console.log('📧 Creating email for target user:', targetUserId)
+      } else {
+        console.log('📧 Creating email for current user (no targetUserId provided)')
+      }
+
       const response = await axios.post(
         Apis.requestMailgunEmail,
-        {
-          mailgunIntegrationId: parseInt(selectedIntegrationId),
-          email,
-          displayName: displayName || emailPrefix,
-        },
+        requestBody,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -349,10 +362,19 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess }) => {
       const userData = getUserLocalData()
       const token = userData?.token
 
-      // For subaccounts, don't send API key - backend will use agency's
+      // Build request body
+      const requestBody = { domain: customDomain }
+      
+      // Add userId if provided (for Agency/Admin creating domain for subaccount)
+      if (targetUserId) {
+        requestBody.userId = targetUserId
+        // When creating for another user, API key is required (it's their own Mailgun account)
+        // Note: This should be handled by the UI - if targetUserId is provided, user should provide API key
+      }
+
       const response = await axios.post(
         Apis.createMailgunIntegration,
-        { domain: customDomain },
+        requestBody,
         {
           headers: {
             Authorization: `Bearer ${token}`,

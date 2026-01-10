@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
-const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
+const MailgunDomainSetup = ({ open, onClose, onSuccess, targetUserId }) => {
   const [step, setStep] = useState(1) // 1: Enter domain/API key, 2: DNS records, 3: Verify
   const [domain, setDomain] = useState('')
   const [apiKey, setApiKey] = useState('')
@@ -44,9 +44,16 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess }) => {
       const userData = getUserLocalData()
       const token = userData?.token
 
+      const requestBody = { domain, mailgunApiKey: apiKey }
+      
+      // Add userId if provided (for Agency/Admin creating domain for subaccount)
+      if (targetUserId) {
+        requestBody.userId = targetUserId
+      }
+
       const response = await axios.post(
         Apis.createMailgunIntegration,
-        { domain, mailgunApiKey: apiKey },
+        requestBody,
         {
           headers: {
             Authorization: `Bearer ${token}`,

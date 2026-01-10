@@ -1620,6 +1620,8 @@ const LeadDetails = ({
         return
       }
       setMessageModalMode('email')
+      
+      console.log("Selected User in LeadDetails", selectedUser)
       setShowMessageModal(true)
     } else if (opt.value === 'call') {
       if (!dialerCapability.hasAccess) {
@@ -2040,6 +2042,7 @@ const LeadDetails = ({
                   />
 
                     <AuthSelectionPopup
+                      selectedUser={selectedUser}
                       open={showAuthSelectionPopup}
                       onClose={() => setShowAuthSelectionPopup(false)}
                       onSuccess={() => {
@@ -2618,7 +2621,7 @@ const LeadDetails = ({
           }
         }}
         mode={messageModalMode}
-        selectedUser={reduxUser}
+        selectedUser={selectedUser}
         setReduxUser={setReduxUser}
         isLeadMode={true}
       />

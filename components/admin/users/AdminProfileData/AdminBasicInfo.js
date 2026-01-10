@@ -4,7 +4,7 @@ import { Box, Button, CircularProgress, TextField } from '@mui/material'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 
 import Apis from '@/components/apis/Apis'
 import { UpdateProfile } from '@/components/apis/UpdateProfile'
@@ -88,9 +88,26 @@ function AdminBasicInfo({ selectedUser }) {
   const [loading10, setLoading10] = useState(false)
   const [loading11, setLoading11] = useState(false)
   const [loading12, setLoading12] = useState(false)
+  const [loading13, setLoading13] = useState(false)
+  const [loading14, setLoading14] = useState(false)
 
   const [srviceLoader, setServiceLoader] = useState(false)
   const [areaLoading, setAreaLoading] = useState(false)
+
+  // Refs for input fields
+  const nameRef = useRef(null)
+  const farmRef = useRef(null)
+  const serviceAreaRef = useRef(null)
+  const brokerAgeRef = useRef(null)
+  const companyRef = useRef(null)
+  const websiteRef = useRef(null)
+  const companyAffiliationRef = useRef(null)
+  const transactionRef = useRef(null)
+  const installationVolumeRef = useRef(null)
+  const projectSizeRef = useRef(null)
+  const clientsPerMonthRef = useRef(null)
+  const casesPerMonthRef = useRef(null)
+  const teritorryRef = useRef(null)
 
   const [selected, setSelected] = useState([])
   const [selectedArea, setSelectedArea] = useState([])
@@ -332,6 +349,162 @@ function AdminBasicInfo({ selectedUser }) {
     }
   }
 
+  const handleNameSave = async () => {
+    try {
+      setloading(true)
+      const data = { name: name }
+      await UpdateProfile(data)
+      setloading(false)
+      setIsNameChanged(false)
+    } catch (e) {
+      setloading(false)
+    }
+  }
+
+  const handleFarmSave = async () => {
+    try {
+      setloading2(true)
+      const data = { farm: farm }
+      await UpdateProfile(data)
+      setloading2(false)
+      setIsFarmChanged(false)
+    } catch (e) {
+      setloading2(false)
+    }
+  }
+
+  const handleBrokerAgeSave = async () => {
+    try {
+      setloading3(true)
+      const data = { brokerage: brokerAge }
+      await UpdateProfile(data)
+      setloading3(false)
+      setIsBrokerageChanged(false)
+    } catch (e) {
+      setloading3(false)
+    }
+  }
+
+  const handleCompanySave = async () => {
+    try {
+      setloading8(true)
+      const data = { company: company }
+      await UpdateProfile(data)
+      setloading8(false)
+      setIsCompanyChanged(false)
+    } catch (e) {
+      setloading8(false)
+    }
+  }
+
+  const handleWebsiteChange = async () => {
+    try {
+      setLoading10(true)
+      const data = { website: websiteUrl }
+      await UpdateProfile(data)
+      setLoading10(false)
+      setIsWebsiteUrlChanged(false)
+    } catch (e) {
+      setLoading10(false)
+    }
+  }
+
+  const handleCompanyAffiliationSave = async () => {
+    try {
+      setLoading11(true)
+      const data = { firmOrCompanyAffiliation: companyAffiliation }
+      await UpdateProfile(data)
+      setLoading11(false)
+      setIsCompanyAffiliationChanged(false)
+    } catch (e) {
+      setLoading11(false)
+    }
+  }
+
+  const handleTransactionSave = async () => {
+    try {
+      setloading4(true)
+      const data = { averageTransactionPerYear: transaction }
+      await UpdateProfile(data)
+      setloading4(false)
+      setIsTransactionChange(false)
+    } catch (e) {
+      setloading4(false)
+    }
+  }
+
+  const handleInstallationVolumeSave = async () => {
+    try {
+      setloading7(true)
+      const data = { projectsPerYear: installationVolume }
+      await UpdateProfile(data)
+      setloading7(false)
+      setIsInstallationVolumeChanged(false)
+    } catch (e) {
+      setloading7(false)
+    }
+  }
+
+  const handleProjectSizeSave = async () => {
+    try {
+      setloading9(true)
+      const data = { projectSizeKw: projectSize }
+      await UpdateProfile(data)
+      setloading9(false)
+      setIsprojectSizeChanged(false)
+    } catch (e) {
+      setloading9(false)
+    }
+  }
+
+  const handleClientsPerMonthSave = async () => {
+    try {
+      setLoading12(true)
+      const data = { averageMonthlyClients: clientsPerMonth }
+      await UpdateProfile(data)
+      setLoading12(false)
+      setIsClientsPerMonthChanged(false)
+    } catch (e) {
+      setLoading12(false)
+    }
+  }
+
+  const handleCasesPerMonthSave = async () => {
+    try {
+      setLoading12(true)
+      const data = { caseVolume: CasesPerMonth }
+      await UpdateProfile(data)
+      setLoading12(false)
+      setIcasesPerMonthChanged(false)
+    } catch (e) {
+      setLoading12(false)
+    }
+  }
+
+  const handleServiceAreaSave = async () => {
+    try {
+      setloading6(true)
+      const data = { areaOfService: serviceArea }
+      await UpdateProfile(data)
+      setloading6(false)
+      setIsServiceAreaChanged(false)
+    } catch (e) {
+      setloading6(false)
+    }
+  }
+
+  const handleTeritorrySave = async () => {
+    try {
+      setLoading14(true)
+      const data = { territory: teritorry }
+      await UpdateProfile(data)
+      setLoading14(false)
+      setIsTeritorryChanged(false)
+    } catch (e) {
+      setLoading14(false)
+    }
+  }
+
   const handleDrop = async (event) => {
     event.preventDefault()
     setDragging(false)
@@ -506,26 +679,56 @@ function AdminBasicInfo({ selectedUser }) {
         Full Name
       </div>
 
-      <div
-        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-        style={{
-          border: `1px solid ${focusedName ? '#8a2be2' : '#00000010'}`,
-          transition: 'border-color 0.3s ease',
-        }}
-      >
-        <input
-          className="w-11/12 outline-none focus:ring-0"
-          onFocus={() => setFocusedName(true)}
-          onBlur={() => setFocusedName(false)}
-          value={name}
-          onChange={(event) => {
-            setName(event.target.value)
-            setIsNameChanged(true)
+      <div className="flex items-center w-6/12 mt-2 gap-2">
+        <div
+          className="flex items-center rounded-lg px-3 py-2 w-full"
+          style={{
+            border: `1px solid ${focusedName ? '#8a2be2' : '#00000010'}`,
+            transition: 'border-color 0.3s ease',
           }}
-          type="text"
-          placeholder="Name"
-          style={{ border: '0px solid hsl(var(--brand-primary))', outline: 'none' }}
-        />
+        >
+          <input
+            ref={nameRef}
+            className="w-11/12 outline-none focus:ring-0"
+            onFocus={() => setFocusedName(true)}
+            onBlur={() => setFocusedName(false)}
+            value={name}
+            onChange={(event) => {
+              setName(event.target.value)
+              setIsNameChanged(true)
+            }}
+            type="text"
+            placeholder="Name"
+            style={{ border: '0px solid hsl(var(--brand-primary))', outline: 'none' }}
+          />
+        </div>
+        {isNameChanged ? (
+          loading ? (
+            <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+          ) : (
+            <button
+              onClick={async () => {
+                handleNameSave()
+              }}
+              style={{ color: ' #8a2be2', fontSize: '14px', fontWeight: '600' }}
+            >
+              Save
+            </button>
+          )
+        ) : (
+          <button
+            onClick={() => {
+              nameRef.current?.focus()
+            }}
+          >
+            <Image
+              src={'/svgIcons/editIcon.svg'}
+              width={24}
+              height={24}
+              alt="*"
+            />
+          </button>
+        )}
       </div>
 
       <div
@@ -614,26 +817,56 @@ function AdminBasicInfo({ selectedUser }) {
                 Farm
               </div>
 
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                style={{
-                  border: `1px solid ${focusedFarm ? '#8a2be2' : '#00000010'}`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  className="w-11/12 outline-none focus:ring-0"
-                  onFocus={() => setFocusedFarm(true)}
-                  onBlur={() => setFocusedFarm(false)}
-                  value={farm}
-                  onChange={(event) => {
-                    setFarm(event.target.value)
-                    setIsFarmChanged(true)
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <div
+                  className="flex items-center rounded-lg px-3 py-2 w-full"
+                  style={{
+                    border: `1px solid ${focusedFarm ? '#8a2be2' : '#00000010'}`,
+                    transition: 'border-color 0.3s ease',
                   }}
-                  type="text"
-                  placeholder="Farm"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
-                />
+                >
+                  <input
+                    ref={farmRef}
+                    className="w-11/12 outline-none focus:ring-0"
+                    onFocus={() => setFocusedFarm(true)}
+                    onBlur={() => setFocusedFarm(false)}
+                    value={farm}
+                    onChange={(event) => {
+                      setFarm(event.target.value)
+                      setIsFarmChanged(true)
+                    }}
+                    type="text"
+                    placeholder="Farm"
+                    style={{ border: '0px solid #000000', outline: 'none' }}
+                  />
+                </div>
+                {isFarmChanged ? (
+                  loading2 ? (
+                    <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleFarmSave()
+                      }}
+                      style={{ color: ' #8a2be2', fontSize: '14px', fontWeight: '600' }}
+                    >
+                      Save
+                    </button>
+                  )
+                ) : (
+                  <button
+                    onClick={() => {
+                      farmRef.current?.focus()
+                    }}
+                  >
+                    <Image
+                      src={'/svgIcons/editIcon.svg'}
+                      width={24}
+                      height={24}
+                      alt="*"
+                    />
+                  </button>
+                )}
               </div>
             </>
           ) : (userType && userType === UserTypes.SolarRep) ||
@@ -654,28 +887,58 @@ function AdminBasicInfo({ selectedUser }) {
                 Area of service
               </div>
 
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                style={{
-                  border: `1px solid ${
-                    focusedServiceArea ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  className="w-11/12 outline-none focus:ring-0"
-                  onFocus={() => setFocusedServiceArea(true)}
-                  onBlur={() => setFocusedServiceArea(false)}
-                  value={serviceArea}
-                  onChange={(event) => {
-                    setServiceArea(event.target.value)
-                    setIsServiceAreaChanged(true)
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <div
+                  className="flex items-center rounded-lg px-3 py-2 w-full"
+                  style={{
+                    border: `1px solid ${
+                      focusedServiceArea ? '#8a2be2' : '#00000010'
+                    }`,
+                    transition: 'border-color 0.3s ease',
                   }}
-                  type="text"
-                  placeholder="Farm"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
-                />
+                >
+                  <input
+                    ref={serviceAreaRef}
+                    className="w-11/12 outline-none focus:ring-0"
+                    onFocus={() => setFocusedServiceArea(true)}
+                    onBlur={() => setFocusedServiceArea(false)}
+                    value={serviceArea}
+                    onChange={(event) => {
+                      setServiceArea(event.target.value)
+                      setIsServiceAreaChanged(true)
+                    }}
+                    type="text"
+                    placeholder="Area of service"
+                    style={{ border: '0px solid #000000', outline: 'none' }}
+                  />
+                </div>
+                {isServiceAreaChanged ? (
+                  loading6 ? (
+                    <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleServiceAreaSave()
+                      }}
+                      style={{ color: ' #8a2be2', fontSize: '14px', fontWeight: '600' }}
+                    >
+                      Save
+                    </button>
+                  )
+                ) : (
+                  <button
+                    onClick={() => {
+                      serviceAreaRef.current?.focus()
+                    }}
+                  >
+                    <Image
+                      src={'/svgIcons/editIcon.svg'}
+                      width={24}
+                      height={24}
+                      alt="*"
+                    />
+                  </button>
+                )}
               </div>
             </>
           ) : (userType && userType === UserTypes.General) ||
@@ -692,29 +955,31 @@ function AdminBasicInfo({ selectedUser }) {
                 Teritorry
               </div>
 
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
-                style={{
-                  border: `1px solid ${
-                    focusedTerritory ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  ref={teritorryRef}
-                  className="w-11/12 outline-none focus:ring-0"
-                  onFocus={() => setFocusedTerritory(true)}
-                  onBlur={() => setFocusedTerritory(false)}
-                  value={teritorry}
-                  onChange={(event) => {
-                    setTeritorry(event.target.value)
-                    setIsTeritorryChanged(true)
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <div
+                  className="flex items-center rounded-lg px-3 py-2 w-full"
+                  style={{
+                    border: `1px solid ${
+                      focusedTerritory ? '#8a2be2' : '#00000010'
+                    }`,
+                    transition: 'border-color 0.3s ease',
                   }}
-                  type="text"
-                  placeholder="Teritorry"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
-                />
+                >
+                  <input
+                    ref={teritorryRef}
+                    className="w-11/12 outline-none focus:ring-0"
+                    onFocus={() => setFocusedTerritory(true)}
+                    onBlur={() => setFocusedTerritory(false)}
+                    value={teritorry}
+                    onChange={(event) => {
+                      setTeritorry(event.target.value)
+                      setIsTeritorryChanged(true)
+                    }}
+                    type="text"
+                    placeholder="Teritorry"
+                    style={{ border: '0px solid #000000', outline: 'none' }}
+                  />
+                </div>
                 {isTeritorryChanged ? (
                   loading14 ? (
                     <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
@@ -767,28 +1032,58 @@ function AdminBasicInfo({ selectedUser }) {
                 Brokerage
               </div>
 
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
-                style={{
-                  border: `1px solid ${
-                    focusedBrokerage ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  className="w-11/12 outline-none focus:ring-0"
-                  onFocus={() => setFocusedBrokerage(true)}
-                  onBlur={() => setFocusedBrokerage(false)}
-                  value={brokerAge}
-                  onChange={(event) => {
-                    setBrokerAge(event.target.value)
-                    setIsBrokerageChanged(true)
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <div
+                  className="flex items-center rounded-lg px-3 py-2 w-full"
+                  style={{
+                    border: `1px solid ${
+                      focusedBrokerage ? '#8a2be2' : '#00000010'
+                    }`,
+                    transition: 'border-color 0.3s ease',
                   }}
-                  type="text"
-                  placeholder="Brokerage"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
-                />
+                >
+                  <input
+                    ref={brokerAgeRef}
+                    className="w-11/12 outline-none focus:ring-0"
+                    onFocus={() => setFocusedBrokerage(true)}
+                    onBlur={() => setFocusedBrokerage(false)}
+                    value={brokerAge}
+                    onChange={(event) => {
+                      setBrokerAge(event.target.value)
+                      setIsBrokerageChanged(true)
+                    }}
+                    type="text"
+                    placeholder="Brokerage"
+                    style={{ border: '0px solid #000000', outline: 'none' }}
+                  />
+                </div>
+                {isBrokerageChanged ? (
+                  loading3 ? (
+                    <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleBrokerAgeSave()
+                      }}
+                      style={{ color: ' #8a2be2', fontSize: '14px', fontWeight: '600' }}
+                    >
+                      Save
+                    </button>
+                  )
+                ) : (
+                  <button
+                    onClick={() => {
+                      brokerAgeRef.current?.focus()
+                    }}
+                  >
+                    <Image
+                      src={'/svgIcons/editIcon.svg'}
+                      width={24}
+                      height={24}
+                      alt="*"
+                    />
+                  </button>
+                )}
               </div>
             </>
           ) : (userType && userType === UserTypes.SolarRep) ||
@@ -809,28 +1104,58 @@ function AdminBasicInfo({ selectedUser }) {
                 Company
               </div>
 
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
-                style={{
-                  border: `1px solid ${
-                    focusedCompany ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  className="w-11/12 outline-none focus:ring-0"
-                  onFocus={() => setFocusedCompany(true)}
-                  onBlur={() => setFocusedCompany(false)}
-                  value={company}
-                  onChange={(event) => {
-                    setCompany(event.target.value)
-                    setIsCompanyChanged(true)
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <div
+                  className="flex items-center rounded-lg px-3 py-2 w-full"
+                  style={{
+                    border: `1px solid ${
+                      focusedCompany ? '#8a2be2' : '#00000010'
+                    }`,
+                    transition: 'border-color 0.3s ease',
                   }}
-                  type="text"
-                  placeholder="Company"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
-                />
+                >
+                  <input
+                    ref={companyRef}
+                    className="w-11/12 outline-none focus:ring-0"
+                    onFocus={() => setFocusedCompany(true)}
+                    onBlur={() => setFocusedCompany(false)}
+                    value={company}
+                    onChange={(event) => {
+                      setCompany(event.target.value)
+                      setIsCompanyChanged(true)
+                    }}
+                    type="text"
+                    placeholder="Company"
+                    style={{ border: '0px solid #000000', outline: 'none' }}
+                  />
+                </div>
+                {isCompanyChanged ? (
+                  loading8 ? (
+                    <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleCompanySave()
+                      }}
+                      style={{ color: ' #8a2be2', fontSize: '14px', fontWeight: '600' }}
+                    >
+                      Save
+                    </button>
+                  )
+                ) : (
+                  <button
+                    onClick={() => {
+                      companyRef.current?.focus()
+                    }}
+                  >
+                    <Image
+                      src={'/svgIcons/editIcon.svg'}
+                      width={24}
+                      height={24}
+                      alt="*"
+                    />
+                  </button>
+                )}
               </div>
             </>
           ) : userType && userType === UserTypes.WebsiteAgent ? (
@@ -846,28 +1171,58 @@ function AdminBasicInfo({ selectedUser }) {
                 Website URL
               </div>
 
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
-                style={{
-                  border: `1px solid ${
-                    focusedWebsite ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  className="w-11/12 outline-none focus:ring-0"
-                  onFocus={() => setFocusedWebSite(true)}
-                  onBlur={() => setFocusedWebSite(false)}
-                  value={websiteUrl}
-                  onChange={(event) => {
-                    setWebsiteUrl(event.target.value)
-                    setIsWebsiteUrlChanged(true)
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <div
+                  className="flex items-center rounded-lg px-3 py-2 w-full"
+                  style={{
+                    border: `1px solid ${
+                      focusedWebsite ? '#8a2be2' : '#00000010'
+                    }`,
+                    transition: 'border-color 0.3s ease',
                   }}
-                  type="text"
-                  placeholder="Brokerage"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
-                />
+                >
+                  <input
+                    ref={websiteRef}
+                    className="w-11/12 outline-none focus:ring-0"
+                    onFocus={() => setFocusedWebSite(true)}
+                    onBlur={() => setFocusedWebSite(false)}
+                    value={websiteUrl}
+                    onChange={(event) => {
+                      setWebsiteUrl(event.target.value)
+                      setIsWebsiteUrlChanged(true)
+                    }}
+                    type="text"
+                    placeholder="Website URL"
+                    style={{ border: '0px solid #000000', outline: 'none' }}
+                  />
+                </div>
+                {isWebsiteUrlChanged ? (
+                  loading10 ? (
+                    <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleWebsiteChange()
+                      }}
+                      style={{ color: ' #8a2be2', fontSize: '14px', fontWeight: '600' }}
+                    >
+                      Save
+                    </button>
+                  )
+                ) : (
+                  <button
+                    onClick={() => {
+                      websiteRef.current?.focus()
+                    }}
+                  >
+                    <Image
+                      src={'/svgIcons/editIcon.svg'}
+                      width={24}
+                      height={24}
+                      alt="*"
+                    />
+                  </button>
+                )}
               </div>
             </>
           ) : (userType && userType === UserTypes.MedSpaAgent) ||
@@ -885,28 +1240,58 @@ function AdminBasicInfo({ selectedUser }) {
                 Company Affiliation
               </div>
 
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 "
-                style={{
-                  border: `1px solid ${
-                    focusedCompany ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  className="w-11/12 outline-none focus:ring-0"
-                  onFocus={() => setFocusedCompanyAffiliation(true)}
-                  onBlur={() => setFocusedCompanyAffiliation(false)}
-                  value={companyAffiliation}
-                  onChange={(event) => {
-                    setCompanyAffiliation(event.target.value)
-                    setIsCompanyAffiliationChanged(true)
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <div
+                  className="flex items-center rounded-lg px-3 py-2 w-full"
+                  style={{
+                    border: `1px solid ${
+                      focusedCompanyAffiliation ? '#8a2be2' : '#00000010'
+                    }`,
+                    transition: 'border-color 0.3s ease',
                   }}
-                  type="text"
-                  placeholder="Company"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
-                />
+                >
+                  <input
+                    ref={companyAffiliationRef}
+                    className="w-11/12 outline-none focus:ring-0"
+                    onFocus={() => setFocusedCompanyAffiliation(true)}
+                    onBlur={() => setFocusedCompanyAffiliation(false)}
+                    value={companyAffiliation}
+                    onChange={(event) => {
+                      setCompanyAffiliation(event.target.value)
+                      setIsCompanyAffiliationChanged(true)
+                    }}
+                    type="text"
+                    placeholder="Company Affiliation"
+                    style={{ border: '0px solid #000000', outline: 'none' }}
+                  />
+                </div>
+                {isCompanyAffiliationChanged ? (
+                  loading11 ? (
+                    <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleCompanyAffiliationSave()
+                      }}
+                      style={{ color: ' #8a2be2', fontSize: '14px', fontWeight: '600' }}
+                    >
+                      Save
+                    </button>
+                  )
+                ) : (
+                  <button
+                    onClick={() => {
+                      companyAffiliationRef.current?.focus()
+                    }}
+                  >
+                    <Image
+                      src={'/svgIcons/editIcon.svg'}
+                      width={24}
+                      height={24}
+                      alt="*"
+                    />
+                  </button>
+                )}
               </div>
             </>
           ) : (
@@ -926,32 +1311,62 @@ function AdminBasicInfo({ selectedUser }) {
                 How many homes did you sell last year
               </div>
 
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                style={{
-                  border: `1px solid ${
-                    focusedTransaction ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  className="w-11/12 outline-none focus:ring-0"
-                  onFocus={() => setFocusedTransaction(true)}
-                  onBlur={() => setFocusedTransaction(false)}
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  value={transaction}
-                  onChange={(e) => {
-                    // Only keep digits in state
-                    const onlyNums = e.target.value.replace(/\D/g, '')
-                    setTransaction(onlyNums)
-                    setIsTransactionChange(true)
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <div
+                  className="flex items-center rounded-lg px-3 py-2 w-full"
+                  style={{
+                    border: `1px solid ${
+                      focusedTransaction ? '#8a2be2' : '#00000010'
+                    }`,
+                    transition: 'border-color 0.3s ease',
                   }}
-                  placeholder="Value"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
-                />
+                >
+                  <input
+                    ref={transactionRef}
+                    className="w-11/12 outline-none focus:ring-0"
+                    onFocus={() => setFocusedTransaction(true)}
+                    onBlur={() => setFocusedTransaction(false)}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={transaction}
+                    onChange={(e) => {
+                      // Only keep digits in state
+                      const onlyNums = e.target.value.replace(/\D/g, '')
+                      setTransaction(onlyNums)
+                      setIsTransactionChange(true)
+                    }}
+                    placeholder="Value"
+                    style={{ border: '0px solid #000000', outline: 'none' }}
+                  />
+                </div>
+                {isTransactionChanged ? (
+                  loading4 ? (
+                    <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleTransactionSave()
+                      }}
+                      style={{ color: ' #8a2be2', fontSize: '14px', fontWeight: '600' }}
+                    >
+                      Save
+                    </button>
+                  )
+                ) : (
+                  <button
+                    onClick={() => {
+                      transactionRef.current?.focus()
+                    }}
+                  >
+                    <Image
+                      src={'/svgIcons/editIcon.svg'}
+                      width={24}
+                      height={24}
+                      alt="*"
+                    />
+                  </button>
+                )}
               </div>
             </>
           ) : userType && userType === UserTypes.SolarRep ? (
@@ -967,28 +1382,58 @@ function AdminBasicInfo({ selectedUser }) {
                 Installation Volume per Year
               </div>
 
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                style={{
-                  border: `1px solid ${
-                    focusedInstallationVolume ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  // type="number"
-                  className="w-11/12 outline-none focus:ring-0"
-                  onFocus={() => setFocusedInstallationVolume(true)}
-                  onBlur={() => setFocusedInstallationVolume(false)}
-                  value={installationVolume}
-                  onChange={(event) => {
-                    setInstallationVolume(event.target.value)
-                    setIsInstallationVolumeChanged(true)
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <div
+                  className="flex items-center rounded-lg px-3 py-2 w-full"
+                  style={{
+                    border: `1px solid ${
+                      focusedInstallationVolume ? '#8a2be2' : '#00000010'
+                    }`,
+                    transition: 'border-color 0.3s ease',
                   }}
-                  placeholder="Value"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
-                />
+                >
+                  <input
+                    ref={installationVolumeRef}
+                    // type="number"
+                    className="w-11/12 outline-none focus:ring-0"
+                    onFocus={() => setFocusedInstallationVolume(true)}
+                    onBlur={() => setFocusedInstallationVolume(false)}
+                    value={installationVolume}
+                    onChange={(event) => {
+                      setInstallationVolume(event.target.value)
+                      setIsInstallationVolumeChanged(true)
+                    }}
+                    placeholder="Value"
+                    style={{ border: '0px solid #000000', outline: 'none' }}
+                  />
+                </div>
+                {isInstallationVolumechanged ? (
+                  loading7 ? (
+                    <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleInstallationVolumeSave()
+                      }}
+                      style={{ color: ' #8a2be2', fontSize: '14px', fontWeight: '600' }}
+                    >
+                      Save
+                    </button>
+                  )
+                ) : (
+                  <button
+                    onClick={() => {
+                      installationVolumeRef.current?.focus()
+                    }}
+                  >
+                    <Image
+                      src={'/svgIcons/editIcon.svg'}
+                      width={24}
+                      height={24}
+                      alt="*"
+                    />
+                  </button>
+                )}
               </div>
             </>
           ) : (
@@ -1011,28 +1456,58 @@ function AdminBasicInfo({ selectedUser }) {
                   : 'Average Project Size (kw)'}
               </div>
 
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                style={{
-                  border: `1px solid ${
-                    focusedProjectSize ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  type="number"
-                  className="w-11/12 outline-none focus:ring-0"
-                  onFocus={() => setFocusedProjectSize(true)}
-                  onBlur={() => setFocusedProjectSize(false)}
-                  value={projectSize}
-                  onChange={(event) => {
-                    setProjectSize(event.target.value)
-                    setIsprojectSizeChanged(true)
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <div
+                  className="flex items-center rounded-lg px-3 py-2 w-full"
+                  style={{
+                    border: `1px solid ${
+                      focusedProjectSize ? '#8a2be2' : '#00000010'
+                    }`,
+                    transition: 'border-color 0.3s ease',
                   }}
-                  placeholder="Value"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
-                />
+                >
+                  <input
+                    ref={projectSizeRef}
+                    type="number"
+                    className="w-11/12 outline-none focus:ring-0"
+                    onFocus={() => setFocusedProjectSize(true)}
+                    onBlur={() => setFocusedProjectSize(false)}
+                    value={projectSize}
+                    onChange={(event) => {
+                      setProjectSize(event.target.value)
+                      setIsprojectSizeChanged(true)
+                    }}
+                    placeholder="Value"
+                    style={{ border: '0px solid #000000', outline: 'none' }}
+                  />
+                </div>
+                {isProjectSizeChanged ? (
+                  loading9 ? (
+                    <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleProjectSizeSave()
+                      }}
+                      style={{ color: ' #8a2be2', fontSize: '14px', fontWeight: '600' }}
+                    >
+                      Save
+                    </button>
+                  )
+                ) : (
+                  <button
+                    onClick={() => {
+                      projectSizeRef.current?.focus()
+                    }}
+                  >
+                    <Image
+                      src={'/svgIcons/editIcon.svg'}
+                      width={24}
+                      height={24}
+                      alt="*"
+                    />
+                  </button>
+                )}
               </div>
             </>
           ) : userType && userType === UserTypes.MedSpaAgent ? (
@@ -1048,28 +1523,58 @@ function AdminBasicInfo({ selectedUser }) {
                 Clients per month
               </div>
 
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                style={{
-                  border: `1px solid ${
-                    focusedClientsPerMonth ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  type="number"
-                  className="w-11/12 outline-none focus:ring-0"
-                  onFocus={() => setFocusedClientsPerMonth(true)}
-                  onBlur={() => setFocusedClientsPerMonth(false)}
-                  value={clientsPerMonth}
-                  onChange={(event) => {
-                    setClientsPerMonth(event.target.value)
-                    setIsClientsPerMonthChanged(true)
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <div
+                  className="flex items-center rounded-lg px-3 py-2 w-full"
+                  style={{
+                    border: `1px solid ${
+                      focusedClientsPerMonth ? '#8a2be2' : '#00000010'
+                    }`,
+                    transition: 'border-color 0.3s ease',
                   }}
-                  placeholder="Value"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
-                />
+                >
+                  <input
+                    ref={clientsPerMonthRef}
+                    type="number"
+                    className="w-11/12 outline-none focus:ring-0"
+                    onFocus={() => setFocusedClientsPerMonth(true)}
+                    onBlur={() => setFocusedClientsPerMonth(false)}
+                    value={clientsPerMonth}
+                    onChange={(event) => {
+                      setClientsPerMonth(event.target.value)
+                      setIsClientsPerMonthChanged(true)
+                    }}
+                    placeholder="Value"
+                    style={{ border: '0px solid #000000', outline: 'none' }}
+                  />
+                </div>
+                {isClientsPerMonthChanged ? (
+                  loading12 ? (
+                    <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleClientsPerMonthSave()
+                      }}
+                      style={{ color: ' #8a2be2', fontSize: '14px', fontWeight: '600' }}
+                    >
+                      Save
+                    </button>
+                  )
+                ) : (
+                  <button
+                    onClick={() => {
+                      clientsPerMonthRef.current?.focus()
+                    }}
+                  >
+                    <Image
+                      src={'/svgIcons/editIcon.svg'}
+                      width={24}
+                      height={24}
+                      alt="*"
+                    />
+                  </button>
+                )}
               </div>
             </>
           ) : userType && userType === UserTypes.LawAgent ? (
@@ -1085,28 +1590,58 @@ function AdminBasicInfo({ selectedUser }) {
                 Cases per month
               </div>
 
-              <div
-                className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5"
-                style={{
-                  border: `1px solid ${
-                    focusedClientsPerMonth ? '#8a2be2' : '#00000010'
-                  }`,
-                  transition: 'border-color 0.3s ease',
-                }}
-              >
-                <input
-                  type="number"
-                  className="w-11/12 outline-none focus:ring-0"
-                  onFocus={() => setFocusedCasesPerMonth(true)}
-                  onBlur={() => setFocusedCasesPerMonth(false)}
-                  value={CasesPerMonth}
-                  onChange={(event) => {
-                    setCasessPerMonth(event.target.value)
-                    iscasesPerMonthChanged(true)
+              <div className="flex items-center w-6/12 mt-2 gap-2">
+                <div
+                  className="flex items-center rounded-lg px-3 py-2 w-full"
+                  style={{
+                    border: `1px solid ${
+                      focusedCasesPerMonth ? '#8a2be2' : '#00000010'
+                    }`,
+                    transition: 'border-color 0.3s ease',
                   }}
-                  placeholder="Value"
-                  style={{ border: '0px solid #000000', outline: 'none' }}
-                />
+                >
+                  <input
+                    ref={casesPerMonthRef}
+                    type="number"
+                    className="w-11/12 outline-none focus:ring-0"
+                    onFocus={() => setFocusedCasesPerMonth(true)}
+                    onBlur={() => setFocusedCasesPerMonth(false)}
+                    value={CasesPerMonth}
+                    onChange={(event) => {
+                      setCasessPerMonth(event.target.value)
+                      setIcasesPerMonthChanged(true)
+                    }}
+                    placeholder="Value"
+                    style={{ border: '0px solid #000000', outline: 'none' }}
+                  />
+                </div>
+                {iscasesPerMonthChanged ? (
+                  loading12 ? (
+                    <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        handleCasesPerMonthSave()
+                      }}
+                      style={{ color: ' #8a2be2', fontSize: '14px', fontWeight: '600' }}
+                    >
+                      Save
+                    </button>
+                  )
+                ) : (
+                  <button
+                    onClick={() => {
+                      casesPerMonthRef.current?.focus()
+                    }}
+                  >
+                    <Image
+                      src={'/svgIcons/editIcon.svg'}
+                      width={24}
+                      height={24}
+                      alt="*"
+                    />
+                  </button>
+                )}
               </div>
             </>
           ) : (

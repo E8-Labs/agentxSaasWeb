@@ -45,6 +45,7 @@ import {
 } from '@/constants/DefaultLeadColumns'
 import { useUser } from '@/hooks/redux-hooks'
 import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
+import parsePhoneNumberFromString from 'libphonenumber-js'
 
 import AgentSelectSnackMessage, {
   SnackbarTypes,
@@ -549,6 +550,14 @@ const Leads1 = () => {
   const validateColumns = () => {
     //console.log;
 
+    // Check if there's any valid processed data
+    if (!processedData || processedData.length === 0) {
+      setErrSnack('No valid leads found. Please ensure your file contains leads with valid phone numbers and at least one name field (First Name, Last Name, or Full Name).')
+      setErrSnackTitle('No Valid Leads')
+      setShowErrSnack(true)
+      return false
+    }
+
     // const requiredColumns = ["phone", "firstName", "lastName"];
     const hasFullName =
       NewColumnsObtained.some(
@@ -590,10 +599,12 @@ const Leads1 = () => {
   //File readi
   const handleFileUpload = useCallback(
     (file) => {
+      console.log("file in handleFileUpload is", file)
       const reader = new FileReader()
       const isCSV = file.name.toLowerCase().endsWith('.csv')
       reader.onload = (event) => {
         const binaryStr = event.target.result
+        console.log("binaryStr in handleFileUpload ")
         // const workbook = XLSX.read(binaryStr, { type: "binary" });
 
         const workbook = XLSX.read(binaryStr, {
@@ -691,9 +702,90 @@ const Leads1 = () => {
             return transformedRow
           })
 
+          // Find column names for validation
+          const firstNameColumn = mappedColumns.find(
+            (col) => col.matchedColumn?.dbName === 'firstName',
+          )?.ColumnNameInSheet
+          const lastNameColumn = mappedColumns.find(
+            (col) => col.matchedColumn?.dbName === 'lastName',
+          )?.ColumnNameInSheet
+          // Check for fullName column - it might not be matched to a default column
+          const fullNameColumn = mappedColumns.find(
+            (col) => {
+              const colName = col.ColumnNameInSheet?.toLowerCase() || ''
+              return (
+                colName.includes('full name') ||
+                colName.includes('fullname') ||
+                colName === 'full name' ||
+                colName === 'fullname'
+              )
+            },
+          )?.ColumnNameInSheet
+          const phoneColumn = mappedColumns.find(
+            (col) => col.matchedColumn?.dbName === 'phone',
+          )?.ColumnNameInSheet
+
+          // Helper function to validate phone number
+          const isValidPhone = (phone) => {
+            if (!phone || typeof phone !== 'string') return false
+            const cleanPhone = phone.trim()
+            if (!cleanPhone) return false
+
+            // Try to parse the phone number
+            const phoneNumber = parsePhoneNumberFromString(cleanPhone)
+            if (phoneNumber && phoneNumber.isValid()) {
+              return true
+            }
+
+            // Allow test numbers (555 prefix) and US numbers without country code
+            const digitsOnly = cleanPhone.replace(/\D/g, '')
+            if (
+              digitsOnly.match(/^1555\d{7}$/) ||
+              digitsOnly.match(/^1\d{10}$/) ||
+              (digitsOnly.length === 10 && !cleanPhone.startsWith('+'))
+            ) {
+              return true
+            }
+
+            return false
+          }
+
+          // Helper function to check if row has valid name
+          const hasValidName = (row) => {
+            const firstName = firstNameColumn
+              ? String(row[firstNameColumn] || '').trim()
+              : ''
+            const lastName = lastNameColumn
+              ? String(row[lastNameColumn] || '').trim()
+              : ''
+            const fullName = fullNameColumn
+              ? String(row[fullNameColumn] || '').trim()
+              : ''
+
+            // Must have at least one: firstName OR lastName OR fullName
+            return firstName || lastName || fullName
+          }
+
+          // Filter out invalid rows
+          const validData = transformedData.filter((row) => {
+            const phone = phoneColumn ? String(row[phoneColumn] || '').trim() : ''
+            const hasPhone = isValidPhone(phone)
+            const hasName = hasValidName(row)
+
+            // Row is valid if it has valid phone AND valid name
+            return hasPhone && hasName
+          })
+
+          const filteredCount = transformedData.length - validData.length
+          if (filteredCount > 0) {
+            console.log(
+              `Filtered out ${filteredCount} rows that don't meet requirements (phone and name required)`,
+            )
+          }
+
           // Update state
-          // console.log("Transformed data (first 10):", JSON.stringify(transformedData.slice(0, 10), null, 2));
-          setProcessedData(transformedData)
+          console.log("Transformed data (first 10):", JSON.stringify(validData.slice(0, 10), null, 2));
+          setProcessedData(validData)
           setNewColumnsObtained(mappedColumns) // Store the column mappings
         }
       }
@@ -1541,22 +1633,66 @@ const Leads1 = () => {
                   Match columns in your file to column fields
                 </div>
 
-                <div
-                  className="flex flex-row items-center mt-4"
-                  style={{ ...styles.paragraph, color: '#00000070' }}
-                >
-                  <div className="w-2/12">Matched</div>
-                  <div className="w-3/12">Column Header from File</div>
-                  <div className="w-3/12">Preview Info</div>
-                  <div className="w-3/12">Column Fields</div>
-                  <div className="w-1/12">Action</div>
-                </div>
+                {processedData && processedData.length === 0 && (
+                  <>
+                    <div
+                      className="mt-4 p-4 rounded-lg"
+                      style={{
+                        backgroundColor: '#fff3cd',
+                        border: '1px solid #ffc107',
+                        color: '#856404',
+                      }}
+                    >
+                      <strong>No valid leads found.</strong> All rows were filtered out because they don't meet the requirements:
+                      <ul className="mt-2 ml-4 list-disc">
+                        <li>Must have a valid phone number</li>
+                        <li>Must have at least one: First Name OR Last Name OR Full Name</li>
+                      </ul>
+                    </div>
+                    <div className="w-full flex flex-row justify-center mt-6">
+                      <button
+                        className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
+                        onClick={() => {
+                          // Reset state
+                          setProcessedData([])
+                          setNewColumnsObtained([])
+                          setSheetName('')
+                          setSelectedFile(null)
+                          // Open file upload modal
+                          setShowUploadLeadModal(false)
+                          setShowAddLeadModal(true)
+                        }}
+                      >
+                        <Image
+                          src={'/assets/addManIcon.png'}
+                          height={20}
+                          width={20}
+                          alt="*"
+                        />
+                        <span style={styles.headingStyle}>Upload Leads</span>
+                      </button>
+                    </div>
+                  </>
+                )}
 
-                <div
-                  className="overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-[55px]"
-                  style={{ height: 'calc(100vh - 500px)' }}
-                >
-                  {NewColumnsObtained.map((item, index) => {
+                {processedData && processedData.length > 0 && (
+                  <>
+                    <div
+                      className="flex flex-row items-center mt-4"
+                      style={{ ...styles.paragraph, color: '#00000070' }}
+                    >
+                      <div className="w-2/12">Matched</div>
+                      <div className="w-3/12">Column Header from File</div>
+                      <div className="w-3/12">Preview Info</div>
+                      <div className="w-3/12">Column Fields</div>
+                      <div className="w-1/12">Action</div>
+                    </div>
+
+                    <div
+                      className="overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple pb-[55px]"
+                      style={{ height: 'calc(100vh - 500px)' }}
+                    >
+                      {NewColumnsObtained.map((item, index) => {
                     // const matchingValue = processedData.find((data) =>
                     //   Object.keys(data).includes(item.dbName)
                     // );
@@ -1592,7 +1728,9 @@ const Leads1 = () => {
                         </div>
                         <div className="w-3/12">{item.ColumnNameInSheet}</div>
                         <div className="w-3/12 truncate">
-                          {processedData[0][item.ColumnNameInSheet]}
+                          {processedData && processedData.length > 0
+                            ? processedData[0][item.ColumnNameInSheet] || ''
+                            : ''}
                           {/* {item.matchedColumn ? (
                           processedData[0][item.matchedColumn.dbName]
                         ) : (
@@ -1678,42 +1816,46 @@ const Leads1 = () => {
                       </div>
                     )
                   })}
-                </div>
+                    </div>
+                  </>
+                )}
 
-                <div
-                  className=""
-                  style={{
-                    position: 'absolute',
-                    bottom: 10,
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: '100%',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  {Loader ? (
-                    <CircularProgress size={27} />
-                  ) : (
-                    <button
-                      className="bg-brand-primary text-white rounded-lg h-[50px] w-4/12"
-                      onClick={() => {
-                        // validateColumns();
-                        let validated = validateColumns()
+                {processedData && processedData.length > 0 && (
+                  <div
+                    className=""
+                    style={{
+                      position: 'absolute',
+                      bottom: 10,
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: '100%',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {Loader ? (
+                      <CircularProgress size={27} />
+                    ) : (
+                      <button
+                        className="bg-brand-primary text-white rounded-lg h-[50px] w-4/12"
+                        onClick={() => {
+                          // validateColumns();
+                          let validated = validateColumns()
 
-                        console.log('Validated', validated)
-                        // return;
-                        if (validated) {
-                          console.log('Show enrich')
-                          handleAddLead()
-                        }
-                      }}
-                    >
-                      Continue
-                    </button>
-                  )}
-                </div>
+                          console.log('Validated', validated)
+                          // return;
+                          if (validated) {
+                            console.log('Show enrich')
+                            handleAddLead()
+                          }
+                        }}
+                      >
+                        Continue
+                      </button>
+                    )}
+                  </div>
+                )}
 
                 {/* Can be use full to add shadow */}
                 {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}

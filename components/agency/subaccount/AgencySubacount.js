@@ -4,7 +4,7 @@ import { Box, CircularProgress, Modal, Popover } from '@mui/material'
 import axios from 'axios'
 import moment from 'moment'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 
 import SelectedUserDetails from '@/components/admin/users/SelectedUserDetails'
 import AdminGetProfileDetails from '@/components/admin/AdminGetProfileDetails'
@@ -105,6 +105,16 @@ function AgencySubacount({ selectedAgency }) {
   const [showXBarPopup, setShowXBarPopup] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  // Pagination state for lazy scroll
+  const [paginationOffset, setPaginationOffset] = useState(0)
+  const [hasMore, setHasMore] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [totalCount, setTotalCount] = useState(0)
+  
+  // Refs to prevent duplicate requests and track current offset
+  const isLoadingMoreRef = useRef(false)
+  const currentOffsetRef = useRef(0)
+
   //redux data
   useEffect(() => {
     refreshUserData()
@@ -130,6 +140,96 @@ function AgencySubacount({ selectedAgency }) {
     getSubAccounts()
     fetchPlans()
   }, [])
+
+  // Update ref when offset changes
+  useEffect(() => {
+    currentOffsetRef.current = paginationOffset
+  }, [paginationOffset])
+
+  // Scroll event listener for lazy loading
+  useEffect(() => {
+    let scrollTimeout = null
+    let lastScrollTop = 0
+    let handleScroll = null
+
+    // Wait a bit for DOM to be ready
+    const timer = setTimeout(() => {
+      const scrollableDiv = document.getElementById('scrollableDiv1')
+      if (!scrollableDiv) {
+        console.log('⚠️ Scrollable div not found')
+        return
+      }
+
+      handleScroll = () => {
+        // Throttle scroll events
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout)
+        }
+
+        scrollTimeout = setTimeout(() => {
+          const { scrollTop, scrollHeight, clientHeight } = scrollableDiv
+          const distanceFromBottom = scrollHeight - scrollTop - clientHeight
+          // Trigger load more when user is within 100px of bottom
+          const threshold = 100
+          
+          // Debug logging (only when near bottom to reduce noise)
+          if (distanceFromBottom < threshold + 50) {
+            console.log('📜 Scroll near bottom:', {
+              distanceFromBottom,
+              threshold,
+              hasMore,
+              loadingMore,
+              initialLoader,
+              isLoadingMoreRef: isLoadingMoreRef.current,
+              currentOffset: currentOffsetRef.current,
+              listLength: filteredList.length,
+            })
+          }
+          
+          if (
+            distanceFromBottom < threshold &&
+            hasMore &&
+            !loadingMore &&
+            !initialLoader &&
+            !isLoadingMoreRef.current
+          ) {
+            console.log('✅ Conditions met, loading more...')
+            
+            // Get current filters and search term
+            const currentFilters = appliedFilters || null
+            const currentSearch = searchValue && searchValue.trim() ? searchValue.trim() : null
+            
+            // Use ref to get current offset synchronously
+            const offsetToUse = currentOffsetRef.current
+            console.log('🚀 Loading more subaccounts...', {
+              offsetToUse,
+              hasMore,
+              loadingMore,
+              isLoadingMoreRef: isLoadingMoreRef.current,
+            })
+            
+            // Call getSubAccounts with the current offset from ref
+            // Don't set the flag here - let getSubAccounts handle it
+            getSubAccounts(currentFilters, currentSearch, true, offsetToUse)
+          }
+        }, 150) // Throttle to 150ms to reduce rapid firing
+      }
+
+      scrollableDiv.addEventListener('scroll', handleScroll)
+    }, 100) // Small delay to ensure DOM is ready
+
+    return () => {
+      clearTimeout(timer)
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout)
+      }
+      const scrollableDiv = document.getElementById('scrollableDiv1')
+      if (scrollableDiv && handleScroll) {
+        scrollableDiv.removeEventListener('scroll', handleScroll)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasMore, loadingMore, initialLoader, appliedFilters, searchValue, filteredList.length])
 
   // Listen for refreshSelectedUser event to update selectedUser after plan subscription
   useEffect(() => {
@@ -373,23 +473,53 @@ function AgencySubacount({ selectedAgency }) {
   }
 
   // /code for getting the subaccouts list
-  const getSubAccounts = async (filterData = null, searchTerm = null) => {
-    console.log('Trigered get subaccounts')
-    if (filterData) {
-      console.log('Trigered get subaccounts to filter', filterData)
-    }
-    if (searchTerm) {
-      console.log('Trigered get subaccounts with search', searchTerm)
-    }
-    try {
+  const getSubAccounts = async (filterData = null, searchTerm = null, append = false, offset = 0) => {
+    console.log('🔵 Trigered get subaccounts', { filterData, searchTerm, append, offset, isLoadingMoreRef: isLoadingMoreRef.current })
+    
+    // If appending (lazy load), check if already loading to prevent duplicates
+    if (append) {
+      if (isLoadingMoreRef.current) {
+        console.log('⚠️ Already loading more, skipping duplicate request', {
+          isLoadingMoreRef: isLoadingMoreRef.current,
+          loadingMore,
+        })
+        return
+      }
+      console.log('✅ Setting loading flags for append mode', {
+        offset,
+        currentOffsetRef: currentOffsetRef.current,
+      })
+      setLoadingMore(true)
+      isLoadingMoreRef.current = true
+      
+      // Safety timeout to reset flag if request takes too long (10 seconds)
+      setTimeout(() => {
+        if (isLoadingMoreRef.current) {
+          console.warn('⚠️ Loading timeout - resetting flag')
+          isLoadingMoreRef.current = false
+          setLoadingMore(false)
+        }
+      }, 10000)
+    } else {
       setInitialLoader(true)
+      // Reset pagination when starting fresh
+      setPaginationOffset(0)
+      currentOffsetRef.current = 0
+      setHasMore(true)
+      isLoadingMoreRef.current = false
+    }
 
+    try {
       let ApiPAth = Apis.getAgencySubAccount
       const queryParams = []
 
       if (selectedAgency) {
         queryParams.push(`userId=${selectedAgency.id}`)
       }
+
+      // Add pagination parameters
+      queryParams.push(`offset=${offset}`)
+      queryParams.push(`limit=50`) // Default limit from backend
 
       // Add search parameter if provided
       if (searchTerm && searchTerm.trim()) {
@@ -411,28 +541,85 @@ function AgencySubacount({ selectedAgency }) {
         })
       }
 
-      // minSpent=100000&minBalance=430&maxSpent=6000&maxBalance=1000
-
       if (queryParams.length > 0) {
         ApiPAth += '?' + queryParams.join('&')
       }
 
-      console.log('Api path for get subaccounts api is', ApiPAth)
+      console.log('🌐 Making API request:', ApiPAth)
       const Token = AuthToken()
-      // console.log(Token);
       const response = await axios.get(ApiPAth, {
         headers: {
           Authorization: 'Bearer ' + Token,
           'Content-Type': 'application/json',
         },
       })
-      console.log('Response of get subaccounts api 1 is', response)
-      if (response) {
-        console.log('Response of get subaccounts api is', response.data)
-        setSubAccountsList(response.data.data)
-        setFilteredList(response.data.data)
+      
+      console.log('✅ API Response received:', {
+        status: response.data?.status,
+        dataLength: response.data?.data?.length,
+        pagination: response.data?.pagination,
+      })
+      if (response && response.data) {
+        const newAccounts = response.data.data || []
+        const pagination = response.data.pagination || {}
+        
+        // Update total count
+        if (pagination.total !== undefined) {
+          setTotalCount(pagination.total)
+        }
+        
+        // Update hasMore based on pagination
+        const currentOffset = pagination.offset || offset
+        const limit = pagination.limit || 50
+        const total = pagination.total || 0
+        const returned = pagination.returned || newAccounts.length
+        
+        // Calculate hasMore: if we got fewer items than requested, or if offset + returned < total
+        const hasMoreData = returned === limit && (currentOffset + returned < total)
+        console.log('Pagination calculation:', {
+          currentOffset,
+          returned,
+          limit,
+          total,
+          hasMoreData,
+          calculation: `${currentOffset} + ${returned} < ${total} = ${currentOffset + returned < total}`,
+        })
+        setHasMore(hasMoreData)
+        
+        if (append) {
+          // Append new accounts to existing list, preventing duplicates by ID
+          setSubAccountsList((prev) => {
+            const existingIds = new Set(prev.map((item) => item.id))
+            const uniqueNewAccounts = newAccounts.filter((item) => !existingIds.has(item.id))
+            console.log(`Appending ${uniqueNewAccounts.length} new accounts (${newAccounts.length - uniqueNewAccounts.length} duplicates filtered)`)
+            return [...prev, ...uniqueNewAccounts]
+          })
+          setFilteredList((prev) => {
+            const existingIds = new Set(prev.map((item) => item.id))
+            const uniqueNewAccounts = newAccounts.filter((item) => !existingIds.has(item.id))
+            return [...prev, ...uniqueNewAccounts]
+          })
+          // Update offset based on actual returned data
+          setPaginationOffset((prevOffset) => {
+            const newOffset = prevOffset + newAccounts.length
+            currentOffsetRef.current = newOffset // Update ref as well
+            console.log(`Updated offset: ${prevOffset} -> ${newOffset}`)
+            return newOffset
+          })
+        } else {
+          // Replace list with new data
+          setSubAccountsList(newAccounts)
+          setFilteredList(newAccounts)
+          const newOffset = newAccounts.length
+          setPaginationOffset(newOffset)
+          currentOffsetRef.current = newOffset // Update ref as well
+        }
+        
         setInitialLoader(false)
-        if (filterData) {
+        setLoadingMore(false)
+        isLoadingMoreRef.current = false // Reset flag after request completes
+        
+        if (filterData && !append) {
           setShowFilterModal(false)
           setShowSnackMessage('Filter Applied')
           setShowSnackType(SnackbarTypes.Success)
@@ -441,6 +628,8 @@ function AgencySubacount({ selectedAgency }) {
     } catch (error) {
       console.error('Error occured in getsub accounts is', error)
       setInitialLoader(false)
+      setLoadingMore(false)
+      isLoadingMoreRef.current = false // Reset flag on error
     }
   }
 
@@ -767,7 +956,7 @@ function AgencySubacount({ selectedAgency }) {
                 color: 'white',
               }}
             >
-              Total Sub Accounts: {filteredList?.length || 0}
+              Total Sub Accounts: {totalCount > 0 ? totalCount : (filteredList?.length || 0)}
             </div>
 
             <button
@@ -1168,6 +1357,24 @@ function AgencySubacount({ selectedAgency }) {
                     </Popover>
                   </div>
                 ))}
+                
+                {/* Loading indicator for lazy scroll */}
+                {loadingMore && (
+                  <div className="w-full flex flex-row items-center justify-center py-4">
+                    <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                    <span className="ml-2 text-sm text-gray-600">Loading more...</span>
+                  </div>
+                )}
+                
+                {/* End of list indicator */}
+                {!hasMore && filteredList.length > 0 && (
+                  <div className="w-full flex flex-row items-center justify-center py-4">
+                    <span className="text-sm text-gray-500">
+                      End of list
+                      {/* Showing {filteredList.length} of {totalCount} subaccounts */}
+                    </span>
+                  </div>
+                )}
               </div>
             ) : (
               <div
