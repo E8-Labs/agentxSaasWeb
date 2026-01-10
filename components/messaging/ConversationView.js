@@ -492,7 +492,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
       // if (selectedThread?.lead?.firstName) {
       //   return selectedThread.lead.firstName
       // }
-      return 'Admin'
+      return null
     }
 
     const callerName = getCallerName()
@@ -552,9 +552,9 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                 {/* Activity log: Called by [Name] on [Date] */}
 
                 {
-                  callerName === 'Admin' ?
+                  callerName === null ?
                     (<div className="text-xs text-system-text text-center px-4 mb-2">
-                      <strong className="font-semibold">{callerName}</strong> was called on {callDate}
+                      <strong className="font-semibold">This lead</strong> was called on {callDate}
                     </div>) :
                     (
 
