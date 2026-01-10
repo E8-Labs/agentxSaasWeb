@@ -1561,6 +1561,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                 upgradeResult,
               )
               getProfile()
+              getCardsList()
             }
           }}
           plan={selectedPlan}
@@ -1589,6 +1590,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                   upgradeResult,
                 )
                 getProfile()
+                getCardsList()
               }
             }}
             plan={selectedPlan}

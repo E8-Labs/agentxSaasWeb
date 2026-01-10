@@ -97,6 +97,7 @@ import {
 } from '@/utilities/agentUtilities'
 import { GetFormattedDateString } from '@/utilities/utility'
 import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
+import AdminGetProfileDetails from '../AdminGetProfileDetails'
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
   // Redux hooks for upgrade modal functionality
@@ -171,6 +172,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const [showMainAgent, setShowMainAgent] = useState(null)
   //calender details of selected agent
   const [calendarDetails, setCalendarDetails] = useState(null)
+  const [addNewAgentLoader, setAddNewAgentLoader] = useState(false)
 
   // Helper function to check if user is admin or agency
   const isAdminOrAgency = () => {
@@ -188,6 +190,16 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     }
     return false
   }
+
+  useEffect(() => {
+   const upateUserDetails = async () => {
+    let data = await AdminGetProfileDetails(selectedUser.id)
+    if (data) {
+      setMergedUser(data)
+    }
+  }
+  upateUserDetails()
+  }, [selectedUser])
 
   // Store agent state when drawer is opened (only for admin/agency users)
   const storeAgentState = (agent) => {
@@ -2770,12 +2782,16 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   }
 
   //function to add new agent
-  const handleAddNewAgent = (event) => {
+  const handleAddNewAgent =async (event) => {
+    setAddNewAgentLoader(true)
     event.preventDefault()
     // Use mergedUser which includes latest data from localStorage
-    const userToCheck = mergedUser || selectedUser
-    console.log('selectedUser create agent', userToCheck)
-    
+    let userToCheck = mergedUser || selectedUser
+    userToCheck = await AdminGetProfileDetails(selectedUser.id)
+    console.log('userToCheck in handleAddNewAgent', userToCheck)
+    if (userToCheck) {
+      setMergedUser(userToCheck)
+    }    
     if (!userToCheck?.plan) {
       console.log('User has no plan subscribed')
       setIsVisibleSnack2(true)
@@ -2877,6 +2893,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       // router.push("/createagent");
       window.location.href = '/createagent'
     }
+    setAddNewAgentLoader(false)
   }
 
   const handlePopoverOpen = (event, item) => {

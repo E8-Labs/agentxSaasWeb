@@ -29,4 +29,5 @@ export const UserTypes = {
   LoanOfficerAgent: 'LoanOfficerAgent',
   LawAgent: 'LawAgent',
   Admin: 'admin',
+  Creator: 'Creator',
 }
