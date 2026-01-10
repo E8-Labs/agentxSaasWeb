@@ -1297,6 +1297,52 @@ const NewMessageModal = ({
         })
       }
 
+      // Create template if "Save as template" is enabled
+      if (saveAsTemplate && successCount > 0) {
+        try {
+          const user = getUserLocalData()
+          const userId = user?.user?.id
+
+          // Generate template name from subject or use default
+          const templateName = selectedMode === 'email'
+            ? (emailSubject?.trim() || 'Email Template')
+            : 'SMS Template'
+
+          let templateData = {
+            communicationType: selectedMode,
+            templateName: templateName,
+            content: messageBody,
+          }
+
+          // Add email-specific fields
+          if (selectedMode === 'email') {
+            templateData.subject = emailSubject
+            templateData.ccEmails = ccEmails
+            templateData.bccEmails = bccEmails
+            templateData.attachments = attachments
+            templateData.emailAccountId = selectedEmailAccount
+          }
+
+          // Add SMS-specific fields
+          if (selectedMode === 'sms') {
+            templateData.smsPhoneNumberId = selectedPhoneNumber
+          }
+
+          // Add userId if provided
+          if (userId) {
+            templateData.userId = userId
+          }
+
+          const response = await createTemplete(templateData)
+          if (response?.data?.status === true) {
+            // toast.success('Template created successfully')
+          }
+        } catch (error) {
+          console.error('Error creating template:', error)
+          // Don't show error toast as message was already sent
+        }
+      }
+
       // Close modal after a brief delay to show success (only if at least one succeeded)
       if (successCount > 0) {
         setTimeout(() => {
@@ -2367,7 +2413,7 @@ const NewMessageModal = ({
             </div>
             
                 {/* Save as template checkbox - only in lead mode */}
-                {isLeadMode && !isPipelineMode && (
+                {!isPipelineMode && (
                   <div className="flex items-center gap-2">
                     <Checkbox
                       checked={saveAsTemplate}
@@ -2381,21 +2427,7 @@ const NewMessageModal = ({
                 )}
               </div>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm text-gray-500">
-                  {selectedMode === 'sms' ? (
-                  <>
-                    <span>
-                        {smsMessageBody.length}/{SMS_CHAR_LIMIT} char
-                    </span>
-                    <span className="text-gray-300">|</span>
-                    <span>
-                      {Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left
-                    </span>
-                  </>
-                  ) : (
-                    ""
-                )}
-              </div>
+            
               <button
                 onClick={handleSend}
                 disabled={

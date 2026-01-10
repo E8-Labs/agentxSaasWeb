@@ -56,6 +56,7 @@ function AdminBasicInfo({ selectedUser }) {
   const [CasesPerMonth, setCasessPerMonth] = useState('')
 
   const [isNameChanged, setIsNameChanged] = useState(false)
+  const [isEmailChanged, setIsEmailChanged] = useState(false)
   const [isTransactionChanged, setIsTransactionChange] = useState('')
   const [isFarmChanged, setIsFarmChanged] = useState(false)
   const [isBrokerageChanged, setIsBrokerageChanged] = useState(false)
@@ -90,12 +91,14 @@ function AdminBasicInfo({ selectedUser }) {
   const [loading12, setLoading12] = useState(false)
   const [loading13, setLoading13] = useState(false)
   const [loading14, setLoading14] = useState(false)
+  const [loading15, setLoading15] = useState(false)
 
   const [srviceLoader, setServiceLoader] = useState(false)
   const [areaLoading, setAreaLoading] = useState(false)
 
   // Refs for input fields
   const nameRef = useRef(null)
+  const emailRef = useRef(null)
   const farmRef = useRef(null)
   const serviceAreaRef = useRef(null)
   const brokerAgeRef = useRef(null)
@@ -358,6 +361,18 @@ function AdminBasicInfo({ selectedUser }) {
       setIsNameChanged(false)
     } catch (e) {
       setloading(false)
+    }
+  }
+
+  const handleEmailSave = async () => {
+    try {
+      setLoading15(true)
+      const data = { email: email }
+      await UpdateProfile(data)
+      setLoading15(false)
+      setIsEmailChanged(false)
+    } catch (e) {
+      setLoading15(false)
     }
   }
 
@@ -741,31 +756,56 @@ function AdminBasicInfo({ selectedUser }) {
       >
         Email address
       </div>
-      <div
-        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 outline-none focus:ring-0"
-        style={{
-          border: `1px solid ${focusedEmail ? '#8a2be2' : '#00000010'}`,
-          transition: 'border-color 0.3s ease',
-        }}
-      >
-        <input
-          readOnly
-          className="w-11/12 outline-none focus:ring-0"
-          // onFocus={() => setFocusedEmail(true)}
-          // onBlur={() => setFocusedEmail(false)}
-          value={email}
-          onChange={(event) => {
-            setEmail(event.target.value)
+      <div className="flex items-center w-6/12 mt-2 gap-2">
+        <div
+          className="flex items-center rounded-lg px-3 py-2 w-full"
+          style={{
+            border: `1px solid ${focusedEmail ? '#8a2be2' : '#00000010'}`,
+            transition: 'border-color 0.3s ease',
           }}
-          type="text"
-          placeholder="Email"
-          style={{ border: '0px solid #000000', outline: 'none' }}
-        />
-        {/* {
- email.length > 0 && (
- <button style={{ color: " #8a2be2", fontSize: "14px", fontWeight: "600" }}>Save</button>
- )
- } */}
+        >
+          <input
+            ref={emailRef}
+            className="w-11/12 outline-none focus:ring-0"
+            onFocus={() => setFocusedEmail(true)}
+            onBlur={() => setFocusedEmail(false)}
+            value={email}
+            onChange={(event) => {
+              setEmail(event.target.value)
+              setIsEmailChanged(true)
+            }}
+            type="email"
+            placeholder="Email"
+            style={{ border: '0px solid hsl(var(--brand-primary))', outline: 'none' }}
+          />
+        </div>
+        {isEmailChanged ? (
+          loading15 ? (
+            <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+          ) : (
+            <button
+              onClick={async () => {
+                handleEmailSave()
+              }}
+              style={{ color: ' #8a2be2', fontSize: '14px', fontWeight: '600' }}
+            >
+              Save
+            </button>
+          )
+        ) : (
+          <button
+            onClick={() => {
+              emailRef.current?.focus()
+            }}
+          >
+            <Image
+              src={'/svgIcons/editIcon.svg'}
+              width={24}
+              height={24}
+              alt="*"
+            />
+          </button>
+        )}
       </div>
 
       <div
@@ -781,7 +821,7 @@ function AdminBasicInfo({ selectedUser }) {
       <div
         className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 outline-none focus:ring-0"
         style={{
-          border: `1px solid ${focusedEmail ? '#8a2be2' : '#00000010'}`,
+          border: `1px solid #00000010`,
           transition: 'border-color 0.3s ease',
         }}
       >
