@@ -609,7 +609,9 @@ function SelectedUserDetails({
                 </div>
               </div>
               <div
-                className={`flex flex-col items-center justify-center ${agencyUser ? 'h-[95vh]' : 'h-[76vh]'} overflow-auto w-full`}
+                className={`flex flex-col ${selectedManu.name == 'Leads' ? 'items-stretch' : 'items-center justify-center'} ${agencyUser ? 'h-[95vh]' : 'h-[76vh]'} ${selectedManu.name == 'Leads' ? 'overflow-hidden' : 'overflow-auto'} w-full`}
+                id={selectedManu.name == 'Leads' ? 'adminLeadsParentContainer' : undefined}
+                style={selectedManu.name == 'Leads' ? { overflow: 'hidden', maxHeight: agencyUser ? '95vh' : '76vh' } : {}}
               >
                 {selectedManu.name == 'Leads' ? (
                   <AdminLeads1

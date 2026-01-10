@@ -1097,7 +1097,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
 
         {/* <EnrichConfirmModal /> */}
 
-        <div className="w-full  flex flex-col items-center justify-start h-full">
+        <div className="w-full flex flex-col items-center justify-start h-full">
           {userLeads ? (
             <div className="h-[95vh] w-full">
               <AdminLeads

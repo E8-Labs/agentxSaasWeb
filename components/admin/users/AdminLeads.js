@@ -35,9 +35,9 @@ import parsePhoneNumberFromString from 'libphonenumber-js'
 import moment from 'moment'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import Calendar from 'react-calendar'
-import InfiniteScroll from 'react-infinite-scroll-component'
+import InfiniteScroll from '@/components/ui/infinite-scroll'
 
 import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
 import { userLocalData } from '@/components/agency/plan/AuthDetails'
@@ -72,6 +72,8 @@ const AdminLeads = ({
   let sheetIndexSelected = useRef(0)
   let searchParams = useSearchParams()
   const router = useRouter()
+
+  // Refs for request versioning (using cursor-based pagination like Userleads)
 
   //user local data
   const [userLocalDetails, setUserLocalDetails] = useState(null)
@@ -111,9 +113,14 @@ const AdminLeads = ({
 
   const [AllLeads, setAllLeads] = useState({})
 
-  //code for pagination variables
+  //code for pagination variables (using cursor-based pagination like Userleads)
   const [hasMore, setHasMore] = useState(true)
   const [moreLeadsLoader, setMoreLeadsLoader] = useState(false)
+  const [nextCursorValue, setNextCursorValue] = useState(0)
+  const nextCursorRef = useRef(0) // Track cursor synchronously for scroll handler
+  
+  // Refs to prevent duplicate requests (like subaccounts)
+  const isLoadingMoreRef = useRef(false)
 
   //code for delete smart list popover
   const [anchorEl, setAnchorEl] = React.useState(null)
@@ -222,6 +229,17 @@ const AdminLeads = ({
     getSheets()
   }, [selectedUser])
 
+  // IntersectionObserver-based lazy loading (shadcn InfiniteScroll)
+  const [leadsScrollRoot, setLeadsScrollRoot] = useState(null)
+  const leadsScrollRootRef = useRef(null)
+  const lastNextCursorRequestedRef = useRef(null)
+  const setLeadsScrollRootEl = useCallback((el) => {
+    if (el && leadsScrollRootRef.current !== el) {
+      leadsScrollRootRef.current = el
+      setLeadsScrollRoot(el)
+    }
+  }, [])
+
   useEffect(() => {
     if (shouldSet === true) {
       //////console.log;
@@ -261,9 +279,12 @@ const AdminLeads = ({
     // Scroll to the bottom when inputs change
     setFilterLeads([])
     setLeadsList([])
+    setNextCursorValue(0) // Reset cursor when filters change
+    nextCursorRef.current = 0 // Reset ref as well
+    setHasMore(true) // Reset hasMore when filters/sheet change
     let filterText = getFilterText()
     // //console.log;
-    handleFilterLeads(0, filterText)
+    handleFilterLeads(filterText)
     setShowNoLeadsLabel(false)
   }, [filtersSelected, SelectedSheetId, selectedUser])
 
@@ -604,6 +625,8 @@ const AdminLeads = ({
           setSelectedAll(false)
           setFilterLeads([])
           setLeadsList([])
+          setNextCursorValue(0) // Reset cursor when clearing
+          nextCursorRef.current = 0 // Reset ref as well
           setShowNoLeadsLabel(true)
           handleClosePopup()
         }
@@ -700,12 +723,53 @@ const AdminLeads = ({
     }
   }
 
-  //function for filtering leads
-  const handleFilterLeads = async (offset = 0, filterText = null) => {
-    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}
-    const currentRequestVersion = ++requestVersion.current
-    try {
+  //function for filtering leads (using cursor-based pagination like Userleads)
+  const handleFilterLeads = async (filterText = null, append = false) => {
+    // Use ref value for API call to ensure we always use the latest cursor
+    const currentCursor = nextCursorRef.current
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLeads.js:801',message:'handleFilterLeads called',data:{append,currentCursor,FilterLeadsLength:FilterLeads.length,hasMore,SelectedSheetId,filterText:filterText?.substring(0,50)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+    // #endregion
+    
+    // If appending (lazy load), check if already loading to prevent duplicates (like subaccounts)
+    if (append) {
+      if (isLoadingMoreRef.current) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLeads.js:807',message:'handleFilterLeads - Already loading, skipping',data:{isLoadingMoreRef:isLoadingMoreRef.current,moreLeadsLoader},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+        // #endregion
+        console.log('⚠️ Already loading more, skipping duplicate request', {
+          isLoadingMoreRef: isLoadingMoreRef.current,
+          moreLeadsLoader,
+        })
+        return
+      }
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLeads.js:815',message:'handleFilterLeads - Setting loading flags for append',data:{currentCursor,nextCursorRef:nextCursorRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+      // #endregion
+      console.log('✅ Setting loading flags for append mode', {
+        currentCursor,
+        nextCursorRef: nextCursorRef.current,
+      })
       setMoreLeadsLoader(true)
+      isLoadingMoreRef.current = true
+    } else {
+      setSheetsLoader(true)
+      // Reset cursor when starting fresh
+      setNextCursorValue(0)
+      nextCursorRef.current = 0
+      setHasMore(true)
+      isLoadingMoreRef.current = false
+    }
+    
+    const currentRequestVersion = ++requestVersion.current
+    const currentSheetId = SelectedSheetId // Capture the sheet ID at request start
+    try {
+      // Only set loading if this is still the current request and sheet
+      if (currentRequestVersion === requestVersion.current && currentSheetId === SelectedSheetId) {
+        if (!append) {
+          setMoreLeadsLoader(true)
+        }
+      }
 
       const localData = localStorage.getItem('User')
       let AuthToken = null
@@ -725,14 +789,19 @@ const AdminLeads = ({
       //   //////console.log;
       let ApiPath = null
       if (filterText) {
-        ////console.log;
-        ApiPath = `${Apis.getLeads}?${filterText}` //&fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}`;
+        ApiPath = `${Apis.getLeads}?${filterText}`
+        if (currentCursor && currentCursor != 'undefined' && currentCursor != 0) {
+          ApiPath = ApiPath + `&id=${currentCursor}`
+        }
       } else {
-        getLocallyCachedLeads()
-        ApiPath = `${Apis.getLeads}?sheetId=${SelectedSheetId}&offset=${offset}`
+        if (currentCursor == 0) {
+          getLocallyCachedLeads()
+        }
+        ApiPath = `${Apis.getLeads}?sheetId=${SelectedSheetId}`
+        if (currentCursor && currentCursor != 'undefined' && currentCursor != 0) {
+          ApiPath = ApiPath + `&id=${currentCursor}`
+        }
       }
-      //////console.log;
-
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -742,89 +811,118 @@ const AdminLeads = ({
       })
 
       if (response) {
-        // console.log(
-        //   "Response of get leads filter api is api is :",
-        //   response.data
-        // );
         if (currentRequestVersion === requestVersion.current) {
+          const responseData = response.data
+          const responseLeads = responseData?.data || []
+          const newCursor = responseData?.nextCursor ?? 0
+          const apiHasMore = responseData?.hasMore ?? false
+          
+          // Capture the OLD cursor value before updating (to determine if this was first load)
+          const wasFirstLoad = !currentCursor || currentCursor === 0
+          
+          // Update cursor value from API response (both state and ref)
+          // IMPORTANT: Update ref FIRST, then state, to ensure ref is always current
+          nextCursorRef.current = newCursor // Update ref synchronously FIRST
+          setNextCursorValue(newCursor) // Then update state
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLeads.js:860',message:'handleFilterLeads - Updated cursor',data:{append,newCursor,apiHasMore,wasFirstLoad,dataLength:responseLeads?.length,FilterLeadsLength:FilterLeads.length,oldCursor:currentCursor},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+          // #endregion
+          console.log('[handleFilterLeads] Updated cursor', { append, newCursor, apiHasMore, wasFirstLoad, dataLength: responseLeads?.length, FilterLeadsLength: FilterLeads.length, oldCursor: currentCursor })
+          
           if (response.data.status === true) {
             setShowFilterModal(false)
-            // setLeadsList(response.data.data);
-            // setFilterLeads(response.data.data);
-            let allLeads
             setTotalLeads(response.data.leadCount)
-            setShowFilterModal(false)
-            //   setShowNoLeadErr("No leads found");
 
-            const data = response.data.data
-            if (offset == 0) {
-              let sheetId = null
-              if (data && data.length > 0) {
-                sheetId = data[0].sheetId
-                setShowNoLeadsLabel(null)
+            const data = responseLeads
+            // Get sheetId from response to verify it matches current selection
+            let sheetId = null
+            if (data && data.length > 0) {
+              sheetId = data[0].sheetId
+            }
+            
+            // Only process response if it matches the currently selected sheet
+            // This prevents race conditions when switching sheets quickly
+            // For empty responses, we process them if it's the first page
+            // because empty responses don't have a sheetId but should still be shown for the current sheet
+            const shouldProcess = (sheetId == SelectedSheetId) || 
+              (data.length === 0 && wasFirstLoad)
+            
+            if (shouldProcess) {
+              if (wasFirstLoad) {
+                // First page load
+                if (data.length > 0) {
+                  setShowNoLeadsLabel(null)
+                } else {
+                  setShowNoLeadsLabel(true)
+                }
+
+                // Only set leads if sheet matches (or empty response for first page)
+                if (sheetId == SelectedSheetId || data.length === 0) {
+                  if (data.length > 0 && sheetId == SelectedSheetId) {
+                    LeadsInSheet[SelectedSheetId] = response.data
+                    localStorage.setItem(
+                      `Leads${SelectedSheetId}`,
+                      JSON.stringify(response.data),
+                    )
+                  }
+
+                  setLeadsList(data)
+                  setFilterLeads(data)
+                }
               } else {
-                setShowNoLeadsLabel(true)
+                // For pagination, append leads only if sheet matches
+                setShowNoLeadsLabel(false)
+                if (sheetId == SelectedSheetId && data.length > 0) {
+                  setLeadsList((prevDetails) => [...prevDetails, ...data])
+                  setFilterLeads((prevDetails) => [...prevDetails, ...data])
+                }
               }
-              // //console.log;
-              // //console.log;
-              if (sheetId == SelectedSheetId) {
-                LeadsInSheet[SelectedSheetId] = response.data
-                localStorage.setItem(
-                  `Leads${SelectedSheetId}`,
-                  JSON.stringify(response.data),
-                )
-                setLeadsList(data)
-                setFilterLeads(data)
+
+              // Set columns only if sheet matches or it's an empty response
+              if (sheetId == SelectedSheetId || (data.length === 0 && wasFirstLoad)) {
+                let leads = data
+                let leadColumns = response.data.columns
+                if (leads && leadColumns) {
+                  let dynamicColumns = []
+                  if (leads.length > 0) {
+                    dynamicColumns = [
+                      ...leadColumns,
+                      {
+                        title: 'More',
+                        idDefault: false,
+                      },
+                    ]
+                  }
+                  setLeadColumns(dynamicColumns)
+                } else if (data.length === 0) {
+                  // Clear columns if no leads for this sheet
+                  setLeadColumns([])
+                }
               }
             } else {
-              setShowNoLeadsLabel(false)
-              setLeadsList((prevDetails) => [...prevDetails, ...data])
-              setFilterLeads((prevDetails) => [...prevDetails, ...data])
+              // Response is for a different sheet, ignore it
+              console.log('Ignoring response for different sheet:', sheetId, 'Current:', SelectedSheetId)
             }
 
-            let leads = data
-            let leadColumns = response.data.columns
-            //   setSelectedSheetId(item.id);
-            //   setLeadsList([]);
-            //   setFilterLeads([]);
-            if (leads && leadColumns) {
-              // //////console.log
-              // setLeadsList((prevDetails) => [...prevDetails, ...leads]);
-              // setFilterLeads((prevDetails) => [...prevDetails, ...leads]);
-              let dynamicColumns = []
-              if (leads.length > 0) {
-                dynamicColumns = [
-                  ...leadColumns,
-                  // { title: "Tag" },
-                  {
-                    title: 'More',
-                    idDefault: false,
-                  },
-                ]
-              }
-              // setLeadColumns(response.data.columns);
-              setLeadColumns(dynamicColumns)
-              // return
-            } else {
-              //////console.log;
-            }
-
-            if (data.length < 500) {
-              setHasMore(false)
-            } else {
-              setHasMore(true)
-            }
+            setHasMore(apiHasMore)
           } else {
-            // //console.log;
+            setHasMore(false)
           }
         }
       }
     } catch (error) {
-      // console.error("Error occured in api is :", error);
-    } finally {
+      console.error("Error occured in api is :", error);
       setMoreLeadsLoader(false)
       setSheetsLoader(false)
-      //////console.log;
+      isLoadingMoreRef.current = false // Reset flag on error
+    } finally {
+      // Only clear loading if this is still the current request
+      // This prevents old requests from clearing the loader when a new request has started
+      if (currentRequestVersion === requestVersion.current) {
+        setMoreLeadsLoader(false)
+        setSheetsLoader(false)
+        isLoadingMoreRef.current = false // Reset flag after request completes
+      }
     }
   }
 
@@ -848,6 +946,8 @@ const AdminLeads = ({
       setSelectedSheetId(item.id)
       setLeadsList([])
       setFilterLeads([])
+      setNextCursorValue(0) // Reset cursor when sheet changes
+      nextCursorRef.current = 0 // Reset ref as well
       if (leads && leadColumns) {
         // //////console.log
         setLeadsList((prevDetails) => [...prevDetails, ...leads])
@@ -2049,20 +2149,136 @@ const AdminLeads = ({
                             </div> */}
 
             {sheetsLoader ? (
-              <div className="w-full flex flex-row justify-center mt-12">
+              <div className="w-full flex flex-row justify-center mt-12 ">
                 <CircularProgress size={30} sx={{ color: 'hsl(var(--brand-primary))' }} />
               </div>
             ) : (
-              <div>
+              <div className="w-full flex flex-col">
                 {LeadsList.length > 0 ? (
                   <div
-                    className={`overflow-auto pb-[100px] mt-6 ${agencyUser ? 'h-[75vh]':'h-[50vh]'}`} //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
-                    id="scrollableDiv1"
-                    style={{ scrollbarWidth: 'none' }}
+                    className={`relative overflow-auto pb-[100px] mt-6 ${agencyUser ? 'h-[75vh]' : 'h-[70vh]'}`}
+                    id="adminLeadsScrollableDiv"
+                    data-component="AdminLeads"
+                    ref={setLeadsScrollRootEl}
+                    style={{ scrollbarWidth: 'none', height: agencyUser ? '75vh' : '70vh', maxHeight: agencyUser ? '75vh' : '70vh' }}
                   >
                     <InfiniteScroll
-                      className="lg:flex hidden flex-col w-full"
-                      endMessage={
+                      isLoading={moreLeadsLoader || sheetsLoader}
+                      hasMore={hasMore}
+                      root={leadsScrollRoot}
+                      rootMargin="200px"
+                      threshold={1}
+                      next={() => {
+                        const cursorToUse = nextCursorRef.current
+                        if (isLoadingMoreRef.current) return
+                        if (moreLeadsLoader || sheetsLoader) return
+                        // Avoid repeated calls when sentinel stays visible
+                        if (!FilterLeads || FilterLeads.length === 0) return
+                        if (!cursorToUse || cursorToUse === 0) return
+                        if (lastNextCursorRequestedRef.current === cursorToUse) return
+                        lastNextCursorRequestedRef.current = cursorToUse
+
+                        // #region agent log
+                        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLeads.js:next',message:'InfiniteScroll next() requested',data:{cursorToUse,hasMore,moreLeadsLoader,sheetsLoader,FilterLeadsLength:FilterLeads.length,SelectedSheetId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'S'})}).catch(()=>{});
+                        // #endregion
+                        const filterText = getFilterText()
+                        handleFilterLeads(filterText, true)
+                      }}
+                    >
+                      <div className="flex flex-col w-full pb-[20px]">
+                        <table className="table-auto w-full border-collapse border border-none">
+                          <thead>
+                            <tr style={{ fontWeight: '500' }}>
+                              {leadColumns.map((column, index) => {
+                                const isMoreColumn = column.title === 'More'
+                                const isDateColumn = column.title === 'Date'
+                                const columnWidth =
+                                  column.title === 'More' ? '200px' : '150px'
+                                return (
+                                  <th
+                                    key={index}
+                                    className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${
+                                      isMoreColumn
+                                        ? 'sticky right-0 bg-white'
+                                        : ''
+                                    }`}
+                                    style={{
+                                      whiteSpace: 'nowrap',
+                                      overflow: 'hidden',
+                                      textOverflow: 'ellipsis',
+                                      zIndex:
+                                        isMoreColumn === 'More' ? 1 : 'auto',
+                                      maxWidth: columnWidth,
+                                    }}
+                                  >
+                                    {column.title.slice(0, 1).toUpperCase()}
+                                    {column.title.slice(1)}
+                                  </th>
+                                )
+                              })}
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {FilterLeads.map((item, index) => {
+                              return (
+                                <tr key={index} className="hover:bg-gray-50">
+                                  {leadColumns.map((column, colIndex) => (
+                                    <td
+                                      key={colIndex}
+                                      className={`border-none px-4 py-2 ${
+                                        column.title === 'More'
+                                          ? 'sticky right-0 bg-white'
+                                          : ''
+                                      }`}
+                                      style={{
+                                        whiteSpace: 'nowrap',
+                                        zIndex:
+                                          column.title === 'More' ? 1 : 'auto',
+                                        width: '200px',
+                                      }}
+                                    >
+                                      {getColumnData(column, item)}
+                                    </td>
+                                  ))}
+                                </tr>
+                              )
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {moreLeadsLoader && (
+                        <div className="w-full flex flex-row justify-center mt-8">
+                          <CircularProgress
+                            size={35}
+                            sx={{ color: 'hsl(var(--brand-primary))' }}
+                          />
+                        </div>
+                      )}
+
+                      {/* Visible loading overlay (so you can see it even when we prefetch) */}
+                      {(moreLeadsLoader || sheetsLoader) && hasMore && (
+                        <div className="pointer-events-none absolute bottom-3 left-0 w-full flex justify-center">
+                          <div className="flex flex-row items-center gap-2 rounded-full border border-black/10 bg-white/90 px-3 py-2 shadow-sm backdrop-blur">
+                            <CircularProgress
+                              size={18}
+                              sx={{ color: 'hsl(var(--brand-primary))' }}
+                            />
+                            <span
+                              style={{
+                                fontWeight: '500',
+                                fontFamily: 'inter',
+                                fontSize: 12,
+                                color: '#00000080',
+                              }}
+                            >
+                              Loading more…
+                            </span>
+                          </div>
+                        </div>
+                      )}
+
+                      {!hasMore && FilterLeads.length > 0 && (
                         <p
                           style={{
                             textAlign: 'center',
@@ -2073,101 +2289,12 @@ const AdminLeads = ({
                             color: '#00000060',
                           }}
                         >
-                          {`You're all caught up`}
+                          You're all caught up
                         </p>
-                      }
-                      scrollableTarget="scrollableDiv1"
-                      dataLength={FilterLeads.length}
-                      next={() => {
-                        //////console.log;
-                        let filterText = getFilterText()
-                        handleFilterLeads(FilterLeads.length, filterText)
-                        // getLeads();
-                      }} // Fetch more when scrolled
-                      hasMore={hasMore} // Check if there's more data
-                      loader={
-                        <div className="w-full flex flex-row justify-center mt-8">
-                          {moreLeadsLoader && <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />}
-                        </div>
-                      }
-                      style={{ overflow: 'unset' }}
-                    >
-                      <table className="table-auto w-full border-collapse border border-none">
-                        <thead>
-                          <tr style={{ fontWeight: '500' }}>
-                            {/* {leadColumns.map((column, index) => (
-                                                                    // <th key={index} className="border-none px-4 py-2 text-left text-[#00000060]">
-                                                                    <th
-                                                                        key={index}
-                                                                        className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${column.title === "More" ? "sticky right-0 bg-white" : ""
-                                                                            }`}
-                                                                        style={column.title === "More" ? { zIndex: 1 } : {}}
-                                                                    >
-                                                                        {column.title.slice(0, 1).toUpperCase()}{column.title.slice(1)}
-                                                                    </th>
-                                                                ))} */}
-                            {leadColumns.map((column, index) => {
-                              const isMoreColumn = column.title === 'More'
-                              const isDateColumn = column.title === 'Date'
-                              const columnWidth =
-                                column.title === 'More' ? '200px' : '150px'
-                              return (
-                                <th
-                                  key={index}
-                                  className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${
-                                    isMoreColumn
-                                      ? 'sticky right-0 bg-white'
-                                      : ''
-                                  }`}
-                                  // style={isMoreColumn ? { zIndex: 1 } : {}}
-                                  style={{
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis',
-                                    zIndex:
-                                      isMoreColumn === 'More' ? 1 : 'auto',
-                                    maxWidth: columnWidth,
-                                  }}
-                                >
-                                  {column.title.slice(0, 1).toUpperCase()}
-                                  {column.title.slice(1)}
-                                </th>
-                              )
-                            })}
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {FilterLeads.map((item, index) => {
-                            //////console.log;
-                            return (
-                              <tr key={index} className="hover:bg-gray-50">
-                                {leadColumns.map((column, colIndex) => (
-                                  // <td key={colIndex} className="border-none px-4 py-2">
-                                  <td
-                                    key={colIndex}
-                                    className={`border-none px-4 py-2 ${
-                                      column.title === 'More'
-                                        ? 'sticky right-0 bg-white'
-                                        : ''
-                                    }`}
-                                    style={{
-                                      whiteSpace: 'nowrap',
-                                      // overflow: "hidden",
-                                      // textOverflow: "ellipsis",
-                                      // maxWidth: "150px",
-                                      zIndex:
-                                        column.title === 'More' ? 1 : 'auto',
-                                      width: '200px',
-                                    }}
-                                  >
-                                    {getColumnData(column, item)}
-                                  </td>
-                                ))}
-                              </tr>
-                            )
-                          })}
-                        </tbody>
-                      </table>
+                      )}
+
+                      {/* sentinel (must be the last child) */}
+                      <div aria-hidden="true" className="h-px w-full" />
                     </InfiniteScroll>
                   </div>
                 ) : (
