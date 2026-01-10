@@ -1,7 +1,7 @@
 'use client'
 
 import { ChevronDown, Users, Circle } from 'lucide-react'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 
 import {
   DropdownMenu,
@@ -18,6 +18,8 @@ import { TypographyBody } from './TypographyCN'
  * options: [{ id, label, avatar, selected }]
  */
 const MultiSelectDropdownCn = ({ label = 'Assign', options = [], onToggle }) => {
+  const [open, setOpen] = useState(false)
+  
   const selectedCount = useMemo(
     () => options.filter((opt) => opt.selected).length,
     [options],
@@ -28,26 +30,78 @@ const MultiSelectDropdownCn = ({ label = 'Assign', options = [], onToggle }) => 
     onToggle?.(opt, !isCurrentlySelected)
   }
 
+  // Handle open change to prevent modal closing when dropdown closes
+  const handleOpenChange = (newOpen, event) => {
+    // Prevent event from propagating when toggling dropdown
+    if (event) {
+      event.stopPropagation()
+    }
+    setOpen(newOpen)
+  }
+
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={handleOpenChange}>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center rounded-xl border border-muted/70 bg-white px-4 py-2 text-base font-regular shadow-sm focus:outline-none">
-          <Users className="mr-2 h-4 w-4" />
-          <TypographyBody>
-          <span>{label}</span>
-          </TypographyBody>
-          {selectedCount ? (
-            <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-foreground">
-              {selectedCount}
-            </span>
-          ) : null}
-          <span className="mx-3 h-6 w-px bg-muted/80" />
-          <ChevronDown className="h-4 w-4 text-foreground" />
+        <button 
+          className="flex items-center rounded-lg border border-gray-300 bg-white px-2 py-2 text-base font-regular shadow-sm focus:outline-none hover:bg-gray-50 h-[36px]"
+          onMouseDown={(e) => {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MultiSelectDropdownCn.js:47',message:'MultiSelect trigger mousedown',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            // #endregion
+            // Prevent event from bubbling up to modal close handler
+            e.stopPropagation()
+          }}
+          onClick={(e) => {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MultiSelectDropdownCn.js:52',message:'MultiSelect trigger click',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            // #endregion
+            // Prevent event from bubbling up to modal close handler
+            e.stopPropagation()
+          }}
+        >
+          {selectedCount > 0 && options.find(opt => opt.selected) ? (
+            <>
+              {options.find(opt => opt.selected)?.avatar ? (
+                <img
+                  src={options.find(opt => opt.selected).avatar}
+                  alt={options.find(opt => opt.selected).label}
+                  className="w-5 h-5 rounded-full object-cover mr-1"
+                />
+              ) : (
+                <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-semibold mr-1">
+                  {options.find(opt => opt.selected)?.label?.[0]?.toUpperCase() || '?'}
+                </div>
+              )}
+              <TypographyBody className="text-sm text-foreground">
+                {options.find(opt => opt.selected)?.label || label}
+              </TypographyBody>
+            </>
+          ) : (
+            <>
+              <Users className="mr-1 h-4 w-4 text-muted-foreground" />
+              <TypographyBody className="text-sm text-foreground">
+                <span>{label}</span>
+              </TypographyBody>
+            </>
+          )}
+          <span className="mx-2 h-5 w-px bg-gray-300" />
+          <ChevronDown className="h-3 w-3 text-muted-foreground" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
         className="z-[2000] w-64 border border-muted/70 bg-white text-foreground shadow-lg px-1 max-h-[300px] overflow-y-auto"
+        onInteractOutside={(e) => {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'MultiSelectDropdownCn.js:88',message:'MultiSelect onInteractOutside',data:{targetTag:e.target.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'post-fix-v4',hypothesisId:'B'})}).catch(()=>{});
+          // #endregion
+          // Only prevent if clicking inside the task board (to prevent modal from closing)
+          // Otherwise, let the dropdown close normally
+          const taskBoard = document.querySelector('[data-task-board]')
+          if (taskBoard && taskBoard.contains(e.target)) {
+            e.preventDefault()
+          }
+        }}
       >
         <DropdownMenuLabel className="px-2 text-sm font-semibold text-muted-foreground">
           Assign agents

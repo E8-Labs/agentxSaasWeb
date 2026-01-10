@@ -13,14 +13,16 @@ import { TypographyBody } from '@/lib/typography'
  * @param {string} props.value - Currently selected value
  * @param {function} props.onChange - Callback when selection changes (value: string) => void
  * @param {string} props.className - Optional additional classes
+ * @param {string} props.height - Optional height class (e.g., 'p-1', 'p-2', 'p-1.5')
+ * @param {string} props.roundedness - Optional roundedness class (e.g., 'rounded-lg', 'rounded-xl', 'rounded-md')
  */
-const ToggleGroupCN = ({ options = [], value, onChange, className }) => {
+const ToggleGroupCN = ({ options = [], value, onChange, className, height = 'p-2', roundedness = 'rounded-xl' }) => {
   return (
     <div
       style={{
         backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
       }}
-      className={cn("p-2 rounded-xl flex flex-row items-center justify-center gap-2", className)}
+      className={cn(height, roundedness, "flex flex-row items-center justify-center gap-2", className)}
     >
       {options.map((option) => {
         const isSelected = value === option.value

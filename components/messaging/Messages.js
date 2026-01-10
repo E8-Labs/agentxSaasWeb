@@ -2355,7 +2355,7 @@ const Messages = () => {
         ) : (
 
           <div className="w-full h-screen flex flex-col bg-white">
-            <MessageHeader />
+            <MessageHeader selectedThread={selectedThread} />
             <div className="flex-1 flex flex-row">
               {/* Left Sidebar - Thread List */}
               {(() => {

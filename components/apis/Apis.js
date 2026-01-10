@@ -126,6 +126,13 @@ const Apis = {
   AssignLeadToTeam: `${BasePath}api/team/assignLeadToTeam`,
   unassignLeadFromTeam: `${BasePath}api/team/unassignLeadFromTeam`,
 
+  // Tasks API
+  getTasks: `${BasePath}api/tasks`,
+  createTask: `${BasePath}api/tasks`,
+  updateTask: `${BasePath}api/tasks`,
+  deleteTask: `${BasePath}api/tasks`,
+  getTaskStats: `${BasePath}api/tasks/stats`,
+
   delNumber: `${BasePath}api/agent/deletePhoneNumber`,
   calcelPlanReason: `${BasePath}api/user/addCancelPlanReason`,
   sendFeedbback: `${BasePath}api/user/sendFeedback`,
