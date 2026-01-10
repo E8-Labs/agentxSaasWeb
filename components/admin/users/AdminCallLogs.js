@@ -17,7 +17,7 @@ function AdminCallLogs({ selectedUser }) {
   const [activeTab, setActiveTab] = useState('All Activities')
 
   return (
-    <div className="w-full h-full bg-blue flex flex-col items-center overflow-hidden">
+    <div className="w-full h-full flex flex-col items-center overflow-hidden">
       <div
         className=" w-full h-full flex flex-row justify-between items-center px-4"
         // style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
@@ -35,7 +35,7 @@ function AdminCallLogs({ selectedUser }) {
         <div style={{ fontSize: 24, fontWeight: '600' }}>Activity</div>
       </div>
 
-      <div className=" w-full flex mt-4  gap-8 pb-2 mb-4 pl-10">
+      <div className=" w-full flex mt-4  gap-8 pb-2 mb-4 pl-10 ">
         {['All Activities', 'Campaign Activity'].map((tab) => (
           <button
             key={tab}
@@ -52,9 +52,10 @@ function AdminCallLogs({ selectedUser }) {
         ))}
       </div>
 
-      <div className="flex  flex-1 w-full  h-full">
+      <div className="flex  flex-1 w-full">
         {activeTab === 'All Activities' ? (
           <AdminAllCalls selectedUser={selectedUser} />
+          // <div></div>
         ) : (
           <AdminActiveCalls selectedUser={selectedUser} />
         )}

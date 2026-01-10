@@ -2,8 +2,7 @@ import { Box, CircularProgress, Modal, Popover } from '@mui/material'
 import axios from 'axios'
 import moment from 'moment'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
-import InfiniteScroll from 'react-infinite-scroll-component'
+import React, { useEffect, useState, useRef } from 'react'
 
 import Apis from '@/components/apis/Apis'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
@@ -50,8 +49,16 @@ function AdminActiveCalls({ selectedUser }) {
   const [extraTagsModal, setExtraTagsModal] = useState(false)
   const [otherTags, setOtherTags] = useState([])
 
+  // Refs to prevent duplicate requests and track current offset (like AgencySubacount)
+  const isLoadingMoreAgentsRef = useRef(false)
+  const currentAgentsOffsetRef = useRef(0)
+  const isLoadingMoreLeadsRef = useRef(false)
+  const currentLeadsOffsetRef = useRef(0)
+  const scrollHandlerAgentsRef = useRef(null)
+  const scrollHandlerLeadsRef = useRef(null)
+
   useEffect(() => {
-    getAgents()
+    getAgents(0)
     let localD = localStorage.getItem(PersistanceKeys.LocalStorageUser)
     if (localD) {
       let d = JSON.parse(localD)
@@ -59,6 +66,137 @@ function AdminActiveCalls({ selectedUser }) {
     }
     // getSheduledCallLogs();
   }, [selectedUser])
+
+  // Update refs when lists change
+  useEffect(() => {
+    currentAgentsOffsetRef.current = filteredAgentsList.length
+  }, [filteredAgentsList.length])
+
+  useEffect(() => {
+    currentLeadsOffsetRef.current = filteredSelectedLeadsList.length
+  }, [filteredSelectedLeadsList.length])
+
+  // Scroll event listener for agents list lazy loading (same pattern as AgencySubacount)
+  useEffect(() => {
+    let scrollTimeout = null
+
+    // Wait a bit for DOM to be ready
+    const timer = setTimeout(() => {
+      const scrollableDiv = document.getElementById('scrollableDiv1')
+      if (!scrollableDiv) {
+        console.log('⚠️ Scrollable div not found for agents list')
+        return
+      }
+
+      // Remove old listener if exists
+      if (scrollHandlerAgentsRef.current) {
+        scrollableDiv.removeEventListener('scroll', scrollHandlerAgentsRef.current)
+      }
+
+      const handleScroll = () => {
+        // Throttle scroll events
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout)
+        }
+
+        scrollTimeout = setTimeout(() => {
+          const { scrollTop, scrollHeight, clientHeight } = scrollableDiv
+          const distanceFromBottom = scrollHeight - scrollTop - clientHeight
+          // Trigger load more when user is within 100px of bottom
+          const threshold = 100
+          
+          if (
+            distanceFromBottom < threshold &&
+            hasMoreCalls &&
+            !callsLoading &&
+            !initialLoader &&
+            !isLoadingMoreAgentsRef.current
+          ) {
+            // Use ref to get current offset synchronously
+            const offsetToUse = currentAgentsOffsetRef.current
+            getAgents(offsetToUse)
+          }
+        }, 150) // Throttle to 150ms to reduce rapid firing
+      }
+
+      scrollHandlerAgentsRef.current = handleScroll
+      scrollableDiv.addEventListener('scroll', handleScroll, { passive: true })
+    }, 100) // Small delay to ensure DOM is ready
+
+    return () => {
+      clearTimeout(timer)
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout)
+      }
+      const scrollableDiv = document.getElementById('scrollableDiv1')
+      if (scrollableDiv && scrollHandlerAgentsRef.current) {
+        scrollableDiv.removeEventListener('scroll', scrollHandlerAgentsRef.current)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasMoreCalls, callsLoading, initialLoader, filteredAgentsList.length])
+
+  // Scroll event listener for leads list lazy loading (in modal)
+  useEffect(() => {
+    if (!showLeadDetailsModal) return // Only setup when modal is open
+
+    let scrollTimeout = null
+
+    // Wait a bit for DOM to be ready
+    const timer = setTimeout(() => {
+      const scrollableDiv = document.getElementById('scrollableDivLeads')
+      if (!scrollableDiv) {
+        console.log('⚠️ Scrollable div not found for leads list')
+        return
+      }
+
+      // Remove old listener if exists
+      if (scrollHandlerLeadsRef.current) {
+        scrollableDiv.removeEventListener('scroll', scrollHandlerLeadsRef.current)
+      }
+
+      const handleScroll = () => {
+        // Throttle scroll events
+        if (scrollTimeout) {
+          clearTimeout(scrollTimeout)
+        }
+
+        scrollTimeout = setTimeout(() => {
+          const { scrollTop, scrollHeight, clientHeight } = scrollableDiv
+          const distanceFromBottom = scrollHeight - scrollTop - clientHeight
+          // Trigger load more when user is within 100px of bottom
+          const threshold = 100
+          
+          if (
+            distanceFromBottom < threshold &&
+            hasMoreLeads &&
+            !leadsLoading &&
+            !isLoadingMoreLeadsRef.current &&
+            SelectedItem
+          ) {
+            // Use ref to get current offset synchronously
+            const offsetToUse = currentLeadsOffsetRef.current
+            fetchLeadsInBatch(SelectedItem, offsetToUse)
+          }
+        }, 150) // Throttle to 150ms to reduce rapid firing
+      }
+
+      scrollHandlerLeadsRef.current = handleScroll
+      scrollableDiv.addEventListener('scroll', handleScroll, { passive: true })
+    }, 100) // Small delay to ensure DOM is ready
+
+    return () => {
+      clearTimeout(timer)
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout)
+      }
+      const scrollableDiv = document.getElementById('scrollableDivLeads')
+      if (scrollableDiv && scrollHandlerLeadsRef.current) {
+        scrollableDiv.removeEventListener('scroll', scrollHandlerLeadsRef.current)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasMoreLeads, leadsLoading, showLeadDetailsModal, filteredSelectedLeadsList.length, SelectedItem])
 
   //code to show popover
   const handleShowPopup = (event, item, agent) => {
@@ -130,7 +268,7 @@ function AdminActiveCalls({ selectedUser }) {
   }
 
   //code to get agents
-  const getAgents = async () => {
+  const getAgents = async (offset = 0) => {
     // Guard: Don't proceed if selectedUser is not available
     if (!selectedUser || !selectedUser.id) {
       console.warn('selectedUser is not available')
@@ -141,8 +279,21 @@ function AdminActiveCalls({ selectedUser }) {
       return
     }
 
+    // Prevent duplicate requests
+    if (isLoadingMoreAgentsRef.current && offset !== 0) {
+      return
+    }
+
+    // Set loading flag for pagination requests
+    if (offset !== 0) {
+      isLoadingMoreAgentsRef.current = true
+      setCallsLoading(true)
+    }
+
     try {
-      setInitialLoader(true)
+      if (offset === 0) {
+        setInitialLoader(true)
+      }
 
       let AuthToken = null
       const localData = localStorage.getItem('User')
@@ -163,13 +314,15 @@ function AdminActiveCalls({ selectedUser }) {
         mainAgent = agentDetails
       }
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
-      let ApiPath = `${Apis.getSheduledCallLogs}?userId=${selectedUser.id}`
+      let ApiPath = `${Apis.getSheduledCallLogs}?userId=${selectedUser.id}&offset=${offset}&limit=${Limit}`
 
       console.log(
         'Fetching call activity for userId:',
         selectedUser.id,
         'API Path:',
         ApiPath,
+        'offset:',
+        offset,
       )
       // //console.log; //scheduled
       // return
@@ -183,25 +336,46 @@ function AdminActiveCalls({ selectedUser }) {
       if (response && response.data) {
         if (response.data.status && response.data.data) {
           console.log('call activity list is', response.data.data)
-          setFilteredAgentsList(response.data.data)
-          setCallDetails(response.data.data)
-          setAgentsList(response.data.data)
+          if (offset === 0) {
+            setFilteredAgentsList(response.data.data)
+            setCallDetails(response.data.data)
+            setAgentsList(response.data.data)
+          } else {
+            setFilteredAgentsList((prev) => [...prev, ...response.data.data])
+            setCallDetails((prev) => [...prev, ...response.data.data])
+            setAgentsList((prev) => [...prev, ...response.data.data])
+          }
+
+          // Update hasMore based on response
+          if (response.data.data.length < Limit) {
+            setHasMoreCalls(false)
+          } else {
+            setHasMoreCalls(true)
+          }
         } else {
           // No data returned
           console.log('No call activity data:', response.data.message)
-          setFilteredAgentsList([])
-          setCallDetails([])
-          setAgentsList([])
+          if (offset === 0) {
+            setFilteredAgentsList([])
+            setCallDetails([])
+            setAgentsList([])
+          }
+          setHasMoreCalls(false)
         }
       }
     } catch (error) {
       console.error('Error occurred in get call activity api:', error)
-      // Set empty arrays on error
-      setFilteredAgentsList([])
-      setCallDetails([])
-      setAgentsList([])
+      // Set empty arrays on error only for first load
+      if (offset === 0) {
+        setFilteredAgentsList([])
+        setCallDetails([])
+        setAgentsList([])
+      }
+      setHasMoreCalls(false)
     } finally {
       setInitialLoader(false)
+      setCallsLoading(false)
+      isLoadingMoreAgentsRef.current = false
     }
   }
 
@@ -404,7 +578,22 @@ function AdminActiveCalls({ selectedUser }) {
     }
   }
 
-  const fetchLeadsInBatch = async (batch, offset = 0) => {
+  const fetchLeadsInBatch = async (batch, offset = null) => {
+    // Prevent duplicate requests
+    if (isLoadingMoreLeadsRef.current && offset !== null && offset !== 0) {
+      return
+    }
+
+    // Set loading flag for pagination requests
+    if (offset !== null && offset !== 0) {
+      isLoadingMoreLeadsRef.current = true
+    }
+
+    // Use current offset from ref if not provided
+    if (offset === null) {
+      offset = currentLeadsOffsetRef.current
+    }
+
     //console.log;
     try {
       let firstApiCall = false
@@ -412,7 +601,7 @@ function AdminActiveCalls({ selectedUser }) {
       let leadsInBatchLocalData = localStorage.getItem(
         PersistanceKeys.LeadsInBatch + `${batch.id}`,
       )
-      if (selectedLeadsList.length == 0) {
+      if (selectedLeadsList.length == 0 && offset === 0) {
         firstApiCall = true
         if (leadsInBatchLocalData) {
           //console.log;
@@ -432,7 +621,7 @@ function AdminActiveCalls({ selectedUser }) {
       const token = user.token // Extract JWT token
       let path =
         Apis.getLeadsInBatch +
-        `?batchId=${batch.id}&offset=${offset}&userId=${selectedUser.id}`
+        `?batchId=${batch.id}&offset=${offset}&userId=${selectedUser.id}&limit=${Limit}`
       console.log('Api Call Leads : ', path)
       const response = await fetch(path, {
         method: 'GET',
@@ -476,18 +665,27 @@ function AdminActiveCalls({ selectedUser }) {
         // setStats(data.stats.data);
       } else {
         console.error('Failed to fetch leads in batch:', data)
+        setHasMoreLeads(false)
       }
     } catch (error) {
       console.error('Error fetching leads in batch:', error)
+      setHasMoreLeads(false)
+    } finally {
+      isLoadingMoreLeadsRef.current = false
     }
   }
 
-  const fetchCallsInBatch = async (batch) => {
+  const fetchCallsInBatch = async (batch, offset = null) => {
+    // Use current offset from ref if not provided
+    if (offset === null) {
+      offset = sheduledCalllogs.length
+    }
+
     //console.log;
     try {
       let firstCall = false
       setCallsLoading(true)
-      if (sheduledCalllogs.length == 0) {
+      if (sheduledCalllogs.length == 0 && offset === 0) {
         firstCall = true
         // let leadsInBatchLocalData = localStorage.getItem(
         //   PersistanceKeys.CallsInBatch + `${batch.id}`
@@ -510,7 +708,7 @@ function AdminActiveCalls({ selectedUser }) {
       //console.log;
       const response = await fetch(
         '/api/calls/callsInABatch' +
-          `?batchId=${batch.id}&offset=${sheduledCalllogs.length}`,
+          `?batchId=${batch.id}&offset=${offset}&limit=${Limit}`,
         {
           method: 'GET',
           headers: {
@@ -550,9 +748,11 @@ function AdminActiveCalls({ selectedUser }) {
         // setStats(data.stats.data);
       } else {
         console.error('Failed to fetch leads in batch:', data.message)
+        setHasMoreCalls(false)
       }
     } catch (error) {
       console.error('Error fetching leads in batch:', error)
+      setHasMoreCalls(false)
     }
   }
 
@@ -671,43 +871,7 @@ function AdminActiveCalls({ selectedUser }) {
             style={{ scrollbarWidth: 'none' }}
             id="scrollableDiv1"
           >
-            <InfiniteScroll
-              className="lg:flex hidden flex-col w-full"
-              endMessage={
-                <p
-                  style={{
-                    textAlign: 'center',
-                    paddingTop: '10px',
-                    fontWeight: '400',
-                    fontFamily: 'inter',
-                    fontSize: 16,
-                    color: '#00000060',
-                  }}
-                >
-                  {`You're all caught up`}
-                </p>
-              }
-              scrollableTarget="scrollableDiv1"
-              dataLength={filteredAgentsList.length}
-              next={() => {
-                // console.log("Trying to triger pagination");
-                if (!loading && hasMore) {
-                  getAgents({
-                    length: filteredAgentsList.length,
-                    isPagination: true,
-                    sortData: null,
-                  })
-                }
-              }} // Fetch more when scrolled
-              hasMore={hasMoreCalls} // Check if there's more data
-              loader={
-                <div className="w-full flex flex-row justify-center mt-8">
-                  <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                </div>
-              }
-              style={{ overflow: 'unset' }}
-            >
-              {filteredAgentsList?.length > 0 ? (
+            {filteredAgentsList?.length > 0 ? (
                 <div className="min-w-[70vw] overflow-x-auto scrollbar-none">
                   {/* Table Header */}
                   <div className="w-full flex flex-row items-center mt-2 px-10 gap-4">
@@ -839,7 +1003,25 @@ function AdminActiveCalls({ selectedUser }) {
                   No Activity Found
                 </div>
               )}
-            </InfiniteScroll>
+            {callsLoading && hasMoreCalls && (
+              <div className="w-full flex flex-row justify-center mt-8">
+                <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />
+              </div>
+            )}
+            {!hasMoreCalls && filteredAgentsList.length > 0 && (
+              <p
+                style={{
+                  textAlign: 'center',
+                  paddingTop: '10px',
+                  fontWeight: '400',
+                  fontFamily: 'inter',
+                  fontSize: 16,
+                  color: '#00000060',
+                }}
+              >
+                {`You're all caught up`}
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -1050,45 +1232,11 @@ function AdminActiveCalls({ selectedUser }) {
 
                     <div
                       className="h-[70svh] overflow-auto pb-[100px] mt-6"
-                      id="scrollableDiv1"
+                      id="scrollableDivLeads"
                       style={{ scrollbarWidth: 'none' }}
                     >
                       {filteredSelectedLeadsList.length > 0 ? (
                         <div className="w-full">
-                          <InfiniteScroll
-                            className="lg:flex hidden flex-col w-full"
-                            endMessage={
-                              <p
-                                style={{
-                                  textAlign: 'center',
-                                  paddingTop: '10px',
-                                  fontWeight: '400',
-                                  fontFamily: 'inter',
-                                  fontSize: 16,
-                                  color: '#00000060',
-                                }}
-                              >
-                                {`You're all caught up`}
-                              </p>
-                            }
-                            scrollableTarget="scrollableDiv1"
-                            dataLength={filteredSelectedLeadsList.length}
-                            next={() => {
-                              fetchLeadsInBatch(SelectedItem)
-                            }}
-                            hasMore={hasMoreLeads}
-                            loader={
-                              <div className="w-full flex flex-row justify-center mt-8">
-                                {leadsLoading && (
-                                  <CircularProgress
-                                    size={35}
-                                    sx={{ color: 'hsl(var(--brand-primary))' }}
-                                  />
-                                )}
-                              </div>
-                            }
-                            style={{ overflow: 'unset' }}
-                          >
                             {filteredSelectedLeadsList.map((item, index) => (
                               <div
                                 key={index}
@@ -1158,7 +1306,6 @@ function AdminActiveCalls({ selectedUser }) {
                                 </div>
                               </div>
                             ))}
-                          </InfiniteScroll>
                         </div>
                       ) : !leadsLoading ? (
                         <div className="text-center mt-6 text-3xl">
@@ -1168,6 +1315,28 @@ function AdminActiveCalls({ selectedUser }) {
                         <div className="text-center mt-6 text-3xl">
                           Loading...
                         </div>
+                      )}
+                      {leadsLoading && hasMoreLeads && (
+                        <div className="w-full flex flex-row justify-center mt-8">
+                          <CircularProgress
+                            size={35}
+                            sx={{ color: 'hsl(var(--brand-primary))' }}
+                          />
+                        </div>
+                      )}
+                      {!hasMoreLeads && filteredSelectedLeadsList.length > 0 && (
+                        <p
+                          style={{
+                            textAlign: 'center',
+                            paddingTop: '10px',
+                            fontWeight: '400',
+                            fontFamily: 'inter',
+                            fontSize: 16,
+                            color: '#00000060',
+                          }}
+                        >
+                          {`You're all caught up`}
+                        </p>
                       )}
                     </div>
                   </div>
