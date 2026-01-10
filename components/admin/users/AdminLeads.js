@@ -275,13 +275,6 @@ const AdminLeads = ({
     }
   }, [inputs])
 
-  // #region agent log
-  // Loader visibility debug: confirm state flips during pagination
-  useEffect(() => {
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLeads.js:loaderEffect',message:'Loader state changed',data:{moreLeadsLoader,sheetsLoader,hasMore,isLoadingMoreRef:isLoadingMoreRef.current,FilterLeadsLength:FilterLeads.length,SelectedSheetId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'V'})}).catch(()=>{});
-  }, [moreLeadsLoader, sheetsLoader, hasMore, SelectedSheetId])
-  // #endregion
-
   useEffect(() => {
     // Scroll to the bottom when inputs change
     setFilterLeads([])
@@ -734,35 +727,22 @@ const AdminLeads = ({
   const handleFilterLeads = async (filterText = null, append = false) => {
     // Use ref value for API call to ensure we always use the latest cursor
     const currentCursor = nextCursorRef.current
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLeads.js:801',message:'handleFilterLeads called',data:{append,currentCursor,FilterLeadsLength:FilterLeads.length,hasMore,SelectedSheetId,filterText:filterText?.substring(0,50)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-    // #endregion
     
     // If appending (lazy load), check if already loading to prevent duplicates (like subaccounts)
     if (append) {
       if (isLoadingMoreRef.current) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLeads.js:807',message:'handleFilterLeads - Already loading, skipping',data:{isLoadingMoreRef:isLoadingMoreRef.current,moreLeadsLoader},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-        // #endregion
         console.log('⚠️ Already loading more, skipping duplicate request', {
           isLoadingMoreRef: isLoadingMoreRef.current,
           moreLeadsLoader,
         })
         return
       }
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLeads.js:815',message:'handleFilterLeads - Setting loading flags for append',data:{currentCursor,nextCursorRef:nextCursorRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-      // #endregion
       console.log('✅ Setting loading flags for append mode', {
         currentCursor,
         nextCursorRef: nextCursorRef.current,
       })
       setMoreLeadsLoader(true)
       isLoadingMoreRef.current = true
-
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLeads.js:appendLoaderOn',message:'Append loader ON',data:{currentCursor,nextCursorRef:nextCursorRef.current,moreLeadsLoaderState:'set-true',isLoadingMoreRef:isLoadingMoreRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'L'})}).catch(()=>{});
-      // #endregion
     } else {
       setSheetsLoader(true)
       // Reset cursor when starting fresh
@@ -835,9 +815,6 @@ const AdminLeads = ({
           // IMPORTANT: Update ref FIRST, then state, to ensure ref is always current
           nextCursorRef.current = newCursor // Update ref synchronously FIRST
           setNextCursorValue(newCursor) // Then update state
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLeads.js:860',message:'handleFilterLeads - Updated cursor',data:{append,newCursor,apiHasMore,wasFirstLoad,dataLength:responseLeads?.length,FilterLeadsLength:FilterLeads.length,oldCursor:currentCursor},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
-          // #endregion
           console.log('[handleFilterLeads] Updated cursor', { append, newCursor, apiHasMore, wasFirstLoad, dataLength: responseLeads?.length, FilterLeadsLength: FilterLeads.length, oldCursor: currentCursor })
           
           if (response.data.status === true) {
@@ -933,10 +910,6 @@ const AdminLeads = ({
         setMoreLeadsLoader(false)
         setSheetsLoader(false)
         isLoadingMoreRef.current = false // Reset flag after request completes
-
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLeads.js:appendLoaderOff',message:'Append loader OFF (finally)',data:{append,currentCursorAtCall:currentCursor,currentRequestVersion,activeRequestVersion:requestVersion.current,hasMore,nextCursorRef:nextCursorRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'L'})}).catch(()=>{});
-        // #endregion
       }
     }
   }
@@ -2214,10 +2187,6 @@ const AdminLeads = ({
                         if (!cursorToUse || cursorToUse === 0) return
                         if (lastNextCursorRequestedRef.current === cursorToUse) return
                         lastNextCursorRequestedRef.current = cursorToUse
-
-                        // #region agent log
-                        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminLeads.js:next',message:'InfiniteScroll next() requested',data:{cursorToUse,hasMore,moreLeadsLoader,sheetsLoader,FilterLeadsLength:FilterLeads.length,SelectedSheetId},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'S'})}).catch(()=>{});
-                        // #endregion
                         const filterText = getFilterText()
                         handleFilterLeads(filterText, true)
                       }}

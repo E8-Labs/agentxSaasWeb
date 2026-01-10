@@ -36,9 +36,6 @@ export default function InfiniteScroll({
         (entries) => {
           const first = entries && entries[0]
           if (first?.isIntersecting && hasMore) {
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'ui/infinite-scroll.jsx:39',message:'InfiniteScroll intersecting -> next()',data:{hasMore,isLoading,threshold:safeThreshold,rootMargin},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'S'})}).catch(()=>{});
-            // #endregion
             next()
           }
         },
