@@ -1411,6 +1411,7 @@ const NewMessageModal = ({
                               {phoneNumbers.length === 0 && (
                                 <Tooltip
                                   title="No phone numbers available. Please add a phone number to send SMS."
+                                  placement="top"
                                   arrow
                                   componentsProps={{
                                     tooltip: {
@@ -1497,7 +1498,7 @@ const NewMessageModal = ({
                             onClick={() => setShowAuthSelectionPopup(true)}
                             className="w-full px-3 py-2 h-[42px] border rounded-[8px] text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                             style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px' }}
-                            
+
                           >
                             Connect Email
                           </button>
@@ -1519,7 +1520,7 @@ const NewMessageModal = ({
                               onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
                               className="w-full px-3 py-2 h-[42px] border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
                               style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px' }}
-                              
+
                             >
                               <div className="flex items-center gap-2 flex-1 min-w-0">
                                 <span className="text-sm text-gray-500 flex-shrink-0">From:</span>
@@ -1593,7 +1594,7 @@ const NewMessageModal = ({
                     <div
                       className="flex items-center gap-2 px-3 h-[42px] border rounded-[8px] focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
                       style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px', minHeight: '42px', maxWidth: '100%' }}
-                      
+
                       onClick={() => {
                         setShowLeadList(true)
                       }}
@@ -1741,8 +1742,8 @@ const NewMessageModal = ({
                         {/* Tag Input Container */}
                         <div
                           className="flex items-center gap-2 px-3 h-[42px] border rounded-[8px] focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
-                      style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px', minHeight: '42px', maxWidth: '100%' }}
-                          
+                          style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px', minHeight: '42px', maxWidth: '100%' }}
+
                           onClick={() => {
                             // Focus the input when clicking the container
                             const input = document.querySelector('#cc-input')
@@ -1814,8 +1815,8 @@ const NewMessageModal = ({
                         {/* Tag Input Container */}
                         <div
                           className="flex items-center gap-2 px-3 h-[42px] border rounded-[8px] focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
-                      style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px', minHeight: '42px', maxWidth: '100%' }}
-                          
+                          style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px', minHeight: '42px', maxWidth: '100%' }}
+
                           onClick={() => {
                             // Focus the input when clicking the container
                             const input = document.querySelector('#bcc-input')

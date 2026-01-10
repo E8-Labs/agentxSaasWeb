@@ -28,7 +28,7 @@ import UnlockMessagesView from './UnlockMessagesView'
 import MessageHeader from './MessageHeader'
 import ConversationHeader from './ConversationHeader'
 
-const Messages = () => {
+const Messages = ({ selectedUser = null }) => {
   const searchParams = useSearchParams()
   const [threads, setThreads] = useState([])
   const [selectedThread, setSelectedThread] = useState(null)
@@ -423,6 +423,11 @@ const Messages = () => {
       if (teamMemberIdsFilter && teamMemberIdsFilter.length > 0) {
         params.teamMemberIds = teamMemberIdsFilter.join(',')
       }
+      // Add userId if viewing subaccount from admin/agency
+      if (selectedUser?.id) {
+        params.userId = selectedUser.id
+        console.log('📧 [fetchThreads] Adding userId filter:', selectedUser.id)
+      }
 
       const response = await axios.get('/api/messaging/threads', {
         params,
@@ -473,7 +478,7 @@ const Messages = () => {
         }
       }
     }
-  }, [])
+  }, [selectedUser])
 
   // Fetch messages for a thread
   const fetchMessages = useCallback(
@@ -499,13 +504,20 @@ const Messages = () => {
         if (!append && offset === null) {
           // Fetch a large batch to get the most recent messages
           // We'll take the last 30 from the fetched batch
+          const params = {
+            limit: 500, // Fetch a large batch to ensure we get recent messages
+            offset: 0,
+          }
+          // Add userId if viewing subaccount from admin/agency
+          if (selectedUser?.id) {
+            params.userId = selectedUser.id
+            console.log('📧 [fetchMessages] Adding userId filter:', selectedUser.id)
+          }
+
           const response = await axios.get(
             `${Apis.getMessagesForThread}/${threadId}/messages`,
             {
-              params: {
-                limit: 500, // Fetch a large batch to ensure we get recent messages
-                offset: 0,
-              },
+              params,
               headers: {
                 Authorization: `Bearer ${token}`,
                 'Content-Type': 'application/json',
@@ -579,13 +591,20 @@ const Messages = () => {
           actualOffset = 0
         }
 
+        const params = {
+          limit: MESSAGES_PER_PAGE,
+          offset: actualOffset,
+        }
+        // Add userId if viewing subaccount from admin/agency
+        if (selectedUser?.id) {
+          params.userId = selectedUser.id
+          console.log('📧 [fetchMessages] Adding userId filter:', selectedUser.id)
+        }
+
         const response = await axios.get(
           `${Apis.getMessagesForThread}/${threadId}/messages`,
           {
-            params: {
-              limit: MESSAGES_PER_PAGE,
-              offset: actualOffset,
-            },
+            params,
             headers: {
               Authorization: `Bearer ${token}`,
               'Content-Type': 'application/json',
@@ -670,7 +689,7 @@ const Messages = () => {
         }
       }
     },
-    []
+    [selectedUser]
   )
 
   // Load older messages when scrolling to top
@@ -695,7 +714,14 @@ const Messages = () => {
       const userData = JSON.parse(localData)
       const token = userData.token
 
-      await axios.patch(`${Apis.markThreadAsRead}/${threadId}/read`, {}, {
+      let apiPath = `${Apis.markThreadAsRead}/${threadId}/read`
+      // Add userId if viewing subaccount from admin/agency
+      if (selectedUser?.id) {
+        apiPath = `${apiPath}?userId=${selectedUser.id}`
+        console.log('📧 [markThreadAsRead] Adding userId filter:', selectedUser.id)
+      }
+
+      await axios.patch(apiPath, {}, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -711,7 +737,7 @@ const Messages = () => {
     } catch (error) {
       console.error('Error marking thread as read:', error)
     }
-  }, [])
+  }, [selectedUser])
 
   // Update latest message ID ref when messages change
   useEffect(() => {
@@ -750,13 +776,19 @@ const Messages = () => {
 
         // Fetch the latest messages (just the most recent ones to check for new messages)
         // Fetch a larger batch to ensure we get the most recent messages, then take the last ones
+        const params = {
+          limit: 50, // Fetch a larger batch to ensure we get recent messages
+          offset: 0,
+        }
+        // Add userId if viewing subaccount from admin/agency
+        if (selectedUser?.id) {
+          params.userId = selectedUser.id
+        }
+
         const response = await axios.get(
           `${Apis.getMessagesForThread}/${selectedThread.id}/messages`,
           {
-            params: {
-              limit: 50, // Fetch a larger batch to ensure we get recent messages
-              offset: 0,
-            },
+            params,
             headers: {
               Authorization: `Bearer ${token}`,
               'Content-Type': 'application/json',
@@ -859,7 +891,7 @@ const Messages = () => {
       console.log(`🔄 [Polling] Stopping polling for thread ${selectedThread.id}`)
       clearInterval(intervalId)
     }
-  }, [selectedThread?.id, fetchMessages])
+  }, [selectedThread?.id, fetchMessages, selectedUser])
 
   // Handle thread selection
   const handleThreadSelect = (thread) => {
@@ -1598,13 +1630,20 @@ const Messages = () => {
 
       if (composerMode === 'sms') {
         // Send SMS using existing API
+        const smsPayload = {
+          leadId: selectedThread.leadId,
+          content: messageBody,
+          smsPhoneNumberId: selectedPhoneNumber || null,
+        }
+        // Add userId if viewing subaccount from admin/agency
+        if (selectedUser?.id) {
+          smsPayload.userId = selectedUser.id
+          console.log('📧 [handleSendMessage] Adding userId to SMS payload:', selectedUser.id)
+        }
+
         const response = await axios.post(
           Apis.sendSMSToLead,
-          {
-            leadId: selectedThread.leadId,
-            content: messageBody,
-            smsPhoneNumberId: selectedPhoneNumber || null,
-          },
+          smsPayload,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -1661,11 +1700,18 @@ const Messages = () => {
               const userData = JSON.parse(localData)
               const token = userData.token
 
+              let params = {
+                leadId: selectedThread.leadId,
+                subject: emailTimelineSubject,
+              }
+              // Add userId if viewing subaccount from admin/agency
+              if (selectedUser?.id) {
+                params.userId = selectedUser.id
+                console.log('📧 [fetchEmailsBySubject] Adding userId filter:', selectedUser.id)
+              }
+
               const response = await axios.get(Apis.getEmailsBySubject, {
-                params: {
-                  leadId: selectedThread.leadId,
-                  subject: emailTimelineSubject,
-                },
+                params,
                 headers: {
                   Authorization: `Bearer ${token}`,
                   'Content-Type': 'application/json',
@@ -1733,6 +1779,12 @@ const Messages = () => {
         formData.append('leadId', selectedThread.leadId)
         formData.append('subject', emailSubject)
         formData.append('body', messageBody)
+
+        // Add userId if viewing subaccount from admin/agency
+        if (selectedUser?.id) {
+          formData.append('userId', selectedUser.id.toString())
+          console.log('📧 [handleSendMessage] Adding userId to email payload:', selectedUser.id)
+        }
 
         // Add threadId for CC/BCC persistence
         if (selectedThread?.id) {
@@ -1829,7 +1881,14 @@ const Messages = () => {
       const userData = JSON.parse(localData)
       const token = userData.token
 
-      const response = await axios.get(Apis.a2pNumbers, {
+      let apiPath = Apis.a2pNumbers
+      // Add userId if viewing subaccount from admin/agency
+      if (selectedUser?.id) {
+        apiPath = `${apiPath}?userId=${selectedUser.id}`
+        console.log('📧 [fetchPhoneNumbers] Adding userId filter:', selectedUser.id)
+      }
+
+      const response = await axios.get(apiPath, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -1845,7 +1904,7 @@ const Messages = () => {
     } catch (error) {
       console.error('Error fetching phone numbers:', error)
     }
-  }, [])
+  }, [selectedUser])
 
   // Fetch email accounts
   const fetchEmailAccounts = useCallback(async () => {
@@ -1856,7 +1915,14 @@ const Messages = () => {
       const userData = JSON.parse(localData)
       const token = userData.token
 
-      const response = await axios.get(Apis.gmailAccount, {
+      let apiPath = Apis.gmailAccount
+      // Add userId if viewing subaccount from admin/agency
+      if (selectedUser?.id) {
+        apiPath = `${apiPath}?userId=${selectedUser.id}`
+        console.log('📧 [fetchEmailAccounts] Adding userId filter:', selectedUser.id)
+      }
+
+      const response = await axios.get(apiPath, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -1872,7 +1938,7 @@ const Messages = () => {
     } catch (error) {
       console.error('Error fetching email accounts:', error)
     }
-  }, [])
+  }, [selectedUser])
 
   // Get user data from localStorage
   useEffect(() => {
@@ -2023,11 +2089,18 @@ const Messages = () => {
       // If subject is provided, use the new endpoint to get emails by subject
       if (subject) {
         try {
+          const params = {
+            leadId: leadId,
+            subject: subject,
+          }
+          // Add userId if viewing subaccount from admin/agency
+          if (selectedUser?.id) {
+            params.userId = selectedUser.id
+            console.log('📧 [fetchEmailTimeline] Adding userId filter:', selectedUser.id)
+          }
+
           const response = await axios.get(Apis.getEmailsBySubject, {
-            params: {
-              leadId: leadId,
-              subject: subject,
-            },
+            params,
             headers: {
               Authorization: `Bearer ${token}`,
               'Content-Type': 'application/json',
@@ -2053,7 +2126,15 @@ const Messages = () => {
       }
 
       // Fallback to original behavior: fetch all threads for this lead, then filter for email messages
+      const threadsParams = {}
+      // Add userId if viewing subaccount from admin/agency
+      if (selectedUser?.id) {
+        threadsParams.userId = selectedUser.id
+        console.log('📧 [fetchEmailTimeline] Adding userId to threads fetch:', selectedUser.id)
+      }
+
       const threadsResponse = await axios.get('/api/messaging/threads', {
+        params: threadsParams,
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -2111,7 +2192,7 @@ const Messages = () => {
     } finally {
       setEmailTimelineLoading(false)
     }
-  }, [])
+  }, [selectedUser])
 
   // Fetch email timeline when modal opens
   useEffect(() => {
@@ -2219,6 +2300,11 @@ const Messages = () => {
       // Delete the thread (not the lead)
 
       let path = `${Apis.deleteThread}/${threadId}`
+      // Add userId if viewing subaccount from admin/agency
+      if (selectedUser?.id) {
+        path = `${path}?userId=${selectedUser.id}`
+        console.log('📧 [handleDeleteThread] Adding userId filter:', selectedUser.id)
+      }
 
       console.log('path is ', path)
       const response = await axios.delete(path,
@@ -2258,7 +2344,7 @@ const Messages = () => {
         type: SnackbarTypes.Error,
       })
     }
-  }, [searchValue, selectedThread, fetchThreads])
+  }, [searchValue, selectedThread, fetchThreads, selectedUser])
 
   // Setup scroll listener
   useEffect(() => {
@@ -2296,7 +2382,7 @@ const Messages = () => {
   // If user doesn't have access to emails or text messages, show empty state
   if (!hasMessagingAccess) {
     return (
-      <div className="w-full h-screen flex flex-col items-center justify-center bg-white">
+      <div className="w-full h-full flex flex-col items-center justify-center bg-white">
         <Image
           src={'/otherAssets/noTemView.png'}
           height={280}
@@ -2354,8 +2440,8 @@ const Messages = () => {
           <UnlockMessagesView />
         ) : (
 
-          <div className="w-full h-screen flex flex-col bg-white">
-            <MessageHeader />
+          <div className="w-full h-full flex flex-col bg-white">
+            <MessageHeader selectedUser={selectedUser}/>
             <div className="flex-1 flex flex-row">
               {/* Left Sidebar - Thread List */}
               {(() => {
@@ -2433,7 +2519,7 @@ const Messages = () => {
               })()}
 
               {/* Right Side - Messages View */}
-              <div className="flex-1 flex flex-col h-[93vh]">
+              <div className={`flex-1 flex flex-col ${selectedUser ? 'h-[70vh]' : 'h-[93vh]'}`}>
                 {selectedThread ? (
                   <>
                     {/* Messages Header */}
@@ -2522,6 +2608,7 @@ const Messages = () => {
                         fetchThreads(searchValue || "", appliedTeamMemberIds)
 
                       }}
+                      selectedUser={selectedUser}
                       searchLoading={searchLoading}
                     />
                   </>
@@ -2559,6 +2646,7 @@ const Messages = () => {
                   }
                 }}
                 mode={newMessageMode}
+                selectedUser={selectedUser}
               />
 
               {/* Image Viewer Modal */}

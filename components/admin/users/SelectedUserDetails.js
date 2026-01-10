@@ -25,6 +25,7 @@ import ResetTrial from './ResetTrial'
 import UserActivityLogs from './UserActivityLogs'
 import AdminPipeline1 from './pipline/AdminPipeline1'
 import { PersistanceKeys } from '@/constants/Constants'
+import Messages from '@/components/messaging/Messages'
 
 function SelectedUserDetails({
   selectedUser,
@@ -61,6 +62,12 @@ function SelectedUserDetails({
       unSelectedImage: '/svgIcons/unSelectedPipelineIcon.svg',
     },
     {
+      id: 9,
+      name: 'Messages (Beta)',
+      selectedImage: '/messaging/icons_chat_menu.svg',
+      unSelectedImage: '/messaging/icons_chat_menu.svg',
+    },
+    {
       id: 4,
       name: 'Activity',
       selectedImage: '/otherAssets/selectedActivityLog.png',
@@ -85,6 +92,7 @@ function SelectedUserDetails({
       selectedImage: '/svgIcons/selectedProfileCircle.svg',
       unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
     },
+   
   ]
 
   console.log('Status of agency user', agencyUser)
@@ -491,6 +499,7 @@ function SelectedUserDetails({
                         fontSize: 16,
                         fontWeight: 500,
                         color: selectedManu.id == item.id ? 'hsl(var(--brand-primary))' : '#000',
+                        whiteSpace: 'nowrap',
 
                       }}
                     >
@@ -502,7 +511,7 @@ function SelectedUserDetails({
             </div>
 
             <div
-              className={`flex flex-col items-center justify-center pt-2 px-4 ${agencyUser ? 'h-[95vh]' : 'h-[70vh]'} overflow-auto w-10/12`}
+              className={`flex flex-col items-center justify-center pt-2 px-4 ${agencyUser ? 'h-[95vh]' : 'h-[80vh]'} overflow-auto w-10/12`}
             >
               <div className="w-full flex flex-row items-center justify-end">
                 <div className="flex flex-row items-center gap-4">
@@ -600,7 +609,7 @@ function SelectedUserDetails({
                 </div>
               </div>
               <div
-                className={`flex flex-col items-center justify-center ${agencyUser ? 'h-[95vh]' : 'h-[68vh]'} overflow-auto w-full`}
+                className={`flex flex-col items-center justify-center ${agencyUser ? 'h-[95vh]' : 'h-[76vh]'} overflow-auto w-full`}
               >
                 {selectedManu.name == 'Leads' ? (
                   <AdminLeads1
@@ -625,6 +634,8 @@ function SelectedUserDetails({
                   <AdminTeam selectedUser={selectedUser} agencyUser={agencyUser} />
                 ) : selectedManu.name == 'Account' ? (
                   <AdminProfileData selectedUser={selectedUser} from={from} />
+                ) : selectedManu.name == 'Messages (Beta)' ? (
+                  <Messages selectedUser={selectedUser}/>
                 ) : (
                   'Coming soon...'
                 )

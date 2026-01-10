@@ -25,6 +25,8 @@ const ClaimNumber = ({
   AssignNumber,
   selectedUSer,
 }) => {
+
+  console.log('selectedUSer in claim number', selectedUSer)
   const stripePromise = getStripe()
   const timerRef = useRef(null)
 

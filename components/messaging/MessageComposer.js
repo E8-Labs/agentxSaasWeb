@@ -117,6 +117,7 @@ const getCharCountFromHTML = (html) => {
 }
 
 const MessageComposer = ({
+  selectedUser,
   composerMode,
   setComposerMode,
   selectedThread,
@@ -916,11 +917,15 @@ const MessageComposer = ({
         }
       }
 
-      const ApiData = {
+      let ApiData = {
         threadId: selectedThread.id,
         leadId: selectedThread.leadId,
         content: plainText,
         mentionedUserIds: mentionedUserIds.length > 0 ? mentionedUserIds : undefined,
+      }
+
+      if (selectedUser?.id) {
+        ApiData.userId = selectedUser.id
       }
 
       const response = await axios.post(Apis.postComment, ApiData, {

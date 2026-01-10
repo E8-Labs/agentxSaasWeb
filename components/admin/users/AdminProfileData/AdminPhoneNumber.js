@@ -233,6 +233,7 @@ function AdminPhoneNumber({ selectedUser }) {
           // setOpenCalimNumDropDown={setOpenCalimNumDropDown}
           // setSelectNumber={setSelectNumber}
           setPreviousNumber={setNumbers}
+          selectedUSer={selectedUser}
           previousNumber={numbers}
         />
       )}

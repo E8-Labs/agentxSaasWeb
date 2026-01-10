@@ -678,7 +678,7 @@ const AgencyNavBar = () => {
       fontWeight: 'bold',
       fontSize: 18,
       marginLeft: '10px',
-      whiteSpace: 'nowrap',
+    whiteSpace: 'nowrap',
     },
   }
 
