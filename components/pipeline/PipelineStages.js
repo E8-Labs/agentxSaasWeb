@@ -16,7 +16,7 @@ import {
 import { CaretDown, CaretUp, Minus, PencilSimple } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 
 import CloseBtn, { CloseBtn2 } from '@/components/globalExtras/CloseBtn'
 import { PersistanceKeys } from '@/constants/Constants'
@@ -24,7 +24,7 @@ import { useUser } from '@/hooks/redux-hooks'
 import { getAgentsListImage } from '@/utilities/agentUtilities'
 
 import Apis from '../apis/Apis'
-import { UpgradeTagWithModal, getUserLocalData } from '../constants/constants'
+import { UpgradeTagWithModal, UpgradeTag, getUserLocalData } from '../constants/constants'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../dashboard/leads/AgentSelectSnackMessage'
@@ -144,8 +144,9 @@ const PipelineStages = ({
   const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null)
 
   // Use Redux for user data instead of local state
-  const { user: userData, setUser: setUserData, token } = useUser()
-  const [user, setUser] = useState(userData) // Keep local state for compatibility
+  const { user: reduxUser, setUser: setReduxUser, token } = useUser()
+  const [user, setUser] = useState(reduxUser) // Keep local state for compatibility
+  const [userData, setUserData] = useState(reduxUser) // Alias for compatibility
   const [gmailAccounts, setGmailAccounts] = useState([])
   const [accountLoader, setAccountLoader] = useState(false)
 
@@ -184,6 +185,104 @@ const PipelineStages = ({
     },
   ]
 
+
+    // Check email capability based on user type
+    const checkEmailCapability = () => {
+      // For AgentX users (not subaccounts)
+      if (!reduxUser?.userRole || reduxUser.userRole !== 'AgencySubAccount') {
+        // Check planCapabilities.allowEmails
+        return {
+          hasAccess: reduxUser?.planCapabilities?.allowEmails === true,
+          showUpgrade: reduxUser?.planCapabilities?.allowEmails !== true,
+          showRequestFeature: false,
+        }
+      }
+      
+      // For subaccounts
+      // First check if parent agency has access
+      const agencyHasAccess = reduxUser?.agencyCapabilities?.allowEmails === true
+      
+      if (!agencyHasAccess) {
+        // Agency doesn't have access - show Request Feature
+        return {
+          hasAccess: false,
+          showUpgrade: false,
+          showRequestFeature: true,
+        }
+      }
+      
+      // Agency has access, check subaccount access
+      const subaccountHasAccess = reduxUser?.planCapabilities?.allowEmails === true
+      
+      return {
+        hasAccess: subaccountHasAccess,
+        showUpgrade: !subaccountHasAccess,
+        showRequestFeature: false,
+      }
+    }
+    
+    // Check SMS capability based on user type
+    const checkSMSCapability = () => {
+      // For AgentX users (not subaccounts)
+      if (!reduxUser?.userRole || reduxUser.userRole !== 'AgencySubAccount') {
+        // Check planCapabilities.allowTextMessages
+        return {
+          hasAccess: reduxUser?.planCapabilities?.allowTextMessages === true,
+          showUpgrade: reduxUser?.planCapabilities?.allowTextMessages !== true,
+          showRequestFeature: false,
+        }
+      }
+      
+      // For subaccounts
+      // First check if parent agency has access
+      const agencyHasAccess = reduxUser?.agencyCapabilities?.allowTextMessages === true
+      
+      if (!agencyHasAccess) {
+        // Agency doesn't have access - show Request Feature
+        return {
+          hasAccess: false,
+          showUpgrade: false,
+          showRequestFeature: true,
+        }
+      }
+      
+      // Agency has access, check subaccount access
+      const subaccountHasAccess = reduxUser?.planCapabilities?.allowTextMessages === true
+      
+      return {
+        hasAccess: subaccountHasAccess,
+        showUpgrade: !subaccountHasAccess,
+        showRequestFeature: false,
+      }
+    }
+    
+    const emailCapability = checkEmailCapability()
+    const smsCapability = checkSMSCapability()
+    
+    // State to trigger upgrade modal externally (use counter to ensure it triggers even if already true)
+    const [triggerEmailUpgradeModal, setTriggerEmailUpgradeModal] = useState(0)
+    const [triggerSMSUpgradeModal, setTriggerSMSUpgradeModal] = useState(0)
+    
+    // Handler to trigger email upgrade modal
+    const handleEmailUpgradeClick = useCallback(() => {
+      setTriggerEmailUpgradeModal(prev => prev + 1)
+    }, [])
+    
+    // Handler to trigger SMS upgrade modal
+    const handleSMSUpgradeClick = useCallback(() => {
+      setTriggerSMSUpgradeModal(prev => prev + 1)
+    }, [])
+    
+    // Handler to reset email upgrade modal trigger
+    const handleEmailUpgradeModalClose = useCallback(() => {
+      setTriggerEmailUpgradeModal(0)
+    }, [])
+    
+    // Handler to reset SMS upgrade modal trigger
+    const handleSMSUpgradeModalClose = useCallback(() => {
+      setTriggerSMSUpgradeModal(0)
+    }, [])
+
   const actionLabel = (v) =>
     ACTIONS.find((a) => a.value === v)?.label || 'Make Call'
 
@@ -208,14 +307,24 @@ const PipelineStages = ({
   }
 
   const handleSelectAdd = async (stageIndex, value) => {
-    if (
-      (user?.planCapabilities.allowTextMessages === false ||
-        phoneNumbers.length === 0) &&
-      value == 'sms'
-    ) {
-      // Upgrade modal is now handled by UpgradeTagWithModal component
-      return
+    if (value === 'email') {
+      if (!emailCapability.hasAccess) {
+        // Trigger upgrade modal if user doesn't have access
+        handleEmailUpgradeClick()
+        return
+      }
+    } else if (value === 'sms') {
+      if (!smsCapability.hasAccess) {
+        // Trigger upgrade modal if user doesn't have access
+        handleSMSUpgradeClick()
+        return
+      }
+      if (phoneNumbers.length === 0) {
+        // User needs to complete A2P to text
+        return
+      }
     }
+    
     if (value != 'call') {
       setSelectedIndex(stageIndex)
       setSelectedType(value)
@@ -285,26 +394,28 @@ const PipelineStages = ({
   }
 
   useEffect(() => {
-    console.log('🔥 PIPELINESTAGES - useEffect triggered with userData:', {
-      userId: userData?.id,
-      planType: userData?.plan?.type,
-      planName: userData?.plan?.name,
-      allowTextMessages: userData?.planCapabilities?.allowTextMessages,
+    console.log('🔥 PIPELINESTAGES - useEffect triggered with reduxUser:', {
+      userId: reduxUser?.id,
+      planType: reduxUser?.plan?.type,
+      planName: reduxUser?.plan?.name,
+      allowTextMessages: reduxUser?.planCapabilities?.allowTextMessages,
     })
 
-    // Use Redux userData instead of localStorage
-    if (userData) {
-      setUser(userData)
+    // Use Redux reduxUser instead of localStorage
+    if (reduxUser) {
+      setUser(reduxUser)
+      setUserData(reduxUser)
     } else {
       // Fallback to localStorage only if Redux has no data
       let data = getUserLocalData()
       console.log('🔥 PIPELINESTAGES - Fallback to localStorage:', data)
       setUser(data.user)
+      setUserData(data.user)
     }
 
     getMyTeam()
     getNumbers()
-  }, [stages, userData])
+  }, [stages, reduxUser])
 
   useEffect(() => {
     if (showEmailTemPopup) {
@@ -1219,7 +1330,6 @@ const PipelineStages = ({
                                     >
                                       <div>
                                         <MenuItem
-                                          // disabled={shouldDisable(a)}
                                           sx={{
                                             width: 180,
                                             '&:hover .action-icon': {
@@ -1265,15 +1375,18 @@ const PipelineStages = ({
                                                 >
                                                   {a.label}
                                                 </div>
-                                                {userData?.planCapabilities
-                                                  .allowTextMessages ===
-                                                  false &&
-                                                  a.label == 'Text' && (
-                                                    <UpgradeTagWithModal
-                                                      reduxUser={userData}
-                                                      setReduxUser={setUserData}
-                                                    />
-                                                  )}
+                                                {a.value === 'email' && (emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
+                                                  <UpgradeTag
+                                                    onClick={handleEmailUpgradeClick}
+                                                    requestFeature={emailCapability.showRequestFeature}
+                                                  />
+                                                )}
+                                                {a.value === 'sms' && (smsCapability.showUpgrade || smsCapability.showRequestFeature) && (
+                                                  <UpgradeTag
+                                                    onClick={handleSMSUpgradeClick}
+                                                    requestFeature={smsCapability.showRequestFeature}
+                                                  />
+                                                )}
                                               </div>
                                               {shouldDisable(a) &&
                                                 user?.planCapabilities
@@ -1823,6 +1936,28 @@ const PipelineStages = ({
                 setSelectedGoogleAccount(account)
               }}
             />
+
+            {/* Upgrade modals for email and SMS */}
+            {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
+              <UpgradeTagWithModal
+                reduxUser={reduxUser}
+                setReduxUser={setReduxUser}
+                requestFeature={emailCapability.showRequestFeature}
+                externalTrigger={triggerEmailUpgradeModal > 0}
+                onModalClose={handleEmailUpgradeModalClose}
+                hideTag={true}
+              />
+            )}
+            {(smsCapability.showUpgrade || smsCapability.showRequestFeature) && (
+              <UpgradeTagWithModal
+                reduxUser={reduxUser}
+                setReduxUser={setReduxUser}
+                requestFeature={smsCapability.showRequestFeature}
+                externalTrigger={triggerSMSUpgradeModal > 0}
+                onModalClose={handleSMSUpgradeModalClose}
+                hideTag={true}
+              />
+            )}
 
             <EmailTempletePopup
               open={showEmailTemPopup}
