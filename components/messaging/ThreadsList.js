@@ -38,6 +38,8 @@ const ThreadsList = ({
   allCount = 0,
   unrepliedCount = 0,
   onContactCreated,
+  selectedUser = null,
+  agencyUser = null,
 }) => {
   const [openMenuId, setOpenMenuId] = useState(null)
   const [showNewContactDrawer, setShowNewContactDrawer] = useState(false)
@@ -93,7 +95,7 @@ const ThreadsList = ({
   }
 
   return (
-    <div className="w-80 border-r px-3 border-gray-200 flex flex-col h-full bg-white">
+    <div className={`w-80 border-r px-3 border-gray-200 flex flex-col ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[90vh]'} bg-white`}>
       <div className="w-full flex flex-row items-center justify-between mt-4">
 
         {/* Toggle Buttons - All / Unreplied */}

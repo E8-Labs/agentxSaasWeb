@@ -637,7 +637,7 @@ function SelectedUserDetails({
                 ) : selectedManu.name == 'Account' ? (
                   <AdminProfileData selectedUser={selectedUser} from={from} />
                 ) : selectedManu.name == 'Messages (Beta)' ? (
-                  <Messages selectedUser={selectedUser}/>
+                  <Messages selectedUser={selectedUser} agencyUser={agencyUser}/>
                 ) : (
                   'Coming soon...'
                 )

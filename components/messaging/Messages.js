@@ -28,7 +28,7 @@ import UnlockMessagesView from './UnlockMessagesView'
 import MessageHeader from './MessageHeader'
 import ConversationHeader from './ConversationHeader'
 
-const Messages = ({ selectedUser = null }) => {
+const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const searchParams = useSearchParams()
   const [threads, setThreads] = useState([])
   const [selectedThread, setSelectedThread] = useState(null)
@@ -2426,7 +2426,7 @@ const Messages = ({ selectedUser = null }) => {
   }
 
   return (
-    <>
+    <div className = {`w-full flex flex-col ${selectedUser && !agencyUser ? 'h-[80vh]' : 'h-[93vh]'}`}>
       <AgentSelectSnackMessage
         isVisible={snackbar.isVisible}
         title={snackbar.title}
@@ -2439,7 +2439,7 @@ const Messages = ({ selectedUser = null }) => {
         planCapabilities?.allowTextMessages === false && planCapabilities?.allowEmails === false ? (
           <UnlockMessagesView />
         ) : (
-          <div className={`w-full ${selectedUser ? 'h-full' : 'h-screen'} flex flex-col bg-white`}>
+          <div className={`w-full h-full flex flex-col bg-white`}>
             <MessageHeader selectedThread={selectedThread} selectedUser={selectedUser} />
             <div className="flex-1 flex flex-row">
               {/* Left Sidebar - Thread List */}
@@ -2513,12 +2513,14 @@ const Messages = ({ selectedUser = null }) => {
                       // Refresh threads after contact creation
                       fetchThreads(searchValue || '', appliedTeamMemberIds)
                     }}
+                    selectedUser={selectedUser}
+                    agencyUser={agencyUser}
                   />
                 )
               })()}
 
               {/* Right Side - Messages View */}
-              <div className={`flex-1 flex flex-col ${selectedUser ? 'h-[70vh]' : 'h-[93vh]'}`}>
+              <div className={`flex-1 flex flex-col ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[93vh]'}`}>
                 {selectedThread ? (
                   <>
                     {/* Messages Header */}
@@ -2812,7 +2814,7 @@ const Messages = ({ selectedUser = null }) => {
             </div>
           </div>
         )}
-    </>
+    </div>
   )
 }
 

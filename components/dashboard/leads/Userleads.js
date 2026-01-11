@@ -13,7 +13,6 @@ import {
   FormControl,
   MenuItem,
   Modal,
-  Popover,
   Select,
   Snackbar,
   TextareaAutosize,
@@ -62,6 +61,12 @@ import AssignLeadAnimation from './assignLeadSlideAnimation/AssignLeadAnimation'
 import LeadDetailsCN from './extras/LeadDetailsCN'
 import { Trash } from 'lucide-react'
 import LeadDetails from './extras/LeadDetails'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -206,12 +211,10 @@ const Userleads = ({
   const [moreLeadsLoader, setMoreLeadsLoader] = useState(false)
   const [nextCursorValue, setNextCursorValue] = useState(0)
 
-  //code for delete smart list popover
-  const [anchorEl, setAnchorEl] = React.useState(null)
+  //code for delete smart list dropdown
   const [delSmartListLoader, setDelSmartListLoader] = useState(false)
   const [selectedSmartList, setSelectedSmartList] = useState(null)
-  const open = Boolean(anchorEl)
-  const id = open ? 'simple-popover' : undefined
+  const [dropdownOpen, setDropdownOpen] = useState({})
 
   //code for passing columns
   const [Columns, setColumns] = useState(null)
@@ -831,22 +834,25 @@ const Userleads = ({
     })
   }
 
-  //function for del smartlist stage popover
+  //function for del smartlist stage dropdown
 
-  const handleShowPopup = (event, item) => {
-    setAnchorEl(event.currentTarget)
-    //////console.log;
+  const handleShowPopup = (item) => {
     setSelectedSmartList(item)
   }
 
-  const handleClosePopup = () => {
-    setAnchorEl(null)
-  }
-
   //function to delete smart list
-  const handleDeleteSmartList = async () => {
+  const handleDeleteSmartList = async (item = null) => {
     try {
       setDelSmartListLoader(true)
+      
+      // Use the passed item or fall back to selectedSmartList
+      const itemToDelete = item || selectedSmartList
+      
+      if (!itemToDelete) {
+        console.error('No item selected for deletion')
+        setDelSmartListLoader(false)
+        return
+      }
 
       const localData = localStorage.getItem('User')
       let AuthToken = null
@@ -858,7 +864,7 @@ const Userleads = ({
       //////console.log;
 
       const ApiData = {
-        sheetId: selectedSmartList.id,
+        sheetId: itemToDelete.id,
       }
 
       // //console.log;
@@ -877,17 +883,38 @@ const Userleads = ({
         if (response.data.status === true) {
           setNextCursorValue('')
           setSheetsList((prevSheetsList) =>
-            prevSheetsList.filter((sheet) => sheet.id !== selectedSmartList.id),
+            prevSheetsList.filter((sheet) => sheet.id !== itemToDelete.id),
           )
           setSelectedLeadsList([])
           setFilterLeads([])
           setLeadsList([])
           setShowNoLeadsLabel(true)
-          handleClosePopup()
+          setSelectedSmartList(null)
+          // Close the dropdown
+          setDropdownOpen((prev) => ({
+            ...prev,
+            [itemToDelete.id]: false,
+          }))
+          // Show success message
+          setSnackMessage('Smart list deleted successfully')
+          setMessageType(SnackbarTypes.Success)
+          setShowSnackMessage(true)
         }
       }
     } catch (error) {
       // console.error("ERror occured in del smart list api is:", error);
+      // Show error message
+      setSnackMessage('Failed to delete smart list. Please try again.')
+      setMessageType(SnackbarTypes.Error)
+      setShowSnackMessage(true)
+      // Close the dropdown on error as well
+      if (item || selectedSmartList) {
+        const itemToClose = item || selectedSmartList
+        setDropdownOpen((prev) => ({
+          ...prev,
+          [itemToClose.id]: false,
+        }))
+      }
     } finally {
       setDelSmartListLoader(false)
     }
@@ -2392,64 +2419,55 @@ const Userleads = ({
                         >
                           {item.sheetName}
                         </button>
-                        <button
-                          className="outline-none"
-                          aria-describedby={id}
-                          variant="contained"
-                          onClick={(event) => {
-                            handleShowPopup(event, item)
+                        <DropdownMenu
+                          open={dropdownOpen[item.id] || false}
+                          onOpenChange={(open) => {
+                            setDropdownOpen((prev) => ({
+                              ...prev,
+                              [item.id]: open,
+                            }))
+                            if (open) {
+                              handleShowPopup(item)
+                            }
                           }}
                         >
-                          <DotsThree weight="bold" size={25} color="black" />
-                        </button>
-                        <Popover
-                          id={id}
-                          open={open}
-                          anchorEl={anchorEl}
-                          onClose={handleClosePopup}
-                          anchorOrigin={{
-                            vertical: 'bottom',
-                            horizontal: 'right',
-                          }}
-                          transformOrigin={{
-                            vertical: 'top',
-                            horizontal: 'left', // Ensures the Popover's top right corner aligns with the anchor point
-                          }}
-                          PaperProps={{
-                            elevation: 0, // This will remove the shadow
-                            style: {
-                              boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1), 0px 1px 3px rgba(0, 0, 0, 0.08)',
-                              borderRadius: '10px',
-                              width: '120px',
-                              border: '1px solid rgba(0, 0, 0, 0.05)',
-                            },
-                          }}
-                        >
-                          <div
-                            className="p-2 flex flex-col gap-2"
-                            style={{ fontWeight: '500', fontSize: 15 }}
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              className="outline-none"
+                              onClick={() => {
+                                handleShowPopup(item)
+                              }}
+                            >
+                              <DotsThree weight="bold" size={25} color="black" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            align="end"
+                            className="w-[120px]"
                           >
-                            {delSmartListLoader ? (
-                              <CircularProgress
-                                size={15}
-                                sx={{ color: 'hsl(var(--brand-primary))' }}
-                              />
-                            ) : (
-                              <button
-                                className="text-red flex flex-row items-center gap-1"
-                                onClick={handleDeleteSmartList}
-                              >
-                                <Trash size={18} />
-                                <p
-                                  className="text-red"
-                                  style={{ fontWeight: '00', fontSize: 16 }}
-                                >
-                                  Delete
-                                </p>
-                              </button>
-                            )}
-                          </div>
-                        </Popover>
+                            <DropdownMenuItem
+                              className="text-red focus:text-red cursor-pointer"
+                              onSelect={(e) => {
+                                e.preventDefault()
+                                handleDeleteSmartList(item)
+                              }}
+                              disabled={delSmartListLoader}
+                            >
+                              {delSmartListLoader ? (
+                                <CircularProgress
+                                  size={15}
+                                  sx={{ color: 'hsl(var(--brand-primary))' }}
+                                  className="mr-2"
+                                />
+                              ) : (
+                                <Trash size={18} className="mr-2" />
+                              )}
+                              <span style={{ fontWeight: '500', fontSize: 16 }}>
+                                Delete
+                              </span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     )
                   })}
