@@ -235,6 +235,7 @@ function AdminPhoneNumber({ selectedUser }) {
           setPreviousNumber={setNumbers}
           selectedUSer={selectedUser}
           previousNumber={numbers}
+          selectedUser = {selectedUser}
         />
       )}
 
