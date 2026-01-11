@@ -284,7 +284,7 @@ function PlanSummaryMobile({ selectedPlan,
 
                     const billingMonths = GetMonthCountFronBillingCycle(planDuration)
                     const monthlyPrice = planPrice
-                    return `$${formatFractional2(4422).toLocaleString()}`
+                    return `$${formatFractional2(billingMonths * monthlyPrice).toLocaleString()}`
                   })()}
                 </div>
                 <div
