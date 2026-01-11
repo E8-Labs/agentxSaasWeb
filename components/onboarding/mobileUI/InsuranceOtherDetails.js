@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { Input } from '@/components/ui/input'
+
 function InsuranceOtherDetails({
   inputsFields,
   userFarm,
@@ -13,15 +15,15 @@ function InsuranceOtherDetails({
       <div style={styles.headingStyle} className="mt-6">
         {`Market Territory `}
       </div>
-      <input
+      <Input
         ref={(el) => (inputsFields.current[0] = el)}
         autoComplete="off"
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
         placeholder="Your territory"
-        className="w-full border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+        style={{ ...styles.inputStyle }}
         value={userFarm}
         onChange={(e) => {
           setUserFarm(e.target.value)
@@ -36,15 +38,15 @@ function InsuranceOtherDetails({
       <div style={styles.headingStyle} className="mt-6">
         Agency or Brokerage Name
       </div>
-      <input
+      <Input
         ref={(el) => (inputsFields.current[1] = el)}
         autoComplete="off"
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
         placeholder="Brokerage"
-        className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+        style={{ ...styles.inputStyle }}
         value={userBrokage}
         onChange={(e) => {
           setUserBrokage(e.target.value)

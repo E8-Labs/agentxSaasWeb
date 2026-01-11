@@ -100,6 +100,9 @@ const OtherDetails = ({
   //congrats popup for small size screens
   const [congratsPopup, setCongratsPopup] = useState(false)
 
+  // Agency branding state
+  const [hasBranding, setHasBranding] = useState(false)
+
   //code for other agents variables
 
   //for sales dev rep
@@ -146,6 +149,27 @@ const OtherDetails = ({
       let data = JSON.parse(storedData)
       setUserData(data)
     }
+  }, [])
+
+  // Check for agency branding
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    // Check localStorage for agency branding
+    try {
+      const storedBranding = localStorage.getItem('agencyBranding')
+      if (storedBranding) {
+        const brandingData = JSON.parse(storedBranding)
+        if (brandingData && brandingData.primaryColor) {
+          setHasBranding(true)
+          return
+        }
+      }
+    } catch (e) {
+      // Ignore errors
+    }
+
+    setHasBranding(false)
   }, [])
   //focus 1st field automaticallly
   useEffect(() => {
@@ -984,7 +1008,7 @@ const OtherDetails = ({
         type={SnackbarTypes.Error}
         hide={() => setSnackMessage(null)}
       />
-      <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[100%] sm:max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple">
+      <div className="bg-white sm:rounded-2xl sm:mx-2 w-full md:w-10/12 h-[100%] sm:max-h-[90%] py-4 overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary">
         <div className="h-[90svh] sm:h-[82svh]">
           {/* header 84svh */}
           <div className="h-[10%]">
@@ -999,7 +1023,7 @@ const OtherDetails = ({
               Your Contact Information
             </div>
             <div
-              className="mt-4 sm:mt-8 w-full md:w-10/12 lg:w-6/12 flex flex-col max-h-[90%] sm:max-h-[85%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple px-2"
+              className="mt-4 sm:mt-8 w-full md:w-10/12 lg:w-6/12 flex flex-col max-h-[90%] sm:max-h-[85%] overflow-auto scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-brand-primary px-2"
               style={{ scrollbarWidth: 'none' }}
             >
               {/* Other Agents Other Details */}
@@ -1097,7 +1121,7 @@ const OtherDetails = ({
                               border: '1px solid #ccc',
                               borderRadius: '5px',
                             }}
-                            className=" focus:outline-none focus:ring-0"
+                            className="focus:outline-none focus:ring-0 focus:!border-black"
                           />
                         ))}
                       </div>
@@ -1110,7 +1134,7 @@ const OtherDetails = ({
                           <CircularProgress size={17} />
                         ) : (
                           <button
-                            className="outline-none border-none text-purple"
+                            className="outline-none border-none text-brand-primary"
                             onClick={handleVerifyPopup}
                           >
                             Resend
@@ -1123,7 +1147,7 @@ const OtherDetails = ({
                         </div>
                       ) : (
                         <button
-                          className="text-white bg-purple outline-none rounded-xl w-full mt-8"
+                          className="text-white bg-brand-primary outline-none rounded-xl w-full mt-8"
                           style={{ height: '50px' }}
                           onClick={handleVerifyCode}
                         >
@@ -1221,7 +1245,7 @@ const OtherDetails = ({
                         </div>
                       ) : (
                         <button
-                          className="text-white bg-purple outline-none rounded-xl w-full mt-8"
+                          className="text-white bg-brand-primary outline-none rounded-xl w-full mt-8"
                           style={{
                             height: '50px',
                             fontSize: 15,

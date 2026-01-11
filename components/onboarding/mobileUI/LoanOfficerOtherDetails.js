@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { Input } from '@/components/ui/input'
+
 function LoanOfficerOtherDetails({
   customerService,
   setCustomerService,
@@ -43,10 +45,10 @@ function LoanOfficerOtherDetails({
         Where do you primarily serve clients?
       </div>
       {/* <div className='w-full'> */}
-      <input
+      <Input
         placeholder="Specific cities, counties, or regions"
-        className="border w-full border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+        style={{ ...styles.inputStyle }}
         value={customerService}
         onChange={(e) => {
           setCustomerService(e.target.value)
@@ -57,10 +59,10 @@ function LoanOfficerOtherDetails({
       <div style={styles.headingStyle} className="mt-6">
         Name of the mortgage lender, bank, or brokerage you work with, if any.
       </div>
-      <input
+      <Input
         placeholder="Name"
-        className=" border w-full border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+        style={{ ...styles.inputStyle }}
         value={companyName}
         onChange={(e) => {
           setCompanyName(e.target.value)
@@ -93,10 +95,10 @@ function LoanOfficerOtherDetails({
                 {item.title}
               </button>
               {ClientType === 'Other (type here)' && item.id === 6 && (
-                <input
+                <Input
                   placeholder="Type here"
-                  className=" w-full border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-                  style={{ ...styles.inputStyle, marginTop: '8px' }}
+                  className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+                  style={{ ...styles.inputStyle }}
                   value={otherType}
                   onChange={(e) => {
                     setOtherType(e.target.value)

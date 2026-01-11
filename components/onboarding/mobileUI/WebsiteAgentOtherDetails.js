@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 
 import { isValidUrl } from '@/constants/Constants'
+import { Input } from '@/components/ui/input'
 
 function WebsiteAgentOtherDetails({
   websiteUrl,
@@ -43,10 +44,10 @@ function WebsiteAgentOtherDetails({
         )}
       </div>
 
-      <input
+      <Input
         placeholder="URL"
-        className="border w-full border-[#00000010] rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mb-2 mt-2"
+        style={{ ...styles.inputStyle }}
         value={websiteUrl}
         onChange={(e) => {
           setWebsiteUrl(e.target.value)

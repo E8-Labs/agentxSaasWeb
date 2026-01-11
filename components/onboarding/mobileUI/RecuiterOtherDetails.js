@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { Input } from '@/components/ui/input'
+
 function RecuiterOtherDetails({
   inputsFields,
   service,
@@ -11,15 +13,15 @@ function RecuiterOtherDetails({
       <div className="mt-6" style={styles.headingStyle}>
         Where do you primarily operate or serve customers
       </div>
-      <input
+      <Input
         ref={(el) => (inputsFields.current[0] = el)}
         autoComplete="off"
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
         placeholder="Your territory"
-        className="w-full border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+        style={{ ...styles.inputStyle }}
         value={service}
         onChange={(e) => {
           setService(e.target.value)

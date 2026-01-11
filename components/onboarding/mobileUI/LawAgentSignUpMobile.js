@@ -766,9 +766,9 @@ const LawAgentSignUpMobile = ({
                 </div>
               </div>
 
-              <div style={{ marginTop: '8px' }}>
+              <div style={{ marginTop: '8px' }} className="focus-within:border-black">
                 <PhoneInput
-                  className="border outline-none bg-white"
+                  className="border border-[#00000010] outline-none bg-white focus-within:border-black"
                   country={'us'} // restrict to US only
                   onlyCountries={['us', 'mx']}
                   disableDropdown={true}

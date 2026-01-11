@@ -151,11 +151,11 @@ function PlanSummaryMobile({ selectedPlan,
   const showRedirecting = isRedirectingProp !== undefined ? isRedirectingProp : isRedirecting
 
   return (
-    <div className="flex flex-col items-center h-full w-full h-full">
+    <div className="flex flex-col items-center h-screen pb-10 w-full h-full overflow-y-auto">
       <SignupHeaderMobile  title={reduxUser?.userRole == 'Agency' ? "Get an AI AaaS Agency" : "Grow Your Business"}
        description={reduxUser?.userRole == 'Agency' || reduxUser?.userRole == 'AgencySubAccount' ? "Gets more done than coffee. Cheaper too.😉" : "Gets more done than coffee. Cheaper too. Cancel anytime.😉"}  />
       
-      {/* Purple to Pink Gradient Background */}
+      {/* Gradient Background */}
       <div
         className="flex-1 w-full flex items-center justify-center pb-8"
         style={{
@@ -199,7 +199,7 @@ function PlanSummaryMobile({ selectedPlan,
               { onEditPayment && card && (
                 <button
                   onClick={onEditPayment}
-                  className="text-purple-600 font-medium text-sm hover:text-purple-700"
+                  className="text-brand-primary font-medium text-sm hover:opacity-80"
                 >
                   Edit
                 </button>
@@ -256,7 +256,7 @@ function PlanSummaryMobile({ selectedPlan,
                   </span>
                 </div>
                 <div className="text-sm text-gray-500">
-                  Next Charge: {moment(getNextChargeDate(selectedPlan)).format('MMMM DD,YYYY')}
+                  Next Charge: {moment(getNextChargeDate(selectedPlan)).format('MMMM DD, YYYY')}
                 </div>
               </div>
             </div>
@@ -284,7 +284,7 @@ function PlanSummaryMobile({ selectedPlan,
 
                     const billingMonths = GetMonthCountFronBillingCycle(planDuration)
                     const monthlyPrice = planPrice
-                    return `$${formatFractional2(billingMonths * monthlyPrice)}`
+                    return `$${formatFractional2(4422).toLocaleString()}`
                   })()}
                 </div>
                 <div
@@ -305,7 +305,7 @@ function PlanSummaryMobile({ selectedPlan,
           <button
             onClick={handleMakePayment}
             disabled={isSubscribing || showRedirecting}
-            className="w-full bg-purple-600 text-white font-semibold py-4 rounded-xl text-lg hover:bg-purple-700 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            className="w-full bg-brand-primary text-white font-semibold py-4 rounded-xl text-lg hover:opacity-90 transition-colors disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
             {isSubscribing ? (
               <>

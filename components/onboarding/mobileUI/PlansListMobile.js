@@ -7,6 +7,7 @@ import FeatureLine from '@/components/userPlans/FeatureLine'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import SignupHeaderMobile from './SignupHeaderMobile'
 import { useSelector } from 'react-redux'
+import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
 
 function PlansListMobile({
     loading,
@@ -41,18 +42,40 @@ function PlansListMobile({
                     }}
                     className="px-6 bg-white rounded-xl p-2 mt-2 mb-4 shadow-2xl"
                 >
-                    <div className="flex flex-col items-center w-full mt-2 mb-2">
-                        {
-                            reduxUser?.userRole !== 'AgencySubAccount' && (
+                    {
+                        duration?.length > 0 && (
+                            <div className="flex flex-col items-center w-full mt-2 mb-2">
+                                {
+                                    reduxUser?.userRole !== 'AgencySubAccount' && (
 
-                                <div className="flex mt-3 flex-row items-center justify-end gap-3 px-2 md:me-[7px] w-[calc(100%-16px)]">
-                                    {durationSaving.map((item) => {
-                                        return (
+                                        <div className="flex mt-3 flex-row items-end justify-end gap-3 px-2 md:me-[7px] w-[calc(100%-16px)]">
+                                            {durationSaving.map((item) => {
+                                                return (
+                                                    <button
+                                                        key={item.id}
+                                                        className={`px-2 py-1 rounded-tl-lg rounded-tr-lg font-semibold text-[13px] ${selectedDuration.id === item.id
+                                                            ? 'text-white bg-brand-primary outline-none border-none'
+                                                            : 'text-muted-foreground'
+                                                            }`}
+                                                        onClick={() => {
+                                                            onDurationChange(item)
+                                                            getCurrentPlans()
+                                                        }}
+                                                    >
+                                                        {item.title}
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
+                                    )}
+                                <div className="w-auto flex md:w-auto flex-col items-center md:items-end justify-center md:justify-end">
+                                    <div className="border flex flex-row items-center bg-neutral-100 px-5 gap-[8px] rounded-full py-1.5 w-[90%] md:w-auto justify-center md:justify-start">
+                                        {duration?.map((item) => (
                                             <button
                                                 key={item.id}
-                                                className={`px-2 py-1 rounded-tl-lg rounded-tr-lg font-semibold text-[13px] ${selectedDuration.id === item.id
-                                                    ? 'text-white bg-brand-primary outline-none border-none'
-                                                    : 'text-muted-foreground'
+                                                className={`px-4 py-1 rounded-full ${selectedDuration.id === item.id
+                                                    ? 'text-white bg-brand-primary outline-none border-none shadow-md shadow-brand-primary/50'
+                                                    : 'text-foreground'
                                                     }`}
                                                 onClick={() => {
                                                     onDurationChange(item)
@@ -61,30 +84,13 @@ function PlansListMobile({
                                             >
                                                 {item.title}
                                             </button>
-                                        )
-                                    })}
+                                        ))}
+                                    </div>
                                 </div>
-                            )}
-                        <div className="w-auto flex md:w-auto flex-col items-center md:items-end justify-center md:justify-end">
-                            <div className="border flex flex-row items-center bg-neutral-100 px-5 gap-[8px] rounded-full py-1.5 w-[90%] md:w-auto justify-center md:justify-start">
-                                {duration?.map((item) => (
-                                    <button
-                                        key={item.id}
-                                        className={`px-4 py-1 rounded-full ${selectedDuration.id === item.id
-                                            ? 'text-white bg-brand-primary outline-none border-none shadow-md shadow-brand-primary/50'
-                                            : 'text-foreground'
-                                            }`}
-                                        onClick={() => {
-                                            onDurationChange(item)
-                                            getCurrentPlans()
-                                        }}
-                                    >
-                                        {item.title}
-                                    </button>
-                                ))}
                             </div>
-                        </div>
-                    </div>
+                        )
+                    }
+
 
                     {/* Plan Selection */}
                     {loading ? (
@@ -143,7 +149,7 @@ function PlansListMobile({
 
                                                 <div className="flex items-baseline gap-2 mt-4">
                                                     <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-brand-primary to-brand-primary">
-                                                        ${formatDecimalValue(getMonthlyPrice(plan))}
+                                                        ${formatFractional2(getMonthlyPrice(plan))}
                                                     </span>
                                                 </div>
 

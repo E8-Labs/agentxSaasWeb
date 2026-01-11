@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { Input } from '@/components/ui/input'
+
 function RealEstateOtherDetails({
   inputsFields,
   userBrokage,
@@ -13,17 +15,17 @@ function RealEstateOtherDetails({
   return (
     <div className="w-full">
       <div style={styles.headingStyle} className="mt-6">
-        {`What’s your market territory`}
+        {`What's your market territory`}
       </div>
-      <input
+      <Input
         ref={(el) => (inputsFields.current[0] = el)}
         autoComplete="off"
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
         placeholder="Your territory"
-        className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+        style={{ ...styles.inputStyle }}
         value={userFarm}
         onChange={(e) => {
           setUserFarm(e.target.value)
@@ -38,15 +40,15 @@ function RealEstateOtherDetails({
       <div style={styles.headingStyle} className="mt-6">
         Your brokerage
       </div>
-      <input
+      <Input
         ref={(el) => (inputsFields.current[1] = el)}
         autoComplete="off"
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
         placeholder="Brokerage"
-        className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+        style={{ ...styles.inputStyle }}
         value={userBrokage}
         onChange={(e) => {
           setUserBrokage(e.target.value)
@@ -61,7 +63,7 @@ function RealEstateOtherDetails({
       <div style={styles.headingStyle} className="mt-6">
         How many homes did you sell last year
       </div>
-      <input
+      <Input
         ref={(el) => (inputsFields.current[2] = el)}
         autoComplete="off"
         autoCorrect="off"
@@ -71,8 +73,8 @@ function RealEstateOtherDetails({
         type="text"
         inputMode="numeric"
         pattern="[0-9]*"
-        className="border border-[#00000010] w-full rounded p-3 outline-none mb-2 focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="w-full mb-2 mt-2"
+        style={{ ...styles.inputStyle }}
         value={userTransaction}
         onChange={(e) => {
           // Only keep digits in state

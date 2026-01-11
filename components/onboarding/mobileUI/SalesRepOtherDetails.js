@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { Input } from '@/components/ui/input'
+
 function SolarRepOtherDetails({
   service,
   setService,
@@ -33,15 +35,15 @@ function SolarRepOtherDetails({
       <div style={styles.headingStyle} className="mt-6">
         Where do you primarily operate or serve customers
       </div>
-      <input
+      <Input
         ref={(el) => (inputsFields.current[0] = el)}
         autoComplete="off"
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
         placeholder="Your territory"
-        className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+        style={{ ...styles.inputStyle }}
         value={service}
         onChange={(e) => {
           setService(e.target.value)
@@ -56,15 +58,15 @@ function SolarRepOtherDetails({
       <div style={styles.headingStyle} className="mt-6">
         Company
       </div>
-      <input
+      <Input
         ref={(el) => (inputsFields.current[1] = el)}
         autoComplete="off"
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
         placeholder="Company"
-        className="border w-full border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+        style={{ ...styles.inputStyle }}
         value={companyName}
         onChange={(e) => {
           setCompanyName(e.target.value)
@@ -79,15 +81,15 @@ function SolarRepOtherDetails({
       <div style={styles.headingStyle} className="mt-6">
         Installation Volume per Year
       </div>
-      <input
+      <Input
         autoComplete="off"
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
         ref={(el) => (inputsFields.current[2] = el)}
         placeholder="Type here"
-        className="border w-full border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+        style={{ ...styles.inputStyle }}
         value={installationVolume}
         onChange={(e) => {
           setInstallationVolume(e.target.value)
@@ -102,11 +104,11 @@ function SolarRepOtherDetails({
       <div style={styles.headingStyle} className="mt-6">
         Average Project Size (kw)
       </div>
-      <input
+      <Input
         placeholder="Type here"
-        className="w-full border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
         ref={(el) => (inputsFields.current[3] = el)}
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        style={{ ...styles.inputStyle }}
         value={projectSize}
         onChange={(e) => {
           setProjectSize(e.target.value)

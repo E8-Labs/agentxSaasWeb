@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { Input } from '@/components/ui/input'
+
 function SalesDevRepOtherDetails({
   inputsFields,
   service,
@@ -13,15 +15,15 @@ function SalesDevRepOtherDetails({
       <div style={styles.headingStyle} className="mt-6">
         Where do you primarily operate or serve customers
       </div>
-      <input
+      <Input
         ref={(el) => (inputsFields.current[0] = el)}
         autoComplete="off"
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
         placeholder="Your territory"
-        className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+        style={{ ...styles.inputStyle }}
         value={service}
         onChange={(e) => {
           setService(e.target.value)
@@ -36,15 +38,15 @@ function SalesDevRepOtherDetails({
       <div style={styles.headingStyle} className="mt-6">
         Company
       </div>
-      <input
+      <Input
         ref={(el) => (inputsFields.current[1] = el)}
         autoComplete="off"
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
         placeholder="Company"
-        className="border border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+        style={{ ...styles.inputStyle }}
         value={companyName}
         onChange={(e) => {
           setCompanyName(e.target.value)

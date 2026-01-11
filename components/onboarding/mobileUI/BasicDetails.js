@@ -21,6 +21,7 @@ import Footer from '@/components/onboarding/Footer'
 import Header from '@/components/onboarding/Header'
 import ProgressBar from '@/components/onboarding/ProgressBar'
 import VerificationCodeInput from '@/components/test/VerificationCodeInput'
+import { Input } from '@/components/ui/input'
 import { PersistanceKeys } from '@/constants/Constants'
 import { clearAgencyUUID, getAgencyUUIDForAPI } from '@/utilities/AgencyUtility'
 import { GetCampaigneeNameIfAvailable } from '@/utilities/UserUtility'
@@ -367,11 +368,11 @@ const BasicDetails = ({
             )
           }
           localStorage.removeItem(PersistanceKeys.RegisterDetails)
-          
+
           // CRITICAL: Clear logout flag on successful registration
           const { clearLogoutFlag } = require('@/utilities/UserUtility')
           clearLogoutFlag()
-          
+
           localStorage.setItem('User', JSON.stringify(response.data.data))
           //set cokie on locastorage to run middle ware
           // document.cookie = `User=${encodeURIComponent(
@@ -555,15 +556,15 @@ const BasicDetails = ({
               style={{ scrollbarWidth: 'none' }}
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>
-              <input
+              <Input
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Name"
-                className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
+                className="border-[#00000010] focus:border-black focus-visible:border-black mt-2"
                 ref={(el) => (inputsFields.current[0] = el)}
-                style={{ ...styles.inputStyle, marginTop: '8px' }}
+                style={{ ...styles.inputStyle }}
                 value={userName}
                 onChange={(e) => {
                   const input = e.target.value
@@ -624,15 +625,15 @@ const BasicDetails = ({
                 </div>
               </div>
 
-              <input
+              <Input
                 ref={(el) => (inputsFields.current[1] = el)}
                 autoComplete="off"
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
                 placeholder="Email address"
-                className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-                style={{ ...styles.inputStyle, marginTop: '8px' }}
+                className="border-[#00000010] focus:border-black focus-visible:border-black mt-2"
+                style={{ ...styles.inputStyle }}
                 value={userEmail}
                 onChange={(e) => {
                   let value = e.target.value
@@ -765,10 +766,26 @@ const BasicDetails = ({
                 </div>
               </div>
 
-              <div style={{ marginTop: '8px' }}>
+              <div style={{ marginTop: '8px' }} className="focus-within:border-black">
                 <PhoneInput
-                  // ref={phoneInputRef}
-                  className="border outline-none bg-white"
+                  style={{
+                    borderRadius: '7px',
+                    border: '2px solid #00000020',
+                    outline: 'none',
+                    boxShadow: 'none',
+                  }}
+                  inputStyle={{
+                    width: '100%',
+                    borderWidth: '0px',
+                    backgroundColor: 'transparent',
+                    paddingLeft: '60px',
+                    paddingTop: '20px',
+                    paddingBottom: '20px',
+                    outline: 'none',
+                    boxShadow: 'none',
+                  }}
+                  containerClass="phone-input-container"
+                  className=""
                   country={'us'} // restrict to US only
                   onlyCountries={['us', 'mx']}
                   disableDropdown={true}
@@ -782,19 +799,9 @@ const BasicDetails = ({
                       : 'Enter Phone Number'
                   }
                   disabled={loading} // Disable input if still loading
-                  style={{ borderRadius: '7px' }}
                   inputProps={{
                     ref: phoneInputRef,
                     // enterKeyHint: "Done",
-                  }}
-                  inputStyle={{
-                    width: '100%',
-                    borderWidth: '0px',
-                    backgroundColor: 'transparent',
-                    paddingLeft: '60px',
-                    paddingTop: '20px',
-                    paddingBottom: '20px',
-                    fontSize: 15,
                   }}
                   buttonStyle={{
                     border: 'none',
@@ -808,13 +815,13 @@ const BasicDetails = ({
                     overflowY: 'auto',
                   }}
                   defaultMask={loading ? 'Loading...' : undefined}
-                  // onKeyDown={(e) => {
-                  //   if (e.key === "Enter" || e.key === "Done") {
-                  //     // inputsFields.current[3]?.focus(); // Move to the second input
-                  //    // //console.log
-                  //     handleContinue();
-                  //   }
-                  // }}
+                // onKeyDown={(e) => {
+                //   if (e.key === "Enter" || e.key === "Done") {
+                //     // inputsFields.current[3]?.focus(); // Move to the second input
+                //    // //console.log
+                //     handleContinue();
+                //   }
+                // }}
                 />
               </div>
 

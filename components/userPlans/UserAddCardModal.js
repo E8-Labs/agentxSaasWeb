@@ -92,6 +92,10 @@ const UserAddCard = ({
   const [disableContinue, setDisableContinue] = useState(false)
   const [currentUserPlan, setCurrentUserPlan] = useState(null)
 
+
+
+  console.log('reduxUser?.userRole in UserAddCardModal', reduxUser?.userRole)
+
   // Check if user is subaccount and if agency has branding
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -668,48 +672,53 @@ const UserAddCard = ({
             </div>
 
             {/* Promo Code */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Promo Code
-              </label>
-              <input
-                value={inviteCode}
-                onChange={(e) => {
-                  setInviteCode(e.target.value)
-                }}
-                className="w-full h-[50px] px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-brand-primary/20"
-                style={{
-                  color: '#000000',
-                  backgroundColor: 'white',
-                  fontSize: 15,
-                  fontWeight: '500',
-                }}
-                placeholder=""
-              />
-              {inviteCode && (
-                <div className="mt-2 flex items-center gap-2" style={{ minHeight: 24 }}>
-                  {referralStatus === 'loading' && (
-                    <div style={{ fontSize: 12, color: '#4F5B76' }}>
-                      Validating code…
-                    </div>
-                  )}
-                  {referralStatus === 'invalid' && (
-                    <div
-                      style={{ fontSize: 12, color: '#D93025', fontWeight: 600 }}
-                    >
-                      {referralMessage || 'Invalid referral code'}
-                    </div>
-                  )}
-                  {referralStatus === 'valid' && (
-                    <div
-                      style={{ fontSize: 12, color: '#34A853', fontWeight: 600 }}
-                    >
-                      {referralMessage || 'Code applied'}
+            {
+              reduxUser?.userRole !== 'AgencySubAccount' && (
+
+                <div className="mb-4">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Promo Code
+                  </label>
+                  <input
+                    value={inviteCode}
+                    onChange={(e) => {
+                      setInviteCode(e.target.value)
+                    }}
+                    className="w-full h-[50px] px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-brand-primary/20"
+                    style={{
+                      color: '#000000',
+                      backgroundColor: 'white',
+                      fontSize: 15,
+                      fontWeight: '500',
+                    }}
+                    placeholder=""
+                  />
+                  {inviteCode && (
+                    <div className="mt-2 flex items-center gap-2" style={{ minHeight: 24 }}>
+                      {referralStatus === 'loading' && (
+                        <div style={{ fontSize: 12, color: '#4F5B76' }}>
+                          Validating code…
+                        </div>
+                      )}
+                      {referralStatus === 'invalid' && (
+                        <div
+                          style={{ fontSize: 12, color: '#D93025', fontWeight: 600 }}
+                        >
+                          {referralMessage || 'Invalid referral code'}
+                        </div>
+                      )}
+                      {referralStatus === 'valid' && (
+                        <div
+                          style={{ fontSize: 12, color: '#34A853', fontWeight: 600 }}
+                        >
+                          {referralMessage || 'Code applied'}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-              )}
-            </div>
+              )
+            }
 
             {/* Order Summary Section */}
             {selectedPlan && (
@@ -720,7 +729,7 @@ const UserAddCard = ({
                 <div className="flex flex-row items-start justify-between w-full mb-4">
                   <div>
                     <div style={{ fontWeight: '600', fontSize: 15 }}>
-                      {selectedPlan?.title|| selectedPlan?.name || 'No Plan Selected'}
+                      {selectedPlan?.title || selectedPlan?.name || 'No Plan Selected'}
                     </div>
                     <div style={{ fontWeight: '400', fontSize: 13, marginTop: 4 }}>
                       {(() => {
@@ -751,7 +760,7 @@ const UserAddCard = ({
                         marginTop: 4,
                       }}
                     >
-                      Next Charge: {moment(getNextChargeDate(selectedPlan)).format('MMMM DD,YYYY')}
+                      Next Charge: {moment(getNextChargeDate(selectedPlan)).format('MMMM DD, YYYY')}
                     </div>
                   </div>
                   <div style={{ fontWeight: '600', fontSize: 15 }}>
@@ -824,7 +833,7 @@ const UserAddCard = ({
               </div>
             )}
 
-               <div className="flex items-center gap-2 mb-6">
+            <div className="flex items-center gap-2 mb-6">
               <Checkbox
                 checked={agreeTerms}
                 onCheckedChange={setAgreeTerms}
@@ -869,14 +878,14 @@ const UserAddCard = ({
                   !agreeTerms
                 }
                 className={`w-1/2 h-[50px] rounded-xl font-bold text-white text-lg transition-all ${!CardAdded ||
-                    !CardExpiry ||
-                    !CVC ||
-                    addCardLoader ||
-                    disableContinue ||
-                    isSubscribingRef.current ||
-                    !agreeTerms
-                    ? 'bg-gray-300 cursor-not-allowed'
-                    : 'bg-brand-primary hover:opacity-90 shadow-lg active:scale-98'
+                  !CardExpiry ||
+                  !CVC ||
+                  addCardLoader ||
+                  disableContinue ||
+                  isSubscribingRef.current ||
+                  !agreeTerms
+                  ? 'bg-gray-300 cursor-not-allowed'
+                  : 'bg-brand-primary hover:opacity-90 shadow-lg active:scale-98'
                   }`}
               >
                 {addCardLoader ? (

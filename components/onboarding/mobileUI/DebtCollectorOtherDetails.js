@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { Input } from '@/components/ui/input'
+
 function DebtCollectorOtherDetails({
   inputsFields,
   service,
@@ -34,15 +36,15 @@ function DebtCollectorOtherDetails({
       <div style={styles.headingStyle} className="mt-6">
         Where do you primarily collect debts?
       </div>
-      <input
+      <Input
         ref={(el) => (inputsFields.current[0] = el)}
         autoComplete="off"
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
         placeholder="Secific cities,contries or regions"
-        className="border w-full border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+        style={{ ...styles.inputStyle }}
         value={service}
         onChange={(e) => {
           setService(e.target.value)
@@ -57,15 +59,15 @@ function DebtCollectorOtherDetails({
       <div style={styles.headingStyle} className="mt-6">
         Name of the company or collection agency you work with, if any.
       </div>
-      <input
+      <Input
         ref={(el) => (inputsFields.current[0] = el)}
         autoComplete="off"
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
         placeholder="Name"
-        className="border w-full border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+        style={{ ...styles.inputStyle }}
         value={companyName}
         onChange={(e) => {
           setCompanyName(e.target.value)
@@ -80,15 +82,15 @@ function DebtCollectorOtherDetails({
       <div style={styles.headingStyle} className="mt-6">
         What is the typical balance size of debts you recover?
       </div>
-      <input
+      <Input
         ref={(el) => (inputsFields.current[0] = el)}
         autoComplete="off"
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
         placeholder="Eg,< $1000, $1000-$5000, $5000-$10000, $10000-$50000"
-        className="border w-full border-[#00000010] w-full rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+        style={{ ...styles.inputStyle }}
         value={installationVolume}
         onChange={(e) => {
           setInstallationVolume(e.target.value)

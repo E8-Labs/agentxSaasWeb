@@ -2413,7 +2413,7 @@ const NewMessageModal = ({
             </div>
             
                 {/* Save as template checkbox - only in lead mode */}
-                {!isPipelineMode && (
+                {(
                   <div className="flex items-center gap-2">
                     <Checkbox
                       checked={saveAsTemplate}

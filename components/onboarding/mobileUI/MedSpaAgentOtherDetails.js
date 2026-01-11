@@ -1,5 +1,7 @@
 import React from 'react'
 
+import { Input } from '@/components/ui/input'
+
 function MedSpaAgentOtherDetails({
   customerService,
   setCustomerService,
@@ -13,10 +15,10 @@ function MedSpaAgentOtherDetails({
       <div style={styles.headingStyle} className="mt-6">
         Where do you primarily operate?
       </div>
-      <input
+      <Input
         placeholder="Specific cities, counties, or regions"
-        className="border w-full border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+        style={{ ...styles.inputStyle }}
         value={customerService}
         onChange={(e) => {
           setCustomerService(e.target.value)
@@ -26,10 +28,10 @@ function MedSpaAgentOtherDetails({
       <div style={styles.headingStyle} className="mt-6">
         Name of the med spa or practice you work with, if any.
       </div>
-      <input
+      <Input
         placeholder="Name"
-        className="borde w-full border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+        style={{ ...styles.inputStyle }}
         value={companyName}
         onChange={(e) => {
           setCompanyName(e.target.value)
@@ -39,10 +41,10 @@ function MedSpaAgentOtherDetails({
       <div style={styles.headingStyle} className="mt-6">
         How many clients do you typically see per month?
       </div>
-      <input
+      <Input
         placeholder="Type here"
-        className="border w-full border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
-        style={{ ...styles.inputStyle, marginTop: '8px' }}
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
+        style={{ ...styles.inputStyle }}
         value={installationVolume}
         onChange={(e) => {
           setInstallationVolume(e.target.value)

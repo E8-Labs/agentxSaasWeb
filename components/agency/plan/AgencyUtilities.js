@@ -81,7 +81,10 @@ export function formatFractional2(price, maxDecimalPlaces = 2) {
 
   if (isWholeNumber) {
     // Whole numbers: return without decimal places
-    return num.toString()
+    return num.toLocaleString('en-US', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    })
   }
 
   // For decimal numbers, always show exactly 2 decimal places
