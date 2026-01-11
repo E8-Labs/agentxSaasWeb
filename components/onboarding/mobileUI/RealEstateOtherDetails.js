@@ -73,7 +73,7 @@ function RealEstateOtherDetails({
         type="text"
         inputMode="numeric"
         pattern="[0-9]*"
-        className="w-full mb-2 mt-2"
+        className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
         style={{ ...styles.inputStyle }}
         value={userTransaction}
         onChange={(e) => {
