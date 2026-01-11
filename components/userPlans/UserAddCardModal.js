@@ -33,6 +33,7 @@ import { formatFractional2 } from '../agency/plan/AgencyUtilities'
 // import Apis from '../Apis/Apis';
 import getProfileDetails from '../apis/GetProfile'
 import {
+  calculateDiscountedPrice,
   calculatePlanPrice,
   checkReferralCode,
   getMonthlyPrice,
@@ -69,6 +70,7 @@ const UserAddCard = ({
   const [referralStatus, setReferralStatus] = useState('idle') // idle | loading | valid | invalid
   const [referralMessage, setReferralMessage] = useState('')
   const referralRequestSeqRef = useRef(0)
+  const [referralCodeDetails, setReferralCodeDetails] = useState(null)
 
   const [addCardLoader, setAddCardLoader] = useState(false)
   const [addCardDetails, setAddCardDetails] = useState(null)
@@ -92,9 +94,7 @@ const UserAddCard = ({
   const [disableContinue, setDisableContinue] = useState(false)
   const [currentUserPlan, setCurrentUserPlan] = useState(null)
 
-
-
-  console.log('reduxUser?.userRole in UserAddCardModal', reduxUser?.userRole)
+  
 
   // Check if user is subaccount and if agency has branding
   useEffect(() => {
@@ -198,6 +198,9 @@ const UserAddCard = ({
         if (currentSeq !== referralRequestSeqRef.current) return
 
         const resp = await checkReferralCode(inviteCode.trim())
+
+        setReferralCodeDetails(resp)
+        console.log('referralCodeDetails', referralCodeDetails)
 
         // Double-check after async call
         if (currentSeq !== referralRequestSeqRef.current) return
@@ -545,6 +548,32 @@ const UserAddCard = ({
     return <div>Loading stripe</div>
   }
 
+
+  const calculateTotalPrice = (selectedPlan) => {
+
+     // Check if plan has trial and user is subscribing for the first time
+     const hasTrial = selectedPlan?.hasTrial === true
+     const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+
+     // If plan has trial and user has no previous plan, show $0
+     if (hasTrial && isFirstTimeSubscription) {
+       return '$0'
+     }
+
+     const billingMonths = GetMonthCountFronBillingCycle(
+       selectedPlan?.billingCycle || selectedPlan?.duration,
+     )
+     const monthlyPrice =
+       selectedPlan?.discountPrice ||
+       selectedPlan?.discountedPrice ||
+       selectedPlan?.originalPrice ||
+       0
+
+     const discountCalculation = referralCodeDetails ? calculateDiscountedPrice(referralCodeDetails?.discountValue, referralCodeDetails?.discountType, billingMonths * monthlyPrice) : null
+     const finalTotal = discountCalculation ? discountCalculation : billingMonths * monthlyPrice
+     return `$${formatFractional2(monthlyPrice * billingMonths)}`
+  }
+
   return (
     <div style={{ width: '100%' }}>
       {isSmallScreen ? (
@@ -760,30 +789,11 @@ const UserAddCard = ({
                         marginTop: 4,
                       }}
                     >
-                      Next Charge: {moment(getNextChargeDate(selectedPlan)).format('MMMM DD, YYYY')}
+                      Next Charge: {moment(getNextChargeDate(selectedPlan)).format('MMMM DD,YYYY')}
                     </div>
                   </div>
                   <div style={{ fontWeight: '600', fontSize: 15 }}>
-                    {(() => {
-                      // Check if plan has trial and user is subscribing for the first time
-                      const hasTrial = selectedPlan?.hasTrial === true
-                      const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-
-                      // If plan has trial and user has no previous plan, show $0
-                      if (hasTrial && isFirstTimeSubscription) {
-                        return '$0'
-                      }
-
-                      const billingMonths = GetMonthCountFronBillingCycle(
-                        selectedPlan?.billingCycle || selectedPlan?.duration,
-                      )
-                      const monthlyPrice =
-                        selectedPlan?.discountPrice ||
-                        selectedPlan?.discountedPrice ||
-                        selectedPlan?.originalPrice ||
-                        0
-                      return `$${formatFractional2(billingMonths * monthlyPrice)}`
-                    })()}
+                   {calculateTotalPrice(selectedPlan)}
                   </div>
                 </div>
 

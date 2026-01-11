@@ -482,6 +482,16 @@ export const checkReferralCode = async (code, planId = null) => {
   }
 }
 
+export const calculateDiscountedPrice = (discountValue, discountType, totalPrice) => {
+  if (discountType === 'percentage') {
+    return totalPrice - (totalPrice * discountValue) / 100
+  } else if (discountType === 'flat_amount') {
+    return Math.min(discountValue, totalPrice)
+  }else{
+    return totalPrice
+  }
+}
+
 export const calculatePlanPrice = (selectedPlan) => {
   console.log('Scale plan value passed is', selectedPlan)
   if (!selectedPlan) {
