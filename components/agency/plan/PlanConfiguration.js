@@ -815,7 +815,7 @@ export default function PlanConfiguration({
       seatsStr = noOfSeats?.toString().trim()
       costPerSeatStr = costPerAdditionalSeat?.toString().trim()
       requiredData =
-        agentsStr &&
+        Number(noOfAgents)>=1000 &&
         contactsStr &&
         language &&
         seatsStr &&
@@ -1065,25 +1065,34 @@ export default function PlanConfiguration({
                   <label style={styles.labels}>
                     Number of Agents <span style={{ color: '#ef4444' }}>*</span>
                   </label>
-                  <input
-                    style={styles.inputs}
-                    className="w-full border border-gray-200 rounded p-2 mb-4 mt-1 outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
-                    placeholder=""
-                    value={noOfAgents}
-                    onChange={(e) => {
-                      const value = e.target.value
-                      // Allow only digits and one optional period
-                      const sanitized = value.replace(/[^0-9.]/g, '')
+                  <div
+                    className={`border ${noOfAgents && Number(noOfAgents) > 1000 ? 'border-red' : 'border-gray-200'} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}
+                  >
+                    <input
+                      style={styles.inputs}
+                      className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
+                      placeholder="max 1000"
+                      value={noOfAgents}
+                      max={1000}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        // Allow only digits and one optional period
+                        const sanitized = value.replace(/[^0-9.]/g, '')
 
-                      // Prevent multiple periods
-                      const valid =
-                        sanitized.split('.')?.length > 2
-                          ? sanitized.substring(0, sanitized.lastIndexOf('.'))
-                          : sanitized
-                      // setOriginalPrice(valid);
-                      setNoOfAgents(valid)
-                    }}
-                  />
+                        // Prevent multiple periods
+                        const valid =
+                          sanitized.split('.')?.length > 2
+                            ? sanitized.substring(0, sanitized.lastIndexOf('.'))
+                            : sanitized
+                        // setOriginalPrice(valid);
+                        setNoOfAgents(valid)
+                        if (valid >= 1000) {
+                          setSnackBannerMsg('Number of agents cannot be greater than 1,000')
+                          setSnackBannerMsgType(SnackbarTypes.Error)
+                        }
+                      }}
+                    />
+                  </div>
                 </div>
 
                 {/* Tag Option */}

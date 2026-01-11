@@ -901,6 +901,12 @@ const Creator = ({ agentId, name }) => {
   // Helper function to check if mouse is over a specific element
 
   const handleMouseMove = (event) => {
+    // Hide hover animation if call is active
+    if (open) {
+      setBoxVisible(false)
+      return
+    }
+
     const centerX = window.innerWidth / 2
     const centerY = window.innerHeight / 2
     const x = event.clientX
@@ -1163,6 +1169,10 @@ const Creator = ({ agentId, name }) => {
                 backgroundPosition: 'center',
               }}
               onClick={() => {
+                // Don't initiate new call if call is already active
+                if (open) {
+                  return
+                }
                 handleInitiateVapi()
               }}
             >

@@ -130,6 +130,7 @@ function AdminBasicInfo({ selectedUser }) {
 
   const [userRole, setUserRole] = useState('')
   const [userType, setUserType] = useState('')
+  const [isInternal,setIsInternal] = useState(false)
 
   const primaryClientTypes = [
     {
@@ -269,6 +270,8 @@ function AdminBasicInfo({ selectedUser }) {
 
         setInstallationVolume(userData?.projectsPerYear || '')
         setProjectSize(userData?.projectSizeKw || '')
+
+        setIsInternal(userData.isInternal)
 
         // //console.log;
         // //console.log;
@@ -808,37 +811,41 @@ function AdminBasicInfo({ selectedUser }) {
         )}
       </div>
 
-      <div
-        style={{
-          fontSize: 16,
-          fontWeight: '700',
-          color: '#000',
-          marginTop: '4vh',
-        }}
-      >
-        Phone number
-      </div>
-      <div
-        className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 outline-none focus:ring-0"
-        style={{
-          border: `1px solid #00000010`,
-          transition: 'border-color 0.3s ease',
-        }}
-      >
-        <input
-          readOnly
-          className="w-11/12 outline-none focus:ring-0"
-          // onFocus={() => setFocusedEmail(true)}
-          // onBlur={() => setFocusedEmail(false)}
-          value={phone}
-          onChange={(event) => {
-            // setEmail(event.target.value)
-          }}
-          type="text"
-          placeholder="Phone"
-          style={{ border: '0px solid #000000', outline: 'none' }}
-        />
-      </div>
+      {!isInternal && (
+        <>
+          <div
+            style={{
+              fontSize: 16,
+              fontWeight: '700',
+              color: '#000',
+              marginTop: '4vh',
+            }}
+          >
+            Phone number
+          </div>
+          <div
+            className="flex items-center rounded-lg px-3 py-2 w-6/12 mt-5 outline-none focus:ring-0"
+            style={{
+              border: `1px solid #00000010`,
+              transition: 'border-color 0.3s ease',
+            }}
+          >
+            <input
+              readOnly
+              className="w-11/12 outline-none focus:ring-0"
+              // onFocus={() => setFocusedEmail(true)}
+              // onBlur={() => setFocusedEmail(false)}
+              value={phone}
+              onChange={(event) => {
+                // setEmail(event.target.value)
+              }}
+              type="text"
+              placeholder="Phone"
+              style={{ border: '0px solid #000000', outline: 'none' }}
+            />
+          </div>
+        </>
+      )}
 
       {userRole && userRole != 'Invitee' && userRole != 'AgencySubAccount' && (
         <>

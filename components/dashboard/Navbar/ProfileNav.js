@@ -1424,7 +1424,7 @@ const ProfileNav = () => {
       <IntroVideoModal
         open={walkthroughWatched}
         onClose={() => setWalkthroughWatched(false)}
-        videoTitle="Welcome to AssignX"
+        videoTitle={`Welcome to ${reduxUser?.agencyBranding?reduxUser?.agencyBranding?.companyName:"AssignX"}`}
         videoDescription="This short video will show you where everything is. Enjoy!"
         videoUrl={HowtoVideos.WalkthroughWatched}//WalkthroughWatched
         showLoader={updateProfileLoader}

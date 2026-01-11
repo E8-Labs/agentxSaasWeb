@@ -147,10 +147,41 @@ const DashboardSlider = ({
       if (data) {
         setUserDetails(data)
         processUserSettings(data)
+        // Fetch branding data if user is Agency or AgencySubAccount
+        if (data?.userRole === 'Agency' || data?.userRole === 'AgencySubAccount') {
+          await fetchBrandingData(data.id)
+        }
       }
       setInitialLoader(false)
     } else {
       fetchLocalDetails()
+    }
+  }
+
+  // Fetch branding data for support widget logo
+  const fetchBrandingData = async (userId = null) => {
+    try {
+      const Auth = AuthToken()
+      let apiUrl = Apis.getAgencyBranding
+      if (userId) {
+        apiUrl += `?userId=${userId}`
+      }
+      const response = await axios.get(apiUrl, {
+        headers: {
+          Authorization: 'Bearer ' + Auth,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response?.data?.status === true) {
+        const branding = response?.data?.data?.branding
+        // Update userDetails with branding data
+        setUserDetails((prev) => ({
+          ...prev,
+          agencyBranding: branding,
+        }))
+      }
+    } catch (error) {
+      console.error('Error fetching branding data:', error)
     }
   }
 
@@ -306,7 +337,7 @@ const DashboardSlider = ({
   }
 
   //fetch user local data
-  const fetchLocalDetails = () => {
+  const fetchLocalDetails = async () => {
     const localData = localStorage.getItem('User')
     let AuthToken = null
     if (localData) {
@@ -320,6 +351,10 @@ const DashboardSlider = ({
         UserDetailsLD?.user?.userRole,
       )
       processUserSettings(UserDetailsLD.user)
+      // Fetch branding data if user is Agency or AgencySubAccount
+      if (UserDetailsLD?.user?.userRole === 'Agency' || UserDetailsLD?.user?.userRole === 'AgencySubAccount') {
+        await fetchBrandingData()
+      }
       setInitialLoader(false)
     }
   }
@@ -530,13 +565,15 @@ const DashboardSlider = ({
             <GetHelpBtn
               handleReopen={handleReopen}
               customLogo={
-                userDetails?.userRole === 'AgencySubAccount' &&
+                (userDetails?.userRole === 'AgencySubAccount' ||
+                  userDetails?.userRole === 'Agency') &&
                 userDetails?.agencyBranding?.supportWidgetLogoUrl
                   ? userDetails.agencyBranding.supportWidgetLogoUrl
                   : null
               }
               customTitle={
-                userDetails?.userRole === 'AgencySubAccount' &&
+                (userDetails?.userRole === 'AgencySubAccount' ||
+                  userDetails?.userRole === 'Agency') &&
                 userDetails?.agencyBranding?.supportWidgetTitle
                   ? userDetails.agencyBranding.supportWidgetTitle
                   : null

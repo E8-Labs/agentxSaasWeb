@@ -26,6 +26,7 @@ import UserActivityLogs from './UserActivityLogs'
 import AdminPipeline1 from './pipline/AdminPipeline1'
 import { PersistanceKeys } from '@/constants/Constants'
 import Messages from '@/components/messaging/Messages'
+import AppLogo from '@/components/common/AppLogo'
 
 function SelectedUserDetails({
   selectedUser,
@@ -73,7 +74,7 @@ function SelectedUserDetails({
       selectedImage: '/otherAssets/selectedActivityLog.png',
       unSelectedImage: '/otherAssets/activityLog.png',
     },
-    
+
     {
       id: 6,
       name: 'Integration',
@@ -92,7 +93,7 @@ function SelectedUserDetails({
       selectedImage: '/svgIcons/selectedProfileCircle.svg',
       unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
     },
-   
+
   ]
 
   console.log('Status of agency user', agencyUser)
@@ -175,7 +176,7 @@ function SelectedUserDetails({
   // Restore tab state when component mounts (only for admin/agency users)
   useEffect(() => {
     if (!isAdminOrAgency()) return
-    
+
     try {
       const storedData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
       if (storedData) {
@@ -214,17 +215,17 @@ function SelectedUserDetails({
   // Store tab state when selected (only for admin/agency users)
   const storeTabState = (tabName) => {
     if (!isAdminOrAgency()) return
-    
+
     try {
       const existingData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
       let stateObject = existingData ? JSON.parse(existingData) : {}
-      
+
       if (!stateObject.restoreState) {
         stateObject.restoreState = {}
       }
-      
+
       stateObject.restoreState.selectedTabName = tabName
-      
+
       localStorage.setItem(
         PersistanceKeys.isFromAdminOrAgency,
         JSON.stringify(stateObject)
@@ -422,43 +423,74 @@ function SelectedUserDetails({
           )}
 
           <div className="flex flex-row items-start w-full ">
-            <div className='flex flex-col items-start justify-center w-2/12 px-6 ${(from === "admin" || from === "subaccount") ? "":"h-full"}'>
-              <div className={`flex flex-row gap-2 items-center justify-start w-full pt-3 ${agencyUser ? 'pt-3':''}`}>
-                <div className="flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white">
-                  {selectedUser.name[0]}
-                </div>
-                <h4>{selectedUser.name}</h4>
-
-                {agencyUser ? (
-                  ''
+            <div className={`flex border-r border-[#00000015]  flex-col items-start justify-start w-2/12 px-6 ${(from === "admin" || from === "subaccount") ? "":"h-full" } ${agencyUser ? 'h-screen' : 'h-auto'}`}>
+            {agencyUser && (
+              <div className="w-full flex flex-col gap-2">
+                {/* Show company name if no logo for subaccount users */}
+                {user && (user?.userRole === "AgencySubAccount" || user?.userRole === "Invitee") && user?.agencyBranding && !user.agencyBranding.logoUrl && user.agencyBranding.companyName ? (
+                  <div className="w-full text-left pl-6" style={{ marginLeft: "-8px" }}>
+                    <div className="text-lg font-bold text-black truncate">
+                      {user.agencyBranding.companyName}
+                    </div>
+                  </div>
                 ) : (
-                  <button
-                    onClick={() => {
-                      console.log('selectedUser.id', selectedUser.id)
-                      if (selectedUser?.id) {
-                        // Open a new tab with user ID as query param
-                        let url = ''
-                        if (from === 'admin') {
-                          url = `/admin/users?userId=${selectedUser.id}&agencyUser=true`
-                        } else if (from === 'subaccount') {
-                          // url = `/agency/users?userId=${selectedUser.id}`
-                          url = `/agency/users?userId=${selectedUser.id}&agencyUser=true`
-                        }
-                        // url = `admin/users?userId=${selectedUser.id}`
-                        //console.log
-                        window.open(url, '_blank')
-                      }
-                    }}
-                  >
+                  /* AppLogo handles logo display based on hostname */
+                  <div className="flex justify-start pt-4">
                     <Image
-                      src={'/svgIcons/arrowboxIcon.svg'}
-                      height={20}
-                      width={20}
-                      alt="*"
+                      src={user?.agencyBranding?.logoUrl}
+                      alt="logo"
+                      height={40}
+                      width={140}
+                      style={{ objectFit: 'contain', maxHeight: '40px', maxWidth: '140px' }}
+                      unoptimized={true}
                     />
-                  </button>
+                  </div>
                 )}
               </div>
+              )}
+              {
+                !agencyUser && (
+
+                  <div className={`flex flex-row gap-2 items-center justify-start w-full pt-3 ${agencyUser ? 'pt-3' : ''}`}>
+
+
+                    <div className="flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white">
+                      {selectedUser.name[0]}
+                    </div>
+                    <h4>{selectedUser.name}</h4>
+
+                    {agencyUser ? (
+                      ''
+                    ) : (
+                      <button
+                        onClick={() => {
+                          console.log('selectedUser.id', selectedUser.id)
+                          if (selectedUser?.id) {
+                            // Open a new tab with user ID as query param
+                            let url = ''
+                            if (from === 'admin') {
+                              url = `/admin/users?userId=${selectedUser.id}&agencyUser=true`
+                            } else if (from === 'subaccount') {
+                              // url = `/agency/users?userId=${selectedUser.id}`
+                              url = `/agency/users?userId=${selectedUser.id}&agencyUser=true`
+                            }
+                            // url = `admin/users?userId=${selectedUser.id}`
+                            //console.log
+                            window.open(url, '_blank')
+                          }
+                        }}
+                      >
+                        <Image
+                          src={'/svgIcons/arrowboxIcon.svg'}
+                          height={20}
+                          width={20}
+                          alt="*"
+                        />
+                      </button>
+                    )}
+                  </div>
+                )
+              }
               <div className='flex flex-col items-start justify-center gap-3 w-full pt-10 ${(from === "admin" || from === "subaccount") ? "":"h-full"}'>
                 {manuBar.map((item) => (
                   <button
@@ -508,6 +540,70 @@ function SelectedUserDetails({
                   </button>
                 ))}
               </div>
+
+              {agencyUser && (
+                <div className="w-full flex flex-row items-start gap-3 py-2 truncate outline-none text-start  no-underline hover:no-underline" //border border-[#00000015] rounded-[10px]
+                  style={{
+                    textOverflow: "ellipsis",
+                    textDecoration: "none",
+                    position: "absolute",
+                    bottom: 8,
+
+                  }}>
+                  {user?.thumb_profile_image ? (
+                    <img
+                      src={user?.thumb_profile_image}
+                      alt="*"
+                      style={{
+                        objectFit: "fill",
+                        height: "34px",
+                        width: "34px",
+                        borderRadius: "50%",
+                      }}
+                    />
+                  ) : (
+                    <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
+                      {user?.name.slice(0, 1).toUpperCase()}
+                    </div>
+                  )}
+
+                  <div>
+                    <div className="flex flex-row items-center gap-2">
+                      <div
+                        className="truncate"
+                        style={{
+                          fontSize: 15,
+                          fontWeight: "500",
+                          color: "",
+                          // width: "100px",
+                          color: "black",
+                        }}
+                      >
+                        {/*user?.name?.split(" ")[0]*/}
+                        {(() => {
+                          const name = user?.name?.split(" ")[0] || "";
+                          return name.length > 10 ? `${name.slice(0, 7)}...` : name;
+                        })()}
+                      </div>
+
+                    </div>
+                    <div
+                      className="truncate w-[120px]"
+                      style={{
+                        fontSize: 15,
+                        fontWeight: "500",
+                        color: "#15151560",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
+                      {user?.email}
+                    </div>
+                  </div>
+
+                  {/* Socket Connection Status Indicator */}
+
+                </div>
+              )}
             </div>
 
             <div
@@ -637,11 +733,11 @@ function SelectedUserDetails({
                 ) : selectedManu.name == 'Account' ? (
                   <AdminProfileData selectedUser={selectedUser} from={from} />
                 ) : selectedManu.name == 'Messages (Beta)' ? (
-                  <Messages selectedUser={selectedUser} agencyUser={agencyUser}/>
+                  <Messages selectedUser={selectedUser} agencyUser={agencyUser} />
                 ) : (
                   'Coming soon...'
                 )
-                //""
+                  //""
                 }
               </div>
             </div>

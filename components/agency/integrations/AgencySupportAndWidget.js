@@ -128,7 +128,11 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
         setResourceHubTitle(Data?.resourceHubTitle)
         
         // Load support widget logo and title from agency branding
-        const brandingResponse = await axios.get(Apis.getAgencyBranding, {
+        let brandingApiUrl = Apis.getAgencyBranding
+        if (selectedAgency?.id) {
+          brandingApiUrl += `?userId=${selectedAgency.id}`
+        }
+        const brandingResponse = await axios.get(brandingApiUrl, {
           headers: {
             Authorization: 'Bearer ' + AuthToken(),
             'Content-Type': 'application/json',
@@ -377,6 +381,27 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
             if (response.data.data?.logoUrl) {
               setLogoPreview(response.data.data.logoUrl)
             }
+            // Refresh branding data to ensure persistence
+            try {
+              let brandingApiUrl = Apis.getAgencyBranding
+              if (selectedAgency?.id) {
+                brandingApiUrl += `?userId=${selectedAgency.id}`
+              }
+              const brandingResponse = await axios.get(brandingApiUrl, {
+                headers: {
+                  Authorization: 'Bearer ' + Auth,
+                  'Content-Type': 'application/json',
+                },
+              })
+              if (brandingResponse?.data?.status === true) {
+                const branding = brandingResponse?.data?.data?.branding
+                if (branding?.supportWidgetLogoUrl) {
+                  setLogoPreview(branding.supportWidgetLogoUrl)
+                }
+              }
+            } catch (brandingError) {
+              console.error('Error refreshing branding data:', brandingError)
+            }
           } else {
             setShowSnackMessage(
               response?.data?.message || 'Failed to upload logo',
@@ -599,7 +624,7 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
                       }}
                     >
                       <Image
-                        src={'/svgIcons/infoIcon.svg'}
+                        src={'/otherAssets/infoLightDark.png'}
                         height={16}
                         width={16}
                         alt="*"
@@ -776,7 +801,7 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
                         },
                       }}
                     >
-                      <Image src={"/svgIcons/infoIcon.svg"}
+                      <Image src={"/otherAssets/infoLightDark.png"}
                         height={16} width={16} alt="*"
                       />
                     </Tooltip>
@@ -896,7 +921,7 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
                       }}
                     >
                       <Image
-                        src={'/svgIcons/infoIcon.svg'}
+                        src={'/otherAssets/infoLightDark.png'}
                         height={16}
                         width={16}
                         alt="*"
@@ -1071,7 +1096,7 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
                       }}
                     >
                       <Image
-                        src={'/svgIcons/infoIcon.svg'}
+                        src={'/otherAssets/infoLightDark.png'}
                         height={16}
                         width={16}
                         alt="*"
@@ -1245,7 +1270,7 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
                       }}
                     >
                       <Image
-                        src={'/svgIcons/infoIcon.svg'}
+                        src={'/otherAssets/infoLightDark.png'}
                         height={16}
                         width={16}
                         alt="*"
@@ -1438,7 +1463,7 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
                       }}
                     >
                       <Image
-                        src={'/svgIcons/infoIcon.svg'}
+                        src={'/otherAssets/infoLightDark.png'}
                         height={16}
                         width={16}
                         alt="*"

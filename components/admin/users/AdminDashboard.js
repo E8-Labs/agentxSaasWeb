@@ -339,7 +339,7 @@ const AdminDashboard = ({ selectedUser, agencyUser }) => {
               position: 'absolute',
               top: 0,
               // right: 0,
-              width: '90%',
+              width: '83%',
               height: '20%',
               objectFit: 'cover',
               zIndex: 1, // Ensure the video stays behind content

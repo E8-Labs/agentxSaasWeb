@@ -716,14 +716,23 @@ export default function CreateSubAccountModal({
           message={showErrorSnack}
         />
         <div className="flex justify-between items-center mb-4">
+
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
             Create SubAccount
           </h2>
+
+          <CloseBtn onClick={onClose} />
+        </div>
+
+
+        <div className="flex justify-between items-center">
+
+          <div style={styles.headings}>Sub Account Name</div>
           <div className="flex items-center gap-2">
             {internalAccountsCount < 3 && (
               <>
                 <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Internal Use?
+                {internalAccountsCount}/3 Internal Use
                 </label>
                 <Switch
                   checked={isInternalAccount}
@@ -756,11 +765,10 @@ export default function CreateSubAccountModal({
                 </span>
               </Tooltip>
             )}
-            <CloseBtn onClick={onClose} />
-          </div>
-        </div>
 
-        <div style={styles.headings}>Sub Account Name</div>
+          </div>
+
+        </div>
         <input
           type="text"
           className="w-full mt-2 mb-4 px-3 py-2 border border-gray-300 rounded-lg outline-none focus:outline-none focus:ring-0 focus:border-gray-200"
