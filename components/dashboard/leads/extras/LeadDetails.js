@@ -1713,7 +1713,7 @@ const LeadDetails = ({
                                 '-'}
                             </div>
                           )} */}
-                          <Avatar className="h-10 w-10 bg-red">
+                          <Avatar className="h-8 w-8 bg-red">
                             {selectedLeadsDetails?.avatar ? (
                               <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
                             ) : (
@@ -1722,7 +1722,16 @@ const LeadDetails = ({
                           </Avatar>
                           <div className="flex min-w-0 flex-1 items-center gap-3">
                             <p className="truncate text-lg font-semibold leading-none text-foreground">
-                              {selectedLeadsDetails?.firstName}
+                              {/* max characters 15 combined */}
+                              {(() => {
+                                const firstName = selectedLeadsDetails?.firstName || ''
+                                const lastName = selectedLeadsDetails?.lastName || ''
+                                const fullName = `${firstName}${lastName ? ' ' + lastName : ''}`.trim()
+                                if (fullName.length > 10) {
+                                  return fullName.slice(0, 10) + '...'
+                                }
+                                return fullName
+                              })()}
                             </p>
                             {/* Send Action Dropdown Button */}
                             <>

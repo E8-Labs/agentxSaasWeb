@@ -2603,12 +2603,14 @@ const Pipeline1 = () => {
                                             '...'
                                           : '') || ''}
                                       </div>
+                                      {
+                                        lead.agent && (
                                       <div className="flex flex-row items-center gap-2">
                                         {getAgentsListImage(
                                           lead.agent?.agents[0]?.agentType ===
                                             'outbound'
                                             ? lead.agent?.agents[0]
-                                            : lead.agent?.agents[1],
+                                            : lead.agent?.agents[1]? lead.agent?.agents[1] : lead.agent?.agents[0],
                                           24,
                                           24,
                                         )}
@@ -2619,9 +2621,10 @@ const Pipeline1 = () => {
                                           {lead.agent?.agents[0]?.agentType ===
                                           'outbound'
                                             ? lead.agent?.agents[0]?.name
-                                            : lead.agent?.agents[1]?.name}
+                                            : lead.agent?.agents[1]? lead.agent?.agents[1]?.name : lead.agent?.agents[0]?.name}
                                         </div>
                                       </div>
+                                      )}
                                     </div>
 
                                     {lead?.lead?.booking?.date && (

@@ -4207,7 +4207,7 @@ function Page() {
               Agents
             </TypographyH3>
             {reduxUser?.plan?.planId != null &&
-              reduxUser?.planCapabilities?.maxAgents < 1000 && (
+              reduxUser?.planCapabilities?.maxAgents < 10000000 && (
                 <div
                   style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
                 >
@@ -4216,7 +4216,7 @@ function Page() {
               )}
 
             {reduxUser?.plan?.planId != null &&
-              reduxUser?.planCapabilities?.maxAgents < 1000 && (
+              reduxUser?.planCapabilities?.maxAgents < 10000000 && (
                 <Tooltip
                   title={`Additional agents are $${reduxUser?.planCapabilities?.costPerAdditionalAgent || 10}/month each.`}
                   arrow

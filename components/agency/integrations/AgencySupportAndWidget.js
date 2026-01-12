@@ -398,6 +398,13 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
                 if (branding?.supportWidgetLogoUrl) {
                   setLogoPreview(branding.supportWidgetLogoUrl)
                 }
+                // Dispatch event to notify DashboardSlider to refresh branding
+                const userId = selectedAgency?.id || null
+                window.dispatchEvent(
+                  new CustomEvent('SupportWidgetBrandingUpdated', {
+                    detail: { userId, branding },
+                  }),
+                )
               }
             } catch (brandingError) {
               console.error('Error refreshing branding data:', brandingError)
@@ -452,6 +459,13 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
       if (response?.data?.status === true) {
         setShowSnackMessage('Button label updated successfully')
         setShowSnackType(SnackbarTypes.Success)
+        // Dispatch event to notify DashboardSlider to refresh branding
+        const userId = selectedAgency?.id || null
+        window.dispatchEvent(
+          new CustomEvent('SupportWidgetBrandingUpdated', {
+            detail: { userId },
+          }),
+        )
       } else {
         setShowSnackMessage(
           response?.data?.message || 'Failed to update button label',

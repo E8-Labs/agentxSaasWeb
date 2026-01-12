@@ -4,11 +4,14 @@ import { Box, CircularProgress, Modal } from '@mui/material'
 import { AnimatePresence, motion } from 'framer-motion'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { PersistanceKeys } from '@/constants/Constants'
 import { SupportWidget } from '@/components/askSky/support-widget'
 import { toast } from 'sonner'
+import Apis from '@/components/apis/Apis'
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
 
 const AgencySupportWidget = ({
   onTop = false,
@@ -23,6 +26,7 @@ const AgencySupportWidget = ({
   const [hoverIndex, setHoverIndex] = useState(null)
   const [showAskSkyModal, setShowAskSkyModal] = useState(false)
   const [shouldStartCall, setShouldStartCall] = useState(false)
+  const [agencyBranding, setAgencyBranding] = useState(null)
 
   // Agency-specific support options
   const [buttons, setButtons] = useState([
@@ -79,6 +83,39 @@ const AgencySupportWidget = ({
     fetchLocalDetails()
   }, [selectedUser])
 
+  // Fetch branding when userDetails is available
+  useEffect(() => {
+    const currentUser = selectedUser || userDetails
+    if (currentUser && (currentUser?.userRole === 'Agency' || currentUser?.userRole === 'AgencySubAccount')) {
+      fetchBrandingData(currentUser?.id)
+    }
+  }, [selectedUser, userDetails])
+
+  // Listen for branding updates from AgencySupportAndWidget
+  useEffect(() => {
+    const handleBrandingUpdate = async (event) => {
+      const { userId, branding } = event.detail || {}
+      const currentUserId = selectedUser?.id || userDetails?.id
+      
+      // Only refresh if the update is for the current user (or no userId specified for current user)
+      if (!userId || userId === currentUserId) {
+        // If branding is provided in the event, update directly
+        if (branding) {
+          setAgencyBranding(branding)
+        } else {
+          // Otherwise, fetch fresh branding data
+          await fetchBrandingData(userId || currentUserId)
+        }
+      }
+    }
+
+    window.addEventListener('SupportWidgetBrandingUpdated', handleBrandingUpdate)
+    
+    return () => {
+      window.removeEventListener('SupportWidgetBrandingUpdated', handleBrandingUpdate)
+    }
+  }, [selectedUser?.id, userDetails?.id])
+
   const fetchLocalDetails = () => {
     if (selectedUser) {
       setUserDetails(selectedUser)
@@ -88,6 +125,29 @@ const AgencySupportWidget = ({
         const UserDetailsLD = JSON.parse(localData)
         setUserDetails(UserDetailsLD.user)
       }
+    }
+  }
+
+  // Fetch branding data for support widget logo and title
+  const fetchBrandingData = async (userId = null) => {
+    try {
+      const Auth = AuthToken()
+      let apiUrl = Apis.getAgencyBranding
+      if (userId) {
+        apiUrl += `?userId=${userId}`
+      }
+      const response = await axios.get(apiUrl, {
+        headers: {
+          Authorization: 'Bearer ' + Auth,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response?.data?.status === true) {
+        const branding = response?.data?.data?.branding
+        setAgencyBranding(branding)
+      }
+    } catch (error) {
+      console.error('Error fetching branding data:', error)
     }
   }
 
@@ -293,7 +353,27 @@ const AgencySupportWidget = ({
               outline: 'none',
             }}
           >
-            <GetHelpBtn handleReopen={handleReopen} />
+            <GetHelpBtn 
+              handleReopen={handleReopen}
+              customLogo={
+                ((selectedUser?.userRole === 'AgencySubAccount' ||
+                  selectedUser?.userRole === 'Agency') ||
+                 (userDetails?.userRole === 'AgencySubAccount' ||
+                  userDetails?.userRole === 'Agency')) &&
+                agencyBranding?.supportWidgetLogoUrl
+                  ? agencyBranding.supportWidgetLogoUrl
+                  : null
+              }
+              customTitle={
+                ((selectedUser?.userRole === 'AgencySubAccount' ||
+                  selectedUser?.userRole === 'Agency') ||
+                 (userDetails?.userRole === 'AgencySubAccount' ||
+                  userDetails?.userRole === 'Agency')) &&
+                agencyBranding?.supportWidgetTitle
+                  ? agencyBranding.supportWidgetTitle
+                  : null
+              }
+            />
           </motion.div>
         )}
       </AnimatePresence>

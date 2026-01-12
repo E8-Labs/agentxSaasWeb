@@ -97,17 +97,11 @@ const AdminLeadDetails = ({
   //code for emailPopup
   const [showAllEmails, setShowAllEmails] = useState(false)
 
-  //code for buttons of details popup
-  const [showKYCDetails, setShowKycDetails] = useState(false)
-  const [showNotesDetails, setShowNotesDetails] = useState(false)
-  const [showAcitivityDetails, setShowAcitivityDetails] = useState(false)
-  const [showPerplexityDetails, setShowPerpelexityDetails] = useState(true)
+  //code for buttons of details popup - using activeTab instead of individual booleans
+  const [activeTab, setActiveTab] = useState('activity')
 
-  //code for add stage notes
-  const [showAddNotes, setShowAddNotes] = useState(false)
-  const [addNotesValue, setddNotesValue] = useState('')
+  //code for notes - noteDetails is still needed to pass to NotesTabCN
   const [noteDetails, setNoteDetails] = useState([])
-  const [addLeadNoteLoader, setAddLeadNoteLoader] = useState(false)
 
   //code for call activity transcript text
   const [isExpanded, setIsExpanded] = useState(null)
@@ -211,9 +205,15 @@ const AdminLeadDetails = ({
       getNumbers()
       getData()
       getCreditCost()
-      getGoogleAccounts()
+      getUniqueColumns()
     }
-  }, [selectedUser])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedUser?.id])
+
+  useEffect(() => {
+    getGoogleAccounts()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedUser?.id])
 
   useEffect(() => {
     if (!selectedLead) return
@@ -495,7 +495,7 @@ const AdminLeadDetails = ({
 
       // //console.log;
 
-      const ApiPath = `${Apis.getStagesList}?pipelineId=${pipelineId}`
+      const ApiPath = `${Apis.getStagesList}?pipelineId=${pipelineId}&liteResource=true`
 
       // //console.log;
 
@@ -521,50 +521,6 @@ const AdminLeadDetails = ({
     }
   }
 
-  //function to add lead notes
-  const handleAddLeadNotes = async () => {
-    try {
-      setAddLeadNoteLoader(true)
-      const localData = localStorage.getItem('User')
-      let AuthToken = null
-      if (localData) {
-        const UserDetails = JSON.parse(localData)
-        AuthToken = UserDetails.token
-      }
-
-      // //console.log;
-
-      const ApiData = {
-        note: addNotesValue,
-        leadId: selectedLeadsDetails.id,
-      }
-
-      // //console.log;
-
-      const ApiPath = Apis.addLeadNote
-      // return
-      const response = await axios.post(ApiPath, ApiData, {
-        headers: {
-          Authorization: 'Bearer ' + AuthToken,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (response) {
-        // //console.log;
-        // setNoteDetails()
-        if (response.data.status === true) {
-          setShowAddNotes(false)
-          setNoteDetails([response.data.data, ...noteDetails])
-          setddNotesValue('')
-        }
-      }
-    } catch (error) {
-      // console.error("Error occured in add lead note api is:", error);
-    } finally {
-      setAddLeadNoteLoader(false)
-    }
-  }
 
   //function to format the phone number
   //function to format the number
@@ -806,9 +762,12 @@ const AdminLeadDetails = ({
       })
 
       if (response) {
-        // //console.log;
         if (response.data.status === true) {
+          showSnackbar(response.data.message || 'Lead deleted successfully', SnackbarTypes.Success)
+          setShowDetailsModal(false)
           handleDelLead(selectedLeadsDetails)
+        } else {
+          showSnackbar(response.data.message || 'Failed to delete lead', SnackbarTypes.Error)
         }
       }
     } catch (error) {
@@ -2367,102 +2326,11 @@ const AdminLeadDetails = ({
 
                         {/* Notes go here */}
                         {showNotesDetails && (
-                          <div>
-                            {noteDetails?.length < 1 ? (
-                              <div
-                                className="flex flex-col items-center justify-center w-full mt-12"
-                                style={{ fontWeight: '500', fontsize: 15 }}
-                              >
-                                <div className="h-[52px] w-[52px] rounded-full bg-[#00000020] flex flex-row items-center justify-center">
-                                  <Image
-                                    src={'/assets/notes.png'}
-                                    height={24}
-                                    width={24}
-                                    alt="*"
-                                  />
-                                </div>
-                                <div className="mt-4">
-                                  <i
-                                    style={{ fontWeight: '500', fontsize: 15 }}
-                                  >
-                                    You can add and manage your notes here
-                                  </i>
-                                </div>
-                                <button
-                                  className="flex flex-row items-center gap-1 mt-2"
-                                  onClick={() => {
-                                    setShowAddNotes(true)
-                                  }}
-                                >
-                                  <Plus
-                                    size={17}
-                                    color="hsl(var(--brand-primary))"
-                                    weight="bold"
-                                  />
-                                  <div className="text-brand-primary">Add Notes</div>
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="">
-                                <div
-                                  className=""
-                                  style={{ scrollbarWidth: 'none' }}
-                                >
-                                  {noteDetails.map((item, index) => {
-                                    return (
-                                      <div
-                                        key={index}
-                                        className="border rounded-xl p-4 mb-4 mt-4"
-                                        style={{
-                                          border: '1px solid #00000020',
-                                        }}
-                                      >
-                                        <div
-                                          style={{
-                                            fontWeight: '500',
-                                            color: '#15151560',
-                                            fontsize: 12,
-                                          }}
-                                        >
-                                          {GetFormattedDateString(
-                                            item?.createdAt,
-                                          )}
-                                        </div>
-                                        <div
-                                          className="mt-4"
-                                          style={{
-                                            fontWeight: '500',
-                                            color: '#151515',
-                                            fontsize: 15,
-                                          }}
-                                        >
-                                          {item.note}
-                                        </div>
-                                      </div>
-                                    )
-                                  })}
-                                </div>
-                                <div
-                                  className="flex flex-col items-start justify-start w-full pb-6"
-                                  style={{ fontWeight: '500', fontsize: 15 }}
-                                >
-                                  <button
-                                    className="flex flex-row items-center gap-1 mt-2"
-                                    onClick={() => {
-                                      setShowAddNotes(true)
-                                    }}
-                                  >
-                                    <Plus
-                                      size={17}
-                                      color="hsl(var(--brand-primary))"
-                                      weight="bold"
-                                    />
-                                    <div className="text-brand-primary">Add Notes</div>
-                                  </button>
-                                </div>
-                              </div>
-                            )}
-                          </div>
+                          <NotesTabCN
+                            noteDetails={noteDetails}
+                            selectedLeadsDetails={selectedLeadsDetails}
+                            onNotesUpdated={handleNotesUpdated}
+                          />
                         )}
 
                         {/* Call activity goes here */}
@@ -2536,86 +2404,6 @@ const AdminLeadDetails = ({
         </Box>
       </Modal>
 
-      {/* Modal to add notes */}
-
-      <Modal
-        open={showAddNotes}
-        onClose={() => setShowAddNotes(false)}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 1000,
-          sx: {
-            backgroundColor: '#00000020',
-          },
-        }}
-      >
-        <Box
-          className="sm:w-5/12 lg:w-5/12 xl:w-4/12 w-8/12 h-[70vh]"
-          sx={{ ...styles.modalsStyle, scrollbarWidth: 'none' }}
-        >
-          <div className="flex flex-row justify-center w-full h-[50vh]">
-            <div
-              className="w-full"
-              style={{
-                backgroundColor: '#ffffff',
-                padding: 20,
-                paddingInline: 30,
-                borderRadius: '13px',
-                // paddingBottom: 10,
-                // paddingTop: 10,
-                height: '100%',
-              }}
-            >
-              <div style={{ fontWeight: '700', fontsize: 22 }}>
-                Add your notes
-              </div>
-              <div
-                className="mt-4"
-                style={{
-                  height: '70%',
-                  overflow: 'auto',
-                }}
-              >
-                <TextareaAutosize
-                  maxRows={12}
-                  className="outline-none focus:outline-none focus:ring-0 w-full"
-                  style={{
-                    fontsize: 15,
-                    fontWeight: '500',
-                    height: '250px',
-                    border: '1px solid #00000020',
-                    resize: 'none',
-                    borderRadius: '13px',
-                  }}
-                  placeholder="Add notes"
-                  value={addNotesValue}
-                  onChange={(event) => {
-                    setddNotesValue(event.target.value)
-                  }}
-                />
-              </div>
-              <div className="w-full mt-4 h-[20%] flex flex-row justify-center">
-                {addLeadNoteLoader ? (
-                  <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                ) : (
-                  <button
-                    className="bg-purple h-[50px] rounded-xl text-white rounded-xl w-6/12"
-                    style={{
-                      fontWeight: '600',
-                      fontsize: 16,
-                    }}
-                    onClick={() => {
-                      handleAddLeadNotes()
-                    }}
-                  >
-                    Add
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </Box>
-      </Modal>
 
       {/* Warning Modal for no voice */}
       <Modal
