@@ -29,9 +29,22 @@ const getDefaultVideoUrl = (videoType) => {
 }
 
 /**
- * Get the default tutorial data for a given videoType
+ * Replace "AssignX" with agency company name in title if available
+ * Only used for default videos (not customized by agency)
  */
-const getDefaultTutorial = (videoType) => {
+const replaceAssignXInTitle = (title, agencyBranding) => {
+  if (!title || !agencyBranding?.companyName) {
+    return title
+  }
+  // Replace "AssignX" with agency company name
+  return title.replace(/AssignX/g, agencyBranding.companyName)
+}
+
+/**
+ * Get the default tutorial data for a given videoType
+ * Optionally replaces "AssignX" with agency company name if agencyBranding is provided
+ */
+const getDefaultTutorial = (videoType, agencyBranding = null) => {
   const defaultTutorials = {
     [HowToVideoTypes.GettingStarted]: {
       title: 'Get Started with Creating Agents',
@@ -110,13 +123,17 @@ const getDefaultTutorial = (videoType) => {
     },
   }
 
-  return (
-    defaultTutorials[videoType] || {
-      title: 'Tutorial Video',
-      description: '0:00',
-      videoUrl: HowtoVideos.GettingStarted,
-    }
-  )
+  const tutorial = defaultTutorials[videoType] || {
+    title: 'Tutorial Video',
+    description: '0:00',
+    videoUrl: HowtoVideos.GettingStarted,
+  }
+
+  // Replace "AssignX" with company name if agency branding is provided
+  return {
+    ...tutorial,
+    title: replaceAssignXInTitle(tutorial.title, agencyBranding),
+  }
 }
 
 /**
@@ -142,6 +159,9 @@ export const getTutorialVideos = () => {
 
     const userData = JSON.parse(localData)
     const user = userData?.user
+
+    // Get agency branding for company name replacement
+    const agencyBranding = user?.agencyBranding || userData?.agencyBranding
 
     // Default tutorials
     const defaultTutorials = [
@@ -267,6 +287,7 @@ export const getTutorialVideos = () => {
         )
 
         if (agencyVideo) {
+          // Agency customized this video - use agency's title as-is (no replacement)
           // Always format duration from videoDuration if available, otherwise use default
           const formattedDuration =
             agencyVideo.videoDuration && agencyVideo.videoDuration > 0
@@ -290,12 +311,19 @@ export const getTutorialVideos = () => {
           }
         }
 
-        return defaultTutorial
+        // Agency didn't customize - use default but replace "AssignX" with company name
+        return {
+          ...defaultTutorial,
+          title: replaceAssignXInTitle(defaultTutorial.title, agencyBranding),
+        }
       })
     }
 
-    // Normal user - return defaults only
-    return defaultTutorials
+    // Normal user - return defaults with company name replacement if agency branding exists
+    return defaultTutorials.map((tutorial) => ({
+      ...tutorial,
+      title: replaceAssignXInTitle(tutorial.title, agencyBranding),
+    }))
   } catch (error) {
     console.error('Error getting tutorial videos:', error)
     return []
@@ -353,10 +381,34 @@ export const getTutorialByType = (videoType) => {
       }
     }
 
-    // Fallback to default
-    return getDefaultTutorial(videoType)
+    // Fallback to default - get agency branding for company name replacement
+    let agencyBranding = null
+    try {
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        const userData = JSON.parse(localData)
+        agencyBranding = userData?.user?.agencyBranding || userData?.agencyBranding
+      }
+    } catch (error) {
+      // Ignore errors
+    }
+
+    return getDefaultTutorial(videoType, agencyBranding)
   } catch (error) {
     console.error('Error getting tutorial by type:', error)
-    return getDefaultTutorial(videoType)
+    
+    // Fallback to default - get agency branding for company name replacement
+    let agencyBranding = null
+    try {
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        const userData = JSON.parse(localData)
+        agencyBranding = userData?.user?.agencyBranding || userData?.agencyBranding
+      }
+    } catch (e) {
+      // Ignore errors
+    }
+    
+    return getDefaultTutorial(videoType, agencyBranding)
   }
 }
