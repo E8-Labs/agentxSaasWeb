@@ -480,14 +480,17 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
 
     // Get caller name from senderUser or agent
     const getCallerName = () => {
-      if (message.senderUser?.name) {
-        return message.senderUser.name
+      console.log('🔍 [getCallerName] message:', message)
+      console.log('🔍 [getCallerName] typeof:', message.caller)
+      if (message.caller?.name) {
+        return message.caller?.name
       }
-      if (message.senderUser?.firstName) {
-        return message.senderUser.firstName
-      }
+
       if (message.agent?.name) {
         return message.agent.name
+      }
+      if (message.senderUser?.name) {
+        return message.senderUser.name
       }
       // if (selectedThread?.lead?.firstName) {
       //   return selectedThread.lead.firstName
@@ -496,6 +499,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
     }
 
     const callerName = getCallerName()
+    console.log('🔍 [callerName] callerName:', callerName)
     const callDate = message.createdAt ? moment(message.createdAt).format('MMM D, h:mm A') : ''
 
     // Handler functions for call actions
