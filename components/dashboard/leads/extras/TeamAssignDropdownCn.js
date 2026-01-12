@@ -41,12 +41,40 @@ const TeamAssignDropdownCn = ({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className={`flex items-center ${withoutBorder ? '' : 'shadow-sm border px-4 py-2  border-muted/70 rounded-xl '} bg-white text-base font-semibold  focus:outline-none`}>
-          <Users className="mr-2 h-4 w-4" />
-          <span>{label}</span>
-          {selectedTeams.length > 0 && (
-            <span className="ml-2 rounded-full bg-muted px-2 py-0.5 text-xs font-semibold text-foreground">
-              {selectedTeams.length}
-            </span>
+          {selectedTeams.length > 0 ? (
+            <div className="flex items-center -space-x-2">
+              {selectedTeams
+                .slice(0, 3) // Show max 3 avatars
+                .map((team, index) => (
+                  <div
+                    key={team.id || index}
+                    className="relative"
+                    style={{ zIndex: selectedTeams.length - index }}
+                  >
+                    {team.avatar ? (
+                      <img
+                        src={team.avatar}
+                        alt={team.label}
+                        className="w-5 h-5 rounded-full object-cover border-2 border-white"
+                      />
+                    ) : (
+                      <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-semibold border-2 border-white">
+                        {team.label?.[0]?.toUpperCase() || '?'}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              {selectedTeams.length > 3 && (
+                <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-semibold border-2 border-white">
+                  +{selectedTeams.length - 3}
+                </div>
+              )}
+            </div>
+          ) : (
+            <>
+              <Users className="mr-2 h-4 w-4" />
+              <span>{label}</span>
+            </>
           )}
           {withoutBorder ? null : (
             <span className="mx-3 h-6 w-px bg-muted/80" />

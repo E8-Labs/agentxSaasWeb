@@ -172,6 +172,8 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
         setIsCreating(false)
         setSelectedTask(null)
         fetchTasks() // Refresh list
+        // Notify that tasks have changed
+        window.dispatchEvent(new CustomEvent('tasksChanged'))
       } else {
         toast.error(response.message || 'Failed to create task')
       }
@@ -184,16 +186,73 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
   // Handle task update
   const handleUpdateTask = async (taskId, updateData) => {
     try {
+      // Optimistically update the local state
+      setTasks((prevTasks) =>
+        prevTasks.map((task) =>
+          task.id === taskId
+            ? {
+                ...task,
+                ...updateData,
+                // Handle assignedMembers if assignedTo is provided
+                ...(updateData.assignedTo && {
+                  assignedMembers: updateData.assignedTo.map((memberId) => {
+                    const member = teamMembers.find(
+                      (m) => (m.invitedUserId || m.invitedUser?.id || m.id) === memberId
+                    )
+                    return member
+                      ? {
+                          id: memberId,
+                          name: member.name || member.invitedUser?.name || 'Unknown',
+                          thumb_profile_image: member.thumb_profile_image || member.invitedUser?.thumb_profile_image,
+                        }
+                      : { id: memberId }
+                  }),
+                }),
+              }
+            : task
+        )
+      )
+
+      // Update counts locally if status changed
+      if (updateData.status) {
+        const oldTask = tasks.find((t) => t.id === taskId)
+        if (oldTask) {
+          setCounts((prev) => {
+            const newCounts = { ...prev }
+            // Decrement old status
+            if (oldTask.status && newCounts[oldTask.status] > 0) {
+              newCounts[oldTask.status]--
+            }
+            // Increment new status
+            if (newCounts[updateData.status] !== undefined) {
+              newCounts[updateData.status]++
+            }
+            return newCounts
+          })
+        }
+      }
+
       const response = await updateTask(taskId, updateData)
       if (response.status) {
+        // Update with server response if different
+        if (response.data) {
+          setTasks((prevTasks) =>
+            prevTasks.map((task) => (task.id === taskId ? { ...task, ...response.data } : task))
+          )
+        }
         toast.success('Task updated successfully')
         setSelectedTask(null)
-        fetchTasks() // Refresh list
+        // Notify that tasks have changed
+        window.dispatchEvent(new CustomEvent('tasksChanged'))
       } else {
+        // Revert on error
+        fetchTasks()
         toast.error(response.message || 'Failed to update task')
       }
     } catch (error) {
       console.error('Error updating task:', error)
+      // Revert on error
+      fetchTasks()
       toast.error('Failed to update task')
     }
   }
@@ -205,6 +264,8 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
       if (response.status) {
         toast.success('Task deleted successfully')
         fetchTasks() // Refresh list
+        // Notify that tasks have changed
+        window.dispatchEvent(new CustomEvent('tasksChanged'))
       } else {
         toast.error(response.message || 'Failed to delete task')
       }
@@ -382,7 +443,10 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
                   <div className="text-muted-foreground">Loading tasks...</div>
                 </div>
               ) : filteredTasks.length === 0 ? (
-                <TaskEmptyState />
+                <TaskEmptyState 
+                  title={selectedStatus === 'todo' ? 'No Task Created' : 'No Task Found'}
+                  description={selectedStatus === 'todo' ? undefined : null}
+                />
               ) : (
                 <div className="space-y-3">
                   {filteredTasks.map((task) => (
@@ -432,7 +496,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
                   className="bg-brand-primary text-white hover:bg-brand-primary/90"
                   onClick={() => setIsCreating(true)}
                 >
-                  + Create New
+                  + New Task
                 </Button>
               </>
             )}

@@ -54,23 +54,36 @@ const MultiSelectDropdownCn = ({ label = 'Assign', options = [], onToggle }) => 
             e.stopPropagation()
           }}
         >
-          {selectedCount > 0 && options.find(opt => opt.selected) ? (
-            <>
-              {options.find(opt => opt.selected)?.avatar ? (
-                <img
-                  src={options.find(opt => opt.selected).avatar}
-                  alt={options.find(opt => opt.selected).label}
-                  className="w-5 h-5 rounded-full object-cover mr-1"
-                />
-              ) : (
-                <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-semibold mr-1">
-                  {options.find(opt => opt.selected)?.label?.[0]?.toUpperCase() || '?'}
+          {selectedCount > 0 ? (
+            <div className="flex items-center -space-x-2">
+              {options
+                .filter(opt => opt.selected)
+                .slice(0, 3) // Show max 3 avatars
+                .map((opt, index) => (
+                  <div
+                    key={opt.id || opt.value || index}
+                    className="relative"
+                    style={{ zIndex: selectedCount - index }}
+                  >
+                    {opt.avatar ? (
+                      <img
+                        src={opt.avatar}
+                        alt={opt.label}
+                        className="w-5 h-5 rounded-full object-cover border-2 border-white"
+                      />
+                    ) : (
+                      <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-semibold border-2 border-white">
+                        {opt.label?.[0]?.toUpperCase() || '?'}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              {selectedCount > 3 && (
+                <div className="w-5 h-5 rounded-full bg-muted flex items-center justify-center text-xs font-semibold border-2 border-white">
+                  +{selectedCount - 3}
                 </div>
               )}
-              <TypographyBody className="text-sm text-foreground">
-                {options.find(opt => opt.selected)?.label || label}
-              </TypographyBody>
-            </>
+            </div>
           ) : (
             <>
               <Users className="mr-1 h-4 w-4 text-muted-foreground" />

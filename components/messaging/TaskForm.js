@@ -37,6 +37,7 @@ const TaskForm = ({
     task?.assignedMembers?.map((m) => m.id) || [],
   )
   const [datePickerOpen, setDatePickerOpen] = useState(false)
+  const [isSavingDate, setIsSavingDate] = useState(false)
 
   // Priority options
   const priorityOptions = [
@@ -53,11 +54,11 @@ const TaskForm = ({
     { label: 'Done', value: 'done' },
   ]
 
-  // Status color mapping
+  // Status color mapping (hex colors)
   const statusColors = {
-    todo: 'bg-purple-500',
-    'in-progress': 'bg-orange-500',
-    done: 'bg-green-500',
+    todo: '#7804DF',
+    'in-progress': '#FF8102',
+    done: '#01CB76',
   }
 
   // Status display text mapping
@@ -100,7 +101,16 @@ const TaskForm = ({
   // Format due date for display
   const formatDueDateDisplay = () => {
     if (!dueDate) return null
-    return format(dueDate, 'MM/dd/yy')
+    const dateStr = format(dueDate, 'MM/dd/yy')
+    if (dueTime) {
+      // Format time from HH:mm to h:mm AM/PM
+      const [hours, minutes] = dueTime.split(':')
+      const hour = parseInt(hours, 10)
+      const ampm = hour >= 12 ? 'PM' : 'AM'
+      const displayHour = hour % 12 || 12
+      return `${dateStr} ${displayHour}:${minutes} ${ampm}`
+    }
+    return dateStr
   }
 
   const dueDateDisplay = formatDueDateDisplay()
@@ -208,6 +218,14 @@ const TaskForm = ({
 
           {/* Due Date */}
           <Popover open={datePickerOpen} onOpenChange={(open) => {
+            if (!open && !isSavingDate) {
+              // Save changes when closing if this is an edit form
+              if (task && (dueDate?.getTime() !== (task.dueDate ? new Date(task.dueDate).getTime() : null) || dueTime !== (task.dueTime || ''))) {
+                // For edit mode, we'd need to call onSubmit, but since this is just the form,
+                // the parent will handle it when the form is submitted
+                // For now, just close
+              }
+            }
             setDatePickerOpen(open)
           }}>
             <PopoverTrigger asChild>
@@ -227,9 +245,15 @@ const TaskForm = ({
                 }}
               >
                 <CalendarIcon className="h-4 w-4 text-muted-foreground pointer-events-none" />
-                <TypographyBody className="text-muted-foreground pointer-events-none">
-                  {dueDateDisplay || 'Due Date'}
-                </TypographyBody>
+                {isSavingDate ? (
+                  <TypographyBody className="text-muted-foreground pointer-events-none">
+                    Saving...
+                  </TypographyBody>
+                ) : (
+                  <TypographyBody className="text-muted-foreground pointer-events-none">
+                    {dueDateDisplay || 'Due Date'}
+                  </TypographyBody>
+                )}
                 <ChevronDown className="h-3 w-3 text-muted-foreground ml-1 pointer-events-none" />
               </button>
             </PopoverTrigger>
@@ -238,12 +262,22 @@ const TaskForm = ({
               align="start"
               style={{ zIndex: 200 }}
               onInteractOutside={(e) => {
-                // Only prevent if clicking inside the task board (to prevent modal from closing)
-                // Otherwise, let the popover close normally
                 const taskBoard = document.querySelector('[data-task-board]')
-                const isInsideTaskBoard = taskBoard && taskBoard.contains(e.target)
-                if (isInsideTaskBoard) {
+                // Check if clicking on the popover content itself
+                const popoverContent = e.target.closest('[role="dialog"]')
+                if (popoverContent) {
+                  // Clicking inside popover - prevent closing
                   e.preventDefault()
+                  return
+                }
+                
+                if (taskBoard && taskBoard.contains(e.target)) {
+                  // Clicking outside popover but inside task board - close popover
+                  // For create form, changes are already in state, so just close
+                  setDatePickerOpen(false)
+                } else {
+                  // Clicking outside task board - close popover
+                  setDatePickerOpen(false)
                 }
               }}
             >
@@ -300,12 +334,20 @@ const TaskForm = ({
                 {/* Time input */}
                 {dueDate && (
                   <div className="flex items-center gap-2 pt-2 border-t">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                     <Input
                       type="time"
                       value={dueTime}
                       onChange={(e) => setDueTime(e.target.value)}
-                      className="w-full"
+                      onClick={(e) => {
+                        // Ensure the time picker opens when clicking anywhere on the input
+                        e.currentTarget.showPicker?.()
+                      }}
+                      className="w-full cursor-pointer [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none [&::-webkit-inner-spin-button]:hidden [&::-webkit-outer-spin-button]:hidden"
+                      style={{
+                        WebkitAppearance: 'none',
+                        MozAppearance: 'textfield',
+                      }}
                       placeholder="Due time (optional)"
                     />
                   </div>
@@ -319,12 +361,23 @@ const TaskForm = ({
             <DropdownCn
               label={
                 <div className="flex items-center gap-2">
-                  <div className={cn('w-2 h-2 rounded-full', statusColors[status] || 'bg-gray-400')} />
+                  <div 
+                    className="w-2 h-2 rounded-full" 
+                    style={{ backgroundColor: statusColors[status] || '#9CA3AF' }}
+                  />
                   <TypographyBodyMedium>{statusDisplayText[status] || status}</TypographyBodyMedium>
                 </div>
               }
               options={statusOptions.map((opt) => ({
-                label: typeof opt.label === 'string' ? opt.label : opt.value,
+                label: (
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-2 h-2 rounded-full" 
+                      style={{ backgroundColor: statusColors[opt.value] || '#9CA3AF' }}
+                    />
+                    <span>{typeof opt.label === 'string' ? opt.label : opt.value}</span>
+                  </div>
+                ),
                 value: opt.value,
               }))}
               onSelect={(option) => setStatus(option.value)}

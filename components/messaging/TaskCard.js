@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { CalendarIcon, Clock, Flag, MoreVertical, Pin, ChevronDown } from 'lucide-react'
 import moment from 'moment'
 import DropdownCn from '@/components/dashboard/leads/extras/DropdownCn'
@@ -33,10 +33,20 @@ const TaskCard = ({
     now.setHours(0, 0, 0, 0)
     dueDate.setHours(0, 0, 0, 0)
 
-    if (dueDate < now && task.status !== 'done') {
-      return { text: `Past Due: ${format(dueDate, 'MM/dd/yy')}`, isPastDue: true }
+    let dateStr = format(dueDate, 'MM/dd/yy')
+    // Add time if available
+    if (task.dueTime) {
+      const [hours, minutes] = task.dueTime.split(':')
+      const hour = parseInt(hours, 10)
+      const ampm = hour >= 12 ? 'PM' : 'AM'
+      const displayHour = hour % 12 || 12
+      dateStr = `${dateStr} ${displayHour}:${minutes} ${ampm}`
     }
-    return { text: `Due on: ${format(dueDate, 'MM/dd/yy')}`, isPastDue: false }
+
+    if (dueDate < now && task.status !== 'done') {
+      return { text: `Past Due: ${dateStr}`, isPastDue: true }
+    }
+    return { text: `${dateStr}`, isPastDue: false }
   }
 
   const dueDateInfo = formatDueDate()
@@ -95,11 +105,11 @@ const TaskCard = ({
     },
   ]
 
-  // Status color mapping
+  // Status color mapping (hex colors)
   const statusColors = {
-    todo: 'bg-purple-500',
-    'in-progress': 'bg-orange-500',
-    done: 'bg-green-500',
+    todo: '#7804DF',
+    'in-progress': '#FF8102',
+    done: '#01CB76',
   }
 
   // Get current priority option
@@ -121,6 +131,8 @@ const TaskCard = ({
   const [datePickerOpen, setDatePickerOpen] = useState(false)
   const [dueDate, setDueDate] = useState(task.dueDate ? new Date(task.dueDate) : null)
   const [dueTime, setDueTime] = useState(task.dueTime || '')
+  const [isSavingDate, setIsSavingDate] = useState(false)
+  const savingRef = useRef(false) // Prevent duplicate saves
 
   // Sync state with task prop changes
   useEffect(() => {
@@ -129,12 +141,21 @@ const TaskCard = ({
   }, [task.dueDate, task.dueTime])
 
   // Handle due date change
-  const handleDueDateChange = () => {
-    onUpdate(task.id, {
-      dueDate: dueDate ? format(dueDate, 'yyyy-MM-dd') : null,
-      dueTime: dueTime || null,
-    })
-    setDatePickerOpen(false)
+  const handleDueDateChange = async () => {
+    // Prevent duplicate calls
+    if (savingRef.current) return
+    savingRef.current = true
+    setIsSavingDate(true)
+    try {
+      await onUpdate(task.id, {
+        dueDate: dueDate ? format(dueDate, 'yyyy-MM-dd') : null,
+        dueTime: dueTime || null,
+      })
+    } finally {
+      setIsSavingDate(false)
+      setDatePickerOpen(false)
+      savingRef.current = false
+    }
   }
 
   return (
@@ -217,13 +238,19 @@ const TaskCard = ({
 
         {/* Due Date - Editable Popover */}
         <Popover open={datePickerOpen} onOpenChange={(open) => {
-          setDatePickerOpen(open)
-          if (!open) {
-            // Save changes when closing if date changed
+          // Only handle closing if not already saving
+          if (!open && !isSavingDate && !savingRef.current) {
+            // Check if date/time changed
             const taskDueDate = task.dueDate ? new Date(task.dueDate) : null
             const taskDueTime = task.dueTime || ''
-            if (dueDate?.getTime() !== taskDueDate?.getTime() || dueTime !== taskDueTime) {
+            const hasChanges = dueDate?.getTime() !== taskDueDate?.getTime() || dueTime !== taskDueTime
+            
+            if (hasChanges) {
+              // Only save if there are actual changes
               handleDueDateChange()
+            } else {
+              // No changes, just close
+              setDatePickerOpen(false)
             }
           }
         }}>
@@ -243,14 +270,20 @@ const TaskCard = ({
               }}
             >
               <CalendarIcon className="h-4 w-4 text-muted-foreground pointer-events-none" />
-              <TypographyBody
-                className={cn(
-                  'pointer-events-none',
-                  dueDateInfo?.isPastDue ? 'text-red-500 font-semibold' : 'text-muted-foreground',
-                )}
-              >
-                {dueDateInfo ? dueDateInfo.text : 'Due Date'}
-              </TypographyBody>
+              {isSavingDate ? (
+                <TypographyBody className="text-muted-foreground pointer-events-none">
+                  Saving...
+                </TypographyBody>
+              ) : (
+                <TypographyBody
+                  className={cn(
+                    'pointer-events-none',
+                    dueDateInfo?.isPastDue ? 'text-red-500 font-semibold' : 'text-muted-foreground',
+                  )}
+                >
+                  {dueDateInfo ? dueDateInfo.text : 'Due Date'}
+                </TypographyBody>
+              )}
               <ChevronDown className="h-3 w-3 text-muted-foreground ml-1 pointer-events-none" />
             </button>
           </PopoverTrigger>
@@ -259,10 +292,23 @@ const TaskCard = ({
             align="start"
             style={{ zIndex: 200 }}
             onInteractOutside={(e) => {
-              const taskBoard = document.querySelector('[data-task-board]')
-              if (taskBoard && taskBoard.contains(e.target)) {
+              // Prevent handling if already saving
+              if (savingRef.current || isSavingDate) {
                 e.preventDefault()
+                return
               }
+
+              // Check if clicking on the popover content itself
+              const popoverContent = e.target.closest('[role="dialog"]')
+              if (popoverContent) {
+                // Clicking inside popover - prevent closing
+                e.preventDefault()
+                return
+              }
+
+              // Clicking outside popover - let onOpenChange handle the save
+              // We don't need to save here since onOpenChange will be called
+              // Just prevent default to allow normal popover closing behavior
             }}
           >
             <div className="p-3 space-y-3">
@@ -318,12 +364,20 @@ const TaskCard = ({
               {/* Time input */}
               {dueDate && (
                 <div className="flex items-center gap-2 pt-2 border-t">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
+                  <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                   <Input
                     type="time"
                     value={dueTime}
                     onChange={(e) => setDueTime(e.target.value)}
-                    className="w-full"
+                    onClick={(e) => {
+                      // Ensure the time picker opens when clicking anywhere on the input
+                      e.currentTarget.showPicker?.()
+                    }}
+                    className="w-full cursor-pointer [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none [&::-webkit-inner-spin-button]:hidden [&::-webkit-outer-spin-button]:hidden"
+                    style={{
+                      WebkitAppearance: 'none',
+                      MozAppearance: 'textfield',
+                    }}
                     placeholder="Due time (optional)"
                   />
                 </div>
@@ -337,12 +391,23 @@ const TaskCard = ({
           <DropdownCn
             label={
               <div className="flex items-center gap-2">
-                <div className={cn('w-2 h-2 rounded-full', statusColors[task.status] || 'bg-gray-400')} />
+                <div 
+                  className="w-2 h-2 rounded-full" 
+                  style={{ backgroundColor: statusColors[task.status] || '#9CA3AF' }}
+                />
                 <TypographyBodyMedium>{statusDisplayText[task.status] || task.status}</TypographyBodyMedium>
               </div>
             }
             options={statusOptions.map((opt) => ({
-              label: typeof opt.label === 'string' ? opt.label : opt.value,
+              label: (
+                <div className="flex items-center gap-2">
+                  <div 
+                    className="w-2 h-2 rounded-full" 
+                    style={{ backgroundColor: statusColors[opt.value] || '#9CA3AF' }}
+                  />
+                  <span>{typeof opt.label === 'string' ? opt.label : opt.value}</span>
+                </div>
+              ),
               value: opt.value,
             }))}
             onSelect={handleStatusChange}

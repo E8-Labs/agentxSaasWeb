@@ -697,7 +697,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
             </div>
           </TooltipTrigger>
           {dateString && (
-            <TooltipContent>
+            <TooltipContent className="bg-black text-white">
               <p>{dateString}</p>
             </TooltipContent>
           )}
@@ -718,7 +718,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
           </div>
         </TooltipTrigger>
         {dateString && (
-          <TooltipContent>
+          <TooltipContent className="bg-black text-white">
             <p>{dateString}</p>
           </TooltipContent>
         )}

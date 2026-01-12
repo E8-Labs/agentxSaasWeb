@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { ChevronDown } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Button } from '@/components/ui/button'
@@ -185,7 +186,11 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
               <div className="flex items-center justify-between w-full gap-2">
                 <div className="flex items-center gap-2 flex-1 min-w-0">
                   {opt.icon ? <opt.icon className="h-4 w-4 shrink-0" /> : null}
-                  <span className="truncate">{opt.label}</span>
+                  {React.isValidElement(opt.label) ? (
+                    opt.label
+                  ) : (
+                    <span className="truncate">{opt.label}</span>
+                  )}
                 </div>
                 {opt.upgradeTag && (
                   <div 
