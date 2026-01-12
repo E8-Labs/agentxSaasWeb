@@ -1071,7 +1071,7 @@ export default function PlanConfiguration({
                     <input
                       style={styles.inputs}
                       className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
-                      placeholder="max 1000"
+                      placeholder="Max 1,000"
                       value={noOfAgents}
                       max={1000}
                       onChange={(e) => {
@@ -1086,9 +1086,20 @@ export default function PlanConfiguration({
                             : sanitized
                         // setOriginalPrice(valid);
                         setNoOfAgents(valid)
-                        if (valid >= 1000) {
+                        
+                        if (valid && Number(valid) > 1000) {
                           setSnackBannerMsg('Number of agents cannot be greater than 1,000')
                           setSnackBannerMsgType(SnackbarTypes.Error)
+                        } else {
+                          // Only clear snackBannerMsg if it's the number of agents error
+                          // Check if current message is about agents before clearing
+                          if (
+                            snackBannerMsg &&
+                            snackBannerMsg.includes('agents') &&
+                            snackBannerMsg.includes('1,000')
+                          ) {
+                            setSnackBannerMsg(null)
+                          }
                         }
                       }}
                     />

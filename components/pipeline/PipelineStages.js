@@ -266,12 +266,20 @@ const PipelineStages = ({
     const [triggerSMSUpgradeModal, setTriggerSMSUpgradeModal] = useState(0)
     
     // Handler to trigger email upgrade modal
-    const handleEmailUpgradeClick = useCallback(() => {
+    const handleEmailUpgradeClick = useCallback((e) => {
+      if (e) {
+        e.stopPropagation()
+        e.preventDefault()
+      }
       setTriggerEmailUpgradeModal(prev => prev + 1)
     }, [])
     
     // Handler to trigger SMS upgrade modal
-    const handleSMSUpgradeClick = useCallback(() => {
+    const handleSMSUpgradeClick = useCallback((e) => {
+      if (e) {
+        e.stopPropagation()
+        e.preventDefault()
+      }
       setTriggerSMSUpgradeModal(prev => prev + 1)
     }, [])
     
@@ -1950,50 +1958,6 @@ const PipelineStages = ({
                 setSelectedGoogleAccount(account)
               }}
             />
-
-            {/* Upgrade modals for email and SMS */}
-            {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
-              <UpgradeTagWithModal
-                reduxUser={reduxUser}
-                setReduxUser={setReduxUser}
-                requestFeature={emailCapability.showRequestFeature}
-                externalTrigger={triggerEmailUpgradeModal > 0}
-                onModalClose={handleEmailUpgradeModalClose}
-                hideTag={true}
-              />
-            )}
-            {(smsCapability.showUpgrade || smsCapability.showRequestFeature) && (
-              <UpgradeTagWithModal
-                reduxUser={reduxUser}
-                setReduxUser={setReduxUser}
-                requestFeature={smsCapability.showRequestFeature}
-                externalTrigger={triggerSMSUpgradeModal > 0}
-                onModalClose={handleSMSUpgradeModalClose}
-                hideTag={true}
-              />
-            )}
-
-            {/* Upgrade modals for email and SMS */}
-            {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
-              <UpgradeTagWithModal
-                reduxUser={reduxUser}
-                setReduxUser={setReduxUser}
-                requestFeature={emailCapability.showRequestFeature}
-                externalTrigger={triggerEmailUpgradeModal > 0}
-                onModalClose={handleEmailUpgradeModalClose}
-                hideTag={true}
-              />
-            )}
-            {(smsCapability.showUpgrade || smsCapability.showRequestFeature) && (
-              <UpgradeTagWithModal
-                reduxUser={reduxUser}
-                setReduxUser={setReduxUser}
-                requestFeature={smsCapability.showRequestFeature}
-                externalTrigger={triggerSMSUpgradeModal > 0}
-                onModalClose={handleSMSUpgradeModalClose}
-                hideTag={true}
-              />
-            )}
 
             {/* Upgrade modals for email and SMS */}
             {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (

@@ -2820,7 +2820,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
     // Check if paid plan user has reached their agent limit
     // Only check if maxAgents is less than 1000 (1000+ indicates unlimited)
-    if (currentAgents >= maxAgents && maxAgents > 0 && maxAgents < 1000) {
+    if (currentAgents >= maxAgents && maxAgents > 0 && maxAgents < 10000000) {
       console.log('🚫 [ADMIN] Paid plan subaccount has reached limit')
       setShowMoreAgentsPopup(true)
       setMoreAgentsPopupType('newagent')
@@ -3394,7 +3394,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             Agents
           </div>
           {selectedUser?.plan?.planId != null &&
-            selectedUser?.planCapabilities?.maxAgents < 1000 && (
+            selectedUser?.planCapabilities?.maxAgents < 10000000 && (
               <div
                 style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
               >
@@ -3403,7 +3403,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             )}
 
           {selectedUser?.plan?.planId != null &&
-            selectedUser?.planCapabilities?.maxAgents < 1000 && (
+            selectedUser?.planCapabilities?.maxAgents < 10000000 && (
               <Tooltip
                 title={`Additional agents are $${selectedUser?.planCapabilities?.costPerAdditionalAgent || 10}/month each.`}
                 arrow

@@ -47,15 +47,15 @@ const NotesTabCN = ({
   const [showAddNotes, setShowAddNotes] = useState(false)
   const [addNotesValue, setAddNotesValue] = useState('')
   const [addLeadNoteLoader, setAddLeadNoteLoader] = useState(false)
-  
+
   const [editingNote, setEditingNote] = useState(null)
   const [editNoteValue, setEditNoteValue] = useState('')
   const [editNoteLoader, setEditNoteLoader] = useState(false)
-  
+
   const [deleteNoteId, setDeleteNoteId] = useState(null)
   const [deleteNoteLoader, setDeleteNoteLoader] = useState(false)
   const [showDeleteNoteConfirm, setShowDeleteNoteConfirm] = useState(false)
-  
+
   const [showSnackMsg, setShowSnackMsg] = useState({
     type: SnackbarTypes.Success,
     message: '',
@@ -217,90 +217,97 @@ const NotesTabCN = ({
     setDeleteNoteId(note.id)
     setShowDeleteNoteConfirm(true)
   }
-  if (noteDetails?.length < 1) {
-    return (
-      <div className="flex flex-col items-center justify-center w-full mt-12">
-        <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
-          <StickyNote className="h-6 w-6" />
-        </div>
-        <TypographyBody className="mt-4 italic text-muted-foreground">
-          You can add and manage your notes here
-        </TypographyBody>
-        <Button
-          variant="ghost"
-          className="mt-2 gap-2"
-          onClick={() => setShowAddNotes(true)}
-        >
-          <Plus className="h-4 w-4" />
-          <TypographyBodyMedium>Add Notes</TypographyBodyMedium>
-        </Button>
-      </div>
-    )
-  }
+
 
   return (
     <div>
-      {noteDetails.map((note, index) => (
-        <Card key={index} className="mb-4 relative">
-          <CardContent className="p-4">
-            <div className="flex flex-row items-center justify-between w-full">
-              <TypographyCaption className="text-muted-foreground">
-                {GetFormattedDateString(note?.createdAt, true)}
-              </TypographyCaption>
-              {/* Show menu for manual notes, or if type is undefined (assume manual) */}
-              {(note.type === 'manual' || !note.type || note.type !== 'call_summary') && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8 cursor-pointer hover:bg-muted shrink-0"
-                      type="button"
-                    >
-                      <MoreVertical className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="z-[9999]">
-                    <DropdownMenuItem 
-                      onSelect={(e) => {
-                        e.preventDefault()
-                        handleEditClick(note)
-                      }}
-                      className="cursor-pointer"
-                    >
-                      <Pencil className="h-4 w-4 mr-2" />
-                      <TypographyBodyMedium>Edit</TypographyBodyMedium>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onSelect={(e) => {
-                        e.preventDefault()
-                        handleDeleteClick(note)
-                      }}
-                      className="text-destructive focus:text-destructive cursor-pointer"
-                    >
-                      <Trash2 className="h-4 w-4 mr-2" />
-                      <TypographyBodyMedium>Delete</TypographyBodyMedium>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
+      {
+
+        noteDetails.length > 0 ? (
+          noteDetails.map((note, index) => (
+            <Card key={index} className="mb-4 relative">
+              <CardContent className="p-4">
+                <div className="flex flex-row items-center justify-between w-full">
+                  <TypographyCaption className="text-muted-foreground">
+                    {GetFormattedDateString(note?.createdAt, true)}
+                  </TypographyCaption>
+                  {/* Show menu for manual notes, or if type is undefined (assume manual) */}
+                  {(note.type === 'manual' || !note.type || note.type !== 'call_summary') && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 cursor-pointer hover:bg-muted shrink-0"
+                          type="button"
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="z-[9999]">
+                        <DropdownMenuItem
+                          onSelect={(e) => {
+                            e.preventDefault()
+                            handleEditClick(note)
+                          }}
+                          className="cursor-pointer"
+                        >
+                          <Pencil className="h-4 w-4 mr-2" />
+                          <TypographyBodyMedium>Edit</TypographyBodyMedium>
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onSelect={(e) => {
+                            e.preventDefault()
+                            handleDeleteClick(note)
+                          }}
+                          className="text-destructive focus:text-destructive cursor-pointer"
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          <TypographyBodyMedium>Delete</TypographyBodyMedium>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
+                </div>
+                <TypographyBody className="mt-4">{note.note}</TypographyBody>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <div className="flex flex-col items-center justify-center w-full mt-12">
+            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
+              <StickyNote className="h-6 w-6" />
             </div>
-            <TypographyBody className="mt-4">{note.note}</TypographyBody>
-          </CardContent>
-        </Card>
-      ))}
-      <Button
-        variant="ghost"
-        className="mt-2 gap-2"
-        onClick={() => setShowAddNotes(true)}
-      >
-        <Plus className="h-4 w-4" />
-        <TypographyBodyMedium>Add Notes</TypographyBodyMedium>
-      </Button>
+            <TypographyBody className="mt-4 italic text-muted-foreground">
+              You can add and manage your notes here
+            </TypographyBody>
+            <Button
+              variant="ghost"
+              className="mt-2 gap-2"
+              onClick={() => setShowAddNotes(true)}
+            >
+              <Plus className="h-4 w-4" />
+              <TypographyBodyMedium>Add Notes</TypographyBodyMedium>
+            </Button>
+          </div>
+        )
+      }
+      {
+        noteDetails.length > 0 && (
+          <Button
+            variant="ghost"
+            className="mt-2 gap-2"
+            onClick={() => setShowAddNotes(true)}
+          >
+            <Plus className="h-4 w-4" />
+            <TypographyBodyMedium>Add Notes</TypographyBodyMedium>
+          </Button>
+        )
+      }
 
       {/* Add Note Modal */}
-      <Dialog open={showAddNotes} onOpenChange={setShowAddNotes}>
+      <Dialog open={showAddNotes} onOpenChange={setShowAddNotes} modal={true}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>
@@ -348,7 +355,7 @@ const NotesTabCN = ({
           setEditingNote(null)
           setEditNoteValue('')
         }
-      }}>
+      }} modal={true}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>
@@ -391,7 +398,7 @@ const NotesTabCN = ({
       </Dialog>
 
       {/* Delete Confirmation Modal */}
-      <Dialog open={showDeleteNoteConfirm} onOpenChange={setShowDeleteNoteConfirm}>
+      <Dialog open={showDeleteNoteConfirm} onOpenChange={setShowDeleteNoteConfirm} modal={true}>
         <DialogContent className="sm:max-w-[400px]">
           <DialogHeader>
             <DialogTitle>
