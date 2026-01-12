@@ -5,6 +5,7 @@ import Image from 'next/image'
 import NotficationsDrawer from '../notofications/NotficationsDrawer'
 import { TypographyH3 } from '@/lib/typography'
 import TaskBoard from '../messaging/TaskBoard'
+import { useTaskStatus } from '@/hooks/use-task-status'
 
 /**
  * StandardHeader - Universal reusable header component matching MessageHeader.js pattern
@@ -40,6 +41,13 @@ function StandardHeader({
 }) {
   const [taskBoardOpen, setTaskBoardOpen] = useState(false)
   const taskButtonRef = useRef(null)
+  
+  // Get task status for indicator dots
+  const { hasActiveTasks, hasPastDueTasks } = useTaskStatus(
+    leadId || selectedThread?.leadId || null,
+    threadId || selectedThread?.id || null,
+    null
+  )
 
   // Use containerClassName if provided, otherwise use exact MessageHeader classes
   const containerClasses = containerClassName || 'w-full p-4 border-b flex flex-row items-center justify-between h-14'
@@ -128,7 +136,7 @@ function StandardHeader({
             <button
               ref={taskButtonRef}
               onClick={() => setTaskBoardOpen(true)}
-              className="mb-1 hover:opacity-70 transition-opacity flex-shrink-0"
+              className="mb-1 hover:opacity-70 transition-opacity flex-shrink-0 relative"
             >
               <Image 
                 src='/messaging/checkList.svg' 
@@ -136,6 +144,25 @@ function StandardHeader({
                 width={22} 
                 height={22} 
               />
+              {/* Status indicator dots */}
+              {(hasActiveTasks || hasPastDueTasks) && (
+                <div className="absolute -top-1 -right-1 flex items-center gap-0.5">
+                  {/* Red dot for past due (highest priority) */}
+                  {hasPastDueTasks && (
+                    <div 
+                      className="w-2.5 h-2.5 rounded-full border-2 border-white"
+                      style={{ backgroundColor: '#EF4444' }}
+                    />
+                  )}
+                  {/* Purple dot for active tasks (todo/in-progress) */}
+                  {hasActiveTasks && !hasPastDueTasks && (
+                    <div 
+                      className="w-2.5 h-2.5 rounded-full border-2 border-white"
+                      style={{ backgroundColor: '#7804DF' }}
+                    />
+                  )}
+                </div>
+              )}
             </button>
           )}
           <NotficationsDrawer/>
