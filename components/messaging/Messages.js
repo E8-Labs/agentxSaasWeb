@@ -27,6 +27,7 @@ import { useUser } from '@/hooks/redux-hooks'
 import UnlockMessagesView from './UnlockMessagesView'
 import MessageHeader from './MessageHeader'
 import ConversationHeader from './ConversationHeader'
+import UpgradePlan from '@/components/userPlans/UpgradePlan'
 
 const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const searchParams = useSearchParams()
@@ -81,6 +82,12 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const [replyToMessage, setReplyToMessage] = useState(null)
   const [searchValue, setSearchValue] = useState('')
   const threadsRequestIdRef = useRef(0)
+  const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
+
+  // Debug: Log when modal state changes
+  useEffect(() => {
+    console.log('🔍 [Messages] showUpgradePlanModal changed to:', showUpgradePlanModal)
+  }, [showUpgradePlanModal])
 
   // Filter state
   const [filterType, setFilterType] = useState('all') // 'all' or 'unreplied'
@@ -2382,46 +2389,63 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   // If user doesn't have access to emails or text messages, show empty state
   if (!hasMessagingAccess) {
     return (
-      <div className="w-full h-full flex flex-col items-center justify-center bg-white">
-        <Image
-          src={'/otherAssets/noTemView.png'}
-          height={280}
-          width={240}
-          alt="No messaging access"
-        />
+      <>
+        <div className="w-full h-full flex flex-col items-center justify-center bg-white">
+          <Image
+            src={'/otherAssets/noTemView.png'}
+            height={280}
+            width={240}
+            alt="No messaging access"
+          />
 
-        <div className="w-full flex flex-col items-center -mt-12 gap-4">
-          <div style={{ fontWeight: '700', fontSize: 22 }}>
-            Unlock Messaging
+          <div className="w-full flex flex-col items-center -mt-12 gap-4">
+            <div style={{ fontWeight: '700', fontSize: 22 }}>
+              Unlock Messaging
+            </div>
+            <div style={{ fontWeight: '400', fontSize: 15 }}>
+              Upgrade your plan to send and receive emails and text messages
+            </div>
           </div>
-          <div style={{ fontWeight: '400', fontSize: 15 }}>
-            Upgrade your plan to send and receive emails and text messages
+
+          <div className="">
+            <button
+              className="rounded-lg text-white bg-brand-primary mt-8"
+              style={{
+                fontWeight: '500',
+                fontSize: '16',
+                height: '50px',
+                width: '173px',
+              }}
+              onClick={() => {
+                console.log("Here is the upgrade plan modal button clicked")
+                setShowUpgradePlanModal(true)
+              }}
+            >
+              Upgrade Plan
+            </button>
           </div>
         </div>
 
-        <div className="">
-          <button
-            className="rounded-lg text-white bg-brand-primary mt-8"
-            style={{
-              fontWeight: '500',
-              fontSize: '16',
-              height: '50px',
-              width: '173px',
-            }}
-            onClick={() => {
-              // Navigate to dashboard where user can access plans
-              const userRole = reduxUser?.userRole
-              if (userRole === 'Agency') {
-                window.location.href = '/agency/dashboard'
-              } else {
-                window.location.href = '/dashboard'
+        {/* Upgrade Plan Modal - For users without messaging access */}
+        {showUpgradePlanModal && (
+          <UpgradePlan
+            key="upgrade-plan-modal"
+            open={showUpgradePlanModal}
+            handleClose={(upgradeResult) => {
+              console.log('UpgradePlan handleClose called with:', upgradeResult)
+              setShowUpgradePlanModal(false)
+              // Refresh user data if upgrade was successful
+              if (upgradeResult) {
+                // The component will re-render and check hasMessagingAccess again
+                window.location.reload() // Simple reload to refresh user data
               }
             }}
-          >
-            Upgrade Plan
-          </button>
-        </div>
-      </div>
+            currentFullPlan={reduxUser?.plan || reduxUser?.user?.plan}
+            from={reduxUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : 'User'}
+            selectedUser={selectedUser}
+          />
+        )}
+      </>
     )
   }
 
@@ -2435,6 +2459,23 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
         time={4000}
         hide={() => setSnackbar({ ...snackbar, isVisible: false })}
       />
+      
+      {/* Upgrade Plan Modal - Always available */}
+      <UpgradePlan
+        open={showUpgradePlanModal}
+        handleClose={(upgradeResult) => {
+          setShowUpgradePlanModal(false)
+          // Refresh user data if upgrade was successful
+          if (upgradeResult) {
+            // Optionally refresh threads or user data
+            fetchThreads(searchValue || '', appliedTeamMemberIds)
+          }
+        }}
+        currentFullPlan={reduxUser?.plan}
+        from={reduxUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : 'User'}
+        selectedUser={selectedUser}
+      />
+
       {
         planCapabilities?.allowTextMessages === false && planCapabilities?.allowEmails === false ? (
           <UnlockMessagesView />
