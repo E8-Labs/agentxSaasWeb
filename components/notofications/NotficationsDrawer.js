@@ -732,7 +732,7 @@ function NotficationsDrawer({ close }) {
   }
 
   return (
-    <div className="w-full">
+    <div className='flex w-full w-[22px]'>
       {snackMessage && (
         <AgentSelectSnackMessage
           message={snackMessage}
@@ -749,8 +749,9 @@ function NotficationsDrawer({ close }) {
           setShowNotificationDrawer(true)
           getNotifications()
         }}
+        className="mb-1 hover:opacity-70 transition-opacity flex-shrink-0"
       >
-        <div className="flex flex-row ">
+        <div className="flex flex-row relative">
           <Image
             src="/svgIcons/notificationIcon.svg"
             height={22}
@@ -759,7 +760,7 @@ function NotficationsDrawer({ close }) {
           />
           {unread > 0 && (
             <div
-              className="flex bg-red rounded-full min-w-[24px] px-[2px] h-6 flex-row items-center justify-center text-red font-md text-white flex-shrink-0"
+              className="absolute -top-1 -right-1 flex rounded-full min-w-[24px] px-[2px] h-6 flex-row items-center justify-center text-white flex-shrink-0"
               style={{
                 fontSize: 13,
                 marginTop: -13,

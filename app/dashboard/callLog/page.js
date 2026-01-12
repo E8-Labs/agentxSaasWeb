@@ -4,6 +4,7 @@ import { CircularProgress, duration } from '@mui/material'
 import axios from 'axios'
 import moment from 'moment'
 import Image from 'next/image'
+import { TypographyH3 } from '@/lib/typography'
 import React, { useEffect, useState } from 'react'
 
 import DashboardSlider from '@/components/animations/DashboardSlider'
@@ -13,6 +14,7 @@ import CallActivities from '@/components/calls/CallActivties'
 import SheduledCalls from '@/components/calls/SheduledCalls'
 import LeadLoading from '@/components/dashboard/leads/LeadLoading'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
+import StandardHeader from '@/components/common/StandardHeader'
 import { PersistanceKeys } from '@/constants/Constants'
 
 function Page() {
@@ -34,28 +36,10 @@ function Page() {
 
   return (
     <div className="w-full flex flex-col items-center overflow-hidden">
-      <div
-        className=" w-full flex flex-row justify-between items-center py-4 mt-2 px-10"
-        style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
-      >
-        <div style={{ fontSize: 24, fontWeight: '600' }}>Activity</div>
-
-        <div className="flex flex-row items-center gap-4">
-          <NotficationsDrawer user={user} />
-          <div
-            style={{
-              position: 'absolute',
-              right: 0,
-              bottom: 0,
-            }}
-          >
-            {/*
-              <DashboardSlider
-                needHelp={false} />
-            */}
-          </div>
-        </div>
-      </div>
+      <StandardHeader
+        title="Activity"
+        showTasks={true}
+      />
 
       <div className=" w-full flex mt-6  gap-8 pb-2 mb-4 pl-10">
         {['All Activities', 'Campaign Activity'].map(

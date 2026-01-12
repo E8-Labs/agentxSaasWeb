@@ -16,7 +16,7 @@ function MessageHeader({ selectedThread = null, selectedUser = null }) {
             <div className='w-full p-4 border-b flex flex-row items-center justify-between'>
                 <TypographyH3>Messages</TypographyH3>
                 {!selectedUser && (
-                    <div className='flex flex-row items-center justify-center gap-2'>
+                    <div className='flex flex-row items-center justify-end gap-2'>
                         {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && (
                             <button
                                 ref={taskButtonRef}
@@ -26,8 +26,8 @@ function MessageHeader({ selectedThread = null, selectedUser = null }) {
                                 <Image 
                                     src='/messaging/checkList.svg' 
                                     alt='Tasks' 
-                                    width={40} 
-                                    height={40} 
+                                    width={22} 
+                                    height={22} 
                                 />
                             </button>
                         )}

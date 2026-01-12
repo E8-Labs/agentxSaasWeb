@@ -57,6 +57,8 @@ import TagsInput from '../dashboard/leads/TagsInput'
 import LeadDetails from '../dashboard/leads/extras/LeadDetails'
 import CloseBtn from '../globalExtras/CloseBtn'
 import NotficationsDrawer from '../notofications/NotficationsDrawer'
+import StandardHeader from '../common/StandardHeader'
+import { TypographyH3 } from '@/lib/typography'
 import { getTeamsList } from '../onboarding/services/apisServices/ApiService'
 import RearrangeStages from '../pipeline/RearrangeStages'
 // import Tags from '../dashboard/leads/TagsInput';
@@ -1989,271 +1991,180 @@ const Pipeline1 = () => {
             hide={() => setSnackMessage(null)}
             message={snackMessage?.message}
           />
-          <div
-            className="w-full flex flex-row justify-center"
-            style={{ borderBottom: '1px solid #15151510' }}
-          >
-            <div className="w-full">
-              <div className="flex flex-row items-center justify-between px-10 mt-4 mb-4">
-                <div className="flex flex-row items-center gap-2">
-                  <span style={{ fontWeight: '700', fontSize: 25 }}>
-                    {SelectedPipeline?.title}
-                  </span>
-                  <div>
-                    {PipeLines.length > 1 && !pipelineDetailLoader && (
-                      <button
-                        className="outline-none"
-                        aria-describedby={OtherPipelineId}
-                        variant="contained"
-                        onClick={handleShowOtherPipeline}
-                      >
-                        <CaretDown size={22} weight="bold" />
-                      </button>
-                    )}
-                    <Menu
-                      id={OtherPipelineId}
-                      anchorEl={otherPipelinePopoverAnchorel}
-                      open={openOtherPipelines}
-                      onClose={handleCloseOtherPipeline}
-                      MenuListProps={{
-                        'aria-labelledby': OtherPipelineId,
-                      }}
+          <StandardHeader
+            titleContent={
+              <div className="flex flex-row items-center gap-2">
+                <TypographyH3>
+                  {SelectedPipeline?.title}
+                </TypographyH3>
+                <div>
+                  {PipeLines.length > 1 && !pipelineDetailLoader && (
+                    <button
+                      className="outline-none"
+                      aria-describedby={OtherPipelineId}
+                      variant="contained"
+                      onClick={handleShowOtherPipeline}
                     >
-                      {PipeLines.map((item, index) => (
-                        <MenuItem
-                          key={index}
-                          onClick={() => {
-                            handleSelectOtherPipeline(item, index)
-                            handleCloseOtherPipeline() // Close menu after selection
-                          }}
-                        >
-                          {item.title}
-                        </MenuItem>
-                      ))}
-                    </Menu>
-                  </div>
-                  <button
-                    aria-describedby={id}
-                    variant="contained"
-                    onClick={handleShowPipelinePopover}
-                    className="outline-none"
-                  >
-                    <DotsThree size={27} weight="bold" />
-                  </button>
-                  <Popover
-                    id={id}
-                    open={open}
-                    anchorEl={pipelinePopoverAnchorel}
-                    onClose={handlePipelineClosePopover}
-                    anchorOrigin={{
-                      vertical: 'bottom',
-                      horizontal: 'left',
+                      <CaretDown size={22} weight="bold" />
+                    </button>
+                  )}
+                  <Menu
+                    id={OtherPipelineId}
+                    anchorEl={otherPipelinePopoverAnchorel}
+                    open={openOtherPipelines}
+                    onClose={handleCloseOtherPipeline}
+                    MenuListProps={{
+                      'aria-labelledby': OtherPipelineId,
                     }}
-                    // PaperProps={{
-                    //     elevation: 0, // This will remove the shadow
-                    //     style: {
-                    //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
-                    //     },
-                    // }}
                   >
-                    <div className="p-3">
-                      <button
-                        className="flex flex-row items-center gap-4"
+                    {PipeLines.map((item, index) => (
+                      <MenuItem
+                        key={index}
                         onClick={() => {
-                          if (
-                            user?.planCapabilities.maxPipelines >
-                            user?.currentUsage.maxPipelines
-                          ) {
-                            setCreatePipeline(true)
-                          } else {
-                            setShowUpgradeModal(true)
-                          }
+                          handleSelectOtherPipeline(item, index)
+                          handleCloseOtherPipeline() // Close menu after selection
                         }}
                       >
-                        <Plus size={17} weight="bold" />{' '}
-                        <span style={{ fontWeight: '500', fontSize: 15 }}>
-                          New Pipeline
-                        </span>
-                      </button>
-                      <div className="w-full flex flex-row mt-4">
-                        <button
-                          className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                          style={styles.paragraph}
-                          onClick={() => {
-                            setShowRenamePipelinePopup(true)
-                            setRenamePipeline(SelectedPipeline.title)
-                            // //console.log;
-                          }}
-                        >
-                          <Image
-                            src={'/assets/editPen.png'}
-                            height={15}
-                            width={15}
-                            alt="*"
-                          />
-                          Rename
-                        </button>
-                      </div>
-                      <div className="w-full flex flex-row mt-4">
-                        <button
-                          className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                          style={styles.paragraph}
-                          onClick={() => {
-                            setAddNewStageModal(true)
-                          }}
-                        >
-                          <Image
-                            src={'/svgIcons/arrowBlack.svg'}
-                            height={18}
-                            width={15}
-                            alt="*"
-                          />
-                          Add Stage
-                        </button>
-                      </div>
-                      <div className="w-full flex flex-row mt-4">
-                        {/* {
-                                                    delStageLoader ?
-                                                        <CircularProgress size={20} /> :
-                                                       
-                                                } */}
-                        <button
-                          className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                          style={styles.paragraph}
-                          onClick={() => {
-                            setShowStagesPopup(true)
-                          }}
-                        >
-                          <Image
-                            src={'/assets/list.png'}
-                            height={18}
-                            width={15}
-                            alt="*"
-                          />
-                          Rearrange Stage
-                        </button>
-                      </div>
-
+                        {item.title}
+                      </MenuItem>
+                    ))}
+                  </Menu>
+                </div>
+                <button
+                  aria-describedby={id}
+                  variant="contained"
+                  onClick={handleShowPipelinePopover}
+                  className="outline-none"
+                >
+                  <DotsThree size={27} weight="bold" />
+                </button>
+                <Popover
+                  id={id}
+                  open={open}
+                  anchorEl={pipelinePopoverAnchorel}
+                  onClose={handlePipelineClosePopover}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                  }}
+                >
+                  <div className="p-3">
+                    <button
+                      className="flex flex-row items-center gap-4"
+                      onClick={() => {
+                        if (
+                          user?.planCapabilities.maxPipelines >
+                          user?.currentUsage.maxPipelines
+                        ) {
+                          setCreatePipeline(true)
+                        } else {
+                          setShowUpgradeModal(true)
+                        }
+                      }}
+                    >
+                      <Plus size={17} weight="bold" />{' '}
+                      <span style={{ fontWeight: '500', fontSize: 15 }}>
+                        New Pipeline
+                      </span>
+                    </button>
+                    <div className="w-full flex flex-row mt-4">
                       <button
-                        className="text-red flex flex-row items-center gap-4 mt-4 me-2 outline-none"
+                        className="text-black flex flex-row items-center gap-4 me-2 outline-none"
                         style={styles.paragraph}
                         onClick={() => {
-                          setShowDeletePiplinePopup(true)
+                          setShowRenamePipelinePopup(true)
+                          setRenamePipeline(SelectedPipeline.title)
                         }}
                       >
                         <Image
-                          src={'/assets/delIcon.png'}
-                          height={18}
-                          width={18}
+                          src={'/assets/editPen.png'}
+                          height={15}
+                          width={15}
                           alt="*"
                         />
-                        Delete
+                        Rename
                       </button>
                     </div>
-                  </Popover>
-                </div>
-                <div className="flex fex-row items-center gap-3">
-                  <div
-                    className="flex flex-row items-center justify-between border h-[50px] px-4 gap-2 rounded-full"
-                    // style={{ borderRadius: "50px" }}
-                  >
-                    <input
-                      style={{ MozOutline: 'none' }}
-                      value={searchValue}
-                      onChange={handldSearch}
-                      className="outline-none bg-transparent  border-none focus:outline-none focus:ring-0 rounded-full"
-                      placeholder="Search by name, phone or email"
-                    />
-                    <button className="outline-none">
+                    <div className="w-full flex flex-row mt-4">
+                      <button
+                        className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                        style={styles.paragraph}
+                        onClick={() => {
+                          setAddNewStageModal(true)
+                        }}
+                      >
+                        <Image
+                          src={'/svgIcons/arrowBlack.svg'}
+                          height={18}
+                          width={15}
+                          alt="*"
+                        />
+                        Add Stage
+                      </button>
+                    </div>
+                    <div className="w-full flex flex-row mt-4">
+                      <button
+                        className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                        style={styles.paragraph}
+                        onClick={() => {
+                          setShowStagesPopup(true)
+                        }}
+                      >
+                        <Image
+                          src={'/assets/list.png'}
+                          height={18}
+                          width={15}
+                          alt="*"
+                        />
+                        Rearrange Stage
+                      </button>
+                    </div>
+
+                    <button
+                      className="text-red flex flex-row items-center gap-4 mt-4 me-2 outline-none"
+                      style={styles.paragraph}
+                      onClick={() => {
+                        setShowDeletePiplinePopup(true)
+                      }}
+                    >
                       <Image
-                        src={'/assets/searchIcon.png'}
-                        height={24}
-                        width={24}
+                        src={'/assets/delIcon.png'}
+                        height={18}
+                        width={18}
                         alt="*"
                       />
+                      Delete
                     </button>
                   </div>
-                  <button
-                    onClick={handleOpenFilterModal}
-                    className="outline-none"
-                    title="Filter"
-                  >
-                    <div className="flex flex-row">
-                      <svg
-                        width="22"
-                        height="22"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M22 6.5H16"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M6 6.5H2"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M10 10C11.933 10 13.5 8.433 13.5 6.5C13.5 4.567 11.933 3 10 3C8.067 3 6.5 4.567 6.5 6.5C6.5 8.433 8.067 10 10 10Z"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M22 17.5H18"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M8 17.5H2"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                        <path
-                          d="M14 21C15.933 21 17.5 19.433 17.5 17.5C17.5 15.567 15.933 14 14 14C12.067 14 10.5 15.567 10.5 17.5C10.5 19.433 12.067 21 14 21Z"
-                          stroke="currentColor"
-                          strokeWidth="1.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                      {appliedTeamMemberIds.length > 0 && (
-                        <div
-                          className="flex bg-red rounded-full min-w-[24px] px-[2px] h-6 flex-row items-center justify-center text-white flex-shrink-0"
-                          style={{
-                            fontSize: 13,
-                            marginTop: -13,
-                            alignSelf: 'flex-start',
-                            marginLeft: -15,
-                          }}
-                        >
-                          {appliedTeamMemberIds.length < 100
-                            ? appliedTeamMemberIds.length
-                            : '99+'}
-                        </div>
-                      )}
-                    </div>
-                  </button>
-                  <div className="flex flex-col">
-                    <NotficationsDrawer />
-                  </div>
-                
-                </div>
+                </Popover>
               </div>
-            </div>
-          </div>
+            }
+            showTasks={true}
+            showFilters={true}
+            onFilterClick={handleOpenFilterModal}
+            filterBadge={appliedTeamMemberIds.length > 0 ? appliedTeamMemberIds.length : null}
+            rightContent={
+              <div
+                className="flex flex-row items-center justify-between border h-[35px] px-4 gap-2 rounded-full"
+              >
+                <input
+                  style={{ MozOutline: 'none' }}
+                  value={searchValue}
+                  onChange={handldSearch}
+                  className="outline-none bg-transparent border-none text-sm focus:outline-none focus:ring-0 rounded-full"
+                  placeholder="Search by name, phone or email"
+                />
+                <button className="outline-none">
+                  <Image
+                    src={'/assets/searchIcon.png'}
+                    height={24}
+                    width={24}
+                    alt="*"
+                  />
+                </button>
+              </div>
+            }
+          />
 
           {pipelineDetailLoader ? (
             <PipelineLoading fullScreen={false} />

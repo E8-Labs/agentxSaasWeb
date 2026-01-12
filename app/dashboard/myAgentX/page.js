@@ -77,6 +77,8 @@ import MyAgentXLoader from '@/components/loaders/MyAgentXLoader'
 // import LeadScoringTab from "@/components/dashboard/myagentX/LeadScoringTab";
 import AddScoringModal from '@/components/modals/add-scoring-modal'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
+import StandardHeader from '@/components/common/StandardHeader'
+import { TypographyH3 } from '@/lib/typography'
 import { getLocalLocation } from '@/components/onboarding/services/apisServices/ApiService'
 import KYCs from '@/components/pipeline/KYCs'
 import GuarduanSetting from '@/components/pipeline/advancedsettings/GuardianSetting'
@@ -4192,76 +4194,74 @@ function Page() {
         />
       </div>
 
-      <div
-        className="w-full flex flex-row justify-between items-center py-4 mt-2 px-10"
-        style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
-      >
-        <div className="flex flex-row items-center gap-3">
-          <div
-            style={{ fontSize: 24, fontWeight: '600' }}
-            onClick={() => {
-              console.log('routing to createagent from agents title')
-              router.push('/createagent')
-            }}
-          >
-            Agents
-          </div>
-          {reduxUser?.plan?.planId != null &&
-            reduxUser?.planCapabilities?.maxAgents < 1000 && (
-              <div
-                style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
-              >
-                {`${reduxUser?.currentUsage?.maxAgents}/${reduxUser?.planCapabilities?.maxAgents || 0} used`}
-              </div>
-            )}
-
-          {reduxUser?.plan?.planId != null &&
-            reduxUser?.planCapabilities?.maxAgents < 1000 && (
-              <Tooltip
-                title={`Additional agents are $${reduxUser?.planCapabilities?.costPerAdditionalAgent || 10}/month each.`}
-                arrow
-                componentsProps={{
-                  tooltip: {
-                    sx: {
-                      backgroundColor: '#ffffff', // Ensure white background
-                      color: '#333', // Dark text color
-                      fontSize: '14px',
-                      padding: '10px 15px',
-                      borderRadius: '8px',
-                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                    },
-                  },
-                  arrow: {
-                    sx: {
-                      color: '#ffffff', // Match tooltip background
-                    },
-                  },
-                }}
-              >
+      <StandardHeader
+        titleContent={
+          <div className="flex flex-row items-center gap-3">
+            <TypographyH3
+              className="cursor-pointer"
+              onClick={() => {
+                console.log('routing to createagent from agents title')
+                router.push('/createagent')
+              }}
+            >
+              Agents
+            </TypographyH3>
+            {reduxUser?.plan?.planId != null &&
+              reduxUser?.planCapabilities?.maxAgents < 1000 && (
                 <div
-                  style={{
-                    fontSize: 12,
-                    fontWeight: '600',
-                    color: '#000000',
-                    cursor: 'pointer',
+                  style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
+                >
+                  {`${reduxUser?.currentUsage?.maxAgents}/${reduxUser?.planCapabilities?.maxAgents || 0} used`}
+                </div>
+              )}
+
+            {reduxUser?.plan?.planId != null &&
+              reduxUser?.planCapabilities?.maxAgents < 1000 && (
+                <Tooltip
+                  title={`Additional agents are $${reduxUser?.planCapabilities?.costPerAdditionalAgent || 10}/month each.`}
+                  arrow
+                  componentsProps={{
+                    tooltip: {
+                      sx: {
+                        backgroundColor: '#ffffff', // Ensure white background
+                        color: '#333', // Dark text color
+                        fontSize: '14px',
+                        padding: '10px 15px',
+                        borderRadius: '8px',
+                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                      },
+                    },
+                    arrow: {
+                      sx: {
+                        color: '#ffffff', // Match tooltip background
+                      },
+                    },
                   }}
                 >
-                  <Image
-                    src="/agencyIcons/InfoIcon.jpg"
-                    alt="info"
-                    width={16}
-                    height={16}
-                    className="cursor-pointer rounded-full"
-                  // onClick={() => setIntroVideoModal2(true)}
-                  />
-                </div>
-              </Tooltip>
-            )}
-        </div>
-        <div className="flex flex-row gap-4 items-center">
-          <div className="flex flex-row items-center gap-1  flex-shrink-0 border rounded-full px-4">
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: '600',
+                      color: '#000000',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <Image
+                      src="/agencyIcons/InfoIcon.jpg"
+                      alt="info"
+                      width={16}
+                      height={16}
+                      className="cursor-pointer rounded-full"
+                    />
+                  </div>
+                </Tooltip>
+              )}
+          </div>
+        }
+        showTasks={true}
+        rightContent={
+          <div className="flex flex-row items-center gap-1 flex-shrink-0 border rounded-full px-4 h-[35px]">
             <input
-              // style={styles.paragraph}
               className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
               placeholder="Search an agent"
               value={search}
@@ -4278,39 +4278,10 @@ function Page() {
                   clearTimeout(searchTimeoutRef.current)
                 }
                 searchTimeoutRef.current = setTimeout(() => {
-                  // handleSearch(e);
                   let searchLoader = true
                   getAgents(false, e.target.value, searchLoader)
                 }, 500)
               }}
-            //test code 2 failed
-            // onChange={(e) => {
-            //   const a = e.target.value;
-            //   setSearch(a);
-
-            //   if (a) {
-            //     console.log("There was some value");
-
-            //     // ✅ Only save original list once
-            //     if (agentsBeforeSearch.length === 0) {
-            //       setAgentsBeforeSearch(agentsListSeparated);
-            //     }
-
-            //     clearTimeout(searchTimeoutRef.current);
-            //     searchTimeoutRef.current = setTimeout(() => {
-            //       const searchLoader = true;
-            //       getAgents(false, a, searchLoader);
-            //     }, 500);
-            //   } else {
-            //     console.log("There was no value");
-
-            //     // ✅ Restore the original list when search is cleared
-            //     setAgentsListSeparated(agentsBeforeSearch);
-            //   }
-
-            //   // ✅ Optional: toggle loading based on canGetMore
-            //   setCanKeepLoading(canGetMore === true);
-            // }}
             />
             <button className="outline-none border-none">
               <Image
@@ -4321,20 +4292,8 @@ function Page() {
               />
             </button>
           </div>
-          <NotficationsDrawer />
-          <div
-            style={{
-              position: 'absolute',
-              right: 0,
-              bottom: 0,
-            }}
-          >
-            {/*
-              <DashboardSlider needHelp={false} />
-            */}
-          </div>
-        </div>
-      </div>
+        }
+      />
 
       <div className="w-9/12 items-center " style={{}}>
         {/* code for agents list */}

@@ -35,6 +35,8 @@ import getProfileDetails from '@/components/apis/GetProfile'
 import SimpleUpgradeView from '@/components/common/SimpleUpgradeView'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import { getStripe } from '@/lib/stripe'
+import { TypographyH3 } from '@/lib/typography'
+import StandardHeader from '@/components/common/StandardHeader'
 
 function Page() {
   const [showKeysBox, setshowKeysBox] = useState(false)
@@ -348,27 +350,10 @@ function Page() {
         message={showCopySnak}
         type={SnackbarTypes.Success}
       />
-      <div
-        className="w-full flex flex-row justify-between items-center py-4 px-4 sm:px-6 lg:px-10 flex-shrink-0"
-        style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
-      >
-        <div style={{ fontSize: 24, fontWeight: '600' }}>Integration</div>
-        <div className="flex flex-row items-center">
-          <NotficationsDrawer />
-          <div
-            style={{
-              position: 'absolute',
-              right: 0,
-              bottom: 0,
-            }}
-          >
-            {/*
-             <DashboardSlider
-               needHelp={false} />
-           */}
-          </div>
-        </div>
-      </div>
+      <StandardHeader
+        title="Integration"
+        showTasks={true}
+      />
 
       {/* <div className='w-full flex flex-row items-center justify-end p-6'>
         {

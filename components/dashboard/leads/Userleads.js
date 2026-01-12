@@ -47,6 +47,8 @@ import getProfileDetails from '@/components/apis/GetProfile'
 import { getUserLocalData } from '@/components/constants/constants'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
+import StandardHeader from '@/components/common/StandardHeader'
+import { TypographyH3, TypographyH4 } from '@/lib/typography'
 import CalendarInput from '@/components/test/DatePicker'
 import UpgradeModal from '@/constants/UpgradeModal'
 import { useUser } from '@/hooks/redux-hooks'
@@ -1977,27 +1979,27 @@ const Userleads = ({
             message={snackMessage}
             type={messageType}
           />
-          <div
-            className="flex flex-row items-center justify-between w-full px-10 py-4 "
-            style={{ borderBottom: '1px solid #15151510' }}
-          >
-            <div className="flex fex-row items-center gap-2">
-              <div style={{ fontWeight: '600', fontSize: 24 }}>Leads</div>
-              {reduxUser?.currentUsage?.maxLeads &&
-                reduxUser?.planCapabilities?.maxLeads < 10000000 &&
-                reduxUser?.plan?.planId != null && (
-                  <div
-                    style={{
-                      fontSize: 14,
-                      fontWeight: '400',
-                      color: '#0000080',
-                    }}
-                  >
-                    {`${formatFractional2(reduxUser?.currentUsage?.maxLeads)}/${formatFractional2(reduxUser?.planCapabilities?.maxLeads) || 0} used`}
-                  </div>
-                )}
-            </div>
-            <div className="flex fex-row items-center gap-6">
+          <StandardHeader
+            titleContent={
+              <div className="flex flex-row items-center gap-2">
+                <TypographyH3>Leads</TypographyH3>
+                {reduxUser?.currentUsage?.maxLeads &&
+                  reduxUser?.planCapabilities?.maxLeads < 10000000 &&
+                  reduxUser?.plan?.planId != null && (
+                    <div
+                      style={{
+                        fontSize: 14,
+                        fontWeight: '400',
+                        color: '#0000080',
+                      }}
+                    >
+                      {`${formatFractional2(reduxUser?.currentUsage?.maxLeads)}/${formatFractional2(reduxUser?.planCapabilities?.maxLeads) || 0} used`}
+                    </div>
+                  )}
+              </div>
+            }
+            showTasks={true}
+            rightContent={
               <button
                 style={{
                   backgroundColor:
@@ -2009,7 +2011,7 @@ const Userleads = ({
                       ? 'white'
                       : '#000000',
                 }}
-                className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
+                className="flex flex-row items-center gap-4 h-[40px] rounded-lg bg-[#33333315] w-[189px] justify-center"
                 onClick={() => {
                   if (userLocalDetails?.plan) {
                     setAssignLeadModal(true)
@@ -2036,13 +2038,10 @@ const Userleads = ({
                     alt="*"
                   />
                 )}
-                <span style={styles.heading}>Start Campaign</span>
+                <TypographyH4>Start Campaign</TypographyH4>
               </button>
-              <div className="flex flex-col">
-                <NotficationsDrawer />
-              </div>
-            </div>
-          </div>
+            }
+          />
 
           <div className="w-[95%] pe-12 mt-2">
             <div>

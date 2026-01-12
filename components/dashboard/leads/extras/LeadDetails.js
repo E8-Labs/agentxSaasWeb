@@ -2552,13 +2552,32 @@ const LeadDetails = ({
         open={showAudioPlay}
         onClose={() => setShowAudioPlay(null)}
         closeAfterTransition
+        disablePortal={false}
+        slotProps={{
+          root: {
+            style: {
+              zIndex: 1600,
+            },
+          },
+        }}
+        sx={{
+          zIndex: 1600, // Higher than Drawer (1400) to appear on top
+        }}
         BackdropProps={{
           sx: {
             backgroundColor: '#00000020',
+            zIndex: 1600, // Match Modal z-index
           },
         }}
       >
-        <Box className="lg:w-3/12 sm:w-5/12 w-3/12" sx={styles.modalsStyle}>
+        <Box 
+          className="lg:w-3/12 sm:w-5/12 w-3/12" 
+          sx={{
+            ...styles.modalsStyle,
+            zIndex: 1601, // Higher than Modal backdrop (1600) to appear on top
+            position: 'relative',
+          }}
+        >
           <div className="flex flex-row justify-center">
             <div
               className="w-full flex flex-col items-end"

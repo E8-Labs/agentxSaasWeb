@@ -28,6 +28,8 @@ import AgentSelectSnackMessage, {
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
+import StandardHeader from '@/components/common/StandardHeader'
+import { TypographyH3 } from '@/lib/typography'
 import {
   checkPhoneNumber,
   getLocalLocation,
@@ -677,70 +679,104 @@ function Teams({ agencyData, selectedAgency, from }) {
           type={SnackbarTypes.Success}
         />
       )}
-      <div
-        className=" w-full flex flex-row justify-between items-center py-4 mt-2 px-10"
-        style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
-      >
-        <div className="flex flex-row items-center gap-3">
-          <div style={{ fontSize: 24, fontWeight: '600' }}>Teams</div>
-          {reduxUser?.planCapabilities?.allowTeamCollaboration &&
-            reduxUser?.plan?.planId != null &&
-            reduxUser?.planCapabilities?.maxTeamMembers < 1000 && (
-              <div
-                style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
-              >
-                {`${reduxUser?.currentUsage?.maxTeamMembers}/${reduxUser?.planCapabilities?.maxTeamMembers || 0} used`}
-              </div>
-            )}
-
-          {reduxUser?.planCapabilities?.allowTeamCollaboration &&
-            reduxUser?.plan?.planId != null &&
-            reduxUser?.planCapabilities?.maxTeamMembers < 1000 && (
-              <Tooltip
-                title={`Additional team seats are $${reduxUser?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}
-                arrow
-                componentsProps={{
-                  tooltip: {
-                    sx: {
-                      backgroundColor: '#ffffff', // Ensure white background
-                      color: '#333', // Dark text color
-                      fontSize: '14px',
-                      padding: '10px 15px',
-                      borderRadius: '8px',
-                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                    },
-                  },
-                  arrow: {
-                    sx: {
-                      color: '#ffffff', // Match tooltip background
-                    },
-                  },
-                }}
-              >
+      <StandardHeader
+        titleContent={
+          <div className="flex flex-row items-center gap-3">
+            <TypographyH3>Teams</TypographyH3>
+            {reduxUser?.planCapabilities?.allowTeamCollaboration &&
+              reduxUser?.plan?.planId != null &&
+              reduxUser?.planCapabilities?.maxTeamMembers < 1000 && (
                 <div
-                  style={{
-                    fontSize: 12,
-                    fontWeight: '600',
-                    color: '#000000',
-                    cursor: 'pointer',
+                  style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
+                >
+                  {`${reduxUser?.currentUsage?.maxTeamMembers}/${reduxUser?.planCapabilities?.maxTeamMembers || 0} used`}
+                </div>
+              )}
+
+            {reduxUser?.planCapabilities?.allowTeamCollaboration &&
+              reduxUser?.plan?.planId != null &&
+              reduxUser?.planCapabilities?.maxTeamMembers < 1000 && (
+                <Tooltip
+                  title={`Additional team seats are $${reduxUser?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}
+                  arrow
+                  componentsProps={{
+                    tooltip: {
+                      sx: {
+                        backgroundColor: '#ffffff', // Ensure white background
+                        color: '#333', // Dark text color
+                        fontSize: '14px',
+                        padding: '10px 15px',
+                        borderRadius: '8px',
+                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                      },
+                    },
+                    arrow: {
+                      sx: {
+                        color: '#ffffff', // Match tooltip background
+                      },
+                    },
                   }}
                 >
-                  <Image
-                    src="/agencyIcons/InfoIcon.jpg"
-                    alt="info"
-                    width={16}
-                    height={16}
-                    className="cursor-pointer rounded-full"
-                    // onClick={() => setIntroVideoModal2(true)}
-                  />
-                </div>
-              </Tooltip>
-            )}
-        </div>
-        <div className="flex flex-row items-center gap-2">
-          <NotficationsDrawer />
-        </div>
-      </div>
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: '600',
+                      color: '#000000',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <Image
+                      src="/agencyIcons/InfoIcon.jpg"
+                      alt="info"
+                      width={16}
+                      height={16}
+                      className="cursor-pointer rounded-full"
+                    />
+                  </div>
+                </Tooltip>
+              )}
+          </div>
+        }
+        showTasks={true}
+        rightContent={
+          myTeam.length !== 0 && (
+            <button
+              className="rounded-lg text-white bg-brand-primary px-4"
+              style={{
+                fontWeight: '500',
+                fontSize: '16',
+                height: '35px',
+                // width: '173px',
+                
+              }}
+              onClick={() => {
+                console.log(
+                  'Current team members innvite are',
+                  reduxUser?.currentUsage?.maxTeamMembers,
+                )
+                console.log(
+                  'MAx team members invite are',
+                  reduxUser?.planCapabilities?.maxTeamMembers,
+                )
+                if (
+                  reduxUser?.currentUsage?.maxTeamMembers >=
+                  reduxUser?.planCapabilities?.maxTeamMembers
+                ) {
+                  setShowUpgradeModalMore(true)
+                  console.log('should open upgrade warning')
+                } else {
+                  console.log('Should open invite')
+                  setOpenInvitePopup(true)
+                }
+              }}
+            >
+              {agencyData?.sellSeats || userLocalData?.sellSeats
+                ? `Add Team $${userLocalData.costPerSeat}/mo`
+                : '+ Invite Team'}
+            </button>
+          )
+        }
+      />
       {/*
         <div
           style={{
@@ -763,43 +799,6 @@ function Teams({ agencyData, selectedAgency, from }) {
           </div>
         ) : (
           <div className="w-11/12 flex flex-col items-start">
-            {myTeam.length !== 0 && (
-              <div className="w-full flex flex-row items-center justify-end">
-                <button
-                  className="rounded-lg text-white bg-brand-primary mt-8"
-                  style={{
-                    fontWeight: '500',
-                    fontSize: '16',
-                    height: '50px',
-                    width: '173px',
-                  }}
-                  onClick={() => {
-                    console.log(
-                      'Current team members innvite are',
-                      reduxUser?.currentUsage?.maxTeamMembers,
-                    )
-                    console.log(
-                      'MAx team members invite are',
-                      reduxUser?.planCapabilities?.maxTeamMembers,
-                    )
-                    if (
-                      reduxUser?.currentUsage?.maxTeamMembers >=
-                      reduxUser?.planCapabilities?.maxTeamMembers
-                    ) {
-                      setShowUpgradeModalMore(true)
-                      console.log('should open upgrade warning')
-                    } else {
-                      console.log('Should open invite')
-                      setOpenInvitePopup(true)
-                    }
-                  }}
-                >
-                  {agencyData?.sellSeats || userLocalData?.sellSeats
-                    ? `Add Team $${userLocalData.costPerSeat}/mo`
-                    : '+ Invite Team'}
-                </button>
-              </div>
-            )}
 
             {myTeam.length > 0 ? (
               <div
