@@ -86,6 +86,7 @@ const Leads1 = () => {
   //File handling
   const [processedData, setProcessedData] = useState([])
   const [columnMappingsList, setColumnMappingsList] = useState([])
+  const [filterStats, setFilterStats] = useState({ invalidPhone: 0, missingName: 0, both: 0 })
   const [introVideoModal, setIntroVideoModal] = useState(false)
   //popup for deleting the column
   const [ShowDelCol, setShowDelCol] = useState(false)
@@ -167,6 +168,7 @@ const Leads1 = () => {
       setDefaultColumns({ ...LeadDefaultColumns })
       setDefaultColumnsArray([...LeadDefaultColumnsArray])
       setUniqueColumns([])
+      setFilterStats({ invalidPhone: 0, missingName: 0, both: 0 })
       // defaultColumns = LeadDefaultColumns;
       // defaultColumnsArray = LeadDefaultColumnsArray;
 
@@ -550,15 +552,7 @@ const Leads1 = () => {
   const validateColumns = () => {
     //console.log;
 
-    // Check if there's any valid processed data
-    if (!processedData || processedData.length === 0) {
-      setErrSnack('No valid leads found. Please ensure your file contains leads with valid phone numbers and at least one name field (First Name, Last Name, or Full Name).')
-      setErrSnackTitle('No Valid Leads')
-      setShowErrSnack(true)
-      return false
-    }
-
-    // const requiredColumns = ["phone", "firstName", "lastName"];
+    // Check if required columns are mapped
     const hasFullName =
       NewColumnsObtained.some(
         (col) => col.matchedColumn?.dbName === 'fullName',
@@ -566,34 +560,62 @@ const Leads1 = () => {
       NewColumnsObtained.some(
         (col) => col.matchedColumn?.dbName === 'firstName',
       )
-    // NewColumnsObtained.some((col) => col.dbName === "lastName"));
-    //////console.log;
     const hasPhone = NewColumnsObtained.some(
       (col) => col.matchedColumn?.dbName === 'phone',
     )
-    // //console.log;
-    // return hasPhone && hasFullName;
 
-    if (hasPhone && hasFullName) {
-      return true
-      // handleAddLead();
-      // //console.log;
-    } else {
-      // //console.log;
-      if (!hasPhone) {
+    // First check if required columns are mapped
+    if (!hasPhone || !hasFullName) {
+      if (!hasPhone && !hasFullName) {
+        setErrSnack('Please map the Phone Number column and at least one Name column (First Name, Last Name, or Full Name) to continue.')
+        setErrSnackTitle('Required Columns Not Mapped')
+        setShowErrSnack(true)
+      } else if (!hasPhone) {
         setErrSnack(SnackMessageTitles.ErrorMessagePhoneRequiredLeadImport)
         setErrSnackTitle(SnackMessageTitles.ErrorTitlePhoneRequiredLeadImport)
         setShowErrSnack(true)
-      }
-      if (!hasFullName) {
+      } else if (!hasFullName) {
         setErrSnack(SnackMessageTitles.ErrorMessageFirstNameRequiredLeadImport)
         setErrSnackTitle(
           SnackMessageTitles.ErrorTitleFirstNameRequiredLeadImport,
         )
         setShowErrSnack(true)
       }
+      return false
     }
-    return false
+
+    // If columns are mapped but no valid data, provide specific reason
+    if (!processedData || processedData.length === 0) {
+      // Use filter statistics to provide specific error message
+      let errorMessage = 'No valid leads found. All rows were filtered out because:'
+      const reasons = []
+      
+      if (filterStats.both > 0) {
+        reasons.push(`${filterStats.both} row(s) have both invalid phone numbers and missing name fields`)
+      }
+      if (filterStats.invalidPhone > 0) {
+        reasons.push(`${filterStats.invalidPhone} row(s) have invalid or missing phone numbers`)
+      }
+      if (filterStats.missingName > 0) {
+        reasons.push(`${filterStats.missingName} row(s) are missing name fields (First Name, Last Name, or Full Name)`)
+      }
+      
+      // If no stats available (shouldn't happen), provide generic message
+      if (reasons.length === 0) {
+        errorMessage = 'No valid leads found. All rows were filtered out because they are missing valid phone numbers or name fields.'
+      } else {
+        errorMessage += '\n• ' + reasons.join('\n• ')
+        errorMessage += '\n\nPlease check your file and ensure all rows have valid phone numbers (in a recognized format) and at least one name field (First Name, Last Name, or Full Name).'
+      }
+
+      setErrSnack(errorMessage)
+      setErrSnackTitle('No Valid Leads Found')
+      setShowErrSnack(true)
+      return false
+    }
+
+    // All validations passed
+    return true
   }
 
   //File readi
@@ -766,20 +788,40 @@ const Leads1 = () => {
             return firstName || lastName || fullName
           }
 
-          // Filter out invalid rows
+          // Filter out invalid rows and track reasons
+          let invalidPhoneCount = 0
+          let missingNameCount = 0
+          let bothInvalidCount = 0
+          
           const validData = transformedData.filter((row) => {
             const phone = phoneColumn ? String(row[phoneColumn] || '').trim() : ''
             const hasPhone = isValidPhone(phone)
             const hasName = hasValidName(row)
 
+            // Track why rows are invalid
+            if (!hasPhone && !hasName) {
+              bothInvalidCount++
+            } else if (!hasPhone) {
+              invalidPhoneCount++
+            } else if (!hasName) {
+              missingNameCount++
+            }
+
             // Row is valid if it has valid phone AND valid name
             return hasPhone && hasName
+          })
+
+          // Store filter statistics
+          setFilterStats({
+            invalidPhone: invalidPhoneCount,
+            missingName: missingNameCount,
+            both: bothInvalidCount,
           })
 
           const filteredCount = transformedData.length - validData.length
           if (filteredCount > 0) {
             console.log(
-              `Filtered out ${filteredCount} rows that don't meet requirements (phone and name required)`,
+              `Filtered out ${filteredCount} rows: ${invalidPhoneCount} invalid phone, ${missingNameCount} missing name, ${bothInvalidCount} both invalid`,
             )
           }
 
@@ -1633,49 +1675,7 @@ const Leads1 = () => {
                   Match columns in your file to column fields
                 </div>
 
-                {processedData && processedData.length === 0 && (
-                  <>
-                    <div
-                      className="mt-4 p-4 rounded-lg"
-                      style={{
-                        backgroundColor: '#fff3cd',
-                        border: '1px solid #ffc107',
-                        color: '#856404',
-                      }}
-                    >
-                      <strong>No valid leads found.</strong> All rows were filtered out because they don't meet the requirements:
-                      <ul className="mt-2 ml-4 list-disc">
-                        <li>Must have a valid phone number</li>
-                        <li>Must have at least one: First Name OR Last Name OR Full Name</li>
-                      </ul>
-                    </div>
-                    <div className="w-full flex flex-row justify-center mt-6">
-                      <button
-                        className="flex flex-row gap-2 bg-brand-primary text-white h-[50px] w-[177px] rounded-lg items-center justify-center"
-                        onClick={() => {
-                          // Reset state
-                          setProcessedData([])
-                          setNewColumnsObtained([])
-                          setSheetName('')
-                          setSelectedFile(null)
-                          // Open file upload modal
-                          setShowUploadLeadModal(false)
-                          setShowAddLeadModal(true)
-                        }}
-                      >
-                        <Image
-                          src={'/assets/addManIcon.png'}
-                          height={20}
-                          width={20}
-                          alt="*"
-                        />
-                        <span style={styles.headingStyle}>Upload Leads</span>
-                      </button>
-                    </div>
-                  </>
-                )}
-
-                {processedData && processedData.length > 0 && (
+                {NewColumnsObtained && NewColumnsObtained.length > 0 && (
                   <>
                     <div
                       className="flex flex-row items-center mt-4"
@@ -1728,7 +1728,7 @@ const Leads1 = () => {
                         </div>
                         <div className="w-3/12">{item.ColumnNameInSheet}</div>
                         <div className="w-3/12 truncate">
-                          {processedData && processedData.length > 0
+                          {processedData && processedData.length > 0 && processedData[0]
                             ? processedData[0][item.ColumnNameInSheet] || ''
                             : ''}
                           {/* {item.matchedColumn ? (
@@ -1820,7 +1820,7 @@ const Leads1 = () => {
                   </>
                 )}
 
-                {processedData && processedData.length > 0 && (
+                {NewColumnsObtained && NewColumnsObtained.length > 0 && (
                   <div
                     className=""
                     style={{
