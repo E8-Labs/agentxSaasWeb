@@ -25,7 +25,7 @@ import {
   CaretUp,
   EnvelopeSimple,
   Plus,
-  X,
+  X as PhosphorX,
 } from '@phosphor-icons/react'
 import { setUser } from '@sentry/nextjs'
 import { Elements } from '@stripe/react-stripe-js'
@@ -59,6 +59,9 @@ import {
   CalendarIcon,
   PlusIcon,
   TagIcon,
+  Pencil,
+  Check,
+  X as XIcon,
 } from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
@@ -229,6 +232,11 @@ const LeadDetails = ({
   const [phoneLoading, setPhoneLoading] = useState(false)
   const [sendEmailLoader, setSendEmailLoader] = useState(false)
   const [sendSMSLoader, setSendSMSLoader] = useState(false)
+  
+  // Email editing state
+  const [isEditingEmail, setIsEditingEmail] = useState(false)
+  const [editedEmail, setEditedEmail] = useState('')
+  const [updateEmailLoader, setUpdateEmailLoader] = useState(false)
 
   const [googleAccounts, setGoogleAccounts] = useState([])
   const [showSnackMsg, setShowSnackMsg] = useState({
@@ -646,6 +654,83 @@ const LeadDetails = ({
   const handleTabChange = (tab) => {
     setActiveTab(tab)
     setShowCustomVariables(false)
+  }
+
+  // Function to update lead email
+  const updateLeadEmail = async () => {
+    if (!editedEmail || !editedEmail.trim()) {
+      showSnackbar('Please enter a valid email address', SnackbarTypes.Error)
+      return
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(editedEmail.trim())) {
+      showSnackbar('Please enter a valid email address', SnackbarTypes.Error)
+      return
+    }
+
+    try {
+      setUpdateEmailLoader(true)
+      
+      const localDetails = localStorage.getItem('User')
+      if (!localDetails) {
+        showSnackbar('Please log in again', SnackbarTypes.Error)
+        return
+      }
+
+      const Data = JSON.parse(localDetails)
+      const AuthToken = Data.token
+
+      if (!selectedLeadsDetails?.sheetId || !selectedLeadsDetails?.phone) {
+        showSnackbar('Missing required lead information', SnackbarTypes.Error)
+        return
+      }
+
+      const response = await fetch('/api/leads/update', {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${AuthToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          smartListId: selectedLeadsDetails.sheetId,
+          phoneNumber: selectedLeadsDetails.phone,
+          email: editedEmail.trim(),
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.status === true) {
+        // Update the local state
+        setSelectedLeadsDetails((prev) => ({
+          ...prev,
+          email: editedEmail.trim(),
+        }))
+        setIsEditingEmail(false)
+        showSnackbar('Email updated successfully', SnackbarTypes.Success)
+      } else {
+        showSnackbar(data.message || 'Failed to update email', SnackbarTypes.Error)
+      }
+    } catch (error) {
+      console.error('Error updating email:', error)
+      showSnackbar('Failed to update email. Please try again.', SnackbarTypes.Error)
+    } finally {
+      setUpdateEmailLoader(false)
+    }
+  }
+
+  // Function to handle edit email click
+  const handleEditEmailClick = () => {
+    setEditedEmail(selectedLeadsDetails?.email || '')
+    setIsEditingEmail(true)
+  }
+
+  // Function to handle cancel edit
+  const handleCancelEditEmail = () => {
+    setIsEditingEmail(false)
+    setEditedEmail('')
   }
 
   //function to update stage
@@ -1895,7 +1980,54 @@ const LeadDetails = ({
                         </div>
                       </div>
                       <div className="space-y-2 text-sm mt-2">
-                          {selectedLeadsDetails?.email && <InfoRow icon={<MailIcon className="h-4 w-4" />}>{selectedLeadsDetails?.email}</InfoRow>}
+                          {/* Email with edit functionality */}
+                          <div className="flex items-center gap-2">
+                            <MailIcon className="h-4 w-4 text-muted-foreground" />
+                            {isEditingEmail ? (
+                              <div className="flex items-center gap-2 flex-1">
+                                <input
+                                  type="email"
+                                  value={editedEmail}
+                                  onChange={(e) => setEditedEmail(e.target.value)}
+                                  className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm outline-none focus:border-brand-primary"
+                                  placeholder="Enter email"
+                                  disabled={updateEmailLoader}
+                                  autoFocus
+                                />
+                                <button
+                                  onClick={updateLeadEmail}
+                                  disabled={updateEmailLoader}
+                                  className="p-1 text-green-600 hover:text-green-700 disabled:opacity-50"
+                                  title="Save"
+                                >
+                                  {updateEmailLoader ? (
+                                    <CircularProgress size={16} />
+                                  ) : (
+                                    <Check className="h-4 w-4" />
+                                  )}
+                                </button>
+                                  <button
+                                    onClick={handleCancelEditEmail}
+                                    disabled={updateEmailLoader}
+                                    className="p-1 text-red-600 hover:text-red-700 disabled:opacity-50"
+                                    title="Cancel"
+                                  >
+                                    <XIcon className="h-4 w-4" />
+                                  </button>
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2 flex-1">
+                                <span className="text-sm">{selectedLeadsDetails?.email || 'No email'}</span>
+                                <button
+                                  onClick={handleEditEmailClick}
+                                  className="p-1 text-muted-foreground hover:text-brand-primary"
+                                  title={selectedLeadsDetails?.email ? "Edit email" : "Add email"}
+                                >
+                                  <Pencil className="h-3 w-3" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
                           {selectedLeadsDetails?.phone && <InfoRow icon={<PhoneIcon className="h-4 w-4" />}>{selectedLeadsDetails?.phone}</InfoRow>}
                           {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>{selectedLeadsDetails?.address}</InfoRow>}
                           <InfoRow icon={<WorkflowIcon className="h-4 w-4" />}>
@@ -1906,7 +2038,11 @@ const LeadDetails = ({
                           </InfoRow>
                           {selectedLeadsDetails?.booking && <div className="flex flex-row items-center gap-2">
                             <InfoRow icon={<CalendarIcon className="h-4 w-4" />}>{GetFormattedDateString(selectedLeadsDetails?.booking?.datetime, true)}</InfoRow>
-                            <TagPill label={`${selectedLeadsDetails?.booking?.duration} min`} />
+                            {
+                              selectedLeadsDetails?.booking?.duration && (
+                                <TagPill label={`${selectedLeadsDetails?.booking?.duration} min`} />
+                              )
+                            }
                           </div>}
                           <div className="flex items-center gap-2">
                             <TagIcon className="h-4 w-4 text-muted-foreground" />
