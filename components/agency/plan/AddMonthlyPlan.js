@@ -87,6 +87,17 @@ export default function AddMonthlyPlan({
   //custom featurs
   const [customFeatures, setCustomFeatures] = useState([])
 
+  // Helper function to safely parse numbers that might contain commas
+  const parseNumber = (value) => {
+    if (value === null || value === undefined || value === '') {
+      return 0
+    }
+    // Remove commas and convert to number
+    const cleaned = String(value).replace(/,/g, '')
+    const num = Number(cleaned)
+    return isNaN(num) ? 0 : num
+  }
+
   const resolveLanguageLabel = (languageValue, languageTitle) => {
     if (typeof languageTitle === 'string' && languageTitle.trim().length > 0) {
       return languageTitle.trim()
@@ -308,8 +319,8 @@ export default function AddMonthlyPlan({
         DiscountedPrice !== null
       ) {
         // basicsData.discountedPrice is now total price per month (not price per credit)
-        // Set discountedPrice even if it's 0, so the form is properly initialized
-        setDiscountedPrice(formatFractional2(DiscountedPrice, 2))
+        // Store raw number without formatting to avoid comma issues in calculations
+        setDiscountedPrice(DiscountedPrice > 0 ? DiscountedPrice.toString() : '')
       } else {
         // Clear discountedPrice if not provided
         setDiscountedPrice('')
@@ -341,8 +352,8 @@ export default function AddMonthlyPlan({
 
       if (selectedPlan?.discountedPrice) {
         // selectedPlan.discountedPrice is the total price per month (stored in DB)
-        // No need to divide by minutes anymore
-        setDiscountedPrice(formatFractional2(selectedPlan.discountedPrice, 2))
+        // Store raw number without formatting to avoid comma issues in calculations
+        setDiscountedPrice(selectedPlan.discountedPrice > 0 ? selectedPlan.discountedPrice.toString() : '')
       } else {
         // Clear discountedPrice if not provided
         setDiscountedPrice('')
@@ -377,21 +388,27 @@ export default function AddMonthlyPlan({
   //auto check minCostError
   useEffect(() => {
     if (discountedPrice && minutes) {
-      const P = (discountedPrice * 100) / minutes
+      const priceNum = parseNumber(discountedPrice)
+      const minutesNum = parseNumber(minutes)
+      const P = (priceNum * 100) / minutesNum
       console.log('Calculated price is', P)
     }
   }, [minutes, discountedPrice])
 
   // Check profit margin - now using price per credit derived from total price
   useEffect(() => {
-    if (!discountedPrice || !agencyPlanCost || Number(agencyPlanCost) === 0 || !minutes || Number(minutes) === 0) {
+    const priceNum = parseNumber(discountedPrice)
+    const costNum = parseNumber(agencyPlanCost)
+    const minutesNum = parseNumber(minutes)
+    
+    if (!discountedPrice || !agencyPlanCost || costNum === 0 || !minutes || minutesNum === 0) {
       setProfitMarginErr(false)
       return
     }
-    const pricePerCredit = Number(discountedPrice) / Number(minutes)
+    const pricePerCredit = priceNum / minutesNum
     const margin =
-      ((pricePerCredit - Number(agencyPlanCost)) /
-        Number(agencyPlanCost)) *
+      ((pricePerCredit - costNum) /
+        costNum) *
       100
     if (margin < 10) {
       setProfitMarginErr(true)
@@ -411,24 +428,29 @@ export default function AddMonthlyPlan({
 
   //check percentage calculation
   const checkCalulations = () => {
-    if (originalPrice > 0) {
+    const originalPriceNum = parseNumber(originalPrice)
+    if (originalPriceNum > 0) {
       console.log('OP ===', originalPrice) //updated
       console.log('DP ===', discountedPrice) // discountedPrice is now total price per month
       const percentage =
-        ((originalPrice - Number(discountedPrice)) / originalPrice) * 100
+        ((originalPriceNum - parseNumber(discountedPrice)) / originalPriceNum) * 100
       console.log('Percenage of addmonthly plan is', percentage)
     }
   }
 
   // Calculate profit margin percentage - now using price per credit derived from total price
   const calculateProfitMargin = () => {
-    if (!discountedPrice || !agencyPlanCost || Number(agencyPlanCost) === 0 || !minutes || Number(minutes) === 0) {
+    const priceNum = parseNumber(discountedPrice)
+    const costNum = parseNumber(agencyPlanCost)
+    const minutesNum = parseNumber(minutes)
+    
+    if (!discountedPrice || !agencyPlanCost || costNum === 0 || !minutes || minutesNum === 0) {
       return null
     }
-    const pricePerCredit = Number(discountedPrice) / Number(minutes)
+    const pricePerCredit = priceNum / minutesNum
     const margin =
-      ((pricePerCredit - Number(agencyPlanCost)) /
-        Number(agencyPlanCost)) *
+      ((pricePerCredit - costNum) /
+        costNum) *
       100
     return margin
   }
@@ -481,12 +503,16 @@ export default function AddMonthlyPlan({
 
   //profit text color - now using price per credit derived from total price
   const getClr = () => {
-    if (!discountedPrice || !minutes || Number(minutes) === 0 || !agencyPlanCost) {
+    const priceNum = parseNumber(discountedPrice)
+    const minutesNum = parseNumber(minutes)
+    const costNum = parseNumber(agencyPlanCost)
+    
+    if (!discountedPrice || !minutes || minutesNum === 0 || !agencyPlanCost) {
       return '#000000'
     }
-    const pricePerCredit = Number(discountedPrice) / Number(minutes)
+    const pricePerCredit = priceNum / minutesNum
     const percentage =
-      ((pricePerCredit - Number(agencyPlanCost)) / Number(agencyPlanCost)) * 100
+      ((pricePerCredit - costNum) / costNum) * 100
 
     if (percentage >= 0 && percentage <= 50) {
       return '#FF4E4E'
@@ -555,16 +581,16 @@ export default function AddMonthlyPlan({
   //handle next
   const handleNext = () => {
     // Validate price is greater than 0 - explicit check
-    const priceNum = Number(discountedPrice)
-    if (!discountedPrice || isNaN(priceNum) || priceNum <= 0) {
+    const priceNum = parseNumber(discountedPrice)
+    if (!discountedPrice || priceNum <= 0) {
       setSnackMsg('Price per month must be greater than $0')
       setSnackMsgType(SnackbarTypes.Error)
       return
     }
 
     // Validate credits is greater than 0 - explicit check
-    const creditsNum = Number(minutes)
-    if (!minutes || isNaN(creditsNum) || creditsNum <= 0) {
+    const creditsNum = parseNumber(minutes)
+    if (!minutes || creditsNum <= 0) {
       setSnackMsg('Credits must be greater than 0')
       setSnackMsgType(SnackbarTypes.Error)
       return
@@ -697,10 +723,10 @@ export default function AddMonthlyPlan({
       planDuration
 
     // Ensure price and credits are greater than 0 - explicitly check for 0
-    const priceNum = Number(discountedPrice)
-    const creditsNum = Number(minutes)
-    const priceValid = discountedPrice && !isNaN(priceNum) && priceNum > 0
-    const creditsValid = minutes && !isNaN(creditsNum) && creditsNum > 0
+    const priceNum = parseNumber(discountedPrice)
+    const creditsNum = parseNumber(minutes)
+    const priceValid = discountedPrice && priceNum > 0
+    const creditsValid = minutes && creditsNum > 0
 
     let trialValid = true
 
@@ -867,7 +893,7 @@ export default function AddMonthlyPlan({
                     Price per month <span className="text-red-500">*</span>
                   </label>
                   <div
-                    className={`border ${minCostErr || (discountedPrice && Number(discountedPrice) === 0) || (discountedPrice && minutes && Number(discountedPrice) < Number(agencyPlanCost) * Number(minutes)) ? 'border-red' : 'border-gray-200'} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}
+                    className={`border ${minCostErr || (discountedPrice && parseNumber(discountedPrice) === 0) || (discountedPrice && minutes && parseNumber(discountedPrice) < parseNumber(agencyPlanCost) * parseNumber(minutes)) ? 'border-red' : 'border-gray-200'} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}
                   >
                     <div className="" style={styles.inputs}>
                       $
@@ -882,23 +908,27 @@ export default function AddMonthlyPlan({
                       value={discountedPrice}
                       onChange={(e) => {
                         const value = e.target.value
-                        const minTotalPrice = agencyPlanCost && minutes ? Number(agencyPlanCost) * Number(minutes) : 0
+                        // Remove commas first before processing
+                        const cleanedValue = value.replace(/,/g, '')
+                        const minutesNum = parseNumber(minutes)
+                        const costNum = parseNumber(agencyPlanCost)
+                        const minTotalPrice = agencyPlanCost && minutes ? costNum * minutesNum : 0
                         
                         // Validate price is greater than 0
-                        const priceNum = Number(value)
-                        if (value && !isNaN(priceNum) && priceNum === 0) {
+                        const priceNum = parseNumber(cleanedValue)
+                        if (cleanedValue && priceNum === 0) {
                           setSnackBannerMsg('Price per month must be greater than $0')
                           setSnackBannerMsgType(SnackbarTypes.Error)
-                        } else if (value && minTotalPrice > 0 && priceNum < minTotalPrice) {
+                        } else if (cleanedValue && minTotalPrice > 0 && priceNum < minTotalPrice) {
                           setSnackBannerMsg(
-                            `Total price per month cannot be less than $${minTotalPrice.toFixed(2)} (${agencyPlanCost.toFixed(2)}/credit × ${minutes} credits)`,
+                            `Total price per month cannot be less than $${minTotalPrice.toFixed(2)} (${costNum.toFixed(2)}/credit × ${minutes} credits)`,
                           )
                           setSnackBannerMsgType(SnackbarTypes.Warning)
                         } else {
                           // Clear error if it was about price being 0
                           if (snackBannerMsg && snackBannerMsg.includes('Price per month must be greater than $0')) {
                             setSnackBannerMsg(null)
-                          } else if (value && minTotalPrice > 0 && priceNum >= minTotalPrice) {
+                          } else if (cleanedValue && minTotalPrice > 0 && priceNum >= minTotalPrice) {
                             // Clear warning if price is now valid
                             if (snackBannerMsg && snackBannerMsg.includes('cannot be less than')) {
                               setSnackBannerMsg(null)
@@ -906,8 +936,8 @@ export default function AddMonthlyPlan({
                           }
                         }
                         
-                        // Allow only digits and one optional period
-                        const sanitized = value.replace(/[^0-9.]/g, '')
+                        // Allow only digits and one optional period (no commas in stored value)
+                        const sanitized = cleanedValue.replace(/[^0-9.]/g, '')
 
                         // Prevent multiple periods
                         let valid =
@@ -924,8 +954,7 @@ export default function AddMonthlyPlan({
                           }
                         }
                         
-                        // Don't use handlePricePerMinInputValue for total price - it converts whole numbers to decimals
-                        // Total price per month can be whole numbers like 45, 100, etc.
+                        // Store raw number without commas
                         setDiscountedPrice(valid)
                       }}
                     />
@@ -950,7 +979,7 @@ export default function AddMonthlyPlan({
 
                   {/* Minutes */}
                   <label style={styles.labels}>Credits <span className="text-red-500">*</span></label>
-                  <div className={`border ${(minutes && Number(minutes) === 0) ? 'border-red' : 'border-gray-200'} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}>
+                  <div className={`border ${(minutes && parseNumber(minutes) === 0) ? 'border-red' : 'border-gray-200'} rounded px-2 py-0 mb-4 mt-1 flex flex-row items-center w-full`}>
                     <input
                       style={styles.inputs}
                       type="text"
@@ -959,10 +988,12 @@ export default function AddMonthlyPlan({
                       value={minutes}
                       onChange={(e) => {
                         const value = e.target.value
+                        // Remove commas first before processing
+                        const cleanedValue = value.replace(/,/g, '')
                         
                         // Validate credits is greater than 0
-                        const creditsNum = Number(value)
-                        if (value && !isNaN(creditsNum) && creditsNum === 0) {
+                        const creditsNum = parseNumber(cleanedValue)
+                        if (cleanedValue && creditsNum === 0) {
                           setSnackBannerMsg('Credits must be greater than 0')
                           setSnackBannerMsgType(SnackbarTypes.Error)
                         } else {
@@ -972,8 +1003,8 @@ export default function AddMonthlyPlan({
                           }
                         }
                         
-                        // Allow only digits and one optional period
-                        const sanitized = value.replace(/[^0-9.]/g, '')
+                        // Allow only digits and one optional period (no commas in stored value)
+                        const sanitized = cleanedValue.replace(/[^0-9.]/g, '')
 
                         // Prevent multiple periods
                         const valid =
@@ -1002,14 +1033,14 @@ export default function AddMonthlyPlan({
                     <div>Your Credit</div>
                     <div>
                       $
-                      {discountedPrice && minutes && Number(minutes) > 0
-                        ? formatFractional2(Number(discountedPrice) / Number(minutes), 3)
+                      {discountedPrice && minutes && parseNumber(minutes) > 0
+                        ? formatFractional2(parseNumber(discountedPrice) / parseNumber(minutes), 3)
                         : '0.00'}
                       /Credit
                     </div>
                     {discountedPrice && (
                       <div>
-                        ${formatFractional2(discountedPrice)}
+                        ${formatFractional2(parseNumber(discountedPrice))}
                       </div>
                     )}
                   </div>
@@ -1019,20 +1050,20 @@ export default function AddMonthlyPlan({
                   >
                     <div>Your Cost</div>
                     <div>
-                      {agencyPlanCost && Number(agencyPlanCost) > 0
+                      {agencyPlanCost && parseNumber(agencyPlanCost) > 0
                         ? `$${formatFractional2(agencyPlanCost)}`
                         : '$0.00'}
                       /Credit
                     </div>
-                    {discountedPrice && minutes && agencyPlanCost && Number(agencyPlanCost) > 0 ? (
+                    {discountedPrice && minutes && agencyPlanCost && parseNumber(agencyPlanCost) > 0 ? (
                       <div>
                         $
                         {formatFractional2(
-                          Number(agencyPlanCost) * Number(minutes),
+                          parseNumber(agencyPlanCost) * parseNumber(minutes),
                         )}
                       </div>
                     ) : (
-                      agencyPlanCost !== undefined && agencyPlanCost !== null && Number(agencyPlanCost) === 0 ? (
+                      agencyPlanCost !== undefined && agencyPlanCost !== null && parseNumber(agencyPlanCost) === 0 ? (
                         <div style={{ color: '#999', fontSize: '12px' }}>
                           Not set
                         </div>
@@ -1051,7 +1082,7 @@ export default function AddMonthlyPlan({
                           <div>
                             $
                             {formatFractional2(
-                              (Number(discountedPrice) / Number(minutes)) - Number(agencyPlanCost),
+                              (parseNumber(discountedPrice) / parseNumber(minutes)) - parseNumber(agencyPlanCost),
                               3
                             )}
                             /Credit
@@ -1059,8 +1090,8 @@ export default function AddMonthlyPlan({
                           <div>
                             $
                             {formatFractional2(
-                              Number(discountedPrice) -
-                                (Number(agencyPlanCost) * Number(minutes)),
+                              parseNumber(discountedPrice) -
+                                (parseNumber(agencyPlanCost) * parseNumber(minutes)),
                             )}
                           </div>
                         </div>
@@ -1069,9 +1100,9 @@ export default function AddMonthlyPlan({
                           style={{ color: getClr() }}
                         >
                           {formatFractional2(
-                            (((Number(discountedPrice) / Number(minutes)) -
-                              Number(agencyPlanCost)) /
-                              Number(agencyPlanCost)) *
+                            (((parseNumber(discountedPrice) / parseNumber(minutes)) -
+                              parseNumber(agencyPlanCost)) /
+                              parseNumber(agencyPlanCost)) *
                               100,
                           )}
                           %
