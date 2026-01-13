@@ -732,7 +732,7 @@ function NotficationsDrawer({ close }) {
   }
 
   return (
-    <div className='flex w-full w-[22px]'>
+    <div className='flex '>
       {snackMessage && (
         <AgentSelectSnackMessage
           message={snackMessage}

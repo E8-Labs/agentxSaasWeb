@@ -59,7 +59,7 @@ function StandardHeader({
         {titleContent || (typeof title === 'string' ? <TypographyH3>{title}</TypographyH3> : title)}
         
         {/* Right: Icons and Actions - matches MessageHeader structure exactly */}
-        <div className='flex flex-row items-center justify-end gap-2 '>
+        <div className='flex flex-row items-center justify-end gap-2'>
           {rightContent}
           {showFilters && onFilterClick && (
             <button
