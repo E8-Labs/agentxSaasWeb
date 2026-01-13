@@ -810,12 +810,17 @@ export default function PlanConfiguration({
       'Status of features allow teams seats',
       features?.allowTeamSeats,
     )
+    
+    // Validate agents count is within allowed range (1-1000)
+    const agentsNum = Number(noOfAgents)
+    const agentsValid = agentsStr && agentsNum > 0 && agentsNum <= 1000
+    
     let requiredData
     if (features?.allowTeamSeats === true) {
       seatsStr = noOfSeats?.toString().trim()
       costPerSeatStr = costPerAdditionalSeat?.toString().trim()
       requiredData =
-        Number(noOfAgents)>=1000 &&
+        agentsValid &&
         contactsStr &&
         language &&
         seatsStr &&
@@ -824,7 +829,7 @@ export default function PlanConfiguration({
         snackBannerMsg === null
     } else {
       requiredData =
-        agentsStr &&
+        agentsValid &&
         contactsStr &&
         language &&
         agentsStrPrice &&
@@ -1073,6 +1078,8 @@ export default function PlanConfiguration({
                       className="w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none"
                       placeholder="Max 1,000"
                       value={noOfAgents}
+                      type="number"
+                      min={0}
                       max={1000}
                       onChange={(e) => {
                         const value = e.target.value
@@ -1080,14 +1087,14 @@ export default function PlanConfiguration({
                         const sanitized = value.replace(/[^0-9.]/g, '')
 
                         // Prevent multiple periods
-                        const valid =
+                        let valid =
                           sanitized.split('.')?.length > 2
                             ? sanitized.substring(0, sanitized.lastIndexOf('.'))
                             : sanitized
-                        // setOriginalPrice(valid);
-                        setNoOfAgents(valid)
                         
+                        // Cap the value at 1000
                         if (valid && Number(valid) > 1000) {
+                          valid = '1000'
                           setSnackBannerMsg('Number of agents cannot be greater than 1,000')
                           setSnackBannerMsgType(SnackbarTypes.Error)
                         } else {
@@ -1101,6 +1108,8 @@ export default function PlanConfiguration({
                             setSnackBannerMsg(null)
                           }
                         }
+                        
+                        setNoOfAgents(valid)
                       }}
                     />
                   </div>
