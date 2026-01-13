@@ -476,7 +476,7 @@ export const allIntegrations = [
   },
   {
     title: 'Gmail',
-    url: '',
+    url: 'https://zapier.com/apps/assignx/integrations/gmail',
     description:
       'Connect Gmail to send automated emails and Google Calendar to schedule events for seamless lead management and follow-ups.',
     icon: '/otherAssets/gmailIcon.png',

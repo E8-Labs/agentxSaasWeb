@@ -83,6 +83,9 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
   //logo and button label
   const [logoPreview, setLogoPreview] = useState(null)
   const [buttonLabel, setButtonLabel] = useState('Get Help')
+  const [originalButtonLabel, setOriginalButtonLabel] = useState('Get Help')
+  const [logoUploadLoading, setLogoUploadLoading] = useState(false)
+  const [buttonLabelLoading, setButtonLabelLoading] = useState(false)
   const fileInputRef = useRef(null)
   const textInputRef = useRef(null)
 
@@ -145,6 +148,10 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
           }
           if (branding?.supportWidgetTitle) {
             setButtonLabel(branding.supportWidgetTitle)
+            setOriginalButtonLabel(branding.supportWidgetTitle)
+          } else {
+            // Set default if no title exists
+            setOriginalButtonLabel('Get Help')
           }
         }
       }
@@ -349,6 +356,10 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
         setShowSnackType(SnackbarTypes.Error)
         return
       }
+      
+      // Set loading state
+      setLogoUploadLoading(true)
+      
       // Create preview
       const reader = new FileReader()
       reader.onloadend = async () => {
@@ -421,11 +432,15 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
             error.response?.data?.message || 'Error uploading logo',
           )
           setShowSnackType(SnackbarTypes.Error)
+        } finally {
+          // Reset loading state
+          setLogoUploadLoading(false)
         }
       }
       reader.onerror = () => {
         setShowSnackMessage('Error reading image file')
         setShowSnackType(SnackbarTypes.Error)
+        setLogoUploadLoading(false)
       }
       reader.readAsDataURL(file)
     }
@@ -436,10 +451,20 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
     if (!buttonLabel || buttonLabel.trim() === '') {
       return
     }
+    
+    // Only save if the value has actually changed
+    const trimmedLabel = buttonLabel.trim()
+    if (trimmedLabel === originalButtonLabel) {
+      return
+    }
+    
+    // Set loading state
+    setButtonLabelLoading(true)
+    
     // Save to API
     try {
       const Auth = AuthToken()
-      const updateData = { supportWidgetTitle: buttonLabel }
+      const updateData = { supportWidgetTitle: trimmedLabel }
       
       // Add userId if selectedAgency is provided (admin view)
       if (selectedAgency?.id) {
@@ -459,6 +484,8 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
       if (response?.data?.status === true) {
         setShowSnackMessage('Button label updated successfully')
         setShowSnackType(SnackbarTypes.Success)
+        // Update original value to current value after successful save
+        setOriginalButtonLabel(trimmedLabel)
         // Dispatch event to notify DashboardSlider to refresh branding
         const userId = selectedAgency?.id || null
         window.dispatchEvent(
@@ -478,6 +505,9 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
         error.response?.data?.message || 'Error updating button label',
       )
       setShowSnackType(SnackbarTypes.Error)
+    } finally {
+      // Reset loading state
+      setButtonLabelLoading(false)
     }
   }
 
@@ -526,17 +556,24 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
                         }}
                       />
                       <button
-                        className="text-black px-3 py-1 border-lg border text-transform-none font-medium flex items-center hover:text-white hover:bg-brand-primary transition-all duration-300 rounded-lg p-2 group"
+                        className="text-black px-3 py-1 border-lg border text-transform-none font-medium flex items-center hover:text-white hover:bg-brand-primary transition-all duration-300 rounded-lg p-2 group disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={() => fileInputRef.current?.click()}
+                        disabled={logoUploadLoading}
                       >
-                        <Image
-                          className="transition-all duration-200 group-hover:[filter:brightness(0)_invert(1)]"
-                          src={'/otherAssets/uploadIcon.png'}
-                          height={24}
-                          width={24}
-                          alt="Upload"
-                        />
-                        <span className="ml-1">Change Logo</span>
+                        {logoUploadLoading ? (
+                          <CircularProgress size={20} sx={{ marginRight: '8px' }} />
+                        ) : (
+                          <Image
+                            className="transition-all duration-200 group-hover:[filter:brightness(0)_invert(1)]"
+                            src={'/otherAssets/uploadIcon.png'}
+                            height={24}
+                            width={24}
+                            alt="Upload"
+                          />
+                        )}
+                        <span className="ml-1">
+                          {logoUploadLoading ? 'Uploading...' : 'Change Logo'}
+                        </span>
                       </button>
                       <input
                         ref={fileInputRef}
@@ -589,7 +626,7 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
                         {buttonLabel ? buttonLabel.length : 0}/10
                       </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <input
                         ref={textInputRef}
                         type="text"
@@ -598,8 +635,12 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
                         onBlur={handleButtonLabelSave}
                         placeholder="Get Help"
                         maxLength={10}
-                        className="w-[120px] h-[40px] border border-[#00000020] focus-within:ring-1 focus-within:ring-black focus-within:border-black rounded-lg"
+                        disabled={buttonLabelLoading}
+                        className="w-[120px] h-[40px] border border-[#00000020] focus-within:ring-1 focus-within:ring-black focus-within:border-black rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
                       />
+                      {buttonLabelLoading && (
+                        <CircularProgress size={20} />
+                      )}
                     </div>
                   </Box>
 
