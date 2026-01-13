@@ -11,6 +11,9 @@ import { useTaskStatus } from '@/hooks/use-task-status'
 function MessageHeader({ selectedThread = null, selectedUser = null }) {
     const [taskBoardOpen, setTaskBoardOpen] = useState(false)
     const taskButtonRef = useRef(null)
+
+
+    console.log('selectedUser is  in MessageHeader', selectedUser)
     
     // Get task status for indicator dots
     const { hasActiveTasks, hasPastDueTasks } = useTaskStatus(
@@ -70,6 +73,7 @@ function MessageHeader({ selectedThread = null, selectedUser = null }) {
                 leadId={selectedThread?.leadId || null}
                 threadId={selectedThread?.id || null}
                 buttonRef={taskButtonRef}
+                selectedUser={selectedUser}
             />
         </>
     )

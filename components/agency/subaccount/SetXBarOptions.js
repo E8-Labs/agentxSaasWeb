@@ -125,6 +125,7 @@ export default function SetXBarOptions({
             // Update hasInternalAccount if an internal account was created
             if (formData.isInternalAccount) {
               D.user.hasInternalAccount = true
+              D.user.internalAccountsCount = D.user.internalAccountsCount+ 1
             }
             
             localStorage.setItem('User', JSON.stringify(D))

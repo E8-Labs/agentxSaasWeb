@@ -176,7 +176,7 @@ export const getLocalLocation = () => {
 }
 
 //function to get the teamsList
-export const getTeamsList = async () => {
+export const getTeamsList = async (userId = null) => {
   try {
     const data = localStorage.getItem('User')
 
@@ -184,6 +184,10 @@ export const getTeamsList = async () => {
       let u = JSON.parse(data)
 
       let path = Apis.getTeam
+
+      if (userId) {
+        path = path + `?userId=${userId}`
+      }
 
       const response = await axios.get(path, {
         headers: {
