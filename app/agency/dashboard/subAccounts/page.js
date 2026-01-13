@@ -3,12 +3,27 @@
 import React from 'react'
 
 import AgencySubacount from '@/components/agency/subaccount/AgencySubacount'
+import ProtectedRoute from '@/components/permissions/ProtectedRoute'
+import { PermissionProvider } from '@/contexts/PermissionContext'
 
 const Page = () => {
   return (
-    <div>
-      <AgencySubacount />
-    </div>
+    <PermissionProvider>
+      <ProtectedRoute
+        permissionKey="agency.subaccounts.view"
+        hideIfNoPermission={false}
+        fallback={
+          <div style={{ padding: '2rem', textAlign: 'center' }}>
+            <h2>Access Denied</h2>
+            <p>You do not have permission to view subaccounts.</p>
+          </div>
+        }
+      >
+        <div>
+          <AgencySubacount />
+        </div>
+      </ProtectedRoute>
+    </PermissionProvider>
   )
 }
 

@@ -5,12 +5,15 @@ import React, { Suspense, useEffect, useState } from 'react'
 import AgencyMyAccount from '@/components/agency/myAccount/AgencyMyAccount'
 import SubAccountMyAccount from '@/components/dashboard/subaccount/myAccount/SubAccountMyAccount'
 import MyAccount from '@/components/myAccount/MyAccount'
+import { PermissionProvider } from '@/contexts/PermissionContext'
 
 function Page() {
   return (
-    <Suspense>
-      <AgencyMyAccount />
-    </Suspense>
+    <PermissionProvider>
+      <Suspense>
+        <AgencyMyAccount />
+      </Suspense>
+    </PermissionProvider>
   )
 }
 

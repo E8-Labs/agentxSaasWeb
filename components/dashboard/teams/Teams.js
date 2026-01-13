@@ -29,6 +29,8 @@ import AgentSelectSnackMessage, {
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
 import StandardHeader from '@/components/common/StandardHeader'
+import PermissionManager from '@/components/permissions/PermissionManager'
+import { PermissionProvider } from '@/contexts/PermissionContext'
 import { TypographyH3 } from '@/lib/typography'
 import {
   checkPhoneNumber,
@@ -103,6 +105,10 @@ function Teams({ agencyData, selectedAgency, from }) {
   //upgrade user plan
   const [upgradePlan, setUpgradePlan] = useState(false)
   const [showUpgradeModalMore, setShowUpgradeModalMore] = useState(false)
+
+  // Permission management
+  const [showPermissionModal, setShowPermissionModal] = useState(false)
+  const [selectedTeamMemberForPermissions, setSelectedTeamMemberForPermissions] = useState(null)
 
   //get local Data
   useEffect(() => {
@@ -948,6 +954,23 @@ function Teams({ agencyData, selectedAgency, from }) {
                               Resend Invite
                             </MenuItem>
                           )}
+                          {(agencyData?.userRole === 'Agency' || 
+                            userLocalData?.userRole === 'Agency' ||
+                            agencyData?.userRole === 'AgentX' ||
+                            userLocalData?.userRole === 'AgentX' ||
+                            agencyData?.userRole === 'AgencySubAccount' ||
+                            userLocalData?.userRole === 'AgencySubAccount') && 
+                            popoverTeam?.invitedUserId && (
+                            <MenuItem
+                              onClick={() => {
+                                setSelectedTeamMemberForPermissions(popoverTeam)
+                                setShowPermissionModal(true)
+                                handlePopoverClose()
+                              }}
+                            >
+                              Manage Permissions
+                            </MenuItem>
+                          )}
                           <MenuItem
                             sx={{ color: 'red' }}
                             onClick={() => {
@@ -1472,6 +1495,26 @@ function Teams({ agencyData, selectedAgency, from }) {
           </div>
         </Box>
       </Modal>
+
+      {/* Permission Management Modal */}
+      <PermissionProvider>
+        {selectedTeamMemberForPermissions && (
+          <PermissionManager
+            open={showPermissionModal}
+            teamMemberId={selectedTeamMemberForPermissions.invitedUserId}
+            context={
+              agencyData?.userRole === 'Agency' ||
+              userLocalData?.userRole === 'Agency'
+                ? 'agency'
+                : 'agentx'
+            }
+            onClose={() => {
+              setShowPermissionModal(false)
+              setSelectedTeamMemberForPermissions(null)
+            }}
+          />
+        )}
+      </PermissionProvider>
     </div>
   )
 }

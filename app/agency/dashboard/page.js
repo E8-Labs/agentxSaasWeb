@@ -12,6 +12,8 @@ import AdminUsers from '@/components/admin/users/AdminUsers'
 import PhoneVerificationCodesList from '@/components/admin/verificationCodesList/PhoneVerificationCodesList'
 import AgencyDashboard from '@/components/agency/dashboard/AgencyDashboard'
 import BackgroundVideo from '@/components/general/BackgroundVideo'
+import ProtectedRoute from '@/components/permissions/ProtectedRoute'
+import { PermissionProvider } from '@/contexts/PermissionContext'
 import { logout } from '@/utilities/UserUtility'
 
 function Page() {
@@ -31,9 +33,22 @@ function Page() {
   const [selectedManu, setSelectedManu] = useState(manuBar[0])
 
   return (
-    <div className="w-full flex flex-col items-center h-[99svh] overflow-hidden ">
-      <AgencyDashboard />
-    </div>
+    <PermissionProvider>
+      <ProtectedRoute
+        permissionKey="agency.dashboard.view"
+        hideIfNoPermission={false}
+        fallback={
+          <div style={{ padding: '2rem', textAlign: 'center' }}>
+            <h2>Access Denied</h2>
+            <p>You do not have permission to view the dashboard.</p>
+          </div>
+        }
+      >
+        <div className="w-full flex flex-col items-center h-[99svh] overflow-hidden ">
+          <AgencyDashboard />
+        </div>
+      </ProtectedRoute>
+    </PermissionProvider>
   )
 }
 
