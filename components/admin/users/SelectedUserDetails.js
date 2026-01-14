@@ -87,12 +87,12 @@ function SelectedUserDetails({
       selectedImage: '/svgIcons/selectedTeam.svg',
       unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg',
     },
-    {
-      id: 8,
-      name: 'Account',
-      selectedImage: '/svgIcons/selectedProfileCircle.svg',
-      unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
-    },
+    // {
+    //   id: 8,
+    //   name: 'Account',
+    //   selectedImage: '/svgIcons/selectedProfileCircle.svg',
+    //   unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
+    // },
 
   ]
 
@@ -542,7 +542,18 @@ function SelectedUserDetails({
               </div>
 
               {agencyUser && (
-                <div className="w-full flex flex-row items-start gap-3 py-2 truncate outline-none text-start  no-underline hover:no-underline" //border border-[#00000015] rounded-[10px]
+                <div onClick={() => {
+                  console.log('clicked')
+                  const menu = {
+                    id: 10,
+                    name: 'Account',
+                    // selectedImage: '/svgIcons/selectdDashboardIcon.svg',
+                    // unSelectedImage: '/svgIcons/unSelectedDashboardIcon.svg',
+                  }
+                  setSelectedManu(menu)
+                  //set account info to the right side of the screen
+                  // setAccountInfo(true)
+                }}className="w-full flex flex-row items-start gap-3 py-2 truncate outline-none text-start  no-underline hover:no-underline cursor-pointer" //border border-[#00000015] rounded-[10px]
                   style={{
                     textOverflow: "ellipsis",
                     textDecoration: "none",
@@ -567,7 +578,7 @@ function SelectedUserDetails({
                     </div>
                   )}
 
-                  <div>
+                  <div >
                     <div className="flex flex-row items-center gap-2">
                       <div
                         className="truncate"
