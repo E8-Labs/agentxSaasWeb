@@ -89,7 +89,7 @@ import { capitalize } from '@/utilities/StringUtility'
 import { getAgentsListImage } from '@/utilities/agentUtilities'
 import { GetFormattedDateString } from '@/utilities/utility'
 import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
-import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
+import { getUniqueTags as fetchUniqueTags } from '@/components/globalExtras/GetUniqueTags'
 
 import NoVoicemailView from '../../myagentX/NoVoicemailView'
 import AgentSelectSnackMessage, {
@@ -378,32 +378,33 @@ const LeadDetails = ({
     getNumbers()
     getData()
     getCreditCost()
-    getUniqueColumns()
+    getUniqueTags()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedUser?.id]) // Only depend on selectedUser.id to avoid unnecessary re-runs
 
-  // Fetch unique columns for tag autocomplete
-  const getUniqueColumns = async () => {
+  // Fetch unique tags for tag autocomplete
+  const getUniqueTags = async () => {
     try {
-      const columns = await getUniquesColumn()
-      if (columns && Array.isArray(columns)) {
-        setUniqueColumns(columns)
+      const userId = selectedUser?.id || null
+      const tags = await fetchUniqueTags(userId)
+      if (tags && Array.isArray(tags)) {
+        setUniqueColumns(tags) // Keep variable name for backward compatibility
         // Refresh suggestions if there's a current input value
         if (tagInputValue.trim()) {
           const existingTags = selectedLeadsDetails?.tags || []
-          const filtered = columns
-            .filter((col) => {
-              const colLower = col.toLowerCase()
+          const filtered = tags
+            .filter((tag) => {
+              const tagLower = tag.toLowerCase()
               const valueLower = tagInputValue.toLowerCase()
-              return colLower.includes(valueLower)
+              return tagLower.includes(valueLower)
             })
-            .filter((col) => !existingTags.includes(col))
+            .filter((tag) => !existingTags.includes(tag))
           setTagSuggestions(filtered)
           setShowTagSuggestions(filtered.length > 0)
         }
       }
     } catch (error) {
-      console.error('Error fetching unique columns:', error)
+      console.error('Error fetching unique tags:', error)
     }
   }
 
@@ -1146,17 +1147,17 @@ const LeadDetails = ({
     setTagInputValue(value)
 
     if (value.trim()) {
-      // Filter unique columns that match the input
+      // Filter unique tags that match the input
       // Also exclude tags that already exist
       const existingTags = selectedLeadsDetails?.tags || []
       const filtered = uniqueColumns
-        .filter((col) => {
-          const colLower = col.toLowerCase()
+        .filter((tag) => {
+          const tagLower = tag.toLowerCase()
           const valueLower = value.toLowerCase()
-          // Match if column contains the input value
-          return colLower.includes(valueLower)
+          // Match if tag contains the input value
+          return tagLower.includes(valueLower)
         })
-        .filter((col) => !existingTags.includes(col)) // Exclude existing tags
+        .filter((tag) => !existingTags.includes(tag)) // Exclude existing tags
 
       setTagSuggestions(filtered)
       setShowTagSuggestions(filtered.length > 0)
@@ -2059,7 +2060,7 @@ const LeadDetails = ({
                               addTagLoader={addTagLoader}
                             onRemoveTag={handleDelTag}
                             delTagLoader={DelTagLoader}
-                            onRefreshSuggestions={getUniqueColumns}
+                            onRefreshSuggestions={getUniqueTags}
                             />
                           </div>
                           <div className="flex items-center gap-2">

@@ -61,6 +61,7 @@ const Apis = {
   pauseAgent: `${BasePath}api/pipeline/pauseAgentCadence`,
   resumeCalls: `${BasePath}api/pipeline/resumeAgentCadence`,
   getUniqueColumns: `${BasePath}api/leads/getUniqueColumns`,
+  getTagsList: `/api/tags`,
   addSmartList: `${BasePath}api/leads/addSmartList`,
   updateAgentSupportButton: `${BasePath}api/agent/updateAgentSupportButton`,
   delSmartList: `${BasePath}api/leads/deleteList`,
