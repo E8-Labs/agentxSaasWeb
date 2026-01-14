@@ -308,6 +308,90 @@ const Creator = ({ agentId, name }) => {
     return assistantOverrides
   }
 
+  // Function to clean assistantOverrides by removing invalid properties that VAPI doesn't accept
+  const cleanAssistantOverrides = (assistantOverrides) => {
+    if (!assistantOverrides || typeof assistantOverrides !== 'object') {
+      return assistantOverrides
+    }
+
+    // Create a copy to avoid mutating the original
+    const cleaned = { ...assistantOverrides }
+
+    // List of invalid properties that VAPI doesn't accept
+    const invalidProperties = [
+      'voiceSettings',
+      'modelSettings',
+      'responseSpeed',
+      'initialPauseSeconds',
+      'patienceLevel',
+    ]
+
+    // Remove invalid properties
+    invalidProperties.forEach((prop) => {
+      if (cleaned[prop] !== undefined) {
+        console.log(`Removing invalid property from assistantOverrides: ${prop}`)
+        delete cleaned[prop]
+      }
+    })
+
+    // Validate and clean language property if it exists
+    if (cleaned.language !== undefined) {
+      // Valid VAPI language codes (from the error message)
+      const validLanguageCodes = [
+        'ar', 'az', 'ba', 'bg', 'br', 'ca', 'cs', 'da', 'da-DK', 'de', 'de-CH',
+        'el', 'en', 'en-AU', 'en-CA', 'en-GB', 'en-IE', 'en-IN', 'en-NZ', 'en-US',
+        'es', 'es-419', 'es-LATAM', 'et', 'eu', 'fi', 'fr', 'fr-CA', 'ha', 'haw',
+        'he', 'hi', 'hi-Latn', 'hu', 'id', 'is', 'it', 'ja', 'jw', 'kn', 'ko',
+        'ko-KR', 'ln', 'lt', 'lv', 'mk', 'ms', 'multi', 'nl', 'nl-BE', 'no', 'pl',
+        'pt', 'pt-BR', 'pt-PT', 'ro', 'ru', 'sk', 'sl', 'sn', 'so', 'sr', 'su',
+        'sv', 'sv-SE', 'ta', 'taq', 'th', 'th-TH', 'tr', 'tt', 'uk', 'ur', 'vi',
+        'yo', 'zh', 'zh-CN', 'zh-HK', 'zh-Hans', 'zh-Hant', 'zh-TW',
+      ]
+
+      // Language mapping for common language names to codes
+      const languageMap = {
+        English: 'en-US',
+        'en': 'en-US',
+        Spanish: 'es',
+        'es': 'es',
+        French: 'fr',
+        'fr': 'fr',
+        German: 'de',
+        'de': 'de',
+        Italian: 'it',
+        'it': 'it',
+        Portuguese: 'pt',
+        'pt': 'pt',
+        Chinese: 'zh-CN',
+        'zh': 'zh-CN',
+        Japanese: 'ja',
+        'ja': 'ja',
+        Korean: 'ko-KR',
+        'ko': 'ko-KR',
+      }
+
+      const languageValue = cleaned.language
+
+      // Check if it's already a valid code
+      if (validLanguageCodes.includes(languageValue)) {
+        // Already valid, keep it
+        console.log(`Language code is valid: ${languageValue}`)
+      } else if (languageMap[languageValue]) {
+        // Map common language names to valid codes
+        console.log(`Mapping language "${languageValue}" to "${languageMap[languageValue]}"`)
+        cleaned.language = languageMap[languageValue]
+      } else {
+        // Invalid language, remove it
+        console.warn(
+          `Invalid language code "${languageValue}" found. Removing from assistantOverrides.`,
+        )
+        delete cleaned.language
+      }
+    }
+
+    return cleaned
+  }
+
   //get user details by agentId
   const getUserByAgentId = async () => {
     try {
@@ -323,9 +407,11 @@ const Creator = ({ agentId, name }) => {
         setAgentDetails(response)
         setVapiAgent(response?.data?.data?.agent)
 
-        // Clean assistantOverrides to remove duplicates
-        const cleanedOverrides = removeDuplicatesFromAnalysisPlan(
-          response?.data?.data?.assistantOverrides,
+        // Clean assistantOverrides: remove duplicates and invalid properties
+        const cleanedOverrides = cleanAssistantOverrides(
+          removeDuplicatesFromAnalysisPlan(
+            response?.data?.data?.assistantOverrides,
+          ),
         )
         setAssistantOverrides(cleanedOverrides)
 
@@ -480,9 +566,9 @@ const Creator = ({ agentId, name }) => {
         // Update assistant overrides with new data
         const newAssistantOverrides = response.data.data.assistantOverrides
         if (newAssistantOverrides) {
-          // Clean assistantOverrides to remove duplicates
-          const cleanedNewOverrides = removeDuplicatesFromAnalysisPlan(
-            newAssistantOverrides,
+          // Clean assistantOverrides: remove duplicates and invalid properties
+          const cleanedNewOverrides = cleanAssistantOverrides(
+            removeDuplicatesFromAnalysisPlan(newAssistantOverrides),
           )
           setAssistantOverrides(cleanedNewOverrides)
           console.log('Updated assistant overrides:', cleanedNewOverrides)
@@ -490,9 +576,9 @@ const Creator = ({ agentId, name }) => {
           // Keep form data persistent - don't clear after submission
           console.log('Form submitted successfully, keeping data persistent')
 
-          // Close modal and start call with new overrides
+          // Close modal and start call with cleaned overrides
           handleModalClose()
-          handleStartCallWithOverrides(newAssistantOverrides)
+          handleStartCallWithOverrides(cleanedNewOverrides)
         } else {
           // Keep form data persistent - don't clear after submission
           console.log('Form submitted successfully, keeping data persistent')
@@ -583,11 +669,12 @@ const Creator = ({ agentId, name }) => {
                 const newAssistantOverrides =
                   response.data.data.assistantOverrides
                 if (newAssistantOverrides) {
-                  const cleanedNewOverrides = removeDuplicatesFromAnalysisPlan(
-                    newAssistantOverrides,
+                  // Clean assistantOverrides: remove duplicates and invalid properties
+                  const cleanedNewOverrides = cleanAssistantOverrides(
+                    removeDuplicatesFromAnalysisPlan(newAssistantOverrides),
                   )
                   setAssistantOverrides(cleanedNewOverrides)
-                  handleStartCallWithOverrides(newAssistantOverrides)
+                  handleStartCallWithOverrides(cleanedNewOverrides)
                 } else {
                   handleStartCall()
                 }
@@ -685,15 +772,67 @@ const Creator = ({ agentId, name }) => {
   async function startCall(overrides = null) {
     console.log('starting call')
     if (vapi) {
+      try {
+        // Request microphone permission before starting VAPI call
+        // This prevents timeout issues when users take time to grant permission
+        setloadingMessage('Requesting microphone permission...')
+        console.log('Requesting microphone permission')
+        
+        // Check if getUserMedia is available
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          throw new Error('Microphone access is not supported in this browser')
+        }
+        
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+        // Stop the stream immediately - VAPI will request it again when it starts
+        // But since permission is already granted, it will be instant
+        stream.getTracks().forEach((track) => track.stop())
+        console.log('Microphone permission granted')
+        
+        // Update loading message after permission is granted
+        setloadingMessage('Connecting...')
+      } catch (error) {
+        console.error('Error requesting microphone permission:', error)
+        setLoading(false)
+        setOpen(false)
+        
+        // Handle different error types
+        if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+          setSnackbarMessage('Microphone permission denied. Please allow microphone access to start the call.')
+          setSnackbarSeverity('error')
+          setSnackbarOpen(true)
+        } else if (error.name === 'NotFoundError' || error.name === 'DevicesNotFoundError') {
+          setSnackbarMessage('No microphone found. Please connect a microphone and try again.')
+          setSnackbarSeverity('error')
+          setSnackbarOpen(true)
+        } else if (error.message?.includes('not supported')) {
+          setSnackbarMessage('Microphone access is not supported in this browser. Please use a modern browser.')
+          setSnackbarSeverity('error')
+          setSnackbarOpen(true)
+        } else {
+          setSnackbarMessage('Error accessing microphone. Please try again.')
+          setSnackbarSeverity('error')
+          setSnackbarOpen(true)
+        }
+        return // Exit early if permission request fails
+      }
+
       // Use overrides passed as parameter (from form submission) or fall back to state
       const overridesToUse = overrides || assistantOverrides
 
-      // Remove variableValues field before passing to VAPI
-      let cleanedOverrides = overridesToUse
-      if (overridesToUse && overridesToUse.variableValues !== undefined) {
-        cleanedOverrides = { ...overridesToUse }
-        delete cleanedOverrides.variableValues
-        console.log('Removed variableValues from overrides:', cleanedOverrides)
+      // Clean assistantOverrides: remove invalid properties and validate language
+      let cleanedOverrides = cleanAssistantOverrides(overridesToUse)
+
+      // Remove variableValues field before passing to VAPI (if it exists)
+      if (cleanedOverrides && cleanedOverrides.variableValues !== undefined) {
+        const { variableValues, ...rest } = cleanedOverrides
+        cleanedOverrides = rest
+        console.log('Removed variableValues from overrides')
+      }
+
+      // If cleanedOverrides is empty or only has null/undefined values, set to null
+      if (cleanedOverrides && Object.keys(cleanedOverrides).length === 0) {
+        cleanedOverrides = null
       }
 
       console.log('Current assistant overrides:', overridesToUse)
@@ -702,18 +841,23 @@ const Creator = ({ agentId, name }) => {
         'Using overrides for VAPI start:',
         cleanedOverrides ? cleanedOverrides : agentId,
       )
+      
+      // Start VAPI call - permission is already granted, so this will be instant
       if (agentDetails?.data?.data?.smartList) {
         //change this to check if agent has smart list attached
-
         console.log('agentId before starting call', agentId)
         vapi.start(agentId, cleanedOverrides ? cleanedOverrides : null)
       } else {
         console.log('Agent has no smart list, starting call directly')
-        vapi.start(agentId)
+        vapi.start(agentId, cleanedOverrides ? cleanedOverrides : null)
       }
-      vapi.start(agentId, cleanedOverrides ? cleanedOverrides : null)
     } else {
       console.error('Vapi instance not initialized')
+      setLoading(false)
+      setOpen(false)
+      setSnackbarMessage('Call service not ready. Please refresh and try again.')
+      setSnackbarSeverity('error')
+      setSnackbarOpen(true)
     }
   }
 
