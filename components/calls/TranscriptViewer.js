@@ -395,7 +395,7 @@ export function TranscriptViewer({ callId, onPopoverStateChange }) {
   }
 
   return (
-    <div className="p-4 space-y-1 overflow-y-auto max-h-[80vh] bg-white rounded-lg border relative">
+    <div className="p-4 space-y-1 overflow-y-auto max-h-[80vh] bg-white rounded-lg border relative pb-8">
       {loading ? (
         <CircularProgress size={30} />
       ) : (
