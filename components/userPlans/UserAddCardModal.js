@@ -481,6 +481,14 @@ const UserAddCard = ({
           refreshUserData()
           handleClose(response.data, true) // Pass true to indicate subscription already happened
           if (setAddPaymentSuccessPopUp) setAddPaymentSuccessPopUp(true)
+        } else if (response.data.status === false) {
+          // Handle subscription failure - display error message
+          const errorMessage = response.data.message || 'Subscription failed. Please try again.'
+          console.log('❌ [handleSubscribePlan] Subscription failed:', errorMessage)
+          setAddCardFailure(true)
+          setAddCardErrtxt(errorMessage)
+          setDisableContinue(false)
+          setAddCardLoader(false)
         }
       }
     } catch (error) {
@@ -488,6 +496,13 @@ const UserAddCard = ({
         'Error occurred in subscribe plan api on user add card is:',
         error,
       )
+      // Display error message to user
+      const errorMessage = error?.response?.data?.message || 
+                          error?.message || 
+                          'An error occurred while subscribing to the plan. Please try again.'
+      setAddCardFailure(true)
+      setAddCardErrtxt(errorMessage)
+      setDisableContinue(false)
     } finally {
       setAddCardLoader(false)
       isSubscribingRef.current = false // Reset flag after completion

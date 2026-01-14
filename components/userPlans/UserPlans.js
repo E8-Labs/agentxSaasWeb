@@ -428,21 +428,36 @@ function UserPlans({
           }
         } else if (response.data.status === false) {
           // Handle subscription failure - check if it's due to missing payment method
+          const errorMessage = response.data.message || 'Subscription failed. Please try again.'
+          console.log('❌ [handleSubscribePlan] Subscription failed:', errorMessage)
+          
           if (response.data.message === 'No payment method added' || response.data.message?.toLowerCase().includes('payment')) {
             console.log('❌ [handleSubscribePlan] API returned no payment method error - showing payment modal')
             setShouldAutoSubscribe(true)
             setAddPaymentPopUp(true)
+          } else {
+            // Display error message for other types of failures (e.g., trial access failed)
+            setAddCardFailure(true)
+            setAddCardErrtxt(errorMessage)
           }
         }
       }
     } catch (error) {
       console.error('Error occured in api is:', error)
+      const errorMessage = error?.response?.data?.message || 
+                          error?.message || 
+                          'An error occurred while subscribing to the plan. Please try again.'
+      
       // If error is related to payment, show payment modal
       if (error?.response?.data?.message?.toLowerCase().includes('payment') || 
           error?.response?.data?.message?.toLowerCase().includes('card')) {
         console.log('❌ [handleSubscribePlan] Payment error detected - showing payment modal')
         setShouldAutoSubscribe(true)
         setAddPaymentPopUp(true)
+      } else {
+        // Display error message for other types of failures
+        setAddCardFailure(true)
+        setAddCardErrtxt(errorMessage)
       }
     } finally {
       setSubscribeLoader(null)
