@@ -2424,14 +2424,26 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                     )}
                                 </div>
                                 <div className="flex flex-row items-center justify-between w-full mt-1">
-                                  <div
-                                    className="text-[#00000060]"
-                                    style={styles.agentName}
-                                  >
-                                    {(lead?.lead?.email
-                                      ? lead?.lead?.email?.slice(0, 10) +
-                                        '...'
-                                      : '') || ''}
+                                  <div className="flex flex-col gap-1">
+                                    <div
+                                      className="text-[#00000060]"
+                                      style={styles.agentName}
+                                    >
+                                      {(lead?.lead?.email
+                                        ? lead?.lead?.email?.slice(0, 10) +
+                                          '...'
+                                        : '') || ''}
+                                    </div>
+                                    {/* Display plan price for agency_use pipeline leads */}
+                                    {SelectedPipeline?.pipelineType === 'agency_use' &&
+                                      lead?.lead?.agencyUseInfo?.planPrice && (
+                                        <div
+                                          className="text-green-600 font-semibold text-xs"
+                                          style={{ fontSize: '11px' }}
+                                        >
+                                          ${lead.lead.agencyUseInfo.planPrice}
+                                        </div>
+                                      )}
                                   </div>
                                   <div className="flex flex-row items-center gap-0.5">
                                     {getAgentsListImage(

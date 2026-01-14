@@ -716,6 +716,14 @@ const Pipeline1 = () => {
         )
         const pipelineDetails = response.data.data
 
+        // Log pipeline type for debugging
+        console.log('🔍 Pipeline Type:', pipelineDetails.pipelineType)
+        console.log('🔍 Pipeline Details:', {
+          id: pipelineDetails.id,
+          title: pipelineDetails.title,
+          pipelineType: pipelineDetails.pipelineType,
+        })
+
         //  Merge updated details with existing pipelines list
         let updatedPipelines = PipeLines?.map((p) =>
           p.id === pipeline.id ? { ...p, ...pipelineDetails } : p,
@@ -731,6 +739,23 @@ const Pipeline1 = () => {
             'leads list in getpipeline details is',
             pipelineDetails.leads,
           )
+          
+          // Log detailed lead information for agency_use pipeline
+          if (pipelineDetails.pipelineType === 'agency_use') {
+            console.log('🔍 Agency Use Pipeline - Leads Data:')
+            pipelineDetails.leads?.forEach((lead, index) => {
+              console.log(`🔍 Lead ${index + 1}:`, {
+                leadId: lead.lead?.id,
+                firstName: lead.lead?.firstName,
+                email: lead.lead?.email,
+                phone: lead.lead?.phone,
+                agencyUseInfo: lead.lead?.agencyUseInfo,
+                planPrice: lead.lead?.agencyUseInfo?.planPrice,
+                fullLead: lead.lead,
+              })
+            })
+          }
+          
           //in admin side i was unable to find this function now if getting error related to leadscount in stage in admin and agency side then first find getpipeline details
           setLeadsCountInStage(pipelineDetails.leadsCountInStage)
           setReservedLeadsCountInStage(pipelineDetails.leadsCountInStage)
@@ -2600,14 +2625,42 @@ const Pipeline1 = () => {
                                         )}
                                     </div>
                                     <div className="flex flex-row items-center justify-between w-full mt-1">
-                                      <div
-                                        className="text-[#00000060]"
-                                        style={styles.agentName}
-                                      >
-                                        {(lead?.lead?.email
-                                          ? lead?.lead?.email?.slice(0, 10) +
-                                            '...'
-                                          : '') || ''}
+                                      <div className="flex flex-col gap-1">
+                                        <div
+                                          className="text-[#00000060]"
+                                          style={styles.agentName}
+                                        >
+                                          {(lead?.lead?.email
+                                            ? lead?.lead?.email?.slice(0, 10) +
+                                              '...'
+                                            : '') || ''}
+                                        </div>
+                                        {/* Display plan price for agency_use pipeline leads */}
+                                        {(() => {
+                                          const isAgencyUse = SelectedPipeline?.pipelineType === 'agency_use'
+                                          const planPrice = lead?.lead?.agencyUseInfo?.planPrice
+                                          
+                                          // Debug logging
+                                          if (isAgencyUse) {
+                                            console.log('🔍 Rendering lead card:', {
+                                              leadId: lead?.lead?.id,
+                                              leadName: lead?.lead?.firstName,
+                                              isAgencyUse,
+                                              planPrice,
+                                              agencyUseInfo: lead?.lead?.agencyUseInfo,
+                                              SelectedPipelineType: SelectedPipeline?.pipelineType,
+                                            })
+                                          }
+                                          
+                                          return isAgencyUse && planPrice ? (
+                                            <div
+                                              className="text-green-600 font-semibold text-xs"
+                                              style={{ fontSize: '11px' }}
+                                            >
+                                              ${planPrice}
+                                            </div>
+                                          ) : null
+                                        })()}
                                       </div>
                                       {
                                         lead.agent && (
