@@ -4,6 +4,7 @@ import axios from 'axios'
 import { useEffect, useState } from 'react'
 
 import Apis from '@/components/apis/Apis'
+import getProfileDetails from '@/components/apis/GetProfile'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
@@ -116,22 +117,41 @@ export default function SetXBarOptions({
       if (response) {
         console.log('responese of create sub account api is', response.data)
         if (response.data.status === true) {
-          //update the subaccounts state on localstorage to update checklist
-          const localData = localStorage.getItem('User')
-          if (localData) {
-            let D = JSON.parse(localData)
-            D.user.checkList.checkList.subaccountAdded = true
-            
-            // Update hasInternalAccount if an internal account was created
-            if (formData.isInternalAccount) {
-              D.user.hasInternalAccount = true
+          // Refresh profile data to get latest internal account count
+          try {
+            console.log('🔄 Refreshing profile data after subaccount creation...')
+            const profileResponse = await getProfileDetails()
+            if (profileResponse?.data?.status === true) {
+              console.log('✅ Profile data refreshed successfully')
+            } else {
+              console.warn('⚠️ Profile refresh returned non-success status')
             }
-            
-            localStorage.setItem('User', JSON.stringify(D))
+          } catch (profileError) {
+            console.error('❌ Error refreshing profile after subaccount creation:', profileError)
+            // Fallback: update localStorage manually if profile refresh fails
+            const localData = localStorage.getItem('User')
+            if (localData) {
+              let D = JSON.parse(localData)
+              D.user.checkList.checkList.subaccountAdded = true
+              
+              // Update hasInternalAccount if an internal account was created
+              if (formData.isInternalAccount) {
+                D.user.hasInternalAccount = true
+              }
+              
+              localStorage.setItem('User', JSON.stringify(D))
+            }
           }
+          
           window.dispatchEvent(
             new CustomEvent('UpdateAgencyCheckList', {
               detail: { update: true },
+            }),
+          )
+          // Dispatch event to notify other components about subaccount update
+          window.dispatchEvent(
+            new CustomEvent('SubAccountUpdated', {
+              detail: { isInternalAccount: formData.isInternalAccount },
             }),
           )
           closeModal()

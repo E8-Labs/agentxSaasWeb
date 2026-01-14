@@ -31,7 +31,7 @@ import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiS
 import MultiSelectDropdownCn from '@/components/dashboard/leads/extras/MultiSelectDropdownCn'
 import CloseBtn from '../globalExtras/CloseBtn'
 
-const NewContactDrawer = ({ open, onClose, onSuccess }) => {
+const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => {
   // Form state
   const [selectedSmartlist, setSelectedSmartlist] = useState(null)
   const [showFields, setShowFields] = useState(false)
@@ -128,14 +128,26 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
     
     // Extract custom fields from smartlist if available, otherwise fetch them
     if (smartlist?.id) {
-      if (smartlist.columns && Array.isArray(smartlist.columns)) {
-        extractCustomFields(smartlist.columns)
-      } else {
-        fetchCustomFields(smartlist.id)
+      try {
+        if (smartlist.columns && Array.isArray(smartlist.columns) && smartlist.columns.length > 0) {
+          extractCustomFields(smartlist.columns)
+        } else {
+          // If no columns in smartlist, try fetching them
+          fetchCustomFields(smartlist.id)
+        }
+      } catch (error) {
+        console.error('Error extracting custom fields:', error)
+        // If extraction fails, set empty custom fields and still show default fields
+        setCustomFields([])
+        setCustomFieldValues({})
       }
+    } else {
+      // No smartlist selected, clear custom fields
+      setCustomFields([])
+      setCustomFieldValues({})
     }
     
-    // Animate in fields after a short delay
+    // Always show default fields (first name, last name, email, phone) after a short delay
     setTimeout(() => {
       setShowFields(true)
     }, 100)
@@ -150,7 +162,19 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
       const userData = JSON.parse(localData)
       const token = userData.token
 
-      const response = await axios.get('/api/smartlists?type=manual', {
+      // Build query string with userId if selectedUser is provided (for agency viewing subaccount)
+      // Pass type=all to fetch all smartlists regardless of type
+      let queryString = 'type=all'
+      const userId = selectedUser?.id || selectedUser?.userId || selectedUser?.user?.id
+      if (userId) {
+        queryString += `&userId=${userId}`
+        console.log('📋 [NewContactDrawer] Fetching all smartlists for userId:', userId)
+      } else {
+        console.log('📋 [NewContactDrawer] Fetching all smartlists')
+      }
+
+      const apiPath = `/api/smartlists?${queryString}`
+      const response = await axios.get(apiPath, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -159,10 +183,15 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
 
       if (response.data?.status && response.data?.data) {
         setSmartlists(response.data.data)
+        console.log('✅ [NewContactDrawer] Loaded smartlists:', response.data.data.length)
+      } else {
+        console.warn('⚠️ [NewContactDrawer] No smartlists returned')
+        setSmartlists([])
       }
     } catch (error) {
-      console.error('Error fetching smartlists:', error)
+      console.error('❌ [NewContactDrawer] Error fetching smartlists:', error)
       toast.error('Failed to load smartlists')
+      setSmartlists([])
     } finally {
       setLoadingSmartlists(false)
     }
@@ -177,7 +206,15 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
       const userData = JSON.parse(localData)
       const token = userData.token
 
-      const response = await axios.get('/api/pipelines?liteResource=true', {
+      // Build query string with userId if selectedUser is provided (for agency viewing subaccount)
+      let queryString = 'liteResource=true'
+      const userId = selectedUser?.id || selectedUser?.userId || selectedUser?.user?.id
+      if (userId) {
+        queryString += `&userId=${userId}`
+        console.log('📋 [NewContactDrawer] Fetching pipelines for userId:', userId)
+      }
+
+      const response = await axios.get(`/api/pipelines?${queryString}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -186,10 +223,15 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
 
       if (response.data?.status && response.data?.data) {
         setPipelines(response.data.data)
+        console.log('✅ [NewContactDrawer] Loaded pipelines:', response.data.data.length)
+      } else {
+        console.warn('⚠️ [NewContactDrawer] No pipelines returned')
+        setPipelines([])
       }
     } catch (error) {
-      console.error('Error fetching pipelines:', error)
+      console.error('❌ [NewContactDrawer] Error fetching pipelines:', error)
       toast.error('Failed to load pipelines')
+      setPipelines([])
     } finally {
       setLoadingPipelines(false)
     }
@@ -316,16 +358,43 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
       'name',
     ]
 
+    // Ensure columns is an array
+    if (!Array.isArray(columns) || columns.length === 0) {
+      setCustomFields([])
+      setCustomFieldValues({})
+      return
+    }
+
     // Filter out default columns and get custom fields
     const customCols = columns
       .filter((col) => {
-        const columnName = col.columnName?.toLowerCase() || col.toLowerCase()
-        return !excludedColumns.includes(columnName)
+        // Safely extract column name - handle both string and object formats
+        let columnName = null
+        if (typeof col === 'string') {
+          columnName = col.toLowerCase()
+        } else if (col && typeof col === 'object') {
+          // Handle object with columnName property
+          if (col.columnName && typeof col.columnName === 'string') {
+            columnName = col.columnName.toLowerCase()
+          }
+        }
+        
+        // Skip if columnName couldn't be extracted or is in excluded list
+        if (!columnName || excludedColumns.includes(columnName)) {
+          return false
+        }
+        return true
       })
-      .map((col) => ({
-        columnName: typeof col === 'string' ? col : col.columnName,
-        id: col.id || col.columnName || col,
-      }))
+      .map((col) => {
+        // Safely extract column name and id
+        const columnName = typeof col === 'string' ? col : (col.columnName || '')
+        const id = col.id || col.columnName || col || ''
+        return {
+          columnName: columnName,
+          id: id,
+        }
+      })
+      .filter((field) => field.columnName) // Remove any fields without a valid columnName
 
     setCustomFields(customCols)
     // Reset custom field values
@@ -336,13 +405,16 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
     try {
       setLoadingCustomFields(true)
       const localData = localStorage.getItem('User')
-      if (!localData) return
+      if (!localData) {
+        setCustomFields([])
+        return
+      }
 
       const userData = JSON.parse(localData)
       const token = userData.token
 
       // Fetch smartlist details to get columns
-      const response = await axios.get('/api/sheets?type=manual', {
+      const response = await axios.get('/api/sheets', {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -355,15 +427,28 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
           (s) => s.id.toString() === smartlistId.toString()
         )
 
-        if (smartlist?.columns && Array.isArray(smartlist.columns)) {
-          extractCustomFields(smartlist.columns)
+        if (smartlist?.columns && Array.isArray(smartlist.columns) && smartlist.columns.length > 0) {
+          try {
+            extractCustomFields(smartlist.columns)
+          } catch (extractError) {
+            console.error('Error extracting custom fields from fetched data:', extractError)
+            setCustomFields([])
+          }
         } else {
+          // No columns found, set empty custom fields (default fields will still show)
           setCustomFields([])
         }
+      } else {
+        // No data returned, set empty custom fields
+        setCustomFields([])
       }
     } catch (error) {
       console.error('Error fetching custom fields:', error)
-      toast.error('Failed to load custom fields')
+      // Don't show error toast for missing custom fields - default fields should still work
+      // Only show error if it's a real API error
+      if (error.response?.status >= 500) {
+        toast.error('Failed to load custom fields')
+      }
       setCustomFields([])
     } finally {
       setLoadingCustomFields(false)
@@ -504,6 +589,13 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
         payload.createMessageThread = true
       }
 
+      // Add userId if selectedUser is provided (for agency creating contact for subaccount)
+      const userId = selectedUser?.id || selectedUser?.userId || selectedUser?.user?.id
+      if (userId) {
+        payload.userId = userId.toString()
+        console.log('📋 [NewContactDrawer] Creating contact for userId:', userId)
+      }
+
       const response = await axios.post('/api/leads/create', payload, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -560,7 +652,8 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent
         side="right"
-        className="!w-[1000px] !max-w-[500px] sm:!max-w-[500px] p-0 flex flex-col [&>button]:hidden"
+        className="!w-[1000px] !max-w-[500px] sm:!max-w-[500px] p-0 flex flex-col [&>button]:hidden !z-[1400]"
+        overlayClassName="!z-[1399]"
         style={{
           marginTop: '12px',
           marginBottom: '12px',
@@ -569,6 +662,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
           borderRadius: '12px',
           width: '600px',
           maxWidth: '600px',
+          zIndex: 1400,
         }}
       >
         <SheetHeader className="px-3 py-3 border-b border-gray-200">
@@ -597,7 +691,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
               >
                 <SelectValue placeholder="Select Smartlist" />
               </SelectTrigger>
-              <SelectContent className="max-h-[200px] z-[100]">
+              <SelectContent className="max-h-[200px] !z-[1500]">
                 {loadingSmartlists ? (
                   <div className="px-2 py-1.5 text-sm text-gray-500">
                     Loading...
@@ -821,7 +915,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
                     <SelectTrigger className="h-8 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary">
                       <SelectValue placeholder="Select Pipeline" />
                     </SelectTrigger>
-                    <SelectContent className="z-[100]">
+                    <SelectContent className="!z-[1500]">
                       {loadingPipelines ? (
                         <div className="px-2 py-1.5 text-sm text-gray-500">
                           Loading...
@@ -857,7 +951,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess }) => {
                     <SelectTrigger className="h-8 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary">
                       <SelectValue placeholder="Select Stage" />
                     </SelectTrigger>
-                    <SelectContent className="z-[100]">
+                    <SelectContent className="!z-[1500]">
                       {stages.length === 0 ? (
                         <div className="px-2 py-1.5 text-sm text-gray-500">
                           {selectedPipeline

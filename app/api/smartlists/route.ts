@@ -17,15 +17,24 @@ export async function GET(req: NextRequest) {
     }
 
     const searchParams = new URL(req.url).searchParams
-    const type = searchParams.get('type') || 'manual'
+    const type = searchParams.get('type') || 'manual' // Default to 'manual' for backward compatibility
     const userId = searchParams.get('userId')
     
-    let queryString = `type=${type}`
+    // Build query string
+    // If type is 'all', don't include type parameter (fetch all types)
+    // Otherwise, include the type parameter (defaults to 'manual' for backward compatibility)
+    let queryString = ''
+    if (type !== 'all') {
+      queryString = `type=${type}`
+    }
     if (userId) {
-      queryString += `&userId=${userId}`
+      queryString += queryString ? `&userId=${userId}` : `userId=${userId}`
     }
     
-    const targetUrl = `${BASE_API_URL}api/leads/getSheets?${queryString}`
+    // Only append query string if we have parameters
+    const targetUrl = queryString 
+      ? `${BASE_API_URL}api/leads/getSheets?${queryString}`
+      : `${BASE_API_URL}api/leads/getSheets`
 
     const response = await fetch(targetUrl, {
       method: 'GET',

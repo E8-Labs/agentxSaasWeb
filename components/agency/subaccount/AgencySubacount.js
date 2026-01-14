@@ -703,19 +703,49 @@ function AgencySubacount({ selectedAgency }) {
           
           // Check if the deleted subaccount was an internal account
           // Use selectedItem which contains the full subaccount object
-          if (selectedItem?.isInternal) {
-            // Update localStorage to set hasInternalAccount to false
-            const localData = localStorage.getItem('User')
-            if (localData) {
-              try {
-                const parsedData = JSON.parse(localData)
-                if (parsedData.user) {
-                  parsedData.user.hasInternalAccount = false
-                  localStorage.setItem('User', JSON.stringify(parsedData))
-                  console.log('Updated hasInternalAccount to false in localStorage')
+          const wasInternalAccount = selectedItem?.isInternal
+          
+          // Refresh profile data to get latest internal account count
+          try {
+            console.log('🔄 Refreshing profile data after subaccount deletion...')
+            const profileResponse = await getProfileDetails()
+            if (profileResponse?.data?.status === true) {
+              console.log('✅ Profile data refreshed successfully after deletion')
+            } else {
+              console.warn('⚠️ Profile refresh returned non-success status')
+              // Fallback: update localStorage manually if profile refresh fails
+              if (wasInternalAccount) {
+                const localData = localStorage.getItem('User')
+                if (localData) {
+                  try {
+                    const parsedData = JSON.parse(localData)
+                    if (parsedData.user) {
+                      parsedData.user.hasInternalAccount = false
+                      localStorage.setItem('User', JSON.stringify(parsedData))
+                      console.log('Updated hasInternalAccount to false in localStorage (fallback)')
+                    }
+                  } catch (error) {
+                    console.error('Error updating hasInternalAccount in localStorage:', error)
+                  }
                 }
-              } catch (error) {
-                console.error('Error updating hasInternalAccount in localStorage:', error)
+              }
+            }
+          } catch (profileError) {
+            console.error('❌ Error refreshing profile after subaccount deletion:', profileError)
+            // Fallback: update localStorage manually if profile refresh fails
+            if (wasInternalAccount) {
+              const localData = localStorage.getItem('User')
+              if (localData) {
+                try {
+                  const parsedData = JSON.parse(localData)
+                  if (parsedData.user) {
+                    parsedData.user.hasInternalAccount = false
+                    localStorage.setItem('User', JSON.stringify(parsedData))
+                    console.log('Updated hasInternalAccount to false in localStorage (fallback)')
+                  }
+                } catch (error) {
+                  console.error('Error updating hasInternalAccount in localStorage:', error)
+                }
               }
             }
           }
@@ -725,6 +755,14 @@ function AgencySubacount({ selectedAgency }) {
           setShowDelConfirmationPopup(false)
           setmoreDropdown(null)
           setSelectedItem(null)
+          
+          // Dispatch event to notify other components about subaccount deletion
+          window.dispatchEvent(
+            new CustomEvent('SubAccountUpdated', {
+              detail: { wasInternalAccount: wasInternalAccount },
+            }),
+          )
+          
           // Preserve search term and applied filters after delete
           const currentFilters = appliedFilters || null
           const currentSearch = searchValue && searchValue.trim() ? searchValue.trim() : null

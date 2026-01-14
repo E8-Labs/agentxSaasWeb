@@ -2067,58 +2067,62 @@ const Pipeline1 = () => {
                         New Pipeline
                       </span>
                     </button>
-                    <div className="w-full flex flex-row mt-4">
-                      <button
-                        className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                        style={styles.paragraph}
-                        onClick={() => {
-                          setShowRenamePipelinePopup(true)
-                          setRenamePipeline(SelectedPipeline.title)
-                        }}
-                      >
-                        <Image
-                          src={'/assets/editPen.png'}
-                          height={15}
-                          width={15}
-                          alt="*"
-                        />
-                        Rename
-                      </button>
-                    </div>
-                    <div className="w-full flex flex-row mt-4">
-                      <button
-                        className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                        style={styles.paragraph}
-                        onClick={() => {
-                          setAddNewStageModal(true)
-                        }}
-                      >
-                        <Image
-                          src={'/svgIcons/arrowBlack.svg'}
-                          height={18}
-                          width={15}
-                          alt="*"
-                        />
-                        Add Stage
-                      </button>
-                    </div>
-                    <div className="w-full flex flex-row mt-4">
-                      <button
-                        className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                        style={styles.paragraph}
-                        onClick={() => {
-                          setShowStagesPopup(true)
-                        }}
-                      >
-                        <Image
-                          src={'/assets/list.png'}
-                          height={18}
-                          width={15}
-                          alt="*"
-                        />
-                        Rearrange Stage
-                      </button>
-                    </div>
+                    {SelectedPipeline?.pipelineType !== 'agency_use' && (
+                      <>
+                        <div className="w-full flex flex-row mt-4">
+                          <button
+                            className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                            style={styles.paragraph}
+                            onClick={() => {
+                              setShowRenamePipelinePopup(true)
+                              setRenamePipeline(SelectedPipeline.title)
+                            }}
+                          >
+                            <Image
+                              src={'/assets/editPen.png'}
+                              height={15}
+                              width={15}
+                              alt="*"
+                            />
+                            Rename
+                          </button>
+                        </div>
+                        <div className="w-full flex flex-row mt-4">
+                          <button
+                            className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                            style={styles.paragraph}
+                            onClick={() => {
+                              setAddNewStageModal(true)
+                            }}
+                          >
+                            <Image
+                              src={'/svgIcons/arrowBlack.svg'}
+                              height={18}
+                              width={15}
+                              alt="*"
+                            />
+                            Add Stage
+                          </button>
+                        </div>
+                        <div className="w-full flex flex-row mt-4">
+                          <button
+                            className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                            style={styles.paragraph}
+                            onClick={() => {
+                              setShowStagesPopup(true)
+                            }}
+                          >
+                            <Image
+                              src={'/assets/list.png'}
+                              height={18}
+                              width={15}
+                              alt="*"
+                            />
+                            Rearrange Stage
+                          </button>
+                        </div>
+                      </>
+                    )}
 
                     <button
                       className="text-red flex flex-row items-center gap-4 mt-4 me-2 outline-none"
@@ -2278,27 +2282,29 @@ const Pipeline1 = () => {
                         >
                           <div className="w-34 px-4 py-3 bg-white rounded-[10px] shadow-[0px_8px_24.399999618530273px_0px_rgba(0,0,0,0.10)] inline-flex flex-col justify-start items-start gap-4">
                             <div className="self-stretch flex flex-col justify-start items-start gap-2">
-                              <button
-                                className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
-                                onClick={() => {
-                                  setShowRenamePopup(true)
-                                  // //console.log;
-                                  setRenameStage(selectedStage.stageTitle)
-                                  setUpdateStageColor(
-                                    selectedStage.defaultColor,
-                                  )
-                                }}
-                              >
-                                <Image
-                                  src={'/assets/editPen.png'}
-                                  height={16}
-                                  width={16}
-                                  alt="*"
-                                />
-                                <div className="w-36 text-start justify-start text-black text-base font-normal font-['Inter'] leading-normal">
-                                  Rename
-                                </div>
-                              </button>
+                              {SelectedPipeline?.pipelineType !== 'agency_use' && (
+                                <button
+                                  className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
+                                  onClick={() => {
+                                    setShowRenamePopup(true)
+                                    // //console.log;
+                                    setRenameStage(selectedStage.stageTitle)
+                                    setUpdateStageColor(
+                                      selectedStage.defaultColor,
+                                    )
+                                  }}
+                                >
+                                  <Image
+                                    src={'/assets/editPen.png'}
+                                    height={16}
+                                    width={16}
+                                    alt="*"
+                                  />
+                                  <div className="w-36 text-start justify-start text-black text-base font-normal font-['Inter'] leading-normal">
+                                    Rename
+                                  </div>
+                                </button>
+                              )}
                               <button
                                 className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
                                 onClick={() => colorPickerRef.current.click()}
@@ -2450,7 +2456,7 @@ const Pipeline1 = () => {
                                   </div>
                                 </button>
                               )}
-                              {!showDelBtn && (
+                              {!showDelBtn && SelectedPipeline?.pipelineType !== 'agency_use' && (
                                 <button
                                   className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
                                   onClick={() => {
