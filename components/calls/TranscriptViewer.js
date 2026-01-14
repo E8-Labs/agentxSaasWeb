@@ -9,11 +9,10 @@ import {
 import { Box, CircularProgress, Modal } from '@mui/material'
 import Button from '@mui/material/Button'
 // import { TranscriptBubble } from "./TranscriptBubble";
-import Popover from '@mui/material/Popover'
-import TextField from '@mui/material/TextField'
 import axios from 'axios'
 import React, { useEffect, useRef } from 'react'
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 
 import { parseTranscript } from '@/utilities/parseTranscript'
 
@@ -31,7 +30,8 @@ export function TranscriptBubble({
 }) {
   const isBot = sender === 'bot'
   const commentBtnRef = useRef(null)
-  let isLike = null
+  const likeBtnRef = useRef(null)
+  const dislikeBtnRef = useRef(null)
   //code for read more comment modal
   const [readMoreModal, setReadMoreModal] = useState(null)
 
@@ -55,26 +55,22 @@ export function TranscriptBubble({
         {isBot && (
           <div className="flex gap-2 mt-1 pl-2">
             <button
+              ref={likeBtnRef}
               className="text-gray-500 hover:text-black border-none outline-none"
-              ref={commentBtnRef}
-              onClick={() =>
-                onCommentClick(index, msgId, commentBtnRef, (isLike = true))
-              }
+              onClick={() => onCommentClick(index, msgId, likeBtnRef, true)}
             >
-              {comment && liked === true ? (
+              {liked === true ? (
                 <ThumbUp fontSize="small" sx={{ color: 'hsl(var(--brand-primary))' }} />
               ) : (
                 <ThumbUpOutlined fontSize="small" />
               )}
             </button>
             <button
+              ref={dislikeBtnRef}
               className="text-gray-500 hover:text-black border-none outline-none"
-              ref={commentBtnRef}
-              onClick={() =>
-                onCommentClick(index, msgId, commentBtnRef, (isLike = false))
-              }
+              onClick={() => onCommentClick(index, msgId, dislikeBtnRef, false)}
             >
-              {comment && liked === false ? (
+              {liked === false ? (
                 <ThumbDown fontSize="small" sx={{ color: 'hsl(var(--brand-primary))' }} />
               ) : (
                 <ThumbDownOutlined fontSize="small" />
@@ -83,7 +79,7 @@ export function TranscriptBubble({
             <button
               ref={commentBtnRef}
               className="text-gray-500 hover:text-black border-none outline-none"
-              // onClick={() => onCommentClick(index, msgId, commentBtnRef)}
+              onClick={() => onCommentClick(index, msgId, commentBtnRef)}
             >
               {comment ? (
                 <div className="flex flex-row items-center gap-2">
@@ -140,28 +136,91 @@ export function TranscriptBubble({
   )
 }
 
-export function TranscriptViewer({ callId }) {
+export function TranscriptViewer({ callId, onPopoverStateChange }) {
   // console.log("Received transcript is ", transcript);
   const [messages, setMessages] = useState([]) //parseTranscript(transcript || "")
   const [activeIndex, setActiveIndex] = useState(null)
-  const [popoverPos, setPopoverPos] = useState(null) // null = closed
+  const [showCommentModal, setShowCommentModal] = useState(false) // true = open
   const [comment, setComment] = useState('')
   const [msgIsLike, setMsgIsLike] = useState(null)
   const [commentMsgId, setCommentMsgId] = useState(null)
   const [addCommentLoader, setAddCommentLoader] = useState(false)
   const [loading, setLoading] = useState(false)
+  const textareaRef = useRef(null)
+  const modalContentRef = useRef(null)
+  const onPopoverStateChangeRef = useRef(onPopoverStateChange)
+  
+  // Keep ref updated
+  useEffect(() => {
+    onPopoverStateChangeRef.current = onPopoverStateChange
+  }, [onPopoverStateChange])
 
   const handleCommentClick = (index, msgId, buttonRef, isLike) => {
-    setMsgIsLike(isLike)
-    setCommentMsgId(msgId)
-    if (buttonRef?.current) {
-      const rect = buttonRef.current.getBoundingClientRect()
-      setPopoverPos({
-        top: rect.bottom + window.scrollY - 40,
-        left: rect.right + window.scrollX,
-      })
+    const currentMessage = messages[index]
+    
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TranscriptViewer.js:151',message:'handleCommentClick called',data:{index,msgId,hasButtonRef:!!buttonRef,isLike,buttonRefCurrent:!!buttonRef?.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    // #endregion
+    
+    // If buttonRef is provided and has current, show popover next to the button
+    if (buttonRef && buttonRef.current) {
+      // Set the like/dislike value
+      if (isLike !== undefined) {
+        // If clicking the same like/dislike, toggle it off (set to null)
+        const newLikeValue = currentMessage?.liked === isLike ? null : isLike
+        setMsgIsLike(newLikeValue)
+      } else {
+        // From comment button - preserve existing like/dislike
+        setMsgIsLike(currentMessage?.liked)
+      }
+      
+      setCommentMsgId(msgId)
       setActiveIndex(index)
+      // Pre-fill comment if it exists
+      setComment(currentMessage?.comment || '')
+      
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TranscriptViewer.js:182',message:'Opening comment modal',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+      // #endregion
+      // Open modal immediately - Dialog focus trap is always disabled
+      setShowCommentModal(true)
     }
+  }
+  
+  // Notify parent when popover closes
+  useEffect(() => {
+    if (!showCommentModal) {
+      onPopoverStateChangeRef.current?.(false)
+    }
+  }, [showCommentModal])
+  
+  // Activate modal container when it opens so children can receive focus
+  useEffect(() => {
+    if (showCommentModal && modalContentRef.current) {
+      // Simulate a click on the modal container to "activate" it
+      // This makes child elements (like textarea) immediately focusable
+      const clickEvent = new MouseEvent('mousedown', {
+        bubbles: true,
+        cancelable: true,
+        view: window
+      })
+      modalContentRef.current.dispatchEvent(clickEvent)
+      
+      // Then focus textarea after a brief delay
+      setTimeout(() => {
+        if (textareaRef.current) {
+          textareaRef.current.focus()
+        }
+      }, 10)
+    }
+  }, [showCommentModal])
+  
+  const handleCloseCommentModal = () => {
+    setShowCommentModal(false)
+    setComment('')
+    setMsgIsLike(null)
+    setCommentMsgId(null)
+    onPopoverStateChangeRef.current?.(false)
   }
 
   const dumyMsg = [
@@ -294,20 +353,18 @@ export function TranscriptViewer({ callId }) {
       console.error('Error fetching call transcript:', error)
     }
   }
-  //api to add comment
+  //api to add comment and/or like/dislike
   const handleAddComment = async () => {
     try {
       setAddCommentLoader(true)
       const Token = AuthToken()
       const ApiPath = Apis.addComment
       const formData = new FormData()
-      formData.append('comment', comment)
+      formData.append('comment', comment || '') // Allow empty comment
       formData.append('messageId', commentMsgId)
-      formData.append('like', msgIsLike)
-
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`)
-      }
+      // Send like/dislike value - FormData will convert boolean to string
+      // Backend handles: req.body.like || null, so empty string becomes null
+      formData.append('like', msgIsLike !== null && msgIsLike !== undefined ? msgIsLike : '')
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -321,15 +378,13 @@ export function TranscriptViewer({ callId }) {
         if (response.data.status === true) {
           if (activeIndex !== null) {
             const updatedMessages = [...messages]
-            // updatedMessages[activeIndex].comment = response.data.data.comment;
             updatedMessages[activeIndex] = {
               ...updatedMessages[activeIndex],
-              comment: response.data.data.comment,
+              comment: response.data.data.comment || '',
               liked: response.data.data.liked,
             }
             setMessages(updatedMessages)
-            setPopoverPos(null)
-            setComment('')
+            handleCloseCommentModal()
           }
         }
       }
@@ -358,44 +413,158 @@ export function TranscriptViewer({ callId }) {
         ))
       )}
 
-      <Popover
-        open={Boolean(popoverPos)}
-        anchorReference="anchorPosition"
-        anchorPosition={popoverPos || { top: 0, left: 0 }}
-        anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-        onClose={() => setPopoverPos(null)}
-      >
-        <div className="p-4 w-80">
-          <div style={{ fontWeight: '500', fontSize: '15px' }}>
-            Add Feedback
-          </div>
-
-          <textarea
-            className="w-full mt-4 rounded-md p-2 focus:border-brand-primary outline-none border"
-            placeholder="Tell the AI how you really feel.."
-            rows={4}
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
+      {/* Centered Comment Modal */}
+      {showCommentModal && typeof window !== 'undefined' && createPortal(
+        <>
+          {/* Subtle backdrop overlay */}
+          <div
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              zIndex: 16002, // Higher than Dialog (15001)
+              backgroundColor: 'rgba(0, 0, 0, 0.1)', // Very subtle overlay
+              backdropFilter: 'blur(1px)',
+              pointerEvents: 'auto', // Allow backdrop clicks
+            }}
+            onClick={handleCloseCommentModal}
           />
+          {/* Centered modal content */}
+          <div
+            ref={modalContentRef}
+            data-comment-modal
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              zIndex: 16003, // Higher than backdrop
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
+              width: '90%',
+              maxWidth: '420px',
+              padding: '24px',
+              pointerEvents: 'auto', // Ensure modal content is clickable
+            }}
+            onClick={(e) => {
+              // Only stop propagation if clicking the container itself, not children
+              if (e.target === e.currentTarget) {
+                e.stopPropagation()
+              }
+            }}
+            onMouseDown={(e) => {
+              // Only stop propagation if clicking the container itself, not children  
+              if (e.target === e.currentTarget) {
+                e.stopPropagation()
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                handleCloseCommentModal()
+              }
+            }}
+          >
+            <div style={{ fontWeight: '500', fontSize: '16px', marginBottom: '16px' }}>
+              Add Feedback
+            </div>
 
-          <div className="flex justify-end gap-2 mt-2">
-            {/*<Button size="small" onClick={() => setPopoverPos(null)}>
-              Cancel
-          </Button>*/}
-            {addCommentLoader ? (
-              <CircularProgress size={35} />
-            ) : (
+            <div 
+              style={{ pointerEvents: 'auto', position: 'relative', zIndex: 1 }}
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              <textarea
+                ref={(el) => {
+                  textareaRef.current = el
+                  if (el) {
+                    // #region agent log
+                    const computedStyle = window.getComputedStyle(el)
+                    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TranscriptViewer.js:469',message:'Textarea ref callback',data:{pointerEvents:computedStyle.pointerEvents,cursor:computedStyle.cursor,display:computedStyle.display,visibility:computedStyle.visibility,zIndex:computedStyle.zIndex,disabled:el.disabled,readOnly:el.readOnly},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+                    // #endregion
+                  }
+                }}
+                className="w-full rounded-md p-3 focus:border-brand-primary outline-none border border-gray-300 focus:ring-2 focus:ring-brand-primary/20"
+                style={{ 
+                  pointerEvents: 'auto',
+                  cursor: 'text',
+                  userSelect: 'text',
+                  WebkitUserSelect: 'text',
+                  MozUserSelect: 'text',
+                  msUserSelect: 'text',
+                  position: 'relative',
+                  zIndex: 2,
+                  touchAction: 'manipulation', // Improve touch responsiveness
+                }}
+                placeholder="Tell the AI how you really feel.."
+                rows={4}
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+                onClick={(e) => {
+                  // #region agent log
+                  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TranscriptViewer.js:492',message:'Textarea onClick',data:{activeElement:document.activeElement?.tagName,isFocused:document.activeElement===e.target},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+                  // #endregion
+                  e.stopPropagation()
+                }}
+                onMouseDown={(e) => {
+                  // #region agent log
+                  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TranscriptViewer.js:499',message:'Textarea onMouseDown',data:{activeElement:document.activeElement?.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+                  // #endregion
+                  e.stopPropagation()
+                  // Don't prevent default - let browser handle focus naturally
+                }}
+                onFocus={(e) => {
+                  // #region agent log
+                  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TranscriptViewer.js:505',message:'Textarea onFocus',data:{activeElement:document.activeElement?.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+                  // #endregion
+                  e.stopPropagation()
+                }}
+                tabIndex={0}
+                autoFocus
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 mt-4">
               <button
-                className="bg-brand-primary p-2 text-white rounded-md"
-                onClick={handleAddComment}
+                className="px-4 py-2 text-gray-700 hover:text-gray-900 rounded-md border border-gray-300 hover:bg-gray-50 transition-colors"
+                style={{ pointerEvents: 'auto' }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  e.preventDefault()
+                  handleCloseCommentModal()
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation()
+                }}
               >
-                Add
+                Cancel
               </button>
-            )}
+              {addCommentLoader ? (
+                <CircularProgress size={24} />
+              ) : (
+                <button
+                  className="bg-brand-primary px-4 py-2 text-white rounded-md hover:opacity-90 transition-opacity"
+                  style={{ pointerEvents: 'auto' }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    e.preventDefault()
+                    handleAddComment()
+                  }}
+                  onMouseDown={(e) => {
+                    e.stopPropagation()
+                  }}
+                >
+                  Continue
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      </Popover>
+        </>
+        ,
+        document.body
+      )}
     </div>
   )
 }
