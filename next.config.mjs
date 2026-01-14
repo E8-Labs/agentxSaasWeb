@@ -36,6 +36,11 @@ const nextConfig = {
         hostname: "apimyagentx.com",
         pathname: "/agentxtest/uploads/**",
       },
+      {
+        protocol: "https",
+        hostname: "api.myagentx.com",
+        pathname: "/agentx/uploads/**",
+      },
     ],
   },
   // Example: allow embedding /embed/vapi in an iframe

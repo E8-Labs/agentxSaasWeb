@@ -220,60 +220,61 @@ const NotesTabCN = ({
 
 
   return (
-    <div>
+    <div className="relative">
       {
-
         noteDetails.length > 0 ? (
-          noteDetails.map((note, index) => (
-            <Card key={index} className="mb-4 relative">
-              <CardContent className="p-4">
-                <div className="flex flex-row items-center justify-between w-full">
-                  <TypographyCaption className="text-muted-foreground">
-                    {GetFormattedDateString(note?.createdAt, true)}
-                  </TypographyCaption>
-                  {/* Show menu for manual notes, or if type is undefined (assume manual) */}
-                  {(note.type === 'manual' || !note.type || note.type !== 'call_summary') && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 cursor-pointer hover:bg-muted shrink-0"
-                          type="button"
-                        >
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="z-[9999]">
-                        <DropdownMenuItem
-                          onSelect={(e) => {
-                            e.preventDefault()
-                            handleEditClick(note)
-                          }}
-                          className="cursor-pointer"
-                        >
-                          <Pencil className="h-4 w-4 mr-2" />
-                          <TypographyBodyMedium>Edit</TypographyBodyMedium>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onSelect={(e) => {
-                            e.preventDefault()
-                            handleDeleteClick(note)
-                          }}
-                          className="text-destructive focus:text-destructive cursor-pointer"
-                        >
-                          <Trash2 className="h-4 w-4 mr-2" />
-                          <TypographyBodyMedium>Delete</TypographyBodyMedium>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-                </div>
-                <TypographyBody className="mt-4">{note.note}</TypographyBody>
-              </CardContent>
-            </Card>
-          ))
+          <div className="pb-20">
+            {noteDetails.map((note, index) => (
+              <Card key={index} className="mb-4 relative">
+                <CardContent className="p-4">
+                  <div className="flex flex-row items-center justify-between w-full">
+                    <TypographyCaption className="text-muted-foreground">
+                      {GetFormattedDateString(note?.createdAt, true)}
+                    </TypographyCaption>
+                    {/* Show menu for manual notes, or if type is undefined (assume manual) */}
+                    {(note.type === 'manual' || !note.type || note.type !== 'call_summary') && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 cursor-pointer hover:bg-muted shrink-0"
+                            type="button"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="z-[9999]">
+                          <DropdownMenuItem
+                            onSelect={(e) => {
+                              e.preventDefault()
+                              handleEditClick(note)
+                            }}
+                            className="cursor-pointer"
+                          >
+                            <Pencil className="h-4 w-4 mr-2" />
+                            <TypographyBodyMedium>Edit</TypographyBodyMedium>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onSelect={(e) => {
+                              e.preventDefault()
+                              handleDeleteClick(note)
+                            }}
+                            className="text-destructive focus:text-destructive cursor-pointer"
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            <TypographyBodyMedium>Delete</TypographyBodyMedium>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+                  <TypographyBody className="mt-4">{note.note}</TypographyBody>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         ) : (
           <div className="flex flex-col items-center justify-center w-full mt-12">
             <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
@@ -297,7 +298,7 @@ const NotesTabCN = ({
         noteDetails.length > 0 && (
           <Button
             variant="ghost"
-            className="mt-2 gap-2"
+            className="fixed bottom-7 right-[25vw] gap-2 bg-background border border-border shadow-lg z-50 hover:bg-muted"
             onClick={() => setShowAddNotes(true)}
           >
             <Plus className="h-4 w-4" />

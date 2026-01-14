@@ -87,14 +87,23 @@ function SelectedUserDetails({
       selectedImage: '/svgIcons/selectedTeam.svg',
       unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg',
     },
-    // {
-    //   id: 8,
-    //   name: 'Account',
-    //   selectedImage: '/svgIcons/selectedProfileCircle.svg',
-    //   unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
-    // },
+   
 
   ]
+
+  let accountMenu = 
+    {
+      id: 8,
+      name: 'Account',
+      selectedImage: '/svgIcons/selectedProfileCircle.svg',
+      unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
+    }
+  
+
+  if (!agencyUser) {
+    //push account menu to the end of the menu bar
+    manuBar.push(accountMenu)
+  }
 
   console.log('Status of agency user', agencyUser)
 
@@ -236,6 +245,7 @@ function SelectedUserDetails({
   }
 
   const handleManuClick = (item) => {
+    console.log('item', item)
     setSelectedManu(item)
     // Store tab state for restoration (only for admin/agency users)
     storeTabState(item.name)
@@ -425,7 +435,7 @@ function SelectedUserDetails({
           <div className="flex flex-row items-start w-full ">
             <div className={`flex border-r border-[#00000015]  flex-col items-start justify-start w-2/12 px-6 ${(from === "admin" || from === "subaccount") ? "":"h-full" } ${agencyUser ? 'h-screen' : 'h-auto'}`}>
             {agencyUser && (
-              <div className="w-full flex flex-col gap-2">
+              <div className="w-full flex flex-col gap-2 pt-4">
                 {/* Show company name if no logo for subaccount users */}
                 {user && (user?.userRole === "AgencySubAccount" || user?.userRole === "Invitee") && user?.agencyBranding && !user.agencyBranding.logoUrl && user.agencyBranding.companyName ? (
                   <div className="w-full text-left pl-6" style={{ marginLeft: "-8px" }}>
@@ -435,7 +445,7 @@ function SelectedUserDetails({
                   </div>
                 ) : (
                   /* AppLogo handles logo display based on hostname */
-                  <div className="flex justify-start pt-4">
+                  <div className="flex justify-start ">
                     <Image
                       src={user?.agencyBranding?.logoUrl}
                       alt="logo"
@@ -544,13 +554,8 @@ function SelectedUserDetails({
               {agencyUser && (
                 <div onClick={() => {
                   console.log('clicked')
-                  const menu = {
-                    id: 10,
-                    name: 'Account',
-                    // selectedImage: '/svgIcons/selectdDashboardIcon.svg',
-                    // unSelectedImage: '/svgIcons/unSelectedDashboardIcon.svg',
-                  }
-                  setSelectedManu(menu)
+                  
+                  handleManuClick(accountMenu)
                   //set account info to the right side of the screen
                   // setAccountInfo(true)
                 }}className="w-full flex flex-row items-start gap-3 py-2 truncate outline-none text-start  no-underline hover:no-underline cursor-pointer" //border border-[#00000015] rounded-[10px]

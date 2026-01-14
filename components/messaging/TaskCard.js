@@ -5,7 +5,7 @@ import { CalendarIcon, Clock, Flag, MoreVertical, Pin, ChevronDown } from 'lucid
 import moment from 'moment'
 import DropdownCn from '@/components/dashboard/leads/extras/DropdownCn'
 import MultiSelectDropdownCn from '@/components/dashboard/leads/extras/MultiSelectDropdownCn'
-import { TypographyBody, TypographyBodySemibold, TypographyCaption, TypographyBodyMedium } from '@/lib/typography'
+import { TypographyBody, TypographyBodySemibold, TypographyCaption } from '@/lib/typography'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
@@ -228,7 +228,7 @@ const TaskCard = ({
       </div> */}
 
       {/* Action Row - Assignees, Due Date, Status (bottom right) */}
-      <div className="flex items-center gap-2 flex-wrap mt-3">
+      <div className="flex items-center gap-2 justify-between mt-3">
         {/* Assignees - Use MultiSelectDropdownCn with visible borders */}
         <MultiSelectDropdownCn
           label="Assign"
@@ -275,14 +275,14 @@ const TaskCard = ({
                   Saving...
                 </TypographyBody>
               ) : (
-                <TypographyBody
+                <TypographyCaption
                   className={cn(
                     'pointer-events-none',
                     dueDateInfo?.isPastDue ? 'text-red-500 font-semibold' : 'text-muted-foreground',
                   )}
                 >
                   {dueDateInfo ? dueDateInfo.text : 'Due Date'}
-                </TypographyBody>
+                </TypographyCaption>
               )}
               <ChevronDown className="h-3 w-3 text-muted-foreground ml-1 pointer-events-none" />
             </button>
@@ -387,7 +387,7 @@ const TaskCard = ({
         </Popover>
 
         {/* Status - Bottom Right */}
-        <div className="ml-auto">
+        <div className="">
           <DropdownCn
             label={
               <div className="flex items-center gap-2">
@@ -395,7 +395,7 @@ const TaskCard = ({
                   className="w-2 h-2 rounded-full" 
                   style={{ backgroundColor: statusColors[task.status] || '#9CA3AF' }}
                 />
-                <TypographyBodyMedium>{statusDisplayText[task.status] || task.status}</TypographyBodyMedium>
+                <TypographyCaption>{statusDisplayText[task.status] || task.status}</TypographyCaption>
               </div>
             }
             options={statusOptions.map((opt) => ({

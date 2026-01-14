@@ -1,5 +1,8 @@
+import { renderBrandedIcon } from '@/utilities/iconMasking'
 import moment from 'moment'
 import Image from 'next/image'
+import { Checkbox } from '@/components/ui/checkbox'
+
 import React, { useEffect, useState } from 'react'
 
 function AgencyCancelConfirmation({
@@ -39,7 +42,7 @@ function AgencyCancelConfirmation({
             .filter((text) => text) // Remove any undefined/null values
 
           console.log('🔍 [CANCELATION FLOW] Features to lose:', featuresToLose)
-          
+
           // Convert to the format expected by the UI
           const planFeatures = featuresToLose.map((feature, index) => ({
             id: index + 1,
@@ -91,13 +94,9 @@ function AgencyCancelConfirmation({
         }}
       >
         <div className="flex flex-col items-center px-1 lg:px-0 pb-3 lg:pb-4">
-          <Image
-            src={'/otherAssets/IconAccount.png'}
-            height={48}
-            width={48}
-            alt="*"
-            className="h-10 w-10 lg:h-12 lg:w-12"
-          />
+
+           {renderBrandedIcon('/otherAssets/IconAccount.png', 48, 48)}
+           
           <div className="text-center mt-1 lg:mt-2 text-lg lg:text-xl font-semibold">
             Confirm Your Cancellation
           </div>
@@ -116,7 +115,7 @@ function AgencyCancelConfirmation({
             {loading ? (
               <div className="flex items-center justify-center w-full mt-3 lg:mt-4 py-6 lg:py-8">
                 <div className="text-center">
-                  <div className="animate-spin rounded-full h-6 w-6 lg:h-8 lg:w-8 border-b-2 border-purple mx-auto mb-2"></div>
+                  <div className="animate-spin rounded-full h-6 w-6 lg:h-8 lg:w-8 border-b-2 border-brand-primary mx-auto mb-2"></div>
                   <div className="text-xs lg:text-sm text-gray-600">
                     Loading features...
                   </div>
@@ -130,13 +129,10 @@ function AgencyCancelConfirmation({
                       key={index}
                       className="flex flex-row items-center gap-1.5 lg:gap-2 flex-1 basis-1/2 min-w-0"
                     >
-                      <Image
-                        src="/svgIcons/selectedTickBtn.svg"
-                        height={24}
-                        width={24}
-                        alt="cross"
-                        className="flex-shrink-0 h-5 w-5 lg:h-6 lg:w-6"
-                      />
+                    <Checkbox
+                    checked={true}
+                    className="!rounded-full h-4 w-4 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                  />
                       <div className="text-xs lg:text-[13px] font-normal whitespace-nowrap overflow-hidden text-ellipsis">
                         {item.title}
                       </div>
@@ -158,7 +154,7 @@ function AgencyCancelConfirmation({
           >
             {confirmChecked ? (
               <div
-                className="bg-purple flex flex-row items-center justify-center rounded"
+                className="bg-brand-primary flex flex-row items-center justify-center rounded"
                 style={{ height: '20px', width: '20px' }}
               >
                 <Image
@@ -183,7 +179,7 @@ function AgencyCancelConfirmation({
         </div>
 
         <button
-          className={`w-full flex items-center rounded-lg justify-center border h-[44px] lg:h-[50px] ${!confirmChecked ? 'bg-gray-300 text-black' : 'bg-purple text-white'}`}
+          className={`w-full flex items-center rounded-lg justify-center border h-[44px] lg:h-[50px] ${!confirmChecked ? 'bg-gray-300 text-black' : 'bg-brand-primary text-white'}`}
           style={{
             fontWeight: '400',
             fontSize: 14,
