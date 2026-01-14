@@ -25,6 +25,7 @@ export default function AgentSelectSnackMessage({
   const timerRef = useRef(null)
   const prevIsVisibleRef = useRef(false)
   const lastShownMessageKeyRef = useRef(null)
+  const showToastTimeoutRef = useRef(null)
 
   useEffect(() => {
     // Dismiss existing toast when visibility becomes false
@@ -36,6 +37,10 @@ export default function AgentSelectSnackMessage({
       if (timerRef.current) {
         clearTimeout(timerRef.current)
         timerRef.current = null
+      }
+      if (showToastTimeoutRef.current) {
+        clearTimeout(showToastTimeoutRef.current)
+        showToastTimeoutRef.current = null
       }
       lastMessageRef.current = null
       lastShownMessageKeyRef.current = null
@@ -52,67 +57,79 @@ export default function AgentSelectSnackMessage({
 
     // Show toast only on visibility transition or message change
     if ((isVisibilityTransition || isMessageChange) && (message || title)) {
-      // Always dismiss any existing toast before showing a new one
-      // This prevents stacking when messages appear quickly
+      // Always dismiss ALL existing toasts before showing a new one
+      // This prevents overlapping when multiple snack messages appear simultaneously
+      // Using toast.dismiss() without ID dismisses all toasts
+      toast.dismiss()
+      
+      // Also clear our own refs
       if (toastIdRef.current) {
-        toast.dismiss(toastIdRef.current)
         toastIdRef.current = null
       }
       if (timerRef.current) {
         clearTimeout(timerRef.current)
         timerRef.current = null
       }
-
-      const toastMessage = title || message
-      const toastDescription = title ? message : null
-
-      const toastOptions = {
-        // duration: time,
-        // description: toastDescription,
-        // style: {
-        //   width: 'fit-content',
-        //   maxWidth: '90vw',
-        //   minWidth: 'fit-content',
-        //   whiteSpace: 'nowrap',
-        // },
-        // className: 'toast-no-wrap',
+      if (showToastTimeoutRef.current) {
+        clearTimeout(showToastTimeoutRef.current)
+        showToastTimeoutRef.current = null
       }
 
-      // Use typed toast functions - they will use the custom icons from Toaster component
-      let toastId
-      switch (type) {
-        case SnackbarTypes.Success:
-          toastId = toast.success(toastMessage, toastOptions)
-          break
-        case SnackbarTypes.Error:
-          toastId = toast.error(toastMessage, toastOptions)
-          break
-        case SnackbarTypes.Warning:
-          toastId = toast.warning(toastMessage, toastOptions)
-          break
-        case SnackbarTypes.Loading:
-          toastId = toast.loading(toastMessage, toastOptions)
-          break
-        default:
-          toastId = toast(toastMessage, toastOptions)
-      }
+      // Small delay to ensure dismiss animation completes before showing new toast
+      // This prevents visual overlap
+      showToastTimeoutRef.current = setTimeout(() => {
+        const toastMessage = title || message
+        const toastDescription = title ? message : null
 
-      toastIdRef.current = toastId
-      lastMessageRef.current = messageKey
-      lastShownMessageKeyRef.current = messageKey
-      prevIsVisibleRef.current = true
+        const toastOptions = {
+          // duration: time,
+          // description: toastDescription,
+          // style: {
+          //   width: 'fit-content',
+          //   maxWidth: '90vw',
+          //   minWidth: 'fit-content',
+          //   whiteSpace: 'nowrap',
+          // },
+          // className: 'toast-no-wrap',
+        }
 
-      // Auto-dismiss after timer and call hide callback
-      timerRef.current = setTimeout(() => {
-        if (toastIdRef.current) {
-          // toast.dismiss(toastIdRef.current);
-          toastIdRef.current = null
+        // Use typed toast functions - they will use the custom icons from Toaster component
+        let toastId
+        switch (type) {
+          case SnackbarTypes.Success:
+            toastId = toast.success(toastMessage, toastOptions)
+            break
+          case SnackbarTypes.Error:
+            toastId = toast.error(toastMessage, toastOptions)
+            break
+          case SnackbarTypes.Warning:
+            toastId = toast.warning(toastMessage, toastOptions)
+            break
+          case SnackbarTypes.Loading:
+            toastId = toast.loading(toastMessage, toastOptions)
+            break
+          default:
+            toastId = toast(toastMessage, toastOptions)
         }
-        if (hide) {
-          hide()
-        }
-        timerRef.current = null
-      }, time)
+
+        toastIdRef.current = toastId
+        lastMessageRef.current = messageKey
+        lastShownMessageKeyRef.current = messageKey
+        prevIsVisibleRef.current = true
+
+        // Auto-dismiss after timer and call hide callback
+        timerRef.current = setTimeout(() => {
+          if (toastIdRef.current) {
+            // toast.dismiss(toastIdRef.current);
+            toastIdRef.current = null
+          }
+          if (hide) {
+            hide()
+          }
+          timerRef.current = null
+        }, time)
+        showToastTimeoutRef.current = null
+      }, 100) // 100ms delay to allow dismiss animation to complete
     } else if (isVisible) {
       // Update prevIsVisibleRef even if we don't show toast
       // This prevents re-showing when other props change
@@ -123,6 +140,10 @@ export default function AgentSelectSnackMessage({
       if (timerRef.current) {
         clearTimeout(timerRef.current)
         timerRef.current = null
+      }
+      if (showToastTimeoutRef.current) {
+        clearTimeout(showToastTimeoutRef.current)
+        showToastTimeoutRef.current = null
       }
     }
     // Only depend on isVisible and message content, not on hide callback or other props
