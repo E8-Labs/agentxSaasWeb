@@ -1660,7 +1660,13 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const handleFindeNumbers = async (number) => {
     try {
       setFindeNumberLoader(true)
-      const ApiPath = `${Apis.findPhoneNumber}?areaCode=${number}`
+      let ApiPath = `${Apis.findPhoneNumber}?areaCode=${number}`
+      
+      // Add userId parameter if selectedUser is provided (for admin/agency searching on behalf of users)
+      if (selectedUser?.id) {
+        ApiPath += `&userId=${selectedUser.id}`
+      }
+      
       let AuthToken = null
       const LocalData = localStorage.getItem('User')
       if (LocalData) {
