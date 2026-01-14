@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from 'react'
 import PhoneInput from 'react-phone-input-2'
 
 import Apis from '@/components/apis/Apis'
+import getProfileDetails from '@/components/apis/GetProfile'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
@@ -224,13 +225,13 @@ export default function CreateSubAccountModal({
   const [hasAgencyUseAccount, setHasAgencyUseAccount] = useState(false)
   const [internalAccountsCount, setInternalAccountsCount] = useState(0)
 
-  // Check if agency already has an internal account and agency_use account
-  useEffect(() => {
+  // Function to refresh profile data and update internal account count
+  const refreshProfileData = async () => {
     try {
-      const userData = localStorage.getItem('User')
-      if (userData) {
-        const parsedUser = JSON.parse(userData)
-        const agencyProfile = parsedUser?.user
+      console.log('🔄 Refreshing profile data in CreateSubAccountModal...')
+      const profileResponse = await getProfileDetails()
+      if (profileResponse?.data?.status === true) {
+        const agencyProfile = profileResponse.data.data
         const hasInternal = agencyProfile?.hasInternalAccount || false
         const hasAgencyUse = agencyProfile?.hasAgencyUseAccount || false
         const internalCount = agencyProfile?.internalAccountsCount || 0
@@ -243,9 +244,67 @@ export default function CreateSubAccountModal({
         if (internalCount >= 3) {
           setIsInternalAccount(false)
         }
+
+        // If agency already has an agency_use account, reset the agency_use flag and close modal
+        if (hasAgencyUse) {
+          setIsAgencyUse(false)
+          setShowAgencyUseModal(false)
+        }
+        
+        console.log('✅ Profile data refreshed:', { hasInternal, hasAgencyUse, internalCount })
       }
     } catch (error) {
-      console.error('Error checking agency account info:', error)
+      console.error('❌ Error refreshing profile data:', error)
+      // Fallback to localStorage if API call fails
+      try {
+        const userData = localStorage.getItem('User')
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          const agencyProfile = parsedUser?.user
+          const hasInternal = agencyProfile?.hasInternalAccount || false
+          const hasAgencyUse = agencyProfile?.hasAgencyUseAccount || false
+          const internalCount = agencyProfile?.internalAccountsCount || 0
+
+          setHasInternalAccount(hasInternal)
+          setHasAgencyUseAccount(hasAgencyUse)
+          setInternalAccountsCount(internalCount)
+
+          if (internalCount >= 3) {
+            setIsInternalAccount(false)
+          }
+
+          if (hasAgencyUse) {
+            setIsAgencyUse(false)
+            setShowAgencyUseModal(false)
+          }
+        }
+      } catch (localError) {
+        console.error('Error reading from localStorage:', localError)
+      }
+    }
+  }
+
+  // Check if agency already has an internal account and agency_use account
+  useEffect(() => {
+    // Refresh profile data when modal opens to get latest count
+    refreshProfileData()
+    
+    // Listen for storage events to refresh when localStorage is updated elsewhere
+    const handleStorageChange = () => {
+      refreshProfileData()
+    }
+    
+    // Listen for custom event when subaccount is created/deleted
+    const handleSubAccountUpdate = () => {
+      refreshProfileData()
+    }
+    
+    window.addEventListener('storage', handleStorageChange)
+    window.addEventListener('SubAccountUpdated', handleSubAccountUpdate)
+    
+    return () => {
+      window.removeEventListener('storage', handleStorageChange)
+      window.removeEventListener('SubAccountUpdated', handleSubAccountUpdate)
     }
   }, [])
 
@@ -253,13 +312,16 @@ export default function CreateSubAccountModal({
   const handleInternalAccountToggle = (checked) => {
     setIsInternalAccount(checked)
 
-    // If turning ON internal account for the first time (no existing internal accounts)
-    // and agency doesn't already have an agency_use account, show the modal
-    if (checked && internalAccountsCount === 0 && !hasAgencyUseAccount) {
+    // If turning ON internal account and agency doesn't already have an agency_use account, show the modal
+    // This allows designating any internal account as agency_use, as long as one doesn't already exist
+    if (checked && !hasAgencyUseAccount) {
       setShowAgencyUseModal(true)
     } else {
-      // For subsequent internal accounts or if agency_use already exists, don't show modal
+      // If agency_use already exists or toggle is turned off, don't show modal and reset agency_use flag
       setIsAgencyUse(false)
+      if (!checked) {
+        setShowAgencyUseModal(false)
+      }
     }
   }
 
@@ -619,20 +681,20 @@ export default function CreateSubAccountModal({
   const styles = {
     inputs: {
       fontWeight: '500',
-      fontSize: '15px',
+      fontSize: 'clamp(0.875rem, 2vw, 0.9375rem)', // 14px to 15px
     },
     headings: {
       fontWeight: '600',
-      fontSize: '17px',
+      fontSize: 'clamp(1rem, 2.5vw, 1.0625rem)', // 16px to 17px
     },
     errmsg: {
-      fontSize: 12,
+      fontSize: 'clamp(0.75rem, 1.8vw, 0.75rem)', // 12px responsive
       fontWeight: '500',
       borderRadius: '7px',
     },
     subheading: {
       fontWeight: '500',
-      fontSize: 15,
+      fontSize: 'clamp(0.875rem, 2vw, 0.9375rem)', // 14px to 15px
     },
   }
 
@@ -655,34 +717,44 @@ export default function CreateSubAccountModal({
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: { xs: '90%', sm: 500 },
+            width: { xs: '90%', sm: '85%', md: '75%', lg: 600 },
+            maxWidth: { xs: '90%', sm: '85%', md: '75%', lg: 600 },
             bgcolor: 'background.paper',
             borderRadius: 2,
             boxShadow: 24,
-            p: 4,
+            p: { xs: 2, sm: 3, md: 4 },
           }}
         >
           <h2
             id="agency-use-modal-title"
-            className="text-xl font-semibold text-gray-900 dark:text-white mb-4"
+            className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4"
+            style={{
+              fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
+            }}
           >
             Make this account for Agency Use?
           </h2>
           <p
             id="agency-use-modal-description"
-            className="text-sm text-gray-600 dark:text-gray-400 mb-6"
+            className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-4 sm:mb-6"
+            style={{
+              fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
+            }}
           >
             Agency Use accounts are special internal accounts that automatically
             track subaccount registrations and subscriptions in a dedicated
             pipeline. Only one internal account can be designated for agency use.
           </p>
-          <div className="flex gap-3 justify-end">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center">
             <button
               onClick={() => {
                 setIsAgencyUse(false)
                 setShowAgencyUseModal(false)
               }}
-              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="px-3 sm:px-4 py-2 text-xs sm:text-sm md:text-base text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+              style={{
+                fontSize: 'clamp(0.75rem, 2vw, 1rem)',
+              }}
             >
               No, just create internal account
             </button>
@@ -691,7 +763,10 @@ export default function CreateSubAccountModal({
                 setIsAgencyUse(true)
                 setShowAgencyUseModal(false)
               }}
-              className="px-4 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/80"
+              className="px-3 sm:px-4 py-2 text-xs sm:text-sm md:text-base bg-brand-primary text-white rounded-lg hover:bg-brand-primary/80"
+              style={{
+                fontSize: 'clamp(0.75rem, 2vw, 1rem)',
+              }}
             >
               Yes, make it agency use
             </button>
@@ -717,7 +792,12 @@ export default function CreateSubAccountModal({
         />
         <div className="flex justify-between items-center mb-4">
 
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <h2 
+            className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white"
+            style={{
+              fontSize: 'clamp(1.125rem, 3vw, 1.25rem)',
+            }}
+          >
             Create SubAccount
           </h2>
 
@@ -731,7 +811,12 @@ export default function CreateSubAccountModal({
           <div className="flex items-center gap-2">
             {internalAccountsCount < 3 && (
               <>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label 
+              className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300"
+              style={{
+                fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
+              }}
+            >
                 {internalAccountsCount}/3 Internal Use
                 </label>
                 <Switch
@@ -760,7 +845,12 @@ export default function CreateSubAccountModal({
                 title="Maximum 3 internal accounts allowed per agency"
                 arrow
               >
-                <span className="text-sm text-gray-500 dark:text-gray-400">
+                <span 
+                  className="text-xs sm:text-sm text-gray-500 dark:text-gray-400"
+                  style={{
+                    fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
+                  }}
+                >
                   Internal accounts limit reached (3/3)
                 </span>
               </Tooltip>
@@ -1350,16 +1440,22 @@ export default function CreateSubAccountModal({
                 */}
       </div>
 
-      <div className="flex justify-between mt-8">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-0 justify-between mt-6 sm:mt-8">
         <button
           onClick={onClose}
-          className="w-1/4 text-center text-brand-primary border rounded-lg h-[40px]"
+          className="w-full sm:w-1/4 text-center text-brand-primary border rounded-lg h-[40px] text-sm sm:text-base"
+          style={{
+            fontSize: 'clamp(0.875rem, 2vw, 1rem)',
+          }}
         >
           Cancel
         </button>
         <button
           disabled={shouldContinue}
-          className={`w-1/3 hover:bg-brand-primary/80 px-6 h-[40px] rounded-lg ${shouldContinue ? 'bg-[#00000020] text-black' : 'bg-brand-primary text-white'}`}
+          className={`w-full sm:w-1/3 hover:bg-brand-primary/80 px-4 sm:px-6 h-[40px] rounded-lg text-sm sm:text-base ${shouldContinue ? 'bg-[#00000020] text-black' : 'bg-brand-primary text-white'}`}
+          style={{
+            fontSize: 'clamp(0.875rem, 2vw, 1rem)',
+          }}
           onClick={() => {
             handleContinue()
           }}

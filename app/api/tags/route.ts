@@ -17,24 +17,18 @@ export async function GET(req: NextRequest) {
     }
 
     const searchParams = new URL(req.url).searchParams
-    const type = searchParams.get('type') || 'manual' // Default to 'manual' for backward compatibility
     const userId = searchParams.get('userId')
     
     // Build query string
-    // If type is 'all', don't include type parameter (fetch all types)
-    // Otherwise, include the type parameter (defaults to 'manual' for backward compatibility)
     let queryString = ''
-    if (type !== 'all') {
-      queryString = `type=${type}`
-    }
     if (userId) {
-      queryString += queryString ? `&userId=${userId}` : `userId=${userId}`
+      queryString = `userId=${userId}`
     }
     
     // Only append query string if we have parameters
     const targetUrl = queryString 
-      ? `${BASE_API_URL}api/leads/getSheets?${queryString}`
-      : `${BASE_API_URL}api/leads/getSheets`
+      ? `${BASE_API_URL}api/leads/getTagsList?${queryString}`
+      : `${BASE_API_URL}api/leads/getTagsList`
 
     const response = await fetch(targetUrl, {
       method: 'GET',
@@ -49,7 +43,7 @@ export async function GET(req: NextRequest) {
 
     return NextResponse.json(data, { status: response.status })
   } catch (error: any) {
-    console.error('Error in GET /api/smartlists:', error)
+    console.error('Error in GET /api/tags:', error)
     return NextResponse.json(
       {
         status: false,
@@ -60,4 +54,3 @@ export async function GET(req: NextRequest) {
     )
   }
 }
-

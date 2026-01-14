@@ -716,6 +716,14 @@ const Pipeline1 = () => {
         )
         const pipelineDetails = response.data.data
 
+        // Log pipeline type for debugging
+        console.log('🔍 Pipeline Type:', pipelineDetails.pipelineType)
+        console.log('🔍 Pipeline Details:', {
+          id: pipelineDetails.id,
+          title: pipelineDetails.title,
+          pipelineType: pipelineDetails.pipelineType,
+        })
+
         //  Merge updated details with existing pipelines list
         let updatedPipelines = PipeLines?.map((p) =>
           p.id === pipeline.id ? { ...p, ...pipelineDetails } : p,
@@ -731,6 +739,23 @@ const Pipeline1 = () => {
             'leads list in getpipeline details is',
             pipelineDetails.leads,
           )
+          
+          // Log detailed lead information for agency_use pipeline
+          if (pipelineDetails.pipelineType === 'agency_use') {
+            console.log('🔍 Agency Use Pipeline - Leads Data:')
+            pipelineDetails.leads?.forEach((lead, index) => {
+              console.log(`🔍 Lead ${index + 1}:`, {
+                leadId: lead.lead?.id,
+                firstName: lead.lead?.firstName,
+                email: lead.lead?.email,
+                phone: lead.lead?.phone,
+                agencyUseInfo: lead.lead?.agencyUseInfo,
+                planPrice: lead.lead?.agencyUseInfo?.planPrice,
+                fullLead: lead.lead,
+              })
+            })
+          }
+          
           //in admin side i was unable to find this function now if getting error related to leadscount in stage in admin and agency side then first find getpipeline details
           setLeadsCountInStage(pipelineDetails.leadsCountInStage)
           setReservedLeadsCountInStage(pipelineDetails.leadsCountInStage)
@@ -2067,58 +2092,62 @@ const Pipeline1 = () => {
                         New Pipeline
                       </span>
                     </button>
-                    <div className="w-full flex flex-row mt-4">
-                      <button
-                        className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                        style={styles.paragraph}
-                        onClick={() => {
-                          setShowRenamePipelinePopup(true)
-                          setRenamePipeline(SelectedPipeline.title)
-                        }}
-                      >
-                        <Image
-                          src={'/assets/editPen.png'}
-                          height={15}
-                          width={15}
-                          alt="*"
-                        />
-                        Rename
-                      </button>
-                    </div>
-                    <div className="w-full flex flex-row mt-4">
-                      <button
-                        className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                        style={styles.paragraph}
-                        onClick={() => {
-                          setAddNewStageModal(true)
-                        }}
-                      >
-                        <Image
-                          src={'/svgIcons/arrowBlack.svg'}
-                          height={18}
-                          width={15}
-                          alt="*"
-                        />
-                        Add Stage
-                      </button>
-                    </div>
-                    <div className="w-full flex flex-row mt-4">
-                      <button
-                        className="text-black flex flex-row items-center gap-4 me-2 outline-none"
-                        style={styles.paragraph}
-                        onClick={() => {
-                          setShowStagesPopup(true)
-                        }}
-                      >
-                        <Image
-                          src={'/assets/list.png'}
-                          height={18}
-                          width={15}
-                          alt="*"
-                        />
-                        Rearrange Stage
-                      </button>
-                    </div>
+                    {SelectedPipeline?.pipelineType !== 'agency_use' && (
+                      <>
+                        <div className="w-full flex flex-row mt-4">
+                          <button
+                            className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                            style={styles.paragraph}
+                            onClick={() => {
+                              setShowRenamePipelinePopup(true)
+                              setRenamePipeline(SelectedPipeline.title)
+                            }}
+                          >
+                            <Image
+                              src={'/assets/editPen.png'}
+                              height={15}
+                              width={15}
+                              alt="*"
+                            />
+                            Rename
+                          </button>
+                        </div>
+                        <div className="w-full flex flex-row mt-4">
+                          <button
+                            className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                            style={styles.paragraph}
+                            onClick={() => {
+                              setAddNewStageModal(true)
+                            }}
+                          >
+                            <Image
+                              src={'/svgIcons/arrowBlack.svg'}
+                              height={18}
+                              width={15}
+                              alt="*"
+                            />
+                            Add Stage
+                          </button>
+                        </div>
+                        <div className="w-full flex flex-row mt-4">
+                          <button
+                            className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                            style={styles.paragraph}
+                            onClick={() => {
+                              setShowStagesPopup(true)
+                            }}
+                          >
+                            <Image
+                              src={'/assets/list.png'}
+                              height={18}
+                              width={15}
+                              alt="*"
+                            />
+                            Rearrange Stage
+                          </button>
+                        </div>
+                      </>
+                    )}
 
                     <button
                       className="text-red flex flex-row items-center gap-4 mt-4 me-2 outline-none"
@@ -2278,27 +2307,29 @@ const Pipeline1 = () => {
                         >
                           <div className="w-34 px-4 py-3 bg-white rounded-[10px] shadow-[0px_8px_24.399999618530273px_0px_rgba(0,0,0,0.10)] inline-flex flex-col justify-start items-start gap-4">
                             <div className="self-stretch flex flex-col justify-start items-start gap-2">
-                              <button
-                                className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
-                                onClick={() => {
-                                  setShowRenamePopup(true)
-                                  // //console.log;
-                                  setRenameStage(selectedStage.stageTitle)
-                                  setUpdateStageColor(
-                                    selectedStage.defaultColor,
-                                  )
-                                }}
-                              >
-                                <Image
-                                  src={'/assets/editPen.png'}
-                                  height={16}
-                                  width={16}
-                                  alt="*"
-                                />
-                                <div className="w-36 text-start justify-start text-black text-base font-normal font-['Inter'] leading-normal">
-                                  Rename
-                                </div>
-                              </button>
+                              {SelectedPipeline?.pipelineType !== 'agency_use' && (
+                                <button
+                                  className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
+                                  onClick={() => {
+                                    setShowRenamePopup(true)
+                                    // //console.log;
+                                    setRenameStage(selectedStage.stageTitle)
+                                    setUpdateStageColor(
+                                      selectedStage.defaultColor,
+                                    )
+                                  }}
+                                >
+                                  <Image
+                                    src={'/assets/editPen.png'}
+                                    height={16}
+                                    width={16}
+                                    alt="*"
+                                  />
+                                  <div className="w-36 text-start justify-start text-black text-base font-normal font-['Inter'] leading-normal">
+                                    Rename
+                                  </div>
+                                </button>
+                              )}
                               <button
                                 className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
                                 onClick={() => colorPickerRef.current.click()}
@@ -2450,7 +2481,7 @@ const Pipeline1 = () => {
                                   </div>
                                 </button>
                               )}
-                              {!showDelBtn && (
+                              {!showDelBtn && SelectedPipeline?.pipelineType !== 'agency_use' && (
                                 <button
                                   className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
                                   onClick={() => {
@@ -2594,14 +2625,42 @@ const Pipeline1 = () => {
                                         )}
                                     </div>
                                     <div className="flex flex-row items-center justify-between w-full mt-1">
-                                      <div
-                                        className="text-[#00000060]"
-                                        style={styles.agentName}
-                                      >
-                                        {(lead?.lead?.email
-                                          ? lead?.lead?.email?.slice(0, 10) +
-                                            '...'
-                                          : '') || ''}
+                                      <div className="flex flex-col gap-1">
+                                        <div
+                                          className="text-[#00000060]"
+                                          style={styles.agentName}
+                                        >
+                                          {(lead?.lead?.email
+                                            ? lead?.lead?.email?.slice(0, 10) +
+                                              '...'
+                                            : '') || ''}
+                                        </div>
+                                        {/* Display plan price for agency_use pipeline leads */}
+                                        {(() => {
+                                          const isAgencyUse = SelectedPipeline?.pipelineType === 'agency_use'
+                                          const planPrice = lead?.lead?.agencyUseInfo?.planPrice
+                                          
+                                          // Debug logging
+                                          if (isAgencyUse) {
+                                            console.log('🔍 Rendering lead card:', {
+                                              leadId: lead?.lead?.id,
+                                              leadName: lead?.lead?.firstName,
+                                              isAgencyUse,
+                                              planPrice,
+                                              agencyUseInfo: lead?.lead?.agencyUseInfo,
+                                              SelectedPipelineType: SelectedPipeline?.pipelineType,
+                                            })
+                                          }
+                                          
+                                          return isAgencyUse && planPrice ? (
+                                            <div
+                                              className="text-green-600 font-semibold text-xs"
+                                              style={{ fontSize: '11px' }}
+                                            >
+                                              ${planPrice}
+                                            </div>
+                                          ) : null
+                                        })()}
                                       </div>
                                       {
                                         lead.agent && (

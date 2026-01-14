@@ -372,6 +372,7 @@ const ThreadsList = ({
           }
           setShowNewContactDrawer(false)
         }}
+        selectedUser={selectedUser}
       />
     </div>
   )

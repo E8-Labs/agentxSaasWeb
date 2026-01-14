@@ -76,7 +76,7 @@ export default function SlideModal({ showModal, handleClose, selectedAgency }) {
         // backgroundColor: "red"
       }}
     >
-      <Box className="rounded-xl max-w-2xl w-full shadow-lg max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
+      <Box className="rounded-xl w-[95%] sm:w-[90%] md:w-[80%] lg:max-w-2xl max-w-4xl shadow-lg max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
         <div className="relative flex justify-center items-center w-full">
           <AnimatePresence initial={false} custom={direction}>
             {currentIndex === 0 && (

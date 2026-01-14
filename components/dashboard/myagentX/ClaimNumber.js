@@ -178,7 +178,13 @@ const ClaimNumber = ({
     const currentRequest = ++requestCounter.current
     try {
       setFindeNumberLoader(true)
-      const ApiPath = `${Apis.findPhoneNumber}?areaCode=${number}`
+      let ApiPath = `${Apis.findPhoneNumber}?areaCode=${number}`
+      
+      // Add userId parameter if selectedUSer is provided (for agency/admin searching on behalf of subaccounts)
+      if (selectedUSer?.id) {
+        ApiPath += `&userId=${selectedUSer.id}`
+      }
+      
       let AuthToken = null
       const LocalData = localStorage.getItem('User')
       if (LocalData) {
