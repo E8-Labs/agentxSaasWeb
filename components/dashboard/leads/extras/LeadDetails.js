@@ -2539,17 +2539,25 @@ const LeadDetails = ({
             open={showDelModal}
             onClose={() => setShowDelModal(false)}
             closeAfterTransition
+            sx={{
+              zIndex: 1600, // Higher than Drawer (1400) to appear on top
+            }}
             BackdropProps={{
               timeout: 1000,
               sx: {
                 backgroundColor: '#00000020',
+                zIndex: 1600, // Match Modal z-index
                 // //backdropFilter: "blur(5px)",
               },
             }}
           >
             <Box
-              className="lg:w-4/12 sm:w-4/12 w-6/12"
-              sx={styles.modalsStyle}
+              className="lg:w-4/12 sm:w-4/12 w-6/12 "
+              sx={{
+                ...styles.modalsStyle,
+                zIndex: 1601, // Higher than Modal backdrop (1600) to appear on top
+                position: 'relative',
+              }}
             >
               <div className="flex flex-row justify-center w-full">
                 <div
