@@ -2453,18 +2453,34 @@ const AdminLeadDetails = ({
         open={showDelModal}
         onClose={() => setShowDelModal(false)}
         closeAfterTransition
+        disablePortal={false}
+        slotProps={{
+          root: {
+            style: {
+              zIndex: 1500,
+            },
+          },
+        }}
+        sx={{
+          zIndex: 1500, // Higher than drawer modal (default is 1300)
+        }}
         BackdropProps={{
           timeout: 1000,
           sx: {
             backgroundColor: '#00000020',
+            zIndex: 1500, // Match Modal z-index
           },
         }}
       >
         <Box
           className="lg:w-4/12 sm:w-4/12 w-6/12"
-          sx={styles.modalsStyle}
+          sx={{
+            ...styles.modalsStyle,
+            zIndex: 1501, // Higher than backdrop (1500) to appear on top
+            position: 'relative',
+          }}
         >
-          <div className="flex flex-row justify-center w-full">
+            <div className="flex flex-row justify-center w-full">
             <div
               className="w-full"
               style={{

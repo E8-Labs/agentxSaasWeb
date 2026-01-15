@@ -341,7 +341,7 @@ const AgentsListPaginated = ({
                           }}
                         />
                       ) : (
-                        getAgentsListImage(item)
+                        getAgentsListImage(item, 60, 60)
                       )}
                       <input
                         type="file"

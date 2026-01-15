@@ -683,10 +683,10 @@ const LeadDetails = ({
       const Data = JSON.parse(localDetails)
       const AuthToken = Data.token
 
-      if (!selectedLeadsDetails?.sheetId || !selectedLeadsDetails?.phone) {
-        showSnackbar('Missing required lead information', SnackbarTypes.Error)
-        return
-      }
+      // if (!selectedLeadsDetails?.sheetId || !selectedLeadsDetails?.phone) {
+      //   showSnackbar('Missing required lead information', SnackbarTypes.Error)
+      //   return
+      // }
 
       const response = await fetch('/api/leads/update', {
         method: 'PUT',
@@ -698,6 +698,7 @@ const LeadDetails = ({
           smartListId: selectedLeadsDetails.sheetId,
           phoneNumber: selectedLeadsDetails.phone,
           email: editedEmail.trim(),
+          leadId: selectedLeadsDetails.id,
         }),
       })
 
@@ -2219,13 +2220,18 @@ const LeadDetails = ({
                         timeout: 1000,
                         sx: {
                           backgroundColor: '#00000020',
+                          zIndex: 1500,
                           // //backdropFilter: "blur(20px)",
                         },
                       }}
                     >
                       <Box
                         className="lg:w-5/12 sm:w-full w-8/12"
-                        sx={styles.modalsStyle}
+                        sx={{
+                          ...styles.modalsStyle,
+                          zIndex:9999, // Higher than backdrop (1500) to appear on top
+                          position: 'relative',
+                        }}
                       >
                         <div className="flex flex-row justify-center w-full">
                           <div
@@ -2539,23 +2545,32 @@ const LeadDetails = ({
             open={showDelModal}
             onClose={() => setShowDelModal(false)}
             closeAfterTransition
+            disablePortal={false}
+            slotProps={{
+              root: {
+                style: {
+                  zIndex: 1500,
+                },
+              },
+            }}
             sx={{
-              zIndex: 1600, // Higher than Drawer (1400) to appear on top
+              zIndex: 1500, // Higher than drawer modal (1400) to appear on top
             }}
             BackdropProps={{
               timeout: 1000,
               sx: {
                 backgroundColor: '#00000020',
+                zIndex: 1500, // Match Modal z-index
                 zIndex: 1600, // Match Modal z-index
                 // //backdropFilter: "blur(5px)",
               },
             }}
           >
             <Box
-              className="lg:w-4/12 sm:w-4/12 w-6/12 "
+              className="lg:w-4/12 sm:w-4/12 w-6/12"
               sx={{
                 ...styles.modalsStyle,
-                zIndex: 1601, // Higher than Modal backdrop (1600) to appear on top
+                zIndex: 1501, // Higher than backdrop (1500) to appear on top
                 position: 'relative',
               }}
             >
