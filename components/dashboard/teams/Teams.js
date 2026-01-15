@@ -131,6 +131,23 @@ function Teams({ agencyData, selectedAgency, from }) {
   // Permission management for invitations
   const [showInvitationPermissionManager, setShowInvitationPermissionManager] = useState(false)
   const [selectedInvitationPermissions, setSelectedInvitationPermissions] = useState(null)
+  
+  // Wrapper to log permission manager state changes
+  const setShowInvitationPermissionManagerWithLog = (value) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:setShowInvitationPermissionManager',message:'setShowInvitationPermissionManager called',data:{value, previousValue: showInvitationPermissionManager, stack: new Error().stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
+    // #endregion
+    setShowInvitationPermissionManager(value)
+  }
+  
+  // Track when showInvitationPermissionManager changes
+  useEffect(() => {
+    if (showInvitationPermissionManager) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:showInvitationPermissionManager-effect',message:'showInvitationPermissionManager changed to true - PermissionManager should open',data:{value: showInvitationPermissionManager, url: window.location.href},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
+      // #endregion
+    }
+  }, [showInvitationPermissionManager])
 
   //get local Data
   useEffect(() => {
@@ -1430,7 +1447,21 @@ function Teams({ agencyData, selectedAgency, from }) {
           }
         }}
       >
-        <Box className="lg:w-5/12 sm:w-full w-6/12r" sx={styles.modalsStyle}>
+        <Box 
+          className="lg:w-5/12 sm:w-full w-6/12r" 
+          sx={styles.modalsStyle}
+          component="div"
+          onKeyDown={(e) => {
+            // Prevent Enter key from submitting any form
+            if (e.key === 'Enter') {
+              // #region agent log
+              fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:Modal-Box-onKeyDown',message:'Enter key pressed in Modal Box',data:{target: e.target?.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
+              // #endregion
+              e.preventDefault()
+              e.stopPropagation()
+            }
+          }}
+        >
           <AgentSelectSnackMessage
             isVisible={showError}
             hide={() => setShowError(false)}
@@ -1443,6 +1474,13 @@ function Teams({ agencyData, selectedAgency, from }) {
                 backgroundColor: '#ffffff',
 
                 borderRadius: '13px',
+              }}
+              onKeyDown={(e) => {
+                // Prevent Enter key from submitting any form
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  e.stopPropagation()
+                }
               }}
             >
               <div className="flex flex-row justify-between">
@@ -1635,10 +1673,39 @@ function Teams({ agencyData, selectedAgency, from }) {
                 </div>
               </div>
 
-              <div className="flex flex-row gap-3 mt-4">
+              <div 
+                className="flex flex-row gap-3 mt-4"
+                onClick={(e) => {
+                  // Prevent any clicks in this container from bubbling
+                  e.stopPropagation()
+                }}
+                onMouseDown={(e) => {
+                  // Prevent mousedown from triggering form submission
+                  e.preventDefault()
+                  e.stopPropagation()
+                }}
+              >
                 <button
                   type="button"
-                  onClick={() => setShowInvitationPermissionManager(true)}
+                  onClick={(e) => {
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:set-permissions-button-click',message:'Set Permissions button clicked',data:{defaultPrevented: e.defaultPrevented, target: e.target?.tagName, hasForm: !!e.target.closest('form')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
+                    // #endregion
+                    e.preventDefault()
+                    e.stopPropagation()
+                    e.stopImmediatePropagation?.()
+                    console.log('🔵 Set Permissions button clicked')
+                    // Use setTimeout to defer state update
+                    setTimeout(() => {
+                      setShowInvitationPermissionManagerWithLog(true)
+                    }, 0)
+                    return false
+                  }}
+                  onMouseDown={(e) => {
+                    // Prevent mousedown from triggering form submission
+                    e.preventDefault()
+                    e.stopPropagation()
+                  }}
                   className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
                   style={{
                     borderColor: selectedInvitationPermissions ? 'hsl(var(--brand-primary))' : undefined,
@@ -1704,9 +1771,10 @@ function Teams({ agencyData, selectedAgency, from }) {
                 </button>
               )}
 
-              <PermissionManager
+              {/* PermissionManager is rendered outside the Modal to avoid conflicts */}
+              {/* <PermissionManager
                 open={showInvitationPermissionManager}
-                onClose={() => setShowInvitationPermissionManager(false)}
+                onClose={() => setShowInvitationPermissionManagerWithLog(false)}
                 teamMemberId={null}
                 context={
                   agencyData?.userRole === 'Agency' ||
@@ -1720,10 +1788,10 @@ function Teams({ agencyData, selectedAgency, from }) {
                 contextUserId={null}
                 onPermissionsChange={(permissions) => {
                   setSelectedInvitationPermissions(permissions)
-                  setShowInvitationPermissionManager(false)
+                  setShowInvitationPermissionManagerWithLog(false)
                 }}
                 initialPermissions={selectedInvitationPermissions}
-              />
+              /> */}
 
               {/* Can be use full to add shadow */}
               {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
@@ -1818,7 +1886,7 @@ function Teams({ agencyData, selectedAgency, from }) {
         {/* Invitation Permission Manager */}
         <PermissionManager
           open={showInvitationPermissionManager}
-          onClose={() => setShowInvitationPermissionManager(false)}
+          onClose={() => setShowInvitationPermissionManagerWithLog(false)}
           teamMemberId={null}
           context={
             agencyData?.userRole === 'Agency' ||
@@ -1832,7 +1900,7 @@ function Teams({ agencyData, selectedAgency, from }) {
           contextUserId={null}
           onPermissionsChange={(permissions) => {
             setSelectedInvitationPermissions(permissions)
-            setShowInvitationPermissionManager(false)
+            setShowInvitationPermissionManagerWithLog(false)
           }}
           initialPermissions={selectedInvitationPermissions}
         />

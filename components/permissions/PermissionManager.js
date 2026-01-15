@@ -311,13 +311,35 @@ function PermissionManager({
   }
 
   return (
-    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+    <Dialog 
+      open={open} 
+      onOpenChange={(isOpen) => {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PermissionManager.js:Dialog-onOpenChange',message:'Dialog onOpenChange called',data:{isOpen},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
+        // #endregion
+        if (!isOpen) {
+          onClose()
+        }
+      }}
+    >
       <DialogContent
         className="max-w-4xl w-[95%] sm:w-[90%] lg:w-[85%] h-[90vh] p-0 flex flex-col"
         onInteractOutside={(e) => {
           e.preventDefault()
         }}
-        onEscapeKeyDown={() => onClose()}
+        onEscapeKeyDown={(e) => {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PermissionManager.js:DialogContent-onEscapeKeyDown',message:'DialogContent onEscapeKeyDown called',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
+          // #endregion
+          e.preventDefault()
+          onClose()
+        }}
+        onPointerDownOutside={(e) => {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PermissionManager.js:DialogContent-onPointerDownOutside',message:'DialogContent onPointerDownOutside called',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
+          // #endregion
+          e.preventDefault()
+        }}
       >
         <DialogHeader className="px-6 pt-6 pb-4 border-b flex-shrink-0">
           <DialogTitle asChild>
