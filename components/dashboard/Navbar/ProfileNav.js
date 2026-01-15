@@ -15,6 +15,7 @@ import Link from "next/link";
 import getProfileDetails from "@/components/apis/GetProfile";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
+import { useHasPermission } from "@/contexts/PermissionContext";
 // const FacebookPixel = dynamic(() => import("../utils/facebookPixel.js"), {
 //   ssr: false,
 // });
@@ -738,6 +739,19 @@ const ProfileNav = () => {
       });
   };
 
+  // Determine permission prefix based on user role
+  const getPermissionPrefix = () => {
+    if (reduxUser?.userRole === 'AgencySubAccount') {
+      return 'subaccount_user'
+    } else if (reduxUser?.userRole === 'AgentX') {
+      return 'agentx'
+    }
+    return null // No permission checks for other roles (Admin, etc.)
+  }
+
+  const permissionPrefix = getPermissionPrefix()
+  const isInvitee = reduxUser?.userRole === 'Invitee'
+
   const links = [
     {
       id: 1,
@@ -745,6 +759,7 @@ const ProfileNav = () => {
       href: "/dashboard",
       selected: "/svgIcons/selectdDashboardIcon.svg",
       uneselected: "/svgIcons/unSelectedDashboardIcon.svg",
+      permissionKey: permissionPrefix ? `${permissionPrefix}.dashboard.view` : null,
     },
     {
       id: 2,
@@ -752,6 +767,7 @@ const ProfileNav = () => {
       href: "/dashboard/myAgentX",
       selected: "/svgIcons/selectedAgentXIcon.svg",
       uneselected: "/svgIcons/agentXIcon.svg",
+      permissionKey: permissionPrefix ? `${permissionPrefix}.agents.view` : null,
     },
     {
       id: 3,
@@ -759,6 +775,7 @@ const ProfileNav = () => {
       href: "/dashboard/leads",
       selected: "/svgIcons/selectedLeadsIcon.svg",
       uneselected: "/svgIcons/unSelectedLeadsIcon.svg",
+      permissionKey: permissionPrefix ? `${permissionPrefix}.leads.manage` : null,
     },
     {
       id: 4,
@@ -766,9 +783,8 @@ const ProfileNav = () => {
       href: "/dashboard/pipeline",
       selected: "/svgIcons/selectedPiplineIcon.svg",
       uneselected: "/svgIcons/unSelectedPipelineIcon.svg",
+      permissionKey: permissionPrefix ? `${permissionPrefix}.pipelines.manage` : null,
     },
-
-
     {
       id: 8,
       name: "Messages",
@@ -776,14 +792,15 @@ const ProfileNav = () => {
       href: "/dashboard/messages",
       selected: "/messaging/icons_chat_menu.svg",
       uneselected: "/messaging/icons_chat_menu.svg",
-    }
-    ,
+      permissionKey: permissionPrefix ? `${permissionPrefix}.messages.manage` : null,
+    },
     {
       id: 5,
       name: "Activity",//"Call Log",
       href: "/dashboard/callLog",
       selected: "/otherAssets/selectedActivityLog.png",
       uneselected: "/otherAssets/activityLog.png",
+      permissionKey: permissionPrefix ? `${permissionPrefix}.activity.view` : null,
     },
     {
       id: 6,
@@ -791,6 +808,7 @@ const ProfileNav = () => {
       href: "/dashboard/integration",
       selected: "/svgIcons/selectedIntegration.svg",
       uneselected: "/svgIcons/unSelectedIntegrationIcon.svg",
+      permissionKey: permissionPrefix ? `${permissionPrefix}.integrations.manage` : null,
     },
     {
       id: 7,
@@ -798,6 +816,7 @@ const ProfileNav = () => {
       href: "/dashboard/team",
       selected: "/svgIcons/selectedTeam.svg",
       uneselected: "/svgIcons/unSelectedTeamIcon.svg",
+      permissionKey: permissionPrefix ? `${permissionPrefix}.teams.manage` : null,
     },
     // {
     //   id: 8,
@@ -1463,65 +1482,93 @@ const ProfileNav = () => {
           </div>
 
           <div className="w-full mt-8 flex flex-col items-center gap-3">
-            {showLinks().map((item) => (
-              <div key={item.id} className="w-full flex flex-col gap-3 pl-6">
-                <Link
-                  href={item.href}
-                  className="cursor-pointer no-underline hover:no-underline"
-                // onClick={(e) => handleOnClick(e, item.href)}
-                >
-                  <div
-                    className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
-                    style={{}}
-                  >
-                    <div
-                      className={
-                        pathname === item.href
-                          ? "icon-brand-primary"
-                          : "icon-black"
-                      }
-                      style={
-                        pathname === item.href
-                          ? {
-                            '--icon-mask-image': `url(${pathname === item.href
+            {showLinks().map((item) => {
+              // Component to check permission for nav link
+              function PermissionNavLink({ item }) {
+                // If not an Invitee or no permission key, show the link
+                if (!isInvitee || !item.permissionKey) {
+                  return <NavLinkItem item={item} />
+                }
+
+                // Check permission for Invitee users
+                const [hasAccess, isLoading] = useHasPermission(item.permissionKey)
+                
+                // Don't render if no permission (hide the link)
+                if (isLoading) {
+                  return null // Hide while loading
+                }
+                
+                if (!hasAccess) {
+                  return null // Hide if no permission
+                }
+                
+                return <NavLinkItem item={item} />
+              }
+
+              // Component to render a nav link
+              function NavLinkItem({ item }) {
+                return (
+                  <div className="w-full flex flex-col gap-3 pl-6">
+                    <Link
+                      href={item.href}
+                      className="cursor-pointer no-underline hover:no-underline"
+                    >
+                      <div
+                        className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
+                        style={{}}
+                      >
+                        <div
+                          className={
+                            pathname === item.href
+                              ? "icon-brand-primary"
+                              : "icon-black"
+                          }
+                          style={
+                            pathname === item.href
+                              ? {
+                                '--icon-mask-image': `url(${pathname === item.href
+                                    ? item.selected
+                                    : item.uneselected
+                                  })`,
+                              }
+                              : {}
+                          }
+                        >
+                          <Image
+                            src={
+                              pathname === item.href
                                 ? item.selected
                                 : item.uneselected
-                              })`,
+                            }
+                            height={24}
+                            width={24}
+                            alt="icon"
+                            style={
+                              pathname !== item.href && isCustomDomain && agencyBranding
+                                ? { filter: 'var(--icon-filter, none)' }
+                                : {}
+                            }
+                          />
+                        </div>
+                        <div
+                          className={
+                            pathname === item.href ? "text-brand-primary" : "text-black"
                           }
-                          : {}
-                      }
-                    >
-                      <Image
-                        src={
-                          pathname === item.href
-                            ? item.selected
-                            : item.uneselected
-                        }
-                        height={24}
-                        width={24}
-                        alt="icon"
-                        style={
-                          pathname !== item.href && isCustomDomain && agencyBranding
-                            ? { filter: 'var(--icon-filter, none)' }
-                            : {}
-                        }
-                      />
-                    </div>
-                    <div
-                      className={
-                        pathname === item.href ? "text-brand-primary" : "text-black"
-                      }
-                      style={{
-                        fontSize: 15,
-                        fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
-                      }}
-                    >
-                      {item.name} {item.isBeta && <span className="text-xs text-black">(Beta)</span>}
-                    </div>
+                          style={{
+                            fontSize: 15,
+                            fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
+                          }}
+                        >
+                          {item.name} {item.isBeta && <span className="text-xs text-black">(Beta)</span>}
+                        </div>
+                      </div>
+                    </Link>
                   </div>
-                </Link>
-              </div>
-            ))}
+                )
+              }
+
+              return <PermissionNavLink key={item.id} item={item} />
+            })}
           </div>
 
           {/* <div>

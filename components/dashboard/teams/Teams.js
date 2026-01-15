@@ -1457,6 +1457,9 @@ function Teams({ agencyData, selectedAgency, from }) {
                   agencyData?.userRole === 'Agency' ||
                   userLocalData?.userRole === 'Agency'
                     ? 'agency'
+                    : agencyData?.userRole === 'AgencySubAccount' ||
+                      userLocalData?.userRole === 'AgencySubAccount'
+                    ? 'subaccount_user'
                     : 'agentx'
                 }
                 contextUserId={null}
@@ -1545,6 +1548,9 @@ function Teams({ agencyData, selectedAgency, from }) {
               agencyData?.userRole === 'Agency' ||
               userLocalData?.userRole === 'Agency'
                 ? 'agency'
+                : agencyData?.userRole === 'AgencySubAccount' ||
+                  userLocalData?.userRole === 'AgencySubAccount'
+                ? 'subaccount_user'
                 : 'agentx'
             }
             onClose={() => {
@@ -1563,6 +1569,9 @@ function Teams({ agencyData, selectedAgency, from }) {
             agencyData?.userRole === 'Agency' ||
             userLocalData?.userRole === 'Agency'
               ? 'agency'
+              : agencyData?.userRole === 'AgencySubAccount' ||
+                userLocalData?.userRole === 'AgencySubAccount'
+              ? 'subaccount_user'
               : 'agentx'
           }
           contextUserId={null}

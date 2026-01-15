@@ -75,6 +75,12 @@ function PermissionManager({
           groupKey = `agency_${category}`
           displayName = category.replace(/_/g, ' ')
         }
+      } else if (context === 'agentx') {
+        groupKey = `agentx_${category}`
+        displayName = category.replace(/_/g, ' ').replace('agentx ', '')
+      } else if (context === 'subaccount_user') {
+        groupKey = `subaccount_user_${category}`
+        displayName = category.replace(/_/g, ' ').replace('subaccount user ', '')
       }
       
       if (!acc[groupKey]) {
@@ -111,6 +117,10 @@ function PermissionManager({
         apiContext = 'agency'
       } else if (context === 'subaccount') {
         apiContext = 'subaccount'
+      } else if (context === 'agentx') {
+        apiContext = 'agentx'
+      } else if (context === 'subaccount_user') {
+        apiContext = 'subaccount_user'
       }
 
       let available = await fetchAvailablePermissions(apiContext)
@@ -157,6 +167,10 @@ function PermissionManager({
         apiContext = 'agency'
       } else if (context === 'subaccount') {
         apiContext = 'subaccount'
+      } else if (context === 'agentx') {
+        apiContext = 'agentx'
+      } else if (context === 'subaccount_user') {
+        apiContext = 'subaccount_user'
       }
 
       let available = await fetchAvailablePermissions(apiContext)
