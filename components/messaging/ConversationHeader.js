@@ -174,6 +174,34 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
         getStagesList()
     }, [pipelineId, getStagesList])
 
+    // Watch for changes in teamsAssigned and update refresh key to force dropdown update
+    useEffect(() => {
+        if (leadDetails?.teamsAssigned !== undefined) {
+            // Create a stable key from teamsAssigned IDs to detect changes
+            const teamsAssignedKey = (leadDetails.teamsAssigned || [])
+                .map(t => String(t.id || t.invitedUserId || t.invitedUser?.id))
+                .filter(Boolean)
+                .sort()
+                .join(',')
+            
+            // Use a small delay to ensure state is fully updated
+            const timer = setTimeout(() => {
+                setAssignmentRefreshKey(prev => prev + 1)
+                console.log('🔄 [ConversationHeader] Teams assigned changed, updating refresh key:', {
+                    key: teamsAssignedKey,
+                    count: leadDetails.teamsAssigned?.length || 0,
+                    teams: leadDetails.teamsAssigned?.map(t => ({
+                        id: t.id,
+                        invitedUserId: t.invitedUserId,
+                        invitedUser_id: t.invitedUser?.id,
+                    })),
+                })
+            }, 150)
+            
+            return () => clearTimeout(timer)
+        }
+    }, [leadDetails?.teamsAssigned])
+
     // Fetch team members and agents on mount
     useEffect(() => {
         getMyteam()
@@ -358,14 +386,18 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
 
             if (response && response.data && response.data.status === true) {
                 // Refresh lead details to get updated team assignments
+               
                 if (selectedThread?.leadId) {
                     // Add a small delay to ensure backend has processed the update
-                    await new Promise(resolve => setTimeout(resolve, 150))
+                    await new Promise(resolve => setTimeout(resolve, 300))
                     const updatedDetails = await getLeadDetails(selectedThread.leadId)
-                    // Force re-render by updating refresh key after state is updated
-                    if (updatedDetails) {
-                        setAssignmentRefreshKey(prev => prev + 1)
-                    }
+                    // Wait for React to process the state update
+                    await new Promise(resolve => setTimeout(resolve, 200))
+                    // Explicitly update refresh key to ensure dropdown updates
+                    setAssignmentRefreshKey(prev => prev + 1)
+                    console.log('✅ [Unassign] Lead details refreshed and refresh key updated:', {
+                        teamsAssigned: updatedDetails?.teamsAssigned?.length || 0,
+                    })
                 }
                 showSnackbar('Team member assigned successfully', SnackbarTypes.Success)
                 return true
@@ -400,12 +432,23 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                 // Refresh lead details to get updated team assignments
                 if (selectedThread?.leadId) {
                     // Add a small delay to ensure backend has processed the update
-                    await new Promise(resolve => setTimeout(resolve, 150))
+                    await new Promise(resolve => setTimeout(resolve, 300))
                     const updatedDetails = await getLeadDetails(selectedThread.leadId)
-                    // Force re-render by updating refresh key after state is updated
-                    if (updatedDetails) {
-                        setAssignmentRefreshKey(prev => prev + 1)
-                    }
+                    console.log('✅ [Unassign] Lead details fetched:', {
+                        teamsAssigned: updatedDetails?.teamsAssigned?.length || 0,
+                        teamsAssignedIds: updatedDetails?.teamsAssigned?.map(t => ({
+                            id: t.id,
+                            invitedUserId: t.invitedUserId,
+                            invitedUser_id: t.invitedUser?.id,
+                        })),
+                    })
+                    // Wait for React to process the state update, then force refresh
+                    await new Promise(resolve => setTimeout(resolve, 300))
+                    // Explicitly update refresh key to ensure dropdown updates
+                    setAssignmentRefreshKey(prev => {
+                        console.log('🔄 [Unassign] Updating refresh key:', prev + 1)
+                        return prev + 1
+                    })
                 }
                 showSnackbar('Team member unassigned successfully', SnackbarTypes.Success)
             } else if (response && response.data && response.data.status === false) {
@@ -542,8 +585,23 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
         }))
     }, [leadDetails?.teamsAssigned])
 
+    // Create a stable key from teamsAssigned to use as dependency
+    const teamsAssignedKey = useMemo(() => {
+        if (!leadDetails?.teamsAssigned) return ''
+        return leadDetails.teamsAssigned
+            .map(t => String(t.id || t.invitedUserId || t.invitedUser?.id))
+            .filter(Boolean)
+            .sort()
+            .join(',')
+    }, [leadDetails?.teamsAssigned])
+
     // Memoize team member options for TeamAssignDropdownCn
     const teamMemberOptions = useMemo(() => {
+        console.log('🔍 [teamMemberOptions] Generating options:', {
+            refreshKey: assignmentRefreshKey,
+            teamsAssignedKey,
+            teamsAssigned: leadDetails?.teamsAssigned,
+        })
         const options = [
             ...(myTeamAdmin ? [myTeamAdmin] : []),
             ...(myTeam || []),
@@ -566,7 +624,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                     const matches = String(assignedId) === String(id)
                     
                     if (matches) {
-                        console.log('✅ [teamMemberOptions] Match found:', {
+                        console.log('✅ [teamMemberOptions] Match found for team member:', {
                             teamMemberId: id,
                             teamMemberName: tm.name || tm.invitedUser?.name,
                             assignedId: assignedId,
@@ -589,8 +647,11 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
         
         // Log all options for debugging
         console.log('🔍 [teamMemberOptions] Generated options:', {
+            refreshKey: assignmentRefreshKey,
+            teamsAssignedKey,
             totalOptions: options.length,
             selectedCount: options.filter(o => o.selected).length,
+            selectedIds: options.filter(o => o.selected).map(o => o.id),
             options: options.map(o => ({
                 id: o.id,
                 label: o.label,
@@ -605,7 +666,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
         })
         
         return options
-    }, [myTeamAdmin, myTeam, leadDetails?.teamsAssigned, assignmentRefreshKey])
+    }, [myTeamAdmin, myTeam, teamsAssignedKey, assignmentRefreshKey])
 
     return (
         <>
@@ -685,7 +746,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                             ) : (
                                 <TeamAssignDropdownCn
                                     selectedUser={selectedUser}
-                                    key={`assign-${selectedThread.leadId}-${assignmentRefreshKey}-${leadDetails?.teamsAssigned?.length || 0}`}
+                                    key={`assign-${selectedThread.leadId}-${assignmentRefreshKey}-${teamsAssignedKey}`}
                                     label="Assign"
                                     teamOptions={teamMemberOptions}
                                     onToggle={async (teamId, team, shouldAssign) => {
