@@ -1154,8 +1154,8 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
               />
             </div>
           ) : (
-            <div className={`${agencyUser ? 'h-[75vh]' : 'h-[50vh]'} w-full flex flex-col  items-center justify-between`}>
-              <div className={`flex flex-row  items-center self-start gap-3 px-4}`}>
+            <div className={`${agencyUser ? 'h-[75vh]' : 'h-[50vh]'} w-full flex flex-col  items-center justify-start`}>
+              <div className={`flex flex-row  items-center self-start gap-3 px-4} `}>
                 <div style={{ fontWeight: '600', fontSize: 24 }}>Leads</div>
 
                 {userDetails?.planCapabilities?.maxLeads < 10000000 &&
@@ -1172,6 +1172,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                     </div>
                   )}
               </div>
+              <div className="flex flex-col w-full h-full justify-center items-center">
               <div className={`flex flex-row items-center  justify-center mt-3 w-full px-4`}>
                 <div className="w-full max-w-[710px] relative" style={{ aspectRatio: '710/100' }}>
                   <Image
@@ -1226,12 +1227,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                   </div>
                 </div>
                 <div className="flex flex-col items-center justify-center">
-                  {/* <div
-                    className="mt-12 ms-8 text-center"
-                    style={{ fontSize: 30, fontWeight: '700' }}
-                  >
-                    {`Looks like you don't have any leads yet`}
-                  </div> */}
+                  
 
                   <div
                     style={{
@@ -1261,6 +1257,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
 
 
                 </div>
+              </div>
               </div>
             </div>
           )}

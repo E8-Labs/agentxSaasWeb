@@ -28,6 +28,13 @@ import { PersistanceKeys } from '@/constants/Constants'
 import Messages from '@/components/messaging/Messages'
 import AppLogo from '@/components/common/AppLogo'
 import { useHasPermission } from '@/contexts/PermissionContext'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 function SelectedUserDetails({
   selectedUser,
@@ -64,20 +71,20 @@ function SelectedUserDetails({
       isInvitee && item.permissionKey ? item.permissionKey : '',
       isInvitee && contextUserId ? contextUserId : null
     )
-    
+
     // Agency users (non-Invitee) have full access
     const effectiveHasAccess = isInvitee ? hasAccess : true
     const effectiveIsLoading = isInvitee ? isLoading : false
-    
+
     // Don't render if no permission (only for Invitee users)
     if (effectiveIsLoading) {
       return null // Hide while loading
     }
-    
+
     if (!effectiveHasAccess) {
       return null // Hide if no permission (only applies to Invitee)
     }
-    
+
     return <>{children}</>
   }
 
@@ -193,7 +200,7 @@ function SelectedUserDetails({
   // Get the current menu item's permission key for content protection
   const currentMenuItem = allMenuItems.find(item => item.name === selectedManu?.name)
   const currentPermissionKey = currentMenuItem?.permissionKey
-  
+
   // Check if logged-in user is an Invitee (team member)
   const [isInvitee, setIsInvitee] = useState(false)
   useEffect(() => {
@@ -210,10 +217,10 @@ function SelectedUserDetails({
 
   // Only check permissions for Invitee users; Agency users have full access
   const [hasCurrentPermission, isCheckingCurrentPermission] = useHasPermission(
-    isInvitee && currentPermissionKey ? currentPermissionKey : '', 
+    isInvitee && currentPermissionKey ? currentPermissionKey : '',
     isInvitee && agencyUser ? selectedUser?.id : null
   )
-  
+
   // Agency users (non-Invitee) have full access
   const effectiveHasPermission = isInvitee ? hasCurrentPermission : true
   const effectiveIsChecking = isInvitee ? isCheckingCurrentPermission : false
@@ -221,7 +228,7 @@ function SelectedUserDetails({
   // #region agent log
   useEffect(() => {
     if (agencyUser && selectedUser?.id) {
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'SelectedUserDetails.js:207',message:'Permission check for subaccount content',data:{agencyUser,selectedUserId:selectedUser?.id,currentMenuItemName:selectedManu?.name,currentPermissionKey,isInvitee,hasCurrentPermission,isCheckingCurrentPermission,effectiveHasPermission,effectiveIsChecking,willBlockAccess:agencyUser&&isInvitee&&currentPermissionKey&&!effectiveIsChecking&&!effectiveHasPermission},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'I'})}).catch(()=>{});
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SelectedUserDetails.js:207', message: 'Permission check for subaccount content', data: { agencyUser, selectedUserId: selectedUser?.id, currentMenuItemName: selectedManu?.name, currentPermissionKey, isInvitee, hasCurrentPermission, isCheckingCurrentPermission, effectiveHasPermission, effectiveIsChecking, willBlockAccess: agencyUser && isInvitee && currentPermissionKey && !effectiveIsChecking && !effectiveHasPermission }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'I' }) }).catch(() => { });
     }
   }, [agencyUser, selectedUser?.id, currentPermissionKey, hasCurrentPermission, isCheckingCurrentPermission, selectedManu?.name, isInvitee, effectiveHasPermission, effectiveIsChecking])
   // #endregion
@@ -363,7 +370,7 @@ function SelectedUserDetails({
 
   const handleManuClick = (item) => {
     console.log('item', item)
-    
+
     // When viewing from agency, check permission before allowing navigation
     if (agencyUser && selectedUser?.id) {
       const menuItem = allMenuItems.find(m => m.id === item.id)
@@ -559,38 +566,127 @@ function SelectedUserDetails({
                         </div>
                     */}
 
-          {!agencyUser && (
-            <div className="flex flex-row items-center justify-between w-full px-4 pt-2">
-              <div className="w-1/2"></div>
+          {/* Action buttons with 3-dot menu */}
+          <div className="flex flex-row items-center justify-end w-full px-4 pt-2 relative" style={{ zIndex: 10 }}>
+            <div className="flex flex-row items-center gap-4">
+              {/* 3-dot menu for actions */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="outline-none hover:opacity-80 transition-opacity p-2"
+                    aria-label="More options"
+                  >
+                    {pauseLoader ? (
+                      <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                    ) : (
+                      <Image
+                        src="/svgIcons/threeDotsIcon.svg"
+                        alt="More options"
+                        width={24}
+                        height={24}
+                      />
+                    )}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="z-[1500]" style={{ zIndex: 1500 }}>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setShowPauseConfirmationPopup(true)
+                    }}
+                    className="cursor-pointer"
+                  >
+                    {user?.profile_status === 'paused' ? 'Reinstate' : 'Pause'}
+                  </DropdownMenuItem>
+                  
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setShowAddMinutesModal(true)
+                    }}
+                    className="cursor-pointer"
+                  >
+                    Add Minutes
+                  </DropdownMenuItem>
+                  
+                  {selectedUser.isTrial && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setShowResetTrialPopup(true)
+                        }}
+                        className="cursor-pointer"
+                      >
+                        Reset Trial
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setShowDeleteModal(true)
+                    }}
+                    className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                  >
+                    Delete
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Close button - always visible */}
               <CloseBtn onClick={handleClose} />
+
+              {/* Modals */}
+              {showResetTrialPopup && (
+                <ResetTrial
+                  showConfirmationPopup={showResetTrialPopup}
+                  handleClose={() => setShowResetTrialPopup(false)}
+                  onContinue={handleResetTrail}
+                  loader={resetTrailLoader}
+                  selectedDate={selectedDate}
+                  setSelectedData={setSelectedDate}
+                />
+              )}
+
+              {showPauseConfirmationPopup && (
+                <DelAdminUser
+                  showPauseModal={showPauseConfirmationPopup}
+                  handleClosePauseModal={() => {
+                    setShowPauseConfirmationPopup(false)
+                  }}
+                  handlePaueUser={handlePause}
+                  pauseLoader={pauseLoader}
+                  selectedUser={user}
+                />
+              )}
             </div>
-          )}
+          </div>
 
           <div className="flex flex-row items-start w-full ">
-            <div className={`flex border-r border-[#00000015]  flex-col items-start justify-start w-2/12 px-6 ${(from === "admin" || from === "subaccount") ? "":"h-full" } ${agencyUser ? 'h-auto max-h-[85vh] overflow-y-auto' : 'h-auto'}`}>
-            {agencyUser && (
-              <div className="w-full flex flex-col gap-2 pt-4">
-                {/* Show company name if no logo for subaccount users */}
-                {user && (user?.userRole === "AgencySubAccount" || user?.userRole === "Invitee") && user?.agencyBranding && !user.agencyBranding.logoUrl && user.agencyBranding.companyName ? (
-                  <div className="w-full text-left pl-6" style={{ marginLeft: "-8px" }}>
-                    <div className="text-lg font-bold text-black truncate">
-                      {user.agencyBranding.companyName}
+            <div className={`flex border-r border-[#00000015]  flex-col items-start justify-start w-2/12 px-6 ${(from === "admin" || from === "subaccount") ? "" : "h-full"} ${agencyUser ? 'h-auto max-h-[85vh] overflow-y-auto' : 'h-auto'}`}>
+              {agencyUser && (
+                <div className="w-full flex flex-col gap-2 pt-4">
+                  {/* Show company name if no logo for subaccount users */}
+                  {user && (user?.userRole === "AgencySubAccount" || user?.userRole === "Invitee") && user?.agencyBranding && !user.agencyBranding.logoUrl && user.agencyBranding.companyName ? (
+                    <div className="w-full text-left pl-6" style={{ marginLeft: "-8px" }}>
+                      <div className="text-lg font-bold text-black truncate">
+                        {user.agencyBranding.companyName}
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  /* AppLogo handles logo display based on hostname */
-                  <div className="flex justify-start ">
-                    <Image
-                      src={user?.agencyBranding?.logoUrl}
-                      alt="logo"
-                      height={40}
-                      width={140}
-                      style={{ objectFit: 'contain', maxHeight: '40px', maxWidth: '140px' }}
-                      unoptimized={true}
-                    />
-                  </div>
-                )}
-              </div>
+                  ) : (
+                    /* AppLogo handles logo display based on hostname */
+                    <div className="flex justify-start ">
+                      <Image
+                        src={user?.agencyBranding?.logoUrl}
+                        alt="logo"
+                        height={40}
+                        width={140}
+                        style={{ objectFit: 'contain', maxHeight: '40px', maxWidth: '140px' }}
+                        unoptimized={true}
+                      />
+                    </div>
+                  )}
+                </div>
               )}
               {
                 !agencyUser && (
@@ -637,9 +733,9 @@ function SelectedUserDetails({
               }
               <div className='flex flex-col items-start justify-center gap-3 w-full pt-10 ${(from === "admin" || from === "subaccount") ? "":"h-full"}'>
                 {manuBar.map((item) => (
-                  <MenuItemWithPermission 
-                    key={item.id} 
-                    item={item} 
+                  <MenuItemWithPermission
+                    key={item.id}
+                    item={item}
                     contextUserId={agencyUser ? selectedUser?.id : null}
                     agencyUser={agencyUser}
                   >
@@ -692,7 +788,7 @@ function SelectedUserDetails({
               </div>
 
               {agencyUser && (
-                <div 
+                <div
                   onClick={() => {
                     console.log('clicked')
                     handleManuClick(accountMenu)
@@ -766,101 +862,7 @@ function SelectedUserDetails({
             <div
               className={`flex flex-col items-center justify-center pt-2 px-4 ${agencyUser ? 'max-h-[85vh]' : 'h-[80vh]'} overflow-auto w-10/12`}
             >
-              <div className="w-full flex flex-row items-center justify-end">
-                <div className="flex flex-row items-center gap-4">
-                  {pauseLoader ? (
-                    <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                  ) : (
-                    <div>
-                      {!agencyUser && from !== 'subaccount' && (
-                        <button
-                          className="text-white bg-brand-primary outline-none rounded-xl px-3"
-                          style={{ height: '50px' }}
-                          onClick={() => {
-                            setShowPauseConfirmationPopup(true)
-                          }}
-                        >
-                          {user?.profile_status === 'paused'
-                            ? 'Reinstate'
-                            : 'Pause'}
-                        </button>
-                      )}
-                    </div>
-                  )}
 
-                  <div>
-                    {selectedUser.isTrial && (
-                      <button
-                        className="text-white bg-brand-primary outline-none rounded-xl px-3"
-                        style={{ height: '50px' }}
-                        onClick={() => {
-                          setShowResetTrialPopup(true)
-                          console.log('clicked')
-                        }}
-                      >
-                        Reset Trial
-                      </button>
-                    )}
-                  </div>
-                  {showResetTrialPopup && (
-                    <ResetTrial
-                      showConfirmationPopup={showResetTrialPopup}
-                      handleClose={() => setShowResetTrialPopup(false)}
-                      onContinue={handleResetTrail}
-                      loader={resetTrailLoader}
-                      selectedDate={selectedDate}
-                      setSelectedData={setSelectedDate}
-                    />
-                  )}
-
-                  {showPauseConfirmationPopup && (
-                    <DelAdminUser
-                      showPauseModal={showPauseConfirmationPopup}
-                      handleClosePauseModal={() => {
-                        setShowPauseConfirmationPopup(false)
-                      }}
-                      handlePaueUser={handlePause}
-                      pauseLoader={pauseLoader}
-                      selectedUser={user}
-                    />
-                  )}
-
-                  {!agencyUser && from !== 'subaccount' && (
-                    <button
-                      className="text-white bg-brand-primary outline-none rounded-xl px-3"
-                      style={{ height: '50px' }}
-                      onClick={() => {
-                        setShowAddMinutesModal(true)
-                      }}
-                    >
-                      Add Minutes
-                    </button>
-                  )}
-
-                  {!agencyUser && from !== 'subaccount' && (
-                    <button
-                      className="text-red outline-none rounded-xl px-3"
-                      style={{ height: '50px' }}
-                      onClick={() => {
-                        setShowDeleteModal(true)
-                      }}
-                    >
-                      Delete
-                    </button>
-                  )}
-
-                  {/* <div>
-                            <button>
-                                <Image
-                                    src={"/assets/cross.png"}
-                                    alt='*'
-                                    height={20}
-                                    width={20}
-                                />
-                            </button>
-                    </div>*/}
-                </div>
-              </div>
               <div
                 className={`flex flex-col ${selectedManu.name == 'Leads' ? 'items-stretch' : 'items-center justify-center'} ${agencyUser ? 'max-h-[85vh]' : 'h-[76vh]'} ${selectedManu.name == 'Leads' ? 'overflow-hidden' : 'overflow-auto'} w-full`}
                 id={selectedManu.name == 'Leads' ? 'adminLeadsParentContainer' : undefined}
@@ -900,7 +902,14 @@ function SelectedUserDetails({
                 ) : selectedManu.name == 'Team' ? (
                   <AdminTeam selectedUser={selectedUser} agencyUser={agencyUser} />
                 ) : selectedManu.name == 'Account' ? (
-                  <AdminProfileData selectedUser={selectedUser} from={from} agencyUser={agencyUser} />
+                  <AdminProfileData
+                    selectedUser={selectedUser}
+                    from={from}
+                    agencyUser={agencyUser}
+                    handleDel={handleDel}
+                    handlePauseUser={handlePauseUser}
+                    handleClose={handleClose}
+                  />
                 ) : selectedManu.name == 'Messages (Beta)' ? (
                   <Messages selectedUser={selectedUser} agencyUser={agencyUser} />
                 ) : (

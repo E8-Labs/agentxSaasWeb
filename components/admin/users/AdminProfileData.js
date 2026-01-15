@@ -11,6 +11,12 @@ import SubAccountPlansAndPayments from '@/components/dashboard/subaccount/myAcco
 import BillingHistory from '@/components/myAccount/BillingHistory'
 import TwilioTrustHub from '@/components/myAccount/TwilioTrustHub'
 import { useHasPermission } from '@/contexts/PermissionContext'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
+import DelAdminUser from '@/components/onboarding/extras/DelAdminUser'
+import AdminGetProfileDetails from '../AdminGetProfileDetails'
+import { CircularProgress } from '@mui/material'
+import Apis from '@/components/apis/Apis'
+import axios from 'axios'
 
 import AdminBasicInfo from './AdminProfileData/AdminBasicInfo'
 import AdminBilling from './AdminProfileData/AdminBilling'
@@ -18,9 +24,15 @@ import AdminPhoneNumber from './AdminProfileData/AdminPhoneNumber'
 import AdminXbarServices from './AdminProfileData/AdminXbarServices'
 import AdminSendFeedback from './AdminSendFeedback'
 
-function AdminProfileData({ selectedUser, from, agencyUser = false }) {
+function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, handlePauseUser, handleClose }) {
   let searchParams = useSearchParams()
   const router = useRouter()
+
+  // #region agent log
+  useEffect(() => {
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminProfileData.js:25',message:'AdminProfileData props',data:{agencyUser,from,hasHandleClose:!!handleClose,hasHandleDel:!!handleDel,hasHandlePauseUser:!!handlePauseUser,selectedUserId:selectedUser?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'L'})}).catch(()=>{});
+  }, [agencyUser, from, handleClose, handleDel, handlePauseUser, selectedUser?.id])
+  // #endregion
 
   // Check if logged-in user is an Invitee (team member)
   const [isInvitee, setIsInvitee] = useState(false)
@@ -123,6 +135,24 @@ function AdminProfileData({ selectedUser, from, agencyUser = false }) {
 
   const [tabSelected, setTabSelected] = useState(1)
   const [selectedManu, setSelectedManu] = useState(null)
+  const [user, setUser] = useState(null)
+  const [pauseLoader, setPauseLoader] = useState(false)
+  const [delLoader, setDelLoader] = useState(false)
+  const [showPauseConfirmationPopup, setShowPauseConfirmationPopup] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+
+  // Fetch user details
+  useEffect(() => {
+    const getData = async () => {
+      if (selectedUser?.id) {
+        let d = await AdminGetProfileDetails(selectedUser.id)
+        if (d) {
+          setUser(d)
+        }
+      }
+    }
+    getData()
+  }, [selectedUser])
 
   // Update selectedManu when manuBar changes
   useEffect(() => {
@@ -137,6 +167,87 @@ function AdminProfileData({ selectedUser, from, agencyUser = false }) {
       }
     }
   }, [manuBar, tabSelected])
+
+  // Handle pause user
+  const handlePause = async () => {
+    setPauseLoader(true)
+    try {
+      const data = localStorage.getItem('User')
+      if (data) {
+        let u = JSON.parse(data)
+        let apidata = {
+          userId: selectedUser.id,
+        }
+
+        const response = await axios.post(Apis.pauseProfile, apidata, {
+          headers: {
+            Authorization: 'Bearer ' + u.token,
+            'Content-Type': 'application/json',
+          },
+        })
+        
+        if (response) {
+          if (response.data.status === true) {
+            if (selectedUser) {
+              selectedUser.profile_status = selectedUser.profile_status === 'paused' ? 'active' : 'paused'
+            }
+            setPauseLoader(false)
+            setShowPauseConfirmationPopup(false)
+            // Refresh user data
+            if (selectedUser?.id) {
+              const refreshedData = await AdminGetProfileDetails(selectedUser.id)
+              if (refreshedData) {
+                setUser(refreshedData)
+              }
+            }
+            // Call callback if provided
+            if (handlePauseUser) {
+              handlePauseUser()
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error pausing user:', error)
+      setPauseLoader(false)
+    }
+  }
+
+  // Handle delete user
+  const handleDelete = async () => {
+    setDelLoader(true)
+    try {
+      const data = localStorage.getItem('User')
+      if (data) {
+        let u = JSON.parse(data)
+        let apidata = {
+          userId: selectedUser.id,
+        }
+
+        const response = await axios.post(Apis.deleteProfile, apidata, {
+          headers: {
+            Authorization: 'Bearer ' + u.token,
+            'Content-Type': 'application/json',
+          },
+        })
+        
+        if (response.data) {
+          if (response.data.status === true) {
+            setDelLoader(false)
+            setShowDeleteModal(false)
+            // Call callback if provided
+            if (handleDel) {
+              handleDel()
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error deleting user:', error)
+      setDelLoader(false)
+    }
+  }
+
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false)
 
   const renderComponent = () => {
@@ -209,6 +320,12 @@ function AdminProfileData({ selectedUser, from, agencyUser = false }) {
     }
   }
 
+  // #region agent log
+  useEffect(() => {
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminProfileData.js:322',message:'AdminProfileData render',data:{agencyUser,from,hasHandleClose:!!handleClose,hasHandleDel:!!handleDel,hasHandlePauseUser:!!handlePauseUser,selectedUserId:selectedUser?.id,willShowButtons:agencyUser},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'M'})}).catch(()=>{});
+  }, [])
+  // #endregion
+
   return (
     // <Suspense>
     <div
@@ -226,10 +343,57 @@ function AdminProfileData({ selectedUser, from, agencyUser = false }) {
             </div> */}
 
       <div
-        className=" w-full flex flex-row justify-between items-center py-4 px-10 h-full"
+        className=" w-full flex flex-row justify-between items-center py-4 px-10"
         style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
       >
         <div style={{ fontSize: 24, fontWeight: '600' }}>My Account</div>
+        
+        {/* Always show buttons when agencyUser is true or when viewing subaccount */}
+        {(() => {
+          const shouldShow = agencyUser || from === 'subaccount'
+          console.log('AdminProfileData header buttons check:', { agencyUser, from, shouldShow, hasHandleClose: !!handleClose })
+          return shouldShow ? (
+            <div className="flex flex-row items-center gap-4">
+              {pauseLoader ? (
+                <CircularProgress size={25} />
+              ) : (
+                <button
+                  className="text-white bg-brand-primary outline-none rounded-xl px-3"
+                  style={{ height: '50px' }}
+                  onClick={() => {
+                    setShowPauseConfirmationPopup(true)
+                  }}
+                >
+                  {user?.profile_status === 'paused' ? 'Reinstate' : 'Pause'}
+                </button>
+              )}
+              
+              <button
+                className="text-red outline-none rounded-xl px-3"
+                style={{ height: '50px' }}
+                onClick={() => {
+                  setShowDeleteModal(true)
+                }}
+              >
+                Delete
+              </button>
+              
+              {handleClose ? (
+                <CloseBtn onClick={handleClose} />
+              ) : (
+                <button
+                  onClick={() => {
+                    console.log('Close button clicked but handleClose not provided')
+                  }}
+                  className="text-gray-600 hover:text-gray-800"
+                  style={{ padding: '8px' }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          ) : null
+        })()}
       </div>
       <div className="w-12/12 h-full"></div>
       <div className="w-full flex flex-row item-center pl-4 h-full">
@@ -302,6 +466,32 @@ function AdminProfileData({ selectedUser, from, agencyUser = false }) {
           {renderComponent()}
         </div>
       </div>
+
+      {/* Pause Confirmation Modal */}
+      {showPauseConfirmationPopup && (
+        <DelAdminUser
+          showPauseModal={showPauseConfirmationPopup}
+          handleClosePauseModal={() => {
+            setShowPauseConfirmationPopup(false)
+          }}
+          handlePaueUser={handlePause}
+          pauseLoader={pauseLoader}
+          selectedUser={user || selectedUser}
+        />
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <DelAdminUser
+          showDeleteModal={showDeleteModal}
+          handleClose={() => {
+            setShowDeleteModal(false)
+          }}
+          handleDeleteUser={handleDelete}
+          delLoader={delLoader}
+          selectedUser={user || selectedUser}
+        />
+      )}
     </div>
     // </Suspense>
   )
