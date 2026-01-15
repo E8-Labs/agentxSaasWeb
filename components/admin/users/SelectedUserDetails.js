@@ -567,7 +567,7 @@ function SelectedUserDetails({
           )}
 
           <div className="flex flex-row items-start w-full ">
-            <div className={`flex border-r border-[#00000015]  flex-col items-start justify-start w-2/12 px-6 ${(from === "admin" || from === "subaccount") ? "":"h-full" } ${agencyUser ? 'h-screen' : 'h-auto'}`}>
+            <div className={`flex border-r border-[#00000015]  flex-col items-start justify-start w-2/12 px-6 ${(from === "admin" || from === "subaccount") ? "":"h-full" } ${agencyUser ? 'h-auto max-h-[85vh] overflow-y-auto' : 'h-auto'}`}>
             {agencyUser && (
               <div className="w-full flex flex-col gap-2 pt-4">
                 {/* Show company name if no logo for subaccount users */}
@@ -764,7 +764,7 @@ function SelectedUserDetails({
             </div>
 
             <div
-              className={`flex flex-col items-center justify-center pt-2 px-4 ${agencyUser ? 'h-[95vh]' : 'h-[80vh]'} overflow-auto w-10/12`}
+              className={`flex flex-col items-center justify-center pt-2 px-4 ${agencyUser ? 'max-h-[85vh]' : 'h-[80vh]'} overflow-auto w-10/12`}
             >
               <div className="w-full flex flex-row items-center justify-end">
                 <div className="flex flex-row items-center gap-4">
@@ -862,9 +862,9 @@ function SelectedUserDetails({
                 </div>
               </div>
               <div
-                className={`flex flex-col ${selectedManu.name == 'Leads' ? 'items-stretch' : 'items-center justify-center'} ${agencyUser ? 'h-[95vh]' : 'h-[76vh]'} ${selectedManu.name == 'Leads' ? 'overflow-hidden' : 'overflow-auto'} w-full`}
+                className={`flex flex-col ${selectedManu.name == 'Leads' ? 'items-stretch' : 'items-center justify-center'} ${agencyUser ? 'max-h-[85vh]' : 'h-[76vh]'} ${selectedManu.name == 'Leads' ? 'overflow-hidden' : 'overflow-auto'} w-full`}
                 id={selectedManu.name == 'Leads' ? 'adminLeadsParentContainer' : undefined}
-                style={selectedManu.name == 'Leads' ? { overflow: 'hidden', maxHeight: agencyUser ? '95vh' : '76vh' } : {}}
+                style={selectedManu.name == 'Leads' ? { overflow: 'hidden', maxHeight: agencyUser ? '85vh' : '76vh' } : {}}
               >
                 {/* Check permission before rendering content when viewing from agency */}
                 {/* Only block if we're done checking AND permission is denied (for Invitee users only) */}
@@ -900,7 +900,7 @@ function SelectedUserDetails({
                 ) : selectedManu.name == 'Team' ? (
                   <AdminTeam selectedUser={selectedUser} agencyUser={agencyUser} />
                 ) : selectedManu.name == 'Account' ? (
-                  <AdminProfileData selectedUser={selectedUser} from={from} />
+                  <AdminProfileData selectedUser={selectedUser} from={from} agencyUser={agencyUser} />
                 ) : selectedManu.name == 'Messages (Beta)' ? (
                   <Messages selectedUser={selectedUser} agencyUser={agencyUser} />
                 ) : (

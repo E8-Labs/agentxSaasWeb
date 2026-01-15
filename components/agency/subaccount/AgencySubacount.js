@@ -1590,12 +1590,14 @@ function AgencySubacount({ selectedAgency }) {
           }}
         >
           <Box
-            className="w-11/12 p-8 rounded-[15px]"
+            className="w-11/12 p-8 rounded-[15px] max-h-[90vh] overflow-auto"
             sx={{
               ...styles.modalsStyle,
               backgroundColor: 'white',
               position: 'relative',
               zIndex: 1301, // Keep modal content above its backdrop
+              maxHeight: '90vh',
+              overflowY: 'auto',
             }}
           >
             <SelectedUserDetails

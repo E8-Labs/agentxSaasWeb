@@ -10,6 +10,7 @@ import SubAccountBilling from '@/components/dashboard/subaccount/myAccount/SubAc
 import SubAccountPlansAndPayments from '@/components/dashboard/subaccount/myAccount/SubAccountPlansAndPayments'
 import BillingHistory from '@/components/myAccount/BillingHistory'
 import TwilioTrustHub from '@/components/myAccount/TwilioTrustHub'
+import { useHasPermission } from '@/contexts/PermissionContext'
 
 import AdminBasicInfo from './AdminProfileData/AdminBasicInfo'
 import AdminBilling from './AdminProfileData/AdminBilling'
@@ -17,57 +18,151 @@ import AdminPhoneNumber from './AdminProfileData/AdminPhoneNumber'
 import AdminXbarServices from './AdminProfileData/AdminXbarServices'
 import AdminSendFeedback from './AdminSendFeedback'
 
-function AdminProfileData({ selectedUser, from }) {
+function AdminProfileData({ selectedUser, from, agencyUser = false }) {
   let searchParams = useSearchParams()
   const router = useRouter()
 
-  let manuBar = [
+  // Check if logged-in user is an Invitee (team member)
+  const [isInvitee, setIsInvitee] = useState(false)
+  useEffect(() => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        const userData = JSON.parse(localData)
+        setIsInvitee(userData.user?.userRole === 'Invitee')
+      }
+    } catch (error) {
+      console.error('Error checking user role:', error)
+    }
+  }, [])
+
+  // Permission checks for subaccount menu items (only for Invitee users when viewing from agency)
+  const [hasPaymentPermission] = useHasPermission(
+    isInvitee && agencyUser && from === 'subaccount' ? 'subaccount.payment.manage' : '',
+    isInvitee && agencyUser && from === 'subaccount' ? selectedUser?.id : null
+  )
+  const [hasBillingPermission] = useHasPermission(
+    isInvitee && agencyUser && from === 'subaccount' ? 'subaccount.billing.view' : '',
+    isInvitee && agencyUser && from === 'subaccount' ? selectedUser?.id : null
+  )
+  const [hasPhoneNumbersPermission] = useHasPermission(
+    isInvitee && agencyUser && from === 'subaccount' ? 'subaccount.phone_numbers.manage' : '',
+    isInvitee && agencyUser && from === 'subaccount' ? selectedUser?.id : null
+  )
+
+  let allMenuItems = [
     {
       id: 1,
       heading: 'Basic Information',
       subHeading: 'Manage personal information ',
       icon: '/otherAssets/profileCircle.png',
+      permissionKey: null, // Basic info is always accessible
     },
     {
       id: 2,
       heading: 'Plans & Payment',
       subHeading: 'Manage your plans and payment method',
       icon: '/otherAssets/walletIcon.png',
+      permissionKey: 'subaccount.payment.manage',
     },
     {
       id: 3,
       heading: 'Billing',
       subHeading: 'Manage your billing transactions',
       icon: '/otherAssets/billingIcon.png',
+      permissionKey: 'subaccount.billing.view',
     },
     {
       id: 4,
       heading: 'Phone Numbers',
       subHeading: 'All agent phone numbers',
       icon: '/assets/unSelectedCallIcon.png',
+      permissionKey: 'subaccount.phone_numbers.manage',
     },
     {
       id: 5,
       heading: 'Twilio Trust Hub',
       subHeading: 'Caller ID & compliance for trusted calls',
       icon: '/svgIcons/twilioHub.svg',
+      permissionKey: 'subaccount.phone_numbers.manage', // Same key as for phone numbers since they do the same thing
     },
-
     {
       id: 6,
       heading: 'Bar Services',
       subHeading: 'Our version of the genius bar',
       icon: '/svgIcons/agentXIcon.svg',
+      permissionKey: null, // No specific permission for this
     },
   ]
 
-  const [tabSelected, setTabSelected] = useState(1)
+  // Filter menu items based on permissions when viewing from agency as Invitee
+  const manuBar = React.useMemo(() => {
+    if (!agencyUser || !isInvitee || from !== 'subaccount') {
+      // For non-agency context or non-Invitee users, show all items
+      return allMenuItems
+    }
 
-  const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected])
+    // For Invitee users viewing from agency, filter based on permissions
+    return allMenuItems.filter((item) => {
+      if (!item.permissionKey) {
+        return true // Always show items without permission keys
+      }
+
+      // Check permission based on permission key
+      if (item.permissionKey === 'subaccount.payment.manage') {
+        return hasPaymentPermission
+      } else if (item.permissionKey === 'subaccount.billing.view') {
+        return hasBillingPermission
+      } else if (item.permissionKey === 'subaccount.phone_numbers.manage') {
+        return hasPhoneNumbersPermission
+      }
+
+      return true // Default to showing if permission check is unclear
+    })
+  }, [agencyUser, isInvitee, from, hasPaymentPermission, hasBillingPermission, hasPhoneNumbersPermission])
+
+  const [tabSelected, setTabSelected] = useState(1)
+  const [selectedManu, setSelectedManu] = useState(null)
+
+  // Update selectedManu when manuBar changes
+  useEffect(() => {
+    if (manuBar.length > 0) {
+      const selectedItem = manuBar.find((item) => item.id === tabSelected)
+      if (selectedItem) {
+        setSelectedManu(selectedItem)
+      } else {
+        // If current tab is not available, default to first item
+        setTabSelected(manuBar[0].id)
+        setSelectedManu(manuBar[0])
+      }
+    }
+  }, [manuBar, tabSelected])
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false)
 
   const renderComponent = () => {
-    // setTabSelected(selectedMenuId);
+    // Check permission for the selected tab when viewing from agency as Invitee
+    if (agencyUser && isInvitee && from === 'subaccount') {
+      const selectedMenuItem = allMenuItems.find((item) => item.id === tabSelected)
+      if (selectedMenuItem?.permissionKey) {
+        let hasPermission = false
+        if (selectedMenuItem.permissionKey === 'subaccount.payment.manage') {
+          hasPermission = hasPaymentPermission
+        } else if (selectedMenuItem.permissionKey === 'subaccount.billing.view') {
+          hasPermission = hasBillingPermission
+        } else if (selectedMenuItem.permissionKey === 'subaccount.phone_numbers.manage') {
+          hasPermission = hasPhoneNumbersPermission
+        }
+
+        if (!hasPermission) {
+          return (
+            <div style={{ padding: '2rem', textAlign: 'center' }}>
+              <h2>Access Denied</h2>
+              <p>You do not have permission to access this section.</p>
+            </div>
+          )
+        }
+      }
+    }
 
     switch (tabSelected) {
       case 1:
@@ -151,15 +246,14 @@ function AdminProfileData({ selectedUser, from }) {
                   fontWeight: 'normal', // Optional: Adjust the font weight
                 }}
                 onClick={() => {
-                  //   setSelectedManu(index + 1);
-                  setTabSelected(index + 1)
+                  setTabSelected(item.id)
                 }}
               >
                 <div
                   className="p-4 rounded-lg flex flex-row gap-2 items-start mt-4 w-full"
                   style={{
                     backgroundColor:
-                      index === tabSelected - 1 ? 'hsl(var(--brand-primary) / 0.1)' : 'transparent',
+                      item.id === tabSelected ? 'hsl(var(--brand-primary) / 0.1)' : 'transparent',
                   }}
                 >
                   <Image src={item.icon} height={24} width={24} alt="icon" />
