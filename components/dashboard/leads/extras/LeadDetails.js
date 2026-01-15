@@ -232,7 +232,7 @@ const LeadDetails = ({
   const [phoneLoading, setPhoneLoading] = useState(false)
   const [sendEmailLoader, setSendEmailLoader] = useState(false)
   const [sendSMSLoader, setSendSMSLoader] = useState(false)
-  
+
   // Email editing state
   const [isEditingEmail, setIsEditingEmail] = useState(false)
   const [editedEmail, setEditedEmail] = useState('')
@@ -275,16 +275,16 @@ const LeadDetails = ({
 
   // Redux dispatch for dialer
   const dispatch = useDispatch()
-  
+
   // Get user data from Redux
   const { user: reduxUser, setUser: setReduxUser } = useUser()
-  
+
   // Determine which user's capabilities to use
   // If selectedUser is provided (admin/agency view), use userLocalData, otherwise use reduxUser
   const effectiveUser = React.useMemo(() => {
     return selectedUser?.id ? userLocalData : reduxUser
   }, [selectedUser?.id, userLocalData, reduxUser])
-  
+
   // Use backend-provided flags for capability checks
   // Backend sets: shouldShowAllowDialerUpgrade, shouldShowDialerRequestFeature, etc.
   const dialerCapability = React.useMemo(() => {
@@ -295,7 +295,7 @@ const LeadDetails = ({
       showRequestFeature: planCapabilities.shouldShowDialerRequestFeature === true,
     }
   }, [effectiveUser?.planCapabilities])
-  
+
   const emailCapability = React.useMemo(() => {
     const planCapabilities = effectiveUser?.planCapabilities || {}
     return {
@@ -304,7 +304,7 @@ const LeadDetails = ({
       showRequestFeature: planCapabilities.shouldShowEmailRequestFeature === true,
     }
   }, [effectiveUser?.planCapabilities])
-  
+
   const smsCapability = React.useMemo(() => {
     const planCapabilities = effectiveUser?.planCapabilities || {}
     return {
@@ -313,7 +313,7 @@ const LeadDetails = ({
       showRequestFeature: planCapabilities.shouldShowSmsRequestFeature === true,
     }
   }, [effectiveUser?.planCapabilities])
-  
+
   // Memoize the selectedUser to pass to UpgradePlan to prevent it from becoming null on re-renders
   const memoizedSelectedUserForUpgrade = React.useMemo(() => {
     // Only use selectedUser prop if it has an id - no fallback to userLocalData
@@ -325,38 +325,38 @@ const LeadDetails = ({
     })
     return userToPass
   }, [selectedUser?.id]) // Only recalculate when selectedUser.id changes
-  
+
   // State to trigger upgrade modal externally (use counter to ensure it triggers even if already true)
   const [triggerUpgradeModal, setTriggerUpgradeModal] = React.useState(0)
   const [triggerEmailUpgradeModal, setTriggerEmailUpgradeModal] = React.useState(0)
   const [triggerSMSUpgradeModal, setTriggerSMSUpgradeModal] = React.useState(0)
-  
+
   // Handler to trigger upgrade modal
   const handleUpgradeClick = React.useCallback(() => {
     // Use counter to ensure modal opens even if state was already true
     setTriggerUpgradeModal(prev => prev + 1)
   }, [])
-  
+
   // Handler to trigger email upgrade modal
   const handleEmailUpgradeClick = React.useCallback(() => {
     setTriggerEmailUpgradeModal(prev => prev + 1)
   }, [])
-  
+
   // Handler to trigger SMS upgrade modal
   const handleSMSUpgradeClick = React.useCallback(() => {
     setTriggerSMSUpgradeModal(prev => prev + 1)
   }, [])
-  
+
   // Handler to reset trigger after modal closes
   const handleUpgradeModalClose = React.useCallback(() => {
     setTriggerUpgradeModal(0)
   }, [])
-  
+
   // Handler to reset email upgrade modal trigger
   const handleEmailUpgradeModalClose = React.useCallback(() => {
     setTriggerEmailUpgradeModal(0)
   }, [])
-  
+
   // Handler to reset SMS upgrade modal trigger
   const handleSMSUpgradeModalClose = React.useCallback(() => {
     setTriggerSMSUpgradeModal(0)
@@ -365,7 +365,7 @@ const LeadDetails = ({
   useEffect(() => {
     const getData = async () => {
       // Use AdminGetProfileDetails if selectedUser is provided (admin view), otherwise use getProfileDetails (regular user)
-      let user = selectedUser?.id 
+      let user = selectedUser?.id
         ? await AdminGetProfileDetails(selectedUser.id)
         : await getProfileDetails()
       if (user) {
@@ -444,7 +444,7 @@ const LeadDetails = ({
       if (data) {
         let u = JSON.parse(data)
         let path = Apis.getTeam
-        
+
         // Add userId parameter if selectedUser is provided (admin view)
         if (selectedUser?.id) {
           path = path + `?userId=${selectedUser.id}`
@@ -609,7 +609,7 @@ const LeadDetails = ({
 
   const getNumbers = async () => {
     console.log('getNumbers is called')
-    
+
     // Use selectedUser prop if provided (admin view), otherwise fall back to localStorage (existing behavior)
     let userId = null
     if (selectedUser?.id) {
@@ -673,7 +673,7 @@ const LeadDetails = ({
 
     try {
       setUpdateEmailLoader(true)
-      
+
       const localDetails = localStorage.getItem('User')
       if (!localDetails) {
         showSnackbar('Please log in again', SnackbarTypes.Error)
@@ -1707,7 +1707,7 @@ const LeadDetails = ({
         return
       }
       setMessageModalMode('email')
-      
+
       console.log("Selected User in LeadDetails", selectedUser)
       setShowMessageModal(true)
     } else if (opt.value === 'call') {
@@ -1777,7 +1777,7 @@ const LeadDetails = ({
                     </div>
                   )}
                   {/* <div> */}
-                    <div className="flex flex-row items-start justify-between mt-4  w-full">
+                  <div className="flex flex-row items-start justify-between mt-4  w-full">
                     <div className="flex flex-col items-start  w-full">
                       <div className="flex flex-row items-between justify-between w-full">
                         <div className="flex flex-row items-center gap-3">
@@ -1982,89 +1982,89 @@ const LeadDetails = ({
                         </div>
                       </div>
                       <div className="space-y-2 text-sm mt-2">
-                          {/* Email with edit functionality */}
-                          <div className="flex items-center gap-2">
-                            <MailIcon className="h-4 w-4 text-muted-foreground" />
-                            {isEditingEmail ? (
-                              <div className="flex items-center gap-2 flex-1">
-                                <input
-                                  type="email"
-                                  value={editedEmail}
-                                  onChange={(e) => setEditedEmail(e.target.value)}
-                                  className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm outline-none focus:border-brand-primary"
-                                  placeholder="Enter email"
-                                  disabled={updateEmailLoader}
-                                  autoFocus
-                                />
-                                <button
-                                  onClick={updateLeadEmail}
-                                  disabled={updateEmailLoader}
-                                  className="p-1 text-green-600 hover:text-green-700 disabled:opacity-50"
-                                  title="Save"
-                                >
-                                  {updateEmailLoader ? (
-                                    <CircularProgress size={16} />
-                                  ) : (
-                                    <Check className="h-4 w-4" />
-                                  )}
-                                </button>
-                                  <button
-                                    onClick={handleCancelEditEmail}
-                                    disabled={updateEmailLoader}
-                                    className="p-1 text-red-600 hover:text-red-700 disabled:opacity-50"
-                                    title="Cancel"
-                                  >
-                                    <XIcon className="h-4 w-4" />
-                                  </button>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-2 flex-1">
-                                <span className="text-sm">{selectedLeadsDetails?.email || 'No email'}</span>
-                                <button
-                                  onClick={handleEditEmailClick}
-                                  className="p-1 text-muted-foreground hover:text-brand-primary"
-                                  title={selectedLeadsDetails?.email ? "Edit email" : "Add email"}
-                                >
-                                  <Pencil className="h-3 w-3" />
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                          {selectedLeadsDetails?.phone && <InfoRow icon={<PhoneIcon className="h-4 w-4" />}>{selectedLeadsDetails?.phone}</InfoRow>}
-                          {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>{selectedLeadsDetails?.address}</InfoRow>}
-                          <InfoRow icon={<WorkflowIcon className="h-4 w-4" />}>
-                            {selectedLeadsDetails?.pipeline?.title ||
-                              selectedLeadsDetails?.pipeline?.name ||
-                              selectedLeadsDetails?.pipeline ||
-                              '-'}
-                          </InfoRow>
-                          {selectedLeadsDetails?.booking && <div className="flex flex-row items-center gap-2">
-                            <InfoRow icon={<CalendarIcon className="h-4 w-4" />}>{GetFormattedDateString(selectedLeadsDetails?.booking?.datetime, true)}</InfoRow>
-                            {
-                              selectedLeadsDetails?.booking?.duration && (
-                                <TagPill label={`${selectedLeadsDetails?.booking?.duration} min`} />
-                              )
-                            }
-                          </div>}
-                          <div className="flex items-center gap-2">
-                            <TagIcon className="h-4 w-4 text-muted-foreground" />
-                            <TagManagerCn
-                              tags={selectedLeadsDetails?.tags || []}
-                              tagInputRef={tagInputRef}
-                              tagInputValue={tagInputValue}
-                              onInputChange={handleTagInputChange}
-                              onInputKeyDown={handleTagInputKeyDown}
-                              showSuggestions={showTagSuggestions}
-                              setShowSuggestions={setShowTagSuggestions}
-                              tagSuggestions={tagSuggestions}
-                              onSuggestionClick={handleTagSuggestionClick}
-                              addTagLoader={addTagLoader}
+                        {/* Email with edit functionality */}
+                        <div className="flex items-center gap-2">
+                          <MailIcon className="h-4 w-4 text-muted-foreground" />
+                          {isEditingEmail ? (
+                            <div className="flex items-center gap-2 flex-1">
+                              <input
+                                type="email"
+                                value={editedEmail}
+                                onChange={(e) => setEditedEmail(e.target.value)}
+                                className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm outline-none focus:border-brand-primary"
+                                placeholder="Enter email"
+                                disabled={updateEmailLoader}
+                                autoFocus
+                              />
+                              <button
+                                onClick={updateLeadEmail}
+                                disabled={updateEmailLoader}
+                                className="p-1 text-green-600 hover:text-green-700 disabled:opacity-50"
+                                title="Save"
+                              >
+                                {updateEmailLoader ? (
+                                  <CircularProgress size={16} />
+                                ) : (
+                                  <Check className="h-4 w-4" />
+                                )}
+                              </button>
+                              <button
+                                onClick={handleCancelEditEmail}
+                                disabled={updateEmailLoader}
+                                className="p-1 text-red-600 hover:text-red-700 disabled:opacity-50"
+                                title="Cancel"
+                              >
+                                <XIcon className="h-4 w-4" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-2 flex-1">
+                              <span className="text-sm">{selectedLeadsDetails?.email || 'No email'}</span>
+                              <button
+                                onClick={handleEditEmailClick}
+                                className="p-1 text-muted-foreground hover:text-brand-primary"
+                                title={selectedLeadsDetails?.email ? "Edit email" : "Add email"}
+                              >
+                                <Pencil className="h-3 w-3" />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                        {selectedLeadsDetails?.phone && <InfoRow icon={<PhoneIcon className="h-4 w-4" />}>{selectedLeadsDetails?.phone}</InfoRow>}
+                        {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>{selectedLeadsDetails?.address}</InfoRow>}
+                        <InfoRow icon={<WorkflowIcon className="h-4 w-4" />}>
+                          {selectedLeadsDetails?.pipeline?.title ||
+                            selectedLeadsDetails?.pipeline?.name ||
+                            selectedLeadsDetails?.pipeline ||
+                            '-'}
+                        </InfoRow>
+                        {selectedLeadsDetails?.booking && <div className="flex flex-row items-center gap-2">
+                          <InfoRow icon={<CalendarIcon className="h-4 w-4" />}>{GetFormattedDateString(selectedLeadsDetails?.booking?.datetime, true)}</InfoRow>
+                          {
+                            selectedLeadsDetails?.booking?.duration && (
+                              <TagPill label={`${selectedLeadsDetails?.booking?.duration} min`} />
+                            )
+                          }
+                        </div>}
+                        <div className="flex items-center gap-2">
+                          <TagIcon className="h-4 w-4 text-muted-foreground" />
+                          <TagManagerCn
+                            tags={selectedLeadsDetails?.tags || []}
+                            tagInputRef={tagInputRef}
+                            tagInputValue={tagInputValue}
+                            onInputChange={handleTagInputChange}
+                            onInputKeyDown={handleTagInputKeyDown}
+                            showSuggestions={showTagSuggestions}
+                            setShowSuggestions={setShowTagSuggestions}
+                            tagSuggestions={tagSuggestions}
+                            onSuggestionClick={handleTagSuggestionClick}
+                            addTagLoader={addTagLoader}
                             onRemoveTag={handleDelTag}
                             delTagLoader={DelTagLoader}
                             onRefreshSuggestions={getUniqueTags}
-                            />
-                          </div>
-                          <div className="flex items-center gap-2">
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
                           {/* <Avatar className="h-8 w-8">
                               {selectedLeadsDetails?.assignee?.avatar ? (
                                 <AvatarImage src={selectedLeadsDetails?.assignee.avatar} alt={selectedLeadsDetails?.assignee.name} />
@@ -2072,90 +2072,90 @@ const LeadDetails = ({
                                 <AvatarFallback>{selectedLeadsDetails?.assignee?.name?.[0] || 'A'}</AvatarFallback>
                             )}
                           </Avatar> */}
-                            <TeamAssignDropdownCn
-                              label="Assign"
-                              teamOptions={[
-                                ...(myTeamAdmin ? [myTeamAdmin] : []),
-                                ...(myTeam || []),
-                              ].map((tm) => {
-                                // Get the team member ID - check all possible fields
-                                // For myTeam items from TeamResource:
-                                // - tm.id is the TeamModel id (NOT the user id)
-                                // - tm.invitedUserId is the actual user ID
-                                // - tm.invitedUser.id is also the actual user ID
-                                // We need to use invitedUserId or invitedUser.id, NOT tm.id
-                                const id = tm.invitedUserId || tm.invitedUser?.id || tm.id
-                                
-                                // Log the team member structure
-                                console.log('🔍 [LeadDetails] Processing team member:', {
-                                  tm: tm,
-                                  tmId: tm.id,
-                                  tmInvitedUserId: tm.invitedUserId,
-                                  tmInvitedUser_id: tm.invitedUser?.id,
-                                  finalId: id,
-                                  tmName: tm.name || tm.invitedUser?.name,
-                                })
-                                
-                                const isSelected = (selectedLeadsDetails?.teamsAssigned || []).some(
-                                  (assigned) => {
-                                    // Check all possible ID fields in the assigned team member
-                                    const assignedId = assigned.id || assigned.invitedUserId || assigned.invitedUser?.id
-                                    const matches = String(assignedId) === String(id)
-                                    
-                                    if (matches) {
-                                      console.log('✅ [LeadDetails] Match found:', {
-                                        teamMemberId: id,
-                                        teamMemberName: tm.name || tm.invitedUser?.name,
-                                        assignedId: assignedId,
-                                        assignedName: assigned.name || assigned.invitedUser?.name,
-                                        assignedFullObject: assigned,
-                                      })
-                                    }
-                                    
-                                    return matches
+                          <TeamAssignDropdownCn
+                            label="Assign"
+                            teamOptions={[
+                              ...(myTeamAdmin ? [myTeamAdmin] : []),
+                              ...(myTeam || []),
+                            ].map((tm) => {
+                              // Get the team member ID - check all possible fields
+                              // For myTeam items from TeamResource:
+                              // - tm.id is the TeamModel id (NOT the user id)
+                              // - tm.invitedUserId is the actual user ID
+                              // - tm.invitedUser.id is also the actual user ID
+                              // We need to use invitedUserId or invitedUser.id, NOT tm.id
+                              const id = tm.invitedUserId || tm.invitedUser?.id || tm.id
+
+                              // Log the team member structure
+                              console.log('🔍 [LeadDetails] Processing team member:', {
+                                tm: tm,
+                                tmId: tm.id,
+                                tmInvitedUserId: tm.invitedUserId,
+                                tmInvitedUser_id: tm.invitedUser?.id,
+                                finalId: id,
+                                tmName: tm.name || tm.invitedUser?.name,
+                              })
+
+                              const isSelected = (selectedLeadsDetails?.teamsAssigned || []).some(
+                                (assigned) => {
+                                  // Check all possible ID fields in the assigned team member
+                                  const assignedId = assigned.id || assigned.invitedUserId || assigned.invitedUser?.id
+                                  const matches = String(assignedId) === String(id)
+
+                                  if (matches) {
+                                    console.log('✅ [LeadDetails] Match found:', {
+                                      teamMemberId: id,
+                                      teamMemberName: tm.name || tm.invitedUser?.name,
+                                      assignedId: assignedId,
+                                      assignedName: assigned.name || assigned.invitedUser?.name,
+                                      assignedFullObject: assigned,
+                                    })
                                   }
-                                )
-                                
-                                // Log for debugging
-                                if (selectedLeadsDetails?.teamsAssigned && selectedLeadsDetails.teamsAssigned.length > 0) {
-                                  console.log('🔍 [LeadDetails] Team member check:', {
-                                    teamMemberId: id,
-                                    teamMemberName: tm.name || tm.invitedUser?.name,
-                                    isSelected: isSelected,
-                                    teamsAssignedIds: selectedLeadsDetails.teamsAssigned.map(t => ({
-                                      id: t.id,
-                                      invitedUserId: t.invitedUserId,
-                                      invitedUser_id: t.invitedUser?.id,
-                                    })),
-                                  })
+
+                                  return matches
                                 }
-                                
-                                return {
-                                  id,
-                                  label: tm.name || tm.invitedUser?.name || 'Unknown',
-                                  avatar: tm.thumb_profile_image || tm.invitedUser?.thumb_profile_image,
-                                  selected: isSelected,
-                                  raw: tm,
-                                }
-                              })}
-                              onToggle={(teamId, team, shouldAssign) => {
-                                if (shouldAssign) {
-                                  handleAssignLeadToTeammember?.(team.raw || team)
-                                } else {
-                                  handleUnassignLeadFromTeammember?.(teamId)
-                                }
-                              }}
-                              withoutBorder={true}
-                            />
-                          </div>
-                            </div>
-                        
-                        
+                              )
+
+                              // Log for debugging
+                              if (selectedLeadsDetails?.teamsAssigned && selectedLeadsDetails.teamsAssigned.length > 0) {
+                                console.log('🔍 [LeadDetails] Team member check:', {
+                                  teamMemberId: id,
+                                  teamMemberName: tm.name || tm.invitedUser?.name,
+                                  isSelected: isSelected,
+                                  teamsAssignedIds: selectedLeadsDetails.teamsAssigned.map(t => ({
+                                    id: t.id,
+                                    invitedUserId: t.invitedUserId,
+                                    invitedUser_id: t.invitedUser?.id,
+                                  })),
+                                })
+                              }
+
+                              return {
+                                id,
+                                label: tm.name || tm.invitedUser?.name || 'Unknown',
+                                avatar: tm.thumb_profile_image || tm.invitedUser?.thumb_profile_image,
+                                selected: isSelected,
+                                raw: tm,
+                              }
+                            })}
+                            onToggle={(teamId, team, shouldAssign) => {
+                              if (shouldAssign) {
+                                handleAssignLeadToTeammember?.(team.raw || team)
+                              } else {
+                                handleUnassignLeadFromTeammember?.(teamId)
+                              }
+                            }}
+                            withoutBorder={true}
+                          />
+                        </div>
                       </div>
+
 
                     </div>
 
-                    {/* <div className="w-full mt-3">
+                  </div>
+
+                  {/* <div className="w-full mt-3">
                       <div className="">
                         {globalLoader ? (
                           <CircularProgress size={25} />
@@ -2188,207 +2188,207 @@ const LeadDetails = ({
                     }}
                   />
 
-                    <AuthSelectionPopup
-                      selectedUser={selectedUser}
-                      open={showAuthSelectionPopup}
-                      onClose={() => setShowAuthSelectionPopup(false)}
-                      onSuccess={() => {
+                  <AuthSelectionPopup
+                    selectedUser={selectedUser}
+                    open={showAuthSelectionPopup}
+                    onClose={() => setShowAuthSelectionPopup(false)}
+                    onSuccess={() => {
+                      setMessageModalMode('email')
+                      setShowMessageModal(true)
+                      setShowAuthSelectionPopup(false)
+                    }}
+                    setShowEmailTempPopup={(value) => {
+                      if (value) {
                         setMessageModalMode('email')
                         setShowMessageModal(true)
-                        setShowAuthSelectionPopup(false)
-                      }}
-                      setShowEmailTempPopup={(value) => {
-                        if (value) {
-                          setMessageModalMode('email')
-                          setShowMessageModal(true)
-                        }
-                        setShowAuthSelectionPopup(false)
-                      }}
-                      showEmailTempPopup={showMessageModal && messageModalMode === 'email'}
-                      selectedGoogleAccount={selectedGoogleAccount}
-                      setSelectedGoogleAccount={(account) => {
-                        setSelectedGoogleAccount(account)
-                      }}
-                    />
+                      }
+                      setShowAuthSelectionPopup(false)
+                    }}
+                    showEmailTempPopup={showMessageModal && messageModalMode === 'email'}
+                    selectedGoogleAccount={selectedGoogleAccount}
+                    setSelectedGoogleAccount={(account) => {
+                      setSelectedGoogleAccount(account)
+                    }}
+                  />
 
-                    {/* Modal for All Emails */}
-                    <Modal
-                      open={showAllEmails}
-                      onClose={() => setShowAllEmails(null)}
-                      closeAfterTransition
-                      BackdropProps={{
-                        timeout: 1000,
-                        sx: {
-                          backgroundColor: '#00000020',
-                          zIndex: 1500,
-                          // //backdropFilter: "blur(20px)",
-                        },
+                  {/* Modal for All Emails */}
+                  <Modal
+                    open={showAllEmails}
+                    onClose={() => setShowAllEmails(null)}
+                    closeAfterTransition
+                    BackdropProps={{
+                      timeout: 1000,
+                      sx: {
+                        backgroundColor: '#00000020',
+                        zIndex: 1500,
+                        // //backdropFilter: "blur(20px)",
+                      },
+                    }}
+                  >
+                    <Box
+                      className="lg:w-5/12 sm:w-full w-8/12"
+                      sx={{
+                        ...styles.modalsStyle,
+                        zIndex: 9999, // Higher than backdrop (1500) to appear on top
+                        position: 'relative',
                       }}
                     >
-                      <Box
-                        className="lg:w-5/12 sm:w-full w-8/12"
-                        sx={{
-                          ...styles.modalsStyle,
-                          zIndex:9999, // Higher than backdrop (1500) to appear on top
-                          position: 'relative',
-                        }}
-                      >
-                        <div className="flex flex-row justify-center w-full">
-                          <div
-                            className="sm:w-full w-full"
-                            style={{
-                              backgroundColor: '#ffffff',
-                              padding: 20,
-                              borderRadius: '13px',
-                            }}
-                          >
-                            <div>
-                              {selectedLeadsDetails?.emails.map(
-                                (email, emailIndex) => {
-                                  return (
-                                    <div key={emailIndex}>
-                                      <div
-                                        className="flex flex-row items-center gap-2 px-1 mt-2 rounded-lg py-2 border border-[#00000020]"
-                                        style={styles.paragraph}
-                                      >
-                                        <Image
-                                          src={'/assets/power.png'}
-                                          height={9}
-                                          width={7}
-                                          alt="*"
-                                        />
-                                        <div>
-                                          <span className="text-brand-primary">
-                                            New
-                                          </span>{' '}
-                                          {email?.email}
-                                        </div>
+                      <div className="flex flex-row justify-center w-full">
+                        <div
+                          className="sm:w-full w-full"
+                          style={{
+                            backgroundColor: '#ffffff',
+                            padding: 20,
+                            borderRadius: '13px',
+                          }}
+                        >
+                          <div>
+                            {selectedLeadsDetails?.emails.map(
+                              (email, emailIndex) => {
+                                return (
+                                  <div key={emailIndex}>
+                                    <div
+                                      className="flex flex-row items-center gap-2 px-1 mt-2 rounded-lg py-2 border border-[#00000020]"
+                                      style={styles.paragraph}
+                                    >
+                                      <Image
+                                        src={'/assets/power.png'}
+                                        height={9}
+                                        width={7}
+                                        alt="*"
+                                      />
+                                      <div>
+                                        <span className="text-brand-primary">
+                                          New
+                                        </span>{' '}
+                                        {email?.email}
                                       </div>
                                     </div>
-                                  )
-                                },
-                              )}
-                            </div>
-                            <div className="mt-4">
-                              <button
-                                onClick={() => {
-                                  setShowAllEmails(false)
-                                }}
-                                className="h-[50px] rounded-xl bg-brand-primary text-white w-full"
-                              >
-                                Close
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </Box>
-                    </Modal>
-
-
-                    <Popover
-                      id={id}
-                      open={open}
-                      anchorEl={anchorEl}
-                      onClose={handleClosePopup}
-                      anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'left',
-                      }}
-                      transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'left',
-                      }}
-                      disablePortal={false}
-                      PaperProps={{
-                        elevation: 0,
-                        style: {
-                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-                          borderRadius: '10px',
-                          minWidth: '120px',
-                          zIndex: 9999,
-                        },
-                      }}
-                    >
-                      <button
-                        className="hover:bg-gray-50"
-                        onClick={() => {
-                          handleAssignLeadToTeammember(myTeamAdmin)
-                        }}
-                      >
-                        <div className="p-2 w-full flex flex-row items-center justify-start gap-2 ">
-                          <div className="">
-                            {myTeamAdmin?.thumb_profile_image ? (
-                              <Image
-                                className="rounded-full"
-                                src={myTeamAdmin.thumb_profile_image}
-                                height={32}
-                                width={32}
-                                alt="*"
-                                style={{
-                                  borderRaduis: 50,
-                                }}
-                              />
-                            ) : (
-                              <div
-                                className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                              // onClick={() => handleToggleClick(item.id)}
-                              >
-                                {myTeamAdmin?.name?.slice(0, 1)}
-                              </div>
+                                  </div>
+                                )
+                              },
                             )}
                           </div>
-                          <div className="">{myTeamAdmin?.name}</div>
-                          <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
-                            Admin
+                          <div className="mt-4">
+                            <button
+                              onClick={() => {
+                                setShowAllEmails(false)
+                              }}
+                              className="h-[50px] rounded-xl bg-brand-primary text-white w-full"
+                            >
+                              Close
+                            </button>
                           </div>
                         </div>
-                      </button>
-                      {myTeam.length > 0 ? (
-                        <div>
-                          {myTeam.map((item, index) => {
-                            return (
-                              <div
-                                key={index}
-                                className="p-2 flex flex-col gap-2"
-                                style={{ fontWeight: '500', fontSize: 15 }}
-                              >
-                                <button
-                                  className="text-start flex flex-row items-center justify-start gap-2 hover:bg-gray-50"
-                                  onClick={() => {
-                                    handleAssignLeadToTeammember(item)
-                                  }}
-                                >
-                                  {item?.invitedUser?.thumb_profile_image ? (
-                                    <Image
-                                      className="rounded-full"
-                                      src={
-                                        item.invitedUser?.thumb_profile_image
-                                      }
-                                      height={32}
-                                      width={32}
-                                      alt="*"
-                                      style={{}}
-                                    />
-                                  ) : (
-                                    <div
-                                      className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                    // onClick={() =>
-                                    //   handleToggleClick(item.id)
-                                    // }
-                                    >
-                                      {item?.name?.slice(0, 1)}
-                                    </div>
-                                  )}
-                                  {item?.name}
-                                </button>
-                              </div>
-                            )
-                          })}
+                      </div>
+                    </Box>
+                  </Modal>
+
+
+                  <Popover
+                    id={id}
+                    open={open}
+                    anchorEl={anchorEl}
+                    onClose={handleClosePopup}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'left',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'left',
+                    }}
+                    disablePortal={false}
+                    PaperProps={{
+                      elevation: 0,
+                      style: {
+                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                        borderRadius: '10px',
+                        minWidth: '120px',
+                        zIndex: 9999,
+                      },
+                    }}
+                  >
+                    <button
+                      className="hover:bg-gray-50"
+                      onClick={() => {
+                        handleAssignLeadToTeammember(myTeamAdmin)
+                      }}
+                    >
+                      <div className="p-2 w-full flex flex-row items-center justify-start gap-2 ">
+                        <div className="">
+                          {myTeamAdmin?.thumb_profile_image ? (
+                            <Image
+                              className="rounded-full"
+                              src={myTeamAdmin.thumb_profile_image}
+                              height={32}
+                              width={32}
+                              alt="*"
+                              style={{
+                                borderRaduis: 50,
+                              }}
+                            />
+                          ) : (
+                            <div
+                              className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                            // onClick={() => handleToggleClick(item.id)}
+                            >
+                              {myTeamAdmin?.name?.slice(0, 1)}
+                            </div>
+                          )}
                         </div>
-                      ) : (
-                        ''
-                      )}
-                    </Popover>
+                        <div className="">{myTeamAdmin?.name}</div>
+                        <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
+                          Admin
+                        </div>
+                      </div>
+                    </button>
+                    {myTeam.length > 0 ? (
+                      <div>
+                        {myTeam.map((item, index) => {
+                          return (
+                            <div
+                              key={index}
+                              className="p-2 flex flex-col gap-2"
+                              style={{ fontWeight: '500', fontSize: 15 }}
+                            >
+                              <button
+                                className="text-start flex flex-row items-center justify-start gap-2 hover:bg-gray-50"
+                                onClick={() => {
+                                  handleAssignLeadToTeammember(item)
+                                }}
+                              >
+                                {item?.invitedUser?.thumb_profile_image ? (
+                                  <Image
+                                    className="rounded-full"
+                                    src={
+                                      item.invitedUser?.thumb_profile_image
+                                    }
+                                    height={32}
+                                    width={32}
+                                    alt="*"
+                                    style={{}}
+                                  />
+                                ) : (
+                                  <div
+                                    className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                                  // onClick={() =>
+                                  //   handleToggleClick(item.id)
+                                  // }
+                                  >
+                                    {item?.name?.slice(0, 1)}
+                                  </div>
+                                )}
+                                {item?.name}
+                              </button>
+                            </div>
+                          )
+                        })}
+                      </div>
+                    ) : (
+                      ''
+                    )}
+                  </Popover>
 
 
                   {/* </div> */}
@@ -2428,7 +2428,7 @@ const LeadDetails = ({
                       value={activeTab}
                       onValueChange={handleTabChange}
                     />
-                      </div>
+                  </div>
                   <div
                     className="w-full mb-2"
                     style={{ height: '1px', backgroundColor: '#15151510' }}
@@ -2437,14 +2437,14 @@ const LeadDetails = ({
                   <div style={{ paddingInline: 0 }}>
                     {showPerplexityDetails && (
                       <InsightsTabCN
-                          selectedLeadsDetails={selectedLeadsDetails}
-                      showConfirmPerplexity={showConfirmPerplexity}
-                      setshowConfirmPerplexity={setshowConfirmPerplexity}
+                        selectedLeadsDetails={selectedLeadsDetails}
+                        showConfirmPerplexity={showConfirmPerplexity}
+                        setshowConfirmPerplexity={setshowConfirmPerplexity}
                         userLocalData={userLocalData}
-                      handleEnrichLead={handleEnrichLead}
-                      loading={loading}
-                      creditCost={creditCost}
-                    />
+                        handleEnrichLead={handleEnrichLead}
+                        loading={loading}
+                        creditCost={creditCost}
+                      />
                     )}
 
                     {showKYCDetails && (
@@ -2476,8 +2476,8 @@ const LeadDetails = ({
                           }
                         }}
                       />
-                                                      )}
-                                                    </div>
+                    )}
+                  </div>
                   <div
                     style={{
                       position: 'absolute',
@@ -2738,8 +2738,8 @@ const LeadDetails = ({
           },
         }}
       >
-        <Box 
-          className="lg:w-3/12 sm:w-5/12 w-3/12" 
+        <Box
+          className="lg:w-3/12 sm:w-5/12 w-3/12"
           sx={{
             ...styles.modalsStyle,
             zIndex: 1601, // Higher than Modal backdrop (1600) to appear on top
@@ -2760,9 +2760,20 @@ const LeadDetails = ({
                 style={{ fontWeight: '600', fontSize: 15 }}
                 onClick={() => {
                   if (showAudioPlay?.callId) {
-                    window.open(`/recordings/${showAudioPlay.callId}`, '_blank')
-                    setShowAudioPlay(null)
+                    let baseUrl;
+
+                    if (reduxUser?.agencyBranding?.customDomain) {
+                      baseUrl = `https://${reduxUser.agencyBranding.customDomain}`;
+                    } else {
+                      baseUrl = window.location.origin;
+                    }
+
+                    const url = `${baseUrl}/recordings/${showAudioPlay.callId}`;
+                    window.open(url, "_blank", "noopener,noreferrer");
+
+                    setShowAudioPlay(null);
                   }
+
                 }}
               >
                 <Image
@@ -2801,9 +2812,9 @@ const LeadDetails = ({
         open={showMessageModal}
         onClose={() => setShowMessageModal(false)}
         onSend={async (data) => {
-          if(data.mode === 'sms') {
+          if (data.mode === 'sms') {
             await sendSMSToLead(data)
-          }else if(data.mode === 'email') {
+          } else if (data.mode === 'email') {
             await sendEmailToLead(data)
           }
         }}
@@ -2833,7 +2844,7 @@ const LeadDetails = ({
               // Refresh user data after successful upgrade
               const getData = async () => {
                 // Use AdminGetProfileDetails if selectedUser is provided (admin view), otherwise use getProfileDetails (regular user)
-                let user = selectedUser?.id 
+                let user = selectedUser?.id
                   ? await AdminGetProfileDetails(selectedUser.id)
                   : await getProfileDetails()
                 if (user) {
