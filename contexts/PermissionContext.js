@@ -348,11 +348,14 @@ export function PermissionProvider({ children }) {
 
 /**
  * Hook to use permission context
+ * Returns null if PermissionProvider is not available (for graceful degradation)
  */
 export function usePermission() {
   const context = useContext(PermissionContext)
   if (!context) {
-    throw new Error('usePermission must be used within PermissionProvider')
+    // Return null instead of throwing to allow graceful degradation
+    // This allows components to work in contexts where PermissionProvider is not available
+    return null
   }
   return context
 }
@@ -364,9 +367,19 @@ export function usePermission() {
  * @returns {[boolean, boolean]} - [hasPermission, isLoading]
  */
 export function useHasPermission(permissionKey, contextUserId = null) {
-  const { hasPermission, loading } = usePermission()
+  const permissionContext = usePermission()
   const [hasAccess, setHasAccess] = useState(false)
   const [isChecking, setIsChecking] = useState(true)
+
+  // If PermissionProvider is not available, default to allowing access
+  // This handles cases where components are used outside PermissionProvider context
+  if (!permissionContext) {
+    // Return early with default values if no permission key is provided
+    // If permission key is provided but provider is missing, default to true (allow access)
+    return [permissionKey ? true : false, false]
+  }
+
+  const { hasPermission, loading } = permissionContext
 
   useEffect(() => {
     let isMounted = true

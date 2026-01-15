@@ -203,27 +203,33 @@ function SelectedUserDetails({
 
   // Check if logged-in user is an Invitee (team member)
   const [isInvitee, setIsInvitee] = useState(false)
+  // Check if logged-in user is Admin
+  const [isAdmin, setIsAdmin] = useState(false)
   useEffect(() => {
     try {
       const localData = localStorage.getItem('User')
       if (localData) {
         const userData = JSON.parse(localData)
         setIsInvitee(userData.user?.userRole === 'Invitee')
+        setIsAdmin(userData.user?.userRole === 'Admin')
       }
     } catch (error) {
       console.error('Error checking user role:', error)
     }
   }, [])
 
-  // Only check permissions for Invitee users; Agency users have full access
+  // Safe permission check - only use permission hook when PermissionProvider is available
+  // For admin users viewing normal AgentX users (not agency context), skip permission checks
   const [hasCurrentPermission, isCheckingCurrentPermission] = useHasPermission(
-    isInvitee && currentPermissionKey ? currentPermissionKey : '',
-    isInvitee && agencyUser ? selectedUser?.id : null
+    // Only check permissions if: viewing from agency context AND user is Invitee AND permission key exists
+    agencyUser && isInvitee && currentPermissionKey ? currentPermissionKey : '',
+    agencyUser && isInvitee ? selectedUser?.id : null
   )
 
-  // Agency users (non-Invitee) have full access
-  const effectiveHasPermission = isInvitee ? hasCurrentPermission : true
-  const effectiveIsChecking = isInvitee ? isCheckingCurrentPermission : false
+  // Agency users (non-Invitee) and non-agency contexts have full access
+  // If PermissionProvider is not available, default to true (allow access)
+  const effectiveHasPermission = (agencyUser && isInvitee) ? hasCurrentPermission : true
+  const effectiveIsChecking = (agencyUser && isInvitee) ? isCheckingCurrentPermission : false
 
   // #region agent log
   useEffect(() => {
@@ -454,13 +460,29 @@ function SelectedUserDetails({
 
         if (response.data) {
           if (response.data.status === true) {
-            //console.log
-            setShowSnackMessage(response.data.messag)
             setShowDeleteModal(false)
-            handleDel()
+            setDelLoader(false)
+            // Set snack message first
+            const successMessage = response.data.message || 'Profile deleted successfully'
+            console.log('Setting snack message:', successMessage)
+            setShowSnackMessage(successMessage)
+            
+            // Delay closing modal and removing from list to allow snack message to show
+            setTimeout(() => {
+              // Close modal and remove user from list
+              if (handleDel) {
+                handleDel()
+              }
+              // Also close the modal if handleClose is provided
+              if (handleClose) {
+                handleClose()
+              }
+            }, 3000) // 3 second delay to show snack message
           } else {
-            //console.log
-            setShowSnackMessage(response.data.message)
+            const errorMessage = response.data.message || 'Failed to delete profile'
+            console.log('Setting error snack message:', errorMessage)
+            setShowSnackMessage(errorMessage)
+            setDelLoader(false)
           }
         }
       }
@@ -545,11 +567,43 @@ function SelectedUserDetails({
     }
   }
 
+
+  const logoBranding = () => {
+    if(user?.userRole === "AgencySubAccount" || user?.userRole === "Invitee") {
+      return <div></div>
+    }
+    return (
+      <div className="w-full flex flex-col gap-2 pt-4">
+        {/* Show company name if no logo for subaccount users */}
+        {user && (user?.userRole === "AgencySubAccount" || user?.userRole === "Invitee") && user?.agencyBranding && !user.agencyBranding.logoUrl && user.agencyBranding.companyName ? (
+          <div className="w-full text-left pl-6" style={{ marginLeft: "-8px" }}>
+            <div className="text-lg font-bold text-black truncate">
+              {user.agencyBranding.companyName}
+            </div>
+          </div>
+        ) : (
+          /* AppLogo handles logo display based on hostname */
+          <div className="flex justify-start ">
+            <Image
+              src={user?.agencyBranding?.logoUrl}
+              alt="logo"
+              height={40}
+              width={140}
+              style={{ objectFit: 'contain', maxHeight: '40px', maxWidth: '140px' }}
+              unoptimized={true}
+            />
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="w-full flex flex-col items-center justify-center ">
       <AgentSelectSnackMessage
-        isVisible={showSnackMessage != null ? true : false}
+        isVisible={showSnackMessage != null && showSnackMessage !== ''}
         hide={() => {
+          console.log('Hiding snack message')
           setShowSnackMessage(null)
         }}
         type={SnackbarTypes.Success}
@@ -597,30 +651,35 @@ function SelectedUserDetails({
                   >
                     {user?.profile_status === 'paused' ? 'Reinstate' : 'Pause'}
                   </DropdownMenuItem>
-                  
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setShowAddMinutesModal(true)
-                    }}
-                    className="cursor-pointer"
-                  >
-                    Add Minutes
-                  </DropdownMenuItem>
-                  
-                  {selectedUser.isTrial && (
+
+                  {/* Show Add Minutes and Reset Trial only for Admin users */}
+                  {isAdmin && (
                     <>
-                      <DropdownMenuSeparator />
                       <DropdownMenuItem
                         onClick={() => {
-                          setShowResetTrialPopup(true)
+                          setShowAddMinutesModal(true)
                         }}
                         className="cursor-pointer"
                       >
-                        Reset Trial
+                        Add Minutes
                       </DropdownMenuItem>
+
+                      {selectedUser.isTrial && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setShowResetTrialPopup(true)
+                            }}
+                            className="cursor-pointer"
+                          >
+                            Reset Trial
+                          </DropdownMenuItem>
+                        </>
+                      )}
                     </>
                   )}
-                  
+
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={() => {
@@ -665,68 +724,49 @@ function SelectedUserDetails({
           <div className="flex flex-row items-start w-full  ">
             <div className={`flex border-r border-[#00000015] -mt-10  flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} ${agencyUser ? 'h-auto max-h-[85vh] overflow-y-auto' : 'h-auto'}`}>
               {/* {agencyUser && ( */}
-                <div className="w-full flex flex-col gap-2 pt-4">
-                  {/* Show company name if no logo for subaccount users */}
-                  {user && (user?.userRole === "AgencySubAccount" || user?.userRole === "Invitee") && user?.agencyBranding && !user.agencyBranding.logoUrl && user.agencyBranding.companyName ? (
-                    <div className="w-full text-left pl-6" style={{ marginLeft: "-8px" }}>
-                      <div className="text-lg font-bold text-black truncate">
-                        {user.agencyBranding.companyName}
-                      </div>
-                    </div>
-                  ) : (
-                    /* AppLogo handles logo display based on hostname */
-                    <div className="flex justify-start ">
-                      <Image
-                        src={user?.agencyBranding?.logoUrl}
-                        alt="logo"
-                        height={40}
-                        width={140}
-                        style={{ objectFit: 'contain', maxHeight: '40px', maxWidth: '140px' }}
-                        unoptimized={true}
-                      />
-                    </div>
-                  )}
-                </div>
+              {
+                logoBranding()
+              }
               {/* // )} */}
               {
                 // !agencyUser && (
 
-                  <div className={`flex flex-row gap-2 items-center justify-start w-full pt-3 ${agencyUser ? 'pt-3' : ''}`}>
+                <div className={`flex flex-row gap-2 items-center justify-start w-full pt-3 ${agencyUser ? 'pt-3' : ''}`}>
 
 
-                    <div className="flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white">
-                      {selectedUser.name[0]}
-                    </div>
-                    <h4>{selectedUser.name}</h4>
-
-                    { (
-                      <button
-                        onClick={() => {
-                          console.log('selectedUser.id', selectedUser.id)
-                          if (selectedUser?.id) {
-                            // Open a new tab with user ID as query param
-                            let url = ''
-                            if (from === 'admin') {
-                              url = `/admin/users?userId=${selectedUser.id}&agencyUser=true`
-                            } else if (from === 'subaccount') {
-                              // url = `/agency/users?userId=${selectedUser.id}`
-                              url = `/agency/users?userId=${selectedUser.id}&agencyUser=true`
-                            }
-                            // url = `admin/users?userId=${selectedUser.id}`
-                            //console.log
-                            window.open(url, '_blank')
-                          }
-                        }}
-                      >
-                        <Image
-                          src={'/svgIcons/arrowboxIcon.svg'}
-                          height={20}
-                          width={20}
-                          alt="*"
-                        />
-                      </button>
-                    )}
+                  <div className="flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white">
+                    {selectedUser.name[0]}
                   </div>
+                  <h4>{selectedUser.name}</h4>
+
+                  {(
+                    <button
+                      onClick={() => {
+                        console.log('selectedUser.id', selectedUser.id)
+                        if (selectedUser?.id) {
+                          // Open a new tab with user ID as query param
+                          let url = ''
+                          if (from === 'admin') {
+                            url = `/admin/users?userId=${selectedUser.id}&agencyUser=true`
+                          } else if (from === 'subaccount') {
+                            // url = `/agency/users?userId=${selectedUser.id}`
+                            url = `/agency/users?userId=${selectedUser.id}&agencyUser=true`
+                          }
+                          // url = `admin/users?userId=${selectedUser.id}`
+                          //console.log
+                          window.open(url, '_blank')
+                        }
+                      }}
+                    >
+                      <Image
+                        src={'/svgIcons/arrowboxIcon.svg'}
+                        height={20}
+                        width={20}
+                        alt="*"
+                      />
+                    </button>
+                  )}
+                </div>
                 // )
               }
               <div className='flex flex-col items-start justify-center gap-3 w-full pt-10 ${(from === "admin" || from === "subaccount") ? "":"h-full"}'>

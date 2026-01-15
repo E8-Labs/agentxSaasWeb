@@ -1606,10 +1606,13 @@ function AgencySubacount({ selectedAgency }) {
               agencyUser={true}
               hideViewDetails={true}
               handleDel={() => {
-                // setUsers((prev) => prev.filter((u) =>
-                //     u.id != selectedUser.id
-                // ))
-                // setSelectedUser(null)
+                // Remove user from both lists
+                setSubAccountsList((prev) => prev.filter((u) => u.id !== selectedUser.id))
+                setFilteredList((prev) => prev.filter((u) => u.id !== selectedUser.id))
+                // Close the modal
+                setSelectedUser(null)
+                // Update total count
+                setTotalCount((prev) => Math.max(0, prev - 1))
               }}
               handleClose={() => {
                 setSelectedUser(null)
