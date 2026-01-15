@@ -8,6 +8,7 @@ import { TypographyBodySemibold } from '@/lib/typography'
 import axios from 'axios'
 import Apis from '@/components/apis/Apis'
 import { Trash2 } from 'lucide-react'
+import { SnackbarTypes } from '../AgentSelectSnackMessage'
 
 const TagManagerCn = ({
   tags = [],
@@ -24,6 +25,8 @@ const TagManagerCn = ({
   delTagLoader,
   maxDisplayedTags = 2,
   onRefreshSuggestions,
+  selectedUser,
+  showSnackbar,
 }) => {
   const [showTagsPopover, setShowTagsPopover] = useState(false)
   const [deletePermanentLoader, setDeletePermanentLoader] = useState(null)
@@ -55,22 +58,33 @@ const TagManagerCn = ({
         console.error('No auth token found')
         return
       }
+     
 
-      const ApiData = {
+      let ApiData = {
         tagName: tag,
       }
+
+      if(selectedUser?.id) {
+        ApiData.userId = selectedUser.id
+      }
+      
 
       const ApiPath = Apis.delLeadTagPermanently
 
 
-      const response = await axios.post(ApiPath, ApiData, {
+      const response = await axios.delete(ApiPath, {
         headers: {
-          Authorization: 'Bearer ' + AuthToken,
-          'Content-Type': 'application/json',
-        },
-      })
+        Authorization: 'Bearer ' + AuthToken,
+        'Content-Type': 'application/json',
+      },
+      data: ApiData,
+    })
 
       if (response?.data?.status === true) {
+        if(showSnackbar) {
+          showSnackbar(response.data.message, SnackbarTypes.Success)
+        }
+        console.log('response of delete tag permanently api is', response)
         // Refresh the suggestions list
         if (onRefreshSuggestions) {
           await onRefreshSuggestions()

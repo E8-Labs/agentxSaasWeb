@@ -751,44 +751,6 @@ function Teams({ agencyData, selectedAgency, from }) {
           </div>
         }
         showTasks={true}
-        rightContent={
-          myTeam.length !== 0 && (
-            <button
-              className="rounded-lg text-white bg-brand-primary px-4"
-              style={{
-                fontWeight: '500',
-                fontSize: '16',
-                height: '35px',
-                // width: '173px',
-                
-              }}
-              onClick={() => {
-                console.log(
-                  'Current team members innvite are',
-                  reduxUser?.currentUsage?.maxTeamMembers,
-                )
-                console.log(
-                  'MAx team members invite are',
-                  reduxUser?.planCapabilities?.maxTeamMembers,
-                )
-                if (
-                  reduxUser?.currentUsage?.maxTeamMembers >=
-                  reduxUser?.planCapabilities?.maxTeamMembers
-                ) {
-                  setShowUpgradeModalMore(true)
-                  console.log('should open upgrade warning')
-                } else {
-                  console.log('Should open invite')
-                  setOpenInvitePopup(true)
-                }
-              }}
-            >
-              {agencyData?.sellSeats || userLocalData?.sellSeats
-                ? `Add Team $${userLocalData.costPerSeat}/mo`
-                : '+ Invite Team'}
-            </button>
-          )
-        }
       />
       {/*
         <div
@@ -803,9 +765,48 @@ function Teams({ agencyData, selectedAgency, from }) {
       */}
 
       <div
-        className="flex h-[90vh] w-full justify-center overflow-auto pb-50"
+        className="flex h-[90vh] w-full flex flex-col justify-start overflow-auto pb-50"
         style={{ scrollbarWidth: 'none' }}
       >
+        <div className="w-full flex flex-col items-end p-4">
+          
+        {myTeam.length !== 0 && (
+          <button
+            className="rounded-lg text-white bg-brand-primary px-4"
+            style={{
+              fontWeight: '500',
+              fontSize: '16',
+              height: '35px',
+              // width: '173px',
+
+            }}
+            onClick={() => {
+              console.log(
+                'Current team members innvite are',
+                reduxUser?.currentUsage?.maxTeamMembers,
+              )
+              console.log(
+                'MAx team members invite are',
+                reduxUser?.planCapabilities?.maxTeamMembers,
+              )
+              if (
+                reduxUser?.currentUsage?.maxTeamMembers >=
+                reduxUser?.planCapabilities?.maxTeamMembers
+              ) {
+                setShowUpgradeModalMore(true)
+                console.log('should open upgrade warning')
+              } else {
+                console.log('Should open invite')
+                setOpenInvitePopup(true)
+              }
+            }}
+          >
+            {agencyData?.sellSeats || userLocalData?.sellSeats
+              ? `Add Team $${userLocalData.costPerSeat}/mo`
+              : '+ Invite Team'}
+          </button>
+          )}
+        </div>
         {getTeamLoader ? (
           <div className="w-full pt-[100px] flex flex-col items-center">
             <CircularProgress size={40} sx={{ color: 'hsl(var(--brand-primary))' }} />
@@ -873,11 +874,10 @@ function Teams({ agencyData, selectedAgency, from }) {
                                 : item.email}
                             </div>
                             <div
-                              className={`text-sm font-medium ${
-                                item.status === 'Pending'
+                              className={`text-sm font-medium ${item.status === 'Pending'
                                   ? 'text-red-500'
                                   : 'text-green-500'
-                              }`}
+                                }`}
                             >
                               {item.status}
                             </div>
@@ -1001,9 +1001,9 @@ function Teams({ agencyData, selectedAgency, from }) {
                   width={240}
                   alt="*"
                 />
-               
+
                 {reduxUser?.planCapabilities?.allowTeamCollaboration ===
-                false ? (
+                  false ? (
                   <div className="w-full flex flex-col items-center -mt-12 gap-4">
                     <Image
                       src={'/otherAssets/starsIcon2.png'}
@@ -1104,7 +1104,7 @@ function Teams({ agencyData, selectedAgency, from }) {
                     }}
                   >
                     {reduxUser?.planCapabilities?.allowTeamCollaboration ===
-                    false
+                      false
                       ? 'Upgrade Plan'
                       : agencyData?.sellSeats || userLocalData?.sellSeats
                         ? `Add Team $${userLocalData.costPerSeat}/mo`
@@ -1147,7 +1147,7 @@ function Teams({ agencyData, selectedAgency, from }) {
 
       <UpgradePlan
         selectedPlan={null}
-        setSelectedPlan={() => {}}
+        setSelectedPlan={() => { }}
         open={showUpgradeModal}
         handleClose={async (upgradeResult) => {
           setShowUpgradeModal(false)
@@ -1374,7 +1374,7 @@ function Teams({ agencyData, selectedAgency, from }) {
                         overflowY: 'auto',
                       }}
                       countryCodeEditable={true}
-                      // defaultMask={locationLoader ? "Loading..." : undefined}
+                    // defaultMask={locationLoader ? "Loading..." : undefined}
                     />
                   </div>
                 </div>
@@ -1404,10 +1404,10 @@ function Teams({ agencyData, selectedAgency, from }) {
                     marginTop: 20,
                     backgroundColor:
                       !name ||
-                      !email ||
-                      !phone ||
-                      emailCheckResponse?.status !== true ||
-                      checkPhoneResponse?.status !== true
+                        !email ||
+                        !phone ||
+                        emailCheckResponse?.status !== true ||
+                        checkPhoneResponse?.status !== true
                         ? '#00000020'
                         : '',
                   }}
@@ -1434,10 +1434,10 @@ function Teams({ agencyData, selectedAgency, from }) {
                       fontWeight: '500',
                       color:
                         !name ||
-                        !email ||
-                        !phone ||
-                        emailCheckResponse?.status !== true ||
-                        checkPhoneResponse?.status !== true
+                          !email ||
+                          !phone ||
+                          emailCheckResponse?.status !== true ||
+                          checkPhoneResponse?.status !== true
                           ? '#000000'
                           : '#ffffff',
                     }}

@@ -207,7 +207,7 @@ const UserCalender = ({
 
       if (response) {
         console.log('Calendars from api are', response.data.data)
-        setAllCalendars(response.data.data)
+        setAllCalendars(response.data.data || [])
       }
     } catch (error) {
       //// console.error("Error occured in the api is ", error);
@@ -503,17 +503,17 @@ const UserCalender = ({
 
             let updatedArray = []
 
-            for (let i = 0; i < agentsList.length; i++) {
+            for (let i = 0; i < agentsList?.length || 0; i++) {
               let ag = agentsList[i]
               // console.log(
               //   `Comparing ${ag.id} = ${newCalendarData.mainAgentId}`
               // );
-              if (ag.agents.length > 0) {
+              if (ag.agents?.length > 0) {
                 if (ag.agents[0].id == selectedAgent.id) {
                   ag.agents[0].calendar = newCalendarData
                 }
               }
-              if (ag.agents.length > 1) {
+              if (ag.agents?.length > 1) {
                 if (ag.agents[1].id == selectedAgent.id) {
                   ag.agents[1].calendar = newCalendarData
                 }
@@ -534,7 +534,7 @@ const UserCalender = ({
             setShowAddNewCalender(false)
             setShowAddNewCalender(false)
             // agentsListDetails = updatedArray
-          }
+          } 
         } else if (response.data.status === false) {
           setIsVisible(true)
           setMessage(response.data.message)
@@ -635,7 +635,7 @@ const UserCalender = ({
                     </div>
                   */}
               </div>
-              {allCalendars.length > 0 && (
+              {allCalendars?.length > 0 && (
                 <button
                   className="text-[13px] font-[500] text-brand-primary"
                   onClick={() => {
@@ -657,7 +657,7 @@ const UserCalender = ({
                 </button>
               )}
             </div>
-            {allCalendars.length > 0 ? (
+            {allCalendars?.length > 0 ? (
               <div className="w-full flex flex-col w-full items-center mt-4">
                 <div className="w-full">
                   {calenderLoader ? (
@@ -688,7 +688,7 @@ const UserCalender = ({
                           })
                           //console.log;
                           let cal = null
-                          if (cals && cals.length >= 1) {
+                          if (cals && cals?.length >= 1) {
                             cal = cals[0]
                           }
                           return cal?.title || ''

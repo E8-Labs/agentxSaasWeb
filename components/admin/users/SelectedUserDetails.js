@@ -140,11 +140,24 @@ function SelectedUserDetails({
     },
   ]
 
+  // Account menu item (not included in allMenuItems as it's conditional)
+  const accountMenu = {
+    id: 8,
+    name: 'Account',
+    selectedImage: '/svgIcons/selectedProfileCircle.svg',
+    unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
+  }
+
   // Filter menu items based on permissions when viewing from agency
   const manuBar = React.useMemo(() => {
     // If not viewing from agency context, show all items
     if (!agencyUser || !selectedUser?.id) {
-      return allMenuItems
+      const menuItems = [...allMenuItems]
+      // Add account menu for non-agency users
+      if (!agencyUser) {
+        menuItems.push(accountMenu)
+      }
+      return menuItems
     }
 
     // For agency context, we'll filter in the render using MenuItemWithPermission
@@ -349,10 +362,13 @@ function SelectedUserDetails({
   }
 
   const handleManuClick = (item) => {
+    console.log('item', item)
+    
     // When viewing from agency, check permission before allowing navigation
     if (agencyUser && selectedUser?.id) {
       const menuItem = allMenuItems.find(m => m.id === item.id)
-      if (menuItem?.permissionKey) {
+      // Account menu doesn't have permissionKey, so allow it
+      if (menuItem?.permissionKey || item.name === 'Account') {
         // Permission check will be done by MenuItemWithPermission component
         // If user doesn't have permission, the menu item won't be rendered
         // But we should still check here as a safety measure
@@ -553,7 +569,7 @@ function SelectedUserDetails({
           <div className="flex flex-row items-start w-full ">
             <div className={`flex border-r border-[#00000015]  flex-col items-start justify-start w-2/12 px-6 ${(from === "admin" || from === "subaccount") ? "":"h-full" } ${agencyUser ? 'h-screen' : 'h-auto'}`}>
             {agencyUser && (
-              <div className="w-full flex flex-col gap-2">
+              <div className="w-full flex flex-col gap-2 pt-4">
                 {/* Show company name if no logo for subaccount users */}
                 {user && (user?.userRole === "AgencySubAccount" || user?.userRole === "Invitee") && user?.agencyBranding && !user.agencyBranding.logoUrl && user.agencyBranding.companyName ? (
                   <div className="w-full text-left pl-6" style={{ marginLeft: "-8px" }}>
@@ -563,7 +579,7 @@ function SelectedUserDetails({
                   </div>
                 ) : (
                   /* AppLogo handles logo display based on hostname */
-                  <div className="flex justify-start pt-4">
+                  <div className="flex justify-start ">
                     <Image
                       src={user?.agencyBranding?.logoUrl}
                       alt="logo"
@@ -676,18 +692,14 @@ function SelectedUserDetails({
               </div>
 
               {agencyUser && (
-                <div onClick={() => {
-                  console.log('clicked')
-                  const menu = {
-                    id: 10,
-                    name: 'Account',
-                    // selectedImage: '/svgIcons/selectdDashboardIcon.svg',
-                    // unSelectedImage: '/svgIcons/unSelectedDashboardIcon.svg',
-                  }
-                  setSelectedManu(menu)
-                  //set account info to the right side of the screen
-                  // setAccountInfo(true)
-                }}className="w-full flex flex-row items-start gap-3 py-2 truncate outline-none text-start  no-underline hover:no-underline cursor-pointer" //border border-[#00000015] rounded-[10px]
+                <div 
+                  onClick={() => {
+                    console.log('clicked')
+                    handleManuClick(accountMenu)
+                    //set account info to the right side of the screen
+                    // setAccountInfo(true)
+                  }}
+                  className="w-full flex flex-row items-start gap-3 py-2 truncate outline-none text-start  no-underline hover:no-underline cursor-pointer" //border border-[#00000015] rounded-[10px]
                   style={{
                     textOverflow: "ellipsis",
                     textDecoration: "none",

@@ -24,9 +24,15 @@ const TeamAssignDropdownCn = ({
   onToggle,
   withoutBorder = false,
 }) => {
+  // Create a stable key from teamOptions to ensure useMemo recalculates
+  const teamOptionsKey = useMemo(
+    () => teamOptions.map(opt => `${opt.id}-${opt.selected}`).join(','),
+    [teamOptions]
+  )
+  
   const selectedTeams = useMemo(
     () => teamOptions.filter((opt) => opt.selected),
-    [teamOptions],
+    [teamOptionsKey, teamOptions],
   )
 
   const handleTeamClick = (team) => {

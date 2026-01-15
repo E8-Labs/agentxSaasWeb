@@ -73,13 +73,13 @@ const getBrandPrimaryHex = () => {
       const h = parseInt(hslMatch[1]) / 360
       const s = parseInt(hslMatch[2]) / 100
       const l = parseInt(hslMatch[3]) / 100
-      
+
       const c = (1 - Math.abs(2 * l - 1)) * s
       const x = c * (1 - Math.abs(((h * 6) % 2) - 1))
       const m = l - c / 2
-      
+
       let r = 0, g = 0, b = 0
-      
+
       if (0 <= h && h < 1 / 6) {
         r = c; g = x; b = 0
       } else if (1 / 6 <= h && h < 2 / 6) {
@@ -93,11 +93,11 @@ const getBrandPrimaryHex = () => {
       } else if (5 / 6 <= h && h < 1) {
         r = c; g = 0; b = x
       }
-      
+
       r = Math.round((r + m) * 255)
       g = Math.round((g + m) * 255)
       b = Math.round((b + m) * 255)
-      
+
       return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
     }
   }
@@ -194,7 +194,7 @@ const NewMessageModal = ({
     // Get brand color from CSS variable
     const root = document.documentElement
     const brandColor = getComputedStyle(root).getPropertyValue('--brand-primary')
-    
+
     // Use brand color when active, muted gray when inactive
     const iconColor = isActive && brandColor && brandColor.trim()
       ? `hsl(${brandColor.trim()})`
@@ -218,10 +218,10 @@ const NewMessageModal = ({
     const updateBrandColor = () => {
       setBrandPrimaryColor(getBrandPrimaryHex())
     }
-    
+
     updateBrandColor()
     window.addEventListener('agencyBrandingUpdated', updateBrandColor)
-    
+
     return () => {
       window.removeEventListener('agencyBrandingUpdated', updateBrandColor)
     }
@@ -450,7 +450,7 @@ const NewMessageModal = ({
       // Get target userId: prefer selectedUser.id (when agency/admin managing subaccount)
       // Fallback to URL param, then null (fetch for current user)
       const targetUserId = selectedUser?.id || getUserIdFromUrl() || null
-      
+
       // Add userId query param if provided (for Agency/Admin viewing email accounts for subaccount)
       let apiUrl = Apis.gmailAccount
       if (targetUserId) {
@@ -502,7 +502,7 @@ const NewMessageModal = ({
       setFilteredLeads([])
       // Don't hide the list if user is actively searching - only hide if completely empty
       if (selectedLeads.length === 0) {
-      setShowLeadList(false)
+        setShowLeadList(false)
       }
       return
     }
@@ -542,9 +542,9 @@ const NewMessageModal = ({
         '{Phone}',
         '{Address}',
       ]
-      
+
       let res = await getUniquesColumn(userId)
-      
+
       if (res && Array.isArray(res)) {
         const mergedColumns = [
           ...defaultColumns,
@@ -1360,11 +1360,11 @@ const NewMessageModal = ({
 
   return (
     <>
-    <Modal
-      open={open}
-      onClose={onClose}
-      aria-labelledby="new-message-modal"
-      aria-describedby="new-message-description"
+      <Modal
+        open={open}
+        onClose={onClose}
+        aria-labelledby="new-message-modal"
+        aria-describedby="new-message-description"
         sx={{
           zIndex: 1500, // Higher than LeadDetails Drawer (1400) to appear on top
         }}
@@ -1373,35 +1373,35 @@ const NewMessageModal = ({
             zIndex: 1500, // Match Modal z-index
           },
         }}
-    >
-      <Box
-        sx={{
-          position: 'absolute',
-          top: '50%',
-          left: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: { xs: '90%', sm: '80%', md: '600px', lg: '700px' },
-          bgcolor: 'background.paper',
-          borderRadius: 2,
-          boxShadow: 24,
-            zIndex: 1501, // Higher than backdrop (1500) to appear on top
-          p: 0,
-          maxHeight: '90vh',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'visible', // Allow tooltips to escape modal bounds
-            zIndex: 1501, // Higher than backdrop (1500) to appear on top
-        }}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: { xs: '90%', sm: '80%', md: '600px', lg: '700px' },
+            bgcolor: 'background.paper',
+            borderRadius: 2,
+            boxShadow: 24,
+            zIndex: 1501, // Higher than backdrop (1500) to appear on top
+            p: 0,
+            maxHeight: '90vh',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'visible', // Allow tooltips to escape modal bounds
+            zIndex: 1501, // Higher than backdrop (1500) to appear on top
+          }}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b">
             <h2 className="text-xl font-semibold">{(isEditing && !IsdefaultCadence) ? 'Update Message ' : 'New Message'}</h2>
-          <CloseBtn onClick={onClose} />
-        </div>
+            <CloseBtn onClick={onClose} />
+          </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto overflow-x-visible p-4 space-y-4" style={{ position: 'relative' }}>
-          {/* Mode Tabs */}
+          {/* Content */}
+          <div className="flex-1 overflow-y-auto overflow-x-visible p-4 space-y-4" style={{ position: 'relative' }}>
+            {/* Mode Tabs */}
             <div className="flex items-center justify-between pb-4">
               <ToggleGroupCN
                 options={[
@@ -1418,8 +1418,8 @@ const NewMessageModal = ({
                   }
                 }}
               />
-            {/* CC and BCC buttons for Email mode - on top right */}
-            {selectedMode === 'email' && (
+              {/* CC and BCC buttons for Email mode - on top right */}
+              {selectedMode === 'email' && (
                 <SplitButtonCN
                   buttons={[
                     {
@@ -1434,29 +1434,29 @@ const NewMessageModal = ({
                     },
                   ]}
                 />
-            )}
-          </div>
+              )}
+            </div>
 
             <React.Fragment>
-          {/* From and To Fields - Same Line */}
+              {/* From and To Fields - Same Line */}
               <div className={`flex items-center gap-4 ${isPipelineMode ? '' : ''}`} ref={leadSearchRef}>
-            {/* From Field */}
+                {/* From Field */}
                 <div className={isPipelineMode ? "w-full relative" : "flex-1 relative min-w-0"} style={{ flexBasis: 0 }}>
-              {selectedMode === 'sms' ? (
+                  {selectedMode === 'sms' ? (
                     <div className="relative" ref={phoneDropdownRef}>
-                  <button
-                    type="button"
-                    onClick={() => setPhoneDropdownOpen(!phoneDropdownOpen)}
+                      <button
+                        type="button"
+                        onClick={() => setPhoneDropdownOpen(!phoneDropdownOpen)}
                         className="w-full px-3 py-2 h-[42px] border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
                         style={{ height: '42px', borderColor: '#E2E8F0', borderWidth: '1px' }}
-                  >
+                      >
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           <span className="text-sm text-gray-500 flex-shrink-0">From:</span>
-                    <span className="text-sm text-gray-700 truncate">
-                      {selectedPhoneNumber
+                          <span className="text-sm text-gray-700 truncate">
+                            {selectedPhoneNumber
                               ? phoneNumbers.find((p) => p.id === parseInt(selectedPhoneNumber))?.phone || 'Select number'
                               : 'Select number'}
-                    </span>
+                          </span>
                         </div>
                         <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                       </button>
@@ -1464,15 +1464,15 @@ const NewMessageModal = ({
                         <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 flex flex-col">
                           {phoneNumbers.length === 0 ? (
                             <div className="p-3 flex flex-row gap-2 items-center justify-center">
-                          <button
-                            onClick={() => {
+                              <button
+                                onClick={() => {
                                   router.push('/dashboard/myAccount?tab=5')
-                              setPhoneDropdownOpen(false)
-                            }}
-                            className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
-                          >
+                                  setPhoneDropdownOpen(false)
+                                }}
+                                className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2 whitespace-nowrap"
+                              >
                                 Select Phone Number
-                          </button>
+                              </button>
                               {phoneNumbers.length === 0 && (
                                 <Tooltip
                                   title="No phone numbers available. Please add a phone number to send SMS."
@@ -1553,20 +1553,20 @@ const NewMessageModal = ({
                           )}
                         </div>
                       )}
-                </div>
-              ) : (
+                    </div>
+                  ) : (
                     <div className="flex-1 relative min-w-0" style={{ flexBasis: 0 }}>
-                  {emailAccounts.length === 0 ? (
+                      {emailAccounts.length === 0 ? (
 
                         <div className="flex flex-row gap-2 items-center justify-center">
-                  <button
-                    onClick={() => setShowAuthSelectionPopup(true)}
+                          <button
+                            onClick={() => setShowAuthSelectionPopup(true)}
                             className="w-full px-3 py-2 h-[42px] border rounded-[8px] text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                             style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px' }}
-                            
-                  >
+
+                          >
                             Connect Email
-                  </button>
+                          </button>
                           {
                             (!reduxUser?.planCapabilities?.allowEmails
                             ) && (
@@ -1577,20 +1577,20 @@ const NewMessageModal = ({
                             )
                           }
                         </div>
-                  ) : (
-                    <>
+                      ) : (
+                        <>
                           <div className="relative" ref={emailDropdownRef}>
-                      <button
-                        type="button"
-                        onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
+                            <button
+                              type="button"
+                              onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
                               className="w-full px-3 py-2 h-[42px] border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
                               style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px' }}
-                              
-                      >
+
+                            >
                               <div className="flex items-center gap-2 flex-1 min-w-0">
                                 <span className="text-sm text-gray-500 flex-shrink-0">From:</span>
                                 <span className="text-sm truncate">
-                          {selectedEmailAccount
+                                  {selectedEmailAccount
                                     ? (() => {
                                       const account = emailAccounts.find((a) => a.id === parseInt(selectedEmailAccount))
                                       if (!account) return <span className="text-gray-500">Select email account</span>
@@ -1598,7 +1598,7 @@ const NewMessageModal = ({
                                       return <span className="text-gray-700">{account.email || account.name || account.displayName}{providerLabel ? ` (${providerLabel})` : ''}</span>
                                     })()
                                     : <span className="text-gray-500">Select email account</span>}
-                        </span>
+                                </span>
                               </div>
                               <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0" />
                             </button>
@@ -1646,16 +1646,16 @@ const NewMessageModal = ({
                               </div>
                             )}
                           </div>
-                    </>
+                        </>
+                      )}
+                    </div>
                   )}
                 </div>
-              )}
-            </div>
 
                 {/* To Field - Hidden in pipeline mode and lead mode */}
                 {!isPipelineMode && !isLeadMode && (
                   <div className="relative flex-1 min-w-0" style={{ flexBasis: 0 }}>
-                {/* Tag Input Container */}
+                    {/* Tag Input Container */}
                     <div
                       className="flex items-center gap-2 px-3 h-[42px] border rounded-[8px] focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
                       style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px', minHeight: '42px', maxWidth: '100%' }}
@@ -1702,33 +1702,33 @@ const NewMessageModal = ({
                                 ? (selectedLeads[0].email || `${selectedLeads[0].firstName || ''} ${selectedLeads[0].lastName || ''}`.trim() || 'Lead')
                                 : (selectedLeads[0].phone || `${selectedLeads[0].firstName || ''} ${selectedLeads[0].lastName || ''}`.trim() || 'Lead')
                               }
-                      </span>
+                            </span>
                             {selectedLeads.length > 1 && (
                               <span className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0">
                                 +{selectedLeads.length - 1}
                               </span>
                             )}
-                    </div>
+                          </div>
 
                         </>
                       ) : (
-                  <input
-                    type="text"
-                    value={searchQuery}
+                        <input
+                          type="text"
+                          value={searchQuery}
                           onChange={(e) => {
                             const value = e.target.value
                             setSearchQuery(value)
                             setShowLeadList(true)
                           }}
-                    onFocus={() => {
-                        setShowLeadList(true)
-                    }}
+                          onFocus={() => {
+                            setShowLeadList(true)
+                          }}
                           placeholder="Search leads"
                           className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
-                    style={{ 
-                      height: '100%',
-                      lineHeight: '42px',
-                      padding: 0,
+                          style={{
+                            height: '100%',
+                            lineHeight: '42px',
+                            padding: 0,
                             verticalAlign: 'middle',
                             maxWidth: '100%'
                           }}
@@ -1740,69 +1740,69 @@ const NewMessageModal = ({
                         />
                       )}
                       <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-1" />
-                </div>
-                
+                    </div>
+
                     {/* Leads List Dropdown - Show when searching or when clicking on field */}
                     {showLeadList && (
                       <div className="absolute w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-y-auto overflow-x-hidden" style={{ zIndex: 1900 }}>
-                    {loading ? (
-                      <div className="p-4 text-center">
-                        <CircularProgress size={24} />
-                      </div>
+                        {loading ? (
+                          <div className="p-4 text-center">
+                            <CircularProgress size={24} />
+                          </div>
                         ) : !searchQuery.trim() ? (
                           <div className="p-4 text-center text-gray-500 text-sm">
                             Start typing to search leads...
                           </div>
-                    ) : filteredLeads.length === 0 ? (
-                      <div className="p-4 text-center text-gray-500 text-sm">
-                        No leads found
-                      </div>
-                    ) : (
-                      filteredLeads.map((lead) => {
-                        const isSelected = selectedLeads.find((l) => l.id === lead.id)
-                        return (
-                          <div
-                            key={lead.id}
-                            onClick={() => toggleLeadSelection(lead)}
+                        ) : filteredLeads.length === 0 ? (
+                          <div className="p-4 text-center text-gray-500 text-sm">
+                            No leads found
+                          </div>
+                        ) : (
+                          filteredLeads.map((lead) => {
+                            const isSelected = selectedLeads.find((l) => l.id === lead.id)
+                            return (
+                              <div
+                                key={lead.id}
+                                onClick={() => toggleLeadSelection(lead)}
                                 className={`p-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 ${isSelected ? 'bg-gray-100' : ''
                                   }`}
                               >
                                 <div className="flex items-center justify-between gap-2 min-w-0">
                                   <div className="flex-1 min-w-0">
                                     <div className="font-medium text-sm text-gray-900 truncate">
-                                  {lead.firstName || lead.name || 'Unknown'} {lead.lastName || ''}
-                                </div>
+                                      {lead.firstName || lead.name || 'Unknown'} {lead.lastName || ''}
+                                    </div>
                                     <div className="text-xs text-gray-500 mt-1 truncate">
                                       {selectedMode === 'email'
                                         ? lead.email || 'No email'
                                         : lead.phone || 'No phone'}
+                                    </div>
+                                  </div>
+                                  {isSelected && (
+                                    <div className="w-5 h-5 rounded-full bg-brand-primary flex items-center justify-center flex-shrink-0">
+                                      <Check size={14} className="text-white" />
+                                    </div>
+                                  )}
                                 </div>
                               </div>
-                              {isSelected && (
-                                    <div className="w-5 h-5 rounded-full bg-brand-primary flex items-center justify-center flex-shrink-0">
-                                  <Check size={14} className="text-white" />
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      })
+                            )
+                          })
+                        )}
+                      </div>
                     )}
                   </div>
                 )}
               </div>
-                )}
-          </div>
 
             </React.Fragment>
 
-          {/* Email Fields */}
-          {selectedMode === 'email' && (
-            <>
-              {/* CC and BCC on same line when both are shown */}
-              {(showCC || showBCC) && (
-                <div className="flex items-center gap-4">
-                  {showCC && (
+            {/* Email Fields */}
+            {selectedMode === 'email' && (
+              <>
+                {/* CC and BCC on same line when both are shown */}
+                {(showCC || showBCC) && (
+                  <div className="flex items-center gap-4">
+                    {showCC && (
                       <div className="relative flex-1 min-w-0">
                         {/* Tag Input Container */}
                         <div
@@ -1859,7 +1859,7 @@ const NewMessageModal = ({
                               onKeyDown={handleCcInputKeyDown}
                               onPaste={handleCcInputPaste}
                               onBlur={handleCcInputBlur}
-                    placeholder="Add CC recipients"
+                              placeholder="Add CC recipients"
                               className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
                               style={{
                                 height: '100%',
@@ -1873,9 +1873,9 @@ const NewMessageModal = ({
                           )}
                           <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-1" />
                         </div>
-                    </div>
-                  )}
-                  {showBCC && (
+                      </div>
+                    )}
+                    {showBCC && (
                       <div className="relative flex-1 min-w-0">
                         {/* Tag Input Container */}
                         <div
@@ -1932,7 +1932,7 @@ const NewMessageModal = ({
                               onKeyDown={handleBccInputKeyDown}
                               onPaste={handleBccInputPaste}
                               onBlur={handleBccInputBlur}
-                    placeholder="Add BCC recipients"
+                              placeholder="Add BCC recipients"
                               className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
                               style={{
                                 height: '100%',
@@ -1946,10 +1946,10 @@ const NewMessageModal = ({
                           )}
                           <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-1" />
                         </div>
-                    </div>
-                  )}
-                </div>
-              )}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <div className="space-y-2">
                   {/* Subject Field */}
@@ -1963,8 +1963,8 @@ const NewMessageModal = ({
                       <span className="text-sm text-gray-500 flex-shrink-0">Subject:</span>
                       <input
                         type="text"
-                  value={emailSubject}
-                  onChange={(e) => setEmailSubject(e.target.value)}
+                        value={emailSubject}
+                        onChange={(e) => setEmailSubject(e.target.value)}
                         placeholder="Enter subject"
                         className="flex-1 outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
                         style={{
@@ -1978,22 +1978,22 @@ const NewMessageModal = ({
                     {uniqueColumns && uniqueColumns.length > 0 && (
                       <div className="w-[2px] h-[42px] bg-gray-200 group-focus-within/subject-field:bg-brand-primary has-focus:bg-brand-primary transition-colors flex-shrink-0"></div>
                     )}
-                {/* Variables dropdown for subject */}
-                {uniqueColumns && uniqueColumns.length > 0 && (
+                    {/* Variables dropdown for subject */}
+                    {uniqueColumns && uniqueColumns.length > 0 && (
                       <FormControl size="small" sx={{ minWidth: 150, height: '42px' }}>
-                    <Select
-                      value={selectedSubjectVariable}
-                      onChange={(e) => {
-                        const value = e.target.value
-                        setSelectedSubjectVariable('')
-                        if (value) {
-                          const variableText = value.startsWith('{') && value.endsWith('}')
-                            ? value
-                            : `{${value}}`
-                          setEmailSubject((prev) => prev + variableText)
-                        }
-                      }}
-                      displayEmpty
+                        <Select
+                          value={selectedSubjectVariable}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            setSelectedSubjectVariable('')
+                            if (value) {
+                              const variableText = value.startsWith('{') && value.endsWith('}')
+                                ? value
+                                : `{${value}}`
+                              setEmailSubject((prev) => prev + variableText)
+                            }
+                          }}
+                          displayEmpty
                           MenuProps={{
                             disablePortal: false,
                             container: typeof document !== 'undefined' ? document.body : null,
@@ -2015,19 +2015,19 @@ const NewMessageModal = ({
                             },
                           }}
                           IconComponent={(props) => <ChevronDown {...props} size={24} className="text-gray-400 mr-2" />}
-                      sx={{
-                        fontSize: '0.875rem',
-                        height: '42px',
+                          sx={{
+                            fontSize: '0.875rem',
+                            height: '42px',
                             borderRadius: '0',
                             border: 'none',
                             zIndex: 1800,
-                        '& .MuiOutlinedInput-notchedOutline': {
+                            '& .MuiOutlinedInput-notchedOutline': {
                               border: 'none',
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
                               border: 'none',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                               border: 'none',
                             },
                             '& .MuiSelect-select': {
@@ -2035,32 +2035,32 @@ const NewMessageModal = ({
                               height: '42px',
                               display: 'flex',
                               alignItems: 'center',
-                        },
-                      }}
-                    >
-                      <MenuItem value="" disabled>
-                        <em>Variables</em>
-                      </MenuItem>
-                      {uniqueColumns.map((variable, index) => {
-                        const displayText = variable.startsWith('{') && variable.endsWith('}')
-                          ? variable
-                          : `{${variable}}`
-                        return (
-                          <MenuItem key={index} value={variable}>
-                            {displayText}
+                            },
+                          }}
+                        >
+                          <MenuItem value="" disabled>
+                            <em>Variables</em>
                           </MenuItem>
-                        )
-                      })}
-                    </Select>
-                  </FormControl>
-                )}
+                          {uniqueColumns.map((variable, index) => {
+                            const displayText = variable.startsWith('{') && variable.endsWith('}')
+                              ? variable
+                              : `{${variable}}`
+                            return (
+                              <MenuItem key={index} value={variable}>
+                                {displayText}
+                              </MenuItem>
+                            )
+                          })}
+                        </Select>
+                      </FormControl>
+                    )}
                   </div>
-              </div>
-            </>
-          )}
+                </div>
+              </>
+            )}
 
-          {/* Message Body */}
-          <div>
+            {/* Message Body */}
+            <div>
 
               {selectedMode === 'email' ? (
                 <RichTextEditor
@@ -2092,29 +2092,29 @@ const NewMessageModal = ({
                         }, 300) // 300ms delay
                       }}
                     >
-                  <label className="cursor-pointer">
-                    <button
-                      type="button"
+                      <label className="cursor-pointer">
+                        <button
+                          type="button"
                           className="p-1.5 hover:bg-gray-100 rounded transition-colors flex items-center justify-center relative"
-                      onClick={() => document.getElementById('new-message-attachment-input')?.click()}
-                    >
+                          onClick={() => document.getElementById('new-message-attachment-input')?.click()}
+                        >
                           <Paperclip size={18} className="text-gray-600 hover:text-brand-primary" />
                           {attachments.length > 0 && (
                             <span className="absolute -top-1 -right-1 bg-brand-primary text-white text-xs font-medium rounded-full w-5 h-5 flex items-center justify-center">
                               {attachments.length}
                             </span>
                           )}
-                    </button>
-                    <input
-                      id="new-message-attachment-input"
-                      type="file"
-                      accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                      multiple
-                      className="hidden"
-                      onChange={handleFileChange}
-                    />
-                  </label>
-                  
+                        </button>
+                        <input
+                          id="new-message-attachment-input"
+                          type="file"
+                          accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/csv,text/plain,image/webp,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                          multiple
+                          className="hidden"
+                          onChange={handleFileChange}
+                        />
+                      </label>
+
                       {/* Attachments Dropdown */}
                       {showAttachmentDropdown && attachments.length > 0 && (
                         <div
@@ -2163,23 +2163,23 @@ const NewMessageModal = ({
                               ))}
                             </div>
                           </div>
-                </div>
-              )}
-            </div>
+                        </div>
+                      )}
+                    </div>
                   }
-                customToolbarElement={
-                  uniqueColumns && uniqueColumns.length > 0 ? (
-                    <FormControl size="small" sx={{ minWidth: 150 }}>
-                      <Select
-                        value={selectedVariable}
-                        onChange={(e) => {
-                          const value = e.target.value
-                          setSelectedVariable('')
-                          if (value && richTextEditorRef.current) {
-                            richTextEditorRef.current.insertVariable(value)
-                          }
-                        }}
-                        displayEmpty
+                  customToolbarElement={
+                    uniqueColumns && uniqueColumns.length > 0 ? (
+                      <FormControl size="small" sx={{ minWidth: 150 }}>
+                        <Select
+                          value={selectedVariable}
+                          onChange={(e) => {
+                            const value = e.target.value
+                            setSelectedVariable('')
+                            if (value && richTextEditorRef.current) {
+                              richTextEditorRef.current.insertVariable(value)
+                            }
+                          }}
+                          displayEmpty
                           MenuProps={{
                             disablePortal: false,
                             container: typeof document !== 'undefined' ? document.body : null,
@@ -2201,54 +2201,54 @@ const NewMessageModal = ({
                             },
                           }}
                           IconComponent={(props) => <ChevronDown {...props} size={24} className="text-gray-400 mr-2" />}
-                        sx={{
-                          fontSize: '0.875rem',
+                          sx={{
+                            fontSize: '0.875rem',
                             height: '42px',
                             borderRadius: '8px',
                             zIndex: 1, // Lower z-index for the button itself, menu has its own z-index
-                          '& .MuiOutlinedInput-notchedOutline': {
+                            '& .MuiOutlinedInput-notchedOutline': {
                               borderColor: 'transparent',
                               borderWidth: '0',
-                          },
-                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
                               borderColor: 'transparent',
-                          },
-                          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                            },
+                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                               borderColor: 'transparent',
-                          },
-                        }}
-                      >
-                        <MenuItem value="" disabled>
-                          <em>Variables</em>
-                        </MenuItem>
-                        {uniqueColumns.map((variable, index) => {
-                          const displayText = variable.startsWith('{') && variable.endsWith('}')
-                            ? variable
-                            : `{${variable}}`
-                          return (
-                            <MenuItem key={index} value={variable}>
-                              {displayText}
-                            </MenuItem>
-                          )
-                        })}
-                      </Select>
-                    </FormControl>
-                  ) : null
-                }
-              />
-            ) : (
+                            },
+                          }}
+                        >
+                          <MenuItem value="" disabled>
+                            <em>Variables</em>
+                          </MenuItem>
+                          {uniqueColumns.map((variable, index) => {
+                            const displayText = variable.startsWith('{') && variable.endsWith('}')
+                              ? variable
+                              : `{${variable}}`
+                            return (
+                              <MenuItem key={index} value={variable}>
+                                {displayText}
+                              </MenuItem>
+                            )
+                          })}
+                        </Select>
+                      </FormControl>
+                    ) : null
+                  }
+                />
+              ) : (
                 <div className="relative">
-              <textarea
+                  <textarea
                     ref={smsTextareaRef}
                     value={smsMessageBody}
-                onChange={(e) => {
-                  // Enforce max 160 characters for SMS
-                  if (e.target.value.length <= SMS_CHAR_LIMIT) {
+                    onChange={(e) => {
+                      // Enforce max 160 characters for SMS
+                      if (e.target.value.length <= SMS_CHAR_LIMIT) {
                         setSmsMessageBody(e.target.value)
-                  }
-                }}
+                      }
+                    }}
                     placeholder="Type your message here"
-                maxLength={SMS_CHAR_LIMIT}
+                    maxLength={SMS_CHAR_LIMIT}
                     className="w-full px-3 py-2 border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary min-h-[120px] pr-24"
                     style={{ borderColor: '#E2E8F0', borderWidth: '1px' }}
                   />
@@ -2340,18 +2340,18 @@ const NewMessageModal = ({
                         </Select>
                       </FormControl>
                     </div>
-            )}
-          </div>
-          )}
-        </div>
+                  )}
+                </div>
+              )}
+            </div>
 
 
           </div>
 
           {/* Footer with template dropdown, char count, credits, and send button */}
-        {!shouldShowUpgradeView && (
-          <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50">
-            <div className="flex items-center gap-2">
+          {!shouldShowUpgradeView && (
+            <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50">
+              <div className="flex items-center gap-2">
                 {/* My Templates Button with Dropdown */}
                 <div className="relative" ref={templatesDropdownRef}>
                   <button
@@ -2410,8 +2410,8 @@ const NewMessageModal = ({
                       )}
                     </div>
                   )}
-            </div>
-            
+                </div>
+
                 {/* Save as template checkbox - only in lead mode */}
                 {(
                   <div className="flex items-center gap-2">
@@ -2426,66 +2426,71 @@ const NewMessageModal = ({
                   </div>
                 )}
               </div>
-            <div className="flex items-center gap-4">
-            
-              <button
-                onClick={handleSend}
-                disabled={
-                  sending ||
+              <div className="flex items-center gap-4">
+                {selectedMode === 'sms' && (
+                  <TypographyCaption>
+                    {smsMessageBody.length} / {SMS_CHAR_LIMIT} char
+                  </TypographyCaption>
+                )}
+
+                <button
+                  onClick={handleSend}
+                  disabled={
+                    sending ||
                     (!isPipelineMode && !isLeadMode && selectedLeads.length === 0) ||
                     (selectedMode === 'sms' && !smsMessageBody.trim()) ||
                     (selectedMode === 'email' && !emailMessageBody.trim()) ||
-                  (selectedMode === 'email' && !emailSubject.trim()) ||
-                  (selectedMode === 'sms' && !selectedPhoneNumber) ||
-                  (selectedMode === 'email' && !selectedEmailAccount)
-                }
-                className="px-6 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
-              >
-                {sending ? (
-                  <>
-                    <CircularProgress size={16} className="text-white" />
+                    (selectedMode === 'email' && !emailSubject.trim()) ||
+                    (selectedMode === 'sms' && !selectedPhoneNumber) ||
+                    (selectedMode === 'email' && !selectedEmailAccount)
+                  }
+                  className="px-6 py-2 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
+                >
+                  {sending ? (
+                    <>
+                      <CircularProgress size={16} className="text-white" />
                       {isPipelineMode ? ((isEditing && !IsdefaultCadence) ? 'Updating...' : 'Saving...') : 'Sending...'}
-                  </>
-                ) : (
-                  <>
+                    </>
+                  ) : (
+                    <>
                       {isPipelineMode ? ((isEditing && !IsdefaultCadence) ? 'Update' : 'Save') : 'Send'}
                       {!isPipelineMode && <PaperPlaneTilt size={16} />}
-                  </>
-                )}
-              </button>
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
-          </div>
-        )}
-      </Box>
-    </Modal>
+          )}
+        </Box>
+      </Modal>
 
 
 
-    {/* Auth Selection Popup for Gmail Connection - Outside main Modal */}
-    <AuthSelectionPopup
-      selectedUser={selectedUser}
-      open={showAuthSelectionPopup}
-      onClose={() => setShowAuthSelectionPopup(false)}
-      onSuccess={() => {
-        fetchEmailAccounts()
-        setShowAuthSelectionPopup(false)
-      }}
+      {/* Auth Selection Popup for Gmail Connection - Outside main Modal */}
+      <AuthSelectionPopup
+        selectedUser={selectedUser}
+        open={showAuthSelectionPopup}
+        onClose={() => setShowAuthSelectionPopup(false)}
+        onSuccess={() => {
+          fetchEmailAccounts()
+          setShowAuthSelectionPopup(false)
+        }}
         setShowEmailTempPopup={() => { }}
-      showEmailTempPopup={false}
-      setSelectedGoogleAccount={(account) => {
-        if (account) {
-          setSelectedEmailAccount(account.id)
-          setSelectedEmailAccountObj(account)
-          setEmailAccounts((prev) => {
-            const exists = prev.find((a) => a.id === account.id)
-            if (exists) return prev
-            return [...prev, account]
-          })
-        }
-      }}
+        showEmailTempPopup={false}
+        setSelectedGoogleAccount={(account) => {
+          if (account) {
+            setSelectedEmailAccount(account.id)
+            setSelectedEmailAccountObj(account)
+            setEmailAccounts((prev) => {
+              const exists = prev.find((a) => a.id === account.id)
+              if (exists) return prev
+              return [...prev, account]
+            })
+          }
+        }}
       // selectedUser={getSelectedUser()}
-    />
-  </>
+      />
+    </>
   )
 }
 

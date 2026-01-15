@@ -14,7 +14,7 @@ import { toast } from 'sonner'
 import { TypographyH3, TypographyBody } from '@/lib/typography'
 import { cn } from '@/lib/utils'
 
-const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = null, buttonRef = null }) => {
+const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = null, buttonRef = null, selectedUser = null }) => {
   const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(false)
   const [selectedStatus, setSelectedStatus] = useState('todo')
@@ -93,6 +93,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
       if (leadId) params.leadId = leadId
       if (threadId) params.threadId = threadId
       if (callId) params.callId = callId
+      if (selectedUser?.id) params.userId = selectedUser.id
 
       const response = await getTasks(params)
       if (response.status) {
@@ -114,7 +115,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
   // Fetch team members
   const fetchTeamMembers = useCallback(async () => {
     try {
-      const response = await getTeamsList()
+      const response = await getTeamsList(selectedUser?.id)
       if (response) {
         const members = []
         // Add admin
@@ -166,7 +167,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
   // Handle task creation
   const handleCreateTask = async (taskData) => {
     try {
-      const response = await createTask(taskData)
+      const response = await createTask(taskData, selectedUser?.id)
       if (response.status) {
         toast.success('Task created successfully')
         setIsCreating(false)
@@ -232,7 +233,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
         }
       }
 
-      const response = await updateTask(taskId, updateData)
+      const response = await updateTask(taskId, updateData, selectedUser?.id)
       if (response.status) {
         // Update with server response if different
         if (response.data) {
@@ -260,7 +261,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
   // Handle task deletion
   const handleDeleteTask = async (taskId) => {
     try {
-      const response = await deleteTask(taskId)
+      const response = await deleteTask(taskId, selectedUser?.id)
       if (response.status) {
         toast.success('Task deleted successfully')
         fetchTasks() // Refresh list

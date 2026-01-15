@@ -58,8 +58,12 @@ export const getTasks = async (params = {}) => {
  * @param {Object} taskData - Task data (title, description, status, priority, type, dueDate, dueTime, assignedTo, leadId, threadId, callId, userId)
  * @returns {Promise<Object>} Created task
  */
-export const createTask = async (taskData) => {
+export const createTask = async (taskData, userId = null) => {
   try {
+    if (userId) {
+      taskData.userId = userId
+    }
+
     const AuthToken = getAuthToken()
     if (!AuthToken) {
       throw new Error('Authentication token not found')
@@ -85,8 +89,12 @@ export const createTask = async (taskData) => {
  * @param {Object} taskData - Task data to update
  * @returns {Promise<Object>} Updated task
  */
-export const updateTask = async (taskId, taskData) => {
+export const updateTask = async (taskId, taskData,userId = null) => {
   try {
+    if (userId) {
+      taskData.userId = userId
+    }
+
     const AuthToken = getAuthToken()
     if (!AuthToken) {
       throw new Error('Authentication token not found')
@@ -111,8 +119,12 @@ export const updateTask = async (taskId, taskData) => {
  * @param {number} taskId - Task ID
  * @returns {Promise<Object>} Success response
  */
-export const deleteTask = async (taskId) => {
+export const deleteTask = async (taskId, userId = null) => {
   try {
+    if (userId) {
+      path = path + `?userId=${userId}`
+    }
+
     const AuthToken = getAuthToken()
     if (!AuthToken) {
       throw new Error('Authentication token not found')
