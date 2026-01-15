@@ -53,17 +53,30 @@ export function PermissionProvider({ children }) {
           },
         })
 
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PermissionContext.js:49',message:'Permission API response',data:{permissionKey,contextUserId,url,responseStatus:response.status,responseData:response.data},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'K'})}).catch(()=>{});
+        // #endregion
+
         if (response.data?.status && response.data?.hasPermission !== undefined) {
           const hasAccess = response.data.hasPermission
           permissionCache.set(cacheKey, hasAccess)
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PermissionContext.js:57',message:'Permission check result',data:{permissionKey,contextUserId,hasAccess,cacheKey},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'K'})}).catch(()=>{});
+          // #endregion
           return hasAccess
         }
 
         // Default to false if API call fails
         permissionCache.set(cacheKey, false)
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PermissionContext.js:63',message:'Permission check failed - defaulting to false',data:{permissionKey,contextUserId,responseData:response.data},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'K'})}).catch(()=>{});
+        // #endregion
         return false
       } catch (error) {
         console.error('Error checking permission:', error)
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PermissionContext.js:66',message:'Permission check error',data:{permissionKey,contextUserId,error:error.message,errorStack:error.stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'K'})}).catch(()=>{});
+        // #endregion
         permissionCache.set(cacheKey, false)
         return false
       }

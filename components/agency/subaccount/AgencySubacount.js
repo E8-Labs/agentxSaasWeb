@@ -1601,7 +1601,7 @@ function AgencySubacount({ selectedAgency }) {
             <SelectedUserDetails
               from="subaccount"
               selectedUser={selectedUser}
-              // agencyUser={true}
+              agencyUser={true}
               hideViewDetails={true}
               handleDel={() => {
                 // setUsers((prev) => prev.filter((u) =>
