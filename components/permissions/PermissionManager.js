@@ -27,9 +27,11 @@ import { TypographyH3 } from '@/lib/typography'
  * @param {Object} props
  * @param {boolean} props.open - Whether the modal is open
  * @param {function} props.onClose - Callback when modal closes
- * @param {number} props.teamMemberId - ID of the team member
+ * @param {number|null} props.teamMemberId - ID of the team member (null for invitation mode)
  * @param {string} props.context - Context for permissions ("agency" or "subaccount")
  * @param {number|null} props.contextUserId - Context user ID for subaccount permissions
+ * @param {function} props.onPermissionsChange - Optional callback for invitation mode to return selected permissions
+ * @param {Array} props.initialPermissions - Optional initial permissions for invitation mode
  */
 function PermissionManager({
   open,
@@ -37,7 +39,10 @@ function PermissionManager({
   teamMemberId,
   context = 'agency',
   contextUserId = null,
+  onPermissionsChange = null,
+  initialPermissions = null,
 }) {
+  const isInvitationMode = !teamMemberId
   const {
     fetchTeamMemberPermissions,
     fetchAvailablePermissions,
@@ -136,8 +141,63 @@ function PermissionManager({
   useEffect(() => {
     if (teamMemberId) {
       loadPermissions()
+    } else if (isInvitationMode) {
+      // In invitation mode, just load available permissions
+      loadAvailablePermissionsOnly()
     }
-  }, [teamMemberId, context, contextUserId])
+  }, [teamMemberId, context, contextUserId, isInvitationMode])
+
+  const loadAvailablePermissionsOnly = async () => {
+    try {
+      setLoading(true)
+
+      // For agency context, fetch both agency and subaccount permissions
+      // For other contexts, fetch only the relevant permissions
+      let apiContext = null
+      if (context === 'agency') {
+        apiContext = 'agency'
+      } else if (context === 'subaccount') {
+        apiContext = 'subaccount'
+      }
+
+      // Fetch available permissions for the context
+      let available = await fetchAvailablePermissions(apiContext)
+
+      // If agency context, also fetch subaccount permissions
+      if (context === 'agency') {
+        const subaccountAvailable = await fetchAvailablePermissions('subaccount')
+        available = [...available, ...subaccountAvailable]
+      }
+
+      setAvailablePermissions(available)
+
+      // Initialize permission states from initialPermissions if provided
+      if (initialPermissions && Array.isArray(initialPermissions)) {
+        const states = {}
+        for (const perm of initialPermissions) {
+          if (perm.permissionKey) {
+            states[perm.permissionKey] = perm.granted || false
+          }
+        }
+        setPermissionStates(states)
+      } else {
+        // Default: all permissions unchecked in invitation mode
+        const states = {}
+        for (const perm of available) {
+          const permKey = perm.key || perm.permissionKey
+          if (permKey) {
+            states[permKey] = false
+          }
+        }
+        setPermissionStates(states)
+      }
+    } catch (error) {
+      console.error('Error loading available permissions:', error)
+      setAvailablePermissions([])
+    } finally {
+      setLoading(false)
+    }
+  }
 
   // #region agent log - Check DOM after render
   useEffect(() => {
@@ -300,21 +360,53 @@ function PermissionManager({
     try {
       setSaving(true)
 
-      // Convert permission states to bulk update format
-      const permissions = Object.entries(permissionStates).map(
-        ([permissionKey, granted]) => ({
-          permissionKey,
-          granted,
+      // Convert permission states to format
+      const permissions = Object.entries(permissionStates)
+        .filter(([_, granted]) => granted) // Only include granted permissions
+        .map(([permissionKey, granted]) => {
+          // Determine contextUserId for this permission
+          const perm = availablePermissions.find(
+            p => (p.key || p.permissionKey) === permissionKey
+          )
+          const permContext = perm?.context || perm?.permissionDefinition?.context
+          const permKey = String(permissionKey)
+          
+          // For subaccount permissions, use contextUserId if provided
+          let permContextUserId = null
+          if (permContext === 'subaccount' || permKey.startsWith('subaccount.')) {
+            permContextUserId = contextUserId
+          }
+
+          return {
+            permissionKey,
+            granted,
+            contextUserId: permContextUserId,
+          }
         })
-      )
 
-      await bulkUpdatePermissions(teamMemberId, permissions, contextUserId)
+      if (isInvitationMode) {
+        // In invitation mode, return permissions via callback
+        if (onPermissionsChange) {
+          onPermissionsChange(permissions)
+        }
+        if (onClose) {
+          onClose()
+        }
+      } else {
+        // Normal mode: save to database
+        const bulkPermissions = permissions.map(p => ({
+          permissionKey: p.permissionKey,
+          granted: p.granted,
+        }))
 
-      // Reload permissions to reflect changes
-      await loadPermissions()
+        await bulkUpdatePermissions(teamMemberId, bulkPermissions, contextUserId)
 
-      if (onClose) {
-        onClose()
+        // Reload permissions to reflect changes
+        await loadPermissions()
+
+        if (onClose) {
+          onClose()
+        }
       }
     } catch (error) {
       console.error('Error saving permissions:', error)
@@ -325,6 +417,14 @@ function PermissionManager({
   }
 
   const getContextDescription = () => {
+    if (isInvitationMode) {
+      if (context === 'agency') {
+        return 'Set permissions for this team member. They will be applied when the invitation is accepted.'
+      } else if (context === 'subaccount') {
+        return 'Set permissions for this team member on subaccounts. They will be applied when the invitation is accepted.'
+      }
+      return 'Set permissions for this team member. They will be applied when the invitation is accepted.'
+    }
     if (context === 'agency') {
       return 'Control what this team member can access in the agency dashboard and what actions they can perform on subaccounts'
     } else if (context === 'subaccount') {
@@ -344,7 +444,7 @@ function PermissionManager({
       >
         <DialogHeader className="px-6 pt-6 pb-4 border-b flex-shrink-0">
           <DialogTitle asChild>
-            <TypographyH3>Manage Permissions</TypographyH3>
+            <TypographyH3>{isInvitationMode ? 'Set Permissions' : 'Manage Permissions'}</TypographyH3>
           </DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground mt-1">
             {getContextDescription()}
@@ -495,6 +595,14 @@ function PermissionManager({
             disabled={saving}
             className="text-sm"
             sx={{
+              borderColor: 'hsl(var(--brand-primary))',
+              color: 'hsl(var(--brand-primary))',
+              '&:hover': {
+                borderColor: 'hsl(var(--brand-primary))',
+                backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+              },
+            }}
+            sx={{
               textTransform: 'none',
               px: 3,
               py: 1,
@@ -527,7 +635,7 @@ function PermissionManager({
               },
             }}
           >
-            {saving ? 'Saving...' : 'Save Permissions'}
+            {saving ? (isInvitationMode ? 'Applying...' : 'Saving...') : (isInvitationMode ? 'Apply Permissions' : 'Save Permissions')}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -109,6 +109,10 @@ function Teams({ agencyData, selectedAgency, from }) {
   // Permission management
   const [showPermissionModal, setShowPermissionModal] = useState(false)
   const [selectedTeamMemberForPermissions, setSelectedTeamMemberForPermissions] = useState(null)
+  
+  // Permission management for invitations
+  const [showInvitationPermissionManager, setShowInvitationPermissionManager] = useState(false)
+  const [selectedInvitationPermissions, setSelectedInvitationPermissions] = useState(null)
 
   //get local Data
   useEffect(() => {
@@ -319,6 +323,7 @@ function Teams({ agencyData, selectedAgency, from }) {
           name: item.name,
           email: item.email,
           phone: item.phone,
+          permissions: selectedInvitationPermissions, // Include permissions if set
         }
         if (selectedAgency) {
           apidata = {
@@ -342,6 +347,7 @@ function Teams({ agencyData, selectedAgency, from }) {
             let newMember = response.data.data[0]
             // //console.log;
             // //console.log;
+            setSelectedInvitationPermissions(null) // Reset permissions after successful invitation
             setMyTeam((prev) => {
               // //console.log;
               // //console.log;
@@ -361,6 +367,7 @@ function Teams({ agencyData, selectedAgency, from }) {
             setName('')
             setEmail('')
             setPhone('')
+            setSelectedInvitationPermissions(null) // Reset permissions after successful invitation
             // getMyteam()
           } else {
             // //console.log;
@@ -1373,6 +1380,20 @@ function Teams({ agencyData, selectedAgency, from }) {
                 </div>
               </div>
 
+              <div className="flex flex-row gap-3 mt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowInvitationPermissionManager(true)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  style={{
+                    borderColor: selectedInvitationPermissions ? 'hsl(var(--brand-primary))' : undefined,
+                    color: selectedInvitationPermissions ? 'hsl(var(--brand-primary))' : undefined,
+                  }}
+                >
+                  {selectedInvitationPermissions ? `Permissions Set (${selectedInvitationPermissions.length})` : 'Set Permissions'}
+                </button>
+              </div>
+
               {inviteTeamLoader ? (
                 <div className="flex flex-col items-center p-5">
                   <CircularProgress size={30} sx={{ color: 'hsl(var(--brand-primary))' }} />
@@ -1427,6 +1448,24 @@ function Teams({ agencyData, selectedAgency, from }) {
                   </div>
                 </button>
               )}
+
+              <PermissionManager
+                open={showInvitationPermissionManager}
+                onClose={() => setShowInvitationPermissionManager(false)}
+                teamMemberId={null}
+                context={
+                  agencyData?.userRole === 'Agency' ||
+                  userLocalData?.userRole === 'Agency'
+                    ? 'agency'
+                    : 'agentx'
+                }
+                contextUserId={null}
+                onPermissionsChange={(permissions) => {
+                  setSelectedInvitationPermissions(permissions)
+                  setShowInvitationPermissionManager(false)
+                }}
+                initialPermissions={selectedInvitationPermissions}
+              />
 
               {/* Can be use full to add shadow */}
               {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
@@ -1514,6 +1553,25 @@ function Teams({ agencyData, selectedAgency, from }) {
             }}
           />
         )}
+        
+        {/* Invitation Permission Manager */}
+        <PermissionManager
+          open={showInvitationPermissionManager}
+          onClose={() => setShowInvitationPermissionManager(false)}
+          teamMemberId={null}
+          context={
+            agencyData?.userRole === 'Agency' ||
+            userLocalData?.userRole === 'Agency'
+              ? 'agency'
+              : 'agentx'
+          }
+          contextUserId={null}
+          onPermissionsChange={(permissions) => {
+            setSelectedInvitationPermissions(permissions)
+            setShowInvitationPermissionManager(false)
+          }}
+          initialPermissions={selectedInvitationPermissions}
+        />
       </PermissionProvider>
     </div>
   )
