@@ -101,12 +101,23 @@ function PermissionManager({
   }, [availablePermissions, context])
 
   useEffect(() => {
-    if (teamMemberId) {
-      loadPermissions()
-    } else if (isInvitationMode) {
-      loadAvailablePermissionsOnly()
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PermissionManager.js:useEffect-entry',message:'PermissionManager useEffect triggered',data:{open, teamMemberId, isInvitationMode, context},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+    // #endregion
+    if (open) {
+      if (teamMemberId) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PermissionManager.js:useEffect-loadPermissions',message:'Calling loadPermissions',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+        // #endregion
+        loadPermissions()
+      } else if (isInvitationMode) {
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PermissionManager.js:useEffect-loadAvailable',message:'Calling loadAvailablePermissionsOnly',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+        // #endregion
+        loadAvailablePermissionsOnly()
+      }
     }
-  }, [teamMemberId, context, contextUserId, isInvitationMode])
+  }, [open, teamMemberId, context, contextUserId, isInvitationMode])
 
   const loadAvailablePermissionsOnly = async () => {
     try {
