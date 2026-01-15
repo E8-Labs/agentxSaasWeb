@@ -193,7 +193,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
   useEffect(() => {
    const upateUserDetails = async () => {
-    let data = await AdminGetProfileDetails(selectedUser.id)
+    let data = await AdminGetProfileDetails(selectedUser?.id)
     if (data) {
       setMergedUser(data)
     }
@@ -662,7 +662,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         const userData = JSON.parse(data)
         const AuthToken = userData.token
         // const ApiPath = Apis.duplicateAgent;
-        const ApiPath = `${Apis.duplicateAgent}?userId=${selectedUser.id}`
+        const ApiPath = `${Apis.duplicateAgent}?userId=${selectedUser?.id}`
         console.log('Api path for admin copy agent', ApiPath)
         let apidata = {
           agentId: showDrawerSelectedAgent.id,
@@ -1664,7 +1664,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       
       // Add userId parameter if selectedUser is provided (for admin/agency searching on behalf of users)
       if (selectedUser?.id) {
-        ApiPath += `&userId=${selectedUser.id}`
+        ApiPath += `&userId=${selectedUser?.id}`
       }
       
       let AuthToken = null
@@ -1927,7 +1927,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         AuthToken = UserDetails.token
       }
       ////console.log;
-      const ApiPath = `${Apis.userAvailablePhoneNumber}?userId=${selectedUser.id}`
+      const ApiPath = `${Apis.userAvailablePhoneNumber}?userId=${selectedUser?.id}`
       console.log(`Api path is ${ApiPath}`)
 
       // return
@@ -1991,7 +1991,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         formData.append('mainAgentId', showDrawerSelectedAgent.mainAgentId)
       }
       if (selectedUser) {
-        formData.append('userId', selectedUser.id)
+        formData.append('userId', selectedUser?.id)
       }
 
       for (let [key, value] of formData.entries()) {
@@ -2105,7 +2105,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       )
       formData.append('agentId', showDrawerSelectedAgent.id)
       if (selectedUser) {
-        formData.append('userId', selectedUser.id)
+        formData.append('userId', selectedUser?.id)
       }
 
       const ApiPath = Apis.asignPhoneNumber
@@ -2424,7 +2424,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         name: name,
         phone: phone,
         extraColumns: newArray,
-        userId: selectedUser.id,
+        userId: selectedUser?.id,
       }
       console.log('ApiData', ApiData)
 
@@ -2576,7 +2576,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         // Dispatch custom event for parent component to refresh selectedUser
         window.dispatchEvent(
           new CustomEvent('refreshSelectedUser', {
-            detail: { userId: selectedUser.id },
+            detail: { userId: selectedUser?.id },
           }),
         )
       }
@@ -2628,11 +2628,11 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     try {
       // If mainAgentsList is empty (fresh reload), start from offset 0
       let offset = mainAgentsList.length > 0 ? mainAgentsList.length : 0
-      let ApiPath = `${Apis.getAgents}?offset=${offset}&userId=${selectedUser.id}` //?agentType=outbound
+      let ApiPath = `${Apis.getAgents}?offset=${offset}&userId=${selectedUser?.id}` //?agentType=outbound
 
       if (search) {
         offset = 0
-        ApiPath = `${Apis.getAgents}?offset=${offset}&userId=${selectedUser.id}&search=${search}`
+        ApiPath = `${Apis.getAgents}?offset=${offset}&userId=${selectedUser?.id}&search=${search}`
       }
       console.log('Api path is', ApiPath)
 
@@ -2647,8 +2647,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         },
       })
 
-      if (response) {
-        //console.log;
+      if (response?.data) {
+        console.log('response of get agents api is', response)
         setPaginationLoader(false)
         let agents = response.data.data || []
         console.log('Agents from api', agents)
@@ -2690,6 +2690,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           JSON.stringify(newList),
         )
         setMainAgentsList(newList)
+      }else{
+        setInitialLoader(false)
+        setPaginationLoader(false)
+        setShowErrorSnack(response?.data?.message)
+        setIsVisibleSnack2(true)
+        setCanGetMore(false)
       }
     } catch (error) {
       setInitialLoader(false)
@@ -2793,7 +2799,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     event.preventDefault()
     // Use mergedUser which includes latest data from localStorage
     let userToCheck = mergedUser || selectedUser
-    userToCheck = await AdminGetProfileDetails(selectedUser.id)
+    userToCheck = await AdminGetProfileDetails(selectedUser?.id)
     console.log('userToCheck in handleAddNewAgent', userToCheck)
     if (userToCheck) {
       setMergedUser(userToCheck)
@@ -2997,7 +3003,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
       let ApiPath = Apis.getCalenders
       if (selectedUser) {
-        ApiPath = `${ApiPath}?userId=${selectedUser.id}`
+        ApiPath = `${ApiPath}?userId=${selectedUser?.id}`
       }
       console.log('Getting calendars for ', ApiPath)
       //// //console.log;
