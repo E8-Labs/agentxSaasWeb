@@ -105,8 +105,9 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   console.log("reduxUser is ", reduxUser)
   console.log("planCapabilities is ", reduxUser?.planCapabilities)
   // Check if user has access to messaging features
-  const hasMessagingAccess = reduxUser?.planCapabilities?.allowEmails === true || planCapabilities?.allowTextMessages === true
+  const hasMessagingAccess = reduxUser?.planCapabilities?.allowEmails === true || reduxUser?.planCapabilities?.allowTextMessages === true
 
+  console.log("hasMessagingAccess is ", hasMessagingAccess)
   // Close email detail popover when clicking outside
   useEffect(() => {
     if (!openEmailDetailId) return
@@ -2477,7 +2478,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       />
 
       {
-        planCapabilities?.allowTextMessages === false && planCapabilities?.allowEmails === false ? (
+      !hasMessagingAccess? (
           <UnlockMessagesView />
         ) : (
           <div className={`w-full h-full flex flex-col bg-white`}>

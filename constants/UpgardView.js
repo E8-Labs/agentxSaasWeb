@@ -8,6 +8,7 @@ import getProfileDetails from '@/components/apis/GetProfile'
 import UnlockPremiunFeatures from '@/components/globalExtras/UnlockPremiunFeatures'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import { useUser } from '@/hooks/redux-hooks'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 // Helper function to get brand primary color as hex (for inline styles)
 const getBrandPrimaryHex = () => {
@@ -230,18 +231,7 @@ function UpgardView({
               height: 'clamp(16px, 24px, 30px)',
             }}
           >
-            <Image
-              alt="*"
-              src={'/otherAssets/starsIcon2.png'}
-              fill={false}
-              height={32}
-              width={30}
-              className="flex-shrink-0 object-contain"
-              style={{
-                maxWidth: '100%',
-                height: 'auto',
-              }}
-            />
+           {renderBrandedIcon("/otherAssets/starsIcon2.png",32,30)}
           </div>
 
           {/*
