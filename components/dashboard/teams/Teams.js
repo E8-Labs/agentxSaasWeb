@@ -1695,10 +1695,12 @@ function Teams({ agencyData, selectedAgency, from }) {
                     e.stopPropagation()
                     e.stopImmediatePropagation?.()
                     console.log('🔵 Set Permissions button clicked')
-                    // Use setTimeout to defer state update
+                    // Close the invite modal first to avoid focus trap conflicts
+                    setOpenInvitePopup(false)
+                    // Use setTimeout to defer opening permission manager
                     setTimeout(() => {
                       setShowInvitationPermissionManagerWithLog(true)
-                    }, 0)
+                    }, 100)
                     return false
                   }}
                   onMouseDown={(e) => {
@@ -1886,7 +1888,15 @@ function Teams({ agencyData, selectedAgency, from }) {
         {/* Invitation Permission Manager */}
         <PermissionManager
           open={showInvitationPermissionManager}
-          onClose={() => setShowInvitationPermissionManagerWithLog(false)}
+          onClose={() => {
+            setShowInvitationPermissionManagerWithLog(false)
+            // Reopen the invite modal when permissions are closed
+            if (!selectedInvitationPermissions || selectedInvitationPermissions.length === 0) {
+              setTimeout(() => {
+                setOpenInvitePopup(true)
+              }, 100)
+            }
+          }}
           teamMemberId={null}
           context={
             agencyData?.userRole === 'Agency' ||
@@ -1901,6 +1911,10 @@ function Teams({ agencyData, selectedAgency, from }) {
           onPermissionsChange={(permissions) => {
             setSelectedInvitationPermissions(permissions)
             setShowInvitationPermissionManagerWithLog(false)
+            // Reopen the invite modal after permissions are set
+            setTimeout(() => {
+              setOpenInvitePopup(true)
+            }, 100)
           }}
           initialPermissions={selectedInvitationPermissions}
         />
