@@ -27,6 +27,7 @@ import SplitButtonCN from '@/components/ui/SplitButtonCN'
 import { TypographyCaption } from '@/lib/typography'
 import { getTempletes, getTempleteDetails, createTemplete, updateTemplete, deleteTemplete } from '@/components/pipeline/TempleteServices'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
+import UpgradePlanView from '../callPausedPoupup/UpgradePlanView'
 
 // Helper function to strip HTML tags and convert to plain text while preserving line breaks
 const stripHTML = (html) => {
@@ -184,6 +185,13 @@ const NewMessageModal = ({
 
   // Determine if upgrade view should be shown (only for SMS tab)
   const shouldShowUpgradeView = selectedMode === 'sms' && !canSendSMS
+
+const hasSmsAccess = reduxUser?.planCapabilities?.allowTextMessages === true
+const hasEmailAccess = reduxUser?.planCapabilities?.allowEmails === true
+
+
+console.log("hasSmsAccess is ", hasSmsAccess)
+console.log("hasEmailAccess is ", hasEmailAccess)
 
   // Function to render Lucide icon with branding color
   const renderBrandedLucideIcon = (IconComponent, size = 20, isActive = false) => {
@@ -1419,7 +1427,7 @@ const NewMessageModal = ({
                 }}
               />
               {/* CC and BCC buttons for Email mode - on top right */}
-              {selectedMode === 'email' && (
+              {selectedMode === 'email' && hasEmailAccess && (
                 <SplitButtonCN
                   buttons={[
                     {
@@ -1436,6 +1444,25 @@ const NewMessageModal = ({
                 />
               )}
             </div>
+
+            {
+             ( !hasSmsAccess && selectedMode === 'sms')|| (!hasEmailAccess && selectedMode === 'email')
+              
+              ?(
+                <>
+               <UpgardView title={selectedMode === 'sms' ? "Unlock Text Messages" : "Unlock Email Messages"}
+                subTitle={selectedMode === 'sms' ? "Upgrade to unlock this feature and start sending SMS messages to your leads." : "Upgrade to unlock this feature and start sending emails to your leads."}
+                userData={reduxUser} onUpgradeSuccess={(updatedUserData) => {
+                  if (updatedUserData) {
+                    setReduxUser({ user: updatedUserData })
+                  }
+                }}
+               
+              />
+              </>
+
+            ):(
+            <>
 
             <React.Fragment>
               {/* From and To Fields - Same Line */}
@@ -1508,12 +1535,7 @@ const NewMessageModal = ({
                                   </div>
                                 </Tooltip>
                               )}
-                              {!reduxUser?.planCapabilities?.allowTextMessages && (
-                                <UpgradeTagWithModal
-                                  reduxUser={reduxUser}
-                                  setReduxUser={setReduxUser}
-                                />
-                              )}
+                         
                             </div>
                           ) : (
                             <>
@@ -2344,12 +2366,12 @@ const NewMessageModal = ({
                 </div>
               )}
             </div>
-
-
+            </>
+            )}
           </div>
 
           {/* Footer with template dropdown, char count, credits, and send button */}
-          {!shouldShowUpgradeView && (
+          
             <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50">
               <div className="flex items-center gap-2">
                 {/* My Templates Button with Dropdown */}
@@ -2460,7 +2482,7 @@ const NewMessageModal = ({
                 </button>
               </div>
             </div>
-          )}
+          
         </Box>
       </Modal>
 

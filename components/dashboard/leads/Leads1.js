@@ -85,6 +85,7 @@ const Leads1 = () => {
   const [initialLoader, setInitialLoader] = useState(false)
   //File handling
   const [processedData, setProcessedData] = useState([])
+  const [originalTransformedData, setOriginalTransformedData] = useState([]) // Store unfiltered data for re-validation
   const [columnMappingsList, setColumnMappingsList] = useState([])
   const [filterStats, setFilterStats] = useState({ invalidPhone: 0, missingName: 0, both: 0 })
   const [introVideoModal, setIntroVideoModal] = useState(false)
@@ -164,6 +165,7 @@ const Leads1 = () => {
       setSelectedFile(null)
       setSheetName('')
       setProcessedData([])
+      setOriginalTransformedData([])
       setNewColumnsObtained([])
       setDefaultColumns({ ...LeadDefaultColumns })
       setDefaultColumnsArray([...LeadDefaultColumnsArray])
@@ -584,20 +586,126 @@ const Leads1 = () => {
       return false
     }
 
-    // If columns are mapped but no valid data, provide specific reason
-    if (!processedData || processedData.length === 0) {
-      // Use filter statistics to provide specific error message
+    // Re-validate data using current column mappings (in case user manually mapped columns)
+    // Use originalTransformedData if available, otherwise use processedData
+    const dataToValidate = originalTransformedData.length > 0 ? originalTransformedData : processedData
+    
+    if (!dataToValidate || dataToValidate.length === 0) {
+      setErrSnack('No data found to validate. Please upload a file with data.')
+      setErrSnackTitle('No Data Found')
+      setShowErrSnack(true)
+      return false
+    }
+
+    // Find column names for validation using current mappings
+    const firstNameColumn = NewColumnsObtained.find(
+      (col) => col.matchedColumn?.dbName === 'firstName',
+    )?.ColumnNameInSheet
+    const lastNameColumn = NewColumnsObtained.find(
+      (col) => col.matchedColumn?.dbName === 'lastName',
+    )?.ColumnNameInSheet
+    const fullNameColumn = NewColumnsObtained.find(
+      (col) => {
+        const colName = col.ColumnNameInSheet?.toLowerCase() || ''
+        return (
+          colName.includes('full name') ||
+          colName.includes('fullname') ||
+          colName === 'full name' ||
+          colName === 'fullname'
+        )
+      },
+    )?.ColumnNameInSheet
+    const phoneColumn = NewColumnsObtained.find(
+      (col) => col.matchedColumn?.dbName === 'phone',
+    )?.ColumnNameInSheet
+
+    // Helper function to validate phone number (same as in handleFileUpload)
+    const isValidPhone = (phone) => {
+      if (!phone || typeof phone !== 'string') return false
+      const cleanPhone = String(phone).trim()
+      if (!cleanPhone) return false
+
+      // Try to parse the phone number
+      const phoneNumber = parsePhoneNumberFromString(cleanPhone)
+      if (phoneNumber && phoneNumber.isValid()) {
+        return true
+      }
+
+      // Allow test numbers (555 prefix) and US numbers without country code
+      const digitsOnly = cleanPhone.replace(/\D/g, '')
+      if (
+        digitsOnly.match(/^1555\d{7}$/) ||
+        digitsOnly.match(/^1\d{10}$/) ||
+        (digitsOnly.length === 10 && !cleanPhone.startsWith('+'))
+      ) {
+        return true
+      }
+
+      return false
+    }
+
+    // Helper function to check if row has valid name
+    const hasValidName = (row) => {
+      const firstName = firstNameColumn
+        ? String(row[firstNameColumn] || '').trim()
+        : ''
+      const lastName = lastNameColumn
+        ? String(row[lastNameColumn] || '').trim()
+        : ''
+      const fullName = fullNameColumn
+        ? String(row[fullNameColumn] || '').trim()
+        : ''
+
+      // Must have at least one: firstName OR lastName OR fullName
+      return firstName || lastName || fullName
+    }
+
+    // Filter out invalid rows and track reasons
+    let invalidPhoneCount = 0
+    let missingNameCount = 0
+    let bothInvalidCount = 0
+    
+    const validData = dataToValidate.filter((row) => {
+      const phone = phoneColumn ? String(row[phoneColumn] || '').trim() : ''
+      const hasPhone = isValidPhone(phone)
+      const hasName = hasValidName(row)
+
+      // Track why rows are invalid
+      if (!hasPhone && !hasName) {
+        bothInvalidCount++
+      } else if (!hasPhone) {
+        invalidPhoneCount++
+      } else if (!hasName) {
+        missingNameCount++
+      }
+
+      // Row is valid if it has valid phone AND valid name
+      return hasPhone && hasName
+    })
+
+    // Update filter statistics
+    setFilterStats({
+      invalidPhone: invalidPhoneCount,
+      missingName: missingNameCount,
+      both: bothInvalidCount,
+    })
+
+    // Update processedData with newly validated data
+    setProcessedData(validData)
+
+    // If no valid data, provide specific reason
+    if (!validData || validData.length === 0) {
       let errorMessage = 'No valid leads found. All rows were filtered out because:'
       const reasons = []
       
-      if (filterStats.both > 0) {
-        reasons.push(`${filterStats.both} row(s) have both invalid phone numbers and missing name fields`)
+      if (bothInvalidCount > 0) {
+        reasons.push(`${bothInvalidCount} row(s) have both invalid phone numbers and missing name fields`)
       }
-      if (filterStats.invalidPhone > 0) {
-        reasons.push(`${filterStats.invalidPhone} row(s) have invalid or missing phone numbers`)
+      if (invalidPhoneCount > 0) {
+        reasons.push(`${invalidPhoneCount} row(s) have invalid or missing phone numbers`)
       }
-      if (filterStats.missingName > 0) {
-        reasons.push(`${filterStats.missingName} row(s) are missing name fields (First Name, Last Name, or Full Name)`)
+      if (missingNameCount > 0) {
+        reasons.push(`${missingNameCount} row(s) are missing name fields (First Name, Last Name, or Full Name)`)
       }
       
       // If no stats available (shouldn't happen), provide generic message
@@ -607,15 +715,15 @@ const Leads1 = () => {
         errorMessage += '\n• ' + reasons.join('\n• ')
         errorMessage += '\n\nPlease check your file and ensure all rows have valid phone numbers (in a recognized format) and at least one name field (First Name, Last Name, or Full Name).'
       }
-
+      console.log('errorMessage', errorMessage)
       setErrSnack(errorMessage)
       setErrSnackTitle('No Valid Leads Found')
       setShowErrSnack(true)
       return false
     }
 
-    // All validations passed
-    return true
+    // All validations passed - return the validated data
+    return validData
   }
 
   //File readi
@@ -828,6 +936,7 @@ const Leads1 = () => {
           // Update state
           console.log("Transformed data (first 10):", JSON.stringify(validData.slice(0, 10), null, 2));
           setProcessedData(validData)
+          setOriginalTransformedData(transformedData) // Store original unfiltered data for re-validation
           setNewColumnsObtained(mappedColumns) // Store the column mappings
         }
       }
@@ -1015,6 +1124,17 @@ const Leads1 = () => {
         setLoader(false)
         refreshUserData()
 
+        // Send custom event to show dashboard slider
+        window.dispatchEvent(
+          new CustomEvent('leadUploadComplete', { detail: { update: true } }),
+        )
+      },
+      onError: (errorInfo) => {
+        setLoader(false)
+        setErrSnack(errorInfo.message)
+        setErrSnackTitle(errorInfo.title)
+        setShowErrSnack(true)
+        
         // Send custom event to show dashboard slider
         window.dispatchEvent(
           new CustomEvent('leadUploadComplete', { detail: { update: true } }),
@@ -1845,7 +1965,8 @@ const Leads1 = () => {
 
                           console.log('Validated', validated)
                           // return;
-                          if (validated) {
+                          // validated will be the validated data array if successful, or false if validation failed
+                          if (validated && Array.isArray(validated) && validated.length > 0) {
                             console.log('Show enrich')
                             handleAddLead()
                           }

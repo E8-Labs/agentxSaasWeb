@@ -366,9 +366,10 @@ function AdminTeam({ selectedUser, agencyUser }) {
     let phoneNumber = team.phone
     let apidata = {
       phone: phoneNumber,
+      userId: selectedUser.id,
     }
 
-    // //console.log;
+    console.log('api data is', apidata)
     // return;
 
     try {
@@ -414,14 +415,14 @@ function AdminTeam({ selectedUser, agencyUser }) {
               router.push('/')
             }
           } else {
-            // //console.log;
+            console.log('error in delete team member api is', response.data)
           }
         }
       }
     } catch (e) {
       setInviteTeamLoader(false)
       //// //console.log
-      // //console.log;
+      console.log('error in delete team member api is', e)
     }
   }
 

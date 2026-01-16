@@ -143,13 +143,13 @@ const DashboardSlider = ({
   const initializeDashboardSlider = async () => {
     if (selectedUser) {
       setInitialLoader(true)
-      let data = await AdminGetProfileDetails(selectedUser.id)
+      let data = await AdminGetProfileDetails(selectedUser?.id)
       if (data) {
         setUserDetails(data)
         processUserSettings(data)
         // Fetch branding data if user is Agency or AgencySubAccount
         if (data?.userRole === 'Agency' || data?.userRole === 'AgencySubAccount') {
-          await fetchBrandingData(data.id)
+          // await fetchBrandingData(data.id)
         }
       }
       setInitialLoader(false)
@@ -353,7 +353,7 @@ const DashboardSlider = ({
       processUserSettings(UserDetailsLD.user)
       // Fetch branding data if user is Agency or AgencySubAccount
       if (UserDetailsLD?.user?.userRole === 'Agency' || UserDetailsLD?.user?.userRole === 'AgencySubAccount') {
-        await fetchBrandingData()
+        // await fetchBrandingData()
       }
       setInitialLoader(false)
     }

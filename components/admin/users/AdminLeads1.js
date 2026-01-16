@@ -74,6 +74,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
   const [initialLoader, setInitialLoader] = useState(false)
   //File handling
   const [processedData, setProcessedData] = useState([])
+  const [originalTransformedData, setOriginalTransformedData] = useState([]) // Store unfiltered data for re-validation
   const [columnMappingsList, setColumnMappingsList] = useState([])
   const [filterStats, setFilterStats] = useState({ invalidPhone: 0, missingName: 0, both: 0 })
   const [introVideoModal, setIntroVideoModal] = useState(false)
@@ -147,6 +148,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
       setSelectedFile(null)
       setSheetName('')
       setProcessedData([])
+      setOriginalTransformedData([])
       setNewColumnsObtained([])
       setDefaultColumns({ ...LeadDefaultColumns })
       setDefaultColumnsArray([...LeadDefaultColumnsArray])
@@ -561,20 +563,126 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
       return false
     }
 
-    // If columns are mapped but no valid data, provide specific reason
-    if (!processedData || processedData.length === 0) {
-      // Use filter statistics to provide specific error message
+    // Re-validate data using current column mappings (in case user manually mapped columns)
+    // Use originalTransformedData if available, otherwise use processedData
+    const dataToValidate = originalTransformedData.length > 0 ? originalTransformedData : processedData
+    
+    if (!dataToValidate || dataToValidate.length === 0) {
+      setErrSnack('No data found to validate. Please upload a file with data.')
+      setErrSnackTitle('No Data Found')
+      setShowErrSnack(true)
+      return false
+    }
+
+    // Find column names for validation using current mappings
+    const firstNameColumn = NewColumnsObtained.find(
+      (col) => col.matchedColumn?.dbName === 'firstName',
+    )?.ColumnNameInSheet
+    const lastNameColumn = NewColumnsObtained.find(
+      (col) => col.matchedColumn?.dbName === 'lastName',
+    )?.ColumnNameInSheet
+    const fullNameColumn = NewColumnsObtained.find(
+      (col) => {
+        const colName = col.ColumnNameInSheet?.toLowerCase() || ''
+        return (
+          colName.includes('full name') ||
+          colName.includes('fullname') ||
+          colName === 'full name' ||
+          colName === 'fullname'
+        )
+      },
+    )?.ColumnNameInSheet
+    const phoneColumn = NewColumnsObtained.find(
+      (col) => col.matchedColumn?.dbName === 'phone',
+    )?.ColumnNameInSheet
+
+    // Helper function to validate phone number (same as in handleFileUpload)
+    const isValidPhone = (phone) => {
+      if (!phone || typeof phone !== 'string') return false
+      const cleanPhone = String(phone).trim()
+      if (!cleanPhone) return false
+
+      // Try to parse the phone number
+      const phoneNumber = parsePhoneNumberFromString(cleanPhone)
+      if (phoneNumber && phoneNumber.isValid()) {
+        return true
+      }
+
+      // Allow test numbers (555 prefix) and US numbers without country code
+      const digitsOnly = cleanPhone.replace(/\D/g, '')
+      if (
+        digitsOnly.match(/^1555\d{7}$/) ||
+        digitsOnly.match(/^1\d{10}$/) ||
+        (digitsOnly.length === 10 && !cleanPhone.startsWith('+'))
+      ) {
+        return true
+      }
+
+      return false
+    }
+
+    // Helper function to check if row has valid name
+    const hasValidName = (row) => {
+      const firstName = firstNameColumn
+        ? String(row[firstNameColumn] || '').trim()
+        : ''
+      const lastName = lastNameColumn
+        ? String(row[lastNameColumn] || '').trim()
+        : ''
+      const fullName = fullNameColumn
+        ? String(row[fullNameColumn] || '').trim()
+        : ''
+
+      // Must have at least one: firstName OR lastName OR fullName
+      return firstName || lastName || fullName
+    }
+
+    // Filter out invalid rows and track reasons
+    let invalidPhoneCount = 0
+    let missingNameCount = 0
+    let bothInvalidCount = 0
+    
+    const validData = dataToValidate.filter((row) => {
+      const phone = phoneColumn ? String(row[phoneColumn] || '').trim() : ''
+      const hasPhone = isValidPhone(phone)
+      const hasName = hasValidName(row)
+
+      // Track why rows are invalid
+      if (!hasPhone && !hasName) {
+        bothInvalidCount++
+      } else if (!hasPhone) {
+        invalidPhoneCount++
+      } else if (!hasName) {
+        missingNameCount++
+      }
+
+      // Row is valid if it has valid phone AND valid name
+      return hasPhone && hasName
+    })
+
+    // Update filter statistics
+    setFilterStats({
+      invalidPhone: invalidPhoneCount,
+      missingName: missingNameCount,
+      both: bothInvalidCount,
+    })
+
+    // Update processedData with newly validated data
+    setProcessedData(validData)
+
+    // If no valid data, provide specific reason
+    if (!validData || validData.length === 0) {
       let errorMessage = 'No valid leads found. All rows were filtered out because:'
       const reasons = []
       
-      if (filterStats.both > 0) {
-        reasons.push(`${filterStats.both} row(s) have both invalid phone numbers and missing name fields`)
+      if (bothInvalidCount > 0) {
+        reasons.push(`${bothInvalidCount} row(s) have both invalid phone numbers and missing name fields`)
       }
-      if (filterStats.invalidPhone > 0) {
-        reasons.push(`${filterStats.invalidPhone} row(s) have invalid or missing phone numbers`)
+      if (invalidPhoneCount > 0) {
+        reasons.push(`${invalidPhoneCount} row(s) have invalid or missing phone numbers`)
       }
-      if (filterStats.missingName > 0) {
-        reasons.push(`${filterStats.missingName} row(s) are missing name fields (First Name, Last Name, or Full Name)`)
+      if (missingNameCount > 0) {
+        reasons.push(`${missingNameCount} row(s) are missing name fields (First Name, Last Name, or Full Name)`)
       }
       
       // If no stats available (shouldn't happen), provide generic message
@@ -584,16 +692,15 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
         errorMessage += '\n• ' + reasons.join('\n• ')
         errorMessage += '\n\nPlease check your file and ensure all rows have valid phone numbers (in a recognized format) and at least one name field (First Name, Last Name, or Full Name).'
       }
-
+      console.log('errorMessage', errorMessage)
       setErrSnack(errorMessage)
       setErrSnackTitle('No Valid Leads Found')
       setShowErrSnack(true)
       return false
     }
 
-    // All validations passed
-    handleAddLead()
-    return true
+    // All validations passed - return the validated data
+    return validData
   }
 
   //File reading logic
@@ -810,6 +917,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
 
           // Update state
           setProcessedData(validData)
+          setOriginalTransformedData(transformedData) // Store original unfiltered data for re-validation
           setNewColumnsObtained(mappedColumns) // Store the column mappings
         }
       }
@@ -834,15 +942,10 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
   }
 
   //code to call api
-  const handleAddLead = async () => {
-    // let validated = validateColumns();
-
-    ////console.log;
-    // if (!validated) {
-
-    //   return;
-    // }
-    let pd = processedData
+  const handleAddLead = async (validatedData = null) => {
+    // Use validated data if provided, otherwise fall back to processedData
+    // This handles the case where validateColumns returns the validated data
+    let pd = validatedData || processedData
 
     let data = []
 
@@ -921,10 +1024,63 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
           setSetData(true)
           setSuccessSnack(response.data.message)
           setShowSuccessSnack(true)
+        } else {
+          // Handle API error response
+          const errorMessage = response.data?.message || 'Failed to add leads. Please try again.'
+          setErrSnack(errorMessage)
+          setErrSnackTitle('Error Adding Leads')
+          setShowErrSnack(true)
         }
       }
     } catch (error) {
-      // console.error("Error occured in add lead api is :", error);
+      console.error("Error occurred in add lead api:", error)
+      console.log("Error response data:", error.response?.data)
+      
+      // Extract error message from response if available - prioritize response.data.message
+      let errorMessage = 'Failed to add leads. Please try again.'
+      let errorTitle = 'Error Adding Leads'
+      
+      if (error.response) {
+        // Server responded with error status - prioritize message from response.data.message
+        const status = error.response.status
+        
+        // Always use response.data.message if it exists, otherwise try error field, then fallback
+        if (error.response.data?.message) {
+          errorMessage = error.response.data.message
+          // When API provides a message, don't set a title so the message is the focus
+          errorTitle = null
+        } else if (error.response.data?.error) {
+          errorMessage = error.response.data.error
+          errorTitle = null
+        } else {
+          // Only set title when we don't have a message from API
+          if (status === 403) {
+            errorTitle = 'Access Forbidden'
+            errorMessage = 'You do not have permission to add leads. Please contact your administrator.'
+          } else if (status === 401) {
+            errorTitle = 'Unauthorized'
+            errorMessage = 'Your session has expired. Please log in again.'
+          } else if (status === 400) {
+            errorTitle = 'Invalid Request'
+            errorMessage = 'The request was invalid. Please check your data and try again.'
+          } else if (status >= 500) {
+            errorTitle = 'Server Error'
+            errorMessage = 'A server error occurred. Please try again later.'
+          }
+        }
+      } else if (error.request) {
+        // Request was made but no response received
+        errorTitle = 'Network Error'
+        errorMessage = 'Unable to connect to the server. Please check your internet connection and try again.'
+      } else {
+        // Error setting up the request
+        errorMessage = error.message || errorMessage
+      }
+      
+      console.log("Setting error snack - Message:", errorMessage, "Title:", errorTitle)
+      setErrSnack(errorMessage)
+      setErrSnackTitle(errorTitle)
+      setShowErrSnack(true)
     } finally {
       setLoader(false)
     }
@@ -1735,9 +1891,10 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
 
                           console.log('Validated', validated)
                           // return;
-                          if (validated) {
+                          // validated will be the validated data array if successful, or false if validation failed
+                          if (validated && Array.isArray(validated) && validated.length > 0) {
                             console.log('Show enrich')
-                            handleAddLead()
+                            handleAddLead(validated)
                           }
                         }}
                       >
