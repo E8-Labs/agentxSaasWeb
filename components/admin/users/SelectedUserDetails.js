@@ -648,7 +648,7 @@ function SelectedUserDetails({
                   )}
 
                   <div>
-                    {selectedUser.isTrial && (
+                    {!agencyUser && selectedUser.isTrial && (
                       <button
                         className="text-white bg-brand-primary outline-none rounded-xl px-3"
                         style={{ height: '50px' }}
