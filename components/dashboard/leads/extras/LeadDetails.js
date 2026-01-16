@@ -2560,8 +2560,7 @@ const LeadDetails = ({
               timeout: 1000,
               sx: {
                 backgroundColor: '#00000020',
-                zIndex: 1500, // Match Modal z-index
-                // //backdropFilter: "blur(5px)",
+                zIndex: 1500,
               },
             }}
           >
