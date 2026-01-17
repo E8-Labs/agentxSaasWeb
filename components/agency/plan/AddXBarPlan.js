@@ -60,7 +60,7 @@ export default function AddXBarPlan({
       // Safely handle null/undefined values for prices
       const discountedPriceValue = selectedPlan?.discountedPrice
       if (discountedPriceValue != null && !isNaN(discountedPriceValue)) {
-        setOriginalPrice(Number(discountedPriceValue).toFixed(2))
+        setOriginalPrice(discountedPriceValue)
       } else {
         setOriginalPrice('')
       }

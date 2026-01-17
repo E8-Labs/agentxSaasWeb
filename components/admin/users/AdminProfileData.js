@@ -23,6 +23,7 @@ import AdminBilling from './AdminProfileData/AdminBilling'
 import AdminPhoneNumber from './AdminProfileData/AdminPhoneNumber'
 import AdminXbarServices from './AdminProfileData/AdminXbarServices'
 import AdminSendFeedback from './AdminSendFeedback'
+import { useUser } from '@/hooks/redux-hooks'
 
 function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, handlePauseUser, handleClose }) {
   let searchParams = useSearchParams()
@@ -63,6 +64,45 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
     isInvitee && agencyUser && from === 'subaccount' ? 'subaccount.phone_numbers.manage' : '',
     isInvitee && agencyUser && from === 'subaccount' ? selectedUser?.id : null
   )
+  const [xbarTitle, setXbarTitle] = useState('X Bar Services')
+  const [tabSelected, setTabSelected] = useState(1)
+  const [selectedManu, setSelectedManu] = useState(null)
+  const [user, setUser] = useState(null)
+  const [pauseLoader, setPauseLoader] = useState(false)
+  const [delLoader, setDelLoader] = useState(false)
+  const [showPauseConfirmationPopup, setShowPauseConfirmationPopup] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+
+
+  useEffect(() => {
+    getXbarTitle()
+  }, [selectedManu])
+  const getXbarTitle = () => {
+    try {
+      const storedBranding = localStorage.getItem('agencyBranding')
+      if (storedBranding) {
+        const branding = JSON.parse(storedBranding)
+        if (branding?.xbarTitle) {
+          setXbarTitle(branding.xbarTitle)
+          return
+        }
+      }
+      // Fallback: check user data
+      const userData = localStorage.getItem('User')
+      if (userData) {
+        const parsedUser = JSON.parse(userData)
+        const branding = parsedUser?.user?.agencyBranding || parsedUser?.agencyBranding
+        if (branding?.xbarTitle) {
+          setXbarTitle(branding.xbarTitle)
+          return
+        }
+      }
+    } catch (error) {
+      console.log('Error getting xbar title from branding:', error)
+    }
+    // Default title
+  }
+  
 
   let allMenuItems = [
     {
@@ -102,7 +142,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
     },
     {
       id: 6,
-      heading: 'Bar Services',
+      heading: xbarTitle || 'Bar Services',
       subHeading: 'Our version of the genius bar',
       icon: '/svgIcons/agentXIcon.svg',
       permissionKey: null, // No specific permission for this
@@ -135,13 +175,6 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
     })
   }, [agencyUser, isInvitee, from, hasPaymentPermission, hasBillingPermission, hasPhoneNumbersPermission])
 
-  const [tabSelected, setTabSelected] = useState(1)
-  const [selectedManu, setSelectedManu] = useState(null)
-  const [user, setUser] = useState(null)
-  const [pauseLoader, setPauseLoader] = useState(false)
-  const [delLoader, setDelLoader] = useState(false)
-  const [showPauseConfirmationPopup, setShowPauseConfirmationPopup] = useState(false)
-  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   // Fetch user details
   useEffect(() => {

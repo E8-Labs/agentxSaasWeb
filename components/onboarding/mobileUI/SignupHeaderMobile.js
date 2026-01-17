@@ -20,20 +20,23 @@ function SignupHeaderMobile({
             if (userData) {
                 const parsedUser = JSON.parse(userData)
                 if (parsedUser?.user?.agencyBranding) {
+
                     setHasBranding(true)
                     setAgencyLogoUrl(parsedUser.user.agencyBranding.logoUrl)
                 }
                 else if (parsedUser?.agencyBranding) {
                     setHasBranding(true)
                     setAgencyLogoUrl(parsedUser.agencyBranding.logoUrl)
+                }else {
+                    setHasBranding(false)
+                    setAgencyLogoUrl(null)
                 }
             }
         } catch (e) {
             // Ignore errors
         }
 
-        setHasBranding(false)
-        setAgencyLogoUrl(null)
+       
     }, [])
 
     const backgroundStyle = {
