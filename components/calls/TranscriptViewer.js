@@ -472,7 +472,7 @@ export function TranscriptViewer({ callId, onPopoverStateChange }) {
             </div>
 
             <div 
-              style={{ pointerEvents: 'auto', position: 'relative', zIndex: 1 }}
+              style={{ pointerEvents: 'auto', position: 'relative', zIndex: 2 }}
               onClick={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}
             >
