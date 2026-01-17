@@ -15,16 +15,17 @@ function SignupHeaderMobile({
 
         // Check localStorage for agency branding
         try {
-            const storedBranding = localStorage.getItem('agencyBranding')
-            if (storedBranding) {
-                const brandingData = JSON.parse(storedBranding)
-                if (brandingData && brandingData.primaryColor) {
+          
+            const userData = localStorage.getItem('User')
+            if (userData) {
+                const parsedUser = JSON.parse(userData)
+                if (parsedUser?.user?.agencyBranding) {
                     setHasBranding(true)
-                    // Set agency logo URL if available
-                    if (brandingData.logoUrl) {
-                        setAgencyLogoUrl(brandingData.logoUrl)
-                    }
-                    return
+                    setAgencyLogoUrl(parsedUser.user.agencyBranding.logoUrl)
+                }
+                else if (parsedUser?.agencyBranding) {
+                    setHasBranding(true)
+                    setAgencyLogoUrl(parsedUser.agencyBranding.logoUrl)
                 }
             }
         } catch (e) {

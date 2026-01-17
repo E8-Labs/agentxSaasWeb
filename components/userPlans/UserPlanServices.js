@@ -94,6 +94,9 @@ const setCachedPlans = (data, from) => {
 }
 
 export const getUserPlans = async (from, selectedUser) => {
+
+  console.log('from passed in get user plans is', from)
+
   try {
     const cached = getCachedPlans(from)
     const UserLocalData = getUserLocalData()
@@ -143,7 +146,7 @@ export const getUserPlans = async (from, selectedUser) => {
     if (from === 'agency' || from === 'Agency') {
       console.log('✅ Using agency endpoint (from prop)')
       path = Apis.getPlansForAgency
-    } else if (from === 'SubAccount') {
+    } else if (from === 'SubAccount' || from === 'subaccount') {
       console.log('✅ Using subaccount endpoint (from prop)')
       path = Apis.getSubAccountPlans
     }

@@ -28,6 +28,8 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
   let searchParams = useSearchParams()
   const router = useRouter()
 
+  console.log('from passed in AdminProfileData is', from)
+
   // #region agent log
   useEffect(() => {
     fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminProfileData.js:25',message:'AdminProfileData props',data:{agencyUser,from,hasHandleClose:!!handleClose,hasHandleDel:!!handleDel,hasHandlePauseUser:!!handlePauseUser,selectedUserId:selectedUser?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'L'})}).catch(()=>{});

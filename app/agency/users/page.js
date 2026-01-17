@@ -62,7 +62,7 @@ export default function Page() {
           selectedUser={selectedUser}
           agencyUser={isFromAgency}
           hideViewDetails={true}
-          from="agency"
+          from="subaccount"
         />
       ) : (
         <p>Loading...</p>

@@ -45,6 +45,7 @@ function SelectedUserDetails({
   hideViewDetails = false,
   handleClose,
 }) {
+
   // Component to check permission for a menu item
   function MenuItemWithPermission({ item, children, contextUserId, agencyUser }) {
     // If not viewing from agency context, show all items
@@ -741,6 +742,11 @@ function SelectedUserDetails({
 
                   {(
                     <button
+                    style ={{
+                      pointerEvents: 'auto',
+
+                      zIndex: 10,
+                    }}
                       onClick={() => {
                         console.log('selectedUser.id', selectedUser.id)
                         if (selectedUser?.id) {

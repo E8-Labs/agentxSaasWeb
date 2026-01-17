@@ -267,7 +267,7 @@ function AdminBilling({ selectedUser, from }) {
   }, [])
 
   const getPlans = async () => {
-    let plansList = await getUserPlans()
+    let plansList = await getUserPlans(from,selectedUser)
     console.log('plansList are', plansList)
     let userData = getUserLocalData()
 
