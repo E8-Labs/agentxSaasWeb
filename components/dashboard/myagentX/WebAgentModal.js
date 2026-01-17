@@ -639,7 +639,7 @@ const WebAgentModal = ({
             >
               Cancel
             </button>
-            <button
+            <button className={`${requireForm && !selectedSmartList ? 'bg-gray-300' : 'bg-brand-primary'}`}
               onClick={(e) => {
                 console.log('Open agent button clicked')
                 e.stopPropagation()
@@ -648,8 +648,7 @@ const WebAgentModal = ({
               disabled={requireForm && !selectedSmartList}
               style={{
                 padding: '8px 24px',
-                backgroundColor:
-                  requireForm && !selectedSmartList ? '#d1d5db' : '#7c3aed',
+                
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
