@@ -2475,6 +2475,9 @@ const LeadDetails = ({
                             setShowNoAudioPlay(true)
                           }
                         }}
+                        leadId={selectedLeadsDetails?.id}
+                        leadName={selectedLeadsDetails?.firstName || selectedLeadsDetails?.name}
+                        selectedUser={selectedUser}
                       />
                     )}
                   </div>

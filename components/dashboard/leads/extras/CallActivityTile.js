@@ -14,6 +14,9 @@ const CallActivityTile = ({
   onPlayRecording,
   onCopyCallId,
   onReadTranscript,
+  leadId = null,
+  leadName = null,
+  selectedUser = null,
 }) => {
   // Handle voicemail case
   if (item.status === 'voicemail' || item.callOutcome === 'Voicemail') {
@@ -58,6 +61,9 @@ const CallActivityTile = ({
         onPlayRecording={onPlayRecording}
         onCopyCallId={onCopyCallId}
         onReadTranscript={onReadTranscript}
+        leadId={leadId}
+        leadName={leadName}
+        selectedUser={selectedUser}
       />
     </ActivityTile>
   )
