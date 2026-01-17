@@ -290,7 +290,7 @@ const TaskCard = ({
           <PopoverContent 
             className="w-auto p-0" 
             align="start"
-            style={{ zIndex: 200 }}
+            style={{ zIndex: 1500 }}
             onInteractOutside={(e) => {
               // Prevent handling if already saving
               if (savingRef.current || isSavingDate) {

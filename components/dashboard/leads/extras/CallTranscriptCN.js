@@ -1,10 +1,16 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import moment from 'moment'
 import Image from 'next/image'
 import { Copy, FileText, ListChecks } from 'lucide-react'
 import { Tooltip } from '@mui/material'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { Button } from '@/components/ui/button'
 
 import {
   TypographyBody,
@@ -16,12 +22,16 @@ import {
   getTemperatureIconForActivity,
   formatNextStepsForTooltip,
 } from './activityUtils'
+import CreateTaskFromNextStepsModal from './CreateTaskFromNextStepsModal'
 
 const CallTranscriptCN = ({
   item,
   onPlayRecording,
   onCopyCallId,
   onReadTranscript,
+  leadId = null,
+  leadName = null,
+  selectedUser = null,
 }) => {
   const callSummary = item.callSummary
   const summaryText = callSummary?.callSummary || null
@@ -31,6 +41,10 @@ const CallTranscriptCN = ({
   const displayText = hasSummary
     ? summaryText
     : 'No summary available'
+
+  // State for popover and modal
+  const [nextStepsPopoverOpen, setNextStepsPopoverOpen] = useState(false)
+  const [taskModalOpen, setTaskModalOpen] = useState(false)
 
   return (
     <div className="flex flex-col">
@@ -125,41 +139,44 @@ const CallTranscriptCN = ({
           )}
 
           {callSummary?.nextSteps && (
-            <Tooltip
-              title={
+            <Popover open={nextStepsPopoverOpen} onOpenChange={setNextStepsPopoverOpen}>
+              <PopoverTrigger asChild>
+                <div
+                  style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                  onMouseEnter={() => setNextStepsPopoverOpen(true)}
+                  onMouseLeave={() => setNextStepsPopoverOpen(false)}
+                >
+                  <ListChecks size={18} color="hsl(var(--brand-primary))" />
+                </div>
+              </PopoverTrigger>
+              <PopoverContent 
+                className="p-3"
+                onMouseEnter={() => setNextStepsPopoverOpen(true)}
+                onMouseLeave={() => setNextStepsPopoverOpen(false)}
+                side="right"
+                align="start"
+                style={{ zIndex: 15000, width: '320px', maxWidth: '320px' }}
+              >
                 <div style={{ whiteSpace: 'pre-line' }}>
-                  <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                  <div style={{ fontWeight: '600', marginBottom: '8px', fontSize: '14px' }}>
                     Next Steps:
                   </div>
-                  {formatNextStepsForTooltip(callSummary.nextSteps)}
+                  <div style={{ fontSize: '14px', marginBottom: '12px', color: '#333', wordBreak: 'break-word' }}>
+                    {formatNextStepsForTooltip(callSummary.nextSteps)}
+                  </div>
+                  <Button
+                    onClick={() => {
+                      setNextStepsPopoverOpen(false)
+                      setTaskModalOpen(true)
+                    }}
+                    className="w-full bg-brand-primary text-white hover:bg-brand-primary/90"
+                    size="sm"
+                  >
+                    Add as task
+                  </Button>
                 </div>
-              }
-              arrow
-              componentsProps={{
-                tooltip: {
-                  sx: {
-                    backgroundColor: '#ffffff',
-                    color: '#333',
-                    fontSize: '14px',
-                    padding: '8px 12px',
-                    borderRadius: '8px',
-                    boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
-                    maxWidth: '300px',
-                  },
-                },
-                arrow: {
-                  sx: {
-                    color: '#ffffff',
-                  },
-                },
-              }}
-            >
-              <div
-                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-              >
-                <ListChecks size={18} color="hsl(var(--brand-primary))" />
-              </div>
-            </Tooltip>
+              </PopoverContent>
+            </Popover>
           )}
         </div>
       </div>
@@ -252,6 +269,19 @@ const CallTranscriptCN = ({
           )}
         </div>
       </div>
+
+      {/* Create Task Modal */}
+      {callSummary?.nextSteps && (
+        <CreateTaskFromNextStepsModal
+          open={taskModalOpen}
+          onClose={() => setTaskModalOpen(false)}
+          nextSteps={callSummary.nextSteps}
+          leadId={leadId}
+          leadName={leadName}
+          callId={item.id}
+          selectedUser={selectedUser}
+        />
+      )}
     </div>
   )
 }

@@ -108,3 +108,21 @@ export const formatNextStepsForTooltip = (nextSteps) => {
   }
 }
 
+/**
+ * Format next steps for description field (textarea)
+ * @param {string|Array} nextSteps - Next steps data
+ * @returns {string} Formatted next steps text suitable for textarea
+ */
+export const formatNextStepsForDescription = (nextSteps) => {
+  if (!nextSteps) return ''
+  try {
+    const steps = typeof nextSteps === 'string' ? JSON.parse(nextSteps) : nextSteps
+    if (Array.isArray(steps) && steps.length > 0) {
+      return steps.map((step, idx) => `${idx + 1}. ${step}`).join('\n')
+    }
+    return typeof nextSteps === 'string' ? nextSteps : ''
+  } catch {
+    return typeof nextSteps === 'string' ? nextSteps : ''
+  }
+}
+
