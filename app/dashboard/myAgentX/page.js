@@ -901,8 +901,15 @@ function Page() {
       )
       console.log('modelId', modelId)
       const name = encodeURIComponent(selectedAgentForWebAgent?.name || '')
+
+      let baseUrl;
+      if (reduxUser?.agencyBranding?.customDomain) {
+        baseUrl = `https://${reduxUser.agencyBranding.customDomain}`;
+      } else {
+        baseUrl = window.location.origin;
+      }
       // return;
-      window.open(`/web-agent/${modelId}?name=${name}`, '_blank')
+      window.open(`${baseUrl}/web-agent/${modelId}?name=${name}`, '_blank')
     }
     setShowWebAgentModal(false)
     setShowAllSetModal(true)

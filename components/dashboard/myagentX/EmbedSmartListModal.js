@@ -22,6 +22,8 @@ import AgentSelectSnackMessage, {
 } from '../leads/AgentSelectSnackMessage'
 import TagsInput from '../leads/TagsInput'
 import Apis from '@/components/apis/Apis'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
+import { useUser } from '@/hooks/redux-hooks'
 
 const EmbedSmartListModal = ({
   open,
@@ -49,6 +51,8 @@ const EmbedSmartListModal = ({
     type: SnackbarTypes.Error,
   })
 
+  const { user: reduxUser } = useUser()
+
   // Initialize with existing agent data when modal opens
   useEffect(() => {
     if (open && agent) {
@@ -75,6 +79,7 @@ const EmbedSmartListModal = ({
   }
 
   const predefinedFields = ['First Name', 'Last Name', 'Phone']
+
 
   const handleLogoChange = (event) => {
     try {
@@ -127,7 +132,7 @@ const EmbedSmartListModal = ({
 
       // Extract the actual ID value - ensure it's a primitive (number or string)
       let agentIdToUse = null
-      
+
       // First try to get numeric ID from agent object
       if (agent?.id !== undefined && agent?.id !== null) {
         agentIdToUse = agent.id
@@ -144,17 +149,17 @@ const EmbedSmartListModal = ({
       else if (agent?.modelIdVapi) {
         agentIdToUse = agent.modelIdVapi
       }
-      
+
       if (!agentIdToUse) {
         throw new Error('Agent ID is required but could not be determined')
       }
-      
+
       const formData = new FormData()
       formData.append('agentId', String(agentIdToUse))
       if (selectedUser?.id) {
         formData.append('userId', selectedUser.id)
       }
-      
+
       console.log('🔧 EMBED-SMARTLIST - updateSupportButton using agentId:', {
         originalAgentId: agentId,
         agentIdType: typeof agentId,
@@ -233,7 +238,7 @@ const EmbedSmartListModal = ({
 
       // Extract the actual ID value - ensure it's a primitive (number or string)
       let agentIdToUse = null
-      
+
       // First try to get numeric ID from agent object
       if (agent?.id !== undefined && agent?.id !== null) {
         agentIdToUse = agent.id
@@ -250,11 +255,11 @@ const EmbedSmartListModal = ({
       else if (agent?.modelIdVapi) {
         agentIdToUse = agent.modelIdVapi
       }
-      
+
       if (!agentIdToUse) {
         throw new Error('Agent ID is required but could not be determined')
       }
-      
+
       let payload = {
         sheetName: sheetName.trim(),
         columns: allFields,
@@ -262,7 +267,7 @@ const EmbedSmartListModal = ({
         agentId: agentIdToUse,
         agentType: 'embed', // Specify agent type for embed agents
       }
-      
+
       console.log('🔧 EMBED-SMARTLIST - Using agentId:', {
         originalAgentId: agentId,
         agentIdType: typeof agentId,
@@ -321,7 +326,7 @@ const EmbedSmartListModal = ({
 
     // Extract and validate agentId
     let agentIdToUse = null
-    
+
     // First try to get numeric ID from agent object
     if (agent?.id !== undefined && agent?.id !== null) {
       agentIdToUse = agent.id
@@ -338,7 +343,7 @@ const EmbedSmartListModal = ({
     else if (agent?.modelIdVapi) {
       agentIdToUse = agent.modelIdVapi
     }
-    
+
     if (!agentIdToUse) {
       showSnackbar(
         'Error',
@@ -416,6 +421,20 @@ const EmbedSmartListModal = ({
   `
 
   if (!open) return null
+
+  const bgImageStyle = () => {
+    if (!reduxUser?.agencyBranding) {
+      return {
+        backgroundImage: 'url("/agencyIcons/bg-embed-agent.png")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      }
+    }
+
+    return {} // IMPORTANT: don't override gradient
+  }
+
 
   return (
     <>
@@ -519,13 +538,7 @@ const EmbedSmartListModal = ({
                         display: 'flex',
                       }}
                     >
-                      <Image
-                        src={'/assets/infoIcon.png'}
-                        height={12}
-                        width={12}
-                        alt="*"
-                        className="mr-1"
-                      />
+                      {renderBrandedIcon('/assets/infoIcon.png', 12, 12)}
                       Ensure Image is a 1:1 dimension for better quality
                     </Typography>
                   </Box>
@@ -727,11 +740,13 @@ const EmbedSmartListModal = ({
                 }}
               >
                 <div
+                  className={
+                    reduxUser?.agencyBranding
+                      ? "bg-gradient-to-b from-brand-primary to-brand-primary/40"
+                      : ""
+                  }
                   style={{
-                    backgroundImage: 'url(/agencyIcons/bg-embed-agent.png)',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    backgroundRepeat: 'no-repeat',
+                    ...bgImageStyle(),
                     borderRadius: '0 8px 8px 0',
                     height: '100%',
                     minHeight: 400,
@@ -742,6 +757,7 @@ const EmbedSmartListModal = ({
                     overflow: 'hidden',
                   }}
                 >
+
                   {/* Close button for preview */}
                   <div style={{ position: 'absolute', top: 16, right: 16 }}>
                     <CloseBtn

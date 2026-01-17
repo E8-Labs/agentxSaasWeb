@@ -181,7 +181,7 @@ const AllSetModal = ({
         {/* Button */}
         {isEmbedFlow || fetureType === 'embed' ? (
           <button
-            className="w-full py-3 px-4 border border-gray-300 text-purple bg-white rounded-lg font-medium hover:bg-purple hover:text-white hover:border-purple flex items-center justify-center"
+            className="w-full py-3 px-4 border border-gray-300 text-brand-primary bg-white rounded-lg font-medium hover:bg-brand-primary hover:text-white hover:border-brand-primary flex items-center justify-center"
             onClick={handleCopyCode}
           >
             Copy Embed Code
@@ -189,7 +189,7 @@ const AllSetModal = ({
           </button>
         ) : fetureType === 'webagent' ? (
           <button
-            className="w-full py-3 px-4 border border-gray-300 text-purple bg-white rounded-lg font-medium hover:bg-purple hover:text-white hover:border-purple"
+            className="w-full py-3 px-4 border border-gray-300 text-brand-primary bg-white rounded-lg font-medium hover:bg-brand-primary hover:text-white hover:border-brand-primary"
             onClick={onOpenAgent}
           >
             Open agent in new tab
@@ -197,7 +197,7 @@ const AllSetModal = ({
           </button>
         ) : (
           <button
-            className="w-full py-3 px-4 border border-gray-300 text-purple bg-white rounded-lg font-medium hover:bg-purple hover:text-white hover:border-purple"
+            className="w-full py-3 px-4 border border-gray-300 text-brand-primary bg-white rounded-lg font-medium hover:bg-brand-primary hover:text-white hover:border-brand-primary"
             onClick={onCopyUrl}
           >
             Copy Webhook Url

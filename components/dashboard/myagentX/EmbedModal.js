@@ -21,6 +21,7 @@ import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../leads/AgentSelectSnackMessage'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 const EmbedModal = ({
   open,
@@ -346,7 +347,7 @@ const EmbedModal = ({
 
       const response = await axios.post(
         // 'https://apimyagentx.com/agentxtest/api/agent/attachSmartList',
-        Apis.attachSmartList,
+        Apis.attachSmartList,payload,
         {
           headers: {
             Authorization: `Bearer ${AuthToken}`,
@@ -545,13 +546,7 @@ const EmbedModal = ({
                       display: 'flex',
                     }}
                   >
-                    <Image
-                      src={'/assets/infoIcon.png'}
-                      height={12}
-                      width={12}
-                      alt="*"
-                      className="mr-1"
-                    />
+                    {renderBrandedIcon('/assets/infoIcon.png', 12, 12)}
                     Ensure Image is a 1:1 dimension for better quality
                   </Typography>
                 </Box>
