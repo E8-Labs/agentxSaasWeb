@@ -377,8 +377,8 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
         data-task-board
         className="fixed bg-white rounded-xl shadow-[0px_8px_24.4px_0px_rgba(0,0,0,0.10)] z-[101] flex flex-col overflow-hidden"
         style={{
-          width: '552px',
-          height: '771px',
+          width: '35vw',
+          height: '95vh',
           top: `${position.top}px`,
           right: `${position.right}px`,
           animation: 'slideInFromButton 0.3s ease-out',

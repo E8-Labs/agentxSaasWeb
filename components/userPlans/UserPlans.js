@@ -864,7 +864,7 @@ function UserPlans({
         )}
 
         <div
-          className={`flex flex-col md:flex-row items-start md:items-end justify-between w-full gap-4 md:gap-0 ${hideProgressBar ? 'mt-6' : 'mt-10'}`}
+          className={`flex mb-6 flex-col md:flex-row items-start md:items-end justify-between w-full gap-4 md:gap-0 ${hideProgressBar ? 'mt-6' : 'mt-10'}`}
         >
           <div className="flex flex-col items-start w-full">
             <div //className='text-4xl font-semibold'
@@ -898,8 +898,8 @@ function UserPlans({
                     item.save && (
                       <div
                         key={item.id}
-                        // className={`text-xs font-semibold ${selectedDuration?.id === item.id ? "text-purple" : "text-neutral-400 "}`}
-                        className={`px-2 py-1 ${selectedDuration?.id === item.id ? 'text-white bg-brand-primary shadow-sm shadow-brand-primary' : 'text-black'} rounded-tl-lg rounded-tr-lg`}
+                        className={`text-xs font-semibold px-2 py-1 rounded-tl-lg rounded-tr-lg shadow-md  ${selectedDuration?.id === item.id ? "text-brand-primary" : "text-black "}`}
+                        // className={`px-2 py-1 ${selectedDuration?.id === item.id ? 'text-white bg-brand-primary shadow-sm shadow-brand-primary' : 'text-black'} rounded-tl-lg rounded-tr-lg`}
                         style={{ fontWeight: '600', fontSize: '13px' }}
                       >
                         Save {item.save}
@@ -923,7 +923,7 @@ function UserPlans({
                     <button
                       key={item.id}
                       // className={`px-6 py-[10px] ${selectedDuration?.id === item.id ? "text-white text-base font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
-                      className={`px-4 py-1 ${selectedDuration.id === item.id ? 'text-white bg-brand-primary shadow-md shadow-brand-primary rounded-full' : 'text-black'}`}
+                      className={`px-4 py-1 text-black ${selectedDuration.id === item.id ? ' bg-white shadow-md  rounded-full' : ''}`}
                       onClick={() => {
                         setSelectedDuration(item)
                         // getCurrentPlans();
@@ -1034,13 +1034,13 @@ function UserPlans({
                     setHoverPlan(null)
                   }}
                   disabled={isDisabled}
-                  className={`flex flex-col items-center rounded-lg ${!isDisabled && 'hover:p-2 hover:bg-gradient-to-b from-brand-primary to-brand-primary/40'}
-                                 ${selectedPlan?.id === item.id && !isDisabled ? 'bg-gradient-to-b from-brand-primary to-brand-primary/40 p-2' : 'border p-2'}
+                  className={`flex flex-col items-center rounded-lg hover:shadow-md hover:shadow-brand-primary ${!isDisabled && 'hover:p-2 hover:bg-gradient-to-b from-brand-primary to-brand-primary/40'}
+                                 ${selectedPlan?.id === item.id && !isDisabled ? 'bg-gradient-to-b from-brand-primary to-brand-primary/40  p-2' : 'border p-2'}
                                  ${isDisabled ? 'opacity-75 cursor-not-allowed' : ''}
                                 flex-shrink-0
                                  `}
                   style={{
-                    width: from === 'billing-modal' ? '280px' : '280px',
+                    width: '28vw',
                   }}
                 >
                   <div className="flex flex-col items-center w-full h-full">
@@ -1253,12 +1253,12 @@ function UserPlans({
                         {isFrom === 'SubAccount' || routedFrom === 'Agency' ? (
                           ''
                         ) : (
-                          <div>
+                          <div className="w-full items-center">
                             {index > 0 && (
-                              <div className="w-full mb-3 flex-shrink-0">
-                                <div className="text-sm font-semibold text-black mb-2 text-left">
+                              <div className="w-full items-center p-3 rounded-lg bg-gray-100 mb-3 flex-shrink-0">
+                                <div className="text-sm font-semibold text-black text-center">
                                   Everything in{' '}
-                                  {getCurrentPlans()[index - 1]?.name}, and:
+                                  {getCurrentPlans()[index - 1]?.name||getCurrentPlans()[index - 1]?.title} and
                                 </div>
                               </div>
                             )}

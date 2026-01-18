@@ -74,7 +74,7 @@ function AdminXbarServices({ selectedUser }) {
 
   const [role, setRole] = useState('')
   const [selectedUserDetails, setSelectedUserDetails] = useState(null)
-  const [xbarTitle, setXbarTitle] = useState('X Bar Services') // Default title
+  const [xbarTitle, setXbarTitle] = useState('Bar Services') // Default title
   const xbarDescription = "We'll help you launch the right way, integrating your systems and optimizing everything for success from day one. Get faster results, close more deals, and do it all at a price that fits your budget."
   
   useEffect(() => {
@@ -397,13 +397,13 @@ function AdminXbarServices({ selectedUser }) {
 
   const handleSpeakToAGenius = () => {
     console.log('Selected user details are', selectedUserDetails)
-    if (role !== 'Agency') {
+    if (role !== 'Agency' || role !== 'AgencySubAccount') {
       let url = PersistanceKeys.GlobalConsultationUrl
       if (typeof window !== 'undefined') {
         window.open(url, '_blank')
       }
     } else {
-      let url = selectedUserDetails?.agencySettings?.hireTeamUrl
+      let url = selectedUserDetails?.userSettings?.hireTeamUrl
       if (typeof window !== 'undefined') {
         window.open(url, '_blank')
       }
@@ -503,7 +503,7 @@ function AdminXbarServices({ selectedUser }) {
               <div></div>
 
               <Tooltip
-                title={`${!selectedUserDetails?.agencySettings?.hireTeamTitle && 'Unavailable'}`}
+                title={`${(!selectedUserDetails?.userSettings?.hireTeamTitle && (role !== 'AgencySubAccount' || role !== 'Agency')) && 'Unavailable'}`}
                 placement="top"
                 arrow
                 componentsProps={{

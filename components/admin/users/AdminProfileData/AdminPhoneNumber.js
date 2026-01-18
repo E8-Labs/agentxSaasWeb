@@ -127,10 +127,10 @@ function AdminPhoneNumber({ selectedUser }) {
 
   return (
     <div
-      className="w-full flex flex-col items-start px-8 py-2"
+      className="w-full flex flex-col items-start px-8 py-2 h-screen"
       style={{
         paddingBottom: '50px',
-        height: '100%',
+
         overflow: 'auto',
         scrollbarWidth: 'none',
       }}

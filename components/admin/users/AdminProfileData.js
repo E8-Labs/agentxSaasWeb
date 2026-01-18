@@ -173,7 +173,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
 
       return true // Default to showing if permission check is unclear
     })
-  }, [agencyUser, isInvitee, from, hasPaymentPermission, hasBillingPermission, hasPhoneNumbersPermission])
+  }, [agencyUser, isInvitee, from, hasPaymentPermission, hasBillingPermission, hasPhoneNumbersPermission,xbarTitle])
 
 
   // Fetch user details
@@ -378,62 +378,15 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
             </div> */}
 
       <div
-        className=" w-full flex flex-row justify-between items-center py-4 px-10"
+        className=" w-full flex flex-row justify-between items-center py-2 px-10"
         style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
       >
         <div style={{ fontSize: 24, fontWeight: '600' }}>My Account</div>
-        
-        {/* Always show buttons when agencyUser is true or when viewing subaccount */}
-        {(() => {
-          const shouldShow = agencyUser || from === 'subaccount'
-          console.log('AdminProfileData header buttons check:', { agencyUser, from, shouldShow, hasHandleClose: !!handleClose })
-          return shouldShow ? (
-            <div className="flex flex-row items-center gap-4">
-              {pauseLoader ? (
-                <CircularProgress size={25} />
-              ) : (
-                <button
-                  className="text-white bg-brand-primary outline-none rounded-xl px-3"
-                  style={{ height: '50px' }}
-                  onClick={() => {
-                    setShowPauseConfirmationPopup(true)
-                  }}
-                >
-                  {user?.profile_status === 'paused' ? 'Reinstate' : 'Pause'}
-                </button>
-              )}
-              
-              <button
-                className="text-red outline-none rounded-xl px-3"
-                style={{ height: '50px' }}
-                onClick={() => {
-                  setShowDeleteModal(true)
-                }}
-              >
-                Delete
-              </button>
-              
-              {handleClose ? (
-                <CloseBtn onClick={handleClose} />
-              ) : (
-                <button
-                  onClick={() => {
-                    console.log('Close button clicked but handleClose not provided')
-                  }}
-                  className="text-gray-600 hover:text-gray-800"
-                  style={{ padding: '8px' }}
-                >
-                  ✕
-                </button>
-              )}
-            </div>
-          ) : null
-        })()}
       </div>
       <div className="w-12/12 h-full"></div>
-      <div className="w-full flex flex-row item-center pl-4 h-full">
+      <div className="w-full flex flex-row item-center pl-2 h-[100%]">
         <div
-          className="w-4/12 items-center flex flex-col pt-4 pr-2 h-[85%] overflow-auto"
+          className="w-4/12 items-center flex flex-col pr-2 overflow-auto"
           style={{ scrollbarWidth: 'none' }}
         >
           {manuBar.map((item, index) => (
@@ -449,7 +402,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
                 }}
               >
                 <div
-                  className="p-4 rounded-lg flex flex-row gap-2 items-start mt-4 w-full"
+                  className="p-4 rounded-lg flex flex-row gap-2 items-start w-full mt-4"
                   style={{
                     backgroundColor:
                       item.id === tabSelected ? 'hsl(var(--brand-primary) / 0.1)' : 'transparent',

@@ -756,7 +756,7 @@ function AgencyPlans({
           </div>
         )}
 
-        <div className="flex flex-row w-full items-end justify-between">
+        <div className="flex flex-row w-full items-center justify-between mb-5 mt-3">
           <div className="flex flex-col items-start mt-4">
             <div
               style={{
@@ -780,44 +780,44 @@ function AgencyPlans({
               <span>😉</span>
             </div>
           </div>
-        </div>
-        <div className="flex flex-col items-end w-full mt-6">
-          <div className="flex flex-row items-center justify-end gap-2 px-2 me-[33px] md:me-[7px]  w-auto">
-            {durationSaving.map((item) => {
-              return (
-                <button
-                  key={item.id}
-                  className={
-                    `px-2 py-1 rounded-tl-lg rounded-tr-lg font-semibold text-[13px] ${selectedDuration.id === item.id ? 'text-white bg-brand-primary outline-none border-none' : 'text-muted-foreground'}`
-                  }
-                  onClick={() => {
-                    setSelectedDuration(item);
-                    getCurrentPlans();
-                  }}
-                >
-                  {item.title}
-                </button>
-              )
-            })}
-          </div>
-          <div className="w-full flex md:w-auto flex-col items-center md:items-end justify-center md:justify-end">
-            <div
-              className="border flex flex-row items-center bg-neutral-100 px-2 gap-[8px] rounded-full py-1.5 w-[80%] md:w-auto justify-center md:justify-start"
-            >
-              {duration?.map((item) => (
-                <button
-                  key={item.id}
-                  className={
-                    `px-4 py-1 rounded-full ${selectedDuration.id === item.id ? 'text-white bg-brand-primary outline-none border-none shadow-md shadow-brand-primary/50' : 'text-foreground'}`
-                  }
-                  onClick={() => {
-                    setSelectedDuration(item);
-                    getCurrentPlans();
-                  }}
-                >
-                  {item.title}
-                </button>
-              ))}
+          <div className="flex flex-col items-end">
+            <div className="flex flex-row items-center justify-end gap-2 px-2 me-[33px] md:me-[7px]  w-auto">
+              {durationSaving.map((item) => {
+                return (
+                  <button
+                    key={item.id}
+                    className={
+                      `px-2 py-1 rounded-tl-lg shadow-md rounded-tr-lg font-semibold text-[13px] ${selectedDuration.id === item.id ? 'text-brand-primary bg-white outline-none border-none' : 'text-muted-foreground'}`
+                    }
+                    onClick={() => {
+                      setSelectedDuration(item);
+                      getCurrentPlans();
+                    }}
+                  >
+                    {item.title}
+                  </button>
+                )
+              })}
+            </div>
+            <div className="w-full flex md:w-auto flex-col items-center md:items-end justify-center md:justify-end">
+              <div
+                className="border flex flex-row items-center bg-neutral-100 px-2 gap-[8px] rounded-full py-1.5 w-[80%] md:w-auto justify-center md:justify-start"
+              >
+                {duration?.map((item) => (
+                  <button
+                    key={item.id}
+                    className={
+                      `px-4 py-1 rounded-full ${selectedDuration.id === item.id ? ' bg-white outline-none border-none shadow-md shadow-brand-primary/50 ' : ''}`
+                    }
+                    onClick={() => {
+                      setSelectedDuration(item);
+                      getCurrentPlans();
+                    }}
+                  >
+                    {item.title}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -890,15 +890,15 @@ function AgencyPlans({
                     setHoverPlan(null)
                   }}
                   className={
-                    `flex flex-col items-center rounded-lg flex-shrink-0 border p-2 ${!isCurrentPlan || currentUserPlan?.status === 'cancelled' ? 'hover:p-2 hover:bg-gradient-to-b hover:from-brand-primary hover:to-brand-primary/40' : ''} ${selectedPlan?.id === item.id && (!isCurrentPlan || currentUserPlan?.status === 'cancelled') ? 'bg-gradient-to-t from-brand-primary to-brand-primary/40 p-2' : 'opacity-75 cursor-not-allowed'}`
+                    `flex flex-col items-center rounded-lg flex-shrink-0 hover:shadow-md hover:shadow-brand-primary border p-2 ${!isCurrentPlan || currentUserPlan?.status === 'cancelled' ? 'hover:p-2 hover:bg-gradient-to-b hover:from-brand-primary hover:to-brand-primary/80' : ''} ${selectedPlan?.id === item.id && (!isCurrentPlan || currentUserPlan?.status === 'cancelled') ? 'bg-gradient-to-b from-brand-primary to-brand-primary/80 p-2' : 'opacity-75 cursor-not-allowed' }`
                   }
                   style={{
-                    width: '280px',
+                    width: '28vw',
                     overflow: 'hidden',
                     scrollbarWidth: 'none',
                   }}
                 >
-                  <div className="flex flex-col items-center h-auto w-full">
+                  <div className="flex flex-col items-center rounded-lg h-auto w-full">
                     <div className="pb-2">
                       {item.tag ? (
                         <div className=" flex flex-row items-center gap-2">
@@ -993,10 +993,10 @@ function AgencyPlans({
                         <div className="flex flex-col items-start w-[95%] flex-1 mt-4 min-h-0">
                           <div className="flex flex-col items-start w-full flex-1 pr-2">
                             {index > 0 && (
-                              <div className="w-full mb-3 flex-shrink-0">
-                                <div className="text-sm font-semibold text-foreground mb-2 text-left">
+                              <div className="w-full mb-3 flex-shrink-0 items-center p-3 rounded-lg bg-gray-100">
+                                <div className="text-sm font-semibold text-foreground text-center">
                                   Everything in{' '}
-                                  {getCurrentPlans()[index - 1]?.title}, and:
+                                  {getCurrentPlans()[index - 1]?.title} and
                                 </div>
                               </div>
                             )}
