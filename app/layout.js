@@ -11,7 +11,7 @@ import { ReduxProvider } from '../components/providers/redux-provider'
 import { BrandingProvider } from '../components/providers/branding-provider'
 import { LayoutTracker } from '../components/providers/layout-tracker'
 import DynamicTitle from '../components/common/DynamicTitle'
-import { getServerBranding } from '../lib/getServerBranding'
+import { getServerBranding, getBrandingForMetadata } from '../lib/getServerBranding'
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -30,11 +30,17 @@ const geistMono = localFont({
  * Uses agency logo and custom domain for Open Graph meta tags
  */
 export async function generateMetadata() {
-  const branding = await getServerBranding()
-  
   // Get hostname from headers to determine current domain
   const headersList = await headers()
   const hostname = headersList.get('host') || ''
+  
+  // First try to get branding from middleware headers/cookies (faster, already available)
+  let branding = await getServerBranding()
+  
+  // If not found, fetch directly from API (for social media crawlers that don't have cookies)
+  if (!branding && hostname) {
+    branding = await getBrandingForMetadata(hostname)
+  }
   
   // Determine protocol (http for localhost, https for production)
   const isLocalhost = hostname.includes('localhost') || hostname.includes('127.0.0.1')
