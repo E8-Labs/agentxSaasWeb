@@ -1,11 +1,11 @@
 import { CircularProgress } from '@mui/material'
 import moment from 'moment'
-import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
 import { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import { pauseSubscription } from '@/components/userPlans/UserPlanServices'
 import { next30Days } from '@/constants/Constants'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 function PauseSubscription({ handleContinue, setShowSnak, selectedUser }) {
   const [pauseLoading, setPuaseLoading] = useState(false)
@@ -49,13 +49,9 @@ function PauseSubscription({ handleContinue, setShowSnak, selectedUser }) {
 
   return (
     <div className="w-full flex flex-col items-center gap-2">
-      <Image
-        className=""
-        src={'/otherAssets/pauseIcon.png'}
-        height={72}
-        width={72}
-        alt="*"
-      />
+
+    {renderBrandedIcon('/otherAssets/pauseIcon.png', 72, 72)}
+
 
       <div className="text-xl font-semibold mt-2">
         Pause Subscription Instead
@@ -71,7 +67,7 @@ function PauseSubscription({ handleContinue, setShowSnak, selectedUser }) {
           <CircularProgress size={20} />
         ) : (
           <button
-            className="flex flex-col items-center justify-center h-[50px] w-full bg-purple rounded-lg text-base font-normal text-white mt-2 "
+            className="flex flex-col items-center justify-center h-[50px] w-full bg-brand-primary rounded-lg text-base font-normal text-white mt-2 "
             onClick={handlePause}
           >
             Pause Subscription

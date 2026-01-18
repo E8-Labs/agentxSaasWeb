@@ -15,6 +15,7 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 
 import Apis from '@/components/apis/Apis'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
 
 export default function UsersWithPlan({
   open,
@@ -113,12 +114,10 @@ export default function UsersWithPlan({
         }}
       >
         {/* Close Button */}
-        <IconButton
-          onClick={onClose}
-          sx={{ position: 'absolute', top: 10, right: 10 }}
-        >
-          <CloseIcon />
-        </IconButton>
+        <div className='absolute top-4 right-4'>
+          <CloseBtn onClick={onClose} />
+        </div>
+       
 
         {/* Modal Title */}
         <Typography variant="h6" fontWeight="bold" sx={{ mt: 1 }}>
@@ -179,23 +178,6 @@ export default function UsersWithPlan({
             </List>
           </>
         )}
-
-        {/* Close Button */}
-        <Button
-          onClick={onClose}
-          variant="contained"
-          sx={{
-            mt: 2,
-            backgroundColor: '#7902DF',
-            fontWeight: 'bold',
-            textTransform: 'none',
-            borderRadius: '10px',
-            width: '120px',
-            '&:hover': { backgroundColor: '#6901C3' },
-          }}
-        >
-          Close
-        </Button>
       </Box>
     </Modal>
   )

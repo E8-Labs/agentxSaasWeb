@@ -2391,7 +2391,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   if (!hasMessagingAccess) {
     return (
       <>
-        <div className="w-full h-full flex flex-col items-center justify-center bg-white">
+        <div className={`w-full h-full flex flex-col items-center justify-center bg-white }`}>
           <Image
             src={'/otherAssets/noTemView.png'}
             height={280}
@@ -2451,7 +2451,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   }
 
   return (
-    <div className = {`w-full flex flex-col ${selectedUser && !agencyUser ? 'h-[80vh]' : 'h-[93vh]'}`}>
+    <div className = {`w-full flex flex-col h-full ${selectedUser && agencyUser ? "mt-[18vh]" : ""}`}>
       <AgentSelectSnackMessage
         isVisible={snackbar.isVisible}
         title={snackbar.title}

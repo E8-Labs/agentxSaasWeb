@@ -386,7 +386,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
       <div className="w-12/12 h-full"></div>
       <div className="w-full flex flex-row item-center pl-2 h-[100%]">
         <div
-          className="w-4/12 items-center flex flex-col pr-2 overflow-auto"
+          className="w-4/12 items-center flex flex-col h-[90%] pr-2 overflow-auto"
           style={{ scrollbarWidth: 'none' }}
         >
           {manuBar.map((item, index) => (

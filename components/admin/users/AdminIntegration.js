@@ -26,7 +26,7 @@ import { Searchbar } from '@/components/general/MuiSearchBar'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
 import { allIntegrations } from '@/constants/Constants'
 
-function AdminIntegration({ selectedUser }) {
+function AdminIntegration({ selectedUser, agencyUser }) {
   const [showKeysBox, setshowKeysBox] = useState(false)
   const [myKeys, setMyKeys] = useState([])
   const [keyLoader, setKeyLoader] = useState(false)
@@ -172,7 +172,7 @@ function AdminIntegration({ selectedUser }) {
   }
 
   return (
-    <div className="w-full h-full flex flex-col items-center">
+    <div className={`w-full h-screen flex flex-col items-center mt-[22vh]`}>
       {/* Slider code */}
       <div
         style={{

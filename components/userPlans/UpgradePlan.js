@@ -2295,6 +2295,8 @@ function UpgradePlanContent({
                           return '$0'
                         }
 
+                        console.log("hasTrial, isFirstTimeSubscription", hasTrial, isFirstTimeSubscription)
+
                         const discountCalculation = promoCodeDetails
                           ? calculateDiscountedPrice(
                             currentSelectedPlan,

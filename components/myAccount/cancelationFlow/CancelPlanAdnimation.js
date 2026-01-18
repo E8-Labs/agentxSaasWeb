@@ -203,7 +203,7 @@ export default function CancelPlanAnimation({
         // backgroundColor: "red"
       }}
     >
-      <Box className="rounded-xl max-w-2xl w-full shadow-lg max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
+      <Box className="rounded-xl w-7/12 shadow-lg max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
         <div className="relative flex justify-center items-center w-full">
           <AnimatePresence initial={false} custom={direction}>
             {currentIndex === 0 && (

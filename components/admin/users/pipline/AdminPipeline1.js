@@ -1789,7 +1789,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
   }
 
   return (
-    <div className="w-full flex flex-col items-start h-full mt-2">
+    <div className="w-full flex flex-col items-start h-screen mt-[18vh]">
       {/* Slider code */}
       <div
         style={{
@@ -2445,12 +2445,14 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                         </div>
                                       )}
                                   </div>
-                                  <div className="flex flex-row items-center gap-0.5">
+                                  {
+                                    lead.agent && (
+                                  <div className="flex flex-row items-center gap-2">
                                     {getAgentsListImage(
                                       lead.agent?.agents[0]?.agentType ===
                                         'outbound'
                                         ? lead.agent?.agents[0]
-                                        : lead.agent?.agents[1],
+                                        : lead.agent?.agents[1]? lead.agent?.agents[1] : lead.agent?.agents[0],
                                       24,
                                       24,
                                     )}
@@ -2461,9 +2463,10 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                       {lead.agent?.agents[0]?.agentType ===
                                       'outbound'
                                         ? lead.agent?.agents[0]?.name
-                                        : lead.agent?.agents[1]?.name}
+                                        : lead.agent?.agents[1]? lead.agent?.agents[1]?.name : lead.agent?.agents[0]?.name}
                                     </div>
                                   </div>
+                                  )}
                                 </div>
 
                                 {lead?.lead?.booking?.date && (

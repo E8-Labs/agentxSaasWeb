@@ -1603,7 +1603,6 @@ function AgencySubacount({ selectedAgency }) {
             <SelectedUserDetails
               from="subaccount"
               selectedUser={selectedUser}
-              agencyUser={true}
               hideViewDetails={true}
               handleDel={() => {
                 // Remove user from both lists

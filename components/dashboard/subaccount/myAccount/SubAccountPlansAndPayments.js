@@ -1691,10 +1691,10 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
         }}
       >
         <Box
-          className="md:w-8/12 lg:w-7/12 sm:w-11/12 w-full"
+          className="w-5/12"
           sx={styles.paymentModal}
         >
-          <div className="bg-white rounded-2xl p-6 max-w-4xl w-[90%] relative shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
+          <div className="bg-white rounded-2xl p-6 w-[90%] relative shadow-2xl max-h-[90vh] overflow-hidden flex flex-col">
             <div className="flex flex-row justify-between items-center w-full mb-4">
               <div style={{ fontWeight: '600', fontSize: 22 }}>
                 {`What You'll Lose`}

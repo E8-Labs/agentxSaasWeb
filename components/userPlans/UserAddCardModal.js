@@ -826,7 +826,7 @@ const UserAddCard = ({
                         // Check if plan has trial and user is subscribing for the first time
                         const hasTrial = selectedPlan?.hasTrial === true
                         const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-
+                        console.log("hasTrial, isFirstTimeSubscription", hasTrial, isFirstTimeSubscription)
                         // If plan has trial and user has no previous plan, show $0
                         if (hasTrial && isFirstTimeSubscription) {
                           return '$0'
@@ -1321,7 +1321,7 @@ const UserAddCard = ({
                         // Check if plan has trial and user is subscribing for the first time (no previous plan)
                         const hasTrial = selectedPlan?.hasTrial === true
                         const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-
+                        console.log("hasTrial, isFirstTimeSubscription", hasTrial, isFirstTimeSubscription)
                         // If plan has trial and user has no previous plan, show $0 (they won't be charged immediately)
                         if (hasTrial && isFirstTimeSubscription) {
                           return '$0'

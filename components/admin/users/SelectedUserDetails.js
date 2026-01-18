@@ -467,7 +467,7 @@ function SelectedUserDetails({
             const successMessage = response.data.message || 'Profile deleted successfully'
             console.log('Setting snack message:', successMessage)
             setShowSnackMessage(successMessage)
-            
+
             // Delay closing modal and removing from list to allow snack message to show
             setTimeout(() => {
               // Close modal and remove user from list
@@ -570,7 +570,7 @@ function SelectedUserDetails({
 
 
   const logoBranding = () => {
-    if(user?.userRole === "AgencySubAccount" || user?.userRole === "Invitee") {
+    if (user?.userRole === "AgencySubAccount" || user?.userRole === "Invitee") {
       return <div></div>
     }
     return (
@@ -622,108 +622,111 @@ function SelectedUserDetails({
                     */}
 
           {/* Action buttons with 3-dot menu */}
-          <div className="flex flex-row items-center justify-end w-full px-4 pt-2 relative" style={{ zIndex: 10 }}>
-            <div className="flex flex-row items-center gap-4">
-              {/* 3-dot menu for actions */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button
-                    className="outline-none hover:opacity-80 transition-opacity p-2"
-                    aria-label="More options"
-                  >
-                    {pauseLoader ? (
-                      <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                    ) : (
-                      <Image
-                        src="/svgIcons/threeDotsIcon.svg"
-                        alt="More options"
-                        width={24}
-                        height={24}
-                      />
-                    )}
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="z-[1500]" style={{ zIndex: 1500 }}>
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setShowPauseConfirmationPopup(true)
-                    }}
-                    className="cursor-pointer"
-                  >
-                    {user?.profile_status === 'paused' ? 'Reinstate' : 'Pause'}
-                  </DropdownMenuItem>
+          {!agencyUser && (
+            <div className="flex flex-row items-center justify-end w-full px-4 pt-2 relative" style={{ zIndex: 10 }}>
+              <div className="flex flex-row items-center gap-4">
+                {/* 3-dot menu for actions */}
+                {
+                  !agencyUser && from !== 'subaccount' && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          className="outline-none hover:opacity-80 transition-opacity p-2"
+                          aria-label="More options"
+                        >
+                          {pauseLoader ? (
+                            <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                          ) : (
+                            <Image
+                              src="/svgIcons/threeDotsIcon.svg"
+                              alt="More options"
+                              width={24}
+                              height={24}
+                            />
+                          )}
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="z-[1500]" style={{ zIndex: 1500 }}>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setShowPauseConfirmationPopup(true)
+                          }}
+                          className="cursor-pointer"
+                        >
+                          {user?.profile_status === 'paused' ? 'Reinstate' : 'Pause'}
+                        </DropdownMenuItem>
 
-                  {/* Show Add Minutes and Reset Trial only for Admin users */}
-                  {isAdmin && (
-                    <>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setShowAddMinutesModal(true)
-                        }}
-                        className="cursor-pointer"
-                      >
-                        Add Minutes
-                      </DropdownMenuItem>
+                        {/* Show Add Minutes and Reset Trial only for Admin users */}
+                        {isAdmin && (
+                          <>
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setShowAddMinutesModal(true)
+                              }}
+                              className="cursor-pointer"
+                            >
+                              Add Minutes
+                            </DropdownMenuItem>
 
-                      {selectedUser.isTrial && (
-                        <>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setShowResetTrialPopup(true)
-                            }}
-                            className="cursor-pointer"
-                          >
-                            Reset Trial
-                          </DropdownMenuItem>
-                        </>
-                      )}
-                    </>
+                            {selectedUser.isTrial && (
+                              <>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuItem
+                                  onClick={() => {
+                                    setShowResetTrialPopup(true)
+                                  }}
+                                  className="cursor-pointer"
+                                >
+                                  Reset Trial
+                                </DropdownMenuItem>
+                              </>
+                            )}
+                          </>
+                        )}
+
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setShowDeleteModal(true)
+                          }}
+                          className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                        >
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )}
+                {/* Close button - always visible */}
+                <CloseBtn onClick={handleClose} />
 
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => {
-                      setShowDeleteModal(true)
+                {/* Modals */}
+                {showResetTrialPopup && (
+                  <ResetTrial
+                    showConfirmationPopup={showResetTrialPopup}
+                    handleClose={() => setShowResetTrialPopup(false)}
+                    onContinue={handleResetTrail}
+                    loader={resetTrailLoader}
+                    selectedDate={selectedDate}
+                    setSelectedData={setSelectedDate}
+                  />
+                )}
+
+                {showPauseConfirmationPopup && (
+                  <DelAdminUser
+                    showPauseModal={showPauseConfirmationPopup}
+                    handleClosePauseModal={() => {
+                      setShowPauseConfirmationPopup(false)
                     }}
-                    className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
-                  >
-                    Delete
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Close button - always visible */}
-              <CloseBtn onClick={handleClose} />
-
-              {/* Modals */}
-              {showResetTrialPopup && (
-                <ResetTrial
-                  showConfirmationPopup={showResetTrialPopup}
-                  handleClose={() => setShowResetTrialPopup(false)}
-                  onContinue={handleResetTrail}
-                  loader={resetTrailLoader}
-                  selectedDate={selectedDate}
-                  setSelectedData={setSelectedDate}
-                />
-              )}
-
-              {showPauseConfirmationPopup && (
-                <DelAdminUser
-                  showPauseModal={showPauseConfirmationPopup}
-                  handleClosePauseModal={() => {
-                    setShowPauseConfirmationPopup(false)
-                  }}
-                  handlePaueUser={handlePause}
-                  pauseLoader={pauseLoader}
-                  selectedUser={user}
-                />
-              )}
+                    handlePaueUser={handlePause}
+                    pauseLoader={pauseLoader}
+                    selectedUser={user}
+                  />
+                )}
+              </div>
             </div>
-          </div>
-
+          )}
           <div className="flex flex-row items-start w-full  ">
-            <div className={`flex border-r border-[#00000015] -mt-10  flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} ${agencyUser ? 'h-auto max-h-[85vh] overflow-y-auto' : 'h-auto'}`}>
+            <div className={`flex border-r border-[#00000015] ${!agencyUser && '-mt-10'} flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} ${agencyUser ? 'h-auto max-h-[85vh] overflow-y-auto' : 'h-auto'}`}>
               {/* {agencyUser && ( */}
               {
                 logoBranding()
@@ -742,11 +745,11 @@ function SelectedUserDetails({
 
                   {(
                     <button
-                    style ={{
-                      pointerEvents: 'auto',
+                      style={{
+                        pointerEvents: 'auto',
 
-                      zIndex: 10,
-                    }}
+                        zIndex: 10,
+                      }}
                       onClick={() => {
                         console.log('selectedUser.id', selectedUser.id)
                         if (selectedUser?.id) {
@@ -942,7 +945,7 @@ function SelectedUserDetails({
                 ) : selectedManu.name == 'Dashboard' ? (
                   <AdminDashboard selectedUser={selectedUser} agencyUser={agencyUser} />
                 ) : selectedManu.name == 'Integration' ? (
-                  <AdminIntegration selectedUser={selectedUser} />
+                  <AdminIntegration selectedUser={selectedUser} agencyUser={agencyUser}/>
                 ) : selectedManu.name == 'Team' ? (
                   <AdminTeam selectedUser={selectedUser} agencyUser={agencyUser} />
                 ) : selectedManu.name == 'Account' ? (

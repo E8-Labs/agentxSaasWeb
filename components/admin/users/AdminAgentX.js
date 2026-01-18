@@ -3538,6 +3538,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         )}
 
         {/* code to add new agent */}
+        { agentsListSeparated.length > 0 && (
         <button
           className="w-full py-6 flex justify-center items-center"
           style={{
@@ -3559,8 +3560,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             }}
           >
             <Plus weight="bold" size={22} /> Add New Agent
-          </div>
-        </button>
+            </div>
+          </button>
+        )}
       </div>
 
       {/* Test ai modal */}

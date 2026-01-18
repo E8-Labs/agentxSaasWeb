@@ -16,6 +16,7 @@ import React, { useEffect, useState } from 'react'
 
 import Apis from '@/components/apis/Apis'
 import { FindVoice } from '@/components/createagent/Voices'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
 
 // Function to get voice avatar & name
 const getAvatarUrl = (voiceId) => FindVoice(voiceId)?.img || ''
@@ -87,18 +88,9 @@ export default function UsersWithAgnets({ open, onClose, user, from }) {
         }}
       >
         {/* Close Button */}
-        <IconButton
-          onClick={onClose}
-          sx={{ position: 'absolute', top: 10, right: 10 }}
-        >
-          <CloseIcon />
-        </IconButton>
-
-        {/* Modal Title */}
-        <Typography variant="h6" fontWeight="bold" sx={{ mt: 1 }}>
-          {'Users with > 2 agents'}
-        </Typography>
-
+        <div className='absolute top-4 right-4'>
+        <CloseBtn onClick={onClose} />
+      </div>
         {/* List of Voices */}
         <List sx={{ width: '100%', mt: 2, overflow: 'scroll' }}>
           {users.map((user, index) => (
@@ -139,22 +131,6 @@ export default function UsersWithAgnets({ open, onClose, user, from }) {
           ))}
         </List>
 
-        {/* Close Button */}
-        <Button
-          onClick={onClose}
-          variant="contained"
-          sx={{
-            mt: 2,
-            backgroundColor: '#7902DF',
-            fontWeight: 'bold',
-            textTransform: 'none',
-            borderRadius: '10px',
-            width: '120px',
-            '&:hover': { backgroundColor: '#6901C3' },
-          }}
-        >
-          Close
-        </Button>
       </Box>
     </Modal>
   )
