@@ -588,7 +588,7 @@ const MedSpaAgentSignUpMobile = ({
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>
               <Input
-                placeholder="Name"
+                placeholder="Type here"
                 className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userName}
@@ -647,7 +647,7 @@ const MedSpaAgentSignUpMobile = ({
               </div>
 
               <Input
-                placeholder="Email address"
+                  placeholder="Type here"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userEmail}
@@ -773,7 +773,7 @@ const MedSpaAgentSignUpMobile = ({
                   placeholder={
                     locationLoader
                       ? 'Loading location ...'
-                      : 'Enter Phone Number'
+                        : 'Type here'
                   }
                   disabled={loading} // Disable input if still loading
                   style={{ borderRadius: '7px' }}
@@ -804,7 +804,7 @@ const MedSpaAgentSignUpMobile = ({
                 Where do you primarily operate?
               </div>
               <Input
-                placeholder="Specific cities, counties, or regions"
+                placeholder="Type here"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={customerService}
@@ -817,7 +817,7 @@ const MedSpaAgentSignUpMobile = ({
                 Name of the med spa or practice you work with, if any.
               </div>
               <Input
-                placeholder="Name"
+                placeholder="Type here"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={companyName}

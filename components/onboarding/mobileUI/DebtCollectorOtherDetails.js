@@ -42,7 +42,7 @@ function DebtCollectorOtherDetails({
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
-        placeholder="Secific cities,contries or regions"
+        placeholder="Type here"
         className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
         style={{ ...styles.inputStyle }}
         value={service}
@@ -65,7 +65,7 @@ function DebtCollectorOtherDetails({
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
-        placeholder="Name"
+        placeholder="Type here"
         className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
         style={{ ...styles.inputStyle }}
         value={companyName}
@@ -88,7 +88,7 @@ function DebtCollectorOtherDetails({
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
-        placeholder="Eg,< $1000, $1000-$5000, $5000-$10000, $10000-$50000"
+        placeholder="Type here"
         className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
         style={{ ...styles.inputStyle }}
         value={installationVolume}

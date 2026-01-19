@@ -140,6 +140,8 @@ const ProfileNav = () => {
   const [isCustomDomain, setIsCustomDomain] = useState(false);
   const [agencyBranding, setAgencyBranding] = useState(null);
 
+  const [hideDashboardSlider, setHideDashboardSlider] = useState(false);
+
   // Custom domain detection and branding application
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -361,10 +363,26 @@ const ProfileNav = () => {
       getProfile();
     };
 
-    window.addEventListener("hidePlanBar", handleHidePlanBar);
+    const handleTaskBoardOpen = (event) => {
+      console.log("taskBoardOpen event received:", event.detail.update); // true
+      setHideDashboardSlider(true);
+    };
 
+    const handleTaskBoardClose = (event) => {
+      console.log("taskBoardClose event received:", event.detail.update); // true
+      setHideDashboardSlider(false);
+    };
+
+    const handleHideDashboardSlider = (event) => {
+      console.log("hideDashboardSlider event received:", event.detail.update); // true
+      setHideDashboardSlider(true);
+    };
+    
+
+    window.addEventListener("taskBoardOpen", handleTaskBoardOpen);
+    window.addEventListener("taskBoardClose", handleTaskBoardClose);
     return () => {
-      window.removeEventListener("hidePlanBar", handleHidePlanBar); // Clean up
+      window.removeEventListener("taskBoardOpen", handleTaskBoardOpen);
     };
   }, []);
   //intro video
@@ -1654,7 +1672,7 @@ const ProfileNav = () => {
 
 
             {
-              !showAssignBanner && !isLeadUploading && (
+              !showAssignBanner && !isLeadUploading && !hideDashboardSlider && (
                 <div
                   style={{
                     position: "absolute",

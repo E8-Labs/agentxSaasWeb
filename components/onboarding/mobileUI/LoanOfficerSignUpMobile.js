@@ -584,7 +584,7 @@ const LoanOfficeSugnUpMobile = ({
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>
               <Input
-                placeholder="Name"
+                placeholder="Type here"
                 className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userName}
@@ -643,7 +643,7 @@ const LoanOfficeSugnUpMobile = ({
               </div>
 
               <Input
-                placeholder="Email address"
+                placeholder="Type here"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userEmail}
@@ -769,7 +769,7 @@ const LoanOfficeSugnUpMobile = ({
                   placeholder={
                     locationLoader
                       ? 'Loading location ...'
-                      : 'Enter Phone Number'
+                      : 'Type here'
                   }
                   disabled={loading} // Disable input if still loading
                   style={{ borderRadius: '7px' }}
@@ -800,7 +800,7 @@ const LoanOfficeSugnUpMobile = ({
                 Where do you primarily serve clients?
               </div>
               <Input
-                placeholder="Specific cities, counties, or regions"
+                placeholder="Type here"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={customerService}
@@ -814,7 +814,7 @@ const LoanOfficeSugnUpMobile = ({
                 if any.
               </div>
               <Input
-                placeholder="Name"
+                placeholder="Type here"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={companyName}

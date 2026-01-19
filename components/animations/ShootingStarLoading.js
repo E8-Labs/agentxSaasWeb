@@ -1,4 +1,5 @@
 import dynamic from 'next/dynamic'
+import Image from 'next/image'
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import { AgentXOrb } from '@/components/common/AgentXOrb'
@@ -61,9 +62,10 @@ const recolorPureBlackTo = (node, rgba01) => {
   visit(node)
 }
 
-function ShootingStarLoading({ open }) {
+function ShootingStarLoading({ open, showLogo = false }) {
   const [authProgressValue, setAuthProgressValue] = useState(0)
   const [isSubaccount, setIsSubaccount] = useState(false)
+  const [user, setUser] = useState(null)
 
   const subaccountLoaderAnimation = useMemo(() => {
     try {
@@ -84,6 +86,7 @@ function ShootingStarLoading({ open }) {
       const raw = localStorage.getItem('User')
       if (raw) {
         const parsed = JSON.parse(raw)
+        setUser(parsed)
         const role =
           parsed?.user?.userRole || parsed?.userRole || parsed?.role || null
         if (role === 'AgencySubAccount' || role === 'Agency') {
@@ -114,7 +117,7 @@ function ShootingStarLoading({ open }) {
           !hostname.includes('assignx.ai') &&
           !hostname.includes('app.assignx.ai') &&
           !hostname.includes('dev.assignx.ai')
-        
+
         if (isCustomDomain) {
           console.log('🎯 [ShootingStarLoading] Custom domain detected:', hostname)
           setIsSubaccount(true)
@@ -200,13 +203,22 @@ function ShootingStarLoading({ open }) {
                     '0 0 0 8px hsl(var(--brand-primary) / 0.08), 0 20px 60px -18px hsl(var(--brand-primary) / 0.55)',
                 }}
               >
-                <Lottie
-                  animationData={
-                    brandedSubaccountLoaderAnimation || subaccountLoaderAnimation
-                  }
-                  loop
-                  autoplay
-                />
+                {
+                  showLogo ? (
+                    <Image
+                      src={user?.agencyBranding?.logoUrl}
+                      alt="Loading"
+                      style={{ height: '142px', width: '152px', resize: 'contain' }}
+                    />
+                  ) : (
+                    <Lottie
+                      animationData={
+                        brandedSubaccountLoaderAnimation || subaccountLoaderAnimation
+                      }
+                      loop
+                      autoplay
+                    />
+                  )}
               </div>
             </div>
           ) : (

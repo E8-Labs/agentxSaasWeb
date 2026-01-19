@@ -657,3 +657,26 @@ a.text-red:hover {
 }
 
 
+/* Styling for time picker popup */
+input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(27%) sepia(95%) saturate(2878%) hue-rotate(267deg) brightness(104%) contrast(97%);
+}
+
+/* For the time picker popup itself - try these selectors */
+::-webkit-datetime-edit,
+::-webkit-datetime-edit-fields-wrapper,
+::-webkit-datetime-edit-text,
+::-webkit-datetime-edit-hour-field:focus,
+::-webkit-datetime-edit-minute-field:focus,
+::-webkit-datetime-edit-ampm-field:focus,
+::-webkit-inner-spin-button {
+  color: hsl(var(--brand-primary));
+}
+
+/* For selected values in the picker */
+::-webkit-datetime-edit-hour-field[aria-valuenow],
+::-webkit-datetime-edit-minute-field[aria-valuenow],
+::-webkit-datetime-edit-ampm-field[aria-valuenow="true"] {
+background-color: hsl(var(--brand-primary)) !important;
+  color: white !important;
+}

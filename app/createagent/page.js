@@ -9,6 +9,9 @@ import ErrorBoundary from '@/components/ErrorBoundary.js'
 import SubAccountPlan from '@/components/agency/subaccount/SubAccountPlan.js'
 import BackgroundVideo from '@/components/general/BackgroundVideo.js'
 import { PersistanceKeys } from '@/constants/Constants.js'
+import { useUser } from '@/hooks/redux-hooks'
+import { UserTypes } from '@/constants/UserTypes.js'
+
 
 const CreateAgent1 = dynamic(
   () => import('../../components/createagent/CreateAgent1.js'),
@@ -77,6 +80,8 @@ const Page = () => {
   const [shouldShowGradient, setShouldShowGradient] = useState(false)
   const [gradientBackground, setGradientBackground] = useState(null)
   const isAgencyUser = user?.user?.userRole === 'Agency' || user?.userRole === 'Agency'
+
+    const {user:reduxUser} = useUser()
 
   // Only calculate CurrentComp when components are ready to prevent removeChild errors
   const CurrentComp = componentsReady && components.length > 0 
@@ -153,8 +158,50 @@ const Page = () => {
     }
   }, [])
 
+  function canShowObjectives() {
+    // If agency/admin is creating agent for another user (subaccount), check that user's type
+    const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+    let targetUserType = null
+    
+    if (U) {
+      try {
+        const Data = JSON.parse(U)
+        // Check if there's subAccountData (when agency/admin creates for subaccount)
+        if (Data.subAccountData) {
+          targetUserType = Data.subAccountData?.userType || Data.subAccountData?.user?.userType
+        }
+        // Also check selectedUser state as fallback
+        if (!targetUserType && selectedUser) {
+          targetUserType = selectedUser?.userType || selectedUser?.user?.userType
+        }
+      } catch (error) {
+        console.log('Error parsing isFromAdminOrAgency:', error)
+      }
+    }
+    
+    // If we have a target user type (agency/admin creating for another user), use that
+    if (targetUserType) {
+      return targetUserType === UserTypes.RealEstateAgent
+    }
+    
+    // Otherwise, check the logged-in user's type (normal user or subaccount creating for themselves)
+    if (user && user.user && user.user.userType) {
+      return user.user.userType === UserTypes.RealEstateAgent
+    }
+    
+    // Fallback: check redux user
+    if (reduxUser && reduxUser.userType) {
+      return reduxUser.userType === UserTypes.RealEstateAgent
+    }
+    
+    return false
+  }
+
+
   // Function to update components array based on user plan status
   const updateComponentsArray = () => {
+
+    let showObjectives = canShowObjectives()
     if (windowSize === null) {
       return
     }
@@ -183,8 +230,8 @@ const Page = () => {
               setComponents([
                 BuildAgentName,
                 BuildAgentTask,
-                BuildAgentObjective,
-                UserPlansMobile,
+                showObjectives ? BuildAgentObjective : UserPlansMobile,
+                !showObjectives ? UserPlansMobile : null,
 
 
                 // CreatAgent3,
@@ -207,8 +254,8 @@ const Page = () => {
               setComponents([
                 BuildAgentName,
                 BuildAgentTask,
-                BuildAgentObjective,
-                UserPlansMobile,
+                showObjectives ? BuildAgentObjective : UserPlansMobile,
+                !showObjectives ? UserPlansMobile : null,
                 // CreateAgent4,
                 // CreateAgentVoice,
               ])

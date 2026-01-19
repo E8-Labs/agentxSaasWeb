@@ -60,6 +60,7 @@ const OtherDetails = ({
 }) => {
   const verifyInputRef = useRef([])
   const timerRef = useRef(null)
+  
 
   let inputsFields = useRef([])
 

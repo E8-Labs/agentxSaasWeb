@@ -21,7 +21,7 @@ function InsuranceOtherDetails({
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
-        placeholder="Your territory"
+        placeholder="Type here"
         className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
         style={{ ...styles.inputStyle }}
         value={userFarm}
@@ -44,7 +44,7 @@ function InsuranceOtherDetails({
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
-        placeholder="Brokerage"
+        placeholder="Type here"
         className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
         style={{ ...styles.inputStyle }}
         value={userBrokage}

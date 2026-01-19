@@ -43,7 +43,7 @@ const Page = ({ params }) => {
   const [congratsPopup, setCongratsPopup] = useState(false)
   const [userType, setUserType] = useState(UserTypes.RealEstateAgent)
   const [index, setIndex] = useState(0)
-
+  const [isSubaccount, setIsSubaccount] = useState(false)
   const [showredirectPopup, setShowredirectPopup] = useState(false)
 
   let windowSize = 1000
@@ -85,9 +85,9 @@ const Page = ({ params }) => {
     })
   }
 
+  let screenWidth = 1000
   useEffect(() => {
     //console.log;
-    let screenWidth = 1000
     if (typeof window !== 'undefined') {
       screenWidth = window.innerWidth
     }
@@ -305,6 +305,7 @@ const Page = ({ params }) => {
       <div>
         <ShootingStarLoading
           open={showredirectPopup}
+          showLogo= {screenWidth > 640 ? true : false}
         />
       </div>
     )

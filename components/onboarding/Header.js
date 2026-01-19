@@ -22,7 +22,7 @@ const Header = ({
   const [hasAgencyLogo, setHasAgencyLogo] = useState(false)
   const [agencyLogoUrl, setAgencyLogoUrl] = useState(null)
   const [isAgencyOnboarding, setIsAgencyOnboarding] = useState(false)
-  
+  const [agencyName, setAgencyName] = useState(null)
   // Check if current domain is a custom domain (not app.assignx.ai or dev.assignx.ai)
   // Initialize immediately if on client side
   const getIsCustomDomain = () => {
@@ -140,7 +140,7 @@ const Header = ({
       const hasLogo = branding?.logoUrl
       setHasAgencyLogo(hasLogo)
       setAgencyLogoUrl(branding?.logoUrl || null)
-      
+      setAgencyName(branding?.name || null)
       console.log('🔍 [Header] Branding check:', {
         isSubaccount: isSub || isSubaccountRegistration,
         isSubaccountRegistration,
@@ -217,10 +217,14 @@ const Header = ({
 
   // Determine what to show in center (for mobile orb/logo)
   const getMobileCenterOrb = () => {
+
+    console.log('🔍 [Header] isAgencyOnboarding:', isAgencyOnboarding)
+    console.log('🔍 [Header] isSubaccount:', isSubaccount)
+    console.log('🔍 [Header] agencyLogoUrl:', agencyLogoUrl)
     // If agency onboarding, show orb in center
     if (isAgencyOnboarding) {
       return (
-        <div className="flex md:hidden justify-center">
+        <div className="flex md:hidden justify-center mt-4">
           <AgentXOrb
             size={30}
             style={{ height: '30px', width: '30px', resize: 'contain' }}
@@ -232,7 +236,7 @@ const Header = ({
     // If subaccount with agency logo, show agency logo in center
     if (isSubaccount && agencyLogoUrl) {
       return (
-        <div className="flex md:hidden justify-center">
+        <div className="flex md:hidden justify-center mt-4">
           <Image
             src={agencyLogoUrl}
             alt="Agency logo"
@@ -247,11 +251,10 @@ const Header = ({
     // If subaccount without agency logo, show orb in center
     if (isSubaccount && !agencyLogoUrl) {
       return (
-        <div className="flex md:hidden justify-center">
-          <AgentXOrb
-            size={30}
-            style={{ height: '30px', width: '30px', resize: 'contain' }}
-          />
+        <div className="flex md:hidden justify-center mt-4">
+
+         <div className="text-lg font-bold">{agencyName}</div>
+
         </div>
       )
     }
@@ -272,11 +275,11 @@ const Header = ({
             />
           </div>
           {/* Mobile logo */}
-          {getMobileLeftLogo()}
+          {getMobileCenterOrb()}
         </div>
         <div className="w-4/12 flex flex-row justify-center">
           {/* Mobile center orb */}
-          {getMobileCenterOrb()}
+          {/* {getMobileCenterOrb()} */}
           {/* Desktop center orb */}
           {(() => {
             // Check domain again on render to ensure it's always current
