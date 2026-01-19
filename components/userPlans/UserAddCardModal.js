@@ -808,7 +808,7 @@ const UserAddCard = ({
                     </div>
                   </div>
                   <div style={{ fontWeight: '600', fontSize: 15 }}>
-                   {calculateTotalPrice(selectedPlan)}
+                   {`$${formatFractional2(selectedPlan?.discountPrice || selectedPlan?.discountedPrice || selectedPlan?.originalPrice || 0)}`}
                   </div>
                 </div>
 

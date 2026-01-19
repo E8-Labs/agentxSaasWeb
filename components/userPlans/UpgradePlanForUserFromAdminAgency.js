@@ -699,10 +699,12 @@ function UpgradePlanContent({
 
   const getCurrentUserPlan = async () => {
     // If selectedUser is provided, fetch their profile instead of using localStorage
+    console.log("selectedUser in getCurrentUserPlan", selectedUser);
     if (selectedUser) {
       try {
         const user = await AdminGetProfileDetails(selectedUser.id)
-        if (user && user.plan) {
+        console.log("user in getCurrentUserPlan", user);
+        if (user) {
           console.log('Current user plan from selectedUser profile:', user.plan)
           setCurrentUserPlan(user.plan)
           return user.plan
@@ -711,7 +713,7 @@ function UpgradePlanContent({
         console.error('Error fetching selectedUser profile:', error)
       }
     }
-    
+
     // Fallback to localStorage for backward compatibility
     const localData = localStorage.getItem('User')
     if (localData) {
@@ -748,12 +750,12 @@ function UpgradePlanContent({
         console.error('Error fetching plans for selectedUser:', error)
       }
     }
-    
+
     // Fallback to original getUserPlans if no selectedUser or if fetch failed
     if (!plansList) {
       plansList = await getUserPlans(from, selectedUser)
     }
-    
+
     if (plansList) {
       console.log('Plans list found is', plansList)
       const monthly = []
@@ -1130,7 +1132,7 @@ function UpgradePlanContent({
     if (selectedUser) {
       setupIntentUrl = `${Apis.createSetupIntent}?userId=${selectedUser.id}`
     }
-    
+
     const res = await fetch(setupIntentUrl, {
       method: 'POST',
       headers: {
@@ -1165,7 +1167,7 @@ function UpgradePlanContent({
         source: paymentMethodId,
         inviteCode: inviteCode,
       }
-      
+
       // Include userId if selectedUser is provided
       if (selectedUser) {
         requestBody.userId = selectedUser.id
@@ -1753,7 +1755,7 @@ function UpgradePlanContent({
               height: 'auto',
             }}
           >
-            <div className="flex flex-row justify-end w-full h-full items-center pe-5 pt-2">
+            <div className="flex flex-row justify-end w-full h-full items-center pe-5 pt-5">
               <CloseBtn
                 onClick={() => {
                   setIsPreSelectedPlanTriggered(false)
@@ -2031,7 +2033,7 @@ function UpgradePlanContent({
                           // Check if plan has trial and user is subscribing for the first time
                           const hasTrial = currentSelectedPlan?.hasTrial === true
                           const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-                          
+
                           // If plan has trial and user has no previous plan, show $0 for all pricing
                           if (hasTrial && isFirstTimeSubscription) {
                             return (
@@ -2060,13 +2062,13 @@ function UpgradePlanContent({
                                     className=""
                                     style={{ fontWeight: '600', fontSize: 15 }}
                                   >
-                                    $0
+                                    {`$${formatFractional2(currentSelectedPlan?.discountPrice || currentSelectedPlan?.discountedPrice || currentSelectedPlan?.originalPrice)}`}
                                   </div>
                                 </div>
                               </>
                             )
                           }
-                          
+
                           const discountCalculation = promoCodeDetails
                             ? calculateDiscountedPrice(
                               currentSelectedPlan,
@@ -2187,12 +2189,12 @@ function UpgradePlanContent({
                                     // Check if plan has trial and user is subscribing for the first time
                                     const hasTrial = currentSelectedPlan?.hasTrial === true
                                     const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-                                    
+
                                     // If plan has trial and user has no previous plan, show $0
                                     if (hasTrial && isFirstTimeSubscription) {
                                       return '$0'
                                     }
-                                    
+
                                     return discountCalculation
                                       ? `$${formatFractional2(finalTotal)}`
                                       : `$${formatFractional2(originalTotal)}`
@@ -2301,7 +2303,7 @@ function UpgradePlanContent({
                         // Check if plan has trial and user is subscribing for the first time (no previous plan)
                         const hasTrial = currentSelectedPlan?.hasTrial === true
                         const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-                        
+                        console.log("hasTrial, isFirstTimeSubscription", hasTrial, isFirstTimeSubscription);
                         // If plan has trial and user has no previous plan, show $0 (they won't be charged immediately)
                         if (hasTrial && isFirstTimeSubscription) {
                           return '$0'
@@ -2343,13 +2345,13 @@ function UpgradePlanContent({
                           <CircularProgress size={25} />
                         </div>
                       ) : (
-                        <button 
-                        className={cn("flex md:h-[53px] h-[42px] w-full rounded-lg items-center justify-center text-base sm:text-lg font-semibold text-white", isUpgradeButtonEnabled() ? 'bg-brand-primary cursor-pointer' : 'cursor-not-allowed opacity-60')}
-                        onClick={() => {
-                          if (isUpgradeButtonEnabled()) {
-                            handleSubscribePlan()
-                          }
-                        }}
+                        <button
+                          className={cn("flex md:h-[53px] h-[42px] w-full rounded-lg items-center justify-center text-base sm:text-lg font-semibold text-white", isUpgradeButtonEnabled() ? 'bg-brand-primary cursor-pointer' : 'cursor-not-allowed opacity-60')}
+                          onClick={() => {
+                            if (isUpgradeButtonEnabled()) {
+                              handleSubscribePlan()
+                            }
+                          }}
                         >{getButtonText()}</button>
                       )}
                     </div>
