@@ -244,6 +244,7 @@ const ClaimNumber = ({
       borderRadius: 2,
       border: 'none',
       outline: 'none',
+      zIndex: 1600,
     },
   }
 
@@ -255,9 +256,13 @@ const ClaimNumber = ({
         BackdropProps={{
           timeout: 1000,
           sx: {
+            // zIndex: 1400,
             backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
+        }}
+        sx={{
+          zIndex:1500
         }}
       >
         <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.claimPopup}>
@@ -470,11 +475,16 @@ const ClaimNumber = ({
           timeout: 1000,
           sx: {
             backgroundColor: '#00000020',
+
             // //backdropFilter: "blur(20px)",
           },
         }}
+
+        sx={{
+          zIndex:1510
+        }}
       >
-        <Box className="lg:w-6/12 sm:w-full w-6/12" sx={styles.claimPopup}>
+        <Box className="lg:w-6/12 sm:w-full w-6/12" sx={{...styles.claimPopup, zIndex:1700}}>
           <div className="flex flex-row justify-center w-full">
             <div
               className="sm:w-8/12 w-full min-h-[50vh] max-h-[80vh] flex flex-col justify-between"
