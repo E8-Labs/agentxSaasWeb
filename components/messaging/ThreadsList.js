@@ -12,6 +12,7 @@ import ToggleGroupCN from '@/components/ui/ToggleGroupCN'
 import NewContactDrawer from './NewContactDrawer'
 import { useUser } from '@/hooks/redux-hooks'
 import { UpgradeTag, UpgradeTagWithModal } from '../constants/constants'
+import { toast } from '@/utils/toast'
 
 const ThreadsList = ({
   loading,
@@ -292,9 +293,15 @@ const ThreadsList = ({
           )}
         </div>
 
-        {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && <button className="p-1.5 rounded-md hover:bg-gray-100 transition-colors">
-          <Image src="/svgIcons/threeDotsIcon.svg" width={24} height={24} alt="Filter" />
-        </button>}
+          {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && 
+          <button className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+          onClick={() => {
+            //show toast here to show the feature is coming soon
+            toast.success('This feature is coming soon')
+          }}
+          >
+            <Image src="/svgIcons/threeDotsIcon.svg" width={24} height={24} alt="Filter" />
+          </button> }
       </div>
 
       <div className="flex-1 overflow-y-auto">

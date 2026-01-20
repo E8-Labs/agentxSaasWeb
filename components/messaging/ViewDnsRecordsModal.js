@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { X, Copy, AlertCircle, CheckCircle2, Clock, RefreshCw } from 'lucide-react'
-import { toast } from 'sonner'
+import { toast } from '@/utils/toast'
 import { Button } from '@/components/ui/button'
 import axios from 'axios'
 import Apis from '@/components/apis/Apis'

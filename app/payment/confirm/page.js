@@ -9,7 +9,7 @@ import {
 } from '@stripe/react-stripe-js'
 import { useSearchParams } from 'next/navigation'
 import { Suspense, useEffect, useState } from 'react'
-import { toast } from 'sonner'
+import { toast } from '@/utils/toast'
 
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import Apis from '@/components/apis/Apis'

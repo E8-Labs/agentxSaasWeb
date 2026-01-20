@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import moment from 'moment'
 import { Paperclip } from '@phosphor-icons/react'
 import { htmlToPlainText } from '@/utilities/textUtils'
-import { toast } from 'sonner'
+import { toast } from '@/utils/toast'
 import { Modal, Box } from '@mui/material'
 import CloseIcon from '@mui/icons-material/Close'
 import {

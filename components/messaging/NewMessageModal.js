@@ -5,7 +5,7 @@ import { Check, PaperPlaneTilt, X, CaretDown, Plus } from '@phosphor-icons/react
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
-import { toast } from 'sonner'
+import { toast } from '@/utils/toast'
 import { useRouter } from 'next/navigation'
 
 import Apis from '@/components/apis/Apis'

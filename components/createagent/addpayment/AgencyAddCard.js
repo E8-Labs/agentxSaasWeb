@@ -21,7 +21,7 @@ import axios from 'axios'
 import moment from 'moment'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
-import { toast } from 'sonner'
+import { toast } from '@/utils/toast'
 
 import { formatDecimalValue } from '@/components/agency/agencyServices/CheckAgencyData'
 import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'

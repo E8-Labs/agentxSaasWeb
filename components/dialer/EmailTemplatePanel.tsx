@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button as ButtonBase } from '../ui/button'
-import { toast } from 'sonner'
+import { toast } from '@/utils/toast'
 import { Mail, MoreVertical, Pencil, X, Loader2, Check, FileText, Trash, Plus } from 'lucide-react'
 import { Menu, MenuItem } from '@mui/material'
 import EmailTempletePopupBase from '../pipeline/EmailTempletePopup'
