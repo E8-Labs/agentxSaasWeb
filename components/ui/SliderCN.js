@@ -114,27 +114,19 @@ const SliderCN = ({
         </div>
 
         {/* Current value input */}
-        <div 
-          className="w-20"
-          onMouseDown={(e) => {
-            // Prevent slider from capturing the click event
-            e.stopPropagation()
-          }}
-          onClick={(e) => {
-            // Ensure input gets focus on click
-            e.stopPropagation()
-            const input = e.currentTarget.querySelector('input')
-            if (input) {
-              input.focus()
-              input.select()
-            }
-          }}
-        >
+        <div className="w-20">
           <Input
             type="number"
             value={value}
             onChange={handleInputChange}
-            onFocus={(e) => e.target.select()}
+            onMouseDown={(e) => {
+              // Prevent slider from capturing the click event
+              e.stopPropagation()
+            }}
+            onFocus={(e) => {
+              // Select text when input receives focus
+              e.target.select()
+            }}
             min={min}
             max={max}
             step={step}
