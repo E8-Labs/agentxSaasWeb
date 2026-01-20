@@ -28,6 +28,7 @@ import UnlockMessagesView from './UnlockMessagesView'
 import MessageHeader from './MessageHeader'
 import ConversationHeader from './ConversationHeader'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
+import MessageSettingsModal from './MessageSettingsModal'
 
 const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const searchParams = useSearchParams()
@@ -83,6 +84,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const [searchValue, setSearchValue] = useState('')
   const threadsRequestIdRef = useRef(0)
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
+  const [showMessageSettingsModal, setShowMessageSettingsModal] = useState(false)
 
   // Debug: Log when modal state changes
   useEffect(() => {
@@ -2557,6 +2559,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                     }}
                     selectedUser={selectedUser}
                     agencyUser={agencyUser}
+                    onOpenMessageSettings={() => setShowMessageSettingsModal(true)}
                   />
                 )
               })()}
@@ -2851,6 +2854,13 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                 setShowEmailTempPopup={() => { }}
                 showEmailTempPopup={false}
                 setSelectedGoogleAccount={() => { }}
+              />
+
+              {/* Message Settings Modal */}
+              <MessageSettingsModal
+                open={showMessageSettingsModal}
+                onClose={() => setShowMessageSettingsModal(false)}
+                selectedUser={selectedUser}
               />
 
             </div>

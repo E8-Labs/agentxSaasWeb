@@ -40,6 +40,7 @@ const ThreadsList = ({
   onContactCreated,
   selectedUser = null,
   agencyUser = null,
+  onOpenMessageSettings = null,
 }) => {
   const [openMenuId, setOpenMenuId] = useState(null)
   const [showNewContactDrawer, setShowNewContactDrawer] = useState(false)
@@ -199,9 +200,12 @@ const ThreadsList = ({
             )}
           </div>
 
-          {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && <button className="p-1.5 rounded-md hover:bg-gray-100 transition-colors">
-            <Image src="/svgIcons/threeDotsIcon.svg" width={24} height={24} alt="Filter" />
-          </button> }
+          <button
+            onClick={() => onOpenMessageSettings?.()}
+            className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+          >
+            <Image src="/svgIcons/threeDotsIcon.svg" width={24} height={24} alt="Message Settings" />
+          </button>
       </div>
 
       <div className="flex-1 overflow-y-auto">
