@@ -10,6 +10,7 @@ import { formatFractional2 } from '../agency/plan/AgencyUtilities'
 import { AuthToken } from '../agency/plan/AuthDetails'
 import Apis from '../apis/Apis'
 import { planLogger, LOG_CATEGORIES } from '../../utils/planLogger'
+import { X } from 'lucide-react'
 
 //use the dynamic values here  @arslan
 
@@ -88,7 +89,7 @@ const setCachedPlans = (data, from) => {
       timestamp: Date.now(),
     }
     localStorage.setItem(cacheKey, JSON.stringify(cacheData))
-  } catch (error) {}
+  } catch (error) { }
 }
 
 /**
@@ -107,10 +108,10 @@ export const getEffectiveUser = (selectedUser, loggedInUser) => {
   // If selectedUser is provided, that's the effective user (admin/agency viewing another user)
   if (selectedUser) {
     // Try multiple ways to extract userRole
-    let userRole = selectedUser.userRole || 
-                   selectedUser.user?.userRole || 
-                   selectedUser.role
-    
+    let userRole = selectedUser.userRole ||
+      selectedUser.user?.userRole ||
+      selectedUser.role
+
     // If userRole is still undefined, try to infer from other properties
     if (!userRole) {
       // Check if it's a subaccount by checking for subaccount-specific properties
@@ -123,7 +124,7 @@ export const getEffectiveUser = (selectedUser, loggedInUser) => {
         hasPlanCapabilities: !!selectedUser.planCapabilities,
       })
     }
-    
+
     const effectiveUser = {
       id: selectedUser.id || selectedUser.userId || selectedUser.user?.id || selectedUser.user?.userId,
       userRole: userRole,
@@ -132,11 +133,11 @@ export const getEffectiveUser = (selectedUser, loggedInUser) => {
       // Store full selectedUser object for additional checks if needed
       _selectedUser: selectedUser,
     }
-    
+
     planLogger.logEffectiveUser(effectiveUser, 'selectedUser provided')
     return effectiveUser
   }
-  
+
   // Otherwise, use logged-in user (user viewing their own plans)
   const effectiveUser = {
     id: loggedInUser?.id,
@@ -144,7 +145,7 @@ export const getEffectiveUser = (selectedUser, loggedInUser) => {
     isSelectedUser: false,
     source: 'loggedInUser',
   }
-  
+
   planLogger.logEffectiveUser(effectiveUser, 'using logged-in user')
   return effectiveUser
 }
@@ -159,7 +160,7 @@ export const getEffectiveUser = (selectedUser, loggedInUser) => {
  */
 const getPlanEndpoint = (effectiveUser, loggedInUser, from = null) => {
   const effectiveRole = effectiveUser?.userRole
-  
+
   // Priority 1: Effective user is a subaccount
   if (effectiveRole === 'AgencySubAccount') {
     planLogger.debug(LOG_CATEGORIES.API_CALL, 'Using subaccount endpoint (effective user is subaccount)', {
@@ -168,7 +169,7 @@ const getPlanEndpoint = (effectiveUser, loggedInUser, from = null) => {
     })
     return Apis.getSubAccountPlans
   }
-  
+
   // Priority 2: Effective user is an agency
   if (effectiveRole === 'Agency') {
     planLogger.debug(LOG_CATEGORIES.API_CALL, 'Using agency endpoint (effective user is agency)', {
@@ -177,7 +178,7 @@ const getPlanEndpoint = (effectiveUser, loggedInUser, from = null) => {
     })
     return Apis.getPlansForAgency
   }
-  
+
   // Priority 3: If effectiveUser is selectedUser but role is undefined, use 'from' prop as fallback
   if (effectiveUser?.isSelectedUser && !effectiveRole && from) {
     if (from === 'SubAccount' || from === 'subaccount') {
@@ -195,25 +196,25 @@ const getPlanEndpoint = (effectiveUser, loggedInUser, from = null) => {
       return Apis.getPlansForAgency
     }
   }
-  
+
   // Priority 4: Check logged-in user's team membership (for team members viewing on behalf)
   const isTeamAgency = isTeamMember(loggedInUser) && isAgencyTeamMember(loggedInUser)
   const isTeamSub = isTeamMember(loggedInUser) && isSubaccountTeamMember(loggedInUser)
-  
+
   if (isTeamAgency) {
     planLogger.debug(LOG_CATEGORIES.API_CALL, 'Using agency endpoint (team member is agency)', {
       effectiveUserId: effectiveUser.id,
     })
     return Apis.getPlansForAgency
   }
-  
+
   if (isTeamSub) {
     planLogger.debug(LOG_CATEGORIES.API_CALL, 'Using subaccount endpoint (team member is subaccount)', {
       effectiveUserId: effectiveUser.id,
     })
     return Apis.getSubAccountPlans
   }
-  
+
   // Priority 5: Legacy 'from' prop support (for backward compatibility)
   if (from === 'agency' || from === 'Agency') {
     planLogger.debug(LOG_CATEGORIES.API_CALL, 'Using agency endpoint (from prop)', {
@@ -221,14 +222,14 @@ const getPlanEndpoint = (effectiveUser, loggedInUser, from = null) => {
     })
     return Apis.getPlansForAgency
   }
-  
+
   if (from === 'SubAccount') {
     planLogger.debug(LOG_CATEGORIES.API_CALL, 'Using subaccount endpoint (from prop)', {
       from,
     })
     return Apis.getSubAccountPlans
   }
-  
+
   // Default: Regular user plans
   planLogger.debug(LOG_CATEGORIES.API_CALL, 'Using regular user endpoint', {
     effectiveUserId: effectiveUser.id,
@@ -251,22 +252,22 @@ const getPlanEndpoint = (effectiveUser, loggedInUser, from = null) => {
 export const getUserPlans = async (from, selectedUser) => {
   try {
     const UserLocalData = getUserLocalData()
-    
+
     // Determine effective user (selectedUser if provided, otherwise logged-in user)
     const effectiveUser = getEffectiveUser(selectedUser, UserLocalData)
-    
+
     // Determine API endpoint based on effective user
     const basePath = getPlanEndpoint(effectiveUser, UserLocalData, from)
-    
+
     // Build full API path with userId if needed
     let path = basePath
     const userId = effectiveUser.id
-    
+
     // Append userId query param if:
     // 1. We have an effective userId AND
     // 2. Either: effective user is selectedUser (viewing another user) OR endpoint requires userId
     const requiresUserId = basePath === Apis.getSubAccountPlans || effectiveUser.isSelectedUser
-    
+
     if (userId && requiresUserId) {
       const separator = path.includes('?') ? '&' : '?'
       path = `${path}${separator}userId=${userId}`
@@ -280,21 +281,21 @@ export const getUserPlans = async (from, selectedUser) => {
       // Return null instead of making invalid API call
       return null
     }
-    
+
     // Check cache (using effective user's role for cache key)
     const cacheKey = effectiveUser.userRole || from || 'default'
     const cached = getCachedPlans(cacheKey)
-    
+
     // Get auth token
     const token = AuthToken()
     if (!token) {
       planLogger.warn(LOG_CATEGORIES.API_CALL, 'No auth token available', {})
       return cached?.data || null
     }
-    
+
     // Log API call
     planLogger.logPlanFetch(path, userId, effectiveUser.userRole)
-    
+
     // Make API call
     const response = await axios.get(path, {
       headers: {
@@ -304,21 +305,21 @@ export const getUserPlans = async (from, selectedUser) => {
 
     if (response?.data?.status === true) {
       const plansData = response.data.data
-      
+
       // Cache the fresh data
       setCachedPlans(plansData, cacheKey)
-      
+
       // Log success
-      const planCount = Array.isArray(plansData) 
-        ? plansData.length 
+      const planCount = Array.isArray(plansData)
+        ? plansData.length
         : (plansData?.monthlyPlans?.length || Object.keys(plansData).length)
       planLogger.logPlanFetchSuccess(path, planCount)
-      
+
       // Return monthlyPlans if effective user is a subaccount
       if (effectiveUser.userRole === 'AgencySubAccount') {
         return plansData.monthlyPlans || plansData
       }
-      
+
       return plansData
     } else {
       // API returned error status, try to use cached data
@@ -339,7 +340,7 @@ export const getUserPlans = async (from, selectedUser) => {
     // Log error
     const cacheKey = selectedUser?.userRole || from || 'default'
     planLogger.logPlanFetchError('unknown', error)
-    
+
     // Try to return cached data as fallback
     const cached = getCachedPlans(cacheKey)
     if (cached?.data) {
@@ -348,7 +349,7 @@ export const getUserPlans = async (from, selectedUser) => {
       })
       return cached.data
     }
-    
+
     return null
   }
 }
@@ -388,7 +389,7 @@ export const initiateCancellation = async (userId) => {
         return null
       }
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 export const pauseSubscription = async (selectedUser = null) => {
@@ -417,7 +418,7 @@ export const pauseSubscription = async (selectedUser = null) => {
         return response.data
       }
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 export const claimGift = async (selectedUser = null) => {
@@ -446,7 +447,7 @@ export const claimGift = async (selectedUser = null) => {
         return response.data
       }
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 export const getDiscount = async () => {
@@ -471,7 +472,7 @@ export const getDiscount = async () => {
         return null
       }
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 export const completeCancelation = async (reason, selectedUser = null) => {
@@ -501,7 +502,7 @@ export const completeCancelation = async (reason, selectedUser = null) => {
         return response.data
       }
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 export const purchaseMins = async (mins) => {
@@ -528,7 +529,7 @@ export const purchaseMins = async (mins) => {
         return response.data
       }
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 export const checkReferralCode = async (code, planId = null) => {
@@ -557,7 +558,7 @@ export const checkReferralCode = async (code, planId = null) => {
         return response.data
       }
     }
-  } catch (error) {}
+  } catch (error) { }
 }
 
 export const calculateDiscountedPrice = (discountValue, discountType, totalPrice) => {
@@ -565,7 +566,7 @@ export const calculateDiscountedPrice = (discountValue, discountType, totalPrice
     return totalPrice - (totalPrice * discountValue) / 100
   } else if (discountType === 'flat_amount') {
     return Math.min(discountValue, totalPrice)
-  }else{
+  } else {
     return totalPrice
   }
 }
@@ -637,38 +638,124 @@ export const getTotalPrice = (selectedPlan) => {
 // monthly: +30 days, quarterly: +3 calendar months, yearly: +12 calendar months
 // If plan has trial, adds trial days to the date
 export const getNextChargeDate = (selectedPlan, fromDate = new Date()) => {
+  const getTodayFormatted = () => {
+    const today = new Date()
+    return today.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })
+  }
+
   try {
+    console.log('[getNextChargeDate] Starting calculation', {
+      selectedPlan: selectedPlan ? { id: selectedPlan.id, billingCycle: selectedPlan.billingCycle, duration: selectedPlan.duration } : null,
+      fromDate,
+      fromDateType: typeof fromDate,
+    })
+
     const billingCycle =
       (selectedPlan && (selectedPlan.billingCycle || selectedPlan.duration)) ||
       'monthly'
 
+    console.log('[getNextChargeDate] Billing cycle determined:', {
+      billingCycle,
+      hasSelectedPlan: !!selectedPlan,
+      planBillingCycle: selectedPlan?.billingCycle,
+      planDuration: selectedPlan?.duration,
+    })
+
     const baseDate = new Date(fromDate)
+    
+    // Validate baseDate
+    if (isNaN(baseDate.getTime())) {
+      console.error('[getNextChargeDate] Invalid fromDate parameter', {
+        fromDate,
+        fromDateType: typeof fromDate,
+        baseDateValue: baseDate.toString(),
+      })
+      const todayFormatted = getTodayFormatted()
+      console.log('[getNextChargeDate] Returning today\'s date as fallback:', todayFormatted)
+      return todayFormatted
+    }
+
+    console.log('[getNextChargeDate] Base date created successfully', {
+      baseDate: baseDate.toISOString(),
+      baseDateValid: !isNaN(baseDate.getTime()),
+    })
+
     const nextDate = new Date(baseDate)
 
     // Check if plan has trial and add trial days first
     const hasTrial = selectedPlan?.hasTrial === true
     const trialDays = selectedPlan?.trialValidForDays || 0
 
+    console.log('[getNextChargeDate] Trial information', {
+      hasTrial,
+      trialDays,
+    })
+
     if (hasTrial && trialDays > 0) {
       // Add trial days to the base date
+      const beforeTrial = new Date(nextDate)
       nextDate.setDate(nextDate.getDate() + trialDays)
+      console.log('[getNextChargeDate] Added trial days', {
+        beforeTrial: beforeTrial.toISOString(),
+        afterTrial: nextDate.toISOString(),
+        trialDaysAdded: trialDays,
+      })
     } else {
       // No trial, calculate based on billing cycle
+      const beforeCalculation = new Date(nextDate)
+      
       if (billingCycle === 'monthly') {
         // exactly 30 days from now as requested
         nextDate.setDate(nextDate.getDate() + 30)
+        console.log('[getNextChargeDate] Applied monthly billing cycle', {
+          before: beforeCalculation.toISOString(),
+          after: nextDate.toISOString(),
+          daysAdded: 30,
+        })
       } else if (billingCycle === 'quarterly') {
         // add 3 calendar months
         const month = nextDate.getMonth()
         nextDate.setMonth(month + 3)
+        console.log('[getNextChargeDate] Applied quarterly billing cycle', {
+          before: beforeCalculation.toISOString(),
+          after: nextDate.toISOString(),
+          monthsAdded: 3,
+        })
       } else if (billingCycle === 'yearly') {
         // add 12 calendar months
         const month = nextDate.getMonth()
         nextDate.setMonth(month + 12)
+        console.log('[getNextChargeDate] Applied yearly billing cycle', {
+          before: beforeCalculation.toISOString(),
+          after: nextDate.toISOString(),
+          monthsAdded: 12,
+        })
       } else {
         // default to 30 days if unknown
         nextDate.setDate(nextDate.getDate() + 30)
+        console.warn('[getNextChargeDate] Unknown billing cycle, defaulting to 30 days', {
+          billingCycle,
+          before: beforeCalculation.toISOString(),
+          after: nextDate.toISOString(),
+        })
       }
+    }
+
+    // Validate nextDate after calculations
+    if (isNaN(nextDate.getTime())) {
+      console.error('[getNextChargeDate] Invalid nextDate after calculations', {
+        nextDateValue: nextDate.toString(),
+        billingCycle,
+        hasTrial,
+        trialDays,
+      })
+      const todayFormatted = getTodayFormatted()
+      console.log('[getNextChargeDate] Returning today\'s date as fallback:', todayFormatted)
+      return todayFormatted
     }
 
     const formatted = nextDate.toLocaleDateString(undefined, {
@@ -676,8 +763,36 @@ export const getNextChargeDate = (selectedPlan, fromDate = new Date()) => {
       month: 'long',
       day: 'numeric',
     })
+
+    // Validate formatted string
+    if (formatted === 'Invalid Date' || !formatted || formatted.trim() === '') {
+      console.error('[getNextChargeDate] Invalid formatted date string', {
+        formatted,
+        nextDateISO: nextDate.toISOString(),
+        nextDateValid: !isNaN(nextDate.getTime()),
+      })
+      const todayFormatted = getTodayFormatted()
+      console.log('[getNextChargeDate] Returning today\'s date as fallback:', todayFormatted)
+      return todayFormatted
+    }
+
+    console.log('[getNextChargeDate] Successfully calculated next charge date', {
+      formatted,
+      nextDateISO: nextDate.toISOString(),
+    })
+
     return formatted
   } catch (e) {
-    return ''
+    console.error('[getNextChargeDate] Error occurred during calculation', {
+      error: e,
+      errorMessage: e?.message,
+      errorStack: e?.stack,
+      selectedPlan: selectedPlan ? { id: selectedPlan.id, billingCycle: selectedPlan.billingCycle, duration: selectedPlan.duration } : null,
+      fromDate,
+      fromDateType: typeof fromDate,
+    })
+    const todayFormatted = getTodayFormatted()
+    console.log('[getNextChargeDate] Returning today\'s date as fallback:', todayFormatted)
+    return todayFormatted
   }
 }
