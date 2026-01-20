@@ -560,9 +560,7 @@ function SelectedUserDetails({
 
 
   const logoBranding = () => {
-    if (user?.userRole === "AgencySubAccount" || user?.userRole === "Invitee") {
-      return <div></div>
-    }
+  
     return (
       <div className="w-full flex flex-col gap-2 pt-4">
         {/* Show company name if no logo for subaccount users */}
@@ -716,13 +714,13 @@ function SelectedUserDetails({
           )}
           <div className="flex flex-row items-start w-full  ">
             <div className={`flex border-r border-[#00000015] ${!agencyUser && '-mt-10'} flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} ${agencyUser ? 'h-auto max-h-[85vh] overflow-y-auto' : 'h-auto'}`}>
-              {/* {agencyUser && ( */}
-              {
+              {agencyUser && (
+              
                 logoBranding()
-              }
-              {/* // )} */}
+              
+              )}
               {
-                // !agencyUser && (
+                !agencyUser && (
 
                 <div className={`flex flex-row gap-2 items-center justify-start w-full pt-3 ${agencyUser ? 'pt-3' : ''}`}>
 
@@ -765,7 +763,7 @@ function SelectedUserDetails({
                     </button>
                   )}
                 </div>
-                // )
+                )
               }
               <div className='flex flex-col items-start justify-center gap-3 w-full pt-10 ${(from === "admin" || from === "subaccount") ? "":"h-full"}'>
                 {manuBar.map((item) => (

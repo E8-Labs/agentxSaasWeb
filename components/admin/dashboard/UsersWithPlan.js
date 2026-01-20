@@ -130,7 +130,7 @@ export default function UsersWithPlan({
         ) : (
           <>
             {/* List of Users */}
-            <List sx={{ width: '100%', mt: 2, overflow: 'scroll' }}>
+            <List sx={{ width: '100%', mt: 2, overflow: 'scroll' ,scrollbarWidth:'none'}}>
               {users.length === 0 ? (
                 <Typography sx={{ mt: 4, color: '#666' }}>
                   No users found for this plan
