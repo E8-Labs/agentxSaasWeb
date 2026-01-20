@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef } from 'react'
-import { toast } from 'sonner'
+import { toast } from '@/utils/toast'
 
 export const SnackbarTypes = {
   Error: 'Error',
@@ -57,12 +57,10 @@ export default function AgentSelectSnackMessage({
 
     // Show toast only on visibility transition or message change
     if ((isVisibilityTransition || isMessageChange) && (message || title)) {
-      // Always dismiss ALL existing toasts before showing a new one
-      // This prevents overlapping when multiple snack messages appear simultaneously
-      // Using toast.dismiss() without ID dismisses all toasts
-      toast.dismiss()
+      // Note: toast.dismiss() is automatically called by our toast utility wrapper
+      // before showing any toast, so we don't need to manually dismiss here
       
-      // Also clear our own refs
+      // Clear our own refs
       if (toastIdRef.current) {
         toastIdRef.current = null
       }
@@ -153,3 +151,4 @@ export default function AgentSelectSnackMessage({
   // Return null since Sonner handles rendering
   return null
 }
+

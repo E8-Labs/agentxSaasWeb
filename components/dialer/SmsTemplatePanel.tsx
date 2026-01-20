@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button as ButtonBase } from '../ui/button'
-import { toast } from 'sonner'
+import { toast } from '@/utils/toast'
 import { Phone, MoreVertical, Pencil, X, Loader2, FileText, Plus } from 'lucide-react'
 import { Menu, MenuItem } from '@mui/material'
 import { formatPhoneNumber } from '@/utilities/agentUtilities'

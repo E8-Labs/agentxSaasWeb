@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { X, StickyNote } from 'lucide-react'
 import { Button as ButtonBase } from '../ui/button'
-import { toast } from 'sonner'
+import { toast } from '@/utils/toast'
 
 // Type assertion for Button component
 const Button = ButtonBase as any

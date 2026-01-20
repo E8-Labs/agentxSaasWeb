@@ -9,7 +9,7 @@ import axios from 'axios'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { PersistanceKeys } from '@/constants/Constants'
 import { SupportWidget } from '@/components/askSky/support-widget'
-import { toast } from 'sonner'
+import { toast } from '@/utils/toast'
 import Apis from '@/components/apis/Apis'
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
 

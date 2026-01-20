@@ -5,7 +5,7 @@ import { Button as ButtonBase } from '../ui/button'
 import { Input as InputBase } from '../ui/input'
 import { Card as CardBase, CardContent as CardContentBase, CardDescription as CardDescriptionBase, CardHeader as CardHeaderBase, CardTitle as CardTitleBase } from '../ui/card'
 import { Badge } from '../ui/badge'
-import { toast } from 'sonner'
+import { toast } from '@/utils/toast'
 import DialerSettings from './DialerSettings'
 
 // @ts-ignore - Twilio Voice SDK types

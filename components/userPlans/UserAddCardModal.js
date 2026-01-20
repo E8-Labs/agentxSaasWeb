@@ -20,7 +20,7 @@ import { loadStripe } from '@stripe/stripe-js'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useRef, useState } from 'react'
-import { toast } from 'sonner'
+import { toast } from '@/utils/toast'
 
 import Apis from '@/components/apis/Apis'
 import AgentSelectSnackMessage, {
