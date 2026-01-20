@@ -824,9 +824,7 @@ function UpgradePlanContent({
     // Fallback comparison by name (if both have names)
     const itemName = item.name || item.title
     const currentPlanName = planToCompare.name || planToCompare.title
-    if (itemName && currentPlanName && itemName === currentPlanName) {
-      return true
-    }
+  
 
     // Not the current plan - don't log to reduce noise
     return false
@@ -1312,16 +1310,7 @@ function UpgradePlanContent({
       return 'Subscribe'
     }
 
-    // Use planToCompare (which is currentFullPlan when selectedUser is provided, otherwise currentUserPlan)
-    const comparison = comparePlans(planToCompare, currentSelectedPlan)
 
-    if (comparison === 'upgrade') {
-      return 'Upgrade'
-    } else if (comparison === 'downgrade') {
-      return 'Downgrade'
-    } else if (comparison === 'same') {
-      return 'Cancel Subscription'
-    }
 
     // Fallback: Compare prices directly from planToCompare and currentSelectedPlan
     // Try multiple possible price fields
@@ -1343,7 +1332,7 @@ function UpgradePlanContent({
       return 'Downgrade'
     }
 
-    return 'Subscribe'
+    return 'Upgrade'
   }
 
   const comparePlans = (currentPlan, targetPlan) => {
@@ -1397,43 +1386,7 @@ function UpgradePlanContent({
     let currentTierRank = -1
     let targetTierRank = -1
 
-    // Try to match tier from title/name
-    for (const [tier, rank] of Object.entries(tierRanking)) {
-      if (currentTitle.includes(tier.toLowerCase())) {
-        currentTierRank = rank
-      }
-      if (targetTitle.includes(tier.toLowerCase())) {
-        targetTierRank = rank
-      }
-    }
 
-    // If we can determine tier ranks, compare them first
-    // Rule: Scale > Growth > Starter (regardless of billing cycle)
-    if (currentTierRank >= 0 && targetTierRank >= 0) {
-      // Different tiers - tier comparison determines upgrade/downgrade
-      if (targetTierRank > currentTierRank) {
-        return 'upgrade'
-      } else if (targetTierRank < currentTierRank) {
-        return 'downgrade'
-      }
-      // Same tier - compare billing cycles
-      if (targetBillingOrder > currentBillingOrder) {
-        return 'upgrade'
-      } else if (targetBillingOrder < currentBillingOrder) {
-        return 'downgrade'
-      } else {
-        return 'same'
-      }
-    }
-
-    // If tier can't be determined, compare billing cycles first
-    // Longer billing cycle (yearly > quarterly > monthly) is generally an upgrade
-    // This handles cases like "Malik's Plan" monthly -> yearly where tier detection fails
-    if (targetBillingOrder > currentBillingOrder) {
-      return 'upgrade'
-    } else if (targetBillingOrder < currentBillingOrder) {
-      return 'downgrade'
-    }
 
     // Fall back to price comparison if billing cycles are the same
     const currentPrice =
@@ -1516,6 +1469,11 @@ function UpgradePlanContent({
     }
   }
 
+
+  console.log('currentSelectedPlan', currentSelectedPlan)
+
+  console.log('currentSelectedPlan && !isPlanCurrent(currentSelectedPlan) && getButtonText() !== Cancel Subscription ', currentSelectedPlan && !isPlanCurrent(currentSelectedPlan) && getButtonText() !== 'Cancel Subscription' )
+console.log('getButtonText()', getButtonText())
   return (
     <Modal
       open={open}
