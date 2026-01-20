@@ -32,6 +32,7 @@ import AppLogo from '@/components/common/AppLogo'
 import {
   calculatePlanPrice,
   checkReferralCode,
+  getEffectiveUser,
   getNextChargeDate,
   getUserLocalData,
   getUserPlans,
@@ -1162,18 +1163,24 @@ function UpgradePlanContent({
       }
 
       const UserLocalData = getUserLocalData()
+      
+      // Determine effective user (selectedUser if provided, otherwise logged-in user)
+      const effectiveUser = getEffectiveUser(selectedUser, UserLocalData)
+      const effectiveRole = effectiveUser?.userRole
+      
       let DataToSendInApi = null
       let ApiData = {
         plan: planType,
       }
+      
+      // For agency and subaccount plans, use planId instead of plan type
       if (
+        effectiveRole === 'AgencySubAccount' ||
+        effectiveRole === 'Agency' ||
         from === 'SubAccount' ||
-        UserLocalData?.userRole === 'AgencySubAccount'
+        from === 'agency' ||
+        from === 'Agency'
       ) {
-        ApiData = {
-          planId: currentSelectedPlan?.id,
-        }
-      } else if (from === 'agency') {
         ApiData = {
           planId: currentSelectedPlan?.id,
         }
@@ -1184,19 +1191,31 @@ function UpgradePlanContent({
         ApiData.paymentMethodId = paymentMethodId
       }
 
+      // Add userId if we're subscribing for another user (admin/agency viewing subaccount)
       if (selectedUser) {
-        ApiData.userId = selectedUser?.id
+        ApiData.userId = selectedUser?.id || effectiveUser?.id
       }
       DataToSendInApi = ApiData
 
-      let ApiPath = Apis.subscribePlan
-      if (UserLocalData?.userRole === 'AgencySubAccount') {
+      // Determine the correct API endpoint based on effective user's role
+      let ApiPath = Apis.subscribePlan // Default for regular users
+      
+      if (
+        effectiveRole === 'AgencySubAccount' ||
+        effectiveRole === 'Agency' ||
+        from === 'SubAccount' ||
+        from === 'agency' ||
+        from === 'Agency'
+      ) {
         ApiPath = Apis.subAgencyAndSubAccountPlans
       }
-      if (from === 'SubAccount') {
-        ApiPath = Apis.subAgencyAndSubAccountPlans
-      } else if (from === 'agency') {
-        ApiPath = Apis.subAgencyAndSubAccountPlans
+      
+      // Log which API endpoint is being used for debugging
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[UpgradePlan] Subscription API endpoint:', ApiPath)
+        console.log('[UpgradePlan] Effective user role:', effectiveRole)
+        console.log('[UpgradePlan] From prop:', from)
+        console.log('[UpgradePlan] Selected user:', selectedUser)
       }
 
       //headers for api
@@ -1204,7 +1223,9 @@ function UpgradePlanContent({
         Authorization: 'Bearer ' + AuthToken,
       }
 
-      if (!(UserLocalData?.userRole === 'AgencySubAccount')) {
+      // Only add Content-Type header for non-subaccount subscriptions
+      // Subaccount subscriptions use form-data (multipart/form-data)
+      if (effectiveRole !== 'AgencySubAccount' && from !== 'SubAccount') {
         headers['Content-Type'] = 'application/json'
       }
 
@@ -2254,6 +2275,161 @@ const elementOptions = {
  * - Selected plan is stored in currentSelectedPlan
  * - Payment methods are stored in cards array
  */
+/**
+ * Utility function to get the parent component name from the call stack
+ * This helps identify which component is rendering UpgradePlan
+ * Uses Error stack trace to find the calling component
+ */
+const getParentComponentName = () => {
+  try {
+    const error = new Error()
+    const stack = error.stack || ''
+    
+    // Split stack into lines
+    const stackLines = stack.split('\n')
+    
+    // Debug: Log first few relevant lines to see what we're working with
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[UpgradePlan Debug] First 10 stack lines:', stackLines.slice(0, 10))
+    }
+    
+    // Common React/Next.js internal patterns to skip
+    const skipPatterns = [
+      'UpgradePlan',
+      'at Object.',
+      'at eval',
+      'at Function.',
+      'at Array.',
+      'next.js',
+      'node_modules',
+      'webpack',
+      'react-dom',
+      'react.js',
+      'useMemo',
+      'useEffect',
+      'useState',
+      'useCallback',
+      'renderWithHooks',
+      'updateFunctionComponent',
+      'beginWork',
+      'performUnitOfWork',
+    ]
+    
+    // Look for React component patterns in the stack
+    for (let i = 0; i < stackLines.length; i++) {
+      const line = stackLines[i]
+      
+      // Skip UpgradePlan itself and internal React/Next.js functions
+      if (skipPatterns.some(pattern => line.includes(pattern))) {
+        continue
+      }
+      
+      // Pattern 1: Look for component names in format "at ComponentName" or "ComponentName.render"
+      // Try multiple regex patterns
+      const patterns = [
+        /at\s+(\w+)/,                                    // "at ComponentName"
+        /at\s+(\w+)\.render/,                            // "at ComponentName.render"
+        /at\s+(\w+)\s+\(/,                               // "at ComponentName ("
+        /(\w+)\s+\([^)]*\.(jsx?|tsx?)/,                  // "ComponentName (file.jsx)"
+        /(\w+)\s+\[as\s+\w+\]/,                          // "ComponentName [as ...]"
+      ]
+      
+      for (const pattern of patterns) {
+        const match = line.match(pattern)
+        if (match && match[1]) {
+          const componentName = match[1]
+          // Filter out common non-component names
+          const invalidNames = [
+            'Error', 'getParentComponentName', 'Object', 'Array', 'Function', 
+            'Promise', 'setTimeout', 'setInterval', 'requestAnimationFrame',
+            'call', 'apply', 'bind', 'toString', 'valueOf', 'constructor'
+          ]
+          if (
+            !invalidNames.includes(componentName) &&
+            componentName[0] === componentName[0].toUpperCase() && // Component names usually start with uppercase
+            componentName.length > 2 && // Filter out very short names
+            !componentName.includes('$') && // Skip webpack internal names
+            !componentName.startsWith('_') // Skip internal names
+          ) {
+            return componentName
+          }
+        }
+      }
+      
+      // Pattern 2: Check for JSX/TSX file patterns and extract component name from filename
+      // Try multiple file path patterns
+      const filePatterns = [
+        /components[\/\\]([^\/\\]+)[\/\\]([^\/\\]+\.(jsx?|tsx?))/, // "components/admin/AdminAgentX.js"
+        /([^\/\\]+)[\/\\]([^\/\\]+\.(jsx?|tsx?))/,      // "admin/AdminAgentX.js"
+        /\(([^)]+\.(jsx?|tsx?))/,                        // "(path/to/file.jsx)"
+        /([^/\s]+\.(jsx?|tsx?))/,                        // "file.jsx"
+      ]
+      
+      for (const filePattern of filePatterns) {
+        const fileMatch = line.match(filePattern)
+        if (fileMatch) {
+          // Try to get component name from the match
+          let filePath = fileMatch[1] || fileMatch[2] || fileMatch[0]
+          if (!filePath) continue
+          
+          const fileName = filePath.split('/').pop() || filePath.split('\\').pop()
+          
+          // Extract component name from filename (e.g., "AdminAgentX.js" -> "AdminAgentX")
+          const nameFromFile = fileName.replace(/\.(js|jsx|ts|tsx)$/, '')
+          
+          // Check if it looks like a component name
+          if (
+            nameFromFile &&
+            nameFromFile[0] === nameFromFile[0].toUpperCase() &&
+            nameFromFile.length > 2 &&
+            !nameFromFile.includes('.') && // Avoid nested paths
+            !nameFromFile.includes('$') && // Skip webpack internal names
+            !nameFromFile.startsWith('_') // Skip internal names
+          ) {
+            return nameFromFile
+          }
+          
+          // Also try to extract from path (e.g., "components/admin/users/AdminAgentX.js")
+          const pathParts = filePath.split(/[\/\\]/)
+          for (let j = pathParts.length - 1; j >= 0; j--) {
+            const part = pathParts[j].replace(/\.(js|jsx|ts|tsx)$/, '')
+            if (
+              part &&
+              part[0] === part[0].toUpperCase() &&
+              part.length > 2 &&
+              !part.includes('.') &&
+              !part.includes('$') &&
+              !part.startsWith('_')
+            ) {
+              return part
+            }
+          }
+        }
+      }
+      
+      // Pattern 3: Look for component-like patterns in the line itself
+      // Sometimes components appear as "ComponentName (file.jsx:123:45)"
+      const componentFileMatch = line.match(/([A-Z][a-zA-Z0-9]+)\s*\([^)]*\.(jsx?|tsx?)/)
+      if (componentFileMatch && componentFileMatch[1]) {
+        const componentName = componentFileMatch[1]
+        if (
+          componentName.length > 2 &&
+          !componentName.includes('$') &&
+          !componentName.startsWith('_')
+        ) {
+          return componentName
+        }
+      }
+    }
+    
+    // If we still haven't found anything, return a more informative message
+    return 'Unknown (check console for stack trace)'
+  } catch (error) {
+    console.error('[UpgradePlan] Error getting parent component name:', error)
+    return 'Error getting parent name'
+  }
+}
+
 function UpgradePlan({
   open,
   handleClose,
@@ -2265,7 +2441,29 @@ function UpgradePlan({
   selectedUser,
   // setShowSnackMsg = null
 }) {
-console.log('Selected user in UpgradePlan is ', selectedUser)
+  // Get parent component name for debugging (without props)
+  const parentComponentNameRef = React.useRef(null)
+  
+  React.useEffect(() => {
+    if (open && !parentComponentNameRef.current) {
+      // Only get parent name when modal opens to avoid performance issues
+      parentComponentNameRef.current = getParentComponentName()
+      
+      console.log(`[UpgradePlan] Rendered from parent component: ${parentComponentNameRef.current || 'Unknown'}`)
+      console.log(`[UpgradePlan] Selected user:`, selectedUser)
+      console.log(`[UpgradePlan] From prop:`, from)
+      
+      // Log full stack trace for debugging
+      if (process.env.NODE_ENV === 'development') {
+        const error = new Error()
+        console.log(`[UpgradePlan Debug] Full stack trace:`, error.stack)
+      }
+    } else if (!open) {
+      // Reset when modal closes
+      parentComponentNameRef.current = null
+    }
+  }, [open, selectedUser, from])
+
   const stripePromise = getStripe()
 
   const [showSnackMsg, setShowSnackMsg] = useState({
