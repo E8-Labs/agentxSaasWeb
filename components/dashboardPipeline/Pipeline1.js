@@ -3668,7 +3668,19 @@ const Pipeline1 = () => {
                   </div>
                 </div>
 
-                {selectedStage?.hasLeads ? (
+                {(() => {
+                  // Check actual lead count instead of relying on cached hasLeads
+                  // This handles the case where a lead was deleted but hasLeads wasn't updated
+                  const actualLeadCount = LeadsList.filter(
+                    (lead) => lead.lead?.stage === selectedStage?.id
+                  ).length
+                  // Prioritize actual count - if we have LeadsList data, use actual count only
+                  // Only fall back to cached hasLeads if LeadsList is empty (not loaded yet)
+                  const stageHasLeads = LeadsList.length > 0 
+                    ? actualLeadCount > 0 
+                    : (selectedStage?.hasLeads || false)
+                  return stageHasLeads
+                })() ? (
                   <div>
                     <div
                       className="max-h-[60vh] overflow-auto"
