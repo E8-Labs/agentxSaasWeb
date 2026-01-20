@@ -10,6 +10,7 @@ import { TypographyBody, TypographyCaption, TypographyCaptionSemibold } from '@/
 import DropdownCn from '@/components/dashboard/leads/extras/DropdownCn'
 import ToggleGroupCN from '@/components/ui/ToggleGroupCN'
 import NewContactDrawer from './NewContactDrawer'
+import { toast } from '@/utils/toast'
 
 const ThreadsList = ({
   loading,
@@ -199,7 +200,13 @@ const ThreadsList = ({
             )}
           </div>
 
-          {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && <button className="p-1.5 rounded-md hover:bg-gray-100 transition-colors">
+          {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && 
+          <button className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+          onClick={() => {
+            //show toast here to show the feature is coming soon
+            toast.success('This feature is coming soon')
+          }}
+          >
             <Image src="/svgIcons/threeDotsIcon.svg" width={24} height={24} alt="Filter" />
           </button> }
       </div>
