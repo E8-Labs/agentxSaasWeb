@@ -13,22 +13,14 @@ function Page() {
 
   // Save agency UUID when component loads and redirect to main onboarding
   useEffect(() => {
-    console.log('[Agency Onboarding] Component mounted')
-    console.log('[Agency Onboarding] Params:', params)
-    console.log('[Agency Onboarding] UUID from params:', params.uuid)
-
     const handleUUID = async () => {
       if (params.uuid && !hasRedirected.current) {
-        console.log('[Agency Onboarding] Processing UUID:', params.uuid)
-
         // Save the UUID
         try {
           saveAgencyUUID(params.uuid)
-          console.log('[Agency Onboarding] UUID saved successfully')
 
           // Verify it was saved
           const saved = localStorage.getItem('AgencyUUID')
-          console.log('[Agency Onboarding] Verified saved UUID:', saved)
         } catch (error) {
           console.error('[Agency Onboarding] Error saving UUID:', error)
         }
@@ -37,12 +29,9 @@ function Page() {
 
         // Add a small delay to ensure localStorage is updated
         setTimeout(() => {
-          console.log('[Agency Onboarding] Redirecting to /onboarding')
           router.replace('/onboarding')
         }, 10) // Increased delay to see the page
-      } else {
-        console.log('[Agency Onboarding] No UUID found or already redirecting')
-      }
+      } else {}
     }
 
     handleUUID()

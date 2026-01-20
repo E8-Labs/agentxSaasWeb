@@ -17,8 +17,6 @@ const UnlockPremiunFeatures = ({
   from,
   handleConfirmDownGrade,
 }) => {
-  console.log('title passed to unlock premium features is', title)
-
   const [requestLoader, setRequestLoader] = useState(false)
   //code for snack messages
   const [snackMsg, setSnackMsg] = useState(null)
@@ -32,8 +30,6 @@ const UnlockPremiunFeatures = ({
   useEffect(() => {
     fetchLocalUserData()
     const Data = localUserData?.agencyCapabilities
-    console.log('featureTitle passed to upgrade view is', title)
-    console.log('Plan capabilities in upgrade view is', Data)
     if (localUserData?.userRole === 'AgencySubAccount') {
       if (title === 'Enable Live Transfer') {
         if (!Data?.allowLiveCallTransfer) {
@@ -81,9 +77,6 @@ const UnlockPremiunFeatures = ({
         localUserData = Data?.user
 
         if (localUserData) {
-          console.log(
-            `✅ Successfully fetched local data on attempt ${attempt}`,
-          )
           return
         } else {
           console.warn(
@@ -99,7 +92,6 @@ const UnlockPremiunFeatures = ({
 
     // Retry if not found and attempts remain
     if (attempt < maxAttempts) {
-      console.log(`⏳ Retrying... attempt ${attempt + 1} in 300ms`)
       setTimeout(() => fetchLocalUserData(attempt + 1, maxAttempts), 300)
     } else {
       console.error('❌ Max attempts reached. Could not fetch local data.')
@@ -114,14 +106,12 @@ const UnlockPremiunFeatures = ({
       const ApiData = {
         featureTitle: featureTitleValue || title,
       }
-      console.log('Apidata for request feature is', ApiData)
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
           Authorization: `Bearer ${Token}`,
           'Content-Type': 'application/json',
         },
       })
-      console.log('Response of request feature is', response.data)
       if (response.data.status === true) {
         setRequestLoader(false)
         setSnackMsg('Request sent.')

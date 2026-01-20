@@ -149,7 +149,6 @@ const StirCalling = ({
             friendlyName: productName,
           }
         }
-        console.log('Api data is', ApiData)
 
         const response = await axios.post(ApiPath, ApiData, {
           headers: {
@@ -179,12 +178,10 @@ const StirCalling = ({
               isVisible: true,
             })
           }
-          console.log('Response of api is', response)
         }
       }
     } catch (error) {
       setLoader(false)
-      console.log('Error occured in api is', error)
 
       // Extract error message from server response
       let errorMessage = 'An unexpected error occurred'
@@ -218,13 +215,11 @@ const StirCalling = ({
       })
 
       if (response) {
-        console.log('List of get numbers', response)
         setGetNumbersLoader(false)
         setPhonesList(response.data.data)
       }
     } catch (error) {
       setGetNumbersLoader(false)
-      console.log('Error occured in api is', error)
     }
   }
 

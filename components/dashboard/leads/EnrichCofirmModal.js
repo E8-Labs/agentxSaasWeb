@@ -27,8 +27,6 @@ export default function EnrichConfirmModal({
   targetUserId,
   targetUserDetails,
 }) {
-  console.log("creditCost in EnrichConfirmModal", creditCost)
-  
   const [userData, setUserData] = useState(null)
   const [minimumCost, setMinimumCost] = useState(null)
   const [isMinimumEnforced, setIsMinimumEnforced] = useState(false)
@@ -66,10 +64,6 @@ export default function EnrichConfirmModal({
           minimumData.userId = targetUserId
         }
         const minimumCostData = await calculateCreditCost(minimumData)
-        console.log(
-          'EnrichConfirmModal - minimumCostData for 100 leads',
-          minimumCostData,
-        )
         setMinimumCost(minimumCostData)
         setIsMinimumEnforced(true)
       } else {
@@ -115,14 +109,14 @@ export default function EnrichConfirmModal({
 
   // Get the enrichment price as a number
   const enrichmentPrice = getEnrichmentPrice()
-  
+
   // Use minimum cost if enforced, otherwise use creditCost
   const displayLeadCount =
     isMinimumEnforced && minimumCost
       ? minimumCost?.creditsToReceive || 100
       : creditCost?.leadCount || processedData?.length || 0
   const displayPricePerLead = enrichmentPrice.toFixed(2)
-  
+
   // Calculate total cost using the correct price per lead from userSettings
   // We recalculate here because the API's totalCharge might have been calculated with default price
   const displayTotalCost = (() => {

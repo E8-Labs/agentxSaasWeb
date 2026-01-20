@@ -143,7 +143,6 @@ function EmailTempletePopup({
     let isDefault = localStorage.getItem(
       PersistanceKeys.isDefaultCadenceEditing,
     )
-    console.log('isDefault', isDefault)
     setIsdefaultCadence(isDefault)
     // Load accounts when modal opens
     if (open) {
@@ -167,7 +166,6 @@ function EmailTempletePopup({
     ]
 
     let res = await getUniquesColumn(selectedUser?.id)
-    console.log('uniqueColumns', res)
 
     // Merge default columns with API response, removing duplicates
     if (res && Array.isArray(res)) {
@@ -184,21 +182,14 @@ function EmailTempletePopup({
 
   // Auto-fill form when editing
   useEffect(() => {
-    console.log('trying to edit', isEditing, editingRow)
     if (isEditing && editingRow && open) {
       // Load template details if templateId or id exists
       if (editingRow.templateId || editingRow.id) {
         loadTemplateDetails(editingRow)
       }
 
-      // Always load accounts when editing email templates
-      console.log(
-        'Loading accounts for editing. editingRow emailAccountId:',
-        editingRow.emailAccountId,
-      )
       getAccounts(selectedUser?.id) // Always load accounts regardless of existing emailAccountId
     } else if (!isEditing) {
-      console.log('resetting form')
       // Reset form when not editing
       setTempName('')
       setSubject('')
@@ -228,7 +219,6 @@ function EmailTempletePopup({
       // 1. selectedTemp is not set yet, OR
       // 2. selectedTemp is set but doesn't match the current templateId
       if (matchingTemplate && (!selectedTemp || selectedTemp.id !== templateId)) {
-        console.log('Setting selectedTemp from templates array:', matchingTemplate)
         setSelectedTemp(matchingTemplate)
       }
     }
@@ -239,7 +229,6 @@ function EmailTempletePopup({
     try {
       setDetailsLoader(template.id || template.templateId)
       const details = await getTempleteDetails(template)
-      console.log('details', details)
       if (details) {
         setTempName(details.templateName || '')
         setSubject(details.subject || '')
@@ -301,11 +290,8 @@ function EmailTempletePopup({
             (t) => t.id === templateId || t.templateId === templateId
           )
           if (matchingTemplate) {
-            console.log('Setting selectedTemp to matching template:', matchingTemplate)
             setSelectedTemp(matchingTemplate)
           } else {
-            // If template not found in list, create a temporary template object from details
-            console.log('Template not found in list, creating from details')
             setSelectedTemp({
               id: templateId,
               templateId: templateId,
@@ -534,14 +520,6 @@ function EmailTempletePopup({
   // Restore selected account when editing and accounts are loaded
   useEffect(() => {
     const emailAccountId = editingRow?.emailAccountId || templateEmailAccountId
-    console.log('Account restoration check:', {
-      isEditing,
-      editingRowEmailAccountId: editingRow?.emailAccountId,
-      templateEmailAccountId: templateEmailAccountId,
-      finalEmailAccountId: emailAccountId,
-      googleAccountsLength: googleAccounts.length,
-      currentSelectedAccountId: selectedGoogleAccount?.id,
-    })
 
     // Only restore account if we're editing, have accounts loaded, and no account is currently selected
     // IMPORTANT: Only auto-select account if editingRow has emailAccountId (i.e., editing from cadence)
@@ -553,10 +531,6 @@ function EmailTempletePopup({
           (account) => account.id === emailAccountId,
         )
         if (matchingAccount) {
-          console.log(
-            'Restoring selected account for editing:',
-            matchingAccount,
-          )
           setSelectedGoogleAccount(matchingAccount)
         } else {
           console.warn(
@@ -582,7 +556,6 @@ function EmailTempletePopup({
   ])
 
   const handleDeleteTemplate = async (template) => {
-    console.log('template to delete', template)
     setDelTempLoader(template)
     await deleteTemplete(template)
     setDelTempLoader(null)
@@ -596,7 +569,6 @@ function EmailTempletePopup({
   }
 
   const handleSelect = async (t) => {
-    console.log('t', t)
     setSelectedTemp(t)
 
     // If template has an id, fetch full details to ensure we have all fields including ccEmails and bccEmails
@@ -607,7 +579,6 @@ function EmailTempletePopup({
         // Create a template object with templateId for getTempleteDetails
         const templateForDetails = { templateId: templateId, id: t.id }
         const details = await getTempleteDetails(templateForDetails)
-        console.log('Template details loaded:', details)
         if (details) {
           setTempName(details.templateName || '')
           setSubject(details.subject || '')
@@ -937,20 +908,10 @@ function EmailTempletePopup({
         JSON.stringify(selectedTemp.attachments || []) !==
         JSON.stringify(attachments))
 
-    console.log('Template selection state:', {
-      selectedTemp: selectedTemp?.id,
-      isEditing,
-      hasTemplateChanges,
-      selectedTempName: selectedTemp?.templateName,
-      currentTempName: tempName,
-    })
-
     let response = null
 
-    console.log('IsdefaultCadence', IsdefaultCadence)
     // Handle lead email sending
     if (isLeadEmail && onSendEmail) {
-      console.log('Sending email to lead:', leadEmail)
       const emailData = {
         subject: subject,
         content: body,
@@ -962,14 +923,7 @@ function EmailTempletePopup({
       return // Don't close modal yet, let the send function handle it
     }
 
-    console.log('selectedTemp', selectedTemp)
-    console.log('hasTemplateChanges', hasTemplateChanges)
-    console.log('isEditing', isEditing)
-    console.log('IsdefaultCadence', IsdefaultCadence)
-
     if (selectedTemp && !hasTemplateChanges && !isEditing) {
-      // Use existing template without modification - no API call needed
-      console.log('Using existing template without changes:', selectedTemp)
       response = {
         data: {
           status: true,
@@ -977,11 +931,6 @@ function EmailTempletePopup({
         },
       }
     } else if (selectedTemp && isEditing) {
-      // Selected existing template but made changes - UPDATE the existing template
-      console.log(
-        'Updating selected template with changes. Template ID:',
-        selectedTemp.id,
-      )
       response = await updateTemplete(data, selectedTemp.id)
     } else if (isEditing && !IsdefaultCadence) {
       // Editing existing row's template
@@ -992,11 +941,8 @@ function EmailTempletePopup({
         id = editingRow.templateId
       }
 
-      console.log('Updating existing template from editing row with id:', id)
       response = await updateTemplete(data, id)
     } else {
-      // Create new template (no template selected and creating new)
-      console.log('Creating new template')
       response = await createTemplete(data)
     }
 
@@ -1005,29 +951,17 @@ function EmailTempletePopup({
 
       // Handle template list updates based on the operation performed
       if (createdTemplate) {
-        if (selectedTemp && !hasTemplateChanges && !isEditing) {
-          // Just using existing template - no list update needed
-          console.log(
-            'No template list update needed - using existing template',
-          )
-        } else {
+        if (selectedTemp && !hasTemplateChanges && !isEditing) {} else {
           // Either created new template or updated existing one
           setTempletes((prev) => {
             const existingIndex = prev.findIndex(
               (t) => t.id === createdTemplate.id,
             )
             if (existingIndex >= 0) {
-              // Update existing template in the list
-              console.log(
-                'Updating existing template in list:',
-                createdTemplate.id,
-              )
               const updated = [...prev]
               updated[existingIndex] = createdTemplate
               return updated
             } else {
-              // Add new template to the list
-              console.log('Adding new template to list:', createdTemplate.id)
               return Array.isArray(prev)
                 ? [...prev, createdTemplate]
                 : [createdTemplate]
@@ -1047,7 +981,6 @@ function EmailTempletePopup({
         // Ensure we have a selected account, use first available if none selected
         let accountId = selectedGoogleAccount?.id
         if (!accountId && googleAccounts.length > 0) {
-          console.log('No selected account, using first available account')
           accountId = googleAccounts[0].id
           setSelectedGoogleAccount(googleAccounts[0])
         }
@@ -1064,10 +997,6 @@ function EmailTempletePopup({
           communicationType: 'email',
           emailAccountId: accountId,
         }
-        console.log('Updating row with data:', updateData)
-        console.log('Selected Google Account:', selectedGoogleAccount)
-        console.log('Using Account ID:', accountId)
-        console.log('Editing Row:', editingRow)
 
         // Validate that emailAccountId exists
         if (!accountId) {
@@ -1084,9 +1013,6 @@ function EmailTempletePopup({
         // Ensure we have a selected account, use first available if none selected
         let accountId = selectedGoogleAccount?.id
         if (!accountId && googleAccounts.length > 0) {
-          console.log(
-            'No selected account for new row, using first available account',
-          )
           accountId = googleAccounts[0].id
           setSelectedGoogleAccount(googleAccounts[0])
         }
@@ -1097,11 +1023,6 @@ function EmailTempletePopup({
             emailAccountId: accountId || googleAccounts[0]?.id,
             communicationType: 'email',
           }
-          console.log(
-            'Adding new row with templateData:',
-            templateDataForNewRow,
-          )
-          console.log('addRow function type:', typeof addRow)
           addRow(templateDataForNewRow)
         }
       }
@@ -1120,11 +1041,9 @@ function EmailTempletePopup({
   }
 
   const getAccounts = async (id) => {
-    console.log('getAccounts called with id:', id)
     setGoogleAccountLoader(true)
     try {
       let acc = await getGmailAccounts(id)
-      console.log('acc', acc)
       setGoogleAccounts(acc || [])
     } catch (error) {
       console.error('Error fetching accounts:', error)
@@ -1142,7 +1061,6 @@ function EmailTempletePopup({
     })
 
     if (response) {
-      console.log('response', response)
       await getAccounts(selectedUser?.id)
       setSelectedGoogleAccount(response)
     }

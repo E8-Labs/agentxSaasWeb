@@ -30,16 +30,13 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
 
   useEffect(() => {
     if (open && userId) {
-      console.log('Modal opened for userId:', userId)
       // Check if we have valid cached data
       if (cache[userId] && Date.now() - cacheTimestamp < CACHE_DURATION) {
-        console.log('Using cached data')
         setActivityLogs(cache[userId].logs || [])
         setPagination(cache[userId].pagination || {})
         setHasMore(cache[userId].hasMore || false)
         setOffset(cache[userId].offset || 0)
       } else {
-        console.log('Fetching fresh data')
         // Clear cache and fetch fresh data
         setCache({})
         setCacheTimestamp(0)
@@ -52,7 +49,6 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
 
     // Clear cache when modal closes
     if (!open) {
-      console.log('Modal closed, clearing cache')
       setCache({})
       setCacheTimestamp(0)
       setActivityLogs([])
@@ -62,14 +58,7 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
   }, [open, userId])
 
   // Debug useEffect to monitor state changes
-  useEffect(() => {
-    console.log('State changed:', {
-      activityLogsLength: activityLogs.length,
-      hasMore,
-      offset,
-      loading,
-    })
-  }, [activityLogs.length, hasMore, offset, loading])
+  useEffect(() => {}, [activityLogs.length, hasMore, offset, loading])
 
   // Monitor scroll position and manually trigger loadMore if needed
   useEffect(() => {
@@ -80,7 +69,6 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
         const scrollPercentage = (scrollTop + clientHeight) / scrollHeight
 
         if (scrollPercentage > 0.8) {
-          console.log('Scroll threshold reached, triggering loadMore')
           loadMore()
         }
       }
@@ -92,12 +80,10 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
 
   const fetchActivityLogs = async (currentPage = 1) => {
     try {
-      console.log('fetchActivityLogs called with page:', currentPage)
       setLoading(true)
 
       // Add a timeout to prevent infinite loading
       const timeoutId = setTimeout(() => {
-        console.log('API call timeout after 2 minutes')
         setLoading(false)
       }, 120000)
 
@@ -106,7 +92,6 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
         let u = JSON.parse(data)
         // Use page parameter as the API expects it
         const apiPath = `${Apis.getUsers.replace('/users', '/user-activity-logs')}?userId=${userId}&page=${currentPage}&limit=${limitPerLoad}`
-        console.log('API Path:', apiPath)
 
         const response = await axios.get(apiPath, {
           headers: {
@@ -114,21 +99,10 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
           },
         })
 
-        console.log('API Response:', response.data)
-        console.log('Response status:', response.status)
-        console.log('Response headers:', response.headers)
         setLoading(false)
         if (response.data?.status) {
           const newLogs = response.data.data.activities || []
           const newPagination = response.data.data.pagination || {}
-
-          console.log(
-            'New logs received:',
-            newLogs.length,
-            'Current page:',
-            currentPage,
-          )
-          console.log('Response structure:', response.data.data)
 
           if (currentPage === 1) {
             // First load - replace all data
@@ -144,13 +118,6 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
           // Use hasNextPage from the API response
           const hasMoreData = newPagination.hasNextPage || false
           setHasMore(hasMoreData)
-
-          console.log('Updated state:', {
-            hasMore: hasMoreData,
-            currentPage: currentPage,
-            totalItems: newPagination.totalItems || 0,
-            hasNextPage: newPagination.hasNextPage,
-          })
 
           // Cache the data
           const cacheData = {
@@ -168,9 +135,7 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
             [userId]: cacheData,
           }))
           setCacheTimestamp(Date.now())
-        } else {
-          console.log('API response status is false:', response.data)
-        }
+        } else {}
       }
     } catch (error) {
       console.error('Error fetching activity logs:', error)
@@ -187,18 +152,9 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
   }
 
   const loadMore = () => {
-    console.log('loadMore called:', {
-      loading,
-      hasMore,
-      offset,
-      currentLength: activityLogs.length,
-    })
     if (!loading && hasMore) {
-      console.log('Calling fetchActivityLogs with page:', offset)
       fetchActivityLogs(offset)
-    } else {
-      console.log('loadMore blocked:', { loading, hasMore })
-    }
+    } else {}
   }
 
   const getActivityTypeIcon = (action) => {
@@ -489,13 +445,7 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
                 }
                 scrollableTarget="scrollableDiv"
                 style={{ overflow: 'visible' }}
-                onScroll={() =>
-                  console.log('InfiniteScroll onScroll triggered')
-                }
                 scrollThreshold={0.8}
-                onEndReached={() =>
-                  console.log('InfiniteScroll onEndReached triggered')
-                }
                 onEndReachedThreshold={0.8}
               >
                 <table className="min-w-full divide-y divide-gray-200">
@@ -610,7 +560,7 @@ function UserActivityLogs({ open, onClose, userId, userName }) {
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
 
 export default UserActivityLogs

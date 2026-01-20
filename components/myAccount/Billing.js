@@ -149,7 +149,6 @@ function Billing() {
     const d = localStorage.getItem('User')
     if (d) {
       const Data = JSON.parse(d)
-      console.log('Smart refill is', Data.user.smartRefill)
       setAllowSmartRefill(Data.user.smartRefill)
     }
     getProfile()
@@ -189,7 +188,6 @@ function Billing() {
 
   //function to close the add card popup
   const handleClose = (data) => {
-    console.log('Data recieved is', data)
     if (data) {
       setAddPaymentPopup(false)
       window.dispatchEvent(
@@ -364,7 +362,6 @@ function Billing() {
         // console.log
         if (response.data.status === true) {
           localDetails.user.plan = response.data.data
-          console.log('User plan sibscibe res[ponse is', response.data.data)
 
           window.dispatchEvent(
             new CustomEvent('hidePlanBar', { detail: { update: true } }),
@@ -653,7 +650,6 @@ function Billing() {
       const response = await SmartRefillApi()
       if (response) {
         setUserDataLoader(false)
-        console.log('Response of update profile api is', response)
         if (response.data.status === true) {
           setSuccessSnack(response.data.message)
           setAllowSmartRefill(true)
@@ -674,7 +670,6 @@ function Billing() {
       const response = await RemoveSmartRefillApi()
       if (response) {
         setUserDataLoader(false)
-        console.log('Response of remove smart refill api is', response)
         if (response.data.status === true) {
           setSuccessSnack(response.data.message)
           setAllowSmartRefill(false)

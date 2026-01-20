@@ -68,9 +68,7 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
 
   // Check calendar plan capabilities
   const checkCalendarPlanCapabilities = () => {
-    console.log('checkCalendarPlanCapabilities')
     const user = userDetails?.user
-    console.log('user', user)
     if (!user) return true
 
     return user?.planCapabilities?.allowCalendarIntegration
@@ -97,7 +95,6 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
     if (D) {
       const LocalData = JSON.parse(D)
       const T = LocalData?.user?.checkList?.checkList
-      console.log('Check list on main check list screen is', T)
       let percentage = 14.29
 
       for (let key in T) {
@@ -109,8 +106,6 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
       // setProgressValue(percentage.toFixed(2));
       //safe for number value
       setProgressValue(parseFloat(percentage.toFixed(2)))
-
-      console.log('percentage of check list is', percentage) // Output: 60
 
       // Get calendar usage info
       const user = LocalData?.user || reduxUser
@@ -199,15 +194,12 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
     try {
       let response = null
       if (calendar?.isFromAddGoogleCal) {
-        console.log('Is from google cal', calendar?.isFromAddGoogleCal)
         response = await AddCalendarApi(calendar)
         setGoogleCalenderLoader(true)
       } else if (calendar?.isFromAddGHLCal) {
-        console.log('Is not from google cal')
         response = await AddCalendarApi(calendar)
         setGHLCalenderLoader(true)
       } else {
-        console.log('Is not from google cal')
         response = await AddCalendarApi(addCalendarValues)
         setCalenderLoader(true)
       }
@@ -224,7 +216,6 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
         setGoogleCalenderLoader(false)
         setGHLCalenderLoader(false)
       } else {
-        console.log('error')
         setSnackMessage({
           message: response.message,
           type: SnackbarTypes.Error,
@@ -234,9 +225,7 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
         setGoogleCalenderLoader(false)
         setGHLCalenderLoader(false)
       }
-    } catch (error) {
-      console.log('Error occured in add calendar api is', error)
-    }
+    } catch (error) {}
   }
 
   const styles = {
@@ -245,8 +234,6 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
       fontSize: 16,
     },
   }
-  console.log('progressValue', progressValue)
-  console.log('checkList', checkList)
 
   return (
     <div className="w-full">
@@ -296,8 +283,6 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
                   className="flex flex-row items-center justify-between mt-4 outline-none border-none w-full"
                   onClick={() => {
                     if (item.label === 'Intro video') {
-                      // setShowAddCalendar(true);
-                      console.log('show video')
                       setWalkthroughWatched(true)
                     } else if (item.label === 'Connect a calendar') {
                       if (checkCalendarPlanCapabilities()) {
@@ -354,7 +339,6 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
           )}
         </div>
       )}
-
       {/* Code for add calendar */}
       {showAddCalendar && (
         <div>
@@ -392,7 +376,6 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
           />
         </div>
       )}
-
       {/* Code for claim number */}
       {showClaimPopup && (
         <ClaimNumber
@@ -405,7 +388,6 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
           // AssignNumber={AssignNumber}
         />
       )}
-
       {/* Code for calendar upgrade modal */}
       {showCalendarUpgradeModal && (
         <UpgradeModal
@@ -418,7 +400,6 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
           buttonTitle="No Thanks"
         />
       )}
-
       {/* Code for leads upgrade modal */}
       {showLeadsUpgradeModal && (
         <UpgradeModal
@@ -432,7 +413,7 @@ const CheckList = ({ userDetails, setWalkthroughWatched }) => {
         />
       )}
     </div>
-  )
+  );
 }
 
 export default CheckList

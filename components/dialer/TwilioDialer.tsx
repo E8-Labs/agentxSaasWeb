@@ -102,9 +102,7 @@ export default function TwilioDialer() {
         edge: 'ashburn', // US East edge - matches phone number inbound processing region (us1)
       } as any)
 
-      twilioDevice.on('registered', () => {
-        console.log('Twilio Device registered')
-      })
+      twilioDevice.on('registered', () => {})
 
       twilioDevice.on('error', (error: any) => {
         console.error('Twilio Device error:', error)
@@ -112,10 +110,7 @@ export default function TwilioDialer() {
         toast.error(`Device error: ${error.message}`)
       })
 
-      twilioDevice.on('incoming', (call: Call) => {
-        console.log('Incoming call:', call)
-        // Handle incoming calls if needed
-      })
+      twilioDevice.on('incoming', (call: Call) => {})
 
       setDevice(twilioDevice)
     } catch (error: any) {

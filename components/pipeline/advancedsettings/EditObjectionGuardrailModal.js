@@ -43,8 +43,6 @@ const EditModal = ({
         id: selectedItem.id,
       }
 
-      console.log('Api data is', ApiData)
-
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
           Authorization: 'Bearer ' + Token,
@@ -54,7 +52,6 @@ const EditModal = ({
 
       if (response) {
         setUpdateLoader(false)
-        console.log('Response of api is', response)
         if (response.data.status === true) {
           if (editName === 'Guardrails') {
             const G = localStorage.getItem(PersistanceKeys.GuadrailsList)
@@ -111,9 +108,7 @@ const EditModal = ({
               )
             }
           }
-        } else if (response.data.status === false) {
-          console.log('Status false')
-        }
+        } else if (response.data.status === false) {}
         handleUpdateArray(response.data)
       }
     } catch (error) {

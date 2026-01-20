@@ -12,11 +12,6 @@ export async function GET() {
     const accessToken = cookieStore.get('ghl_access_token')?.value
     const refreshToken = cookieStore.get('ghl_refresh_token')?.value
 
-    console.log('[getCookies] Token check:', {
-      hasAccessToken: !!accessToken,
-      hasRefreshToken: !!refreshToken,
-    })
-
     // ⚠️ Don't send sensitive tokens to the client
     return Response.json({ 
       accessToken: accessToken || null, 

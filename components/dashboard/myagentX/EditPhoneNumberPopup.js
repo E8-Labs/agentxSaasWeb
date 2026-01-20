@@ -42,7 +42,6 @@ export const EditPhoneNumberModal = ({
       `+${phoneNumber}`,
       countryCode?.toUpperCase(),
     )
-    console.log('Parsed number is', parsedNumber)
     if (!parsedNumber) {
       setErrorMessage('')
       return
@@ -157,7 +156,6 @@ export const EditPhoneNumberModal = ({
               disabled={errorMessage}
               onClick={() => {
                 if (!errorMessage) {
-                  console.log('Phone number passing is', userPhoneNumber.length)
                   if (userPhoneNumber.length > 2) {
                     update(userPhoneNumber)
                   } else {
@@ -173,7 +171,7 @@ export const EditPhoneNumberModal = ({
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
 const styles = {
   modalsStyle: {

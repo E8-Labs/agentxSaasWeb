@@ -200,8 +200,6 @@ const StandardNot = ({
         userId,
       )
 
-      console.log('Push notification saved successfully')
-
       // Refresh the data
       if (onRefresh) {
         await onRefresh()
@@ -257,8 +255,6 @@ const StandardNot = ({
         userId,
       )
 
-      console.log('Email notification saved successfully')
-
       // Refresh the data
       if (onRefresh) {
         await onRefresh()
@@ -304,8 +300,6 @@ const StandardNot = ({
       const userId = selectedAgency?.id || undefined
       await deleteNotificationCustomization(notification.notificationType, userId)
 
-      console.log('Notification customization deleted successfully')
-
       // Refresh the data
       if (onRefresh) {
         await onRefresh()
@@ -325,8 +319,6 @@ const StandardNot = ({
       const userId = selectedAgency?.id || undefined
       await toggleNotificationCustomization(notification.notificationType, userId)
 
-      console.log('Notification toggled successfully')
-
       // Refresh the data
       if (onRefresh) {
         await onRefresh()
@@ -345,8 +337,6 @@ const StandardNot = ({
 
       const userId = selectedAgency?.id || undefined
       await toggleNotificationEnabled(notification.notificationType, userId)
-
-      console.log('Notification enabled status toggled successfully')
 
       // Refresh the data
       if (onRefresh) {

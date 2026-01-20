@@ -45,8 +45,6 @@ const AddTwilio = ({
 
   //function to add the twilio
   const handleConnectTwilio = async (isExit = false) => {
-    console.log('Is Exit value is', isExit)
-
     // return;
     try {
       if (isExit) {
@@ -66,7 +64,6 @@ const AddTwilio = ({
       if (selectedUser) {
         ApiData.userId = selectedUser.id
       }
-      console.log('Api path for connect twilio is', ApiPath)
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
           Authorization: 'Bearer ' + token,
@@ -74,7 +71,6 @@ const AddTwilio = ({
         },
       })
       if (response) {
-        console.log('Response of connect twilio', response)
         setAddTwilioLoader(false)
         setIsExitLoader(false)
         const ApiResponse = response.data
@@ -127,11 +123,6 @@ const AddTwilio = ({
         isVisible: true,
         type: SnackbarTypes.Error,
       })
-      console.log('Error occured in connect twilio api is', error)
-      console.log(
-        'Detailed Error occured in connect twilio api is',
-        errorMessage,
-      )
     }
   }
 

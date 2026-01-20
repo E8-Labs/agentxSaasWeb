@@ -21,12 +21,6 @@ const ObtainOffer = ({ handleContinue, setShowSnak }) => {
     offerData?.discountOffer?.discount?.discountedCostPerMinute * mins
   ).toFixed(2)
 
-  console.log(
-    'totalCost',
-    totalCost,
-    offerData?.discountOffer?.discount?.discountedCostPerMinute,
-    mins,
-  )
   useEffect(() => {
     getOffer()
   }, [])

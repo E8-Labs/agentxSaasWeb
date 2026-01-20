@@ -125,7 +125,6 @@ const Page = () => {
     let d = localStorage.getItem(api)
     if (d) {
       let json = JSON.parse(d)
-      console.log('Dashboard data is', json)
 
       let stats = json.stats
       let comp = json.statsComparison
@@ -182,9 +181,7 @@ const Page = () => {
       })
 
       if (response) {
-        console.log("response of dashboard data is", response.data);
         if (response.data.status === true) {
-          console.log('dashboard data is', response.data.data)
           setStatsDetails(response.data.data.stats)
           setStatsComparisonDetails(response.data.data.statsComparison)
 
@@ -305,7 +302,6 @@ const Page = () => {
         }}>
         <DashboardSlider />
       </div> */}
-
       {/* <div style={backgroundImage}></div> */}
       {initialLoader ? (
         <div className="flex flex-row items-center w-full justify-center h-[100%]">
@@ -788,9 +784,7 @@ const Page = () => {
 
           <Elements stripe={stripePromise}>
             <UpgradePlan
-              setSelectedPlan={() => {
-                console.log('setSelectedPlan is called')
-              }}
+              setSelectedPlan={() => {}}
               open={showUpgradePlanPopup}
               handleClose={() => {
                 setShowUpgradePlanPopup(false)
@@ -801,7 +795,7 @@ const Page = () => {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export default Page

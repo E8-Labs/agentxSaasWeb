@@ -88,7 +88,6 @@ const TwilioProfile = () => {
               key={item.id}
               className="border-none mt-6 outline-none flex flex-row items-center gap-4 text-start"
               onClick={() => {
-                console.log(`Routing to ${item.href}`)
                 router.push(item.href)
               }}
             >
@@ -111,11 +110,11 @@ const TwilioProfile = () => {
                 {item.title}
               </div>
             </button>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }
 
 export default TwilioProfile

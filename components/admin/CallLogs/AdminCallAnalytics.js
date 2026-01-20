@@ -104,8 +104,6 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
         ApiPath += `&agencyId=${selectedAgency.id}`
       }
 
-      console.log('Fetching call analytics from:', ApiPath)
-
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -115,7 +113,6 @@ function AdminCallAnalytics({ selectedAgency, isFromAgency = false }) {
 
       if (response?.data?.status && response?.data?.data) {
         setAnalyticsData(response.data.data)
-        console.log('Call analytics data:', response.data.data)
       }
     } catch (error) {
       console.error('Error fetching call analytics:', error)

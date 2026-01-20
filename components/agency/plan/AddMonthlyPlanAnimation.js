@@ -48,7 +48,6 @@ export default function AddMonthlyPlanAnimation({
   //set the basics data when editing plan - runs when modal opens or plan changes
   useEffect(() => {
     if (open && isEditPlan && selectedPlan) {
-      console.log('Setting basics data from selected plan:', selectedPlan)
       const basics = {
         title: selectedPlan?.title || '',
         tag: selectedPlan?.tag || '',
@@ -61,30 +60,22 @@ export default function AddMonthlyPlanAnimation({
         minutes: selectedPlan?.minutes || 0,
         isDefault: selectedPlan?.isDefault || false,
       }
-      console.log('Basics data for edit plan:', basics)
       setBasicsData(basics)
     }
   }, [open, isEditPlan, selectedPlan])
 
   //set the configuration data when editing plan
   useEffect(() => {
-    console.log('Status of edit plans is', isEditPlan)
     if (isEditPlan && selectedPlan) {
-      console.log('Plan to edit is', selectedPlan)
       const featuresList = Array.isArray(selectedPlan?.features)
         ? selectedPlan.features
         : []
       const filterCustomFeatures = Array.isArray(featuresList)
         ? featuresList.filter((feature) => feature?.isCustom === true)
         : []
-      console.log(
-        'Custom features filtered from plan to edit are',
-        filterCustomFeatures,
-      )
       const customFeatures = Array.isArray(filterCustomFeatures)
         ? filterCustomFeatures.map((feature) => feature?.text)
         : []
-      console.log('Custom features filtered are P_2', customFeatures)
       const object = {
         maxAgents: selectedPlan?.dynamicFeatures?.maxAgents,
         maxLeads: selectedPlan?.dynamicFeatures?.maxLeads,
@@ -100,7 +91,6 @@ export default function AddMonthlyPlanAnimation({
           selectedPlan?.dynamicFeatures?.allowLanguageSelection,
         customFeatures: customFeatures,
       }
-      console.log('Object for edit plan is', object)
       setConfigurationData(object)
     }
   }, [isEditPlan, selectedPlan])
@@ -108,9 +98,7 @@ export default function AddMonthlyPlanAnimation({
   //variables storing data
 
   const handleContinue = (formData) => {
-    if (formData) {
-      console.log('form data passed is', formData)
-    }
+    if (formData) {}
     setDirection(1)
     setCurrentIndex((prevIndex) => prevIndex + 1)
   }
@@ -156,7 +144,6 @@ export default function AddMonthlyPlanAnimation({
                 basicsData={basicsData}
                 handleContinue={(data) => {
                   setBasicsData(data)
-                  console.log('Data recieved is', data)
                   handleContinue()
                 }}
               />
@@ -194,7 +181,7 @@ export default function AddMonthlyPlanAnimation({
         )}
       </AnimatePresence>
     </div>
-  )
+  );
 }
 
 const styles = {

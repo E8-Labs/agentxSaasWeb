@@ -137,7 +137,7 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
         {
           type: 'application/zip',
         },
-      )
+      );
     } catch (error) {
       console.error('Compression error:', error)
       return null
@@ -259,7 +259,6 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
       //console.log;
     } catch (error) {
       setLoading(false)
-      console.log('error', error)
       console.error(
         'Error submitting KB:',
         error.response?.data || error.message,
@@ -335,8 +334,6 @@ const AddKnowledgeBaseModal = ({ user, open, onClose, agent }) => {
       return false
     }
     if (selectedType == 'Document') {
-      console.log('selectedType', title)
-      console.log('selectedDocument', selectedDocument)
       if (docTitle.length > 0 && selectedDocument) return true
       return false
     }

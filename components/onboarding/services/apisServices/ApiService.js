@@ -20,14 +20,6 @@ export const AssignTeamMember = async (ApiData,selectedUser) => {
       AuthToken = Data.token
       // return Data.token
     }
-    // //console.log
-    // const ApiData = {
-    //   // leadId: selectedLeadsDetails.id,
-    //   // teamMemberUserId: item?.id
-    //   leadId: leadId,
-    //   teamMemberUserId: teamMemberUserId,
-    // };
-    console.log('Api data sending in assign lead to team api is', ApiData)
     // return;
 
     const ApiPath = Apis.AssignLeadToTeam
@@ -45,7 +37,6 @@ export const AssignTeamMember = async (ApiData,selectedUser) => {
     })
 
     if (response) {
-      console.log('Respose of assign lead to team is', response)
       return response
     }
   } catch (error) {
@@ -65,8 +56,6 @@ export const UnassignTeamMember = async (ApiData) => {
       AuthToken = Data.token
     }
 
-    console.log('Api data sending in unassign lead from team api is', ApiData)
-
     const ApiPath = Apis.unassignLeadFromTeam
 
     const response = await axios.post(ApiPath, ApiData, {
@@ -77,7 +66,6 @@ export const UnassignTeamMember = async (ApiData) => {
     })
 
     if (response) {
-      console.log('Response of unassign lead from team is', response)
       return response
     }
   } catch (error) {
@@ -217,10 +205,8 @@ export const getStripeLink = async (setLoader, popupWindow = null) => {
   try {
     setLoader(true)
     const data = await getProfileDetails()
-    console.log('Working')
     if (data) {
       const D = data.data.data
-      console.log('Getprofile data is', D)
       if (D.plan) {
         const Token = AuthToken()
         const ApiPath = Apis.createOnboardingLink
@@ -230,9 +216,6 @@ export const getStripeLink = async (setLoader, popupWindow = null) => {
           },
         })
         if (response) {
-          console.log('Route user to connect stripe')
-          console.log('Payment link is', response.data.data.url)
-
           // If popup window was passed, redirect it to the Stripe URL
           if (popupWindow && !popupWindow.closed) {
             popupWindow.location.href = response.data.data.url
@@ -244,7 +227,6 @@ export const getStripeLink = async (setLoader, popupWindow = null) => {
         }
         // router.push("/agency/verify")
       } else {
-        console.log('Need to subscribe plan')
         const d = {
           subPlan: false,
         }
@@ -301,11 +283,9 @@ export const handleDisconnectTwilio = async ({
       },
     )
     if (response) {
-      console.log('Response of disconnect twilio api is', response)
       const ApiResponse = response.data
       if (ApiResponse.status === true) {
         localStorage.removeItem(PersistanceKeys.twilioHubData)
-        console.log('Twilio disconnected', response.data)
         // setShowSnack({
         //   message: "Twilio disconnected.",//ApiResponse.message
         //   isVisible: true,
@@ -336,7 +316,6 @@ export const handleDisconnectTwilio = async ({
     }
   } catch (error) {
     setDisConnectLoader(false)
-    console.log('Error occured in disconnet twilio api is', error)
   } finally {
     setDisConnectLoader(false)
   }

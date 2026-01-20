@@ -55,10 +55,7 @@ export const GoogleOAuth = ({
             ...tokens,
             ...userInfo,
           }
-          // setGoogleAuthDetails(googleLoginData);
-          console.log('Google login details are', googleLoginData)
           let res = await connectGmailAccount(googleLoginData, selectedUser)
-          console.log('res', res)
           setLoginLoader(false)
           if (res.data.status == true) {
             return res.data.data

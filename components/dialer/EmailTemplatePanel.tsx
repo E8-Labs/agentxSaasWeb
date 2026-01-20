@@ -312,7 +312,6 @@ export default function EmailTemplatePanel({
           )}
         </div>
       </div>
-
       {/* Email Template Popup */}
       {showEmailTemplatePopup && (
         <EmailTempletePopup
@@ -340,7 +339,6 @@ export default function EmailTemplatePanel({
           selectedUser={selectedUser}
         />
       )}
-
       {/* Template Menu */}
       {selectedTemplateForMenu && (
         <Menu
@@ -378,7 +376,7 @@ export default function EmailTemplatePanel({
         </Menu>
       )}
     </>
-  )
+  );
 }
 
 

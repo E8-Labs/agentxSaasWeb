@@ -19,10 +19,7 @@ export default function SnackBanner({
     if (type == SnackbarTypes.Warning) {
       return '/assets/salmanassets/danger_conflict.svg'
     }
-    if (type == SnackbarTypes.Loading) {
-      // return "";///assets/salmanassets/danger_conflict.svg
-      console.log('Loading snack')
-    }
+    if (type == SnackbarTypes.Loading) {}
 
     return '/assets/salmanassets/danger_conflict.svg'
   }

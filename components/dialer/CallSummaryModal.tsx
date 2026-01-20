@@ -371,6 +371,6 @@ export default function CallSummaryModal({
         </div>
       </div>
     </div>
-  )
+  );
 }
 

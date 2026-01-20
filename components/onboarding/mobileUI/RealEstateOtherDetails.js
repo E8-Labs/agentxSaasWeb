@@ -36,7 +36,6 @@ function RealEstateOtherDetails({
           }
         }}
       />
-
       <div style={styles.headingStyle} className="mt-6">
         Your brokerage
       </div>
@@ -59,7 +58,6 @@ function RealEstateOtherDetails({
           }
         }}
       />
-
       <div style={styles.headingStyle} className="mt-6">
         How many homes did you sell last year
       </div>
@@ -88,7 +86,7 @@ function RealEstateOtherDetails({
         }}
       />
     </div>
-  )
+  );
 }
 
 export default RealEstateOtherDetails

@@ -624,10 +624,7 @@ function AgencyRevenueDashboard({ selectedAgency }) {
             <div className="lg:col-span-5">
               <LeaderBoardTable
                 data={leaderboardData}
-                onSeeAll={() => {
-                  // Handle see all action
-                  console.log('See all leaderboard')
-                }}
+                onSeeAll={() => {}}
               />
             </div>
           </div>
@@ -645,10 +642,7 @@ function AgencyRevenueDashboard({ selectedAgency }) {
           <div className="w-full">
             <TransactionTable
               data={transactionData}
-              onSearch={(query) => {
-                // Handle search
-                console.log('Search query:', query)
-              }}
+              onSearch={(query) => {}}
               hasMore={hasMoreTransactions}
               loadingMore={txLoadingMore}
               onLoadMore={() => {
@@ -663,7 +657,7 @@ function AgencyRevenueDashboard({ selectedAgency }) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export default AgencyRevenueDashboard

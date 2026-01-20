@@ -15,7 +15,6 @@ export const getMcpTools = async (agentId, selectedUser) => {
     if (selectedUser) {
       ApiPath = `${Apis.getMcpTools}?agentId=${agentId}&userId=${selectedUser.id}`
     }
-    console.log(`Api path is ${ApiPath}`)
 
     const response = await axios.get(ApiPath, {
       headers: {
@@ -24,15 +23,12 @@ export const getMcpTools = async (agentId, selectedUser) => {
     })
     if (response) {
       if (response.data.status === true) {
-        console.log('MCP tools response is', response.data)
         return response.data.data
       } else {
-        console.log('MCP tools response is', response.data)
         return null
       }
     }
   } catch (error) {
-    console.log('Error in getMcpTools', error)
     return null
   }
 }
@@ -54,14 +50,12 @@ export const addMcpTool = async (data) => {
     if (response) {
       let returnData = {}
       if (response.data.status === true) {
-        console.log('add MCP tools response is', response.data.data)
         returnData = {
           status: true,
           message: response.data.message,
           data: response.data.data,
         }
       } else {
-        console.log(' add MCP tools response is', response.data)
         returnData = {
           status: false,
           message: response.data.message,
@@ -71,7 +65,6 @@ export const addMcpTool = async (data) => {
       return returnData
     }
   } catch (error) {
-    console.log('Error in addMcpTool', error)
     return {
       status: false,
       message: error.response.data.message,
@@ -99,14 +92,12 @@ export const editMcpTool = async (data) => {
     if (response) {
       let returnData = {}
       if (response.data.status === true) {
-        console.log('edit MCP tools response is', response.data.data)
         returnData = {
           status: true,
           message: response.data.message,
           data: response.data.data,
         }
       } else {
-        console.log('edit MCP tools response is', response.data)
         returnData = {
           status: false,
           message: response.data.message,
@@ -116,7 +107,6 @@ export const editMcpTool = async (data) => {
       return returnData
     }
   } catch (error) {
-    console.log('Error in editMcpTool', error)
     return {
       status: false,
       message: 'Error in editMcpTool',
@@ -155,14 +145,12 @@ export const deleteMcpTool = async (data) => {
     if (response) {
       let returnData = {}
       if (response.data.status === true) {
-        console.log('delete MCP tools response is', response.data.data)
         returnData = {
           status: true,
           message: response.data.message,
           data: response.data.data,
         }
       } else {
-        console.log('delete MCP tools response is', response.data)
         returnData = {
           status: false,
           message: response.data.message,
@@ -172,7 +160,6 @@ export const deleteMcpTool = async (data) => {
       return returnData
     }
   } catch (error) {
-    console.log('Error in deleteMcpTool', error)
     return {
       status: false,
       message: 'Error in deleteMcpTool',
@@ -199,14 +186,12 @@ export const selectMcpTool = async (data) => {
     if (response) {
       let returnData = {}
       if (response.data.status === true) {
-        console.log('select MCP tools response is', response.data.data)
         returnData = {
           status: true,
           message: response.data.message,
           data: response.data.data,
         }
       } else {
-        console.log('select MCP tools response is', response.data)
         returnData = {
           status: false,
           message: response.data.message,
@@ -221,7 +206,6 @@ export const selectMcpTool = async (data) => {
       data: null,
     }
   } catch (error) {
-    console.log('Error in selectMcpTool', error)
     return {
       status: false,
       message: 'Error in selectMcpTool',
@@ -243,15 +227,11 @@ export const attachMcpTool = async (data) => {
     if (response) {
       return response.data
     }
-  } catch (error) {
-    console.log('Error in attachMcpTool', error)
-  }
+  } catch (error) {}
 }
 
 export const removeMcpTool = async (data) => {
   try {
-    console.log('Detach api is trigered')
-
     const token = AuthToken()
     // const ApiPath = Apis.removeMcpToolFromAgent;
     const ApiPath = Apis.removeMcpTool
@@ -259,8 +239,6 @@ export const removeMcpTool = async (data) => {
       console.error('🚨 API path for removeMcpToolFromAgent is undefined!')
       return
     }
-    console.log('Api path is', ApiPath)
-    console.log('Detach Api Data is', data)
     const response = await axios.post(ApiPath, data, {
       headers: {
         Authorization: 'Bearer ' + token,
@@ -268,10 +246,7 @@ export const removeMcpTool = async (data) => {
       },
     })
     if (response) {
-      console.log('Response of api is', response)
       return response.data
     }
-  } catch (error) {
-    console.log('Error in removeMcpTool', error)
-  }
+  } catch (error) {}
 }

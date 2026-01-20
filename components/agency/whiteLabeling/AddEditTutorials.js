@@ -97,7 +97,6 @@ const AddEditTutorials = ({
 
     // Create preview URL
     const previewUrl = URL.createObjectURL(file)
-    console.log('previewUrl is of processFile', previewUrl)
     setVideoPreview(previewUrl)
   }
 

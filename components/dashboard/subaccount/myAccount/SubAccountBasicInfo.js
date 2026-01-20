@@ -867,7 +867,6 @@ function SubAccountBasicInfo() {
       let data = {
         areaOfFocus: selectedArea, //[selectedArea.join()]
       }
-      console.log('Data to update area is', data)
 
       // return
       await UpdateProfile(data)
@@ -883,7 +882,6 @@ function SubAccountBasicInfo() {
       let data = {
         userIndustry: selectedIndustries, //[selectedArea.join()]
       }
-      console.log('Data to update area is', data)
 
       // return
       await UpdateProfile(data)
@@ -900,7 +898,6 @@ function SubAccountBasicInfo() {
       let data = {
         agentService: serviceId, //[serviceId.join()]
       }
-      console.log('Data to update service is', data)
 
       // return
       await UpdateProfile(data)
@@ -970,7 +967,6 @@ function SubAccountBasicInfo() {
           </button>
         </div>
       </div>
-
       <button
         className="mt-8"
         onClick={() => {
@@ -1028,7 +1024,6 @@ function SubAccountBasicInfo() {
           </div>
         )}
       </button>
-
       {/* Hidden file input */}
       <input
         type="file"
@@ -1037,7 +1032,6 @@ function SubAccountBasicInfo() {
         style={{ display: 'none' }}
         onChange={handleImageChange}
       />
-
       <div style={styles.headingStyle}>Full Name</div>
       <div className="flex items-center w-6/12 mt-2 gap-2">
         <Input
@@ -1072,7 +1066,6 @@ function SubAccountBasicInfo() {
             </button>
           ))}
       </div>
-
       <div style={styles.headingStyle}>Email address</div>
       <div className="flex items-center w-6/12 mt-2 gap-2">
         <Input
@@ -1137,7 +1130,6 @@ function SubAccountBasicInfo() {
           ""
         )}
       </div>
-
       <div style={styles.headingStyle}>Phone number</div>
       <div className="w-6/12 mt-2">
         <Input
@@ -1153,7 +1145,6 @@ function SubAccountBasicInfo() {
           placeholder="Phone number"
         />
       </div>
-
       {userRole && userRole != 'Invitee' && (
         <>
           {(userType && userType === UserTypes.RealEstateAgent) ||
@@ -1804,7 +1795,6 @@ function SubAccountBasicInfo() {
           )}
         </>
       )}
-
       {userRole && userRole != 'Invitee' && (
         <>
           <div className="w-full flex flex-row items-center justify-between">
@@ -1840,11 +1830,6 @@ function SubAccountBasicInfo() {
 
           <div className="w-9/12 flex flex-row flex-wrap gap-2">
             {agentServices.map((item, index) => {
-              console
-                .log
-                // `${item.id} included in array `,
-                // serviceId.includes(item.id)
-                ()
               return (
                 <div
                   key={index}
@@ -1995,7 +1980,6 @@ function SubAccountBasicInfo() {
           )}
         </>
       )}
-
       {/* Success Message */}
       <AgentSelectSnackMessage
         isVisible={showSuccessMessage}
@@ -2003,7 +1987,6 @@ function SubAccountBasicInfo() {
         message={successMessage}
         type={SnackbarTypes.Success}
       />
-
       {/* Error Message */}
       <AgentSelectSnackMessage
         isVisible={showErrorMessage}
@@ -2012,7 +1995,7 @@ function SubAccountBasicInfo() {
         type={SnackbarTypes.Error}
       />
     </div>
-  )
+  );
 }
 
 export default SubAccountBasicInfo

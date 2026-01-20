@@ -175,7 +175,6 @@ function Page() {
     // If in popup and GHL OAuth success, close immediately
     if (ghlOauthSuccess === 'success' && (isPopup || hasOpener)) {
       shouldClosePopup = true
-      console.log('🚨 IMMEDIATE: GHL OAuth success detected in popup, closing immediately')
       try {
         // Send message to parent window
         if (window.opener && !window.opener.closed) {
@@ -186,7 +185,6 @@ function Page() {
             },
             window.location.origin,
           )
-          console.log('🚨 IMMEDIATE: Message sent to parent')
         }
       } catch (e) {
         console.error('🚨 IMMEDIATE: Error sending message:', e)
@@ -196,13 +194,11 @@ function Page() {
       const closePopup = () => {
         try {
           window.close()
-          console.log('🚨 IMMEDIATE: Popup close attempted')
           // If close doesn't work, focus parent
           setTimeout(() => {
             if (!window.closed && window.opener && !window.opener.closed) {
               try {
                 window.opener.focus()
-                console.log('🚨 IMMEDIATE: Focused parent as fallback')
               } catch (e) {
                 console.error('🚨 IMMEDIATE: Error focusing parent:', e)
               }
@@ -229,11 +225,7 @@ function Page() {
     }
 
     // Also handle initial OAuth callback in popup (code parameter)
-    if ((code || error) && (isPopup || hasOpener)) {
-      console.log('🚨 IMMEDIATE: OAuth callback detected in popup')
-      // Don't close here - let the useEffect handle the redirect
-      // But ensure we're in popup mode
-    }
+    if ((code || error) && (isPopup || hasOpener)) {}
   }
 
   // If this page is opened as the GHL OAuth redirect (contains ?code=...),
@@ -341,15 +333,8 @@ function Page() {
 
     // Handle GHL OAuth success redirect (after token exchange)
     if (ghlOauthSuccess === 'success') {
-      console.log('✅ GHL OAuth successful, triggering calendar refresh')
-      console.log('- Is popup:', isPopup)
-      console.log('- Has opener:', hasOpener)
-      console.log('- window.opener:', window.opener)
-
       // If in popup, send message to parent and close immediately
       if (isPopup || hasOpener) {
-        console.log('✅ Detected popup context, sending message to parent and closing')
-
         // Function to close popup and notify parent
         const closePopupAndNotify = () => {
           try {
@@ -362,7 +347,6 @@ function Page() {
                 },
                 window.location.origin,
               )
-              console.log('✅ Message sent to parent window')
             }
           } catch (e) {
             console.error('Error sending message to parent:', e)
@@ -371,14 +355,12 @@ function Page() {
           // Close popup
           try {
             window.close()
-            console.log('✅ Popup close attempted')
 
             // If window didn't close (some browsers block it), focus parent as fallback
             setTimeout(() => {
               if (!window.closed && window.opener && !window.opener.closed) {
                 try {
                   window.opener.focus()
-                  console.log('✅ Focused parent window as fallback')
                 } catch (e) {
                   console.error('Error focusing parent:', e)
                 }
@@ -419,7 +401,6 @@ function Page() {
     if (code || error) {
       // If in popup, handle redirect client-side to preserve popup context
       if (isPopup) {
-        console.log('🔄 OAuth callback in popup, handling client-side redirect')
         // Parse state to determine custom domain
         let stateData = null
         if (state) {
@@ -441,7 +422,6 @@ function Page() {
           if (state) exchangeUrl.searchParams.set('state', state)
           if (redirectUri) exchangeUrl.searchParams.set('redirect_uri', redirectUri)
 
-          console.log('🔄 Redirecting popup to custom domain exchange:', exchangeUrl.toString())
           window.location.href = exchangeUrl.toString()
           return
         }
@@ -738,14 +718,11 @@ function Page() {
   // Function to refresh user data after plan upgrade
   const refreshUserData = async () => {
     try {
-      console.log('🔄 [UPGRADE-TAG] Refreshing user data after plan upgrade...')
       const profileResponse = await getProfileDetails()
 
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data
         const localData = JSON.parse(localStorage.getItem('User') || '{}')
-
-        console.log('🔄 [UPGRADE-TAG] Fresh user data received after upgrade')
 
         // Update Redux with fresh data
         const updatedUserData = {
@@ -802,7 +779,6 @@ function Page() {
         },
       })
 
-      console.log('response of get kycs', response)
       if (response) {
         setKycsData(response.data.data)
       } else {
@@ -846,21 +822,7 @@ function Page() {
             smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? agent.smartListIdForEmbed,
             smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? agent.smartListEnabledForEmbed,
           }
-          console.log('🔍 WEB-AGENT - Merged with updated agent state:', {
-            original: agent,
-            updated: selectedAgentForWebAgent,
-            merged: agentToUse,
-          })
         }
-        console.log('🔍 WEB-AGENT - Agent data being passed to modal:', {
-          agent: agentToUse,
-          smartListEnabledForWeb: agentToUse?.smartListEnabledForWeb,
-          smartListIdForWeb: agentToUse?.smartListIdForWeb,
-          smartListEnabledForEmbed: agentToUse?.smartListEnabledForEmbed,
-          smartListIdForEmbed: agentToUse?.smartListIdForEmbed,
-          smartListEnabled: agentToUse?.smartListEnabled, // Legacy field
-          smartListId: agentToUse?.smartListId, // Legacy field
-        })
         setSelectedAgentForWebAgent(agentToUse)
         setShowWebAgentModal(true)
         setFetureType('webagent')
@@ -874,15 +836,7 @@ function Page() {
       smartListId: selectedSmartList,
     }
     setSelectedAgentForWebAgent(agent)
-    console.log(
-      'selectedAgentForWebAgent after updating',
-      selectedAgentForWebAgent,
-    )
     showDrawerSelectedAgent.smartListId = selectedSmartList
-    console.log(
-      'showDrawerSelectedAgent after updating',
-      showDrawerSelectedAgent,
-    )
 
     if (selectedAgentForWebAgent) {
       const modelId = encodeURIComponent(
@@ -890,16 +844,6 @@ function Page() {
         selectedAgentForWebAgent?.agentUuid ||
         '',
       )
-      // console.log('selectedAgentForWebAgent', selectedAgentForWebAgent)
-      console.log(
-        'selectedAgentForWebAgent?.modelIdVapi',
-        selectedAgentForWebAgent?.modelIdVapi,
-      )
-      console.log(
-        'selectedAgentForWebAgent?.agentUuid',
-        selectedAgentForWebAgent?.agentUuid,
-      )
-      console.log('modelId', modelId)
       const name = encodeURIComponent(selectedAgentForWebAgent?.name || '')
 
       let baseUrl;
@@ -944,14 +888,6 @@ function Page() {
         })
         
         if (foundAgent) {
-          console.log('🔍 GET-AGENT-FROM-MAIN-LIST - Found agent:', {
-            agentId,
-            agentIdNum,
-            foundAgentId: foundAgent.id,
-            foundAgentName: foundAgent.name,
-            smartListIdForEmbed: foundAgent.smartListIdForEmbed,
-            smartListEnabledForEmbed: foundAgent.smartListEnabledForEmbed,
-          })
           return foundAgent
         }
       }
@@ -970,10 +906,10 @@ function Page() {
     // Convert agentId to number if it's a numeric string for strict comparison
     const agentIdNum = typeof agentId === 'string' && !isNaN(agentId) ? Number(agentId) : agentId
     const agentIdStr = String(agentId)
-    
+
     let foundAgent = null
     let updatedCount = 0
-    
+
     const updatedList = mainAgentsList.map((mainAgent) => {
       const updatedSubAgents = mainAgent.agents.map((subAgent) => {
         // Strict matching: check numeric id first, then UUIDs
@@ -994,15 +930,6 @@ function Page() {
         if (matches) {
           foundAgent = subAgent
           updatedCount++
-          console.log('🔧 AGENT-UPDATE - Found and updating agent:', {
-            agentId,
-            agentIdNum,
-            agentIdStr,
-            foundAgentId: subAgent.id,
-            foundAgentName: subAgent.name,
-            foundModelIdVapi: subAgent.modelIdVapi,
-            updates,
-          })
           return {
             ...subAgent,
             ...updates,
@@ -1046,41 +973,24 @@ function Page() {
       PersistanceKeys.LocalStoredAgentsListMain,
       JSON.stringify(updatedList),
     )
-
-    console.log('🔧 AGENT-UPDATE - Successfully updated agent in main list and localStorage:', {
-      agentId,
-      agentIdNum,
-      foundAgentId: foundAgent.id,
-      foundAgentName: foundAgent.name,
-      updates,
-    })
   }
 
   const handleSmartListCreated = async (smartListData) => {
-    console.log('🔧 WEB-AGENT - Smart list created:', smartListData)
-    console.log('🔧 WEB-AGENT - Current fetureType:', fetureType)
-
     // Note: AddSmartList API already attached the smartlist with correct agentType
     // So we don't need to call attachSmartList again here
     // Just update local state for UI consistency
     const smartListId = smartListData?.id || smartListData?.data?.id || smartListData
     // Use agentType from the response if available, otherwise fall back to fetureType
     const agentType = smartListData?.agentType || (fetureType === 'webhook' ? 'webhook' : 'web')
-    console.log('🔧 WEB-AGENT - Determined agentType:', agentType, 'from smartListData:', smartListData)
-    
+
     // Explicitly set fetureType based on agentType to ensure AllSetModal shows correct type
     // This ensures the modal title displays correctly even if fetureType state was not set properly
     // agentType can be 'webhook' or 'web', and we map 'web' to 'webagent' for fetureType
     if (agentType === 'webhook') {
-      console.log('🔧 WEB-AGENT - Setting fetureType to webhook')
       setFetureType('webhook')
     } else if (agentType === 'web') {
-      console.log('🔧 WEB-AGENT - Setting fetureType to webagent (browser agent)')
       setFetureType('webagent')
-    } else {
-      // Fallback: preserve existing fetureType if agentType is unexpected
-      console.log('🔧 WEB-AGENT - Unknown agentType, preserving fetureType:', fetureType)
-    }
+    } else {}
 
     // Determine which fields to update based on agentType
     const updates = {
@@ -1106,17 +1016,6 @@ function Page() {
     // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
     const agentIdToUpdate = selectedAgentForWebAgent?.id
     if (agentIdToUpdate && typeof agentIdToUpdate === 'number') {
-      console.log('🔧 WEB-AGENT - Updating agent in main list:', {
-        agentId: agentIdToUpdate,
-        agentName: selectedAgentForWebAgent?.name,
-        agentIdType: typeof agentIdToUpdate,
-        updates,
-        selectedAgentForWebAgent: {
-          id: selectedAgentForWebAgent.id,
-          name: selectedAgentForWebAgent.name,
-          modelIdVapi: selectedAgentForWebAgent.modelIdVapi,
-        },
-      })
       updateAgentInMainList(agentIdToUpdate, updates)
     } else {
       console.error('🔧 WEB-AGENT - Cannot update main list: agentId is missing or invalid', {
@@ -1143,9 +1042,6 @@ function Page() {
       }
     }
 
-    // Don't overwrite fetureType - preserve the current value (webhook or webagent)
-    // so AllSetModal displays the correct agent type
-    console.log('🔧 WEB-AGENT - Opening AllSetModal with fetureType:', fetureType)
     setShowNewSmartListModal(false)
     setShowAllSetModal(true)
   }
@@ -1157,20 +1053,13 @@ function Page() {
 
   // Embed Modal handlers
   const handleEmbedClick = (agent) => {
-    console.log('🔍 EMBED-CLICK - Starting with agent:', {
-      agentId: agent.id,
-      agentName: agent.name,
-      agentSmartListIdForEmbed: agent.smartListIdForEmbed,
-      agentSmartListEnabledForEmbed: agent.smartListEnabledForEmbed,
-    })
-    
     // CRITICAL: Always read from mainAgentsList (localStorage) as the source of truth
     // This ensures we get the correct smartlist status from persisted data
     const agentFromMainList = getAgentFromMainList(agent.id)
-    
+
     // Use agent from main list if found (has latest persisted data), otherwise use the passed agent
     let agentToUse = agentFromMainList || agent
-    
+
     // CRITICAL: Only merge selectedAgentForEmbed if it's for the EXACT SAME agent
     // This prevents cross-contamination between different agents
     if (selectedAgentForEmbed && selectedAgentForEmbed.id === agent.id && selectedAgentForEmbed.id === agentToUse.id) {
@@ -1186,66 +1075,14 @@ function Page() {
         smartListIdForWebhook: selectedAgentForEmbed.smartListIdForWebhook ?? agentToUse.smartListIdForWebhook,
         smartListEnabledForWebhook: selectedAgentForEmbed.smartListEnabledForWebhook ?? agentToUse.smartListEnabledForWebhook,
       }
-      console.log('🔍 EMBED-CLICK - Merged with selectedAgentForEmbed (same agent):', {
-        original: agent,
-        fromMainList: agentFromMainList,
-        selectedAgentForEmbed: {
-          id: selectedAgentForEmbed.id,
-          name: selectedAgentForEmbed.name,
-          smartListIdForEmbed: selectedAgentForEmbed.smartListIdForEmbed,
-          smartListEnabledForEmbed: selectedAgentForEmbed.smartListEnabledForEmbed,
-        },
-        merged: {
-          id: agentToUse.id,
-          name: agentToUse.name,
-          smartListIdForEmbed: agentToUse.smartListIdForEmbed,
-          smartListEnabledForEmbed: agentToUse.smartListEnabledForEmbed,
-        },
-      })
     } else {
       // Clear selectedAgentForEmbed if it's for a different agent to prevent cross-contamination
       if (selectedAgentForEmbed && selectedAgentForEmbed.id !== agent.id) {
-        console.log('🔍 EMBED-CLICK - Clearing selectedAgentForEmbed (different agent):', {
-          selectedAgentId: selectedAgentForEmbed.id,
-          selectedAgentName: selectedAgentForEmbed.name,
-          currentAgentId: agent.id,
-          currentAgentName: agent.name,
-        })
         setSelectedAgentForEmbed(null)
       }
       
-      if (agentFromMainList) {
-        console.log('🔍 EMBED-CLICK - Using agent from main list (source of truth from localStorage):', {
-          original: agent,
-          fromMainList: {
-            id: agentFromMainList.id,
-            name: agentFromMainList.name,
-            smartListIdForEmbed: agentFromMainList.smartListIdForEmbed,
-            smartListEnabledForEmbed: agentFromMainList.smartListEnabledForEmbed,
-          },
-        })
-      } else {
-        console.log('🔍 EMBED-CLICK - Agent not found in mainAgentsList, using original agent:', {
-          agentId: agent.id,
-          agentName: agent.name,
-          smartListIdForEmbed: agent.smartListIdForEmbed,
-          smartListEnabledForEmbed: agent.smartListEnabledForEmbed,
-        })
-      }
+      if (agentFromMainList) {} else {}
     }
-    console.log('🔍 EMBED-CLICK - Final agent data to use:', {
-      agentId: agentToUse.id,
-      agentName: agentToUse.name,
-      smartListEnabledForEmbed: agentToUse?.smartListEnabledForEmbed,
-      smartListIdForEmbed: agentToUse?.smartListIdForEmbed,
-      smartListEnabled: agentToUse?.smartListEnabled, // Legacy
-      smartListId: agentToUse?.smartListId, // Legacy
-      hasNewFields: {
-        smartListEnabledForEmbed: agentToUse?.smartListEnabledForEmbed !== undefined,
-        smartListIdForEmbed: agentToUse?.smartListIdForEmbed !== undefined,
-      },
-      source: agentFromMainList ? 'mainAgentsList (localStorage)' : 'original agent prop',
-    })
 
     if (reduxUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
       setShowUpgradeModal(true)
@@ -1286,12 +1123,10 @@ function Page() {
   }
 
   const handleEmbedSmartListCreated = async (smartListData) => {
-    console.log('🔧 EMBED-AGENT - Smart list created:', smartListData)
-
     // Note: AddSmartList API already attached the smartlist with agentType='embed'
     // Update local agent state so the modal shows correct state if reopened
     const smartListId = smartListData?.id || smartListData?.data?.id || smartListData
-    
+
     if (selectedAgentForEmbed && smartListId) {
       // Determine which fields to update for embed agent
       const updates = {
@@ -1311,17 +1146,6 @@ function Page() {
       // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
       const agentIdToUpdate = selectedAgentForEmbed?.id
       if (agentIdToUpdate && typeof agentIdToUpdate === 'number') {
-        console.log('🔧 EMBED-AGENT - Updating agent in main list:', {
-          agentId: agentIdToUpdate,
-          agentName: selectedAgentForEmbed?.name,
-          agentIdType: typeof agentIdToUpdate,
-          updates,
-          selectedAgentForEmbed: {
-            id: selectedAgentForEmbed.id,
-            name: selectedAgentForEmbed.name,
-            modelIdVapi: selectedAgentForEmbed.modelIdVapi,
-          },
-        })
         updateAgentInMainList(agentIdToUpdate, updates)
       } else {
         console.error('🔧 EMBED-AGENT - Cannot update main list: agentId is missing or invalid', {
@@ -1335,13 +1159,6 @@ function Page() {
           },
         })
       }
-
-      console.log('🔧 EMBED-AGENT - Updated local agent state and main list:', {
-        agentId: agentIdToUpdate,
-        agentName: selectedAgentForEmbed?.name,
-        smartListIdForEmbed: updatedAgent.smartListIdForEmbed,
-        smartListEnabledForEmbed: updatedAgent.smartListEnabledForEmbed,
-      })
     }
 
     setShowEmbedSmartListModal(false)
@@ -1427,9 +1244,6 @@ function Page() {
   }, [showScriptModal])
 
   useEffect(() => {
-    console.log('redux user', reduxUser)
-    console.log('user data is', user)
-
     let d = localStorage.getItem(PersistanceKeys.CalendarAddedByGoogle)
     if (d) {
       let calendarAddedByGoogle = JSON.parse(d)
@@ -1743,18 +1557,9 @@ function Page() {
 
             const iconFilter = calculateIconFilter(primaryColor)
             document.documentElement.style.setProperty('--icon-filter', iconFilter)
-
-            console.log('✅ [Agents Page] Applied branding CSS variables:', {
-              primaryColor,
-              hostname
-            })
-          } catch (error) {
-            console.log('Error applying branding styles:', error)
-          }
+          } catch (error) {}
         }
-      } catch (error) {
-        console.log('Error parsing agencyBranding from localStorage:', error)
-      }
+      } catch (error) {}
     }
 
     // Listen for branding updates
@@ -1769,9 +1574,7 @@ function Page() {
             document.documentElement.style.setProperty('--brand-primary', primaryHsl)
             const iconFilter = calculateIconFilter(primaryColor)
             document.documentElement.style.setProperty('--icon-filter', iconFilter)
-          } catch (error) {
-            console.log('Error applying branding styles:', error)
-          }
+          } catch (error) {}
         }
       }
     }
@@ -3181,7 +2984,6 @@ function Page() {
       })
 
       if (response) {
-        console.log('response of get unique columns', response)
         if (response.data.status === true) {
           setUniqueColumns(response.data.data)
         }
@@ -3609,7 +3411,6 @@ function Page() {
   const handleAddAgentByMoreAgentsPopup = () => {
     try {
       setShowMoreAgentsPopup(false)
-      console.log('handleAddAgentByMoreAgentsPopup is called')
       const data = {
         status: true,
       }
@@ -3625,12 +3426,9 @@ function Page() {
       setTimeout(
         () => {
           localStorage.removeItem('AddAgentByPayingPerMonth')
-          console.log('AddAgentByPayingPerMonth removed from local storage')
         },
         2 * 60 * 1000,
       )
-
-      console.log('routing to createagent from add new agent function')
 
       // Use window.location.href for hard redirect to ensure page loads properly
       // This prevents navigation issues where URL changes but page doesn't render
@@ -3644,8 +3442,6 @@ function Page() {
 
   //function to add new agent - Combined Redux + localStorage logic
   const handleAddNewAgent = (event) => {
-    console.log('handleAddNewAgent is called', reduxUser?.plan)
-    console.log('isPlanActive', isPlanActive(reduxUser?.plan))
     if (!isPlanActive(reduxUser?.plan)) {
       setShowErrorSnack('Your plan is paused. Activate to create agents')
       setIsVisibleSnack2(true)
@@ -3710,7 +3506,6 @@ function Page() {
         status: true,
       }
       localStorage.setItem('fromDashboard', JSON.stringify(data))
-      console.log('routing to createagent from add new agent function')
       setTimeout(() => {
         router.push('/createagent')
       }, 0)
@@ -3849,11 +3644,6 @@ function Page() {
   }
 
   const shouldDuplicateAgent = async () => {
-    console.log('shouldDuplicateAgent is called', reduxUser?.planCapabilities)
-    console.log('canCreateAgent', canCreateAgent)
-    console.log('isFreePlan', isFreePlan)
-    console.log('currentAgents', currentAgents)
-    console.log('maxAgents', maxAgents)
     if (reduxUser?.planCapabilities) {
       if (!canCreateAgent) {
         if (isFreePlan && currentAgents >= 1) {
@@ -4105,15 +3895,7 @@ function Page() {
         smartListId: selectedSmartList,
       }
       setSelectedAgentForWebAgent(agent)
-      console.log(
-        'selectedAgentForWebAgent after updating',
-        selectedAgentForWebAgent,
-      )
       showDrawerSelectedAgent.smartListId = selectedSmartList
-      console.log(
-        'showDrawerSelectedAgent after updating',
-        showDrawerSelectedAgent,
-      )
       let modelId =
         showDrawerSelectedAgent?.modelIdVapi ||
         selectedAgentForWebAgent?.agentUuid ||
@@ -4200,14 +3982,12 @@ function Page() {
           }
         />
       </div>
-
       <StandardHeader
         titleContent={
           <div className="flex flex-row items-center gap-3">
             <TypographyH3
               className="cursor-pointer"
               onClick={() => {
-                console.log('routing to createagent from agents title')
                 router.push('/createagent')
               }}
             >
@@ -4301,7 +4081,6 @@ function Page() {
           </div>
         }
       />
-
       <div className="w-9/12 items-center " style={{}}>
         {/* code for agents list */}
         {initialLoader ? (
@@ -4378,7 +4157,6 @@ function Page() {
           </div>
         )}
       </div>
-
       {/* Modal to rename the agent */}
       <Modal
         open={showRenameAgentPopup}
@@ -4479,9 +4257,7 @@ function Page() {
           </div>
         </Box>
       </Modal>
-
       {/* Test ai modal */}
-
       <Modal
         open={openTestAiModal}
         onClose={() => {
@@ -4716,7 +4492,6 @@ function Page() {
           </div>
         </Box>
       </Modal>
-
       <UnlockPremiunFeatures
         open={showUnlockPremiumFeaturesPopup}
         handleClose={() => {
@@ -4724,7 +4499,6 @@ function Page() {
         }}
         title={featureTitle}
       />
-
       <UpgradeModal
         open={showUpgradeModal}
         handleClose={() => {
@@ -4741,7 +4515,6 @@ function Page() {
         functionality="webAgent"
         featureTitle={featureTitle}
       />
-
       <UpgradePlan
         selectedPlan={null}
         setSelectedPlan={() => { }}
@@ -4749,10 +4522,6 @@ function Page() {
         handleClose={async (upgradeResult) => {
           setShowUpgradePlanModal(false)
           if (upgradeResult) {
-            console.log(
-              '🔄 [NEW-BILLING] Upgrade successful, refreshing profile...',
-              upgradeResult,
-            )
             setShowDuplicateConfirmationPopup(false)
             await refreshUserData()
           }
@@ -4760,7 +4529,6 @@ function Page() {
         plan={null}
         currentFullPlan={reduxUser?.user?.plan}
       />
-
       <MoreAgentsPopup
         open={showMoreAgentsPopup}
         onClose={() => {
@@ -4774,7 +4542,6 @@ function Page() {
           }, 150)
         }}
         onAddAgent={() => {
-          console.log('moreAgentsPopupType', moreAgentsPopupType)
           // Close modal first to prevent React DOM errors
           setShowMoreAgentsPopup(false)
           // Execute action after a small delay
@@ -4793,18 +4560,14 @@ function Page() {
         }
         from={'agents'}
       />
-
       <AskToUpgrade
         open={showAskToUpgradeModal}
         handleClose={() => {
           setShowAskToUPgradeModal(false)
         }}
       />
-
       {/* Error snack bar message */}
-
       {/* drawer */}
-
       <Drawer
         anchor="right"
         open={showDrawerSelectedAgent != null}
@@ -5276,11 +5039,6 @@ function Page() {
                                 smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? showDrawerSelectedAgent.smartListIdForEmbed,
                                 smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? showDrawerSelectedAgent.smartListEnabledForEmbed,
                               }
-                              console.log('🔍 WEBHOOK - Merged with updated agent state:', {
-                                original: showDrawerSelectedAgent,
-                                updated: selectedAgentForWebAgent,
-                                merged: agentToUse,
-                              })
                             }
                             setFetureType('webhook')
                             setSelectedAgentForWebAgent(agentToUse)
@@ -5366,7 +5124,7 @@ function Page() {
                   showDrawerSelectedAgent?.totalDuration &&
                     showDrawerSelectedAgent?.totalDuration > 0 ? (
                     // <div>{showDrawer?.totalDuration}</div>
-                    <div>
+                    (<div>
                       {showDrawerSelectedAgent?.totalDuration
                         ? moment
                           .utc(
@@ -5375,7 +5133,7 @@ function Page() {
                           )
                           .format('HH:mm:ss')
                         : '-'}
-                    </div>
+                    </div>)
                   ) : (
                     '-'
                   )
@@ -6032,10 +5790,6 @@ function Page() {
                               const selectedVoice = ResponseSpeedList.find(
                                 (voice) => voice.value === selected,
                               )
-                              console
-                                .log
-                                // `Selected Patience Level for ${selected} is ${selectedVoice?.title}`
-                                ()
                               return selectedVoice ? selectedVoice?.title : null
                             }}
                             sx={{
@@ -6579,7 +6333,6 @@ function Page() {
           </div>
         </div>
       </Drawer>
-
       {/* Code to del agent */}
       <Modal
         open={delAgentModal}
@@ -6674,7 +6427,6 @@ function Page() {
           </div>
         </Box>
       </Modal>
-
       {/*  Test comment */}
       {/* Code for the confirmation of reassign button */}
       <Modal
@@ -6799,9 +6551,7 @@ function Page() {
           </div>
         </Box>
       </Modal>
-
       {/* code for script */}
-
       <Modal
         open={showScriptModal}
         onClose={() => {
@@ -7253,9 +7003,7 @@ function Page() {
           </div>
         </Box>
       </Modal>
-
       {/* Modal for video */}
-
       <IntroVideoModal
         open={introVideoModal}
         onClose={() => setIntroVideoModal(false)}
@@ -7267,14 +7015,12 @@ function Page() {
           getVideoUrlByType(HowToVideoTypes.Script) || HowtoVideos.script
         }
       />
-
       <IntroVideoModal
         open={introVideoModal2}
         onClose={() => setIntroVideoModal2(false)}
         videoTitle="Learn how to add a calendar"
         videoUrl={HowtoVideos.Calendar}
       />
-
       {showClaimPopup && (
         <ClaimNumber
           showClaimPopup={showClaimPopup}
@@ -7286,7 +7032,6 @@ function Page() {
           AssignNumber={AssignNumber}
         />
       )}
-
       {/* Web Agent Modals */}
       <WebAgentModal
         open={showWebAgentModal}
@@ -7336,7 +7081,6 @@ function Page() {
           }
         }}
       />
-
       <NewSmartListModal
         open={showNewSmartListModal}
         onClose={() => setShowNewSmartListModal(false)}
@@ -7346,7 +7090,6 @@ function Page() {
         onSuccess={handleSmartListCreated}
         agentType={fetureType === 'webhook' ? 'webhook' : 'web'} // Pass agentType
       />
-
       <AllSetModal
         open={showAllSetModal}
         onClose={handleCloseAllSetModal}
@@ -7355,7 +7098,6 @@ function Page() {
         fetureType={fetureType}
         onCopyUrl={handleWebhookClick}
       />
-
       {/* Embed Modals */}
       <EmbedModal
         open={showEmbedModal}
@@ -7398,7 +7140,6 @@ function Page() {
           setEmbedCode(code)
         }}
       />
-
       <EmbedSmartListModal
         open={showEmbedSmartListModal}
         onClose={() => setShowEmbedSmartListModal(false)}
@@ -7409,7 +7150,6 @@ function Page() {
         fetureType={fetureType}
         agent={selectedAgentForEmbed}
       />
-
       <AllSetModal
         open={showEmbedAllSetModal}
         onClose={handleCloseEmbedAllSetModal}
@@ -7420,7 +7160,7 @@ function Page() {
       // onCopyUrl={handleWebhookClick}
       />
     </div>
-  )
+  );
 }
 
 const Card = ({ name, value, icon, bgColor, iconColor, isCustomDomain, agencyBranding }) => {

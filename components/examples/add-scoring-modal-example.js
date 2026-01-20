@@ -16,10 +16,7 @@ const AddScoringModalExample = () => {
     setIsModalOpen(false)
   }
 
-  const handleSubmit = (formData) => {
-    console.log('Scoring data submitted:', formData)
-    // Handle scoring submission logic here
-  }
+  const handleSubmit = (formData) => {}
 
   return (
     <div className="p-8">

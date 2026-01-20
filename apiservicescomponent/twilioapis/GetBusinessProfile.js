@@ -15,10 +15,7 @@ export const getBusinessProfile = async () => {
     })
 
     if (response) {
-      console.log('Response og get business profile is', response.data)
       return response.data
     }
-  } catch (error) {
-    console.log('Error occured in getBusinessProfile api is', error)
-  }
+  } catch (error) {}
 }

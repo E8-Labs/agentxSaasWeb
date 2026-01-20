@@ -16,9 +16,6 @@ const Page = () => {
   const modelId = params.id // assuming your file is [id]/page.js
   const name = searchParams.get('name') // pulls ?name=value from the URL
 
-  console.log('modelId:', modelId)
-  console.log('name:', name)
-
   return (
     <div>
       <Creator agentId={modelId} name={name} />

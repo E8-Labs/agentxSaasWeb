@@ -36,9 +36,7 @@ const Page = () => {
           return `hsl(${computedColor})`
         }
       }
-    } catch (error) {
-      console.log('Error getting brand color:', error)
-    }
+    } catch (error) {}
     return 'hsl(270, 75%, 50%)'
   }
 
@@ -77,9 +75,7 @@ const Page = () => {
           if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
             return true
           }
-        } catch (error) {
-          console.log('Error parsing User data:', error)
-        }
+        } catch (error) {}
       }
       
       const localUser = localStorage.getItem('LocalStorageUser')
@@ -90,9 +86,7 @@ const Page = () => {
           if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
             return true
           }
-        } catch (error) {
-          console.log('Error parsing LocalStorageUser:', error)
-        }
+        } catch (error) {}
       }
       
       const subAccountData = localStorage.getItem('SubaccoutDetails')
@@ -102,9 +96,7 @@ const Page = () => {
           if (parsed) {
             return true
           }
-        } catch (error) {
-          console.log('Error parsing SubaccoutDetails:', error)
-        }
+        } catch (error) {}
       }
       
       return false
@@ -154,6 +146,10 @@ const Page = () => {
   }
 
   return (
+    // <div className='w-full h-screen' style={{display: "flex", flexDirection: "row", justifyContent: "center", alignItems:" center" }}>
+    //     <div style={{width: "90%", height: "80%"}}>
+    //     </div>
+    // </div>
     <div
       style={backgroundImage}
       className={`overflow-y-none flex flex-row justify-center items-center ${shouldShowGradient ? '' : 'bg-brand-primary'}`}
@@ -175,12 +171,7 @@ const Page = () => {
       )}
       <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
     </div>
-    // <div className='w-full h-screen' style={{display: "flex", flexDirection: "row", justifyContent: "center", alignItems:" center" }}>
-    //     <div style={{width: "90%", height: "80%"}}>
-
-    //     </div>
-    // </div>
-  )
+  );
 }
 
 export default Page

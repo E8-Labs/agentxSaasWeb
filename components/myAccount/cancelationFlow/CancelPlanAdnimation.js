@@ -50,11 +50,7 @@ export default function CancelPlanAnimation({
     }
   }, [showModal])
 
-  console.log('currentIndex', currentIndex)
-
   const getCUrrentComponent = async () => {
-    console.log('userLocalData', userLocalData?.subscriptionPauseUsed)
-    console.log('selectedUser', selectedUser)
     if (selectedUser) {
       userLocalData = selectedUser
     }
@@ -74,7 +70,6 @@ export default function CancelPlanAnimation({
       } else {
         let data = await getDiscount()
 
-        console.log('data', data)
         if (data?.discountOffer?.alreadyUsed === false) {
           setDirection(1)
           setCurrentIndex((prevIndex) => prevIndex + 3)
@@ -99,9 +94,7 @@ export default function CancelPlanAnimation({
   }
 
   const handleContinue = async (nextAction) => {
-    console.log('currentIndex', currentIndex)
     if (nextAction) {
-      console.log(nextAction)
       if (nextAction === 'closeModel') {
         handleClose()
         setCurrentIndex(isAgencySubAccount ? 3 : 0)
@@ -119,7 +112,6 @@ export default function CancelPlanAnimation({
         } else {
           let data = await getDiscount()
 
-          console.log('data', data)
           if (data?.discountOffer?.alreadyUsed === false) {
             setDirection(1)
             setCurrentIndex((prevIndex) => prevIndex + 2)
@@ -145,7 +137,6 @@ export default function CancelPlanAnimation({
         } else {
           let data = await getDiscount()
 
-          console.log('data', data)
           if (data?.discountOffer?.alreadyUsed === false) {
             setDirection(1)
             setCurrentIndex((prevIndex) => prevIndex + 1)

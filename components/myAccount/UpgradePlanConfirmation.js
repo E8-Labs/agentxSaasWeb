@@ -21,8 +21,6 @@ export default function UpgradePlanConfirmation({
   currentFullPlan,
   currentPlanOrder,
 }) {
-  console.log('plan', plan)
-
   //get plan id for confirmation popup
 
   return (

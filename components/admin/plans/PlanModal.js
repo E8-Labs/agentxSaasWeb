@@ -94,7 +94,6 @@ const PlanModal = ({ plan, onClose, planType }) => {
 
   useEffect(() => {
     if (plan) {
-      console.log('PlanModal - Received plan data:', plan)
       // Map the plan data to the correct form fields
       const mappedPlan = {
         title: plan.name || plan.title || '',
@@ -127,7 +126,6 @@ const PlanModal = ({ plan, onClose, planType }) => {
         },
       }
 
-      console.log('PlanModal - Mapped plan data:', mappedPlan)
       setFormData(mappedPlan)
     }
   }, [plan])
@@ -212,8 +210,6 @@ const PlanModal = ({ plan, onClose, planType }) => {
         // Ensure capabilities are properly structured
         capabilities: formData.dynamicFeatures,
       }
-
-      console.log('PlanModal - Submitting data:', apiData)
 
       if (plan) {
         // Update existing plan

@@ -6,7 +6,7 @@ export default function ChipInput({ ccEmails, setccEmails, placeholder = "" }) {
 
   const isValidEmail = (email) => {
     // Basic email regex (simple but effective for most use cases)
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
   const addEmail = (value) => {

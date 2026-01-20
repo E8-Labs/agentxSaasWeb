@@ -345,64 +345,40 @@ function UpgradePlanContent({
   const isUpgradeButtonEnabled = () => {
     //disable if snack msg is visible
     if (showSnackMsg?.isVisible) {
-      console.log('Button disabled: snack msg visible')
       return false
     }
 
     // Must have a selected plan
     if (!currentSelectedPlan) {
-      console.log('Button disabled: no selected plan')
       return false
     }
 
     // Check if selected plan is the current plan
     const isCurrent = isPlanCurrent(currentSelectedPlan)
-    console.log('isPlanCurrent check:', {
-      currentSelectedPlanId: currentSelectedPlan?.id,
-      currentUserPlanId: currentUserPlan?.planId,
-      isCurrent: isCurrent,
-    })
 
     if (isCurrent) {
-      console.log('Button disabled: selected plan is current plan')
       return false
     }
 
     // If user is adding a new payment method, they must agree to terms
     if (isAddingNewPaymentMethod && !agreeTerms) {
-      console.log('Button disabled: adding payment but terms not agreed')
       return false
     }
 
     // If user has existing payment methods and is not adding new ones, they can proceed
     if (haveCards && !isAddingNewPaymentMethod) {
-      console.log('Button enabled: has cards and not adding new')
       return true
     }
 
     // If user has no payment methods, they must be adding one
     if (!haveCards && isAddingNewPaymentMethod) {
       const canProceed = CardAdded && CardExpiry && CVC && agreeTerms
-      console.log('Button check (no cards, adding new):', {
-        CardAdded,
-        CardExpiry,
-        CVC,
-        agreeTerms,
-        canProceed,
-      })
       return canProceed
     }
 
     // If user has payment methods and is adding new ones, they must complete the form
     if (haveCards && isAddingNewPaymentMethod) {
       const canProceed = CardAdded && CardExpiry && CVC && agreeTerms
-      console.log('Button check (has cards, adding new):', {
-        CardAdded,
-        CardExpiry,
-        CVC,
-        agreeTerms,
-        canProceed,
-      })
       return canProceed
     }
 
@@ -419,17 +395,11 @@ function UpgradePlanContent({
     if (!haveCards && !isAddingNewPaymentMethod) {
       // If it's a free plan, allow subscription without payment method
       if (isFreePlan) {
-        console.log('Button enabled: free plan, no payment method required')
         return true
       }
-      // If it's a paid plan and user hasn't started entering card details, hide the button
-      // (isAddingNewPaymentMethod is false means they haven't started entering card details)
-      console.log('Button hidden: paid plan requires payment method, no card details entered')
       return false
     }
 
-    // Fallback case (shouldn't reach here, but just in case)
-    console.log('Button enabled: fallback case')
     return true
   }
 
@@ -457,9 +427,7 @@ function UpgradePlanContent({
               setBrandPrimaryColor(`hsl(${brandColor})`)
             }
           }
-        } catch (error) {
-          console.log('Error getting brand color:', error)
-        }
+        } catch (error) {}
       }
     }
     getBrandColor()
@@ -484,9 +452,7 @@ function UpgradePlanContent({
     }
   }, [open, selectedUser])
 
-  useEffect(() => {
-    console.log('usercurrentplanselected is', currentSelectedPlan)
-  }, [currentSelectedPlan])
+  useEffect(() => {}, [currentSelectedPlan])
 
   useEffect(() => {
     if (!inviteCode || inviteCode.trim().length === 0) {
@@ -572,7 +538,6 @@ function UpgradePlanContent({
   // const [selectedUserPlan, setSelectedUserPlan] = useState(null);
 
   useEffect(() => {
-    console.log('Open rerendered')
     // if (!open || currentSelectedPlan) return;
     // if (!plan && !currentFullPlan) {
     //     console.log("No plan or current full plan")
@@ -603,40 +568,24 @@ function UpgradePlanContent({
       // getCurrentUserPlan is now async and called in useEffect
       await getCurrentUserPlan()
 
-      console.log('plansData in initializePlans', plansData)
-
       // Only proceed with plan selection if we have plans data and haven't triggered yet
       if (plansData && !isPreSelectedPlanTriggered) {
         setIsPreSelectedPlanTriggered(true)
-
-        console.log(
-          'selected plan from previous screen in pre selected plan useeffect is ',
-          selectedPlan,
-        )
 
         // Set selected duration based on the plan's billing cycle if selectedPlan is not null
         let planDuration = null
 
         if (selectedPlan) {
-          console.log(
-            'Finding duration from billing cycle of selected plan',
-            selectedPlan?.billingCycle,
-          )
           planDuration = getDurationFromBillingCycle(selectedPlan?.billingCycle)
-          console.log('Found Billing cycle of selected plan', planDuration)
           if (planDuration) {
             setSelectedDuration(planDuration)
           }
         } else {
-          console.log(
-            'no selected plan, set first plan as current selected plan ',
-          )
           // if selectedPlan is null then set selected duration of current plan
           if (currentUserPlan && currentUserPlan.billingCycle) {
             planDuration = getDurationFromBillingCycle(
               currentUserPlan.billingCycle,
             )
-            console.log('Billing bicycle of current user plan', planDuration)
           } else {
             // Use the first available plan from the loaded data
             const firstPlan =
@@ -649,7 +598,6 @@ function UpgradePlanContent({
           }
           if (planDuration) {
             setSelectedDuration(planDuration)
-            console.log('Billing bicycle of current plan2', planDuration)
           }
         }
 
@@ -661,12 +609,6 @@ function UpgradePlanContent({
           else if (planDuration?.id === 2) currentPlans = plansData.quarterly
           else if (planDuration?.id === 3) currentPlans = plansData.yearly
 
-          console.log('selected plan duration is ', planDuration)
-          console.log(
-            'current plans are before checking matching plan',
-            currentPlans,
-          )
-
           const matchingPlan = currentPlans.find(
             (plan) =>
               // plan.name === selectedPlan?.name ||
@@ -675,8 +617,6 @@ function UpgradePlanContent({
           )
 
           if (matchingPlan) {
-            console.log('matching plan found is', matchingPlan)
-            console.log('selected duration is', planDuration)
             setCurrentSelectedPlan(matchingPlan)
             const planIndex = currentPlans.findIndex(
               (plan) => plan.id === matchingPlan.id,
@@ -687,7 +627,6 @@ function UpgradePlanContent({
             setCurrentSelectedPlan(currentPlans[0])
             setSelectedPlanIndex(0)
             setTogglePlan(currentPlans[0]?.id)
-            console.log('no matching plan found, setting first plan')
           }
           setLoading(false)
         }, 100)
@@ -703,7 +642,6 @@ function UpgradePlanContent({
       try {
         const user = await AdminGetProfileDetails(selectedUser.id)
         if (user && user.plan) {
-          console.log('Current user plan from selectedUser profile:', user.plan)
           setCurrentUserPlan(user.plan)
           return user.plan
         }
@@ -717,16 +655,13 @@ function UpgradePlanContent({
     if (localData) {
       const userData = JSON.parse(localData)
       const plan = userData.user?.plan
-      console.log('Current user plan from localStorage:', plan)
       setCurrentUserPlan(plan)
       return plan
     }
     return null
   }
 
-  useEffect(() => {
-    console.log('duration in upgrade plan is', duration)
-  }, [duration])
+  useEffect(() => {}, [duration])
 
   const getPlans = async () => {
     // For agency viewing subaccount, always use getSubAccountPlans with userId
@@ -742,7 +677,6 @@ function UpgradePlanContent({
         })
         if (response && response.data && response.data.status === true) {
           plansList = response.data.data.monthlyPlans || response.data.data
-          console.log('Plans fetched for selectedUser:', plansList)
         }
       } catch (error) {
         console.error('Error fetching plans for selectedUser:', error)
@@ -755,7 +689,6 @@ function UpgradePlanContent({
     }
     
     if (plansList) {
-      console.log('Plans list found is', plansList)
       const monthly = []
       const quarterly = []
       const yearly = []
@@ -765,27 +698,22 @@ function UpgradePlanContent({
         from === 'SubAccount' ||
         UserLocalData?.userRole === 'AgencySubAccount'
       ) {
-        console.log('Current plan upgrade type is subaccount')
         plansList?.forEach((plan) => {
           switch (plan.billingCycle) {
             case 'monthly':
               monthly.push(plan)
-              console.log('Added monthly plan', plan)
               break
             case 'quarterly':
               quarterly.push(plan)
-              console.log('Added quarterly plan', plan)
               break
             case 'yearly':
               yearly.push(plan)
-              console.log('Added yearly plan', plan)
               break
             default:
               break
           }
         })
       } else {
-        console.log('Current plan upgrade type is Simple user')
         plansList.forEach((plan) => {
           switch (plan.billingCycle) {
             case 'monthly':
@@ -821,29 +749,20 @@ function UpgradePlanContent({
       const emptyDurations = [monthly, quarterly, yearly].filter(
         (arr) => arr.length === 0,
       ).length
-      console.log('Empty durations are', emptyDurations)
       // if (from === "SubAccount") {
       if (emptyDurations >= 2) {
         setDuration([])
       } else {
         if (monthly.length === 0) {
-          console.log('Remove monthly')
           setDuration((prev) => prev.filter((item) => item.id !== 1))
         }
         if (quarterly.length === 0) {
-          console.log('Remove quarterly')
           setDuration((prev) => prev.filter((item) => item.id !== 2))
         }
         if (yearly.length === 0) {
-          console.log('Remove yearly')
           setDuration((prev) => prev.filter((item) => item.id !== 3))
         }
       }
-      // }
-
-      console.log('monthly', monthly)
-      console.log('quarterly', quarterly)
-      console.log('yearly', yearly)
 
       // Return the plans data for immediate use
       return { monthly, quarterly, yearly, freePlan }
@@ -904,10 +823,8 @@ function UpgradePlanContent({
     // Don't allow selection of current plan
     const isCurrentPlan = isPlanCurrent(item)
     if (isCurrentPlan) {
-      console.log('Cannot select current plan:', item.name)
       return
     }
-    console.log('Selected plan index is', index, item)
     // setSelectedPlan(item);
     // setSelectedPlanIndex(index);
     setTogglePlan(item.id)
@@ -930,14 +847,6 @@ function UpgradePlanContent({
       itemPlanId === currentPlanId &&
       currentUserPlan.status !== 'cancelled'
     ) {
-      console.log(
-        '✅ isPlanCurrent: plan IDs match - THIS IS THE CURRENT PLAN',
-        {
-          itemPlanId,
-          currentPlanId,
-          itemTitle: item.title || item.name,
-        },
-      )
       return true
     }
 
@@ -945,10 +854,6 @@ function UpgradePlanContent({
     const itemName = item.name || item.title
     const currentPlanName = currentUserPlan.name
     if (itemName && currentPlanName && itemName === currentPlanName) {
-      console.log('✅ isPlanCurrent: plan names match', {
-        itemName,
-        currentPlanName,
-      })
       return true
     }
 
@@ -1049,7 +954,6 @@ function UpgradePlanContent({
 
   // Function to get duration object from billing cycle
   const getDurationFromBillingCycle = (billingCycle) => {
-    console.log('billingCycle is', billingCycle)
     switch (billingCycle) {
       case 'monthly':
         return duration[0] // Monthly
@@ -1084,23 +988,17 @@ function UpgradePlanContent({
       })
 
       if (response) {
-        // //console.log;
-        console.log('response', response)
-
         if (response.data.status === true) {
           setCards(response.data.data)
         }
       }
-    } catch (error) {
-      console.log(error)
-    } finally {
+    } catch (error) {} finally {
       // //console.log;
       // setGetCardLoader(false);
     }
   }
 
   const handleAddCard = async (e) => {
-    console.log('handleAddCard')
     setAddCardLoader(true)
     if (e && e.preventDefault) {
       e.preventDefault()
@@ -1130,7 +1028,7 @@ function UpgradePlanContent({
     if (selectedUser) {
       setupIntentUrl = `${Apis.createSetupIntent}?userId=${selectedUser.id}`
     }
-    
+
     const res = await fetch(setupIntentUrl, {
       method: 'POST',
       headers: {
@@ -1282,8 +1180,6 @@ function UpgradePlanContent({
       const selectedUserLocalData = localStorage.getItem(
         PersistanceKeys.isFromAdminOrAgency,
       )
-      // let selectedUser = null;
-      console.log('Selected user local data passed is', selectedUser)
       // return
       // if (selectedUserLocalData !== "undefined" && selectedUserLocalData !== null) {
       //     selectedUser = JSON.parse(selectedUserLocalData);
@@ -1295,7 +1191,6 @@ function UpgradePlanContent({
 
       // If user is adding a new payment method, add it first
       if (isAddingNewPaymentMethod) {
-        console.log('Adding new payment method before subscription...')
         paymentMethodId = await handleAddCard()
         if (!paymentMethodId) {
           console.error('Failed to add payment method')
@@ -1305,19 +1200,10 @@ function UpgradePlanContent({
       } else if (haveCards && selectedCard) {
         // Use existing payment method
         paymentMethodId = selectedCard.id
-        console.log('Using existing payment method:', paymentMethodId)
       }
 
       const UserLocalData = getUserLocalData()
-      console.log('User local data', UserLocalData)
       let DataToSendInApi = null
-      // if (UserLocalData?.userRole === "AgencySubAccount") {
-      //     console.log("Check 111");
-      //     let formData = new FormData();
-      //     formData.append("planId", currentSelectedPlan?.id);
-      //     DataToSendInApi = formData;
-      // } else {
-      console.log('Check 222')
       let ApiData = {
         plan: planType,
       }
@@ -1342,7 +1228,6 @@ function UpgradePlanContent({
       if (selectedUser) {
         ApiData.userId = selectedUser?.id
       }
-      console.log('Check 333')
       DataToSendInApi = ApiData
 
       let ApiPath = Apis.subscribePlan
@@ -1354,9 +1239,6 @@ function UpgradePlanContent({
       } else if (from === 'agency') {
         ApiPath = Apis.subAgencyAndSubAccountPlans
       }
-      console.log('Api data for upgrade plan', DataToSendInApi)
-
-      console.log('Api path is', ApiPath)
 
       //headers for api
       let headers = {
@@ -1372,7 +1254,6 @@ function UpgradePlanContent({
       })
 
       if (response) {
-        console.log('Response of subscribe plan api is', response.data)
         setsubscribeLoader(false)
 
         // Call getProfileDetails to refresh the profile
@@ -1410,8 +1291,6 @@ function UpgradePlanContent({
     }
   }
 
-  console.log('price is ', currentSelectedPlan?.discountPrice)
-
   // Function to get button text, checking for cancelled plan status first
   const getButtonText = () => {
     if (!currentSelectedPlan) return 'Select a Plan'
@@ -1420,14 +1299,9 @@ function UpgradePlanContent({
     // When selectedUser is provided, currentUserPlan is set from AdminGetProfileDetails
     // Otherwise, it's from localStorage
     const planStatus = currentUserPlan?.status
-    console.log('🔍 [getButtonText] currentUserPlan:', currentUserPlan)
-    console.log('🔍 [getButtonText] currentSelectedPlan:', currentSelectedPlan)
-    console.log('🔍 [getButtonText] currentFullPlan:', currentFullPlan)
-    console.log('🔍 [getButtonText] Plan status:', planStatus)
 
     // If plan is cancelled, show "Subscribe" regardless of which plan is selected
     if (planStatus === 'cancelled') {
-      console.log('🔍 [getButtonText] Plan cancelled, returning Subscribe')
       return 'Subscribe'
     }
 
@@ -1438,28 +1312,20 @@ function UpgradePlanContent({
       (currentSelectedPlan.id === currentUserPlan.planId ||
         currentSelectedPlan.planId === currentUserPlan.planId)
 
-    console.log('🔍 [getButtonText] isCurrentPlan:', isCurrentPlan, {
-      selectedPlanId: currentSelectedPlan.id,
-      currentPlanId: currentUserPlan?.planId,
-    })
-
     // If selected plan is the current plan, show "Cancel Subscription"
     if (isCurrentPlan) {
-      console.log('🔍 [getButtonText] Same plan, returning Cancel Subscription')
       //let's not return any title and disable the button
       return 'Cancel Subscription'
     }
 
     // If no current plan, show "Subscribe"
     if (!currentUserPlan) {
-      console.log('🔍 [getButtonText] No current plan, returning Subscribe')
       return 'Subscribe'
     }
 
     // Try to use currentFullPlan for comparison if available
     if (currentFullPlan) {
       const comparison = comparePlans(currentFullPlan, currentSelectedPlan)
-      console.log('🔍 [getButtonText] Comparison result:', comparison)
 
       if (comparison === 'upgrade') {
         return 'Upgrade'
@@ -1482,23 +1348,12 @@ function UpgradePlanContent({
       currentSelectedPlan?.originalPrice ||
       0
 
-    console.log('🔍 [getButtonText] Price comparison:', {
-      currentPrice,
-      selectedPrice,
-      currentSelectedPlanKeys: Object.keys(currentSelectedPlan || {}),
-      currentSelectedPlanFull: currentSelectedPlan,
-    })
-
     if (selectedPrice > currentPrice && selectedPrice > 0) {
-      console.log('🔍 [getButtonText] Price-based upgrade')
       return 'Upgrade'
     } else if (selectedPrice < currentPrice && selectedPrice > 0) {
-      console.log('🔍 [getButtonText] Price-based downgrade')
       return 'Downgrade'
     }
 
-    // Final fallback
-    console.log('🔍 [getButtonText] Fallback to Subscribe')
     return 'Subscribe'
   }
 
@@ -1563,43 +1418,21 @@ function UpgradePlanContent({
       }
     }
 
-    console.log('🔍 [comparePlans] Comparison:', {
-      currentTitle: currentPlan.title || currentPlan.name,
-      currentTierRank,
-      targetTitle: targetPlan.title || targetPlan.name,
-      targetTierRank,
-      currentBillingCycle: currentPlan.billingCycle || currentPlan.duration,
-      targetBillingCycle: targetPlan.billingCycle || targetPlan.duration,
-      currentBillingOrder,
-      targetBillingOrder,
-    })
-
     // If we can determine tier ranks, compare them first
     // Rule: Scale > Growth > Starter (regardless of billing cycle)
     if (currentTierRank >= 0 && targetTierRank >= 0) {
       // Different tiers - tier comparison determines upgrade/downgrade
       if (targetTierRank > currentTierRank) {
-        console.log('🔍 [comparePlans] Result: UPGRADE (tier change)')
         return 'upgrade'
       } else if (targetTierRank < currentTierRank) {
-        console.log('🔍 [comparePlans] Result: DOWNGRADE (tier change)')
         return 'downgrade'
       }
       // Same tier - compare billing cycles
       if (targetBillingOrder > currentBillingOrder) {
-        console.log(
-          '🔍 [comparePlans] Result: UPGRADE (same tier, longer billing cycle)',
-        )
         return 'upgrade'
       } else if (targetBillingOrder < currentBillingOrder) {
-        console.log(
-          '🔍 [comparePlans] Result: DOWNGRADE (same tier, shorter billing cycle)',
-        )
         return 'downgrade'
       } else {
-        console.log(
-          '🔍 [comparePlans] Result: SAME (same tier and billing cycle)',
-        )
         return 'same'
       }
     }
@@ -1608,14 +1441,8 @@ function UpgradePlanContent({
     // Longer billing cycle (yearly > quarterly > monthly) is generally an upgrade
     // This handles cases like "Malik's Plan" monthly -> yearly where tier detection fails
     if (targetBillingOrder > currentBillingOrder) {
-      console.log(
-        '🔍 [comparePlans] Result: UPGRADE (longer billing cycle, tier unknown)',
-      )
       return 'upgrade'
     } else if (targetBillingOrder < currentBillingOrder) {
-      console.log(
-        '🔍 [comparePlans] Result: DOWNGRADE (shorter billing cycle, tier unknown)',
-      )
       return 'downgrade'
     }
 
@@ -1632,11 +1459,6 @@ function UpgradePlanContent({
       targetPlan.price ||
       targetPlan.originalPrice ||
       0
-
-    console.log('🔍 [comparePlans] Fallback to price comparison:', {
-      currentPrice,
-      targetPrice,
-    })
 
     // If target is free plan and current is paid, it's a downgrade
     if ((targetPlan.isFree || targetPrice === 0) && currentPrice > 0) {
@@ -1661,12 +1483,8 @@ function UpgradePlanContent({
 
   // Function to determine button text and action
   const getButtonConfig = () => {
-    console.log('currentPlan', currentFullPlan)
-    console.log('selectedPlan', selectedPlan)
-
     // Compare plans based on price
     const planComparison = comparePlans(currentFullPlan, selectedPlan)
-    console.log('🔍 [BUTTON-CONFIG] Plan comparison:', planComparison)
 
     // If still loading (currentFullPlan not ready), don't show any button
     if (planComparison === null) {
@@ -2279,7 +2097,6 @@ function UpgradePlanContent({
                               onClick={async (e) => {
                                 e.preventDefault()
                                 const { termsUrl } = await getPolicyUrls(selectedUser)
-                                console.log('terms url in upgrade plan for user from admin agency', termsUrl);
                                 window.open(termsUrl, '_blank')
                               }}
                               className="text-brand-primary hover:text-brand-primary/80 underline transition-colors duration-200 cursor-pointer"
@@ -2361,7 +2178,7 @@ function UpgradePlanContent({
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
 
 const styles = {
@@ -2479,8 +2296,6 @@ function UpgradePlanForUserFromAdminAgency({
   selectedUser,
   // setShowSnackMsg = null
 }) {
-
-  console.log('selected user in upgrade plan for user from admin agency', selectedUser);
   const stripePromise = getStripe()
 
   const [showSnackMsg, setShowSnackMsg] = useState({

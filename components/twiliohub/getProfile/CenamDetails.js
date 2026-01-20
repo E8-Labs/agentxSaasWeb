@@ -21,8 +21,6 @@ const CenamDetails = ({
   getProfileData,
   businessProfileData,
 }) => {
-  console.log('Friendly name papssed is', businessProfileData)
-
   const [showDetails, setShowDetails] = useState(false)
   const [showAddCNAM, setShowAddCNAM] = useState(false)
   //temporary CNAM Status

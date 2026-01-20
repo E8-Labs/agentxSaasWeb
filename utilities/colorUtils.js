@@ -15,7 +15,7 @@ export function isValidHex(hex) {
   const cleanHex = hex.replace('#', '')
   
   // Check if it's 3 or 6 characters and only contains hex digits
-  return /^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$/.test(cleanHex)
+  return /^[0-9A-Fa-f]{3}$|^[0-9A-Fa-f]{6}$/.test(cleanHex);
 }
 
 /**

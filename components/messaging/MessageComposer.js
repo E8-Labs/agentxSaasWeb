@@ -92,7 +92,7 @@ const stripHTML = (html) => {
     tempDiv.innerHTML = processedHtml
     const text = tempDiv.textContent || tempDiv.innerText || ''
     // Normalize multiple newlines to single newlines, but preserve intentional line breaks
-    return text.replace(/\n{3,}/g, '\n\n').trim()
+    return text.replace(/\n{3,}/g, '\n\n').trim();
   }
   // Fallback for SSR: strip HTML tags and preserve line breaks
   return html
@@ -107,7 +107,7 @@ const stripHTML = (html) => {
     .replace(/&lt;/g, '<')           // Convert &lt; to <
     .replace(/&gt;/g, '>')           // Convert &gt; to >
     .replace(/\n{3,}/g, '\n\n')      // Normalize multiple newlines
-    .trim()
+    .trim();
 }
 
 // Helper function to get character count from HTML
@@ -380,8 +380,6 @@ const MessageComposer = ({
           ...res.filter((col) => !defaultColumns.includes(col)),
         ]
         setUniqueColumns(mergedColumns)
-
-        console.log('mergedColumns', mergedColumns)
       } else {
         setUniqueColumns(defaultColumns)
       }
@@ -1091,7 +1089,7 @@ const MessageComposer = ({
 
         {!isExpanded ? (
           // Collapsed view - show text input with send button
-          <div className="mt-2 flex items-center gap-2">
+          (<div className="mt-2 flex items-center gap-2">
             <Input
               value={
                 composerMode === 'sms'
@@ -1150,7 +1148,7 @@ const MessageComposer = ({
             >
               <PaperPlaneTilt size={20} weight="fill" />
             </button>
-          </div>
+          </div>)
         ) : (
           <div
             ref={composerContentRef}
@@ -1835,9 +1833,8 @@ const MessageComposer = ({
           </div>
         )}
       </div>
-
     </div>
-  )
+  );
 }
 
 export default MessageComposer

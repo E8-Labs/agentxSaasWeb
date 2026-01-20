@@ -157,19 +157,13 @@ function BarServices() {
               
               // Update xbar title if available
               if (branding?.xbarTitle) {
-                console.log('✅ [BarServices] Fetched xbarTitle from API:', branding.xbarTitle)
                 setXbarTitle(branding.xbarTitle)
                 return
               }
             }
-          } catch (error) {
-            console.log('⚠️ [BarServices] Error fetching branding from API:', error)
-            // Fall through to localStorage check
-          }
+          } catch (error) {}
         }
-      } catch (error) {
-        console.log('❌ [BarServices] Error in fetchBrandingAndUpdateTitle:', error)
-      }
+      } catch (error) {}
       
       // Fallback: Get Xbar title from localStorage
       const getXbarTitle = () => {
@@ -192,9 +186,7 @@ function BarServices() {
               return
             }
           }
-        } catch (error) {
-          console.log('Error getting xbar title from branding:', error)
-        }
+        } catch (error) {}
         // Default title
         setXbarTitle('X Bar Services')
       }
@@ -208,7 +200,6 @@ function BarServices() {
     // Listen for branding updates
     const handleBrandingUpdate = (event) => {
       if (event?.detail?.xbarTitle) {
-        console.log('✅ [BarServices] Setting xbarTitle from event:', event.detail.xbarTitle)
         setXbarTitle(event.detail.xbarTitle)
         // Also update localStorage
         const storedBranding = localStorage.getItem('agencyBranding')
@@ -248,7 +239,6 @@ function BarServices() {
       let data = localStorage.getItem('User')
       if (data) {
         let user = JSON.parse(data)
-        console.log('user', user)
         let response = await getProfileDetails()
 
         setRole(response?.data?.data?.userRole)
@@ -258,7 +248,6 @@ function BarServices() {
         }
         if (response) {
           let togglePlan = response?.data?.data?.supportPlan
-          console.log('response of get ', togglePlan)
 
           // let togglePlan = plan?.type;
           let planType = null
@@ -295,7 +284,6 @@ function BarServices() {
 
   //function to subscribe plan
   const handleSubscribePlan = async () => {
-    console.log('try to subscribe')
     try {
       let planType = null
 
@@ -337,8 +325,6 @@ function BarServices() {
         supportPlan: planType,
       }
 
-      console.log('apidata', ApiData)
-
       const ApiPath = Apis.purchaseSupportPlan
       // //console.log;
 
@@ -352,7 +338,6 @@ function BarServices() {
       })
 
       if (response) {
-        console.log('response of subscribe support plan is', response.data)
         if (response.data.status === true) {
           localDetails.user = response.data.data
           window.dispatchEvent(
@@ -473,9 +458,7 @@ function BarServices() {
         message={successSnack}
         type={SnackbarTypes.Success}
       />
-
       {/* code for current plans available */}
-
       <div className="flex flex-col w-full items-center overflow-none overflow-hidden">
         <div className=" w-full flex flex-col">
           <div
@@ -546,7 +529,6 @@ function BarServices() {
                 onClick={(e) => {
                   //console.log;
                   let url = PersistanceKeys.HireTeamUrl
-                  console.log('Hire Team url ', url)
                   if (typeof window !== 'undefined') {
                     window.open(url, '_blank')
                   }
@@ -713,7 +695,6 @@ function BarServices() {
           )}
         </div>
       </div>
-
       <XBarConfirmationModal
         plan={getPlanFromId()}
         open={showConfirmationModal}
@@ -782,7 +763,7 @@ function BarServices() {
         </Box>
       </Modal>
     </div>
-  )
+  );
 }
 
 export default BarServices

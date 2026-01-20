@@ -46,61 +46,60 @@ export default function AddGHLBtn() {
 
       // Got the code from the popup → exchange on server
       ;(async () => {
-        setStatus('Exchanging code...')
-        const res = await fetch(
-          `/api/ghl/exchange?code=${encodeURIComponent(code)}`,
-        )
-        const json = await res.json()
-        if (!res.ok) {
-          setStatus('Exchange failed')
-          console.error(json)
-          return
-        }
-        // setStatus("Connected!");
-        setTokens(json)
-        // setStatus("Connected! Loading calendars...");
-        // const calRes = await fetch("/api/ghl/calendars");
-        // const calendars = await calRes.json();
-        // if (!calRes.ok) {
-        //   setStatus("Failed to load calendars");
-        //   console.log(calendars);
-        // } else {
-        //   setStatus(`Loaded ${calendars?.calendars?.length ?? calendars?.length ?? 0} calendars`);
-        //   setTokens(calendars); // or keep separate state like setCalendars(calendars)
-        // }
+      setStatus('Exchanging code...')
+      const res = await fetch(
+        `/api/ghl/exchange?code=${encodeURIComponent(code)}`,
+      )
+      const json = await res.json()
+      if (!res.ok) {
+        setStatus('Exchange failed')
+        console.error(json)
+        return
+      }
+      // setStatus("Connected!");
+      setTokens(json)
+      // setStatus("Connected! Loading calendars...");
+      // const calRes = await fetch("/api/ghl/calendars");
+      // const calendars = await calRes.json();
+      // if (!calRes.ok) {
+      //   setStatus("Failed to load calendars");
+      //   console.log(calendars);
+      // } else {
+      //   setStatus(`Loaded ${calendars?.calendars?.length ?? calendars?.length ?? 0} calendars`);
+      //   setTokens(calendars); // or keep separate state like setCalendars(calendars)
+      // }
 
-        setStatus('Connected! Loading locations...')
-        // const locRes = await fetch("/api/ghl/locations");
-        // if (!locRes.ok) {
-        //   setStatus(`Failed to load locations (${locRes.status})`);
-        //   console.error(await locRes.text());
-        //   return;
-        // }
-        // const locs = await locRes.json();
-        // const locationId = locs?.locations?.[0]?.id; // pick one or show a selector
-        // const locationId = cookieStore.get("ghl_location_id")?.value;
-        // if (!locationId) {
-        //   setStatus("No locations found for this token");
-        //   return;
-        // }else{
-        // console.log("Location id fetched is", locationId);
-        // }
+      setStatus('Connected! Loading locations...')
+      // const locRes = await fetch("/api/ghl/locations");
+      // if (!locRes.ok) {
+      //   setStatus(`Failed to load locations (${locRes.status})`);
+      //   console.error(await locRes.text());
+      //   return;
+      // }
+      // const locs = await locRes.json();
+      // const locationId = locs?.locations?.[0]?.id; // pick one or show a selector
+      // const locationId = cookieStore.get("ghl_location_id")?.value;
+      // if (!locationId) {
+      //   setStatus("No locations found for this token");
+      //   return;
+      // }else{
+      // console.log("Location id fetched is", locationId);
+      // }
 
-        setStatus('Loading calendars...')
-        const calRes = await fetch(`/api/ghl/calendars/`) //?locationId=${encodeURIComponent(locationId)}
-        if (!calRes.ok) {
-          setStatus(`Failed to load calendars (${calRes.status})`)
-          console.error(await calRes.text())
-          return
-        }
-        const calendars = await calRes.json()
-        console.log('Calendars fetched are', calendars)
-        setStatus(
-          `Loaded ${calendars?.calendars?.length ?? calendars?.length ?? 0} calendars`,
-        )
-        // setTokens(calendars); // or setCalendars(calendars)
-        setCalendars(calendars.calendars)
-      })()
+      setStatus('Loading calendars...')
+      const calRes = await fetch(`/api/ghl/calendars/`) //?locationId=${encodeURIComponent(locationId)}
+      if (!calRes.ok) {
+        setStatus(`Failed to load calendars (${calRes.status})`)
+        console.error(await calRes.text())
+        return
+      }
+      const calendars = await calRes.json()
+      setStatus(
+        `Loaded ${calendars?.calendars?.length ?? calendars?.length ?? 0} calendars`,
+      )
+      // setTokens(calendars); // or setCalendars(calendars)
+      setCalendars(calendars.calendars)
+    })()
     }
     window.addEventListener('message', onMessage)
     return () => window.removeEventListener('message', onMessage)
@@ -108,7 +107,7 @@ export default function AddGHLBtn() {
 
   const startAuthPopup = useCallback(async () => {
     const currentPath = window.location.origin + window.location.pathname
-    
+
     // Use /dashboard/myAgentX as the OAuth redirect landing page
     const isProduction = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     const GHL_REDIRECT_URI = isProduction
@@ -131,16 +130,6 @@ export default function AddGHLBtn() {
     // This ensures state is always generated and popup context is preserved
     const domainToUse = currentHostname
 
-    // Debug logging
-    console.log('GHL OAuth Initiation (AddGHLBtn) - Debug Info:')
-    console.log('- Current hostname:', currentHostname)
-    console.log('- Current path:', currentPath)
-    console.log('- Agency ID:', agencyId)
-    console.log('- Subaccount ID:', subaccountId)
-    console.log('- Custom Domain from API:', customDomain)
-    console.log('- Is custom domain/subdomain:', isCustomDomain)
-    console.log('- Domain to use:', domainToUse)
-
     // Generate state parameter (provider signal). Keep it even if agencyId is missing,
     // because middleware relies on `state.provider` to route the callback correctly.
     let stateParam = null
@@ -152,12 +141,7 @@ export default function AddGHLBtn() {
         subaccountId: subaccountId, // Include subaccountId if user is a subaccount
         originalRedirectUri: currentPath, // Store original for GHL flow
       })
-      console.log('Generated state parameter for custom domain:', stateParam)
-    } else {
-      console.log('No custom domain or agencyId - state parameter will not be included')
-      console.log('- domainToUse:', domainToUse)
-      console.log('- agencyId:', agencyId)
-    }
+    } else {}
 
     // Build scopes as a space-separated string
     const scope =

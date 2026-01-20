@@ -82,17 +82,14 @@ export const stagesDropdown = [
 
 export const checkCurrentUserRole = () => {
   if (typeof window === 'undefined') {
-    console.log('Running on server, window is not available')
     return // stop here during SSR
   }
 
   const localData = localStorage.getItem('User')
-  console.log('Current path is:', window.location.pathname)
   let currentPath = window.location.pathname
 
   if (localData) {
     let d = JSON.parse(localData)
-    console.log('Test log triggered')
 
     if (d.user.userType === 'admin') {
       if (currentPath !== '/admin') {
@@ -131,7 +128,7 @@ export const copyAgencyOnboardingLink = async ({
 
     const Data = JSON.parse(d)
     const authToken = Data.token
-    
+
     // Use selectedAgency UUID if provided (admin view), otherwise use current user's UUID
     const agencyUuid = selectedAgency?.agencyUuid || Data.user?.agencyUuid
 
@@ -155,13 +152,7 @@ export const copyAgencyOnboardingLink = async ({
       customDomain = reduxUser.agencyBranding.customDomain
       basePath = `https://${customDomain}/`
       hasCustomDomain = true
-      console.log('✅ Found custom domain in user profile:', customDomain)
-    } else {
-      console.log(
-        'ℹ️ No custom domain in profile, using default base path:',
-        basePath,
-      )
-    }
+    } else {}
 
     // Generate the onboarding link immediately (using domain from reduxUser or default)
     // If custom domain is connected, don't include UUID. If no custom domain, include UUID.
@@ -169,10 +160,6 @@ export const copyAgencyOnboardingLink = async ({
       ? 'onboarding'
       : `onboarding/${agencyUuid}`
     const UUIDLink = basePath + onboardingPath
-    console.log('🔗 Generated onboarding link:', UUIDLink, {
-      hasCustomDomain,
-      includesUuid: !hasCustomDomain,
-    })
 
     // Copy to clipboard IMMEDIATELY (synchronously) to preserve user gesture context
     const copySuccess = copyWithFallback(UUIDLink)
@@ -184,7 +171,6 @@ export const copyAgencyOnboardingLink = async ({
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
           await navigator.clipboard.writeText(UUIDLink)
-          console.log('✅ Copied to clipboard using Clipboard API')
           setLinkCopied(true)
         }
       } catch (clipboardError) {
@@ -197,67 +183,23 @@ export const copyAgencyOnboardingLink = async ({
     // Now do async operations in background (check for custom domain from API and update stored link)
     // This doesn't block the copy operation
     ;(async () => {
-      try {
-        let finalCustomDomain = customDomain
-        let finalHasCustomDomain = hasCustomDomain
+        try {
+          let finalCustomDomain = customDomain
+          let finalHasCustomDomain = hasCustomDomain
 
-        // If we didn't have custom domain in reduxUser, try to get it from API
-        if (!finalCustomDomain) {
-          try {
-            const axios = (await import('axios')).default
-            const Apis = (await import('@/components/apis/Apis')).default
-            
-            // Add userId parameter if selectedAgency is provided (admin view)
-            let apiUrl = Apis.getAgencyBranding
-            if (selectedAgency?.id) {
-              apiUrl += `?userId=${selectedAgency.id}`
-            }
-            
-            const response = await axios.get(apiUrl, {
-              headers: {
-                Authorization: `Bearer ${authToken}`,
-                'Content-Type': 'application/json',
-              },
-            })
-
-            if (
-              response?.data?.status === true &&
-              response?.data?.data?.domains
-            ) {
-              const verifiedDomain = response.data.data.domains.find(
-                (domain) =>
-                  domain.type === 'web' &&
-                  (domain.status === 'active' || domain.status === 'verified'),
-              )
-              if (verifiedDomain) {
-                finalCustomDomain = verifiedDomain.domain
-                finalHasCustomDomain = true
-                console.log(
-                  '✅ Found custom domain from branding API:',
-                  finalCustomDomain,
-                )
-              }
-            }
-          } catch (apiError) {
-            console.warn(
-              'Could not fetch custom domain from branding API:',
-              apiError,
-            )
-          }
-
-          // If still not found, try the domain status API
+          // If we didn't have custom domain in reduxUser, try to get it from API
           if (!finalCustomDomain) {
             try {
               const axios = (await import('axios')).default
               const Apis = (await import('@/components/apis/Apis')).default
               
               // Add userId parameter if selectedAgency is provided (admin view)
-              let domainApiUrl = Apis.getDomainStatus
+              let apiUrl = Apis.getAgencyBranding
               if (selectedAgency?.id) {
-                domainApiUrl += `?userId=${selectedAgency.id}`
+                apiUrl += `?userId=${selectedAgency.id}`
               }
               
-              const domainResponse = await axios.get(domainApiUrl, {
+              const response = await axios.get(apiUrl, {
                 headers: {
                   Authorization: `Bearer ${authToken}`,
                   'Content-Type': 'application/json',
@@ -265,53 +207,83 @@ export const copyAgencyOnboardingLink = async ({
               })
 
               if (
-                domainResponse?.data?.status === true &&
-                domainResponse?.data?.data?.domain &&
-                (domainResponse?.data?.data?.status === 'active' ||
-                  domainResponse?.data?.data?.status === 'verified')
+                response?.data?.status === true &&
+                response?.data?.data?.domains
               ) {
-                finalCustomDomain = domainResponse.data.data.domain
-                finalHasCustomDomain = true
-                console.log(
-                  '✅ Found custom domain from domain status API:',
-                  finalCustomDomain,
+                const verifiedDomain = response.data.data.domains.find(
+                  (domain) =>
+                    domain.type === 'web' &&
+                    (domain.status === 'active' || domain.status === 'verified'),
                 )
+                if (verifiedDomain) {
+                  finalCustomDomain = verifiedDomain.domain
+                  finalHasCustomDomain = true
+                }
               }
-            } catch (domainError) {
+            } catch (apiError) {
               console.warn(
-                'Could not fetch custom domain from domain status API:',
-                domainError,
+                'Could not fetch custom domain from branding API:',
+                apiError,
               )
             }
+
+            // If still not found, try the domain status API
+            if (!finalCustomDomain) {
+              try {
+                const axios = (await import('axios')).default
+                const Apis = (await import('@/components/apis/Apis')).default
+                
+                // Add userId parameter if selectedAgency is provided (admin view)
+                let domainApiUrl = Apis.getDomainStatus
+                if (selectedAgency?.id) {
+                  domainApiUrl += `?userId=${selectedAgency.id}`
+                }
+                
+                const domainResponse = await axios.get(domainApiUrl, {
+                  headers: {
+                    Authorization: `Bearer ${authToken}`,
+                    'Content-Type': 'application/json',
+                  },
+                })
+
+                if (
+                  domainResponse?.data?.status === true &&
+                  domainResponse?.data?.data?.domain &&
+                  (domainResponse?.data?.data?.status === 'active' ||
+                    domainResponse?.data?.data?.status === 'verified')
+                ) {
+                  finalCustomDomain = domainResponse.data.data.domain
+                  finalHasCustomDomain = true
+                }
+              } catch (domainError) {
+                console.warn(
+                  'Could not fetch custom domain from domain status API:',
+                  domainError,
+                )
+              }
+            }
           }
-        }
 
-        // Generate the final link based on whether custom domain is connected
-        // If custom domain is connected, don't include UUID. If no custom domain, include UUID.
-        let finalLink
-        if (finalHasCustomDomain && finalCustomDomain) {
-          finalLink = `https://${finalCustomDomain}/onboarding`
-          console.log(
-            '🔄 Generated link with custom domain (no UUID):',
-            finalLink,
+          // Generate the final link based on whether custom domain is connected
+          // If custom domain is connected, don't include UUID. If no custom domain, include UUID.
+          let finalLink
+          if (finalHasCustomDomain && finalCustomDomain) {
+            finalLink = `https://${finalCustomDomain}/onboarding`
+          } else {
+            finalLink = defaultBasePath + `onboarding/${agencyUuid}`
+          }
+
+          // Store the link in the user table
+          const { UpdateProfile } = await import(
+            '@/components/apis/UpdateProfile'
           )
-        } else {
-          finalLink = defaultBasePath + `onboarding/${agencyUuid}`
-          console.log('🔄 Generated link with default domain (with UUID):', finalLink)
+          await UpdateProfile({
+            agencyOnboardingLink: finalLink,
+          })
+        } catch (updateError) {
+          console.error('Failed to store onboarding link:', updateError)
         }
-
-        // Store the link in the user table
-        const { UpdateProfile } = await import(
-          '@/components/apis/UpdateProfile'
-        )
-        await UpdateProfile({
-          agencyOnboardingLink: finalLink,
-        })
-        console.log('✅ Stored onboarding link in user profile:', finalLink)
-      } catch (updateError) {
-        console.error('Failed to store onboarding link:', updateError)
-      }
-    })()
+      })()
 
     // Reset the "Link Copied" state after 2 seconds
     setTimeout(() => {
@@ -340,7 +312,6 @@ function copyWithFallback(text) {
     document.body.removeChild(textArea)
 
     if (successful) {
-      console.log('✅ Copied to clipboard using execCommand')
       return true
     } else {
       console.error('execCommand copy failed')
@@ -368,8 +339,6 @@ export const UpgradeTag = ({
   setReduxUser,
   requestFeature = false,
 }) => {
-  console.log('request feature in upgrade tag is', requestFeature)
-  
   // Get brand color for styling
   const getBrandColor = () => {
     if (typeof window === 'undefined') {
@@ -384,7 +353,7 @@ export const UpgradeTag = ({
   }
 
   const brandColor = getBrandColor()
-  
+
   return (
     <div
       data-upgrade-clickable
@@ -445,19 +414,25 @@ export const UpgradeTagWithModal = ({
   const getProfileDetails = require('@/components/apis/GetProfile').default
   const UpgradePlan = require('@/components/userPlans/UpgradePlan').default
 
-  let from = reduxUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : ''
+  // Determine 'from' prop: use selectedUser's role if provided (admin/agency viewing another user),
+  // otherwise use logged-in user's role
+  let from = ''
+  if (selectedUser?.userRole === 'AgencySubAccount') {
+    from = 'SubAccount'
+  } else if (selectedUser?.userRole === 'Agency') {
+    from = 'agency'
+  } else if (reduxUser?.userRole === 'AgencySubAccount') {
+    from = 'SubAccount'
+  }
 
   // Function to refresh user data after plan upgrade
   const refreshUserData = async () => {
     try {
-      console.log('🔄 [UPGRADE-TAG] Refreshing user data after plan upgrade...')
       const profileResponse = await getProfileDetails()
 
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data
         const localData = JSON.parse(localStorage.getItem('User') || '{}')
-
-        console.log('🔄 [UPGRADE-TAG] Fresh user data received after upgrade')
 
         // Update Redux with fresh data
         const updatedUserData = {
@@ -482,13 +457,16 @@ export const UpgradeTagWithModal = ({
   React.useEffect(() => {
     // Only trigger if externalTrigger changed from false to true
     if (externalTrigger && !prevExternalTriggerRef.current) {
-      if (requestFeature) {
-        // If requestFeature is true, open the request feature modal
-        setShowUnlockPremiumFeaturesPopup(true)
-      } else {
-        // Otherwise, open the upgrade modal
-        setShowUpgradeModal(true)
-      }
+      // Small delay to ensure dropdown has closed and UI is stable
+      setTimeout(() => {
+        if (requestFeature) {
+          // If requestFeature is true, open the request feature modal
+          setShowUnlockPremiumFeaturesPopup(true)
+        } else {
+          // Otherwise, open the upgrade modal
+          setShowUpgradeModal(true)
+        }
+      }, 100)
     }
     prevExternalTriggerRef.current = externalTrigger
   }, [externalTrigger, requestFeature])
@@ -502,7 +480,6 @@ export const UpgradeTagWithModal = ({
   }
 
   const handleRequestFeature = () => {
-    console.log('requestFeature is true')
     setShowUnlockPremiumFeaturesPopup(true)
   }
 
@@ -524,9 +501,6 @@ export const UpgradeTagWithModal = ({
 
     // If upgrade was successful, refresh user data
     if (upgradeResult) {
-      console.log(
-        '🎉 [UPGRADE-TAG] Upgrade successful, refreshing user data...',
-      )
       await refreshUserData()
     }
   }
@@ -545,18 +519,15 @@ export const UpgradeTagWithModal = ({
         open={showUnlockPremiumFeaturesPopup}
         handleClose={handleRequestFeatureModalClose}
       />
-
       <UpgradePlan
         open={showUpgradeModal}
         handleClose={handleModalClose}
         plan={null}
         currentFullPlan={reduxUser?.user?.plan}
-        setSelectedPlan={() => {
-          console.log('setSelectedPlan is called')
-        }}
+        setSelectedPlan={() => {}}
         selectedUser={selectedUser}
         from={from}
       />
     </>
-  )
+  );
 }

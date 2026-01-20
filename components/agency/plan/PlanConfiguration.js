@@ -258,9 +258,6 @@ export default function PlanConfiguration({
   }, [costPerAdditionalSeat])
 
   useEffect(() => {
-    console.log('features are', features)
-    console.log('Custom features are', customFeatures)
-
     //this might be problematic removing temporarily
     if (!features.allowTeamSeats) {
       setNoOfSeats('')
@@ -409,12 +406,7 @@ export default function PlanConfiguration({
   useEffect(() => {
     fetchAgencyAllowedFeatures()
     if (configurationData) {
-      console.log(
-        'Selected configurationData data passed is',
-        configurationData,
-      )
       const dynamicFeatures = configurationData?.features
-      console.log('dynamic features are', dynamicFeatures)
       setNoOfAgents(configurationData?.maxAgents)
       setNoOfContacts(configurationData?.maxLeads)
       setCostPerAdditionalAgent(configurationData?.costPerAdditionalAgent)
@@ -649,17 +641,12 @@ export default function PlanConfiguration({
 
       setCreatePlanLoader(true)
 
-      console.log('Working')
-
       const Token = AuthToken()
       const ApiPath = Apis.addMonthlyPlan
-      console.log('Api path is', ApiPath)
 
       const formData = apiFormData()
 
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`)
-      }
+      for (let [key, value] of formData.entries()) {}
       // return
 
       const response = await axios.post(ApiPath, formData, {
@@ -669,7 +656,6 @@ export default function PlanConfiguration({
       })
 
       if (response) {
-        console.log('Response of Add plan is', response.data)
         setCreatePlanLoader(false)
         onPlanCreated(response)
         if (response.data.status === true) {
@@ -727,21 +713,14 @@ export default function PlanConfiguration({
 
       setCreatePlanLoader(true)
 
-      console.log('Working')
-
       const Token = AuthToken()
       // console.log("Selected plans passed is", planPassed);
       // const ApiPath = Apis.updateAgencyPlan;
 
       const url = `${Apis.updateAgencyPlan}/${selectedPlan.id}`
-      // const method = "put";
-
-      console.log('Api path is', url)
       const formData = apiFormData()
 
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`)
-      }
+      for (let [key, value] of formData.entries()) {}
       // return
 
       const response = await axios.put(url, formData, {
@@ -758,7 +737,6 @@ export default function PlanConfiguration({
       // });
 
       if (response) {
-        console.log('Response of Add plan is', response.data)
         setCreatePlanLoader(false)
         onPlanCreated(response)
         if (response.data.status === true) {
@@ -806,15 +784,11 @@ export default function PlanConfiguration({
     const contactsStr = noOfContacts?.toString().trim()
     let seatsStr = noOfSeats?.toString().trim()
     let costPerSeatStr = costPerAdditionalSeat?.toString().trim()
-    console.log(
-      'Status of features allow teams seats',
-      features?.allowTeamSeats,
-    )
-    
+
     // Validate agents count is within allowed range (1-1000)
     const agentsNum = Number(noOfAgents)
     const agentsValid = agentsStr && agentsNum > 0 && agentsNum <= 1000
-    
+
     let requiredData
     if (features?.allowTeamSeats === true) {
       seatsStr = noOfSeats?.toString().trim()
@@ -864,7 +838,6 @@ export default function PlanConfiguration({
 
   //remove custom field
   const handleRemoveCustomFeature = (index) => {
-    console.log('Index passed to remove the custom field', index)
     setCustomFeatures((prev) => prev.filter((_, i) => i !== index))
   }
 
@@ -893,7 +866,6 @@ export default function PlanConfiguration({
     if (localData) {
       const LD = JSON.parse(localData)
       const dynamicFeatures = LD?.user?.planCapabilities || {}
-      console.log('dynamic features are', dynamicFeatures)
       const planType = LD?.user?.plan?.title?.toLowerCase?.() || ''
       const canUseMultilingual =
         planType.includes('growth') || planType.includes('scale')
@@ -1366,7 +1338,7 @@ export default function PlanConfiguration({
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
 
 const styles = {

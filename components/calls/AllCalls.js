@@ -318,9 +318,7 @@ function AllCalls({ user }) {
     }
   }, [])
 
-  useEffect(() => {
-    console.log('setFilteredCallDetails', filteredCallDetails)
-  }, [filteredCallDetails])
+  useEffect(() => {}, [filteredCallDetails])
 
   //function for getting pipelines
   const getPipelines = async () => {
@@ -347,7 +345,6 @@ function AllCalls({ user }) {
       })
 
       if (response) {
-        console.log('Pipelines list is ', response.data.data)
         setPipelineLoader(false)
 
         if (response.data.status === true) {
@@ -433,7 +430,6 @@ function AllCalls({ user }) {
       // }
       ApiPath = `${ApiPath}${separator}offset=${offset}&timezone=${GetTimezone()}&limit=${LimitPerPage}`
 
-      console.log('api path is ', ApiPath)
       //console.log;
 
       //// //console.log;
@@ -448,11 +444,6 @@ function AllCalls({ user }) {
 
       if (currentRequestVersion === requestVersion.current) {
         if (response) {
-          console.log
-          // setCallDetails(response.data.data);
-          // setFilteredCallDetails(response.data.data);
-          console.log('call logs length is', response.data.data.length)
-
           const data = response.data.data
           localStorage.setItem(
             'callDetails',

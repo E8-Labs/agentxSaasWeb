@@ -36,7 +36,6 @@ export default function AffiliateDetailsDrawer({ open, onClose, affiliate }) {
         let u = JSON.parse(data)
 
         let apipath = Apis.getPayouts + '?affiliateId=' + affiliate.id
-        console.log('apipath', apipath)
 
         let response = await axios.get(apipath, {
           headers: {
@@ -49,16 +48,11 @@ export default function AffiliateDetailsDrawer({ open, onClose, affiliate }) {
 
           if (response.data.status === true) {
             setPayouts(response.data.data)
-            console.log('response.data.data', response.data.data)
-          } else {
-            console.log('response.data.message', response.data.message)
-          }
+          } else {}
         }
       }
     } catch (e) {
       setLoading2(false)
-
-      console.log('error in get payouts is ', e)
     }
   }
 
@@ -79,7 +73,6 @@ export default function AffiliateDetailsDrawer({ open, onClose, affiliate }) {
           affiliateId: affiliate.id,
           amount: amount,
         }
-        console.log('apipath', apipath)
 
         let response = await axios.post(apipath, apidata, {
           headers: {
@@ -91,17 +84,13 @@ export default function AffiliateDetailsDrawer({ open, onClose, affiliate }) {
           setLoading(false)
           if (response.data.status === true) {
             setPayouts((prev) => [...prev, response.data.data])
-            console.log('response.data.data', response.data.data)
             setShowAddNewPayoutPopup(false)
             setAmount('')
-          } else {
-            console.log('response.data.message', response.data.message)
-          }
+          } else {}
         }
       }
     } catch (e) {
       setLoading(false)
-      console.log('error in add payouts is ', e)
     } finally {
       setLoading(false)
     }

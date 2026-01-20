@@ -135,70 +135,69 @@ const ThreadsList = ({
           backgroundClassName="bg-brand-primary hover:bg-brand-primary/90 text-white border-0"
         />
       </div>
+      <div className="relative flex items-center gap-2 mt-4">
+        <div className="relative flex-1 ">
+          <Input
+            type="text"
+            placeholder="Search"
+            value={searchValue || ''}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="pl-10 pr-3 py-2.5 bg-gray-50 border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:bg-white"
+          />
+          {searchLoading ? (
+            <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 animate-spin" size={18} />
+          ) : (
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          )}
+        </div>
 
-        <div className="relative flex items-center gap-2 mt-4">
-          <div className="relative flex-1 ">
-            <Input
-              type="text"
-              placeholder="Search"
-              value={searchValue || ''}
-              onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-10 pr-3 py-2.5 bg-gray-50 border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:bg-white"
-            />
-            {searchLoading ? (
-              <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 animate-spin" size={18} />
-            ) : (
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+        <div className="relative">
+          <button
+            ref={filterButtonRef}
+            onClick={() => onFilterToggle?.(!showFilterPopover)}
+            className="relative p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+          >
+            <Image src="/messaging/filterIcon.svg" width={24} height={24} alt="Filter" />
+            {hasActiveFilters && (
+              <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-primary border-2 border-white" />
             )}
-          </div>
-
-          <div className="relative">
-            <button
-              ref={filterButtonRef}
-              onClick={() => onFilterToggle?.(!showFilterPopover)}
-              className="relative p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+          </button>
+          {showFilterPopover && (
+            <div
+              ref={filterPopoverRef}
+              className="absolute right-0 top-12 z-30 w-64 bg-white rounded-2xl shadow-xl border border-gray-200"
             >
-              <Image src="/messaging/filterIcon.svg" width={24} height={24} alt="Filter" />
-              {hasActiveFilters && (
-                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-primary border-2 border-white" />
-              )}
-            </button>
-            {showFilterPopover && (
-              <div
-                ref={filterPopoverRef}
-                className="absolute right-0 top-12 z-30 w-64 bg-white rounded-2xl shadow-xl border border-gray-200"
-              >
-                <div className="px-4 pt-3 pb-2 text-sm font-semibold text-gray-600">Filter by</div>
-                <div className="flex flex-col max-h-64 overflow-y-auto pb-2">
-                  {renderFilterOption({}, true)}
-                  {filterTeamMembers.length === 0 ? (
-                    <div className="px-4 py-4 text-sm text-gray-500">No team members available</div>
-                  ) : (
-                    filterTeamMembers.map((member) => renderFilterOption(member, false))
-                  )}
-                </div>
-                <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between gap-2">
-                  <button
-                    onClick={() => {
-                      onClearFilter?.()
-                    }}
-                    className="text-sm text-gray-500 hover:text-gray-700"
-                  >
-                    Clear
-                  </button>
-                  <Button
-                    size="sm"
-                    className="bg-brand-primary hover:bg-brand-primary/90 text-white"
-                    onClick={() => {
-                      onApplyFilter?.()
-                    }}
-                  >
-                    Apply
-                  </Button>
-                </div>
+              <div className="px-4 pt-3 pb-2 text-sm font-semibold text-gray-600">Filter by</div>
+              <div className="flex flex-col max-h-64 overflow-y-auto pb-2">
+                {renderFilterOption({}, true)}
+                {filterTeamMembers.length === 0 ? (
+                  <div className="px-4 py-4 text-sm text-gray-500">No team members available</div>
+                ) : (
+                  filterTeamMembers.map((member) => renderFilterOption(member, false))
+                )}
               </div>
-            )}
-          </div>
+              <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between gap-2">
+                <button
+                  onClick={() => {
+                    onClearFilter?.()
+                  }}
+                  className="text-sm text-gray-500 hover:text-gray-700"
+                >
+                  Clear
+                </button>
+                <Button
+                  size="sm"
+                  className="bg-brand-primary hover:bg-brand-primary/90 text-white"
+                  onClick={() => {
+                    onApplyFilter?.()
+                  }}
+                >
+                  Apply
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
 
           {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && 
           <button className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
@@ -367,7 +366,6 @@ const ThreadsList = ({
           </div>
         )}
       </div>
-
       {/* New Contact Drawer */}
       <NewContactDrawer
         open={showNewContactDrawer}
@@ -382,7 +380,7 @@ const ThreadsList = ({
         selectedUser={selectedUser}
       />
     </div>
-  )
+  );
 }
 
 export default ThreadsList

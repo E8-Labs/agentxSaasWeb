@@ -62,19 +62,13 @@ function MyAccount() {
               
               // Update xbar title if available
               if (branding?.xbarTitle) {
-                console.log('✅ [MyAccount] Fetched xbarTitle from API:', branding.xbarTitle)
                 setXbarTitle(branding.xbarTitle)
                 return
               }
             }
-          } catch (error) {
-            console.log('⚠️ [MyAccount] Error fetching branding from API:', error)
-            // Fall through to localStorage check
-          }
+          } catch (error) {}
         }
-      } catch (error) {
-        console.log('❌ [MyAccount] Error in fetchBrandingAndUpdateTitle:', error)
-      }
+      } catch (error) {}
       
       // Fallback: Get Xbar title from localStorage
       const getXbarTitle = () => {
@@ -97,9 +91,7 @@ function MyAccount() {
               return
             }
           }
-        } catch (error) {
-          console.log('Error getting xbar title from branding:', error)
-        }
+        } catch (error) {}
         // Default title
         setXbarTitle('Bar Services')
       }
@@ -113,7 +105,6 @@ function MyAccount() {
     // Listen for branding updates
     const handleBrandingUpdate = (event) => {
       if (event?.detail?.xbarTitle) {
-        console.log('✅ [MyAccount] Setting xbarTitle from event:', event.detail.xbarTitle)
         setXbarTitle(event.detail.xbarTitle)
         // Also update localStorage
         const storedBranding = localStorage.getItem('agencyBranding')
@@ -278,7 +269,7 @@ function MyAccount() {
 
   const handleTabSelect = async (item, index) => {
     const { termsUrl, privacyUrl, cancellationUrl } = await getPolicyUrls()
-    
+
     if (item.id === 8) {
       window.open(termsUrl, '_blank')
       return
@@ -289,13 +280,13 @@ function MyAccount() {
       window.open(cancellationUrl, '_blank')
       return
     }
-    console.log('Index is', index)
     setTabSelected(item.id)
     setParamsInSearchBar(item.id)
   }
 
   return (
     // <Suspense>
+    // </Suspense>
     <div
       className="w-full flex flex-col items-center"
       style={{ overflow: 'hidden', height: '100vh' }}
@@ -310,7 +301,6 @@ function MyAccount() {
           <NotficationsDrawer />
         </div>
       </div>
-
       <div className="w-full flex flex-row item-center pl-4 h-[100%]">
         <div className="w-3/12 items-center flex flex-col pt-4 pr-2 overflow-y-auto h-[90%] pb-22">
           {manuBar.map((item, index) => (
@@ -383,8 +373,7 @@ function MyAccount() {
         </div>
       </div>
     </div>
-    // </Suspense>
-  )
+  );
 }
 
 export default MyAccount

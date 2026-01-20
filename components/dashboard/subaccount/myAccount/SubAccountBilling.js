@@ -36,7 +36,6 @@ import AgentSelectSnackMessage, {
 const stripePromise = getStripe()
 
 function SubAccountBilling({ hideBtns, selectedUser }) {
-  console.log('Selected user passed is', selectedUser)
   //stroes user cards list
   const [cards, setCards] = useState([])
 
@@ -130,14 +129,12 @@ function SubAccountBilling({ hideBtns, selectedUser }) {
     try {
       setInitialLoader(true)
       const Token = AuthToken()
-      console.log('user id is', selectedUser?.id)
       let ApiPath = null
       if (selectedUser) {
         ApiPath = `${Apis.getSubAccountPlans}?userId=${selectedUser?.id}`
       } else {
         ApiPath = Apis.getSubAccountPlans
       }
-      console.log('Api path of get plan is', ApiPath)
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: 'Bearer ' + Token,
@@ -146,7 +143,6 @@ function SubAccountBilling({ hideBtns, selectedUser }) {
       })
 
       if (response) {
-        console.log('Response of get plans api is', response.data.data)
         setPlans(response.data.data.monthlyPlans)
         setInitialLoader(false)
       }
@@ -170,8 +166,6 @@ function SubAccountBilling({ hideBtns, selectedUser }) {
         ApiPath = Apis.getProfileData
       }
 
-      console.log('Api path for get profile is', ApiPath)
-
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: 'Bearer ' + Token,
@@ -180,9 +174,7 @@ function SubAccountBilling({ hideBtns, selectedUser }) {
       })
 
       if (response) {
-        console.log('Response of get profile api is', response)
         let plan = response?.data?.data?.plan
-        console.log('response?.data?.data?.plan', response?.data?.data?.plan)
 
         let togglePlan = plan?.planId
 
@@ -228,8 +220,6 @@ function SubAccountBilling({ hideBtns, selectedUser }) {
       } else {
         ApiPath = Apis.getCardsList
       }
-
-      console.log('Api path of get cards api is', ApiPath)
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -306,7 +296,6 @@ function SubAccountBilling({ hideBtns, selectedUser }) {
 
   //functions for selecting plans
   const handleTogglePlanClick = (item) => {
-    console.log('Selected id', item.id)
     // if (togglePlan) {
     //     setTogglePlan(prevId => (prevId === item.id ? null : item.id));
     //     setSelectedPlan(prevId => (prevId === item ? null : item));
@@ -323,8 +312,6 @@ function SubAccountBilling({ hideBtns, selectedUser }) {
   //function to subscribe plan
   const handleSubscribePlan = async () => {
     try {
-      console.log('ssubscribe')
-
       setSubscribePlanLoader(true)
       let AuthToken = null
       let localDetails = null
@@ -349,9 +336,7 @@ function SubAccountBilling({ hideBtns, selectedUser }) {
       if (selectedUser) {
         formData.append('userId', selectedUser.id)
       }
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`)
-      }
+      for (let [key, value] of formData.entries()) {}
       // //console.log;
       // //console.log;
 
@@ -367,7 +352,6 @@ function SubAccountBilling({ hideBtns, selectedUser }) {
         // //console.log;
         if (response.data.status === true) {
           localDetails.user.plan = response.data.data
-          console.log('response.data.data', response.data)
           // let user = userLocalData
           // user.plan = response.data.data
           // setUserLocalData(user)
@@ -403,7 +387,6 @@ function SubAccountBilling({ hideBtns, selectedUser }) {
   //function to get payment history
   const getPaymentHistory = async () => {
     try {
-      console.log('Payment history trigered for subaccount')
       setHistoryLoader(true)
 
       let AuthToken = null
@@ -416,7 +399,6 @@ function SubAccountBilling({ hideBtns, selectedUser }) {
       }
 
       const ApiPath = `${Apis.getPaymentHistory}?userId=${selectedUser.id}`
-      console.log('Api path for payment history of subaccount is', ApiPath)
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -527,10 +509,6 @@ function SubAccountBilling({ hideBtns, selectedUser }) {
       if (response) {
         // //console.log;
         let response2 = await getProfileDetails()
-        console.log(
-          'response2?.data?.data?.plan?.id',
-          response2?.data?.data?.plan?.id,
-        )
         if (response2) {
           let togglePlan = response2?.data?.data?.plan?.planId
           // let planType = null;
@@ -607,7 +585,6 @@ function SubAccountBilling({ hideBtns, selectedUser }) {
       const Token = AuthToken()
 
       const ApiPath = `${Apis.getTransactionDetails}?transactionId=${transactionId}`
-      console.log('Api path for transaction details is', ApiPath)
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -617,7 +594,6 @@ function SubAccountBilling({ hideBtns, selectedUser }) {
       })
 
       if (response) {
-        console.log('Transaction details response:', response.data)
         if (response.data.status === true) {
           setTransactionDetails(response.data.data)
           setTransactionDetailsModal(true)

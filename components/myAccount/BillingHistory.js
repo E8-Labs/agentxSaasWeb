@@ -22,7 +22,6 @@ function BillingHistory({ selectedUser }) {
   const [clickedTransactionId, setClickedTransactionId] = useState(null)
 
   useEffect(() => {
-    console.log('Billing history page loading')
     getPaymentHistory()
   }, [])
 
@@ -30,7 +29,6 @@ function BillingHistory({ selectedUser }) {
   const getPaymentHistory = async () => {
     try {
       setHistoryLoader(true)
-      console.log('transaction api trigered')
 
       let AuthToken = null
       let localDetails = null
@@ -45,7 +43,6 @@ function BillingHistory({ selectedUser }) {
       if (selectedUser) {
         ApiPath = ApiPath + `?userId=${selectedUser.id}`
       }
-      console.log('Api path for get transaction history is', ApiPath)
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -55,7 +52,6 @@ function BillingHistory({ selectedUser }) {
       })
 
       if (response) {
-        console.log('Response of transaction history is', response)
         if (response.data.status === true) {
           setPaymentHistoryData(response.data.data)
         }
@@ -83,7 +79,6 @@ function BillingHistory({ selectedUser }) {
       if (selectedUser) {
         ApiPath = ApiPath + `&userId=${selectedUser.id}`
       }
-      console.log('Api path for transaction details is', ApiPath)
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -93,7 +88,6 @@ function BillingHistory({ selectedUser }) {
       })
 
       if (response) {
-        console.log('Transaction details response:', response.data)
         if (response.data.status === true) {
           setTransactionDetails(response.data.data)
           setTransactionDetailsModal(true)

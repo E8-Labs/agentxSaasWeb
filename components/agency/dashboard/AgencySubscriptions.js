@@ -35,7 +35,7 @@ import AgencyDashboardDefaultUI from './AgencyDashboardDefaultUI'
 
 // Helper function to format numbers with commas
 const formatNumberWithCommas = (num) => {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 // Helper function to format currency with commas
@@ -409,12 +409,9 @@ function AgencySubscriptions({ selectedAgency }) {
             {}
           const planTitles = Object.keys(planStats)
           setTestPlans(planTitles)
-          console.log('Plan Titles:', planTitles)
         }
       }
-    } catch (e) {
-      console.log('Error occurred in analytics api:', e)
-    }
+    } catch (e) {}
   }
 
   const handleStartDateSelect = (date) => {

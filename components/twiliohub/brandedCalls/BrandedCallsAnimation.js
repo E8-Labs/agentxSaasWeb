@@ -56,9 +56,7 @@ const BrandedCallsAnimation = ({ showVoiceIntegration, handleClose }) => {
   // const [loader, setLoader] = useState(false);
 
   const handleContinue = (formData) => {
-    if (formData) {
-      console.log(formData)
-    }
+    if (formData) {}
     setDirection(1)
     setCurrentIndex((prevIndex) => prevIndex + 1)
   }

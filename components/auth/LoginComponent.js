@@ -124,8 +124,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             customDomain: window.location.hostname,
           }
 
-          console.log("bodyData", bodyData)
-
           const lookupResponse = await fetch(
             `${baseUrl}api/agency/lookup-by-domain`,
             {
@@ -137,8 +135,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             },
           )
 
-          console.log("lookupResponse", lookupResponse)
-
           if (lookupResponse.ok) {
             const lookupData = await lookupResponse.json()
             if (lookupData.status && lookupData.data?.branding) {
@@ -149,7 +145,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 JSON.stringify(brandingData),
               )
               setAgencyBranding(brandingData)
-              
+
               // Apply branding CSS variables
               if (typeof document !== 'undefined') {
                 try {
@@ -163,21 +159,13 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   document.documentElement.style.setProperty('--secondary', secondaryHsl)
                   const iconFilter = calculateIconFilter(primaryColor)
                   document.documentElement.style.setProperty('--icon-filter', iconFilter)
-                } catch (error) {
-                  console.log('Error applying branding styles:', error)
-                }
+                } catch (error) {}
               }
-              
-              console.log(
-                '✅ [LoginComponent] Fetched fresh branding from API:',
-                brandingData,
-              )
+
               return true
             }
           }
-        } catch (error) {
-          console.log('Error fetching branding from API:', error)
-        }
+        } catch (error) {}
         return false
       }
 
@@ -202,16 +190,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           // Calculate and set icon filter
           const iconFilter = calculateIconFilter(primaryColor)
           document.documentElement.style.setProperty('--icon-filter', iconFilter)
-          
-          console.log('✅ [LoginComponent] Applied branding CSS variables:', {
-            primaryColor,
-            secondaryColor,
-            primaryHsl,
-            secondaryHsl
-          })
-        } catch (error) {
-          console.log('Error applying branding styles:', error)
-        }
+        } catch (error) {}
       }
 
       // First, check localStorage for immediate display (works for both assignx and custom domains)
@@ -220,7 +199,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         try {
           const brandingData = JSON.parse(storedBranding)
           setAgencyBranding(brandingData)
-          console.log('✅ [LoginComponent] Using branding from localStorage:', brandingData)
 
           // Apply branding styles if it's a custom domain
           if (!isAssignx && brandingData) {
@@ -240,9 +218,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             })
           }
           return
-        } catch (error) {
-          console.log('Error parsing agencyBranding from localStorage:', error)
-        }
+        } catch (error) {}
       }
 
       // For custom domains, fetch from API if no localStorage branding found
@@ -266,10 +242,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     fetchBranding()
     // Listen for branding updates from other components (e.g., BrandConfig)
     const handleBrandingUpdate = (event) => {
-      console.log(
-        '🔄 [LoginComponent] Branding updated event received',
-        event.detail,
-      )
       const updatedBranding = event.detail
       // Update cookie and localStorage
       if (updatedBranding) {
@@ -293,9 +265,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
               document.documentElement.style.setProperty('--secondary', secondaryHsl)
               const iconFilter = calculateIconFilter(primaryColor)
               document.documentElement.style.setProperty('--icon-filter', iconFilter)
-            } catch (error) {
-              console.log('Error applying branding styles:', error)
-            }
+            } catch (error) {}
           }
           applyBrandingStyles(updatedBranding)
         }
@@ -326,15 +296,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
 
       const iconFilter = calculateIconFilter(primaryColor)
       document.documentElement.style.setProperty('--icon-filter', iconFilter)
-
-      console.log('✅ [LoginComponent] Applied branding CSS variables on custom domain:', {
-        primaryColor,
-        secondaryColor,
-        hostname: typeof window !== 'undefined' ? window.location.hostname : 'N/A'
-      })
-    } catch (error) {
-      console.log('Error applying branding styles:', error)
-    }
+    } catch (error) {}
   }, [agencyBranding, isAssignxDomain])
 
   useEffect(() => {
@@ -386,10 +348,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       // CRITICAL: If user just logged out (either via URL param or sessionStorage flag), skip auto-login
       const logoutParam = searchParams.get('logout')
       if (logoutParam || logoutFlag) {
-        console.log('🚪 Logout detected, skipping auto-login and clearing any remaining data', {
-          logoutParam: !!logoutParam,
-          logoutFlag: !!logoutFlag
-        })
         // Clear any remaining localStorage data (safety check)
         localStorage.removeItem('User')
         // Clear Redux persist storage
@@ -479,7 +437,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             pathname === redirectPath ||
             pathname.startsWith(redirectPath + '/')
           ) {
-            console.log('✅ Already on correct path, no redirect needed')
             setIsCheckingAuth(false)
             return
           }
@@ -488,11 +445,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           if (typeof document !== 'undefined' && d.user) {
             setCookie(d.user, document)
           }
-
-          console.log(
-            '✅ Authentication successful, redirecting to:',
-            redirectPath,
-          )
 
           // Use window.location.href for hard redirect to ensure navigation happens
           // This will completely reload the page and clear the loading state
@@ -550,14 +502,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       const locationData = {
         location: data.countryCode.toLowerCase(),
       }
-      if (userPhoneNumberRef.current === '') {
-        console.log(
-          'User Phone Number is in location',
-          userPhoneNumberRef.current,
-        )
-
-        // setCountryCode(data.countryCode.toLowerCase());
-      }
+      if (userPhoneNumberRef.current === '') {}
 
       // //console.log;
       if (data && data.countryCode) {
@@ -782,8 +727,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000)
             if (typeof document !== 'undefined') {
               setCookie(response.data.data.user, document, twoHoursFromNow)
-              // Use window.location.href for hard redirect to ensure clean page reload
-              console.log('✅ Login successful (waitlist), redirecting to: /onboarding/WaitList')
               window.location.href = '/onboarding/WaitList'
               return
             }
@@ -827,7 +770,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                       }
                     }
                   })
-                  .catch(err => console.log('Error fetching branding after login:', err))
+                  .catch(() => {})
               }
             }
 
@@ -877,7 +820,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         verificationCode: VerifyCode.join(''),
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       }
-      console.log('Data sending in login api', ApiData)
       setLoginLoader(true)
       const response = await axios.post(Apis.LogIn, ApiData, {
         headers: {
@@ -888,9 +830,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       // setLoginLoader(false);
       //console.log;
       if (response) {
-        // const data = response //await response.json();
-        console.log('data of login api is', response)
-
         // console.log;
         // Redirect user or update state as needed
         let screenWidth = innerWidth
@@ -929,8 +868,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             twoHoursFromNow.setTime(twoHoursFromNow.getTime() + 2 * 60 * 1000)
             if (typeof document !== 'undefined') {
               setCookie(response.data.data.user, document, twoHoursFromNow)
-              // Use window.location.href for hard redirect to ensure clean page reload
-              console.log('✅ Login successful (waitlist), redirecting to: /onboarding/WaitList')
               window.location.href = '/onboarding/WaitList'
               return
             }
@@ -944,17 +881,16 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             if (typeof document !== 'undefined') {
               setCookie(response.data.data.user, document)
               let w = innerWidth
-              
+
               // Determine redirect path
               let redirectPath = '/dashboard/myAgentX'
-              
+
               if (w < 540) {
                 redirectPath = '/createagent/desktop'
               } else if (w > 540) {
                 if (redirect) {
                   redirectPath = redirect
                 } else {
-                  console.log('user role is', response.data.data.user.userRole)
                   if (response.data.data.user.userType == 'admin') {
                     redirectPath = '/admin'
                   } else if (
@@ -976,9 +912,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                 }
               }
 
-              // Use window.location.href for hard redirect to ensure clean page reload
-              // This prevents DOM cleanup errors during navigation
-              console.log('✅ Login successful, redirecting to:', redirectPath)
               window.location.href = redirectPath
               return
             }
@@ -1037,7 +970,6 @@ const LoginComponent = ({ length = 6, onComplete }) => {
       }
     } catch (error) {
       retryAttempts++
-      console.log('retryAttempts', retryAttempts)
       if (retryAttempts < 3) {
         await checkPhoneNumber(value, retryAttempts)
       } else {

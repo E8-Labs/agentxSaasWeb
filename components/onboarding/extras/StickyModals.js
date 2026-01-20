@@ -55,13 +55,6 @@ export const TwilioWarning = ({
 
     if (data) {
       const agencyData = JSON.parse(data)
-      console.log(
-        `✅ Data fetched on ${attempts}${attempts === 1 ? 'st' : attempts === 2 ? 'nd' : attempts === 3 ? 'rd' : 'th'} try`,
-      )
-      console.log(
-        'Agency data for checking twilio is',
-        agencyData.user.isTwilioConnected,
-      )
       if (agencyData.user.isTwilioConnected === false) {
         setShowAddTwiliowarning(true)
         isTwilioAdded({ status: true })
@@ -71,10 +64,8 @@ export const TwilioWarning = ({
       }
     } else {
       if (attempts < maxAttempts) {
-        console.log(`⏳ Data not found on try ${attempts}, retrying...`)
         setTimeout(fetchData, 1000) // retry after 1 second
       } else {
-        console.log('❌ Data not found after 5 tries')
         alert('Data not fetched ⛔')
         setShowAddTwiliowarning(true)
         isTwilioAdded({ status: true })
@@ -84,7 +75,6 @@ export const TwilioWarning = ({
 
   const fetchProfileData = async () => {
     const profileData = await getProfileDetails()
-    console.log('Response of user profile us', profileData)
   }
 
   return (
@@ -190,7 +180,6 @@ export const AddAgencyTwilioKeyModal = ({
         }
       }
 
-      console.log('Api data sending in add twilio api', ApiData)
       // for (let [key, value] of formData.entries()) {
       //   console.log(`${key} = ${value}`);
       // }
@@ -202,9 +191,7 @@ export const AddAgencyTwilioKeyModal = ({
       })
 
       if (response) {
-        console.log('Response of add twilio api is', response)
         if (response.data.status === true) {
-          console.log('Sending the success message')
           await getProfileDetails()
           setTwillioLoader(false)
           const localData = localStorage.getItem('User')
@@ -393,7 +380,6 @@ export const UpSellPhone = ({ allowUpSellPhone, handleClose }) => {
   //handle save
   const handleSaveUpSell = async () => {
     try {
-      console.log('Which data to send in api is not confirmed')
       // return
       setSaveLoader(true)
       const Auth = AuthToken()
@@ -410,7 +396,6 @@ export const UpSellPhone = ({ allowUpSellPhone, handleClose }) => {
 
       if (response) {
         await getProfileDetails()
-        console.log('Response of add upsell phone api is', response)
         handleClose(response.data)
         setSaveLoader(false)
       }

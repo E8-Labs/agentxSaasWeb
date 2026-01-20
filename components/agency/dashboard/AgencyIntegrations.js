@@ -27,20 +27,13 @@ function AgencyIntegrations({ selectedAgency, initialTab = 1 }) {
   const { user: reduxUser, setUser: setReduxUser } = useUser()
 
   const refreshUserData = async () => {
-    console.log('🔄 REFRESH USER DATA STARTED')
     try {
-      console.log('🔄 Calling getProfileDetails...')
       const profileResponse = await getProfileDetails()
-      console.log('🔄 getProfileDetails response:', profileResponse)
 
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data
         const localData = JSON.parse(localStorage.getItem('User') || '{}')
 
-        // console.log('🔄 [CREATE-AGENT] Fresh user data received after upgrade');
-
-        // Update Redux and localStorage with fresh data
-        console.log('updating redux user', freshUserData)
         const updatedUserData = {
           token: localData.token,
           user: freshUserData,

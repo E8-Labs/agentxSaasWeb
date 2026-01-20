@@ -42,7 +42,6 @@ function NoAgent({
           const userType = reduxUser?.userType
           const userRole = reduxUser?.userRole
           isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
-          console.log('NoAgent handleAddNewAgent - Redux user check:', { userType, userRole, isAdminOrAgency })
         }
         
         // Fallback to localStorage if Redux doesn't have the data
@@ -54,11 +53,8 @@ function NoAgent({
               const userType = parsedUser?.user?.userType || parsedUser?.userType
               const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
               isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
-              console.log('NoAgent handleAddNewAgent - localStorage user check:', { userType, userRole, isAdminOrAgency })
             }
-          } catch (error) {
-            console.log('Error parsing localStorage User data:', error)
-          }
+          } catch (error) {}
         }
         
         // If coming from admin/agency or current user is admin/agency, save context and return URL
@@ -73,7 +69,7 @@ function NoAgent({
             const currentUserRole = reduxUser?.userRole || (typeof window !== 'undefined' && localStorage.getItem('User') ? JSON.parse(localStorage.getItem('User'))?.user?.userRole : null)
             isFromAgencyValue = currentUserRole === 'Agency'
           }
-          
+
           const d = {
             subAccountData: selectedUser,
             isFromAgency: isFromAgencyValue,
@@ -82,7 +78,7 @@ function NoAgent({
             PersistanceKeys.isFromAdminOrAgency,
             JSON.stringify(d),
           )
-          
+
           // Save current URL for redirect after agent creation
           if (typeof window !== 'undefined') {
             const currentUrl = window.location.href
@@ -91,17 +87,12 @@ function NoAgent({
               currentUrl,
             )
           }
-          
-          // Open in new tab for Admin or Agency
-          console.log('NoAgent - Opening /createagent in new tab (user is Admin or Agency)')
+
           window.open('/createagent', '_blank')
         } else {
-          // router.push("/createagent");
-          console.log('NoAgent - Opening /createagent in same tab')
           window.location.href = '/createagent'
         }
       } else {
-        console.log('Donot route')
         setShowSnack({
           type: SnackbarTypes.Error,
           message: 'User has no plan subscribed',

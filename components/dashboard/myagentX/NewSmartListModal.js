@@ -98,7 +98,6 @@ const NewSmartListModal = ({ open, onClose, agentId, onSuccess, agentType, selec
         payload.userId = selectedUser?.id
       }
 
-      console.log('payload', payload)
       let path = Apis.addSmartList
       const response = await axios.post(path, payload, {
         headers: {

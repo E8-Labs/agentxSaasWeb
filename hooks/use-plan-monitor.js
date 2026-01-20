@@ -14,8 +14,6 @@ export const usePlanMonitor = () => {
   // Handle plan upgrade
   const handlePlanUpgrade = useCallback(
     (newPlanData) => {
-      console.log('Plan upgraded:', newPlanData)
-
       // Update user profile with new plan data
       updateProfile({
         plan: newPlanData.plan,
@@ -34,8 +32,6 @@ export const usePlanMonitor = () => {
   // Handle plan downgrade
   const handlePlanDowngrade = useCallback(
     (newPlanData) => {
-      console.log('Plan downgraded:', newPlanData)
-
       // Update user profile
       updateProfile({
         plan: newPlanData.plan,
@@ -54,8 +50,6 @@ export const usePlanMonitor = () => {
   // Handle plan cancellation
   const handlePlanCancellation = useCallback(
     (cancellationData) => {
-      console.log('Plan cancelled:', cancellationData)
-
       // Update user profile to reflect cancellation
       updateProfile({
         plan: null,
@@ -88,7 +82,6 @@ export const usePlanMonitor = () => {
           handlePlanCancellation(data)
           break
         default:
-          console.log('Unknown plan change type:', type)
       }
     }
 

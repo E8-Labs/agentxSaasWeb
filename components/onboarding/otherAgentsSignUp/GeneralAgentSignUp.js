@@ -357,40 +357,24 @@ const GeneralAgentSignUp = ({
         setResponse(result)
         setIsVisible(true)
         if (response.data.status === true) {
-          console.log(
-            '[DEBUG] Registration successful, starting affiliate tracking...',
-          )
           localStorage.removeItem(PersistanceKeys.RegisterDetails)
           // CRITICAL: Clear logout flag on successful registration
           const { clearLogoutFlag } = require('@/utilities/UserUtility')
           clearLogoutFlag()
-          
+
           localStorage.setItem('User', JSON.stringify(response.data.data))
 
           if (typeof document !== 'undefined') {
             setCookie(response.data.data.user, document)
           }
 
-          // Track signup for affiliate marketing
-          console.log(
-            '[DEBUG] Checking affiliate tracking function...',
-            typeof window.agentxTrackSignup,
-          )
           if (typeof window !== 'undefined' && window.agentxTrackSignup) {
-            console.log(
-              '[DEBUG] Calling agentxTrackSignup with:',
-              userEmail,
-              userName,
-              response.data.data.user?.id,
-            )
             window.agentxTrackSignup(
               userEmail,
               userName,
               response.data.data.user?.id,
             )
-          } else {
-            console.log('[DEBUG] agentxTrackSignup not available')
-          }
+          } else {}
 
           // Clear agency UUID after successful registration
           if (agencyUuid) {
@@ -427,17 +411,9 @@ const GeneralAgentSignUp = ({
             setCongratsPopup(true)
             // //console.log;
           } else {
-            //console.log;
-            // handleContinue();
-            
-            // CRITICAL: Redirect FIRST, before showing popup
-            // This ensures redirect happens even if popup blocks execution
-            console.log('✅ Registration successful, redirecting to: /createagent')
-            
             // Redirect immediately - don't wait for anything
             const performRedirect = () => {
               try {
-                console.log('🔄 Attempting redirect to /createagent')
                 window.location.href = '/createagent'
               } catch (error) {
                 console.error('❌ Error with window.location.href:', error)
@@ -454,13 +430,13 @@ const GeneralAgentSignUp = ({
                 }
               }
             }
-            
+
             // Execute redirect immediately (synchronous)
             performRedirect()
-            
+
             // Show popup AFTER redirect is initiated (non-blocking)
             handleShowRedirectPopup()
-            
+
             // Fallback: Force redirect after 200ms if still on onboarding page
             setTimeout(() => {
               const currentPath = window.location.pathname
@@ -469,7 +445,7 @@ const GeneralAgentSignUp = ({
                 window.location.replace('/createagent')
               }
             }, 200)
-            
+
             // Final fallback: Force redirect after 800ms
             setTimeout(() => {
               const currentPath = window.location.pathname
@@ -478,7 +454,7 @@ const GeneralAgentSignUp = ({
                 window.location.replace('/createagent')
               }
             }, 800)
-            
+
             return
           }
         }
@@ -512,8 +488,6 @@ const GeneralAgentSignUp = ({
       })
 
       if (response) {
-        // //console.log;
-        console.log('Data of check email api is', response)
         if (response.data.status === true) {
           setEmailCheckResponse(response.data)
         } else {
@@ -1120,34 +1094,25 @@ const GeneralAgentSignUp = ({
                           onClick={(e) => {
                             e.preventDefault()
                             e.stopPropagation()
-                            
+
                             // Check if user is on mobile - use both screen width and user agent
                             const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
                             const SM_SCREEN_SIZE = 640
                             const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
                               typeof navigator !== 'undefined' ? navigator.userAgent : ''
                             )
-                            
-                            console.log('Get Started clicked - screenWidth:', screenWidth, 'isMobileDevice:', isMobileDevice)
-                            
+
                             // If mobile device OR small screen, navigate to payment step (step 4) to allow subscription
                             // Determine redirect path
                             let redirectPath = '/createagent'
                             if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
-                              // Mobile: Navigate to payment step (step 4) to allow subscription
-                              console.log('Mobile detected - navigating to payment step')
                               redirectPath = '/createagent?step=4'
                             } else {
-                              // Desktop: Navigate to createagent
-                              console.log('Desktop detected - navigating to createagent')
                               if (handleShowRedirectPopup) {
                                 handleShowRedirectPopup()
                               }
                             }
-                            
-                            // Use window.location.href for hard redirect to ensure clean page reload
-                            // This prevents DOM cleanup errors during navigation
-                            console.log('✅ Registration successful, redirecting to:', redirectPath)
+
                             window.location.href = redirectPath
                             return
                           }}
@@ -1188,7 +1153,7 @@ const GeneralAgentSignUp = ({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default GeneralAgentSignUp

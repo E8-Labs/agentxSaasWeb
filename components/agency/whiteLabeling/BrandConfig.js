@@ -175,10 +175,7 @@ const BrandConfig = ({ selectedAgency }) => {
 
   //logo image selector
   const handleLogoUpload = (file) => {
-    console.log('🖼️ [BrandConfig] Logo upload triggered', file)
-
     if (!file) {
-      console.log('❌ [BrandConfig] No file provided')
       return
     }
 
@@ -205,7 +202,6 @@ const BrandConfig = ({ selectedAgency }) => {
     // Read file and show cropper immediately
     const reader = new FileReader()
     reader.onload = (e) => {
-      console.log('✅ [BrandConfig] File read successfully, opening cropper')
       const imageDataUrl = e.target.result
 
       // Set both states together - React will batch the updates
@@ -213,7 +209,6 @@ const BrandConfig = ({ selectedAgency }) => {
       // Use setTimeout to ensure state is set before opening modal
       setTimeout(() => {
         setShowCropper(true)
-        console.log('🖼️ [BrandConfig] Cropper opened')
       }, 0)
     }
     reader.onerror = () => {
@@ -472,19 +467,14 @@ const BrandConfig = ({ selectedAgency }) => {
       // Upload favicon if new file selected
       let faviconUrl = originalValues.faviconUrl
       if (faviconFile) {
-        console.log('📤 [BrandConfig] Uploading favicon file:', faviconFile.name)
         faviconUrl = await uploadFavicon(authToken)
-        console.log('📥 [BrandConfig] Favicon upload response:', faviconUrl)
         if (!faviconUrl) {
           console.error('❌ [BrandConfig] Favicon upload returned null/undefined')
           throw new Error('Failed to upload favicon')
         }
         // Update preview immediately with server URL
         setFaviconPreview(faviconUrl)
-        console.log('✅ [BrandConfig] Favicon preview updated to:', faviconUrl)
-      } else {
-        console.log('ℹ️ [BrandConfig] No favicon file to upload, keeping existing:', faviconUrl)
-      }
+      } else {}
 
       // Update colors if changed
       if (
@@ -584,7 +574,6 @@ const BrandConfig = ({ selectedAgency }) => {
       // Show success snackbar after all updates and refresh complete
       // Use setTimeout to ensure it shows even if state updates are batched
       setTimeout(() => {
-        console.log('✅ [BrandConfig] Setting success snackbar')
         setShowSnackMessage({
           type: SnackbarTypes.Success,
           message: 'Branding settings saved successfully',
@@ -608,7 +597,7 @@ const BrandConfig = ({ selectedAgency }) => {
             freshResponse?.data?.data?.branding
           ) {
             const freshBranding = freshResponse.data.data.branding
-            
+
             // Ensure we use the uploaded faviconUrl if the fresh response doesn't have it yet
             // This handles race conditions where the server hasn't updated yet
             const finalBranding = {
@@ -620,20 +609,10 @@ const BrandConfig = ({ selectedAgency }) => {
               xbarTitle: freshBranding.xbarTitle || xbarTitle,
               faviconText: freshBranding.faviconText || faviconText,
             }
-            
-            console.log('📦 [BrandConfig] Fresh branding from API:', {
-              faviconUrl: freshBranding.faviconUrl,
-              uploadedFaviconUrl: uploadedFaviconUrl,
-              finalFaviconUrl: finalBranding.faviconUrl,
-              logoUrl: freshBranding.logoUrl,
-              primaryColor: freshBranding.primaryColor,
-            })
 
             // Update cookie and apply branding immediately using centralized function
             const applied = updateBrandingCookieAndApply(finalBranding, true)
-            if (applied) {
-              console.log('✅ [BrandConfig] Branding cookie updated and applied immediately')
-            } else {
+            if (applied) {} else {
               console.warn('⚠️ [BrandConfig] Failed to update branding cookie')
             }
           } else {
@@ -648,9 +627,7 @@ const BrandConfig = ({ selectedAgency }) => {
               secondaryColor: secondaryColor,
             }
             const applied = updateBrandingCookieAndApply(fallbackBranding, true)
-            if (applied) {
-              console.log('✅ [BrandConfig] Fallback branding cookie updated and applied')
-            }
+            if (applied) {}
           }
         } catch (error) {
           console.error(
@@ -666,15 +643,8 @@ const BrandConfig = ({ selectedAgency }) => {
             primaryColor: primaryColor,
             secondaryColor: secondaryColor,
           }
-          console.log('📦 [BrandConfig] Fallback branding (fresh fetch failed):', {
-            faviconUrl: updatedBranding.faviconUrl,
-            logoUrl: updatedBranding.logoUrl,
-            primaryColor: updatedBranding.primaryColor,
-          })
           const applied = updateBrandingCookieAndApply(updatedBranding, true)
-          if (applied) {
-            console.log('✅ [BrandConfig] Fallback branding cookie updated and applied')
-          }
+          if (applied) {}
         }
       }
     } catch (error) {
@@ -714,13 +684,11 @@ const BrandConfig = ({ selectedAgency }) => {
         message={showSnackMessage.message}
         type={showSnackMessage.type}
       />
-
       {/* Logo Cropper Modal - Only render when image is available */}
       {imageToCrop && (
         <LogoCropper
           open={showCropper}
           onClose={() => {
-            console.log('🚪 [BrandConfig] Closing cropper')
             setShowCropper(false)
             // Clear image after modal closes to prevent flicker
             setTimeout(() => setImageToCrop(null), 300)
@@ -730,14 +698,12 @@ const BrandConfig = ({ selectedAgency }) => {
           aspectRatio={3} // 3:1 horizontal aspect ratio (as per requirements)
         />
       )}
-
       {/* Banner Section */}
       <LabelingHeader
         img={'/agencyIcons/copied.png'}
         title={'Define your brand'}
         description={'Upload your logo and choose your brand colors.'}
       />
-
       {/* Brand Configuration Card */}
       <div className="w-full flex flex-row justify-center pt-8">
         <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
@@ -859,7 +825,7 @@ const BrandConfig = ({ selectedAgency }) => {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default BrandConfig

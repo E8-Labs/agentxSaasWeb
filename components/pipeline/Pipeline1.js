@@ -91,9 +91,7 @@ const Pipeline1 = ({ handleContinue }) => {
         if (storedBranding) {
           try {
             branding = JSON.parse(storedBranding)
-          } catch (error) {
-            console.log('Error parsing agencyBranding from localStorage:', error)
-          }
+          } catch (error) {}
         }
 
         // Also check user data for agencyBranding
@@ -107,9 +105,7 @@ const Pipeline1 = ({ handleContinue }) => {
             } else if (parsedUser?.user?.agency?.agencyBranding) {
               branding = parsedUser.user.agency.agencyBranding
             }
-          } catch (error) {
-            console.log('Error parsing user data for agencyBranding:', error)
-          }
+          } catch (error) {}
         }
 
         hasLogo = !!branding?.logoUrl
@@ -117,9 +113,7 @@ const Pipeline1 = ({ handleContinue }) => {
 
         // Show orb if: not subaccount OR (subaccount but no logo)
         setShowOrb(!isSub || (isSub && !hasLogo))
-      } catch (error) {
-        console.log('Error parsing user data:', error)
-      }
+      } catch (error) {}
     }
   }, [])
 
@@ -246,10 +240,6 @@ const Pipeline1 = ({ handleContinue }) => {
   //code to get pipelines
   const getPipelines = async () => {
     try {
-      //TODO: @Arslan @Hamza tell me why do we have two different keys to store a user's data on localstorage from admin?
-      // Getting pipelines is different and getting a2p number is using diff key. Why is that?
-      // I have consolidated the logic here  and on the @PipelineStages.js file. Let's discuss it and consolidate into one.
-      console.log('Trigered getpipelines')
       let selectedUserLocalData = localStorage.getItem('selectedUser')
       if (!selectedUserLocalData) {
         selectedUserLocalData = localStorage.getItem(
@@ -258,13 +248,11 @@ const Pipeline1 = ({ handleContinue }) => {
       }
       // const selectedUserLocalData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
       let selectedUser = null
-      console.log('Selected user local data is', selectedUserLocalData)
       if (
         selectedUserLocalData !== 'undefined' &&
         selectedUserLocalData !== null
       ) {
         selectedUser = JSON.parse(selectedUserLocalData)
-        console.log('Selected user details are', selectedUser)
       }
       let ApiPath = Apis.getPipelines + '?liteResource=true'
 
@@ -279,7 +267,6 @@ const Pipeline1 = ({ handleContinue }) => {
         }
       }
 
-      console.log('ApiPath is', ApiPath)
       let AuthToken = null
       const LocalData = localStorage.getItem('User')
       if (LocalData) {
@@ -297,13 +284,12 @@ const Pipeline1 = ({ handleContinue }) => {
       })
 
       if (response) {
-        console.log('Response is of get pipelines', response.data.data)
         setPipelinesDetails(response.data.data)
-        
+
         // Check if there's stored cadence data and select that pipeline
         const localCadences = localStorage.getItem('AddCadenceDetails')
         let pipelineToSelect = response.data.data[0] // Default to first pipeline
-        
+
         if (localCadences && localCadences !== 'null') {
           try {
             const localCadenceDetails = JSON.parse(localCadences)
@@ -316,13 +302,10 @@ const Pipeline1 = ({ handleContinue }) => {
             
             if (matchingPipeline) {
               pipelineToSelect = matchingPipeline
-              console.log('Found matching pipeline for cadence:', matchingPipeline.title)
             }
-          } catch (error) {
-            console.log('Error parsing cadence details:', error)
-          }
+          } catch (error) {}
         }
-        
+
         setSelectPipleLine(pipelineToSelect.title)
         setSelectedPipelineItem(pipelineToSelect)
         setSelectedPipelineStages(pipelineToSelect.stages)
@@ -332,9 +315,7 @@ const Pipeline1 = ({ handleContinue }) => {
           JSON.stringify(response.data.data),
         )
       }
-    } catch (error) {
-      console.log('Error occured in get pipelies api is :', error)
-    } finally {
+    } catch (error) {} finally {
       // //console.log;
     }
   }
@@ -393,12 +374,6 @@ const Pipeline1 = ({ handleContinue }) => {
   }
 
   const addRow = (index, action = 'call', templateData = null) => {
-    console.log('addRow called with:', {
-      index,
-      action,
-      templateData,
-    })
-
     setRowsByIndex((prev) => {
       const list = prev[index] ?? []
       const nextId = list.length ? list[list.length - 1].id + 1 : 1
@@ -412,27 +387,15 @@ const Pipeline1 = ({ handleContinue }) => {
         communicationType: action, // Set communicationType to match action
       }
 
-      console.log('Base newRow before template data:', newRow)
-
       // Add template information for email and SMS actions
       if (templateData) {
-        console.log('Adding template data for action:', action)
-        console.log('templateData received:', templateData)
-
         // Add all template data to the row
         Object.keys(templateData).forEach((key) => {
           if (templateData[key] !== undefined) {
             newRow[key] = templateData[key]
-            console.log(`Setting newRow.${key} = ${templateData[key]}`)
           }
         })
-
-        console.log('newRow after adding template data:', newRow)
-      } else {
-        console.log('No template data provided')
-      }
-
-      console.log('Final newRow:', newRow)
+      } else {}
 
       return {
         ...prev,
@@ -449,31 +412,23 @@ const Pipeline1 = ({ handleContinue }) => {
   }
 
   const updateRow = (leadIndex, rowId, updatedData) => {
-    console.log(
-      `Updating row ${rowId} in stage ${leadIndex} with data:`,
-      updatedData,
-    )
-
     setRowsByIndex((prev) => {
       const updatedRows = {
         ...prev,
         [leadIndex]: (prev[leadIndex] ?? []).map((row) => {
           if (row.id === rowId) {
             const updatedRow = { ...row, ...updatedData }
-            console.log('Updated row result:', updatedRow)
             return updatedRow
           }
           return row
         }),
       }
 
-      console.log('Updated rowsByIndex state:', updatedRows)
       return updatedRows
     })
   }
 
   const printAssignedLeadsData = async () => {
-    console.log('print clicked', assignedLeads)
     // return
     setPipelineLoader(true)
 
@@ -493,8 +448,6 @@ const Pipeline1 = ({ handleContinue }) => {
         return null // Ignore unassigned leads
       })
       .filter((item) => item !== null) // Filter out null values
-
-    console.log('All Data ', allData)
 
     const pipelineID = selectedPipelineItem.id
     const cadence = allData
@@ -536,10 +489,6 @@ const Pipeline1 = ({ handleContinue }) => {
         }
       }
     }
-
-    // //console.log;
-
-    console.log('Cadence data storing on local storage is :', cadence)
 
     if (cadenceData) {
       localStorage.setItem('AddCadenceDetails', JSON.stringify(cadenceData))

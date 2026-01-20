@@ -98,14 +98,7 @@ const CustomFieldsCN = ({
   const extraCount = customFields.length
 
   // Debug logging (remove in production)
-  if (process.env.NODE_ENV === 'development') {
-    console.log('CustomFieldsCN Debug:', {
-      leadColumnsCount: leadColumns?.length || 0,
-      customFieldsCount: extraCount,
-      customFields: customFields.map(c => c?.title),
-      selectedLeadsDetailsKeys: selectedLeadsDetails ? Object.keys(selectedLeadsDetails) : [],
-    })
-  }
+  if (process.env.NODE_ENV === 'development') {}
 
   // Don't show if there are no custom fields
   if (extraCount < 1) {

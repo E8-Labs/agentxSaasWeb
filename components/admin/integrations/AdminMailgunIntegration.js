@@ -43,7 +43,6 @@ const AdminMailgunIntegration = () => {
       if (response.data && response.data.status) {
         // Backend already filters for platform domains, but ensure we have the data
         const integrations = response.data.data || []
-        console.log('Fetched Mailgun integrations:', integrations)
         setMailgunIntegrations(integrations)
       } else {
         console.warn('No integrations returned or status is false:', response.data)

@@ -35,7 +35,6 @@ function NoPerplexity({
 
       if (localData) {
         const Data = JSON.parse(localData)
-        console.log('user Data', Data)
         localDetails = Data
         Authtoken = Data.token
         setUserLocalData(Data.user)
@@ -43,7 +42,6 @@ function NoPerplexity({
       let user = await getProfileDetails()
       if (user) {
         setUserLocalData(user.data.data)
-        console.log('user', user.data.data.enrichCredits)
       }
     }
 
@@ -51,7 +49,6 @@ function NoPerplexity({
   }, [])
 
   const handleClose = (data) => {
-    console.log('data of add card', data)
     if (data) {
       setShowAddCard(false)
       if (userLocalData?.enrichCredits > 0) {

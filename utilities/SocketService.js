@@ -76,7 +76,6 @@ class SocketService {
 
   // Connect to socket server (DISABLED)
   connect() {
-    console.log('🔌 Socket connection disabled')
     return
   }
 
@@ -85,7 +84,6 @@ class SocketService {
     if (!this.socket) return
 
     this.socket.on('connect', () => {
-      console.log('✅ Socket connected successfully')
       this.isConnected = true
       this.isConnecting = false
       this.reconnectAttempts = 0
@@ -94,12 +92,10 @@ class SocketService {
       const userData = this.getUserData()
       if (userData?.userId) {
         this.socket.emit('join-user-room', userData.userId)
-        console.log(`🏠 Joined user room: user_${userData.userId}`)
       }
     })
 
     this.socket.on('disconnect', (reason) => {
-      console.log('❌ Socket disconnected:', reason)
       this.isConnected = false
       this.isConnecting = false
     })
@@ -115,7 +111,6 @@ class SocketService {
     })
 
     this.socket.on('reconnect', (attemptNumber) => {
-      console.log(`🔄 Socket reconnected after ${attemptNumber} attempts`)
       this.isConnected = true
       this.isConnecting = false
       this.reconnectAttempts = 0
@@ -127,18 +122,13 @@ class SocketService {
 
     // Listen for user-specific profile updates
     this.socket.on('profile-updated', (profileData) => {
-      console.log('📝 Profile update received:', profileData)
-
       // Verify this update is for the current user
       const userData = this.getUserData()
-      console.log('Profile data:', profileData.data)
-      console.log('User data:', userData)
       if (
         profileData?.data?.id &&
         userData?.userId &&
         profileData.data.id === userData.userId
       ) {
-        console.log('✅ Profile update verified for current user')
         this.handleProfileUpdate(profileData.data)
       } else {
         console.warn('⚠️ Profile update received for different user, ignoring')
@@ -167,14 +157,10 @@ class SocketService {
           // Save back to localStorage
           localStorage.setItem('User', JSON.stringify(localStorageUser))
 
-          console.log('📝 Profile updated in localStorage')
-
           // Dispatch custom event to notify components
           window.dispatchEvent(
             new CustomEvent('UpdateProfile', { detail: { update: true } }),
           )
-
-          console.log('📝 UpdateProfile event dispatched')
         }
       }
     } catch (error) {
@@ -199,13 +185,10 @@ class SocketService {
   // Disconnect socket
   disconnect() {
     if (this.socket) {
-      console.log('🔌 Disconnecting socket...')
-
       // Leave user room before disconnecting
       const userData = this.getUserData()
       if (userData?.userId) {
         this.socket.emit('leave-user-room', userData.userId)
-        console.log(`🏠 Left user room: user_${userData.userId}`)
       }
 
       this.socket.disconnect()

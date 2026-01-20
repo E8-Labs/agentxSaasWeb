@@ -31,24 +31,6 @@ export const AudioWaveActivity = ({
   }, [isActive, barCount])
 
   return (
-    <div
-      className={`flex items-center justify-center gap-1 h-4 w-full mt-15 ${className}`}
-    >
-      {Array(barCount)
-        .fill(0)
-        .map((_, index) => (
-          <div
-            key={index}
-            style={{
-              backgroundColor: '#7902DF', // green-40034D399
-              width: '4px',
-              height: '2px',
-              borderRadius: '50%',
-            }}
-          />
-        ))}
-    </div>
-
     // <div
     //   className={`flex items-end justify-center gap-1 w-32 mt-4 ${className}`}
     // >
@@ -66,5 +48,22 @@ export const AudioWaveActivity = ({
     //     />
     //   ))}
     // </div>
-  )
+    <div
+      className={`flex items-center justify-center gap-1 h-4 w-full mt-15 ${className}`}
+    >
+      {Array(barCount)
+        .fill(0)
+        .map((_, index) => (
+          <div
+            key={index}
+            style={{
+              backgroundColor: '#7902DF', // green-40034D399
+              width: '4px',
+              height: '2px',
+              borderRadius: '50%',
+            }}
+          />
+        ))}
+    </div>
+  );
 }

@@ -159,7 +159,6 @@ const PipelineStages = ({
       let data = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
       if (data) {
         let user = JSON.parse(data)
-        console.log('target user is from admin or agency', user)
         setTargetUser(user.subAccountData)
       }
     }
@@ -188,115 +187,113 @@ const PipelineStages = ({
   ]
 
 
-    // Check email capability based on user type
-    const checkEmailCapability = () => {
-      // For AgentX users (not subaccounts)
-      if (!reduxUser?.userRole || reduxUser.userRole !== 'AgencySubAccount') {
-        // Check planCapabilities.allowEmails
-        return {
-          hasAccess: reduxUser?.planCapabilities?.allowEmails === true,
-          showUpgrade: reduxUser?.planCapabilities?.allowEmails !== true,
-          showRequestFeature: false,
-        }
-      }
-      
-      // For subaccounts
-      // First check if parent agency has access
-      const agencyHasAccess = reduxUser?.agencyCapabilities?.allowEmails === true
-      
-      if (!agencyHasAccess) {
-        // Agency doesn't have access - show Request Feature
-        return {
-          hasAccess: false,
-          showUpgrade: false,
-          showRequestFeature: true,
-        }
-      }
-      
-      // Agency has access, check subaccount access
-      const subaccountHasAccess = reduxUser?.planCapabilities?.allowEmails === true
-      
+  // Check email capability based on user type
+  const checkEmailCapability = () => {
+    // For AgentX users (not subaccounts)
+    if (!reduxUser?.userRole || reduxUser.userRole !== 'AgencySubAccount') {
+      // Check planCapabilities.allowEmails
       return {
-        hasAccess: subaccountHasAccess,
-        showUpgrade: !subaccountHasAccess,
+        hasAccess: reduxUser?.planCapabilities?.allowEmails === true,
+        showUpgrade: reduxUser?.planCapabilities?.allowEmails !== true,
         showRequestFeature: false,
       }
     }
     
-    // Check SMS capability based on user type
-    const checkSMSCapability = () => {
-      // For AgentX users (not subaccounts)
-      if (!reduxUser?.userRole || reduxUser.userRole !== 'AgencySubAccount') {
-        // Check planCapabilities.allowTextMessages
-        return {
-          hasAccess: reduxUser?.planCapabilities?.allowTextMessages === true,
-          showUpgrade: reduxUser?.planCapabilities?.allowTextMessages !== true,
-          showRequestFeature: false,
-        }
-      }
-      
-      // For subaccounts
-      // First check if parent agency has access
-      const agencyHasAccess = reduxUser?.agencyCapabilities?.allowTextMessages === true
-      
-      if (!agencyHasAccess) {
-        // Agency doesn't have access - show Request Feature
-        return {
-          hasAccess: false,
-          showUpgrade: false,
-          showRequestFeature: true,
-        }
-      }
-      
-      // Agency has access, check subaccount access
-      const subaccountHasAccess = reduxUser?.planCapabilities?.allowTextMessages === true
-      
+    // For subaccounts
+    // First check if parent agency has access
+    const agencyHasAccess = reduxUser?.agencyCapabilities?.allowEmails === true
+    
+    if (!agencyHasAccess) {
+      // Agency doesn't have access - show Request Feature
       return {
-        hasAccess: subaccountHasAccess,
-        showUpgrade: !subaccountHasAccess,
+        hasAccess: false,
+        showUpgrade: false,
+        showRequestFeature: true,
+      }
+    }
+    
+    // Agency has access, check subaccount access
+    const subaccountHasAccess = reduxUser?.planCapabilities?.allowEmails === true
+    
+    return {
+      hasAccess: subaccountHasAccess,
+      showUpgrade: !subaccountHasAccess,
+      showRequestFeature: false,
+    }
+  }
+
+  // Check SMS capability based on user type
+  const checkSMSCapability = () => {
+    // For AgentX users (not subaccounts)
+    if (!reduxUser?.userRole || reduxUser.userRole !== 'AgencySubAccount') {
+      // Check planCapabilities.allowTextMessages
+      return {
+        hasAccess: reduxUser?.planCapabilities?.allowTextMessages === true,
+        showUpgrade: reduxUser?.planCapabilities?.allowTextMessages !== true,
         showRequestFeature: false,
       }
     }
     
-    const emailCapability = checkEmailCapability()
-    const smsCapability = checkSMSCapability()
+    // For subaccounts
+    // First check if parent agency has access
+    const agencyHasAccess = reduxUser?.agencyCapabilities?.allowTextMessages === true
     
-    // State to trigger upgrade modal externally (use counter to ensure it triggers even if already true)
-    const [triggerEmailUpgradeModal, setTriggerEmailUpgradeModal] = useState(0)
-    const [triggerSMSUpgradeModal, setTriggerSMSUpgradeModal] = useState(0)
-    
-    // Handler to trigger email upgrade modal
-    const handleEmailUpgradeClick = useCallback((e) => {
-      if (e) {
-        e.stopPropagation()
-        e.preventDefault()
+    if (!agencyHasAccess) {
+      // Agency doesn't have access - show Request Feature
+      return {
+        hasAccess: false,
+        showUpgrade: false,
+        showRequestFeature: true,
       }
-      setTriggerEmailUpgradeModal(prev => prev + 1)
-    }, [])
+    }
     
-    // Handler to trigger SMS upgrade modal
-    const handleSMSUpgradeClick = useCallback((e) => {
-      if (e) {
-        e.stopPropagation()
-        e.preventDefault()
-      }
-      setTriggerSMSUpgradeModal(prev => prev + 1)
-    }, [])
+    // Agency has access, check subaccount access
+    const subaccountHasAccess = reduxUser?.planCapabilities?.allowTextMessages === true
     
-    // Handler to reset email upgrade modal trigger
-    const handleEmailUpgradeModalClose = useCallback(() => {
-      setTriggerEmailUpgradeModal(0)
-    }, [])
-    
-    // Handler to reset SMS upgrade modal trigger
-    const handleSMSUpgradeModalClose = useCallback(() => {
-      setTriggerSMSUpgradeModal(0)
-    }, [])
+    return {
+      hasAccess: subaccountHasAccess,
+      showUpgrade: !subaccountHasAccess,
+      showRequestFeature: false,
+    }
+  }
+
+  const emailCapability = checkEmailCapability()
+  const smsCapability = checkSMSCapability()
+
+  // State to trigger upgrade modal externally (use counter to ensure it triggers even if already true)
+  const [triggerEmailUpgradeModal, setTriggerEmailUpgradeModal] = useState(0)
+  const [triggerSMSUpgradeModal, setTriggerSMSUpgradeModal] = useState(0)
+
+  // Handler to trigger email upgrade modal
+  const handleEmailUpgradeClick = useCallback((e) => {
+    if (e) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
+    setTriggerEmailUpgradeModal(prev => prev + 1)
+  }, [])
+
+  // Handler to trigger SMS upgrade modal
+  const handleSMSUpgradeClick = useCallback((e) => {
+    if (e) {
+      e.stopPropagation()
+      e.preventDefault()
+    }
+    setTriggerSMSUpgradeModal(prev => prev + 1)
+  }, [])
+
+  // Handler to reset email upgrade modal trigger
+  const handleEmailUpgradeModalClose = useCallback(() => {
+    setTriggerEmailUpgradeModal(0)
+  }, [])
+
+  // Handler to reset SMS upgrade modal trigger
+  const handleSMSUpgradeModalClose = useCallback(() => {
+    setTriggerSMSUpgradeModal(0)
+  }, [])
 
   const actionLabel = (v) =>
     ACTIONS.find((a) => a.value === v)?.label || 'Make Call'
-
-  console.log('rowsByIndex', rowsByIndex)
 
   // one menu anchor per stage row-set
   const [addMenuAnchor, setAddMenuAnchor] = useState({}) // { [stageIndex]: HTMLElement|null }
@@ -307,7 +304,6 @@ const PipelineStages = ({
 
   const closeAddMenu = (stageIndex) => {
     localStorage.removeItem(PersistanceKeys.isDefaultCadenceEditing)
-    console.log('is default cadence removed from local')
     setAddMenuAnchor((prev) => ({ ...prev, [stageIndex]: null }))
     setIsEditing(false)
     setEditingRow(null)
@@ -363,9 +359,8 @@ const PipelineStages = ({
   const handleEditRow = async (stageIndex, row, e) => {
     // Check if this is a default cadence
     const isDefaultCadence = !row.communicationType
-    
+
     if (isDefaultCadence) {
-      console.log('default cadence editing')
       localStorage.setItem(
         PersistanceKeys.isDefaultCadenceEditing,
         JSON.stringify({ isdefault: true }),
@@ -373,8 +368,7 @@ const PipelineStages = ({
       openAddMenu(stageIndex, e)
       return // Don't proceed with editing for default cadence
     }
-    
-    console.log('row for edit', row)
+
     setIsEditing(true)
     setEditingRow(row)
     setEditingStageIndex(stageIndex)
@@ -393,13 +387,9 @@ const PipelineStages = ({
   }
 
   const handleUpdateRow = (rowId, updatedData) => {
-    console.log('rowId', rowId)
-    console.log('updateData', updatedData)
-
     // Update the specific row in the pipeline using the updateRow prop
 
     if (editingStageIndex !== null && updateRow) {
-      console.log('update row', editingStageIndex)
       updateRow(editingStageIndex, rowId, updatedData)
     }
 
@@ -410,13 +400,6 @@ const PipelineStages = ({
   }
 
   useEffect(() => {
-    console.log('🔥 PIPELINESTAGES - useEffect triggered with reduxUser:', {
-      userId: reduxUser?.id,
-      planType: reduxUser?.plan?.type,
-      planName: reduxUser?.plan?.name,
-      allowTextMessages: reduxUser?.planCapabilities?.allowTextMessages,
-    })
-
     // Use Redux reduxUser instead of localStorage
     if (reduxUser) {
       setUser(reduxUser)
@@ -424,7 +407,6 @@ const PipelineStages = ({
     } else {
       // Fallback to localStorage only if Redux has no data
       let data = getUserLocalData()
-      console.log('🔥 PIPELINESTAGES - Fallback to localStorage:', data)
       setUser(data.user)
       setUserData(data.user)
     }
@@ -447,7 +429,6 @@ const PipelineStages = ({
     setAccountLoader(true)
     let response = await getGmailAccounts()
     if (response) {
-      console.log('Gmail acounts list is', response)
       setGmailAccounts(response)
     }
     setAccountLoader(false)
@@ -470,9 +451,7 @@ const PipelineStages = ({
     // console.log('data', data)
     if (data != 'undefined') {
       selectedUser = JSON.parse(data)
-      console.log('selected user data from local', selectedUser)
     }
-    console.log('trying to get a2p numbers')
     setPhoneLoading(true)
     let id = selectedUser?.id
     let num = await getA2PNumbers(id)
@@ -615,8 +594,6 @@ const PipelineStages = ({
         // ApiData.userId = selectedUserData.id;
       }
 
-      console.log('api data', ApiData)
-
       const ApiPath = Apis.UpdateStage
 
       // //console.log;
@@ -629,16 +606,12 @@ const PipelineStages = ({
       })
 
       if (response) {
-        console.log('response.data', response.data)
         setPipelineStages(response.data.data.stages)
         setShowRenamePopup(false)
         setSuccessSnack(response.data.message)
         // handleCloseStagePopover();
       }
     } catch (error) {
-      console.log('Rename stage error:', error)
-      console.log('Error response:', error.response?.data)
-      console.log('Error status:', error.response?.status)
       setRenameStageLoader(false)
       // //console.log;
     } finally {
@@ -1951,10 +1924,6 @@ const PipelineStages = ({
               showEmailTemPopup={false}
               setShowEmailTempPopup={() => {}}
               setSelectedGoogleAccount={(account) => {
-                console.log(
-                  'PipelineStages: setSelectedGoogleAccount called with:',
-                  account,
-                )
                 setSelectedGoogleAccount(account)
               }}
             />
@@ -1996,11 +1965,6 @@ const PipelineStages = ({
                 closeAddMenu(selectedIndex)
               }}
               onSaveTemplate={(templateData) => {
-                console.log('PipelineStages: onSaveTemplate called with:', {
-                  selectedIndex,
-                  selectedType,
-                  templateData,
-                })
                 if (isEditing && editingRow) {
                   handleUpdateRow(editingRow.id, templateData)
                 } else {
@@ -2462,7 +2426,7 @@ const PipelineStages = ({
         )}
       </Droppable>
     </DragDropContext>
-  )
+  );
 }
 
 export default PipelineStages

@@ -186,7 +186,7 @@ export default function PlanFeatures({
                   </div>
                 )}
             </div>
-          )
+          );
         })}
       </div>
       {features?.allowTrial && (
@@ -268,7 +268,7 @@ export default function PlanFeatures({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 const styles = {

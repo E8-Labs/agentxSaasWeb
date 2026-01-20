@@ -21,7 +21,6 @@ const SideUI = ({
 }) => {
   // discountedPrice is now the total price per month (not price per credit)
   const price = discountedPrice || 0
-  console.log('Total price per month is', price)
   const [isAgency, setIsAgency] = useState(false)
 
   useEffect(() => {
@@ -33,9 +32,7 @@ const SideUI = ({
           const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
           setIsAgency(userRole === 'Agency' || userRole === 'AgencySubAccount')
         }
-      } catch (error) {
-        console.log('Error parsing user data:', error)
-      }
+      } catch (error) {}
     }
   }, [])
 

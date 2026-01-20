@@ -84,7 +84,6 @@ function AdminActiveCalls({ selectedUser }) {
     const timer = setTimeout(() => {
       const scrollableDiv = document.getElementById('scrollableDiv1')
       if (!scrollableDiv) {
-        console.log('⚠️ Scrollable div not found for agents list')
         return
       }
 
@@ -146,7 +145,6 @@ function AdminActiveCalls({ selectedUser }) {
     const timer = setTimeout(() => {
       const scrollableDiv = document.getElementById('scrollableDivLeads')
       if (!scrollableDiv) {
-        console.log('⚠️ Scrollable div not found for leads list')
         return
       }
 
@@ -247,7 +245,6 @@ function AdminActiveCalls({ selectedUser }) {
   //code to filter slected agent leads
   const handleLeadsSearchChange = (value) => {
     if (value.trim() === '') {
-      console.log('List of ____', selectedLeadsList)
       // Reset to original list when input is empty
       setFilteredSelectedLeadsList(selectedLeadsList)
       return
@@ -259,11 +256,10 @@ function AdminActiveCalls({ selectedUser }) {
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
-        item.firstName.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      )
+        (item.firstName.toLowerCase().includes(term))
+      );
     })
-    console.log('List of ____', filtered)
     setFilteredSelectedLeadsList(filtered)
   }
 
@@ -316,14 +312,6 @@ function AdminActiveCalls({ selectedUser }) {
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
       let ApiPath = `${Apis.getSheduledCallLogs}?userId=${selectedUser.id}&offset=${offset}&limit=${Limit}`
 
-      console.log(
-        'Fetching call activity for userId:',
-        selectedUser.id,
-        'API Path:',
-        ApiPath,
-        'offset:',
-        offset,
-      )
       // //console.log; //scheduled
       // return
       const response = await axios.get(ApiPath, {
@@ -335,7 +323,6 @@ function AdminActiveCalls({ selectedUser }) {
 
       if (response && response.data) {
         if (response.data.status && response.data.data) {
-          console.log('call activity list is', response.data.data)
           if (offset === 0) {
             setFilteredAgentsList(response.data.data)
             setCallDetails(response.data.data)
@@ -353,8 +340,6 @@ function AdminActiveCalls({ selectedUser }) {
             setHasMoreCalls(true)
           }
         } else {
-          // No data returned
-          console.log('No call activity data:', response.data.message)
           if (offset === 0) {
             setFilteredAgentsList([])
             setCallDetails([])
@@ -410,9 +395,9 @@ function AdminActiveCalls({ selectedUser }) {
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
-        item.firstName.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      )
+        (item.firstName.toLowerCase().includes(term))
+      );
     })
 
     setFilteredSheduledCalllogs(filtered)
@@ -436,9 +421,9 @@ function AdminActiveCalls({ selectedUser }) {
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
-        item?.agents[0]?.name?.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      )
+        (item?.agents[0]?.name?.toLowerCase().includes(term))
+      );
     })
 
     setFilteredAgentsList(filtered)
@@ -622,7 +607,6 @@ function AdminActiveCalls({ selectedUser }) {
       let path =
         Apis.getLeadsInBatch +
         `?batchId=${batch.id}&offset=${offset}&userId=${selectedUser.id}&limit=${Limit}`
-      console.log('Api Call Leads : ', path)
       const response = await fetch(path, {
         method: 'GET',
         headers: {
@@ -634,15 +618,6 @@ function AdminActiveCalls({ selectedUser }) {
       const data = await response.json()
 
       if (response.ok) {
-        //console.log;
-        // setSelectedLeadsList(data.data);
-        // setFilteredSelectedLeadsList(data.data);
-        // localStorage.setItem(
-        //   PersistanceKeys.LeadsInBatch + `${batch.id}`,
-        //   JSON.stringify(data.data)
-        // );
-
-        console.log('Response of leads list detail', data.data)
         if (firstApiCall) {
           setSelectedLeadsList(data.data)
           setFilteredSelectedLeadsList(data.data)
@@ -859,7 +834,6 @@ function AdminActiveCalls({ selectedUser }) {
           resumeCalls={resumeCalls}
         />
       )}
-
       <div>
         {initialLoader ? (
           <div className="flex flex-row items-center h-[65vh] justify-center mt-12">
@@ -1025,7 +999,6 @@ function AdminActiveCalls({ selectedUser }) {
           </div>
         )}
       </div>
-
       <div>
         {initialLoader ? (
           <div className="flex flex-row items-center h-[50vh] justify-center mt-12">
@@ -1070,7 +1043,6 @@ function AdminActiveCalls({ selectedUser }) {
                                 style={styles.text2}
                                 className="text-brand-primary underline outline-none"
                                 onClick={() => {
-                                  console.log('Item selected is', item)
                                   fetchLeadsInBatch(item)
                                   handleShowLeads(agent, item)
                                 }}
@@ -1111,7 +1083,7 @@ function AdminActiveCalls({ selectedUser }) {
                             </div>
                           </div>
                         </div>
-                      )
+                      );
                     })}
                   </div>
                 ))}
@@ -1131,7 +1103,6 @@ function AdminActiveCalls({ selectedUser }) {
           </div>
         )}
       </div>
-
       {/* Leads list modal goes here */}
       <Modal
         open={showLeadDetailsModal}
@@ -1346,7 +1317,6 @@ function AdminActiveCalls({ selectedUser }) {
           </div>
         </Box>
       </Modal>
-
       {/* Modal for All Tags */}
       <Modal
         open={extraTagsModal}
@@ -1428,7 +1398,7 @@ function AdminActiveCalls({ selectedUser }) {
         </Box>
       </Modal>
     </div>
-  )
+  );
 }
 
 export default AdminActiveCalls

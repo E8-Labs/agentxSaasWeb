@@ -36,9 +36,7 @@ export default function SlideModal({ showModal, handleClose, selectedAgency }) {
   const [xBarOptions, setXBarOptions] = useState([])
 
   const handleContinue = (formData) => {
-    if (formData) {
-      console.log('form data passed is', formData)
-    }
+    if (formData) {}
     setDirection(1)
     setCurrentIndex((prevIndex) => prevIndex + 1)
   }
@@ -121,7 +119,6 @@ export default function SlideModal({ showModal, handleClose, selectedAgency }) {
                 <div className="">
                   <SubAccountUserType
                     onClose={(u) => {
-                      console.log('selected user id is', u)
                       handleBack()
                       setSelectedUser(u)
                     }}
@@ -148,7 +145,6 @@ export default function SlideModal({ showModal, handleClose, selectedAgency }) {
               >
                 <SetPricing
                   onClose={(monPlans) => {
-                    console.log('Monthlyplan id is', monPlans)
                     handleBack()
                     setMonthlyPlans(monPlans)
                   }}
@@ -175,7 +171,6 @@ export default function SlideModal({ showModal, handleClose, selectedAgency }) {
               >
                 <SetXBarOptions
                   onClose={(xBars) => {
-                    console.log('Xbars passed are', xBars)
                     setXBarOptions(xBars)
                     handleBack()
                   }}
@@ -194,7 +189,7 @@ export default function SlideModal({ showModal, handleClose, selectedAgency }) {
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
 
 const styles = {

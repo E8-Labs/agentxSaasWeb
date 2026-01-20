@@ -158,7 +158,6 @@ const ContactPoint = ({
                 // onChange={handleselectBusinessType}
                 onChange={(e) => {
                   let value = e.target.value
-                  console.log('Value for business type is', value)
                   setJobPosition(value)
                   setOpenJobPositionDropwDown(false)
                 }}
@@ -254,7 +253,7 @@ const ContactPoint = ({
         )}
       </div>
     </div>
-  )
+  );
 }
 
 export default ContactPoint

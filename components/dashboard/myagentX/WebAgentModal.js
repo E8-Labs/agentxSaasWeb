@@ -59,17 +59,7 @@ const WebAgentModal = ({
     setSnackbar((prev) => ({ ...prev, isVisible: false }))
   }
 
-  useEffect(() => {
-    console.log('agent name is', agentName)
-    // if(agentSmartRefill){
-    //   setRequireForm(true);
-    //   setSelectedSmartList(agentSmartRefill);
-    // }
-    //  else {
-    //   setRequireForm(false);
-    //   setSelectedSmartList('');
-    // }
-  }, [agentSmartRefillId])
+  useEffect(() => {}, [agentSmartRefillId])
 
   useEffect(() => {
     if (open) {
@@ -93,27 +83,6 @@ const WebAgentModal = ({
             : agent.smartListIdForWeb !== undefined
               ? agent.smartListIdForWeb
               : agent.smartListId // Fallback to legacy field
-
-        console.log('🔍 WebAgentModal - Initializing with agent data:', {
-          agentType,
-          webSmartListEnabled,
-          webSmartListId,
-          hasNewFields: {
-            smartListEnabledForWeb: agent.smartListEnabledForWeb !== undefined,
-            smartListIdForWeb: agent.smartListIdForWeb !== undefined,
-            smartListEnabledForEmbed: agent.smartListEnabledForEmbed !== undefined,
-            smartListIdForEmbed: agent.smartListIdForEmbed !== undefined,
-          },
-          fieldValues: {
-            smartListEnabledForWeb: agent.smartListEnabledForWeb,
-            smartListIdForWeb: agent.smartListIdForWeb,
-            smartListEnabledForEmbed: agent.smartListEnabledForEmbed,
-            smartListIdForEmbed: agent.smartListIdForEmbed,
-            smartListEnabled: agent.smartListEnabled, // Legacy
-            smartListId: agent.smartListId, // Legacy
-          },
-          agent,
-        })
 
         // IMPORTANT: Only use legacy fields if new fields don't exist
         // If new fields exist (even if false/null), use them
@@ -167,8 +136,6 @@ const WebAgentModal = ({
         apiUrl += `&userId=${selectedUser.id}`
       }
 
-      console.log('🔧 WEB-AGENT-MODAL - Fetching smartlists from:', apiUrl)
-
       const response = await axios.get(apiUrl, {
         headers: {
           'Content-Type': 'application/json',
@@ -176,21 +143,12 @@ const WebAgentModal = ({
         },
       })
 
-      console.log('🔧 WEB-AGENT-MODAL - Smartlists fetched:', {
-        count: response.data?.data?.length || 0,
-        smartlists: response.data?.data?.map(s => ({ id: s.id, name: s.sheetName })) || [],
-        selectedUserId: selectedUser?.id,
-      })
-
-      console.log('get sheets response is', response)
       if (
         response.data &&
         response.data.data &&
         response.data.data.length > 0
       ) {
         setSmartLists(response.data.data)
-        console.log('agentSmartRefillId', agentSmartRefillId)
-        console.log('agentSmartRefill', agentSmartRefill)
 
         // Don't override requireForm here - it's set in the useEffect based on agent prop
         // Only set selectedSmartList if we have a valid ID and requireForm is true
@@ -224,12 +182,11 @@ const WebAgentModal = ({
   }
 
   const handleToggleChange = async (event) => {
-    console.log('handleToggleChange', event.target.checked)
     const newValue = event.target.checked
-    
+
     // Optimistically update UI
     setRequireForm(newValue)
-    
+
     if (!newValue) {
       // Disabling: detach smart list from the agent
       try {
@@ -304,7 +261,6 @@ const WebAgentModal = ({
   }
 
   const handleOpenAgent = async () => {
-    console.log('handleOpenAgent called')
     if (requireForm && !selectedSmartList) {
       return // Don't open if form is required but no smart list selected
     }
@@ -336,7 +292,6 @@ const WebAgentModal = ({
         )
 
         if (response.data) {
-          console.log('feature type is', fetureType)
           // Update local agent state if agent prop is provided
           if (agent && selectedSmartList) {
             const agentType = fetureType === 'webhook' ? 'webhook' : 'web'
@@ -350,11 +305,6 @@ const WebAgentModal = ({
               updatedAgent.smartListIdForWeb = selectedSmartList
               updatedAgent.smartListEnabledForWeb = true
             }
-            console.log('🔧 WebAgentModal - Updated local agent state:', {
-              agentType,
-              smartListId: selectedSmartList,
-              updatedAgent,
-            })
             // Notify parent to update agent state
             if (onAgentUpdate) {
               onAgentUpdate(updatedAgent)
@@ -382,9 +332,6 @@ const WebAgentModal = ({
         return
       }
     } else {
-      console.log(
-        'no form required or no smart list selected, just open the agent',
-      )
       if (fetureType === 'webhook') {
         onCopyUrl()
       } else {
@@ -524,7 +471,6 @@ const WebAgentModal = ({
                 <button
                   className="text-brand-primary underline text-transform-none font-medium"
                   onClick={(e) => {
-                    console.log('New Smartlist button clicked')
                     e.stopPropagation()
                     handleNewSmartList()
                   }}
@@ -622,7 +568,6 @@ const WebAgentModal = ({
           >
             <button
               onClick={(e) => {
-                console.log('Cancel button clicked')
                 e.stopPropagation()
                 onClose()
               }}
@@ -641,7 +586,6 @@ const WebAgentModal = ({
             </button>
             <button className={`${requireForm && !selectedSmartList ? 'bg-gray-300' : 'bg-brand-primary'}`}
               onClick={(e) => {
-                console.log('Open agent button clicked')
                 e.stopPropagation()
                 handleOpenAgent()
               }}
@@ -680,7 +624,7 @@ const WebAgentModal = ({
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
 
 export default WebAgentModal

@@ -267,8 +267,6 @@ const AddScoringModal = ({
         agentId: templateToLoad.agentId || '',
       })
 
-      console.log('Loading template:', templateToLoad)
-
       if (templateToLoad.questions && templateToLoad.questions.length > 0) {
         setQuestions(
           templateToLoad.questions.map((q) => ({
@@ -360,9 +358,6 @@ const AddScoringModal = ({
   }
 
   const handleTemplateSelect = (templateId) => {
-    console.log('Template selected:', templateId)
-    console.log('Available templates:', templates)
-
     setSelectedTemplateId(templateId)
 
     if (!templateId) {
@@ -389,8 +384,6 @@ const AddScoringModal = ({
     const template = templates.find(
       (t) => t.id === templateId || t.id === parseInt(templateId),
     )
-    console.log('Found template:', template)
-    console.log('Template structure:', JSON.stringify(template, null, 2))
 
     if (template) {
       // Generate new template name based on agent and source template
@@ -409,9 +402,7 @@ const AddScoringModal = ({
         Array.isArray(template.questions) &&
         template.questions.length > 0
       ) {
-        console.log('Template questions found:', template.questions)
         const templateQuestions = template.questions.map((q, index) => {
-          console.log(`Question ${index}:`, q)
           return {
             question: q.question || q.text || '',
             points: (q.points || q.score || '').toString(),
@@ -428,19 +419,12 @@ const AddScoringModal = ({
           })
         }
 
-        console.log('Setting questions to:', templateQuestions)
         templateQuestions.forEach((q) => {
-          console.log('Question:', q)
           let pointInNumber = parseFloat(q.points).toFixed(0)
-          console.log('Point in number:', pointInNumber)
           q.points = pointInNumber.toString() || '0'
         })
         setQuestions(templateQuestions)
       } else {
-        console.log(
-          'No questions in template or questions is not an array. Template questions:',
-          template.questions,
-        )
         // If template has no questions, start with 4 empty ones
         setQuestions([
           { question: '', points: '', showSuggestions: false },
@@ -449,14 +433,7 @@ const AddScoringModal = ({
           { question: '', points: '', showSuggestions: false },
         ])
       }
-    } else {
-      console.log(
-        'Template not found for ID:',
-        templateId,
-        'Available templates:',
-        templates.map((t) => ({ id: t.id, name: t.templateName })),
-      )
-    }
+    } else {}
   }
 
   const getFilteredSuggestions = (currentQuestion) => {
@@ -482,9 +459,6 @@ const AddScoringModal = ({
     const agentQuestions = selectedAgentType
       ? AGENT_QUESTIONS[selectedAgentType.name] || DEFAULT_QUESTIONS
       : DEFAULT_QUESTIONS
-
-    console.log('Agent questions:', agentQuestions)
-    console.log('Selected agent type:', selectedAgentType)
 
     const categorized = []
     let currentCategory = null
@@ -516,8 +490,6 @@ const AddScoringModal = ({
         questions: [...currentQuestions],
       })
     }
-
-    console.log('Categorized suggestions:', categorized)
 
     return categorized
   }
@@ -567,8 +539,6 @@ const AddScoringModal = ({
         submissionData.userId = selectedUser.id
       }
 
-      console.log('Submission data:', submissionData)
-
       // If editing, we don't need to specify isTemplate since we're updating an existing template
       // If creating new, specify isTemplate: true
 
@@ -578,13 +548,11 @@ const AddScoringModal = ({
         const UserDetails = JSON.parse(localData)
         AuthToken = UserDetails.token
       }
-      console.log('Submission token:', AuthToken)
 
       let path = Apis.createAgentScoring + '/' + agentId
       if (editingTemplate) {
         path = Apis.editScoringTemplate
       }
-      console.log('Path:', path)
 
       const response = await axios.post(path, submissionData, {
         headers: {
@@ -594,8 +562,6 @@ const AddScoringModal = ({
       })
 
       if (response.data) {
-        console.log('Scoring configuration created/updated:', response.data)
-
         // Call onSubmit callback if provided
         if (onSubmit) {
           onSubmit(response.data)
@@ -817,10 +783,6 @@ const AddScoringModal = ({
                             const categorized = getCategorizedSuggestions(
                               question.question,
                             )
-                            console.log(
-                              'Rendering suggestions, categorized:',
-                              categorized,
-                            )
 
                             if (categorized.length > 0) {
                               return categorized
@@ -872,10 +834,6 @@ const AddScoringModal = ({
                               // Fallback to simple suggestions if no categories
                               const simpleSuggestions = getFilteredSuggestions(
                                 question.question,
-                              )
-                              console.log(
-                                'Using fallback suggestions:',
-                                simpleSuggestions,
                               )
                               return simpleSuggestions.map(
                                 (suggestion, suggestionIndex) => (
@@ -986,7 +944,7 @@ const AddScoringModal = ({
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
 
 export default AddScoringModal

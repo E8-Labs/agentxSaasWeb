@@ -7,9 +7,7 @@ export const dynamic = 'force-dynamic'
 export async function GET() {
   const c = await cookies()
   const token = c.get('ghl_access_token')?.value
-  console.log('[user id] hasToken?', Boolean(token))
   const locationId = c.get('ghl_location_id')?.value
-  console.log('[user id] hasLocation?', Boolean(locationId))
 
   if (!token || !locationId) {
     return NextResponse.json(

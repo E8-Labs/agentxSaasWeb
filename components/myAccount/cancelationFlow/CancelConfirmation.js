@@ -25,16 +25,9 @@ function CancelConfirmation({
     loadCurrentPlanFeatures()
   }, [])
 
-  useEffect(() => {
-    console.log('🔍 [CANCELATION FLOW] Redux User:', reduxUser)
-  }, [reduxUser])
+  useEffect(() => {}, [reduxUser])
 
-  useEffect(() => {
-    console.log(
-      '🔍 [CANCELATION FLOW] Selected User in UseEffect:',
-      selectedUser,
-    )
-  }, [selectedUser])
+  useEffect(() => {}, [selectedUser])
 
   const getUserData = () => {
     let data = localStorage.getItem('User')
@@ -61,10 +54,6 @@ function CancelConfirmation({
         if (localData) {
           const userData = JSON.parse(localData)
           userPlan = userData.user?.plan
-          console.log(
-            '🔄 [CANCELATION FLOW] Using localStorage plan data:',
-            userPlan,
-          )
         }
       }
 
@@ -75,12 +64,6 @@ function CancelConfirmation({
         const allPlans = await getUserPlans()
         const currentPlanDetails = allPlans.find(
           (plan) => plan.id === userPlan.planId,
-        )
-        console.log('🔍 [CANCELATION FLOW] All plans:', allPlans)
-        console.log('🔍 [CANCELATION FLOW] User plan:', userPlan)
-        console.log(
-          '🔍 [CANCELATION FLOW] Current plan details:',
-          currentPlanDetails,
         )
 
         if (currentPlanDetails && !isSubaccount) {
@@ -105,10 +88,6 @@ function CancelConfirmation({
                 allowSuccessManager: false,
               },
             }
-            console.log(
-              '🔧 [CANCELATION FLOW] Added capabilities to free plan:',
-              freePlan,
-            )
           }
 
           // Use getFeaturesToLose function to get actual features that will be lost
@@ -123,27 +102,13 @@ function CancelConfirmation({
           setFeatures(planFeatures)
         } else if (isSubaccount) {
           let currentPlanFeatures = currentPlanDetails.features
-          console.log(
-            '🔍 [CANCELATION FLOW] Current plan features:',
-            currentPlanFeatures,
-          )
           if (typeof currentPlanFeatures === 'object') {
-            console.log(
-              '🔍 [CANCELATION FLOW] Current plan features is an object',
-            )
             currentPlanFeatures = currentPlanFeatures.map(
               (feature) => feature.text,
             )
           } else if (typeof currentPlanFeatures === 'string') {
-            console.log(
-              '🔍 [CANCELATION FLOW] Current plan features is a string',
-            )
             //convert to json array
             let planFeaturesJson = JSON.parse(currentPlanFeatures)
-            console.log(
-              '🔍 [CANCELATION FLOW] Plan features JSON:',
-              planFeaturesJson,
-            )
             currentPlanFeatures = planFeaturesJson.map(
               (feature) => feature.text,
             )
@@ -154,10 +119,6 @@ function CancelConfirmation({
               title: feature,
             }
           })
-          console.log(
-            '🔍 [CANCELATION FLOW] setting features for subaccount',
-            featuresToLose,
-          )
 
           setFeatures(featuresToLose)
         } else {

@@ -247,11 +247,9 @@ function AgencyInviteAgentX() {
       <div style={{ fontSize: 22, fontWeight: '700', color: '#000' }}>
         Invite Agent
       </div>
-
       <div style={{ fontSize: 12, fontWeight: '500', color: '#00000090' }}>
         {'Account > Invite Agent'}
       </div>
-
       <div
         className="w-10/12 p-6 rounded-lg flex flex-row items-center"
         style={{
@@ -285,10 +283,9 @@ function AgencyInviteAgentX() {
           </p>
         </div>
       </div>
-
       {userDetails && userDetails?.plan && userDetails?.isTrial === true ? (
         // {true ? (
-        <div className="w-full flex flex-col items-center">
+        (<div className="w-full flex flex-col items-center">
           <div className="w-full flex flex-row justify-center mt-4">
             <div
               className="w-10/12 flex flex-row items-start gap-2"
@@ -448,7 +445,7 @@ function AgencyInviteAgentX() {
               </button>
             </div>
           )}
-        </div>
+        </div>)
       ) : (
         <div
           style={{ alignSelf: 'center' }}
@@ -496,7 +493,7 @@ function AgencyInviteAgentX() {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export default AgencyInviteAgentX

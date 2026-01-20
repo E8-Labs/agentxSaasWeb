@@ -211,7 +211,6 @@ function AgencyPlansPayments({ selectedAgency }) {
       })
 
       if (response) {
-        console.log('Response of get plans api is', response.data.data)
         const monthly = []
         const quarterly = []
         const yearly = []
@@ -284,14 +283,9 @@ function AgencyPlansPayments({ selectedAgency }) {
         setCurrentPlan(togglePlan)
         // setCurrentPlanDetails(response?.data?.data?.plan)
         let userPlanDuration = response?.data?.data?.plan?.duration
-        console.log('response?.data?.data?.plan', plans)
 
         const matchedDuration = plans.find((d) => d.id === togglePlan)
 
-        console.log(
-          'plans find',
-          plans.find((d) => d.id === togglePlan),
-        )
         if (matchedDuration) {
           if (matchedDuration.duration === 'monthly') {
             setSelectedDuration(duration[0])
@@ -311,7 +305,6 @@ function AgencyPlansPayments({ selectedAgency }) {
 
   //function to close the add card popup
   const handleClose = (data) => {
-    console.log('Data recieved after add card is', data)
     if (data?.setupIntent) {
       let newCard = data.setupIntent
       setAddPaymentPopup(false)
@@ -382,9 +375,7 @@ function AgencyPlansPayments({ selectedAgency }) {
       if (response) {
         setCurrentSubAccounts(response.data.data)
       }
-    } catch (err) {
-      console.log('Error occured in fetching subaccounts list', err)
-    }
+    } catch (err) {}
   }
 
   //function to make default cards api
@@ -458,8 +449,6 @@ function AgencyPlansPayments({ selectedAgency }) {
   //function to subscribe plan
   const handleSubscribePlan = async () => {
     try {
-      console.log('ssubscribe')
-
       setSubscribePlanLoader(true)
       let AuthToken = null
       let localDetails = null
@@ -484,9 +473,7 @@ function AgencyPlansPayments({ selectedAgency }) {
       if (selectedAgency) {
         formData.append('userId', selectedAgency.id)
       }
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`)
-      }
+      for (let [key, value] of formData.entries()) {}
       // //console.log;
       // //console.log;
 
@@ -502,7 +489,6 @@ function AgencyPlansPayments({ selectedAgency }) {
         // //console.log;
         if (response.data.status === true) {
           localDetails.user.plan = response.data.data
-          console.log('response.data.data', response.data)
           // let user = userLocalData
           // user.plan = response.data.data
           // setUserLocalData(user)
@@ -592,8 +578,6 @@ function AgencyPlansPayments({ selectedAgency }) {
 
       const ApiPath = Apis.completeCancelatiton
 
-      console.log('ApiPath', ApiPath)
-
       //// //console.log;
       // //console.log;
 
@@ -611,8 +595,6 @@ function AgencyPlansPayments({ selectedAgency }) {
 
       if (response) {
         if (response.data.status === true) {
-          console.log('response.data.data', response.data)
-
           setShowConfirmCancelPlanPopup(false)
           setGiftPopup(false)
           setTogglePlan(null)
@@ -671,10 +653,6 @@ function AgencyPlansPayments({ selectedAgency }) {
       if (response) {
         // //console.log;
         let response2 = await getProfileDetails()
-        console.log(
-          'response2?.data?.data?.plan?.id',
-          response2?.data?.data?.plan?.id,
-        )
         if (response2) {
           let togglePlan = response2?.data?.data?.plan?.planId
           // let planType = null;
@@ -790,15 +768,9 @@ function AgencyPlansPayments({ selectedAgency }) {
   }
 
   const getCurrentPlans = () => {
-    if (selectedDuration.id === 1) {
-      console.log('Monthly plans set are', monthlyPlans)
-    }
-    if (selectedDuration.id === 2) {
-      console.log('Quarterly plans set are', quaterlyPlans)
-    }
-    if (selectedDuration.id === 3) {
-      console.log('Yearly plans set are', yearlyPlans)
-    }
+    if (selectedDuration.id === 1) {}
+    if (selectedDuration.id === 2) {}
+    if (selectedDuration.id === 3) {}
     if (selectedDuration.id === 1) return monthlyPlans
     if (selectedDuration.id === 2) return quaterlyPlans
     if (selectedDuration.id === 3) return yearlyPlans
@@ -830,10 +802,6 @@ function AgencyPlansPayments({ selectedAgency }) {
     }
 
     if (!tierName) {
-      console.log(
-        '🔍 [FIND-MATCH] Could not determine tier from source plan:',
-        sourceTitle,
-      )
       return null
     }
 
@@ -843,16 +811,7 @@ function AgencyPlansPayments({ selectedAgency }) {
       return planTitle.includes(tierName)
     })
 
-    if (matchingPlan) {
-      console.log(
-        `🔍 [FIND-MATCH] Found matching ${tierName} plan in target duration:`,
-        matchingPlan.title,
-      )
-    } else {
-      console.log(
-        `🔍 [FIND-MATCH] No matching ${tierName} plan found in target duration`,
-      )
-    }
+    if (matchingPlan) {} else {}
 
     return matchingPlan || null
   }
@@ -872,9 +831,6 @@ function AgencyPlansPayments({ selectedAgency }) {
     }
 
     if (targetPlans.length === 0) {
-      console.log(
-        '⚠️ [DURATION-CHANGE] No plans available for selected duration',
-      )
       return
     }
 
@@ -887,10 +843,6 @@ function AgencyPlansPayments({ selectedAgency }) {
     if (hasManualSelection) {
       const matchingTierPlan = findMatchingPlanByTier(selectedPlan, targetPlans)
       if (matchingTierPlan) {
-        console.log(
-          '✅ [DURATION-CHANGE] Found matching tier for manually selected plan, auto-selecting:',
-          matchingTierPlan.title,
-        )
         setTogglePlan(matchingTierPlan.id)
         setSelectedPlan(matchingTierPlan)
         return
@@ -904,10 +856,6 @@ function AgencyPlansPayments({ selectedAgency }) {
         (p) => p.id === currentPlan,
       )
       if (currentPlanInNewDuration) {
-        console.log(
-          '✅ [DURATION-CHANGE] Found current plan by ID in new duration, auto-selecting:',
-          currentPlanInNewDuration.title,
-        )
         setTogglePlan(currentPlanInNewDuration.id)
         setSelectedPlan(currentPlanInNewDuration)
         // Update currentPlanDetails to the found plan
@@ -925,10 +873,6 @@ function AgencyPlansPayments({ selectedAgency }) {
         targetPlans,
       )
       if (matchingTierPlan) {
-        console.log(
-          '✅ [DURATION-CHANGE] Found matching tier plan for current plan, auto-selecting:',
-          matchingTierPlan.title,
-        )
         setTogglePlan(matchingTierPlan.id)
         setSelectedPlan(matchingTierPlan)
         // Update currentPlanDetails if this is the user's actual current plan
@@ -938,11 +882,6 @@ function AgencyPlansPayments({ selectedAgency }) {
         return
       }
     }
-
-    // If no match found, don't auto-select anything
-    console.log(
-      '⚠️ [DURATION-CHANGE] No matching plan found, keeping current selection',
-    )
   }
 
   // Helper function to compare plans based on tier and billing cycle
@@ -960,23 +899,6 @@ function AgencyPlansPayments({ selectedAgency }) {
     const currentPrice =
       currentPlanObj.originalPrice || currentPlanObj.price || 0
     const targetPrice = targetPlanObj.originalPrice || targetPlanObj.price || 0
-
-    console.log(
-      '🔍 [PLAN-COMPARE] Current plan:',
-      currentPlanObj.title,
-      'Price:',
-      currentPrice,
-      'Duration:',
-      currentPlanObj.duration,
-    )
-    console.log(
-      '🔍 [PLAN-COMPARE] Target plan:',
-      targetPlanObj.title,
-      'Price:',
-      targetPrice,
-      'Duration:',
-      targetPlanObj.duration,
-    )
 
     // If same plan (by ID), it's the same
     if (
@@ -1039,35 +961,20 @@ function AgencyPlansPayments({ selectedAgency }) {
     if (currentTierRank >= 0 && targetTierRank >= 0) {
       // Different tiers - tier comparison determines upgrade/downgrade
       if (targetTierRank > currentTierRank) {
-        console.log('🔍 [PLAN-COMPARE] Result: UPGRADE (tier change)')
         return 'upgrade'
       } else if (targetTierRank < currentTierRank) {
-        console.log('🔍 [PLAN-COMPARE] Result: DOWNGRADE (tier change)')
         return 'downgrade'
       }
       // Same tier - compare billing cycles
       if (targetBillingOrder > currentBillingOrder) {
-        console.log(
-          '🔍 [PLAN-COMPARE] Result: UPGRADE (same tier, longer billing cycle)',
-        )
         return 'upgrade'
       } else if (targetBillingOrder < currentBillingOrder) {
-        console.log(
-          '🔍 [PLAN-COMPARE] Result: DOWNGRADE (same tier, shorter billing cycle)',
-        )
         return 'downgrade'
       } else {
-        console.log(
-          '🔍 [PLAN-COMPARE] Result: SAME (same tier and billing cycle)',
-        )
         return 'same'
       }
     }
 
-    // Fall back to price comparison if tier can't be determined
-    console.log(
-      '⚠️ [PLAN-COMPARE] Tier not determined, falling back to price comparison',
-    )
     if (targetPrice > currentPrice) {
       return 'upgrade'
     } else if (targetPrice < currentPrice) {
@@ -1087,14 +994,6 @@ function AgencyPlansPayments({ selectedAgency }) {
   //get the plan title for the button to upgrade and own grade also cancel plan subscription
   const planTitleTag = () => {
     const plansList = getCurrentPlans()
-
-    console.log('Current plan id is', currentPlan)
-    console.log('Toggle plan id is', togglePlan)
-    console.log('Current plan details are', currentPlanDetails?.status)
-    console.log(
-      'Plans list:',
-      plansList.map((p) => p.id),
-    )
 
     if (!togglePlan) return 'Select a Plan'
 
@@ -1130,10 +1029,8 @@ function AgencyPlansPayments({ selectedAgency }) {
     const comparison = comparePlans(currentPlanDetails, targetPlan)
 
     if (comparison === 'upgrade') {
-      console.log('Plan status is Upgrade')
       return 'Upgrade'
     } else if (comparison === 'downgrade') {
-      console.log('Plan status is Downgrade')
       return 'Downgrade'
     } else if (comparison === 'same') {
       return 'Cancel Subscription'
@@ -1141,10 +1038,8 @@ function AgencyPlansPayments({ selectedAgency }) {
 
     // Fallback: compare by ID if comparison failed
     if (togglePlan > currentPlan) {
-      console.log('Plan status is Upgrade (fallback)')
       return 'Upgrade'
     } else if (togglePlan < currentPlan) {
-      console.log('Plan status is Downgrade (fallback)')
       return 'Downgrade'
     }
 
@@ -1154,7 +1049,6 @@ function AgencyPlansPayments({ selectedAgency }) {
 
   //some code for squence id detecter
   const sequenceIdDetecter = () => {
-    console.log('Sequence id detecter triggered')
     // console.log("Detecter Current plan is", currentPlan)
     // console.log("Detecter monthly plans are", monthlyPlans)
     // Search inside monthly plans
@@ -1244,7 +1138,6 @@ function AgencyPlansPayments({ selectedAgency }) {
           </div>
         </button>
       </div>
-
       <div className="w-full">
         {getCardLoader ? (
           <div
@@ -1383,10 +1276,8 @@ function AgencyPlansPayments({ selectedAgency }) {
           </div>
         )}
       </div>
-
       {/* Code for smart refill */}
       {/*<SmartRefillCard />*/}
-
       <div className="w-full flex flex-col items-end mt-2">
         <div className="flex flex-row items-center justify-end gap-2 px-2 me-[7px]">
           {durationSaving.map((item) => {
@@ -1422,9 +1313,7 @@ function AgencyPlansPayments({ selectedAgency }) {
           ))}
         </div>
       </div>
-
       {/* code for current plans available */}
-
       {/*getCurrentPlans().map((item, index) => (
                 <button
                     key={item.id}
@@ -1529,7 +1418,6 @@ function AgencyPlansPayments({ selectedAgency }) {
                     </div>
                 </button>
             ))*/}
-
       <RadioGroup
         value={togglePlan?.toString() || ''}
         onValueChange={(value) => {
@@ -1711,7 +1599,6 @@ function AgencyPlansPayments({ selectedAgency }) {
           </button>
         ))}
       </RadioGroup>
-
       <div className="w-full flex flex-row items-center justify-center">
         {subscribePlanLoader ? (
           <div className="w-9/12 mt-8 flex flex-row items-center justify-center h-[50px]">
@@ -1750,14 +1637,6 @@ function AgencyPlansPayments({ selectedAgency }) {
               if (title === 'Cancel Subscription') {
                 handleCancelPlanClick()
               } else if (title === 'Downgrade') {
-                console.log(
-                  'Currently selected plan is',
-                  selectedPlan?.capabilities?.maxSubAccounts,
-                )
-                console.log(
-                  'Current sub accounts count:',
-                  currentSubAccounts?.length,
-                )
                 // Check if downgrade would exceed sub-account limits
                 if (
                   selectedPlan?.capabilities?.maxSubAccounts !== undefined &&
@@ -1778,7 +1657,6 @@ function AgencyPlansPayments({ selectedAgency }) {
           </button>
         )}
       </div>
-
       {/* Upgrade plans modal */}
       <Elements stripe={stripePromise}>
         <UpgradePlan
@@ -1789,20 +1667,15 @@ function AgencyPlansPayments({ selectedAgency }) {
             setShowUpgradeModal(false)
             // If upgrade was successful, refresh profile and state
             if (upgradeResult) {
-              // setSuccessSnack("Upgraded to " + selectedPlan.title + " Plan");
-              console.log(
-                '🔄 [NEW-BILLING] Upgrade successful, refreshing profile...',
-                upgradeResult,
-              )
               getProfile()
             }
           }}
           plan={selectedPlan}
           currentFullPlan={currentPlanDetails}
           from={'agency'}
+          selectedUser={selectedAgency}
         />
       </Elements>
-
       {/* Plans details */}
       <Modal
         open={showPlanDetailsPopup}
@@ -1845,7 +1718,6 @@ function AgencyPlansPayments({ selectedAgency }) {
           </div>
         </Box>
       </Modal>
-
       {/* Downgrade Plan Warning */}
       <UnlockPremiunFeatures
         open={showDowngradePlanWarning}
@@ -1859,7 +1731,6 @@ function AgencyPlansPayments({ selectedAgency }) {
         from={'agencyPayments'}
         title={selectedPlan?.title || 'Downgrade Plan'}
       />
-
       {/* Downgrade plan confirmation popup */}
       {showDowngradePlanPopup && (
         <DowngradePlanPopup
@@ -1876,7 +1747,6 @@ function AgencyPlansPayments({ selectedAgency }) {
           isFrom={true}
         />
       )}
-
       {/* Cancel Plan Features Modal */}
       <Modal
         open={showCancelFeaturesModal}
@@ -1928,7 +1798,6 @@ function AgencyPlansPayments({ selectedAgency }) {
           </div>
         </Box>
       </Modal>
-
       {/* Add Payment Modal */}
       <Modal
         open={addPaymentPopUp} //addPaymentPopUp
@@ -1983,7 +1852,6 @@ function AgencyPlansPayments({ selectedAgency }) {
           </div>
         </Box>
       </Modal>
-
       {/* Modal for cancel plan confirmation */}
       <Modal
         open={showConfirmCancelPlanPopup} //addPaymentPopUp
@@ -2067,7 +1935,6 @@ function AgencyPlansPayments({ selectedAgency }) {
           </div>
         </Box>
       </Modal>
-
       {/* del pln last step */}
       <Modal
         open={showConfirmCancelPlanPopup2} //showConfirmCancelPlanPopup2
@@ -2257,7 +2124,7 @@ function AgencyPlansPayments({ selectedAgency }) {
         </Box>
       </Modal>
     </div>
-  )
+  );
 }
 
 export default AgencyPlansPayments

@@ -35,11 +35,9 @@ const VoiceIntegrityDetails = ({
   useEffect(() => {
     checkVoiceIntegrityStatus()
     if (twilioHubData) {
-      console.log('Allow add')
       setAllowAddDetails(false)
     } else {
       setAllowAddDetails(true)
-      console.log('Donot allow add')
     }
   }, [twilioHubData])
 

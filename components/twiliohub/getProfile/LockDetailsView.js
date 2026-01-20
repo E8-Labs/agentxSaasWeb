@@ -10,8 +10,6 @@ const LockDetailsView = ({
   unLockDescription,
   businessProfileData,
 }) => {
-  console.log('profile status is', profileStatus)
-
   const styles = {
     normalFont: {
       fontSize: 15,

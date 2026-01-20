@@ -156,9 +156,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             parsedUser?.userRole === 'AgencySubAccount',
           )
         }
-      } catch (error) {
-        console.log('Error parsing user data:', error)
-      }
+      } catch (error) {}
     }
   }, [])
 
@@ -378,7 +376,6 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       if (isFromAgencyOrAdmin) {
         ApiPath = `${Apis.uniqueColumns}?userId=${isFromAgencyOrAdmin.subAccountData.id}`
       }
-      console.log('Api path for get unques columns is ', ApiPath)
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -540,7 +537,6 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       if (response) {
         //////console.log;
         if (response.data.status === true) {
-          console.log('Update agent done')
           handleAddCadence()
           // router.push("/dashboard");
         }
@@ -563,8 +559,6 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
         const cadenceDetails = JSON.parse(cadenceData)
         cadence = cadenceDetails
       }
-
-      console.log('cadence details are :', cadence)
 
       let mainAgentId = null
       const mainAgentData = localStorage.getItem('agentDetails')
@@ -603,7 +597,6 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       })
 
       if (response) {
-        console.log('add cadence done')
         if (response.data.status === true) {
           localStorage.removeItem('AddCadenceDetails')
           // router.push("/dashboard/leads");
@@ -624,9 +617,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             try {
               const parsed = JSON.parse(isFromAdminOrAgency)
               subaccountData = parsed?.subAccountData
-            } catch (error) {
-              console.log('Error parsing isFromAdminOrAgency:', error)
-            }
+            } catch (error) {}
 
             // Send event to parent window (opener) that agent was created
             if (window.opener && subaccountData) {
@@ -639,10 +630,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                   },
                   '*', // In production, specify the exact origin
                 )
-                console.log('Sent AGENT_CREATED event to parent window')
-              } catch (error) {
-                console.log('Error sending message to parent window:', error)
-              }
+              } catch (error) {}
             }
 
             // Clean up the stored data
@@ -680,10 +668,10 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       }
     } catch (error) {
       console.error('Error occured in api is :', error)
-      
+
       // Handle axios errors (network errors, non-200 status codes)
       let errorMsg = 'Failed to create pipeline cadence. Please try again.'
-      
+
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -701,8 +689,6 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       }
 
 
-      console.log('Error message is :', errorMsg)
-      console.log('Error is :', error)
       setErrorMessage(errorMsg)
       setErrorType(SnackbarTypes.Error)
       setIsErrorVisible(true)
@@ -739,8 +725,6 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
 
           if (response.data) {
             if (response.data.status === true) {
-              console.log('agent data from api', response.data.data)
-
               let agentData = response.data.data
 
               if (
