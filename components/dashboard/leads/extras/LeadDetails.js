@@ -2506,7 +2506,6 @@ const LeadDetails = ({
               sx: {
                 backgroundColor: '#00000020',
                 zIndex: 1500, // Match Modal z-index
-                zIndex: 1600, // Match Modal z-index
                 // //backdropFilter: "blur(5px)",
               },
             }}
@@ -2515,7 +2514,7 @@ const LeadDetails = ({
               className="lg:w-4/12 sm:w-4/12 w-6/12"
               sx={{
                 ...styles.modalsStyle,
-                zIndex: 1501, // Higher than backdrop (1500) to appear on top
+                zIndex: 1601, // Higher than backdrop (1500) to appear on top
                 position: 'relative',
               }}
             >
