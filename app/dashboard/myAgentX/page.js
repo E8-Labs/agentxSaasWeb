@@ -7091,7 +7091,7 @@ function Page() {
         initialValues={{
           maxDurationSeconds: showDrawerSelectedAgent?.maxDurationSeconds ?? 600,
           idleTimeoutSeconds: showDrawerSelectedAgent?.idleTimeoutSeconds ?? 10,
-          idleMessage: showDrawerSelectedAgent?.idleMessage ?? 'Are you there?',
+          idleMessage: showDrawerSelectedAgent?.idleMessage ?? 'Are you still there?',
         }}
         loading={advancedSettingsLoader}
       />

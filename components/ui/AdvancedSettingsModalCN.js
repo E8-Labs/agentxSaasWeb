@@ -10,11 +10,29 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
 import SliderCN from '@/components/ui/SliderCN'
 import { Phone, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
+
+// Predefined idle messages
+const IDLE_MESSAGES = [
+  'Are you still there?',
+  'Is there anything else you need help with?',
+  'Feel free to ask me any questions.',
+  'How can I assist you further?',
+  'Let me know if there\'s anything you need.',
+  'I\'m still here if you need assistance.',
+  'I\'m ready to help whenever you are.',
+  'Is there something specific you\'re looking for?',
+]
 
 /**
  * Advanced Settings Modal Component for Agent Configuration
@@ -26,7 +44,7 @@ import { cn } from '@/lib/utils'
  * @param {Object} props.initialValues - Initial values for the settings
  * @param {number} props.initialValues.maxDurationSeconds - Initial max duration (default: 600)
  * @param {number} props.initialValues.idleTimeoutSeconds - Initial idle timeout (default: 10)
- * @param {string} props.initialValues.idleMessage - Initial idle message (default: "Are you there?")
+ * @param {string} props.initialValues.idleMessage - Initial idle message (default: "Are you still there?")
  * @param {boolean} props.loading - Whether save is in progress
  * @param {string} props.className - Optional className for the modal
  */
@@ -45,7 +63,7 @@ const AdvancedSettingsModalCN = ({
     initialValues.idleTimeoutSeconds ?? 10
   )
   const [idleMessage, setIdleMessage] = useState(
-    initialValues.idleMessage ?? 'Are you there?'
+    initialValues.idleMessage ?? IDLE_MESSAGES[0]
   )
 
   // Update local state when initialValues change
@@ -53,11 +71,28 @@ const AdvancedSettingsModalCN = ({
     if (open) {
       setMaxDurationSeconds(initialValues.maxDurationSeconds ?? 600)
       setIdleTimeoutSeconds(initialValues.idleTimeoutSeconds ?? 10)
-      setIdleMessage(initialValues.idleMessage ?? 'Are you there?')
+      setIdleMessage(initialValues.idleMessage ?? IDLE_MESSAGES[0])
     }
   }, [open, initialValues])
 
+  // Validation: Check if values are within valid range
+  const isValid = () => {
+    const maxDurationValid = 
+      maxDurationSeconds >= 10 && 
+      maxDurationSeconds <= 43200 && 
+      !isNaN(maxDurationSeconds)
+    const idleTimeoutValid = 
+      idleTimeoutSeconds >= 10 && 
+      idleTimeoutSeconds <= 3600 && 
+      !isNaN(idleTimeoutSeconds)
+    const idleMessageValid = idleMessage.trim().length > 0
+    
+    return maxDurationValid && idleTimeoutValid && idleMessageValid
+  }
+
   const handleSave = () => {
+    if (!isValid()) return
+    
     onSave({
       maxDurationSeconds,
       idleTimeoutSeconds,
@@ -69,7 +104,7 @@ const AdvancedSettingsModalCN = ({
     // Reset to initial values
     setMaxDurationSeconds(initialValues.maxDurationSeconds ?? 600)
     setIdleTimeoutSeconds(initialValues.idleTimeoutSeconds ?? 10)
-    setIdleMessage(initialValues.idleMessage ?? 'Are you there?')
+    setIdleMessage(initialValues.idleMessage ?? IDLE_MESSAGES[0])
     onOpenChange(false)
   }
 
@@ -88,6 +123,10 @@ const AdvancedSettingsModalCN = ({
           <SliderCN
             value={maxDurationSeconds}
             onValueChange={(values) => setMaxDurationSeconds(values[0])}
+            onInputChange={(val) => {
+              const numVal = parseInt(val) || 0
+              setMaxDurationSeconds(numVal)
+            }}
             min={10}
             max={43200}
             step={1}
@@ -101,6 +140,10 @@ const AdvancedSettingsModalCN = ({
           <SliderCN
             value={idleTimeoutSeconds}
             onValueChange={(values) => setIdleTimeoutSeconds(values[0])}
+            onInputChange={(val) => {
+              const numVal = parseInt(val) || 0
+              setIdleTimeoutSeconds(numVal)
+            }}
             min={10}
             max={3600}
             step={1}
@@ -110,7 +153,7 @@ const AdvancedSettingsModalCN = ({
             unit="sec"
           />
 
-          {/* Silence Response Input */}
+          {/* Silence Response Select */}
           <div className="space-y-2">
             <Label htmlFor="idleMessage" className="text-base font-semibold">
               Silence Response
@@ -118,13 +161,21 @@ const AdvancedSettingsModalCN = ({
             <p className="text-sm text-muted-foreground">
               Message to say when user is silent.
             </p>
-            <Input
-              id="idleMessage"
+            <Select
               value={idleMessage}
-              onChange={(e) => setIdleMessage(e.target.value)}
-              placeholder="Are you there?"
-              className="w-full"
-            />
+              onValueChange={setIdleMessage}
+            >
+              <SelectTrigger id="idleMessage" className="w-full">
+                <SelectValue placeholder="Select a message" />
+              </SelectTrigger>
+              <SelectContent className="z-[1500]">
+                {IDLE_MESSAGES.map((message, index) => (
+                  <SelectItem key={index} value={message}>
+                    {message}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -138,8 +189,8 @@ const AdvancedSettingsModalCN = ({
           </Button>
           <Button
             onClick={handleSave}
-            disabled={loading}
-            className="bg-brand-primary hover:bg-brand-primary/90"
+            disabled={loading || !isValid()}
+            className="bg-brand-primary hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? 'Saving...' : 'Save Changes'}
           </Button>

@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Slider } from '@/components/ui/slider'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -19,6 +19,7 @@ import { cn } from '@/lib/utils'
  * @param {string} props.description - Description text displayed below the label
  * @param {ReactNode|string} props.icon - Icon component (ReactNode) or SVG path (string) to display
  * @param {string} props.unit - Unit to display with min/max and value (e.g., "sec", "min") (default: "")
+ * @param {Function} props.onInputChange - Optional callback when input value changes (allows typing values outside range): (value: string) => void
  * @param {string} props.className - Optional className for the container
  */
 const SliderCN = ({
@@ -32,10 +33,35 @@ const SliderCN = ({
   icon,
   unit = '',
   className,
+  onInputChange,
 }) => {
+  const [inputValue, setInputValue] = useState(value)
+
+  // Sync input value when prop value changes (from slider)
+  useEffect(() => {
+    setInputValue(value)
+  }, [value])
+
   const handleInputChange = (e) => {
+    const inputVal = e.target.value
+    setInputValue(inputVal)
+    
+    // Allow typing any value, but call onInputChange if provided for validation
+    if (onInputChange) {
+      onInputChange(inputVal)
+    } else {
+      // Default behavior: parse and clamp
+      const newValue = parseInt(inputVal) || 0
+      const clampedValue = Math.max(min, Math.min(max, newValue))
+      onValueChange([clampedValue])
+    }
+  }
+
+  const handleInputBlur = (e) => {
+    // On blur, clamp the value to valid range
     const newValue = parseInt(e.target.value) || min
     const clampedValue = Math.max(min, Math.min(max, newValue))
+    setInputValue(clampedValue)
     onValueChange([clampedValue])
   }
 
@@ -117,12 +143,9 @@ const SliderCN = ({
         <div className="w-20">
           <Input
             type="number"
-            value={value}
+            value={inputValue}
             onChange={handleInputChange}
-            onMouseDown={(e) => {
-              // Prevent slider from capturing the click event
-              e.stopPropagation()
-            }}
+            onBlur={handleInputBlur}
             onFocus={(e) => {
               // Select text when input receives focus
               e.target.select()
