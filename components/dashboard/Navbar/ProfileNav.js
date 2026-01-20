@@ -52,6 +52,7 @@ import AppLogo from "@/components/common/AppLogo";
 import { AuthToken } from "@/components/agency/plan/AuthDetails";
 import { SmartRefillApi } from "@/components/onboarding/extras/SmartRefillapi";
 import { hexToHsl, calculateIconFilter } from "@/utilities/colorUtils";
+import { renderBrandedIcon } from "@/utilities/iconMasking";
 
 const stripePromise = getStripe();
 
@@ -868,13 +869,8 @@ const ProfileNav = () => {
               JSON.stringify(fromDashboard)
             );
             router.push("/subaccountInvite/subscribeSubAccountPlan");
-          } else if (Data?.userRole !== "AgencySubAccount") {
-            if (
-              (Data.cards.length === 0) &&
-              Data.plan.price !== 0 &&
-              (Data.needsChargeConfirmation === false) &&
-              (!Data.callsPausedUntilSubscription)
-            ) {} else if (Data?.plan?.status === "paused") {
+          } else if (Data?.userRole === "AgencySubAccount" || Data?.userRole === "AgentX") {
+           if (Data?.plan?.status === "paused") {
               setShowPlanPausedBar(true)
             } else if (
 
@@ -1214,12 +1210,11 @@ const ProfileNav = () => {
           left: '55%',
           transform: 'translateX(-50%)',
           zIndex: 1000,
+          backgroundColor: `hsl(var(--brand-primary)/0.3)`,
         }}
-        className={`bg-[#845EEE45]  border border-[#845EEE21]  rounded-2xl flex flex-row items-center gap-1 px-2 py-2`}
+        className={` border rounded-2xl flex flex-row items-center gap-1 px-2 py-2`}
       >
-        <Image src={'/assets/infoBlue.png'} //src={'/otherAssets/infoBlue.jpg'}
-          height={24} width={24} alt="*"
-        />
+        {renderBrandedIcon("/assets/infoBlue.png", 24, 24)}
         {
           showPlanPausedBar ? (
             <div style={{ fontSize: 13, fontWeight: '700', }}>
@@ -1239,7 +1234,7 @@ const ProfileNav = () => {
                 showUpgradePlanBar && reduxUser?.plan?.price === 0 ? (
                   <div className="flex flex-col">
                     <div style={{ fontSize: 13, fontWeight: '700', }}>
-                      {`You're out of Free AI Credits.`}<span className="text-purple underline cursor-pointer" onClick={() => {
+                      {`You're out of Free AI Credits.`}<span className="text-brand-primary underline cursor-pointer" onClick={() => {
                         setShowUpgradePlanModal2(true)
                       }}>
                         Upgrade
