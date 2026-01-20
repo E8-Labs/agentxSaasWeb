@@ -1323,16 +1323,7 @@ function UpgradePlanContent({
       return 'Subscribe'
     }
 
-    // Try to use currentFullPlan for comparison if available
-    if (currentFullPlan) {
-      const comparison = comparePlans(currentFullPlan, currentSelectedPlan)
 
-      if (comparison === 'upgrade') {
-        return 'Upgrade'
-      } else if (comparison === 'downgrade') {
-        return 'Downgrade'
-      }
-    }
 
     // Fallback: Compare prices directly from currentUserPlan and currentSelectedPlan
     // Try multiple possible price fields
