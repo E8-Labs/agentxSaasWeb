@@ -6,7 +6,7 @@ import { Button as ButtonBase } from '../ui/button'
 
 // Type assertion for Button component
 const Button = ButtonBase as any
-import { toast } from 'sonner'
+import { toast } from '@/utils/toast'
 import Image from 'next/image'
 
 interface CallSummaryModalProps {

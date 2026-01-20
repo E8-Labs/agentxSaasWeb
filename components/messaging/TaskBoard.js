@@ -10,7 +10,7 @@ import TaskForm from './TaskForm'
 import TaskEmptyState from './TaskEmptyState'
 import { getTasks, createTask, updateTask, deleteTask } from '@/components/onboarding/services/apisServices/TaskService'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
-import { toast } from 'sonner'
+import { toast } from '@/utils/toast'
 import { TypographyH3, TypographyBody } from '@/lib/typography'
 import { cn } from '@/lib/utils'
 

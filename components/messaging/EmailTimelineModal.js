@@ -5,7 +5,7 @@ import axios from 'axios'
 import moment from 'moment'
 import { Paperclip, CaretDown, Plus, X } from '@phosphor-icons/react'
 import { Drawer } from '@mui/material'
-import { toast } from 'sonner'
+import { toast } from '@/utils/toast'
 
 import Apis from '@/components/apis/Apis'
 import RichTextEditor from '@/components/common/RichTextEditor'
