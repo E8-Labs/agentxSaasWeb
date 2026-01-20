@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Info } from 'lucide-react'
-import { toast } from 'sonner'
+import { toast } from '@/utils/toast'
 import Apis from '@/components/apis/Apis'
 
 const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
