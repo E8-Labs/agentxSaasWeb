@@ -262,7 +262,7 @@ const Page = ({ length = 6, onComplete }) => {
                         }
                       }
                     })
-                    .catch(err => console.log('Error fetching branding after login:', err))
+                    .catch(() => {})
                 })
               }
             }

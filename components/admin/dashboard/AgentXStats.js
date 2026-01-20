@@ -64,7 +64,6 @@ function AgentXStats({ user }) {
       // //console.log;
       let data = localStorage.getItem(PersistanceKeys.adminDashboardData)
       if (data) {
-        console.log('data found from local')
         let adminData = JSON.parse(data)
         setStats(adminData)
       } else {
@@ -88,7 +87,6 @@ function AgentXStats({ user }) {
       const data = await response.json()
 
       if (response.ok) {
-        console.log('dashboard data is', data)
         setStats(data.stats.data)
         localStorage.setItem(
           PersistanceKeys.adminDashboardData,

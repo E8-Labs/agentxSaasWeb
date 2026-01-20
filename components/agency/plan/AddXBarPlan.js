@@ -49,14 +49,12 @@ export default function AddXBarPlan({
 
   //check if is edit plan is true then store the predefault values
   useEffect(() => {
-    console.log('Test log xbars')
     if (selectedPlan) {
       setPlanPassed(selectedPlan)
-      console.log('Value of selected plan passed is', selectedPlan)
       setTitle(selectedPlan?.title)
       setTag(selectedPlan?.tag ?? '')
       setPlanDescription(selectedPlan?.planDescription)
-      
+
       // Safely handle null/undefined values for prices
       const discountedPriceValue = selectedPlan?.discountedPrice
       if (discountedPriceValue != null && !isNaN(discountedPriceValue)) {
@@ -64,14 +62,14 @@ export default function AddXBarPlan({
       } else {
         setOriginalPrice('')
       }
-      
+
       const originalPriceValue = selectedPlan?.originalPrice
       if (originalPriceValue != null && !isNaN(originalPriceValue) && Number(originalPriceValue) > 0) {
         setDiscountedPrice(originalPriceValue)
       } else {
         setDiscountedPrice('')
       }
-      
+
       setMinutes(selectedPlan?.minutes)
       setIsDefaultPlan(selectedPlan?.isDefault || false)
     }
@@ -81,7 +79,6 @@ export default function AddXBarPlan({
   useEffect(() => {
     if (originalPrice && minutes) {
       const P = originalPrice / minutes
-      console.log('Calculated price is', P)
       if (P < agencyPlanCost) {
         const cal = originalPrice * minutes
         setMinCostErr(true)
@@ -170,7 +167,6 @@ export default function AddXBarPlan({
       }
 
       setAddPlanLoader(true)
-      console.log('Working')
 
       const ApiPath = Apis.addXBarOptions
       const Token = AuthToken()
@@ -179,7 +175,7 @@ export default function AddXBarPlan({
       formData.append('title', title)
       formData.append('tag', tag)
       formData.append('planDescription', planDescription)
-      
+
       // originalPrice (backend) = strikethrough price (optional)
       // discountedPrice (backend) = actual selling price (always required)
       if (discountedPrice && Number(discountedPrice) > 0 && originalPrice && Number(originalPrice) > 0) {
@@ -197,13 +193,11 @@ export default function AddXBarPlan({
         formData.append('discountedPrice', originalPrice) // actual selling price (required)
         formData.append('percentageDiscount', 0)
       }
-      
+
       formData.append('minutes', minutes)
       formData.append('isDefault', isDefaultPlan)
 
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`)
-      }
+      for (let [key, value] of formData.entries()) {}
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -212,7 +206,6 @@ export default function AddXBarPlan({
       })
 
       if (response) {
-        console.log('Response of add xbars api is', response.data)
         setAddPlanLoader(false)
         onPlanCreated(response)
         if (response.data.status === true) {
@@ -265,18 +258,16 @@ export default function AddXBarPlan({
       }
 
       setAddPlanLoader(true)
-      console.log('Working and the passed plan item is', planPassed)
 
       // const ApiPath = Apis.addXBarOptions; //vincecamuto
       const url = `${Apis.updateAgencyXBar}/${planPassed.id}`
       const Token = AuthToken()
-      console.log('Url for udate ageny is', url)
 
       const formData = new FormData()
       formData.append('title', title)
       formData.append('tag', tag)
       formData.append('planDescription', planDescription)
-      
+
       // originalPrice (backend) = strikethrough price (optional)
       // discountedPrice (backend) = actual selling price (always required)
       if (discountedPrice && Number(discountedPrice) > 0 && originalPrice && Number(originalPrice) > 0) {
@@ -294,7 +285,7 @@ export default function AddXBarPlan({
         formData.append('discountedPrice', originalPrice) // actual selling price (required)
         formData.append('percentageDiscount', 0)
       }
-      
+
       formData.append('minutes', minutes)
       formData.append('isDefault', isDefaultPlan)
 
@@ -305,13 +296,9 @@ export default function AddXBarPlan({
       })
 
       if (response) {
-        console.log('Response of add xbars api is', response.data)
         setAddPlanLoader(false)
-        console.log("Set add plan loader to false")
         onPlanCreated(response)
-        console.log("Here after onPlanCreated")
         if (response.data.status === true) {
-          console.log("status is true")
           //update the xbars state on localstorage to update checklist
           const localData = localStorage.getItem('User')
           if (localData) {
@@ -319,19 +306,15 @@ export default function AddXBarPlan({
             D.user.checkList.checkList.plansXbarAdded = true
             localStorage.setItem('User', JSON.stringify(D))
           }
-          console.log("Dispatch UpdateAgencyCheckList event")
           window.dispatchEvent(
             new CustomEvent('UpdateAgencyCheckList', {
               detail: { update: true },
             }),
           )
-          console.log("Set snack message")
           setSnackMsg(response.data.message)
           setSnackMsgType(SnackbarTypes.Success)
           handleResetValues()
-          console.log("Handle reset values")
           handleClose(response.data.message)
-          console.log("Handle close")
         } else if (response.data.status === false) {
           setSnackMsg(response.data.message)
           setSnackMsgType(SnackbarTypes.Error)
@@ -715,7 +698,7 @@ export default function AddXBarPlan({
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
 
 // <div>

@@ -11,11 +11,6 @@ const BASE_API_URL =
  * Handle Twilio status callbacks
  */
 export async function POST(req: NextRequest) {
-  // Log immediately when endpoint is hit
-  console.log('🔵 [NEXT.JS STATUS WEBHOOK] Endpoint hit at:', new Date().toISOString())
-  console.log('🔵 [NEXT.JS STATUS WEBHOOK] URL:', req.url)
-  console.log('🔵 [NEXT.JS STATUS WEBHOOK] Method:', req.method)
-  
   try {
     const formData = await req.formData()
     const body: Record<string, string> = {}
@@ -23,16 +18,10 @@ export async function POST(req: NextRequest) {
       body[key] = value.toString()
     })
 
-    console.log('🔵 [NEXT.JS STATUS WEBHOOK] Body keys:', Object.keys(body))
-    console.log('🔵 [NEXT.JS STATUS WEBHOOK] CallSid:', body.CallSid)
-    console.log('🔵 [NEXT.JS STATUS WEBHOOK] CallStatus:', body.CallStatus)
-
     // Get signature from headers
     const signature = req.headers.get('x-twilio-signature') || ''
-    console.log('🔵 [NEXT.JS STATUS WEBHOOK] Has signature:', !!signature)
 
     const backendUrl = `${BASE_API_URL}api/dialer/calls/status`
-    console.log('🔵 [NEXT.JS STATUS WEBHOOK] Forwarding to backend:', backendUrl)
 
     // Call backend API to handle status callback
     const response = await fetch(backendUrl, {
@@ -45,11 +34,7 @@ export async function POST(req: NextRequest) {
       cache: 'no-store',
     })
 
-    console.log('🔵 [NEXT.JS STATUS WEBHOOK] Backend response status:', response.status)
-
     const twiml = await response.text()
-
-    console.log('🔵 [NEXT.JS STATUS WEBHOOK] Returning response to Twilio')
 
     return new Response(twiml, {
       status: response.status,

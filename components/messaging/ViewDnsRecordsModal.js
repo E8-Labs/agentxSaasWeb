@@ -35,7 +35,6 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
         // If Mailgun returned empty records but we have existing ones, preserve them
         // This prevents clearing records when Mailgun API temporarily returns empty
         if (freshRecords.length === 0 && dnsRecords && dnsRecords.length > 0) {
-          console.log('Mailgun returned empty records, preserving existing records')
           toast.warning('Mailgun returned no records. Showing existing records from database.')
         } else if (freshRecords.length > 0) {
           setDnsRecords(freshRecords)
@@ -79,10 +78,7 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
 
   // Normalize dnsRecords - handle JSON strings, null, undefined, or non-array values
   const normalizeDnsRecords = () => {
-    console.log('Raw dnsRecords received:', dnsRecords, 'Type:', typeof dnsRecords)
-
     if (!dnsRecords) {
-      console.log('dnsRecords is falsy, returning empty array')
       return []
     }
 
@@ -90,7 +86,6 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
     if (typeof dnsRecords === 'string') {
       try {
         const parsed = JSON.parse(dnsRecords)
-        console.log('Parsed JSON string:', parsed)
         return Array.isArray(parsed) ? parsed : []
       } catch (e) {
         console.error('Error parsing dnsRecords JSON:', e, 'String value:', dnsRecords)
@@ -100,30 +95,24 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
 
     // If it's already an array, return it
     if (Array.isArray(dnsRecords)) {
-      console.log('dnsRecords is already an array:', dnsRecords)
       return dnsRecords
     }
 
     // If it's an object, try to extract array from common properties
     if (typeof dnsRecords === 'object' && dnsRecords !== null) {
-      console.log('dnsRecords is an object:', dnsRecords)
       // Check if it has a records property or similar
       if (Array.isArray(dnsRecords.records)) {
-        console.log('Found records array in object')
         return dnsRecords.records
       }
       if (Array.isArray(dnsRecords.dnsRecords)) {
-        console.log('Found dnsRecords array in object')
         return dnsRecords.dnsRecords
       }
       // If it's an object with numeric keys, convert to array
       if (Object.keys(dnsRecords).every(key => !isNaN(key))) {
-        console.log('Converting object with numeric keys to array')
         return Object.values(dnsRecords)
       }
     }
 
-    console.log('Could not normalize dnsRecords, returning empty array')
     return []
   }
 

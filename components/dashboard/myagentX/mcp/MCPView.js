@@ -82,7 +82,6 @@ function MCPView({
 
   useEffect(() => {
     let data = getUserLocalData()
-    console.log('data', data)
     setUser(data.user)
   }, [setIsVisible])
 
@@ -120,7 +119,6 @@ function MCPView({
             ),
         )
 
-        console.log('Filtered Tools are', filteredTools)
         setSelectedMcpIds(filteredTools.map((item) => item.id))
       }
     } catch (error) {
@@ -150,7 +148,6 @@ function MCPView({
       }
     }
 
-    console.log('Data to be sent is', data)
     const mcpTool = await addMcpTool(data)
     if (mcpTool) {
       if (mcpTool.status === true) {
@@ -194,7 +191,6 @@ function MCPView({
         id: selectedMcpTool.id,
       }
     }
-    console.log('Data to be sent is', data)
     const mcpTool = await editMcpTool(data)
     if (mcpTool) {
       if (mcpTool.status === true) {
@@ -230,7 +226,6 @@ function MCPView({
         id: selectedMcpTool.id,
       }
     }
-    console.log('data to del mcp tool is', data)
     const mcpTool = await deleteMcpTool(data)
     if (mcpTool) {
       if (mcpTool.status === true) {
@@ -306,10 +301,6 @@ function MCPView({
 
     if (changedId) {
       const changedItem = mcpTools.find((item) => item.id === changedId)
-      console.log(
-        `${action === 'added' ? '🎉 Selected:' : '❌ Unselected:'}`,
-        changedItem,
-      )
       // attachMcp(changedItem);
 
       if (action === 'removed') {
@@ -343,7 +334,6 @@ function MCPView({
         toolId: item.id,
       }
     }
-    console.log('Data to be sent is', data)
     // return
     setAttachMcpLoader(item.id)
     const mcpTool = await attachMcpTool(data)
@@ -387,9 +377,7 @@ function MCPView({
         }
       }
       setAttachMcpLoader(item.id)
-      console.log('Data to be sent is', data)
       const detachResponse = await removeMcpTool(data)
-      console.log('Detach Response is', detachResponse)
       if (detachResponse) {
         if (detachResponse.status === true) {
           setShowSnack({
@@ -410,7 +398,6 @@ function MCPView({
         }
       }
     } catch (error) {
-      console.log('Error in detachMcp', error)
       setAttachMcpLoader('')
     }
   }

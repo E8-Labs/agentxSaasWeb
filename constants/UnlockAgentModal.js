@@ -101,7 +101,6 @@ function UnlockAgentModal({
           </div>
         </Box>
       </Modal>
-
       {/* UpgradePlan Modal */}
       {showUpgradeModal && (
         <Elements stripe={stripePromise}>
@@ -114,14 +113,12 @@ function UnlockAgentModal({
                 handleClose(true)
               }
             }}
-            setSelectedPlan={() => {
-              console.log('setSelectedPlan is called')
-            }}
+            setSelectedPlan={() => {}}
           />
         </Elements>
       )}
     </div>
-  )
+  );
 }
 
 export default UnlockAgentModal

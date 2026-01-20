@@ -33,9 +33,7 @@ const ConfigureSideUI = ({
           const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
           setIsAgency(userRole === 'Agency' || userRole === 'AgencySubAccount')
         }
-      } catch (error) {
-        console.log('Error parsing user data:', error)
-      }
+      } catch (error) {}
     }
   }, [])
 

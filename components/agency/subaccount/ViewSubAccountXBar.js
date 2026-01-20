@@ -14,8 +14,6 @@ import { AuthToken } from '../plan/AuthDetails'
 import { getXBarOptions } from './GetPlansList'
 
 const ViewSubAccountXBar = ({ showXBar, hideXBar, selectedUser }) => {
-  console.log('selected user passed is', selectedUser)
-
   const [initialLoader, setInitialLoader] = useState(false)
   const [agencyXBarPlans, setAgencyXBarPlans] = useState([])
   const [subAccountXBarPlans, setSubAccountXBarPlans] = useState([])
@@ -32,9 +30,7 @@ const ViewSubAccountXBar = ({ showXBar, hideXBar, selectedUser }) => {
     }
   }, [subAccountXBarPlans])
 
-  useEffect(() => {
-    console.log('Current selected XBar plans is', selectedXBarPlans)
-  }, [selectedXBarPlans])
+  useEffect(() => {}, [selectedXBarPlans])
 
   useEffect(() => {
     getXBarPlans()
@@ -48,12 +44,9 @@ const ViewSubAccountXBar = ({ showXBar, hideXBar, selectedUser }) => {
       const Token = AuthToken()
       const response = await getXBarOptions(selectedUser?.agencyId)
       if (response) {
-        console.log('Response of get agency XBar plans api is', response)
         setAgencyXBarPlans(response)
       }
-    } catch (error) {
-      console.log('Error occured in getAgencyXBarPlans is', error)
-    }
+    } catch (error) {}
   }
 
   //get XBar plans from user id api
@@ -61,14 +54,12 @@ const ViewSubAccountXBar = ({ showXBar, hideXBar, selectedUser }) => {
     try {
       setInitialLoader(true)
       const Token = AuthToken()
-      console.log('user id is', selectedUser?.id)
       let ApiPath = null
       if (selectedUser) {
         ApiPath = `${Apis.getSubAccountPlans}?userId=${selectedUser?.id}`
       } else {
         ApiPath = Apis.getSubAccountPlans
       }
-      console.log('Api path of get XBar plans is', ApiPath)
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: 'Bearer ' + Token,
@@ -77,7 +68,6 @@ const ViewSubAccountXBar = ({ showXBar, hideXBar, selectedUser }) => {
       })
 
       if (response) {
-        console.log('Response of get XBar plans api is', response.data.data)
         setSubAccountXBarPlans(response.data.data.xbarPlans || [])
         setInitialLoader(false)
       }
@@ -104,7 +94,6 @@ const ViewSubAccountXBar = ({ showXBar, hideXBar, selectedUser }) => {
       const Token = AuthToken()
       // Using the same API as monthly plans since there's no specific XBar update API
       const ApiPath = Apis.updateSubAccountPlansFromAgency
-      console.log('Selected user is', selectedUser)
       const apiData = {
         subaccountUserId: selectedUser.id,
         xbarPlans: selectedXBarPlans,
@@ -116,10 +105,6 @@ const ViewSubAccountXBar = ({ showXBar, hideXBar, selectedUser }) => {
         },
       })
       if (response) {
-        console.log(
-          'Response of update agency subaccount XBar plans api is',
-          response.data,
-        )
         if (response.data.status === true) {
           setSnackMsg('XBar Plans Updated.')
           setSnackMsgType(SnackbarTypes.Success)
@@ -133,7 +118,6 @@ const ViewSubAccountXBar = ({ showXBar, hideXBar, selectedUser }) => {
       }
     } catch (error) {
       setUpdateXBarLoader(false)
-      console.log('Error occured in update agency XBar plans api is', error)
     }
   }
 

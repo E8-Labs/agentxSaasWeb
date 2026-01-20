@@ -42,7 +42,6 @@ export default function SetPricing({
 
   //getting the plans list
   useEffect(() => {
-    console.log('Selected plans passed are', monPlans)
     setSelectedPlans(monPlans)
     getPlansList()
   }, [])
@@ -51,7 +50,6 @@ export default function SetPricing({
   const getPlansList = async () => {
     try {
       const plans = await getMonthlyPlan(selectedAgency)
-      console.log('Plans list recieved is', plans)
       setMonthlyPlans(plans)
     } catch (error) {
       console.error('Error occured in getting plans on  sub act is', error)

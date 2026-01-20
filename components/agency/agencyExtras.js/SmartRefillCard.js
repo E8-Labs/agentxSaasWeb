@@ -56,9 +56,7 @@ const SmartRefillCard = ({
       if (selectedUser && checkIsSubaccount(null, selectedUser, null)) {
         return true
       }
-    } catch (error) {
-      console.log('Error parsing user data:', error)
-    }
+    } catch (error) {}
 
     return false
   }
@@ -91,7 +89,6 @@ const SmartRefillCard = ({
       let user = null
       if (selectedUser) {
         user = await AdminGetProfileDetails(selectedUser.id)
-        console.log('user data is', user)
       }
       setUserData(user)
     }
@@ -111,26 +108,19 @@ const SmartRefillCard = ({
           userData,
         )
 
-        console.log('selectedUser', selectedUser)
-        console.log('userData', userData)
-        console.log('isSub', isSub)
         setIsSubaccount(isSub)
-      } catch (error) {
-        console.log('Error parsing user data:', error)
-      }
+      } catch (error) {}
     }
   }, [userData, selectedUser])
 
   const selectRefillOption = async () => {
     if (selectedUser) {
       let data = await AdminGetProfileDetails(selectedUser.id)
-      console.log('smart refill ', selectedUser)
       setAllowSmartRefill(data?.smartRefill)
     } else {
       const d = localStorage.getItem('User')
       if (d) {
         const Data = JSON.parse(d)
-        console.log('Smart refill is', Data.user.smartRefill)
         setAllowSmartRefill(Data?.user?.smartRefill)
       }
     }
@@ -143,7 +133,6 @@ const SmartRefillCard = ({
       const response = await SmartRefillApi(selectedUser)
       setUserDataLoader(false)
       if (response) {
-        console.log('Response of update profile api is', response)
         if (response.data.status === true) {
           setSuccessSnack(response.data.message)
           setShowSuccessSnack(true)
@@ -180,7 +169,6 @@ const SmartRefillCard = ({
       const response = await RemoveSmartRefillApi(selectedUser)
       setUserDataLoader(false)
       if (response) {
-        console.log('Response of remove smart refill api is', response)
         if (response.data.status === true) {
           setSuccessSnack(response.data.message)
           setShowSuccessSnack(true)

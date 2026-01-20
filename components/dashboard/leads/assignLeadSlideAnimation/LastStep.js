@@ -155,7 +155,6 @@ const LastStep = ({
       // Safely convert to Dayjs
       const parsedDate = selectedDate ? dayjs(selectedDate) : null
       if (parsedDate) {
-        console.log('Date passed is', parsedDate)
         let D = parsedDate?.format()
       }
       // setSelectedDateTime(parsedDate);
@@ -186,9 +185,7 @@ const LastStep = ({
     const d = localStorage.getItem('User')
     if (d) {
       const Data = JSON.parse(d)
-      console.log('Smart refill is', Data.user.smartRefill)
       let show = Data?.user?.smartRefill
-      console.log('show', show)
 
       if (!show) {
         setShwRefillToogle(true)
@@ -204,15 +201,11 @@ const LastStep = ({
       return leadIs.length
     }
   }
-  useEffect(() => {
-    console.log('Selected DateTime Updated:', selectedDateTime?.format())
-  }, [selectedDateTime])
+  useEffect(() => {}, [selectedDateTime])
 
   //date selection
   const handleDateChange = (date) => {
     if (!date || !dayjs(date).isValid()) return
-    console.log('Date value is', date)
-    console.log('Date value after daysjs is', dayjs(date))
     let timer = null
     if (dayjs(date).isBefore(dayjs())) {
       // timer = setTimeout(() => {
@@ -248,8 +241,6 @@ const LastStep = ({
       // setUserDataLoader(true);
       const response = await SmartRefillApi()
       if (response) {
-        // setUserDataLoader(false);
-        console.log('Response of update profile api is', response)
         if (response.data.status === true) {
           setIsRefill(true)
         } else if (response.data.status === false) {
@@ -268,8 +259,6 @@ const LastStep = ({
       // setUserDataLoader(true);
       const response = await RemoveSmartRefillApi()
       if (response) {
-        // setUserDataLoader(false);
-        console.log('Response of remove smart refill api is', response)
         if (response.data.status === true) {
           // setSuccessSnack(response.data.message);
           setIsRefill(false)
@@ -978,7 +967,7 @@ const LastStep = ({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default LastStep

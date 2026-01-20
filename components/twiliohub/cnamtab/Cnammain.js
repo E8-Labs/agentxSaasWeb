@@ -39,7 +39,6 @@ const Cnammain = ({
     const d = localStorage.getItem(PersistanceKeys.twilioHubData)
     if (d) {
       const Data = JSON.parse(d)
-      console.log('Data of twilio local data is', Data)
       setTwilioLocalData(Data)
     }
   }, [])
@@ -120,7 +119,6 @@ const Cnammain = ({
         if (response) {
           setLoader(false)
           const apiResponse = response.data
-          console.log('Response of add cnam is', response.data)
           if (apiResponse.status === true) {
             setShowSnack({
               type: SnackbarTypes.Success,
@@ -160,7 +158,6 @@ const Cnammain = ({
       } else {
         errorMessage = error.message || String(error)
       }
-      console.log('Error occured in api', errorMessage)
       setShowSnack({
         type: SnackbarTypes.Error,
         message: errorMessage,

@@ -13,8 +13,6 @@ const isProduction =
 
 const currentUrl = process.env.NODE_ENV === 'production' ? liveUrl : testUrl
 
-console.log('environment', isProduction)
-
 const KnowledgeBaseList = ({ kbList, onDelete, onAddKnowledge, isLoading }) => {
   return (
     <div className="">
@@ -87,11 +85,8 @@ const DocumentCard = ({ kb }) => {
 
     cleanedUrl = cleanedUrl.replace(liveUrl, '').replace(testUrl, '')
 
-    console.log('cleanedUrl', cleanedUrl)
-
     const finalUrl = (isProduction ? liveUrl : testUrl) + cleanedUrl
 
-    console.log('Final safe URL:', finalUrl)
     return finalUrl
   }
 
@@ -117,7 +112,6 @@ const UrlCard = ({ kb }) => {
           url = 'https://' + url
         }
 
-        console.log('Web url link is', url)
         window.open(url, '_blank')
       }}
       className="text-brand-primary underline border-none outline-none text-start"
@@ -131,11 +125,10 @@ const UrlCard = ({ kb }) => {
     >
       {kb.webUrl.trim()}
     </button>
-  )
+  );
 }
 
 const YoutubeCard = ({ kb }) => {
-  console.log('youtube url is', kb.webUrl)
   return (
     <button
       onClick={() => {
@@ -145,7 +138,6 @@ const YoutubeCard = ({ kb }) => {
           url = 'https://' + url
         }
 
-        console.log('Web url link is', url)
         window.open(url, '_blank')
       }}
       className="text-brand-primary underline border-none outline-none text-start"
@@ -159,7 +151,7 @@ const YoutubeCard = ({ kb }) => {
     >
       {kb.webUrl.trim()}
     </button>
-  )
+  );
 }
 
 const TextCard = ({ kb }) => {

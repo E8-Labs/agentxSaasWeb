@@ -40,7 +40,6 @@ class PlansService {
         },
       )
 
-      console.log('Plans response is ', response.data.data)
       if (response.data && Array.isArray(response.data.data)) {
         return this.transformPlansData(response.data.data, context)
       }
@@ -194,23 +193,8 @@ class PlansService {
     includeTrial = false,
   ) {
     try {
-      // Try to get from localStorage first
-      // const cached = localStorage.getItem(cacheKey);
-      // if (cached) {
-      //   console.log('Found cached plans', cached)
-      //   const parsedCache = JSON.parse(cached);
-      //   // Check if cache is less than 5 minutes old
-      //   const cacheTime = parsedCache.timestamp;
-      //   const now = Date.now();
-      //   if (now - cacheTime < 5 * 60 * 1000) { // 5 minutes
-      //     return parsedCache.data;
-      //   }
-      // }
-
-      console.log('Not cached plans')
       // Fetch fresh data from API
       const plans = await this.getPlans(category, context, includeTrial)
-      console.log('Found plans from server', plans)
       // Cache the result
       localStorage.setItem(
         cacheKey,

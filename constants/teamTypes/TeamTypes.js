@@ -19,6 +19,5 @@ export const isAgentXTeamMember = (user) => {
 }
 
 export const isSubaccountTeamMember = (user) => {
-  console.log('user is', user)
   return user?.teamFor === TeamType.SUBACCOUNT
 }

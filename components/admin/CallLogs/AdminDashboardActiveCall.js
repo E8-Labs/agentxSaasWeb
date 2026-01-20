@@ -181,9 +181,9 @@ function AdminDashboardActiveCall({
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
-        item.firstName.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      )
+        (item.firstName.toLowerCase().includes(term))
+      );
     })
 
     setFilteredSelectedLeadsList(filtered)
@@ -207,8 +207,6 @@ function AdminDashboardActiveCall({
 
   //code to get agents
   const getAgents = async (passedData) => {
-    console.log('Data passed is', passedData)
-
     // Check if we should load from cache (initial load with no pagination, sorting, or filters)
     const hasFilters =
       passedData?.selectedFromDate ||
@@ -226,11 +224,6 @@ function AdminDashboardActiveCall({
       if (cache) {
         try {
           const parsed = JSON.parse(cache)
-          console.log(
-            'Loading call activities from cache:',
-            parsed.length,
-            'items',
-          )
           setFilteredAgentsList(parsed)
           setCallDetails(parsed)
           setAgentsList(parsed)
@@ -239,13 +232,10 @@ function AdminDashboardActiveCall({
           console.warn('Error parsing cached call activities data', err)
           localStorage.removeItem(PersistanceKeys.LocalActiveCalls)
         }
-      } else {
-        console.log('No cached data found for call activities')
-      }
+      } else {}
     }
 
     try {
-      console.log('Fetching agents from API with pagination data', passedData)
       if (passedData?.isPagination === false) {
         setInitialLoader(true)
       }
@@ -277,8 +267,6 @@ function AdminDashboardActiveCall({
         ApiPath += `&userId=${passedData.selectedAgency.id}`
       }
 
-      console.log('Api path is', ApiPath)
-
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -288,29 +276,20 @@ function AdminDashboardActiveCall({
 
       if (response?.data?.data) {
         const agents = response.data.data
-        console.log('Fetched call activities from API:', agents.length, 'items')
-        console.log('Sample data structure:', agents[0])
 
         // Handle pagination vs initial load differently
         if (passedData?.isPagination) {
           // For pagination, append to existing data
           const updatedAgents = [...filteredAgentsList, ...agents]
-          console.log(
-            'Appending paginated data. Total items now:',
-            updatedAgents.length,
-          )
           setFilteredAgentsList(updatedAgents)
           setCallDetails(updatedAgents)
           setAgentsList(updatedAgents)
         } else {
-          // For initial load, replace all data
-          console.log('Replacing all data with fresh API data')
           setFilteredAgentsList(agents)
           setCallDetails(agents)
           setAgentsList(agents)
         }
 
-        console.log('Updated call activities data in UI')
         setInitialLoader(false)
         setLoading(false)
 
@@ -320,7 +299,6 @@ function AdminDashboardActiveCall({
             PersistanceKeys.LocalActiveCalls,
             JSON.stringify(agents),
           )
-          console.log('Saved call activities to cache:', agents.length, 'items')
         }
 
         // Notify parent if callback is provided
@@ -331,9 +309,7 @@ function AdminDashboardActiveCall({
         if (agents.length < LimitPerPage) {
           setHasMore(false)
         }
-      } else {
-        console.log('No data received from API:', response?.data)
-      }
+      } else {}
     } catch (error) {
       console.error('Failed to fetch agents', error)
     } finally {
@@ -372,9 +348,9 @@ function AdminDashboardActiveCall({
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
-        item.firstName.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      )
+        (item.firstName.toLowerCase().includes(term))
+      );
     })
 
     setFilteredSheduledCalllogs(filtered)
@@ -398,9 +374,9 @@ function AdminDashboardActiveCall({
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
-        item?.agents[0]?.name?.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      )
+        (item?.agents[0]?.name?.toLowerCase().includes(term))
+      );
     })
 
     setFilteredAgentsList(filtered)
@@ -559,7 +535,6 @@ function AdminDashboardActiveCall({
 
       const token = user.token // Extract JWT token
       let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}`
-      console.log('Api Call Leads : ', path)
       const response = await fetch(path, {
         method: 'GET',
         headers: {
@@ -571,15 +546,6 @@ function AdminDashboardActiveCall({
       const data = await response.json()
 
       if (response.ok) {
-        //console.log;
-        // setSelectedLeadsList(data.data);
-        // setFilteredSelectedLeadsList(data.data);
-        // localStorage.setItem(
-        //   PersistanceKeys.LeadsInBatch + `${batch.id}`,
-        //   JSON.stringify(data.data)
-        // );
-
-        console.log('Response of leads list detail', data.data)
         if (firstApiCall) {
           setSelectedLeadsList(data.data)
           setFilteredSelectedLeadsList(data.data)

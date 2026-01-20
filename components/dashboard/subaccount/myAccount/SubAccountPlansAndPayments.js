@@ -50,7 +50,6 @@ import AgentSelectSnackMessage, {
 const stripePromise = getStripe()
 
 function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
-  console.log('Selected user passed is', selectedUser)
   //stroes user cards list
   const [cards, setCards] = useState([])
 
@@ -142,12 +141,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
 
   const [confirmChecked, setConfirmChecked] = useState(false)
 
-  useEffect(() => {
-    console.log(
-      'current full plan in subaccount plans and payments',
-      currentPlanDetails,
-    )
-  }, [currentPlanDetails])
+  useEffect(() => {}, [currentPlanDetails])
 
   useEffect(() => {
     let screenWidth = 1000
@@ -177,24 +171,18 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
   useEffect(() => {
     // If there's a current plan, set the duration based on the plan
     if (currentPlan) {
-      //current plan id is
-      console.log('Current plan id is', selectedPlan)
-
       // Check inside monthly plans
       if (monthlyPlans.some((p) => p.id === currentPlan)) {
-        console.log('Should select the 0 index')
         setSelectedDuration({ id: 1, title: 'Monthly' })
         getCurrentPlans({ id: 1, title: 'Monthly' })
       }
       // Check inside quarterly plans
       else if (quaterlyPlans.some((p) => p.id === currentPlan)) {
-        console.log('Should select the 2 index')
         setSelectedDuration({ id: 2, title: 'Quarterly' })
         getCurrentPlans({ id: 2, title: 'Quarterly' })
       }
       // Check inside yearly plans
       else if (yearlyPlans.some((p) => p.id === currentPlan)) {
-        console.log('Should select the 3 index')
         setSelectedDuration({ id: 3, title: 'Yearly' })
         getCurrentPlans({ id: 3, title: 'Yearly' })
       }
@@ -203,7 +191,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
     } else {
       // If no current plan, set Monthly as default if monthly plans are available
       if (monthlyPlans.length > 0 && (Array.isArray(selectedDuration) || !selectedDuration?.id || selectedDuration.id !== 1)) {
-        console.log('No current plan, setting Monthly as default')
         setSelectedDuration({ id: 1, title: 'Monthly' })
       }
     }
@@ -242,7 +229,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
 
   //some code for squence id detecter
   const sequenceIdDetecter = () => {
-    console.log('Sequence id detecter triggered')
     // console.log("Detecter Current plan is", currentPlan)
     // console.log("Detecter monthly plans are", monthlyPlans)
     // Search inside monthly plans
@@ -266,7 +252,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
     // Search inside yearly plans
     const yearlyMatch = yearlyPlans.find((p) => p.id === currentPlan)
     if (yearlyMatch) {
-      console.log('Matching yearlyMatch plan is', yearlyMatch)
       setCurrentPlanDetails(yearlyMatch)
       setCurrentPlanSequenceId(yearlyMatch.sequenceId)
       return
@@ -278,14 +263,12 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
     try {
       setInitialLoader(true)
       const Token = AuthToken()
-      console.log('user id is', selectedUser?.id)
       let ApiPath = null
       if (selectedUser) {
         ApiPath = `${Apis.getSubAccountPlans}?userId=${selectedUser?.id}`
       } else {
         ApiPath = Apis.getSubAccountPlans
       }
-      console.log('Api path of get plan is', ApiPath)
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: 'Bearer ' + Token,
@@ -294,7 +277,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
       })
 
       if (response) {
-        console.log('Response of get plans api is', response.data.data)
         setPlans(response.data.data.monthlyPlans)
 
         //separate plans
@@ -325,45 +307,37 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
         let planCounter = 1
 
         ;[monthly, quarterly, yearly].forEach((group) => {
-          group.forEach((plan) => {
-            plan.sequenceId = planCounter++ //create new subacc and then test
+            group.forEach((plan) => {
+              plan.sequenceId = planCounter++ //create new subacc and then test
+            })
           })
-        })
 
         const emptyDurations = [monthly, quarterly, yearly].filter(
           (arr) => arr.length === 0,
         ).length
-        console.log('Empty durations are', emptyDurations)
         if (emptyDurations >= 2) {
           setDuration([])
         } else {
           if (monthly.length === 0) {
-            console.log('Remove monthly')
             setDuration((prev) => prev.filter((item) => item.id !== 1))
           }
           if (quarterly.length === 0) {
-            console.log('Remove quarterly')
             setDuration((prev) => prev.filter((item) => item.id !== 2))
           }
           if (yearly.length === 0) {
-            console.log('Remove yearly')
             setDuration((prev) => prev.filter((item) => item.id !== 3))
           }
         }
 
-        console.log('Monthly Plans:', monthly)
-        console.log('Quarterly Plans:', quarterly)
-        console.log('Yearly Plans:', yearly)
-        console.log('Available Durations:', availableDurations)
         setMonthlyPlans(monthly)
         setQuaterlyPlans(quarterly)
         setYearlyPlans(yearly)
-        
+
         // Set Monthly as default if no current plan exists and monthly plans are available
         if (!currentPlan && monthly.length > 0 && (Array.isArray(selectedDuration) || !selectedDuration?.id)) {
           setSelectedDuration({ id: 1, title: 'Monthly' })
         }
-        
+
         setInitialLoader(false)
         setInitialLoader(false)
       }
@@ -375,17 +349,13 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
 
   //get current plans
   const getCurrentPlans = (item) => {
-    console.log('Item passed in bartender is', item)
     if (item?.title === 'Monthly') {
-      console.log('Returning monthly plans are', monthlyPlans)
       return monthlyPlans
     }
     if (item?.title === 'Quarterly') {
-      console.log('Returning quarterly plans are', quaterlyPlans)
       return quaterlyPlans
     }
     if (item?.title === 'Yearly') {
-      console.log('Returning yearly plans are', yearlyPlans)
       return yearlyPlans
     }
     return []
@@ -405,8 +375,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
         ApiPath = Apis.getProfileData
       }
 
-      console.log('Api path for get profile is', ApiPath)
-
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: 'Bearer ' + Token,
@@ -415,13 +383,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
       })
 
       if (response) {
-        console.log('Response of get profile api is', response)
         let plan = response?.data?.data?.plan
-        console.log('response?.data?.data?.plan', response?.data?.data?.plan)
-        console.log(
-          'response?.data?.data?.plan?.sequenceId',
-          response?.data?.data?.plan?.sequenceId,
-        ) //i am not getting any suequence id update in the useeffect where we add duration in select duration
 
         let togglePlan = plan?.planId
 
@@ -470,8 +432,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
       } else {
         ApiPath = Apis.getCardsList
       }
-
-      console.log('Api path of get cards api is', ApiPath)
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -548,7 +508,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
 
   //functions for selecting plans
   const handleTogglePlanClick = (item) => {
-    console.log('Selected id', item.id)
     // if (togglePlan) {
     //     setTogglePlan(prevId => (prevId === item.id ? null : item.id));
     //     setSelectedPlan(prevId => (prevId === item ? null : item));
@@ -612,8 +571,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
   //function to subscribe plan
   const handleSubscribePlan = async () => {
     try {
-      console.log('ssubscribe')
-
       setSubscribePlanLoader(true)
       let AuthToken = null
       let localDetails = null
@@ -638,9 +595,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
       if (selectedUser) {
         formData.append('userId', selectedUser.id)
       }
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`)
-      }
+      for (let [key, value] of formData.entries()) {}
       // //console.log;
       // //console.log;
 
@@ -656,7 +611,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
         // //console.log;
         if (response.data.status === true) {
           localDetails.user.plan = response.data.data
-          console.log('response.data.data', response.data)
           // let user = userLocalData
           // user.plan = response.data.data
           // setUserLocalData(user)
@@ -697,7 +651,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
   //function to get payment history
   const getPaymentHistory = async () => {
     try {
-      console.log('Payment history trigered for subaccount')
       setHistoryLoader(true)
 
       let AuthToken = null
@@ -710,7 +663,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
       }
 
       const ApiPath = `${Apis.getPaymentHistory}?userId=${selectedUser.id}`
-      console.log('Api path for payment history of subaccount is', ApiPath)
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -765,7 +717,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
       if (response) {
         //console.log;
         if (response.data.status === true) {
-          console.log('Plan cancellation ', response.data)
           // window.location.reload();
           await getProfileDetails()
           setShowConfirmCancelPlanPopup(false)
@@ -823,10 +774,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
       if (response) {
         // //console.log;
         let response2 = await getProfileDetails()
-        console.log(
-          'response2?.data?.data?.plan?.id',
-          response2?.data?.data?.plan?.id,
-        )
         if (response2) {
           let togglePlan = response2?.data?.data?.plan?.planId
           // let planType = null;
@@ -940,10 +887,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
 
   //get the plan title for the button to upgrade and own grade also cancel plan subscription
   const planTitleTag = () => {
-    console.log('Current plan id is', currentPlan)
-    console.log('Toggle plan id is', selectedPlan)
-    console.log('Current plan sequence id is', currentPlanSequenceId)
-
     // If no plan is selected, don't show button
     if (!selectedPlan || !togglePlan) {
       return ''
@@ -978,13 +921,11 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
 
     // check if selected togglePlan is higher id than currentPlan → Upgrade
     if (selectedPlan?.sequenceId > currentPlanSequenceId) {
-      console.log('Plan status is Upgrade')
       return 'Upgrade'
     }
 
     // check if selected togglePlan is lower id than currentPlan → Downgrade
     if (selectedPlan?.sequenceId < currentPlanSequenceId) {
-      console.log('Plan status is Downgrade')
       return 'Downgrade'
     }
 
@@ -1062,7 +1003,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
           </div>
         </button>
       </div>
-
       <div className="w-full">
         {getCardLoader ? (
           <div
@@ -1186,13 +1126,9 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
           </div>
         )}
       </div>
-
       {/* Code for Smart Refill */}
-
       <SmartRefillCard selectedUser={selectedUser} />
-
       {/* code for current plans available */}
-
       {// count how many have length > 0
       [
         monthlyPlans?.length > 0,
@@ -1216,7 +1152,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
           </div>
         </div>
       )}
-
       <RadioGroup
         value={togglePlan?.toString() || ''}
         onValueChange={(value) => {
@@ -1448,7 +1383,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                       }}
                       onClick={(e) => {
                         e.stopPropagation()
-                        console.log('Trigering open details view')
                         setShowPlanDetailsPopup(true)
                       }}
                     >
@@ -1461,7 +1395,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
           </div>
         ))}
       </RadioGroup>
-
       {planTitleTag() && (
         <div className="w-full flex flex-row items-center justify-center">
           {subscribePlanLoader ? (
@@ -1538,11 +1471,10 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
                    */}
         </div>
       )}
-
       {/* Upgrade plans modal */}
       {selectedUser ? (
         // Use new component when agency is viewing subaccount
-        <UpgradePlanForUserFromAdminAgency
+        (<UpgradePlanForUserFromAdminAgency
           from={'SubAccount'}
           selectedPlan={selectedPlan}
           setSelectedPlan={setSelectedPlan}
@@ -1550,16 +1482,10 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
           selectedUser={selectedUser}
           allPlans={plans}
           handleClose={async (upgradeResult) => {
-            console.log('selectedPlan in subaccount', selectedPlan)
             setShowUpgradeModal(false)
 
             // If upgrade was successful, refresh profile and state
             if (upgradeResult) {
-              // setSuccessSnack("Upgraded to " + selectedPlan.title + " Plan");
-              console.log(
-                '🔄 [NEW-BILLING] Upgrade successful, refreshing profile...',
-                upgradeResult,
-              )
               getProfile()
               getCardsList()
             }
@@ -1567,10 +1493,10 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
           plan={selectedPlan}
           currentFullPlan={currentPlanDetails}
           
-        />
+        />)
       ) : (
         // Use original component when subaccount views their own plans
-        <Elements stripe={stripePromise}>
+        (<Elements stripe={stripePromise}>
           <UpgradePlan
             from={'SubAccount'}
             selectedPlan={selectedPlan}
@@ -1579,16 +1505,10 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
             selectedUser={selectedUser}
             allPlans={plans}
             handleClose={async (upgradeResult) => {
-              console.log('selectedPlan in subaccount', selectedPlan)
               setShowUpgradeModal(false)
 
               // If upgrade was successful, refresh profile and state
               if (upgradeResult) {
-                // setSuccessSnack("Upgraded to " + selectedPlan.title + " Plan");
-                console.log(
-                  '🔄 [NEW-BILLING] Upgrade successful, refreshing profile...',
-                  upgradeResult,
-                )
                 getProfile()
                 getCardsList()
               }
@@ -1596,9 +1516,8 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
             plan={selectedPlan}
             currentFullPlan={currentPlanDetails}
           />
-        </Elements>
+        </Elements>)
       )}
-
       {/* Plans details */}
       <Modal
         open={showPlanDetailsPopup}
@@ -1644,7 +1563,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
               isFrom="SubAccount"
               from="billing-modal"
               onPlanSelected={(plan) => {
-                console.log('Plan selected from modal:', plan)
                 // Close UserPlans modal
                 setShowPlanDetailsPopup(false)
                 // Set the selected plan
@@ -1660,7 +1578,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
           </div>
         </Box>
       </Modal>
-
       {/* Downgrade plan confirmation popup */}
       {showDowngradePlanPopup && (
         <DowngradePlanPopup
@@ -1678,7 +1595,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
           selectedUser={selectedUser}
         />
       )}
-
       {/* Features to lose window (Cancel Confirmation) */}
       <Modal
         open={showCancelConfirmation}
@@ -1714,7 +1630,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
           </div>
         </Box>
       </Modal>
-
       {/* Add Payment Modal */}
       <Modal
         open={addPaymentPopUp} //addPaymentPopUp
@@ -1772,7 +1687,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
           </div>
         </Box>
       </Modal>
-
       {/* Modal for Gift popup */}
       <Modal
         open={giftPopup}
@@ -1926,7 +1840,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
           </div>
         </Box>
       </Modal>
-
       {/* Modal for cancel plan confirmation */}
       <Modal
         open={showConfirmCancelPlanPopup} //addPaymentPopUp
@@ -2023,7 +1936,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
           </div>
         </Box>
       </Modal>
-
       {/* del pln last step */}
       <Modal
         open={showConfirmCancelPlanPopup2} //showConfirmCancelPlanPopup2
@@ -2218,7 +2130,6 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
           </div>
         </Box>
       </Modal>
-
       {/* Cancel Plan Animation Modal */}
       <CancelPlanAnimation
         showModal={showCancelPopup}
@@ -2230,7 +2141,7 @@ function SubAccountPlansAndPayments({ hideBtns, selectedUser }) {
         selectedUser={selectedUser}
       />
     </div>
-  )
+  );
 }
 
 export default SubAccountPlansAndPayments

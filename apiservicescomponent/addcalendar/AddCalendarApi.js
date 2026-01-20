@@ -6,8 +6,6 @@ import { Scopes } from '@/components/dashboard/myagentX/Scopes'
 import { PersistanceKeys } from '@/constants/Constants'
 
 export const AddCalendarApi = async (calendarValues) => {
-  console.log('Add calendar values passed are', calendarValues)
-
   try {
     // setAddCalenderLoader(true);
 
@@ -49,7 +47,6 @@ export const AddCalendarApi = async (calendarValues) => {
         formData.append('userId', calendarValues.userId)
       }
     } else if (calendarValues?.isFromAddGHLCal) {
-      console.log('GHL calendar passed is', calendarValues)
       const getCookiesReponse = await axios.get('/api/getCookies')
       formData.append('calendarType', 'ghl')
       // console.log("Cokies recieved are", getCookiesReponse);
@@ -74,10 +71,7 @@ export const AddCalendarApi = async (calendarValues) => {
       }
     }
 
-    for (let [key, value] of formData.entries()) {
-      console.log(`${key} = ${value}`)
-    }
-    console.log('Key updated')
+    for (let [key, value] of formData.entries()) {}
 
     // return
     const response = await axios.post(ApiPath, formData, {

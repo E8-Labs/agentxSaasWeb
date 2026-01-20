@@ -24,7 +24,6 @@ function PauseSubscription({ handleContinue, setShowSnak, selectedUser }) {
 
       date = moment(date).format('MM/DD/YYYY')
       setNxtChage(date)
-      console.log('date', date)
     }
   }
 

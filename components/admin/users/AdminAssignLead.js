@@ -174,7 +174,6 @@ const AdminAssignLead = ({
 
   //get agents api
   const getAgents = async () => {
-    console.log('trying to get agents')
     setInitialLoader(true)
     try {
       const localData = localStorage.getItem('User')
@@ -192,7 +191,6 @@ const AdminAssignLead = ({
         '?userId=' +
         selectedUser.id +
         '&agentType=outbound&pipeline=true'
-      console.log('Api path is', ApiPath)
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -204,10 +202,6 @@ const AdminAssignLead = ({
       if (response) {
         setInitialLoader(false)
 
-        //console.log;
-
-        // let filterredAgentsList = [];
-        console.log('trying to get agents')
         const filterredAgentsList = response.data.data.filter((mainAgent) => {
           // Check if all subagents are either outbound or both inbound and outbound
           const subAgents = mainAgent.agents
@@ -222,7 +216,6 @@ const AdminAssignLead = ({
           return hasOutbound && (!hasInbound || hasInbound)
         })
         setAgentsList(filterredAgentsList)
-        console.log(filterredAgentsList)
         setStages(filterredAgentsList.stages)
       }
     } catch (error) {
@@ -338,7 +331,6 @@ const AdminAssignLead = ({
   }
 
   const handleAssignLead = async () => {
-    console.log('enter in function')
     let userTimeZone = GetTimezone()
     const selectedDate = dayjs(selectedDateTime).tz(userTimeZone) // Convert input date to Day.js object
     const currentHour = selectedDate.hour() // Get the current hour (0-23)
@@ -354,16 +346,7 @@ const AdminAssignLead = ({
     if (
       isAfterStartTime && // After 7:00 AM
       isBeforeEndTime // Before 8:30 PM
-    ) {
-      console.log(
-        '✅ Selected time is between 7 AM and 8:30 PM.',
-        selectedDate.format(),
-      )
-      // setSelectedDateTime(selectedDate);
-    } else {
-      //console.log;
-      console.log('wrrong time')
-
+    ) {} else {
       setInvalidTimeMessage(
         'Calls only between 7am-8:30pm',
         // "Calling is only available between 7AM and 8:30PM in " + userTimeZone
@@ -375,7 +358,6 @@ const AdminAssignLead = ({
 
     try {
       setLoader(true);
-      console.log('calling api')
 
       let timer = null
       let batchSize = null
@@ -427,7 +409,6 @@ const AdminAssignLead = ({
         }
       }
 
-      console.log('apidata is', Apidata)
       // return;
       if (filters && selectedAll) {
         Apidata = {
@@ -436,7 +417,6 @@ const AdminAssignLead = ({
         }
       }
 
-      console.log('Api data sending in assignlead api is', Apidata)
       // return;
       const localData = localStorage.getItem('User')
       let AuthToken = null
@@ -583,7 +563,6 @@ const AdminAssignLead = ({
         }}
         type=""
       />
-
       {showDncConfirmationPopup && (
         <DncConfirmationPopup
           open={showDncConfirmationPopup}
@@ -604,7 +583,6 @@ const AdminAssignLead = ({
         />
       )}
       {/* Snackbar for invalid time */}
-
       <div className="flex flex-row items-center justify-between mt-4">
         <div style={{ fontSize: 24, fontWeight: '700' }}>Select your Agent</div>
         <div style={{ ...styles.paragraph, color: brandPrimaryColor }}>
@@ -620,7 +598,6 @@ const AdminAssignLead = ({
       >
         Only outbound agents assigned to a stage can make calls.
       </div>
-
       {initialLoader ? (
         <div className="w-full flex flex-row justify-center mt-4">
           <CircularProgress size={30} />
@@ -768,7 +745,6 @@ const AdminAssignLead = ({
           })}
         </div>
       )}
-
       <div>
         <button
           className="rounded-lg mt-4 w-full h-[50px]"
@@ -785,7 +761,6 @@ const AdminAssignLead = ({
           Continue
         </button>
       </div>
-
       {/* Smart refill popup
       <AllowSmartRefillPopup
         showSmartRefillPopUp={showSmartRefillPopUp}
@@ -797,7 +772,6 @@ const AdminAssignLead = ({
         handleSmartRefillLater={handleSmartRefillLater}
         handleSmartRefill={handleSmartRefill}
       /> */}
-
       {/* last step modal */}
       <Modal
         open={lastStepModal}
@@ -1328,7 +1302,6 @@ const AdminAssignLead = ({
                         const localData = localStorage.getItem('User')
                         if (localData) {
                           const UserDetails = JSON.parse(localData)
-                          console.log(UserDetails.user.smartRefill)
                           if (UserDetails.user.smartRefill === false) {
                             setShowSmartRefillPopUp(true)
                             // return;
@@ -1364,7 +1337,7 @@ const AdminAssignLead = ({
         </Box>
       </Modal>
     </div>
-  )
+  );
 }
 
 export default AdminAssignLead

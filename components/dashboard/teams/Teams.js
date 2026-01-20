@@ -54,7 +54,6 @@ function Teams({ agencyData, selectedAgency, from }) {
   const router = useRouter()
 
   const { user: reduxUser, setUser: setReduxUser } = useUser()
-  console.log('reduxUser is', reduxUser)
   //stores local data
   const [userLocalData, setUserLocalData] = useState(null)
 
@@ -322,20 +321,13 @@ function Teams({ agencyData, selectedAgency, from }) {
   //calling function to store and update data on redux
   // Function to refresh user data after plan upgrade
   const refreshUserData = async () => {
-    console.log('🔄 REFRESH USER DATA STARTED')
     try {
-      console.log('🔄 Calling getProfileDetails...')
       const profileResponse = await getProfileDetails()
-      console.log('🔄 getProfileDetails response:', profileResponse)
 
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data
         const localData = JSON.parse(localStorage.getItem('User') || '{}')
 
-        // console.log('🔄 [CREATE-AGENT] Fresh user data received after upgrade');
-
-        // Update Redux and localStorage with fresh data
-        console.log('updating redux user', freshUserData)
         const updatedUserData = {
           token: localData.token,
           user: freshUserData,
@@ -393,7 +385,6 @@ function Teams({ agencyData, selectedAgency, from }) {
         if (selectedAgency) {
           path = path + `?userId=${selectedAgency.id}`
         }
-        console.log('Api path for dashboard monthly plans api is', path)
 
         const response = await axios.get(path, {
           headers: {
@@ -467,7 +458,6 @@ function Teams({ agencyData, selectedAgency, from }) {
         }
 
         let path = Apis.inviteTeamMember
-        console.log('Api path for dashboard monthly plans api is', path)
 
         let apidata = {
           name: item.name,
@@ -481,8 +471,6 @@ function Teams({ agencyData, selectedAgency, from }) {
             userId: selectedAgency.id,
           }
         }
-
-        console.log('Data sending in inviteteamapi is', apidata)
 
         const response = await axios.post(path, apidata, {
           headers: {
@@ -670,8 +658,6 @@ function Teams({ agencyData, selectedAgency, from }) {
         }
 
         let path = Apis.deleteTeamMember
-        // //console.log;
-        console.log('Api path for dashboard monthly plans api is', path)
         const response = await axios.post(path, apidata, {
           headers: {
             Authorization: 'Bearer ' + u.token,
@@ -679,7 +665,6 @@ function Teams({ agencyData, selectedAgency, from }) {
         })
 
         if (response) {
-          console.log('Response of add team api is', response)
           setInviteTeamLoader(false)
           if (response.data.status === true) {
             // Defensive: filter out team member by id, but handle possible null/undefined
@@ -913,7 +898,6 @@ function Teams({ agencyData, selectedAgency, from }) {
             needHelp={false} />
         </div>
       */}
-
       <div
         className="flex h-[90vh] w-full flex flex-col justify-start overflow-auto pb-50"
         style={{ scrollbarWidth: 'none' }}
@@ -1383,7 +1367,6 @@ function Teams({ agencyData, selectedAgency, from }) {
           </div>
         )}
       </div>
-
       <MoreTeamMembers
         open={showUpgradeModalMore}
         onClose={() => {
@@ -1401,7 +1384,6 @@ function Teams({ agencyData, selectedAgency, from }) {
           reduxUser?.planCapabilities?.costPerAdditionalTeamSeat || 10
         }
       />
-
       <UpgradePlan
         selectedPlan={null}
         setSelectedPlan={() => { }}
@@ -1409,17 +1391,22 @@ function Teams({ agencyData, selectedAgency, from }) {
         handleClose={async (upgradeResult) => {
           setShowUpgradeModal(false)
           if (upgradeResult) {
-            console.log(
-              '🔄 [NEW-BILLING] Upgrade successful, refreshing profile...',
-              upgradeResult,
-            )
             await refreshUserData()
           }
         }}
         plan={null}
-        currentFullPlan={reduxUser?.user?.plan}
+        currentFullPlan={selectedAgency?.plan || reduxUser?.user?.plan}
+        selectedUser={selectedAgency}
+        from={
+          selectedAgency?.userRole === 'AgencySubAccount' 
+            ? 'SubAccount' 
+            : selectedAgency?.userRole === 'Agency' 
+            ? 'agency' 
+            : selectedAgency?.id && reduxUser?.userRole === 'Agency' && selectedAgency?.id !== reduxUser?.id
+            ? 'SubAccount' // If selectedAgency is provided, logged-in user is agency, and selectedAgency is different from logged-in user, it's a subaccount
+            : from
+        }
       />
-
       <Modal
         open={openInvitePopup}
         onClose={(e, reason) => {
@@ -1801,7 +1788,6 @@ function Teams({ agencyData, selectedAgency, from }) {
           </div>
         </Box>
       </Modal>
-
       {/* Code for upgrade plan modal */}
       <Modal
         open={upgradePlan}
@@ -1846,7 +1832,6 @@ function Teams({ agencyData, selectedAgency, from }) {
                 // isFrom="SubAccount"
                 from="billing-modal"
                 onPlanSelected={(plan) => {
-                  console.log('Plan selected from modal:', plan)
                   // Close UserPlans modal
                   setUpgradePlan(false)
                   refreshUserData()
@@ -1920,7 +1905,7 @@ function Teams({ agencyData, selectedAgency, from }) {
         />
       </PermissionProvider>
     </div>
-  )
+  );
 }
 
 export default Teams

@@ -52,7 +52,6 @@ function MyPhoneNumber() {
         if (response) {
           setLoading(false)
           if (response.data.status === true) {
-            console.log('Response of get phone numbers', response.data.data)
             setNumbers(response.data.data)
           } else {
             // //console.log

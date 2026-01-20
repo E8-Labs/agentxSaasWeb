@@ -69,7 +69,6 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             }
 
             const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedLead}`
-            console.log('🔍 [ConversationHeader] Fetching lead details, API path:', ApiPath, 'retry:', retryCount)
 
             const response = await axios.get(ApiPath, {
                 headers: {
@@ -79,24 +78,9 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             })
 
             if (response && response.data && response.data.data) {
-                console.log('🔍 [ConversationHeader] Lead details fetched:', {
-                    leadId: response.data.data.id,
-                    teamsAssigned: response.data.data.teamsAssigned,
-                    teamsAssignedLength: response.data.data.teamsAssigned?.length || 0,
-                    teamsAssignedStructure: response.data.data.teamsAssigned?.map(t => ({
-                        id: t.id,
-                        invitedUserId: t.invitedUserId,
-                        invitedUser_id: t.invitedUser?.id,
-                        invitedUser_name: t.invitedUser?.name,
-                        name: t.name || t.invitedUser?.name,
-                        fullObject: t, // Log full object for debugging
-                    })),
-                })
-                console.log('🔍 [ConversationHeader] Full teamsAssigned array:', JSON.stringify(response.data.data.teamsAssigned, null, 2))
-                
                 setLeadDetails(response.data.data)
                 setSelectedStage(response.data.data?.stage?.stageTitle || '')
-                
+
                 if (response.data.data?.pipeline?.id) {
                     setPipelineId(response.data.data.pipeline.id)
                     setPipelineTitle(response.data.data.pipeline.title || null)
@@ -106,7 +90,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                 } else {
                     setPipelineTitle(null)
                 }
-                
+
                 return response.data.data
             }
         } catch (error) {
@@ -187,15 +171,6 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             // Use a small delay to ensure state is fully updated
             const timer = setTimeout(() => {
                 setAssignmentRefreshKey(prev => prev + 1)
-                console.log('🔄 [ConversationHeader] Teams assigned changed, updating refresh key:', {
-                    key: teamsAssignedKey,
-                    count: leadDetails.teamsAssigned?.length || 0,
-                    teams: leadDetails.teamsAssigned?.map(t => ({
-                        id: t.id,
-                        invitedUserId: t.invitedUserId,
-                        invitedUser_id: t.invitedUser?.id,
-                    })),
-                })
             }, 150)
             
             return () => clearTimeout(timer)
@@ -230,23 +205,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                 if (response && response.data && response.data.status === true) {
                     const teamData = response.data.data || []
                     const adminData = response.data.admin
-                    
-                    console.log('🔍 [ConversationHeader] Team data fetched:', {
-                        myTeam: teamData,
-                        myTeamAdmin: adminData,
-                        myTeamStructure: teamData.map(t => ({
-                            id: t.id,
-                            invitedUserId: t.invitedUserId,
-                            invitedUser_id: t.invitedUser?.id,
-                            name: t.name,
-                        })),
-                        adminStructure: adminData ? {
-                            id: adminData.id,
-                            invitedUserId: adminData.invitedUserId,
-                            invitedUser_id: adminData.invitedUser?.id,
-                            name: adminData.name,
-                        } : null,
-                    })
+
                     setMyTeam(teamData)
                     setMyTeamAdmin(adminData || null)
                 }
@@ -318,7 +277,6 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             if (selectedUser) {
                 ApiData.userId = selectedUser.id
             }
-            console.log('🔵 [updateLeadStage] ApiData:', ApiData)
 
 
             const ApiPath = Apis.updateLeadStageApi
@@ -508,13 +466,11 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
     const handleAssignSelect = async (type, id, item) => {
         try {
             setGlobalLoader(true)
-            console.log('🔵 [Assign] Starting assignment:', { type, id, item })
 
             if (type === 'agent') {
                 // Assign agent to lead via pipeline
                 const agentId = item.id || item.agentId
-                console.log('🔵 [Assign] Agent assignment:', { agentId, pipeline: item.pipeline })
-                
+
                 if (!item.pipeline || !item.pipeline.id) {
                     showSnackbar('Agent must be assigned to a pipeline', SnackbarTypes.Error)
                     setGlobalLoader(false)
@@ -531,8 +487,6 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                     dncCheck: false,
                 }
 
-                console.log('🔵 [Assign] API Data:', ApiData)
-
                 const localData = localStorage.getItem('User')
                 let AuthToken = null
                 if (localData) {
@@ -546,8 +500,6 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                         'Content-Type': 'application/json',
                     },
                 })
-
-                console.log('🔵 [Assign] Agent assignment response:', response.data)
 
                 if (response && response.data && response.data.status === true) {
                     setSelectedAssignValue({ type: 'agent', id: String(agentId) })
@@ -593,8 +545,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             } else if (type === 'team') {
                 // Assign team member - use raw property which contains the original team member object
                 const teamMember = item.raw || item
-                console.log('🔵 [Assign] Team assignment:', { teamId: id, teamMember })
-                
+
                 const result = await handleAssignLeadToTeammember(teamMember)
                 // Update selected value after successful assignment
                 if (result) {

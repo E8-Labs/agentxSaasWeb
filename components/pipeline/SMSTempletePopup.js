@@ -77,7 +77,6 @@ function SMSTempletePopup({
     let isDefault = localStorage.getItem(
       PersistanceKeys.isDefaultCadenceEditing,
     )
-    console.log('isDefault', isDefault)
     setIsDefaultCadence(isDefault)
 
     // Fetch SMS templates when modal opens
@@ -158,7 +157,6 @@ function SMSTempletePopup({
         )
         if (matchedPhone) {
           setSelectedPhone(matchedPhone)
-          console.log('Found phone from smsPhoneNumberId:', matchedPhone)
         } else {
           console.warn('Phone number not found in phoneNumbers array for smsPhoneNumberId:', editingRow.smsPhoneNumberId)
         }
@@ -177,8 +175,6 @@ function SMSTempletePopup({
       const details = await getTempleteDetails(normalizedTemplate, selectedUser?.id)
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:128', message: 'getTempleteDetails response', data: { hasDetails: !!details, hasContent: !!details?.content, contentLength: details?.content?.length || 0, detailsKeys: Object.keys(details || {}) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
-      // #endregion
-      console.log('Template details:', details)
       if (details) {
         setBody(details.content || '')
         // #region agent log
@@ -235,15 +231,12 @@ function SMSTempletePopup({
     try {
       // Handle lead SMS sending
       if (isLeadSMS && onSendSMS) {
-        console.log('Sending SMS to lead:', leadPhone)
-
         const smsData = {
           content: body,
           phone: leadPhone,
           smsPhoneNumberId: selectedPhone?.id,
           leadId: leadId,
         }
-        console.log('smsData', smsData)
 
         // Wait for onSendSMS to complete if it's async, otherwise call it
         if (typeof onSendSMS === 'function') {
@@ -310,7 +303,7 @@ function SMSTempletePopup({
       if (isLeadSMS && onSendSMS) {
         // First save as template if we have a template name
         const templateName = selectedTemplate?.templateName || newTemplateName || 'SMS Template'
-        
+
         let templateData = {
           communicationType: 'sms',
           templateName: templateName,
@@ -327,23 +320,18 @@ function SMSTempletePopup({
         let templateResponse = null
         try {
           templateResponse = await createTemplete(templateData)
-          if (templateResponse?.data?.status === true) {
-            console.log('Template saved successfully')
-          }
+          if (templateResponse?.data?.status === true) {}
         } catch (templateError) {
           console.error('Error saving template:', templateError)
           // Continue with sending even if template save fails
         }
 
-        // Then send SMS
-        console.log('Sending SMS to lead:', leadPhone)
         const smsData = {
           content: body,
           phone: leadPhone,
           smsPhoneNumberId: selectedPhone?.id,
           leadId: leadId,
         }
-        console.log('smsData', smsData)
 
         // Wait for onSendSMS to complete if it's async, otherwise call it
         if (typeof onSendSMS === 'function') {
@@ -439,7 +427,6 @@ function SMSTempletePopup({
         }, 100)
       }
     } catch (error) {
-      console.log('error', error)
       setShowSnackBar({
         message: 'Failed to save SMS template',
         type: SnackbarTypes.Error,
@@ -509,7 +496,6 @@ function SMSTempletePopup({
   }
 
   const handleDeleteTemplate = async (template) => {
-    console.log('template to delete', template)
     setDelTempLoader(template)
     await deleteTemplete(template)
     setDelTempLoader(null)
@@ -548,7 +534,6 @@ function SMSTempletePopup({
   }
 
   const handleSelect = (t) => {
-    console.log('t', t)
     setSelectedPhone(t)
     // onClose();
   }

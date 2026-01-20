@@ -285,6 +285,9 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
 
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false)
 
+  // Check if the selectedUser is a subaccount
+  const isSubaccount = selectedUser?.userRole === 'AgencySubAccount' || from === 'subaccount'
+
   const renderComponent = () => {
     // Check permission for the selected tab when viewing from agency as Invitee
     if (agencyUser && isInvitee && from === 'subaccount') {
@@ -317,7 +320,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
         // return <AdminBilling selectedUser={selectedUser} from={from} />;
         return (
           <div>
-            {from === 'subaccount' ? (
+            {isSubaccount ? (
               <SubAccountPlansAndPayments
                 selectedUser={selectedUser}
                 hideBtns={true}
@@ -332,7 +335,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
         // return <AdminBilling selectedUser={selectedUser} from={from} />;
         return (
           <div>
-            {from === 'subaccount' ? (
+            {isSubaccount ? (
               <BillingHistory hideBtns={true} selectedUser={selectedUser} />
             ) : (
               <BillingHistory selectedUser={selectedUser} from={from} />
@@ -344,7 +347,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
       case 5:
         return <TwilioTrustHub selectedUser={selectedUser} />
       case 6:
-        if (from === 'subaccount') {
+        if (isSubaccount) {
           return <SubAccountBarServices selectedUser={selectedUser} />
         } else {
           return <AdminXbarServices selectedUser={selectedUser} />
@@ -363,6 +366,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
 
   return (
     // <Suspense>
+    // </Suspense>
     <div
       className="w-full flex flex-col items-center"
       style={{ overflow: 'hidden', height: '100vh' }}
@@ -376,7 +380,6 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
                 <DashboardSlider
                     needHelp={false} />
             </div> */}
-
       <div
         className=" w-full flex flex-row justify-between items-center py-2 px-10"
         style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
@@ -481,8 +484,7 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
         />
       )}
     </div>
-    // </Suspense>
-  )
+  );
 }
 
 export default AdminProfileData

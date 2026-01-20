@@ -133,7 +133,6 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
       if (selectedUser?.id) {
         const user = await AdminGetProfileDetails(selectedUser.id)
         if (user) {
-          console.log('user', user)
           setUserDetails(user)
         }
       }
@@ -674,7 +673,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
     if (!validData || validData.length === 0) {
       let errorMessage = 'No valid leads found. All rows were filtered out because:'
       const reasons = []
-      
+
       if (bothInvalidCount > 0) {
         reasons.push(`${bothInvalidCount} row(s) have both invalid phone numbers and missing name fields`)
       }
@@ -684,7 +683,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
       if (missingNameCount > 0) {
         reasons.push(`${missingNameCount} row(s) are missing name fields (First Name, Last Name, or Full Name)`)
       }
-      
+
       // If no stats available (shouldn't happen), provide generic message
       if (reasons.length === 0) {
         errorMessage = 'No valid leads found. All rows were filtered out because they are missing valid phone numbers or name fields.'
@@ -692,7 +691,6 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
         errorMessage += '\n• ' + reasons.join('\n• ')
         errorMessage += '\n\nPlease check your file and ensure all rows have valid phone numbers (in a recognized format) and at least one name field (First Name, Last Name, or Full Name).'
       }
-      console.log('errorMessage', errorMessage)
       setErrSnack(errorMessage)
       setErrSnackTitle('No Valid Leads Found')
       setShowErrSnack(true)
@@ -778,10 +776,6 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
             if (matchedColumnKey) {
               usedKeys.add(matchedColumnKey) // Mark as used
             }
-
-            console.log(
-              `Matched column "${header.toLowerCase()}" with "${matchedColumnKey}"`,
-            )
 
             return {
               ColumnNameInSheet: header, // Original header from the file
@@ -909,11 +903,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
           })
 
           const filteredCount = transformedData.length - validData.length
-          if (filteredCount > 0) {
-            console.log(
-              `Filtered out ${filteredCount} rows: ${invalidPhoneCount} invalid phone, ${missingNameCount} missing name, ${bothInvalidCount} both invalid`,
-            )
-          }
+          if (filteredCount > 0) {}
 
           // Update state
           setProcessedData(validData)
@@ -993,8 +983,6 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
         userId: selectedUser.id,
       }
 
-      console.log('Add lead data is', ApiData)
-
       const ApiPath = Apis.createLead
       //console.log);
       // return
@@ -1008,7 +996,6 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
       })
 
       if (response) {
-        console.log('Add lead api response is', response.data)
         if (response.data.status === true) {
           let sheet = response.data.data
           let leads = response.data.leads
@@ -1034,12 +1021,11 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
       }
     } catch (error) {
       console.error("Error occurred in add lead api:", error)
-      console.log("Error response data:", error.response?.data)
-      
+
       // Extract error message from response if available - prioritize response.data.message
       let errorMessage = 'Failed to add leads. Please try again.'
       let errorTitle = 'Error Adding Leads'
-      
+
       if (error.response) {
         // Server responded with error status - prioritize message from response.data.message
         const status = error.response.status
@@ -1076,8 +1062,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
         // Error setting up the request
         errorMessage = error.message || errorMessage
       }
-      
-      console.log("Setting error snack - Message:", errorMessage, "Title:", errorTitle)
+
       setErrSnack(errorMessage)
       setErrSnackTitle(errorTitle)
       setShowErrSnack(true)
@@ -1262,7 +1247,6 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
     if (checked) {
       let user = await getProfileDetails()
       if (user) {
-        console.log('user credits are', user.data.data.enrichCredits)
         if (user.data.data.enrichCredits === 0) {
           setShowenrichConfirmModal2(true)
           return
@@ -1889,11 +1873,9 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
                           // validateColumns();
                           let validated = validateColumns()
 
-                          console.log('Validated', validated)
                           // return;
                           // validated will be the validated data array if successful, or false if validation failed
                           if (validated && Array.isArray(validated) && validated.length > 0) {
-                            console.log('Show enrich')
                             handleAddLead(validated)
                           }
                         }}
@@ -1934,7 +1916,6 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
           setShowenrichConfirmModal={setShowenrichConfirmModal}
           handleAddLead={(value) => {
             if (value === true) {
-              console.log('Value passed is', value)
               setIsEnrich(value)
               setShowenrichModal(false)
               setShowenrichConfirmModal(false)
@@ -1951,7 +1932,6 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
         <ConfirmPerplexityModal
           showConfirmPerplexity={showenrichConfirmModal2}
           setshowConfirmPerplexity={(value) => {
-            console.log('value', value)
             setShowenrichConfirmModal2(value)
             setIsEnrich(value)
           }}
@@ -1965,12 +1945,10 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
         <ConfirmPerplexityModal
           showConfirmPerplexity={showenrichConfirmModal2}
           setshowConfirmPerplexity={(value) => {
-            console.log('value', value)
             setShowenrichConfirmModal2(value)
             setIsEnrich(value)
           }}
           handleEnrichLead={(value) => {
-            console.log('value', value)
             setIsEnrich(value)
             setShowenrichConfirmModal2(false)
           }}
@@ -2575,7 +2553,7 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
       {/* )
       } */}
     </div>
-  )
+  );
 }
 
 export default AdminLeads1

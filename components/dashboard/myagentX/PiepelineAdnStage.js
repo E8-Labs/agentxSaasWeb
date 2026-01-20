@@ -39,7 +39,6 @@ const PipelineAndStage = ({
 
   useEffect(() => {
     if (selectedAgent.agentType !== 'inbound') {
-      console.log('mainAgent', mainAgent)
       handleGetCadence()
     }
   }, [])
@@ -102,7 +101,6 @@ const PipelineAndStage = ({
       })
 
       if (response) {
-        console.log('Response of get agent cadence api is:', response.data)
         setAgentCadence(response.data.data)
       }
     } catch (error) {
@@ -135,11 +133,8 @@ const PipelineAndStage = ({
   }
 
   const handleUpdateCadence = () => {
-
     localStorage.setItem('selectedUser', JSON.stringify(selectedUser))
     setShowConfirmationPopup(false)
-    console.log('selectedAgent.id', selectedAgent.id)
-    console.log('selectedAgent.mainAgentId', selectedAgent.mainAgentId)
 
     // Store agent details for pipeline update page
     if (mainAgent?.id) {
@@ -175,12 +170,10 @@ const PipelineAndStage = ({
       }
 
       localStorage.setItem('AddCadenceDetails', JSON.stringify(cadenceData))
-      console.log('Stored cadence data for pipeline update:', cadenceData)
     }
     else {
       //clear AddCadenceDetails from local storage
       localStorage.removeItem('AddCadenceDetails')
-      console.log('Cleared AddCadenceDetails from local storage')
     }
 
     if (selectedUser) {
@@ -207,7 +200,6 @@ const PipelineAndStage = ({
         const storedData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
         if (storedData) {
           existingData = JSON.parse(storedData)
-          console.log('existingData is', existingData)
         }
       } catch (error) {
         console.error('Error reading existing state:', error)

@@ -51,9 +51,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
           return `hsl(${computedColor})`
         }
       }
-    } catch (error) {
-      console.log('Error getting brand color:', error)
-    }
+    } catch (error) {}
     return 'hsl(270, 75%, 50%)'
   }
 
@@ -92,9 +90,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
           if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
             return true
           }
-        } catch (error) {
-          console.log('Error parsing User data:', error)
-        }
+        } catch (error) {}
       }
       
       const localUser = localStorage.getItem('LocalStorageUser')
@@ -105,9 +101,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
           if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
             return true
           }
-        } catch (error) {
-          console.log('Error parsing LocalStorageUser:', error)
-        }
+        } catch (error) {}
       }
       
       const subAccountData = localStorage.getItem('SubaccoutDetails')
@@ -117,9 +111,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
           if (parsed) {
             return true
           }
-        } catch (error) {
-          console.log('Error parsing SubaccoutDetails:', error)
-        }
+        } catch (error) {}
       }
       
       return false
@@ -157,9 +149,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
               parsedUser?.userRole === 'AgencySubAccount',
           )
         }
-      } catch (error) {
-        console.log('Error parsing user data:', error)
-      }
+      } catch (error) {}
     }
   }, [])
 
@@ -229,9 +219,6 @@ const CreateAgentVoice = ({ handleBack, user }) => {
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          // //console.log;
-          // if (user.user.userType == UserTypes.RealEstateAgent) {
-          console.log('agent add voice response ', response.data.data)
           //   router.push("/sellerskycquestions");
           // } else {
           //   // //console.log;
@@ -282,7 +269,7 @@ const CreateAgentVoice = ({ handleBack, user }) => {
           //     window.close()
           //   }, 500)
           // } else {
-            router.push('/pipeline')
+          router.push('/pipeline')
           // }
 
           localStorage.removeItem('claimNumberData')

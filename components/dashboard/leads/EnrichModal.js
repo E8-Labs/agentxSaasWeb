@@ -40,8 +40,6 @@ export default function EnrichModal({
 
   useEffect(() => {
     const getCreditCost = async () => {
-      console.log('processedData EnrichModal is', processedData)
-
       // Check if processedData exists and has data
       if (!processedData || !Array.isArray(processedData) || processedData.length === 0) {
         console.warn('processedData is empty or undefined in EnrichModal')
@@ -49,7 +47,7 @@ export default function EnrichModal({
       }
 
       const leadCount = processedData.length
-      
+
       // Determine which user's role to check for minimum enforcement
       // If targetUserId is provided, check the target user's role from targetUserDetails
       // Otherwise, check the logged-in user's role
@@ -57,7 +55,7 @@ export default function EnrichModal({
       const targetUserIsAgencySubAccount = targetUserId && targetUserDetails 
         ? targetUserDetails.userRole === 'AgencySubAccount'
         : false
-      
+
       // Check if minimum should be enforced (either logged-in user or target user is AgencySubAccount)
       const shouldEnforceMinimum = (loggedInUserIsAgencySubAccount && !targetUserId) || targetUserIsAgencySubAccount
 
@@ -83,28 +81,18 @@ export default function EnrichModal({
           minimumData.userId = targetUserId
         }
         const minimumCostData = await calculateCreditCost(minimumData)
-        console.log('minimumCostData for 100 leads', minimumCostData)
-        console.log(
-          'minimumCostData pricePerLead:',
-          minimumCostData?.pricePerLead,
-        )
-        console.log('minimumCostData pricing:', minimumCostData?.pricing)
         setMinimumCost(minimumCostData)
         setIsMinimumEnforced(true)
         setOriginalLeadCount(leadCount)
 
         // Also get the cost for the actual lead count to show comparison
         const calculatedCreditCost = await calculateCreditCost(data)
-        console.log('creditCost', calculatedCreditCost)
-        console.log('creditCost pricePerLead:', calculatedCreditCost?.pricePerLead)
-        console.log('creditCost pricing:', calculatedCreditCost?.pricing)
         setCreditCost(calculatedCreditCost)
       } else {
         // Normal flow - calculate for actual lead count
         // When targetUserId is provided, the API will handle minimum enforcement based on target user's role
         const calculatedCreditCost = await calculateCreditCost(data)
-        console.log('creditCost calculated:', calculatedCreditCost)
-        
+
         // Check if the API response indicates minimum enforcement
         // The API returns isMinimumEnforced flag and minimumRequired field
         if (calculatedCreditCost && typeof calculatedCreditCost === 'object' && !calculatedCreditCost.message) {
@@ -142,7 +130,6 @@ export default function EnrichModal({
   }
 
   const handleClose = (data) => {
-    console.log('data of add card', data)
     if (data) {
       setShowAddCard(false)
       setShowenrichConfirmModal(true)

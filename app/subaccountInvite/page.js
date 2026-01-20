@@ -11,7 +11,6 @@ const Page = () => {
 
   const handleSkip = () => {
     const data = localStorage.getItem('User')
-    console.log('Working')
     if (data) {
       const D = JSON.parse(data)
       if (D.user.plan) {

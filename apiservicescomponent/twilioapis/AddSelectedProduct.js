@@ -10,7 +10,6 @@ export const AddSelectedProduct = async (selectedProduct) => {
     const ApiData = {
       trustProductId: selectedProduct,
     }
-    console.log('Api data is', ApiData)
     const response = await axios.post(ApiPath, ApiData, {
       headers: {
         Authorization: 'Bearer ' + token,
@@ -21,7 +20,5 @@ export const AddSelectedProduct = async (selectedProduct) => {
     if (response) {
       return response.data
     }
-  } catch (error) {
-    console.log('Error ocured in api is', error)
-  }
+  } catch (error) {}
 }

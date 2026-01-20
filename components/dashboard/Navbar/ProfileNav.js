@@ -176,13 +176,9 @@ const ProfileNav = () => {
 
             // Add class to body for CSS-based icon filtering
             document.body.classList.add('custom-domain-branding')
-          } catch (error) {
-            console.log('Error applying branding styles:', error)
-          }
+          } catch (error) {}
         }
-      } catch (error) {
-        console.log('Error parsing agencyBranding from localStorage:', error)
-      }
+      } catch (error) {}
     }
 
     // Listen for branding updates
@@ -202,9 +198,7 @@ const ProfileNav = () => {
             if (!document.body.classList.contains('custom-domain-branding')) {
               document.body.classList.add('custom-domain-branding')
             }
-          } catch (error) {
-            console.log('Error applying branding styles:', error)
-          }
+          } catch (error) {}
         }
       }
     }
@@ -219,7 +213,6 @@ const ProfileNav = () => {
 
 
   useEffect(() => {
-    console.log("Search url is", pathname);
     if (pathname === '/dashboard') {
       setShowHelpModal(true);
     } else {
@@ -315,8 +308,6 @@ const ProfileNav = () => {
         AuthToken = UserDetails.token;
       }
 
-      console.log("uploading in background after route change")
-
       uploadBatchSequence({
         data,
         sheetName,
@@ -332,9 +323,7 @@ const ProfileNav = () => {
         // onProgress: (batch, total) => {
         //   console.log(`Uploading batch ${batch}/${total}`);
         // },
-        onComplete: () => {
-          console.log("Background lead upload complete.");
-        },
+        onComplete: () => {},
       });
     }
   }, []);
@@ -359,7 +348,6 @@ const ProfileNav = () => {
 
   useEffect(() => {
     const handleHidePlanBar = (event) => {
-      console.log("hidePlanBar event received:", event.detail.update); // true
       getProfile();
     };
 
@@ -420,14 +408,12 @@ const ProfileNav = () => {
   // }
 
   const getShowWalkThrough = () => {
-    console.log("rigered the intro video")
     const localData = localStorage.getItem("User");
     if (localData) {
       const UserDetails = JSON.parse(localData);
       const watched = UserDetails?.user?.walkthroughWatched;
 
       if (UserDetails?.user?.plan && (watched === false || watched === "false")) {
-        console.log("✅ should show intro video");
         setWalkthroughWatched(true);
       } else {
         // 👇 Prevent flipping it back off if it’s already been set
@@ -450,12 +436,10 @@ const ProfileNav = () => {
         window.dispatchEvent(
           new CustomEvent("UpdateCheckList", { detail: { update: true } })
         );
-        console.log("Update api resopnse after walkthrough true", response)
       }
       // console.log("Response of update profile api is", response)
     } catch (error) {
       setUpdateProfileLoader(false);
-      console.log("Error occured in update catch api is", error)
     }
   }
 
@@ -508,10 +492,6 @@ const ProfileNav = () => {
       // Ensure daysLeft is never negative (trial already ended)
       daysLeft = Math.max(daysLeft, 0);
 
-      console.log(`Trial ends at: ${trialEnd.format("MMMM DD")}`);
-      console.log(`Trial days Today: ${today.format("MMMM DD")}`);
-      console.log(`Trial days Days left: ${daysLeft}`);
-
       return `${daysLeft} Day${daysLeft !== 1 ? "s" : ""} Left`;
     }
   };
@@ -522,10 +502,6 @@ const ProfileNav = () => {
     getShowWalkThrough();
     if (data) {
       const LocalData = JSON.parse(data);
-      console.log(
-        "LocalData.user.profile_status",
-        LocalData.user.profile_status
-      );
       if (LocalData.user.profile_status !== "active") {
         setErrorSnack("Your account has been frozen.");
         setShowErrorSnack(true);
@@ -550,10 +526,6 @@ const ProfileNav = () => {
       if (LocalData.user.needsChargeConfirmation) {
         setShowCallPausedPopup(true);
       }
-
-      console.log('LocalData', LocalData.user.needsChargeConfirmation)
-
-
     };
   }
 
@@ -564,7 +536,6 @@ const ProfileNav = () => {
     const initializeSocket = () => {
       const userData = localStorage.getItem("User");
       if (userData) {
-        console.log('🔌 Initializing socket connection...');
         setSocketStatus('connecting');
         socketService.connect();
 
@@ -595,7 +566,6 @@ const ProfileNav = () => {
     const handleUpdateProfile = (event) => {
       // //console.log;
       getUserProfile(); // Refresh the profile data
-      console.log("Navbar called getprofile api 1");
     };
 
     window.addEventListener("UpdateProfile", handleUpdateProfile);
@@ -652,14 +622,11 @@ const ProfileNav = () => {
   // Function to refresh user data after plan upgrade
   const refreshUserData = async () => {
     try {
-      console.log('🔄 [UPGRADE-TAG] Refreshing user data after plan upgrade...');
       const profileResponse = await getProfileDetails();
 
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data;
         const localData = JSON.parse(localStorage.getItem("User") || '{}');
-
-        console.log('🔄 [UPGRADE-TAG] Fresh user data received after upgrade');
 
         // Update Redux with fresh data
         const updatedUserData = {
@@ -681,12 +648,10 @@ const ProfileNav = () => {
   // Event listener for lead upload status
   useEffect(() => {
     const handleLeadUploadStart = (event) => {
-      console.log("Lead upload started - hiding dashboard slider");
       setIsLeadUploading(true);
     };
 
     const handleLeadUploadComplete = (event) => {
-      console.log("Lead upload completed - showing dashboard slider");
       setIsLeadUploading(false);
     };
 
@@ -881,15 +846,11 @@ const ProfileNav = () => {
 
   //function to getprofile
   const getProfile = async () => {
-    console.log('🔍 [getProfile] Starting getProfile function')
-
     try {
       let response = await getProfileDetails();
-      console.log('🔍 [getProfile] API response received:', response);
       getShowWalkThrough();
 
       if (response?.status == 404) {
-        console.log('❌ [getProfile] 404 status - user not found');
         // logout();
         // router.push("/");
         return;
@@ -898,7 +859,6 @@ const ProfileNav = () => {
       // //console.log;
 
       const userlocalData = localStorage.getItem("User");
-      console.log('🔍 [getProfile] Local storage data exists:', !!userlocalData);
       if (userlocalData) {
         // setUserDetails(response.data.data);
         //removed this bcz i am getting data from localstorage and api data is creating issues here
@@ -906,16 +866,9 @@ const ProfileNav = () => {
       }
 
       let Data = response?.data?.data;
-      console.log('🔍 [getProfile] Extracted data from response:', Data);
-
-      console.log(
-        "🔍 [getProfile] Available seconds:",
-        Data?.totalSecondsAvailable
-      );
 
       // Check profile_status from API response
       if (Data?.profile_status && Data.profile_status !== "active") {
-        console.log('❌ [getProfile] Profile status is not active:', Data.profile_status);
         setErrorSnack("Your account has been frozen.");
         setShowErrorSnack(true);
         // Show snackbar briefly before logout
@@ -926,9 +879,7 @@ const ProfileNav = () => {
       }
 
       if (response) {
-        console.log('✅ [getProfile] Response exists, processing...');
         if (response?.data) {
-          console.log("🔍 [getProfile] Response data exists:", response);
           setUserType(response?.data?.data.userType);
           let userPlan = response?.data?.data?.plan;
           const user = response?.data?.data;
@@ -936,28 +887,11 @@ const ProfileNav = () => {
           setReduxUser(user);
 
 
-          console.log("🔍 [getProfile] User details:", {
-            userType: response?.data?.data.userType,
-            userPlan: userPlan,
-            userRole: Data?.userRole,
-            isBalanceLow: isBalanceLow,
-            totalSecondsAvailable: user.totalSecondsAvailable,
-            cardsLength: Data?.cards?.length,
-            needsChargeConfirmation: Data?.needsChargeConfirmation,
-            callsPausedUntilSubscription: Data?.callsPausedUntilSubscription,
-            paymentFailed: Data?.paymentFailed
-          });
-
           if (response?.data?.data.userType != "admin") {
-            console.log('🔍 [getProfile] User is not an admin, checking plan...', { userPlan, userRole: Data?.userRole })
-
             if (!userPlan && Data?.userRole !== "AgencySubAccount") {
-              console.log('❌ [getProfile] No user plan found, redirecting to /plan');
               router.push("/plan")
               return
             }
-            console.log('✅ [getProfile] User has a plan, continuing...');
-
           }
           if (
             Data?.userRole === "AgencySubAccount" &&
@@ -965,13 +899,6 @@ const ProfileNav = () => {
             // ||
             // (Data?.plan && isBalanceLow)) // TODO: @Arslan Please handle this condition properly
           ) {
-            console.log("🔍 [getProfile] AgencySubAccount condition triggered", {
-              userRole: Data?.userRole,
-              plan: Data?.plan,
-              planStatus: Data?.plan?.status,
-              isBalanceLow: isBalanceLow
-            });
-
             const fromDashboard = { fromDashboard: true };
             localStorage.setItem(
               "fromDashboard",
@@ -979,29 +906,12 @@ const ProfileNav = () => {
             );
             router.push("/subaccountInvite/subscribeSubAccountPlan");
           } else if (Data?.userRole !== "AgencySubAccount") {
-            console.log("🔍 [getProfile] Non-AgencySubAccount user, checking conditions...", {
-              userRole: Data?.userRole,
-              cardsLength: Data?.cards?.length,
-              needsChargeConfirmation: Data?.needsChargeConfirmation,
-              callsPausedUntilSubscription: Data?.callsPausedUntilSubscription,
-              paymentFailed: Data?.paymentFailed,
-              isBalanceLow: isBalanceLow
-            });
-
             if (
               (Data.cards.length === 0) &&
               Data.plan.price !== 0 &&
               (Data.needsChargeConfirmation === false) &&
               (!Data.callsPausedUntilSubscription)
-            ) {
-              console.log("🔍 [getProfile] First time user condition - no cards, showing upgrade modal");
-
-              // if user comes first time then show plans popup
-              // setShowPlansPopup(true);
-              // setShowUpgradePlanModal(true)
-
-            } else if (Data?.plan?.status === "paused") {
-              console.log("🔍 [getProfile] Plan paused condition - showing plan paused bar");
+            ) {} else if (Data?.plan?.status === "paused") {
               setShowPlanPausedBar(true)
             } else if (
 
@@ -1009,23 +919,18 @@ const ProfileNav = () => {
               && (Data.needsChargeConfirmation === false) &&
               (!Data.callsPausedUntilSubscription)
             ) {
-              console.log("🔍 [getProfile] Payment failed condition - showing failed payment bar");
               setShowFailedPaymentBar(true)
             } else if (isBalanceLow && (Data?.plan?.price === 0 || Data?.smartRefill === false)) {
-              console.log("🔍 [getProfile] Low balance condition - showing upgrade plan bar");
               //if user have less then 2 minuts show upgrade plan bar
               setShowUpgradePlanBar(true)
             } else {
-              console.log('🔍 [getProfile] No specific condition met - hiding all modals/bars')
               setShowPlansPopup(false);
               setShowUpgradePlanModal(false)
 
               setShowUpgradePlanBar(false)
               setShowFailedPaymentBar(false)
             }
-
           } else {
-            console.log('🔍 [getProfile] Admin user or other condition - hiding all modals/bars')
             setShowPlansPopup(false);
             setShowUpgradePlanModal(false)
 
@@ -1038,17 +943,12 @@ const ProfileNav = () => {
           let planType = togglePlan;
 
 
-          console.log('🔍 [getProfile] Final planType set to:', planType);
           setTogglePlan(planType);
-        } else {
-          console.log('❌ [getProfile] No response.data found');
-        }
+        } else {}
       } else {
-        console.log('❌ [getProfile] No response received - logging out user');
         logout("API failure/no response from getProfile");
         router.push("/");
       }
-
     } catch (error) {
       console.error("❌ [getProfile] Error occurred:", error);
     }
@@ -1189,7 +1089,6 @@ const ProfileNav = () => {
           setSuccessSnack(response.data.message);
           setShowSuccessSnack(true);
           setShowPlansPopup(false);
-          console.log("Should triger the intro video")
           getShowWalkThrough();
           getProfile();
         } else if (response.data.status === false) {
@@ -1312,7 +1211,6 @@ const ProfileNav = () => {
       if (user) {
         const userData = JSON.parse(user);
         let token = userData.token;
-        console.log("token is", token);
 
         const response = await axios.post(Apis.resumeSubscription, {}, {
           headers: {
@@ -1455,7 +1353,6 @@ const ProfileNav = () => {
         message={errorSnack}
         type={SnackbarTypes.Error}
       />
-
       {/* For Walkthrough Watched Popup */}
       {/* Intro modal */}
       <IntroVideoModal
@@ -1466,7 +1363,6 @@ const ProfileNav = () => {
         videoUrl={HowtoVideos.WalkthroughWatched}//WalkthroughWatched
         showLoader={updateProfileLoader}
       />
-
       <div className="w-full flex flex-col items-center justify-between h-screen">
         <div
           className="w-full pt-5 flex flex-col items-center"
@@ -1487,7 +1383,7 @@ const ProfileNav = () => {
               </div>
             ) : (
               /* AppLogo handles logo display based on hostname */
-              <div className="w-full flex justify-start pl-6">
+              (<div className="w-full flex justify-start pl-6">
                 <AppLogo
                   height={reduxUser?.userRole === "AgencySubAccount" || reduxUser?.userRole === "Invitee" ? 40 : 33}
                   width={140}
@@ -1495,7 +1391,7 @@ const ProfileNav = () => {
                   style={{ marginLeft: "-8px" }}
                   alt="logo"
                 />
-              </div>
+              </div>)
             )}
           </div>
 
@@ -1703,12 +1599,10 @@ const ProfileNav = () => {
 
 
       </div>
-
       <CallPausedPopup
         open={showCallPausedPopup}
         onClose={() => setShowCallPausedPopup(false)}
       />
-
       {/* Subscribe Plan modal */}
       <div>
         {/* Subscribe Plan modal */}
@@ -2044,9 +1938,7 @@ const ProfileNav = () => {
         {/* UpgradePlan Modal */}
         <Elements stripe={stripePromise}>
           <UpgradePlan
-            setSelectedPlan={() => {
-              console.log("setSelectedPlan is called")
-            }}
+            setSelectedPlan={() => {}}
             currentFullPlan={reduxUser?.plan}
             open={showUpgradePlanModal2}
             handleClose={(upgradeResult) => {
@@ -2058,9 +1950,7 @@ const ProfileNav = () => {
                 setShowPlanPausedBar(false)
               }
             }}
-            setShowSnackMsg={() => {
-              console.log("setShowSnackMsg is called")
-            }}
+            setShowSnackMsg={() => {}}
           />
         </Elements>
       </div>

@@ -9,7 +9,6 @@ const SelectYearlypopup = ({
   handleClose,
   duration,
 }) => {
-  console.log('yearly plan is', showYearlyPlan)
   return (
     <Modal open={showYearlyPlan}>
       <Box className="max-w-lg outline-none border-none w-[100%] bg-white rounded-xl p-6 mx-auto border-none outline-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">

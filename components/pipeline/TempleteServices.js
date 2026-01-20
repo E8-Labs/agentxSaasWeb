@@ -15,7 +15,6 @@ export const getTempletes = async (type, userId = null) => {
     if (userId) {
       path = path + '&userId=' + userId
     }
-    console.log('path', path)
 
     const response = await axios.get(path, {
       headers: {
@@ -24,12 +23,9 @@ export const getTempletes = async (type, userId = null) => {
     })
 
     if (response) {
-      console.log('response of get templetes', response)
       return response.data.data
     }
-  } catch (e) {
-    console.log('error in get templetes', e)
-  }
+  } catch (e) {}
 }
 
 export const getA2PNumbers = async (id) => {
@@ -41,8 +37,6 @@ export const getA2PNumbers = async (id) => {
       path = path + '?userId=' + id
     }
 
-    console.log('path', path)
-
     const response = await axios.get(path, {
       headers: {
         Authorization: 'Bearer ' + token,
@@ -50,12 +44,9 @@ export const getA2PNumbers = async (id) => {
     })
 
     if (response) {
-      console.log('response of get a2p verified numbers', response)
       return response.data.data
     }
-  } catch (e) {
-    console.log('error in get templetes', e)
-  }
+  } catch (e) {}
 }
 
 export const getTempleteDetails = async (temp, userId = null) => {
@@ -70,8 +61,6 @@ export const getTempleteDetails = async (temp, userId = null) => {
     }
     let path = `${Apis.templets}/${templateId}`
 
-    console.log('path', path)
-
     const response = await axios.get(path, {
       headers: {
         Authorization: 'Bearer ' + token,
@@ -79,18 +68,14 @@ export const getTempleteDetails = async (temp, userId = null) => {
     })
 
     if (response) {
-      console.log('response of get templete details', response)
       return response.data.data
     }
-  } catch (e) {
-    console.log('error in get templetes', e)
-  }
+  } catch (e) {}
 }
 
 export const createTemplete = async (data) => {
   try {
     let token = AuthToken()
-    console.log('data', data)
 
     let formdata = new FormData()
 
@@ -105,7 +90,7 @@ export const createTemplete = async (data) => {
     // }
     // if(data.content){
     formdata.append('content', data.content)
-    
+
     // Add userId if provided (for agency/admin creating templates for subaccounts)
     if (data.userId) {
       formdata.append('userId', data.userId)
@@ -130,12 +115,9 @@ export const createTemplete = async (data) => {
       // Ensure it's a proper JSON array string
       formdata.append('bccEmails', JSON.stringify(data.bccEmails))
     }
-    for (let pair of formdata.entries()) {
-      console.log(pair[0] + ':', pair[1])
-    }
+    for (let pair of formdata.entries()) {}
 
     let path = Apis.templets
-    console.log('path', path)
 
     const response = await axios.post(path, formdata, {
       headers: {
@@ -145,11 +127,9 @@ export const createTemplete = async (data) => {
     })
 
     if (response) {
-      console.log('response', response.data)
       return response
     }
   } catch (e) {
-    console.log('error in create tempelate', e)
     if (e.response) {
       return e.response
     }
@@ -160,7 +140,6 @@ export const createTemplete = async (data) => {
 export const updateTemplete = async (data, tempId) => {
   try {
     let token = AuthToken()
-    console.log('data', data)
 
     let formdata = new FormData()
 
@@ -175,7 +154,7 @@ export const updateTemplete = async (data, tempId) => {
     // }
     // if(data.content){
     formdata.append('content', data.content)
-    
+
     // Add userId if provided (for agency/admin updating templates for subaccounts)
     if (data.userId) {
       formdata.append('userId', data.userId)
@@ -197,12 +176,9 @@ export const updateTemplete = async (data, tempId) => {
       // Ensure it's a proper JSON array string
       formdata.append('bccEmails', JSON.stringify(data.bccEmails))
     }
-    for (let pair of formdata.entries()) {
-      console.log(pair[0] + ':', pair[1])
-    }
+    for (let pair of formdata.entries()) {}
 
     let path = `${Apis.templets}/${tempId || ''}`
-    console.log('path', path)
 
     const response = await axios.put(path, formdata, {
       headers: {
@@ -212,11 +188,9 @@ export const updateTemplete = async (data, tempId) => {
     })
 
     if (response) {
-      console.log('response of update', response.data)
       return response
     }
   } catch (e) {
-    console.log('error in create tempelate', e)
     if (e.response) {
       return e.response
     }
@@ -229,7 +203,6 @@ export const deleteTemplete = async (temp) => {
     let token = AuthToken()
     // console.log('token', token)
     let path = `${Apis.templets}/${temp.id}`
-    console.log('path', path)
 
     const response = await axios.delete(path, {
       headers: {
@@ -238,12 +211,9 @@ export const deleteTemplete = async (temp) => {
     })
 
     if (response) {
-      console.log('response of delete templetes', response)
       return response.data.data
     }
-  } catch (e) {
-    console.log('error in get templetes', e)
-  }
+  } catch (e) {}
 }
 
 export const getGmailAccounts = async (id) => {
@@ -254,7 +224,6 @@ export const getGmailAccounts = async (id) => {
     if (id) {
       path = path + '?userId=' + id
     }
-    console.log('path', path)
 
     const response = await axios.get(path, {
       headers: {
@@ -263,12 +232,9 @@ export const getGmailAccounts = async (id) => {
     })
 
     if (response) {
-      console.log('response of get accounts', response)
       return response.data.data
     }
-  } catch (e) {
-    console.log('error in get accounts', e)
-  }
+  } catch (e) {}
 }
 
 export const connectGmailAccount = async (data, selectedUser) => {
@@ -288,9 +254,7 @@ export const connectGmailAccount = async (data, selectedUser) => {
       apiData.userId = selectedUser.id
     }
 
-    console.log('apiData', apiData)
     let path = Apis.connectGmailAccount
-    console.log('path', path)
     // return
     const response = await axios.post(path, apiData, {
       headers: {
@@ -300,11 +264,9 @@ export const connectGmailAccount = async (data, selectedUser) => {
     })
 
     if (response) {
-      console.log('response', response.data)
       return response
     }
   } catch (e) {
-    console.log('error in connect account', e)
     if (e.response) {
       return e.response
     }
@@ -317,7 +279,6 @@ export const deleteAccount = async (account) => {
     let token = AuthToken()
     // console.log('token', token)
     let path = `${Apis.gmailAccount}/${account.id}`
-    console.log('path', path)
 
     const response = await axios.delete(path, {
       headers: {
@@ -326,10 +287,7 @@ export const deleteAccount = async (account) => {
     })
 
     if (response) {
-      console.log('response of delete account', response)
       return response.data.data
     }
-  } catch (e) {
-    console.log('error in get templetes', e)
-  }
+  } catch (e) {}
 }

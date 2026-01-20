@@ -172,13 +172,10 @@ function SubAccountInviteAgentX() {
       })
 
       if (response) {
-        console.log('Response of get plans api is', response)
         setPlans(response.data?.data?.monthlyPlans)
         setGetPlanLoader(false)
       }
-    } catch (error) {
-      console.log('Error occured in get subaccount plans api is', error)
-    }
+    } catch (error) {}
   }
 
   const styles = {
@@ -277,11 +274,9 @@ function SubAccountInviteAgentX() {
       <div style={{ fontSize: 22, fontWeight: '700', color: '#000' }}>
         Invite Agent
       </div>
-
       <div style={{ fontSize: 12, fontWeight: '500', color: '#00000090' }}>
         {'Account > Invite Agent'}
       </div>
-
       <div
         className="w-10/12 p-6 rounded-lg flex flex-row items-center"
         style={{
@@ -315,10 +310,9 @@ function SubAccountInviteAgentX() {
           </p>
         </div>
       </div>
-
       {userDetails && userDetails?.plan && userDetails?.isTrial === true ? (
         // {true ? (
-        <div className="w-full flex flex-col items-center">
+        (<div className="w-full flex flex-col items-center">
           <div className="w-full flex flex-row justify-center mt-4">
             <div
               className="w-10/12 flex flex-row items-start gap-2"
@@ -530,7 +524,7 @@ function SubAccountInviteAgentX() {
               </button>
             </div>
           )}
-        </div>
+        </div>)
       ) : (
         <div
           style={{ alignSelf: 'center' }}
@@ -578,7 +572,7 @@ function SubAccountInviteAgentX() {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export default SubAccountInviteAgentX

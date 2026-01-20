@@ -45,10 +45,6 @@ const FocusArea = ({
     const focusData = localStorage.getItem(PersistanceKeys.RegisterDetails)
     if (focusData) {
       const FocusAreaDetails = JSON.parse(focusData)
-      console.log(
-        'FocusAreaDetails.userTypeTitle',
-        FocusAreaDetails.userTypeTitle,
-      )
       setFocusArea(FocusAreaDetails.focusAreaId)
       setFocusAreaTitle(FocusAreaDetails.areaFocusTitle)
       if (

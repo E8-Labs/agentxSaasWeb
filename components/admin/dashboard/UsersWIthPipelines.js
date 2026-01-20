@@ -107,7 +107,6 @@ export default function UsersWithPipelines({ open, onClose, user, from }) {
                 if (user.id) {
                   // Open a new tab with user ID as query param
                   let url = ` admin/users?userId=${user.id}`
-                  console.log('This is testing', from)
                   if (from === 'agency') {
                     url = `/agency/users?userId=${user.id}&agencyUser=true`
                   }
@@ -140,5 +139,5 @@ export default function UsersWithPipelines({ open, onClose, user, from }) {
 
       </Box>
     </Modal>
-  )
+  );
 }

@@ -40,7 +40,6 @@ function Page() {
         title="Activity"
         showTasks={true}
       />
-
       <div className=" w-full flex mt-6  gap-8 pb-2 mb-4 pl-10">
         {['All Activities', 'Campaign Activity'].map(
           (
@@ -61,7 +60,6 @@ function Page() {
           ),
         )}
       </div>
-
       <div className="w-full">
         {activeTab === 'All Activities' ? (
           <AllCalls user={user} />
@@ -70,11 +68,11 @@ function Page() {
         ) : (
           // <LeadLoading />
 
-          <CallActivities user={user} />
+          (<CallActivities user={user} />)
         )}
       </div>
     </div>
-  )
+  );
 }
 
 export default Page

@@ -17,8 +17,6 @@ const AgencyLinkWarning = ({
 }) => {
   const [confirmChecked, setConfirmChecked] = useState(false)
   const { user: reduxUser } = useUser()
-  console.log('reduxUser', reduxUser)
-  console.log('User data', userData)
   return (
     <Modal
       open={open}

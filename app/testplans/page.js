@@ -23,7 +23,6 @@ export default function TestPlansPage() {
   const stripePromise = getStripe()
 
   const handleClose = async (data) => {
-    console.log('Card added details:', data)
     setShowAddCardModal(false)
     // Handle any post-card-addition logic here
   }

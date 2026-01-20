@@ -26,7 +26,6 @@ import { secondsToMinsConverter } from '@/utilities/utility'
 const AdminDashboard = ({ selectedUser, agencyUser }) => {
   const router = useRouter()
 
-  console.log('agencyUser', agencyUser)
   //variable stores screenWidth
   const [screenWidth, setScreenWidth] = useState(null)
   const [screenHeight, setScreenHeight] = useState(null)
@@ -143,14 +142,6 @@ const AdminDashboard = ({ selectedUser, agencyUser }) => {
       let ApiPath = `${Apis.getDashboardData}?duration=${durationValue}`
       ApiPath = ApiPath + '&userId=' + selectedUser.id
 
-      //console.log;
-      // GetDashboardDataFromLocalStorage(ApiPath);
-      // if (isinItiallyLoaded === false) {
-      // setInitialLoader(true);
-      // }
-
-      console.log('ApiPath for dashboard data:', ApiPath)
-
       const localData = localStorage.getItem('User')
       let AuthToken = null
       if (localData) {
@@ -176,7 +167,6 @@ const AdminDashboard = ({ selectedUser, agencyUser }) => {
       if (response) {
         //console.log;
         if (response.data.status === true) {
-          console.log('Response of selected user dasboard:', response.data.data)
           setStatsDetails(response.data.data.stats)
 
           setStatsComparisonDetails(response.data.data.statsComparison)

@@ -228,7 +228,6 @@ export default function CreateSubAccountModal({
   // Function to refresh profile data and update internal account count
   const refreshProfileData = async () => {
     try {
-      console.log('🔄 Refreshing profile data in CreateSubAccountModal...')
       const profileResponse = await getProfileDetails()
       if (profileResponse?.data?.status === true) {
         const agencyProfile = profileResponse.data.data
@@ -327,14 +326,10 @@ export default function CreateSubAccountModal({
 
   //show sell seats modal
   useEffect(() => {
-    console.log('trigered')
-    console.log('Allow sell seats ', alowSellSeats)
     if (alowSellSeats === true) {
-      console.log('Show modal')
       setShowSellSeatsModal(true)
     } else if (alowSellSeats === false) {
       setSeats('')
-      console.log('no show modal')
       setShowSellSeatsModal(false)
     }
   }, [alowSellSeats])
@@ -369,7 +364,6 @@ export default function CreateSubAccountModal({
       hasPhoneError
       // hasEmptyTeamMember
     ) {
-      console.log('Cannot continue')
       setShouldContinue(true)
     } else {
       setShouldContinue(false)
@@ -570,7 +564,6 @@ export default function CreateSubAccountModal({
       })
 
       if (response) {
-        console.log('Response of check email is', response.data)
         if (response.data.status === true) {
           // console.log("response of check email", response);
           setEmailCheckResponse(response.data)
@@ -658,8 +651,6 @@ export default function CreateSubAccountModal({
   }
 
   const handleContinue = () => {
-    console.log('selectedtype', selectedUserType)
-
     const fromData = {
       userEmail: userEmail,
       userPhoneNumber: userPhoneNumber,

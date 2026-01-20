@@ -154,15 +154,12 @@ const InviteTeamModal = ({
 
   //funcion to invitem tem member
   const inviteTeamMember = async (item) => {
-    console.log('Check 1')
     // return
     if (!item.name || !item.email || !item.phone) {
       setShowError(true)
       return
     }
-    console.log('Check 2')
     try {
-      console.log('Check 3')
       const data = localStorage.getItem('User')
       setInviteTeamLoader(true)
       if (data) {
@@ -178,8 +175,6 @@ const InviteTeamModal = ({
           permissions: selectedPermissions, // Include permissions if set
         }
 
-        console.log('Api data is', apidata)
-
         const response = await axios.post(path, apidata, {
           headers: {
             Authorization: 'Bearer ' + u.token,
@@ -188,12 +183,7 @@ const InviteTeamModal = ({
 
         if (response) {
           setInviteTeamLoader(false)
-          console.log('Response of api is', response.data)
           if (response.data.status === true) {
-            // let newMember = response.data.data;
-            console.log('Should say no ')
-            // //console.log;
-            console.log('Should say no 23')
             setShowSnak(true)
             // setSnackTitle("Team invite sent successfully");
             setName('')

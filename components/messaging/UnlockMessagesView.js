@@ -24,16 +24,12 @@ function UnlockMessagesView() {
           Upgrade
         </button>
       </div>
-
       <Elements stripe={stripePromise}>
         <UpgradePlan
           open={showUpgradePlan}
           handleClose={(upgradeResult) => {
             setShowUpgradePlan(false)
-            if (upgradeResult) {
-              // Optionally refresh user data or show success message
-              console.log('Upgrade successful')
-            }
+            if (upgradeResult) {}
           }}
           plan={null}
           currentFullPlan={reduxUser?.user?.plan || reduxUser?.plan}
@@ -41,7 +37,7 @@ function UnlockMessagesView() {
         />
       </Elements>
     </>
-  )
+  );
 }
 
 export default UnlockMessagesView

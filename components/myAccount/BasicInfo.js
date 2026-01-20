@@ -247,7 +247,6 @@ function BasicInfo() {
     const LocalData = localStorage.getItem('User')
     if (LocalData) {
       const userData = JSON.parse(LocalData)
-      console.log('user data is', userData)
 
       setUserRole(userData?.user?.userRole)
       setUserType(userData?.user?.userType)
@@ -914,7 +913,6 @@ function BasicInfo() {
       let data = {
         areaOfFocus: selectedArea, //[selectedArea.join()]
       }
-      console.log('Data to update area is', data)
 
       // return
       await UpdateProfile(data)
@@ -951,7 +949,6 @@ function BasicInfo() {
       let data = {
         agentService: serviceId, //[serviceId.join()]
       }
-      console.log('Data to update service is', data)
 
       // return
       await UpdateProfile(data)
@@ -1025,7 +1022,6 @@ function BasicInfo() {
           </button>
         </div>
       </div>
-
       <button
         className="mt-8"
         onClick={() => {
@@ -1083,7 +1079,6 @@ function BasicInfo() {
           </div>
         )}
       </button>
-
       {/* Hidden file input */}
       <input
         type="file"
@@ -1092,7 +1087,6 @@ function BasicInfo() {
         style={{ display: 'none' }}
         onChange={handleImageChange}
       />
-
       <div style={styles.headingStyle}>Full Name</div>
       <div className="flex items-center w-6/12 mt-2 gap-2">
         <Input
@@ -1141,7 +1135,6 @@ function BasicInfo() {
           </button>
         )}
       </div>
-
       <div style={styles.headingStyle}>Email address</div>
       <div className="flex items-center w-6/12 mt-2 gap-2">
         <Input
@@ -1216,7 +1209,6 @@ function BasicInfo() {
           </button>
         )}
       </div>
-
       <div style={styles.headingStyle}>Phone number</div>
       <div className="w-6/12 mt-2">
         <Input
@@ -1232,7 +1224,6 @@ function BasicInfo() {
           placeholder="Phone number"
         />
       </div>
-
       {userRole && userRole != 'Invitee' && (
         <>
           {(userType && userType === UserTypes.RealEstateAgent) ||
@@ -2115,7 +2106,6 @@ function BasicInfo() {
           )}
         </>
       )}
-
       {userRole && userRole != 'Invitee' && (
         <>
           <div className="w-full flex flex-row items-center justify-between">
@@ -2152,11 +2142,6 @@ function BasicInfo() {
 
           <div className="w-9/12 flex flex-row flex-wrap gap-2">
             {agentServices.map((item, index) => {
-              console
-                .log
-                // `${item.id} included in array `,
-                // serviceId.includes(item.id)
-                ()
               return (
                 <div
                   key={index}
@@ -2323,7 +2308,6 @@ function BasicInfo() {
           )}
         </>
       )}
-
       {/* Success Message */}
       <AgentSelectSnackMessage
         isVisible={showSuccessMessage}
@@ -2331,7 +2315,6 @@ function BasicInfo() {
         message={successMessage}
         type={SnackbarTypes.Success}
       />
-
       {/* Error Message */}
       <AgentSelectSnackMessage
         isVisible={showErrorMessage}
@@ -2340,7 +2323,7 @@ function BasicInfo() {
         type={SnackbarTypes.Error}
       />
     </div>
-  )
+  );
 }
 
 export default BasicInfo

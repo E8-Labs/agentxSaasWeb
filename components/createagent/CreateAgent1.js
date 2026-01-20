@@ -115,11 +115,8 @@ const CreateAgent1 = ({
           const parsedUser = JSON.parse(userData)
           const hasPlan = parsedUser?.user?.plan !== null && parsedUser?.user?.plan?.price !== 0
           setUserInitiallyHadPlan(hasPlan)
-          console.log('🔍 [CREATE-AGENT] User initially had plan:', hasPlan)
         }
-      } catch (error) {
-        console.log('Error checking initial plan status:', error)
-      }
+      } catch (error) {}
     }
     
     // Check if custom domain
@@ -149,9 +146,7 @@ const CreateAgent1 = ({
                 if (parsed?.subAccountData) {
                   setIsAgencyCreatingForSubaccount(true)
                 }
-              } catch (error) {
-                console.log('Error parsing isFromAdminOrAgency:', error)
-              }
+              } catch (error) {}
             }
           }
           
@@ -161,9 +156,7 @@ const CreateAgent1 = ({
           if (storedBranding) {
             try {
               branding = JSON.parse(storedBranding)
-            } catch (error) {
-              console.log('Error parsing agencyBranding from localStorage:', error)
-            }
+            } catch (error) {}
           }
           
           // Also check user data for agencyBranding
@@ -179,21 +172,15 @@ const CreateAgent1 = ({
           const hasLogo = branding?.logoUrl
           setHasAgencyLogo(hasLogo)
         }
-      } catch (error) {
-        console.log('Error parsing user data:', error)
-      }
+      } catch (error) {}
     }
   }, [])
 
   const getTargetUser = () => {
     let U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
-    console.log('selected user in localstorage is', U)
     if (U) {
-      console.log('found selected user')
       setSelectedUser(JSON.parse(U))
-    } else {
-      console.log('slected user not found')
-    }
+    } else {}
   }
 
   useEffect(() => {
@@ -213,9 +200,7 @@ const CreateAgent1 = ({
             if (storedBranding) {
               try {
                 branding = JSON.parse(storedBranding)
-              } catch (error) {
-                console.log('Error parsing agencyBranding:', error)
-              }
+              } catch (error) {}
             }
             if (parsedUser?.user?.agencyBranding) {
               branding = parsedUser.user.agencyBranding
@@ -227,9 +212,7 @@ const CreateAgent1 = ({
             const hasLogo = branding?.logoUrl
             setHasAgencyLogo(hasLogo)
           }
-        } catch (error) {
-          console.log('Error updating branding:', error)
-        }
+        } catch (error) {}
       }
     }
 
@@ -473,9 +456,7 @@ const CreateAgent1 = ({
         if (!targetUserType && selectedUser) {
           targetUserType = selectedUser?.userType || selectedUser?.user?.userType
         }
-      } catch (error) {
-        console.log('Error parsing isFromAdminOrAgency:', error)
-      }
+      } catch (error) {}
     }
     
     // If we have a target user type (agency/admin creating for another user), use that
@@ -560,7 +541,7 @@ const CreateAgent1 = ({
     // If agency/admin is creating agent for another user (subaccount), check that user's type
     const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
     let targetUserType = null
-    
+
     if (U) {
       try {
         const Data = JSON.parse(U)
@@ -572,11 +553,9 @@ const CreateAgent1 = ({
         if (!targetUserType && selectedUser) {
           targetUserType = selectedUser?.userType || selectedUser?.user?.userType
         }
-      } catch (error) {
-        console.log('Error parsing isFromAdminOrAgency:', error)
-      }
+      } catch (error) {}
     }
-    
+
     // Determine which user type to check
     let userTypeToCheck = null
     if (targetUserType) {
@@ -589,11 +568,11 @@ const CreateAgent1 = ({
       // Fallback: check redux user
       userTypeToCheck = reduxUser.userType
     }
-    
+
     if (!userTypeToCheck) {
       return false
     }
-    
+
     // Check if user has a paid plan (not free) and if they have a payment method
     // For subaccounts (when agency/admin creates for another user), check the subaccount's data
     let currentUserData = null
@@ -604,12 +583,10 @@ const CreateAgent1 = ({
       // Use logged-in user data
       currentUserData = reduxUser || user
     }
-    console.log('[CREATE-AGENT] currentUserData data is', currentUserData)
     let plan = currentUserData?.user?.plan || currentUserData?.plan
-    console.log('[CREATE-AGENT] currentUserData plan is', plan)
     const hasPlan = plan !== null && plan?.price !== 0
     const isFreePlan = !hasPlan || plan?.price === 0
-    
+
     // If user has a paid plan, they must have a payment method to continue
     if (hasPlan && !isFreePlan) {
       // For subaccounts, check their payment methods
@@ -622,11 +599,10 @@ const CreateAgent1 = ({
       }
       
       if (!hasPM) {
-        console.log('🚫 [CREATE-AGENT] User has paid plan but no payment method - cannot continue')
         return false
       }
     }
-    
+
     // Check requirements based on user type
     if (userTypeToCheck === UserTypes.RealEstateAgent) {
       // Real estate agents need: name, role, objective, and call type
@@ -666,7 +642,6 @@ const CreateAgent1 = ({
       newInboundState,
       OutBoundCalls,
     )
-    console.log('limitResult is', limitResult)
     if (limitResult.showModal) {
       // Store what the user was trying to select
       setPendingAgentSelection({
@@ -697,7 +672,6 @@ const CreateAgent1 = ({
       InBoundCalls,
       newOutboundState,
     )
-    console.log('limitResult is', limitResult)
     if (limitResult?.showModal) {
       // Store what the user was trying to select
       setPendingAgentSelection({
@@ -713,9 +687,6 @@ const CreateAgent1 = ({
 
   // Comprehensive plan checking logic
   const checkAgentLimits = (agentType, wouldHaveInbound, wouldHaveOutbound) => {
-    console.log('🔍 [CREATE-AGENT] Checking agent limits')
-    console.log('Redux user', reduxUser)
-
     // Use Redux as primary source, localStorage as fallback
     const planData = reduxUser?.planCapabilities
       ? {
@@ -738,8 +709,6 @@ const CreateAgent1 = ({
             user?.user?.planCapabilities?.costPerAdditionalAgent || 10,
         }
 
-    console.log('Plan data is', planData)
-
     // Calculate agents that would be created
     let agentsToCreate = 0
     if (wouldHaveInbound) agentsToCreate++
@@ -748,10 +717,6 @@ const CreateAgent1 = ({
     // check if user already view pay per month window from agents page and agree it by clicking on the button
     const isAlreadyViewedPayPerMonthWindow = localStorage.getItem(
       'AddAgentByPayingPerMonth',
-    )
-    console.log(
-      'isAlreadyViewedPayPerMonthWindow is',
-      isAlreadyViewedPayPerMonthWindow,
     )
     if (
       isAlreadyViewedPayPerMonthWindow != null &&
@@ -801,9 +766,6 @@ const CreateAgent1 = ({
       // if user already view pay per month window from agents page then no need to show more agents modal
 
       if (isAlreadyViewedPayPerMonthWindow) {
-        console.log(
-          'no need to show more agents modal, user already view pay per month window from agents page',
-        )
         return { showModal: false }
       }
       setShowMoreAgentsModal(true)
@@ -843,28 +805,18 @@ const CreateAgent1 = ({
   }
 
   useEffect(() => {
-    //add interval here
-    console.log('reduxUser is', reduxUser)
     let user = localStorage.getItem('User')
-    console.log('local user is', user)
   }, [reduxUser])
 
   // Function to refresh user data after plan upgrade
   const refreshUserData = async () => {
-    console.log('🔄 REFRESH USER DATA STARTED')
     try {
-      console.log('🔄 Calling getProfileDetails...')
       const profileResponse = await getProfileDetails()
-      console.log('🔄 getProfileDetails response:', profileResponse)
 
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data
         const localData = JSON.parse(localStorage.getItem('User') || '{}')
 
-        // console.log('🔄 [CREATE-AGENT] Fresh user data received after upgrade');
-
-        // Update Redux and localStorage with fresh data
-        console.log('updating redux user', freshUserData)
         const updatedUserData = {
           token: localData.token,
           user: freshUserData,
@@ -886,7 +838,6 @@ const CreateAgent1 = ({
 
   //code for creating agent api
   const handleBuildAgent = async () => {
-    console.log("Redux user in creating agent is ", reduxUser)
     let user = null;
     if(selectedUser){
       user = selectedUser.subAccountData;
@@ -922,15 +873,10 @@ const CreateAgent1 = ({
       let userId = null
 
       if (selectedUser && selectedUser?.subAccountData?.id) {
-        console.log(
-          'Subaccount data recieved on createagent_1 screen is',
-          selectedUser,
-        )
         userId = selectedUser.subAccountData.id
       }
 
       if (userId) {
-        console.log('User id to create new agent is', userId)
         formData.append('userId', userId)
       }
 
@@ -986,9 +932,7 @@ const CreateAgent1 = ({
       }
 
       // //console.log;
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`)
-      }
+      for (let [key, value] of formData.entries()) {}
 
       // return
       const response = await axios.post(ApiPath, formData, {
@@ -1020,7 +964,6 @@ const CreateAgent1 = ({
         // //console.log;
         setIsVisible(true)
         if (response.data.status === true) {
-          console.log('Response of add new agent is', response.data)
           setSnackMessage('Agent created successfully.')
           setMsgType(SnackbarTypes.Success)
           localStorage.setItem(
@@ -1042,7 +985,7 @@ const CreateAgent1 = ({
           window.dispatchEvent(
             new CustomEvent('UpdateCheckList', { detail: { update: true } }),
           )
-          
+
           // Check if user has a plan - if they just subscribed (initially had no plan),
           // skip the UserPlans step to prevent redirect to plans screen
           // Check from multiple sources to ensure we have the latest data
@@ -1056,13 +999,6 @@ const CreateAgent1 = ({
               // Consider user has plan if plan exists and is not null
               // Check both plan existence and planId to be more robust
               hasPlan = plan !== null && plan !== undefined && (plan.planId !== null || plan.id !== null)
-              console.log('🔍 [CREATE-AGENT] Plan check from localStorage:', {
-                plan,
-                planId: plan?.planId,
-                id: plan?.id,
-                price: plan?.price,
-                hasPlan
-              })
             }
             
             // Check selectedUser.subAccountData for subaccounts (if from admin/agency flow)
@@ -1071,13 +1007,6 @@ const CreateAgent1 = ({
               hasPlan = subAccountPlan !== null && 
                        subAccountPlan !== undefined && 
                        (subAccountPlan.planId !== null || subAccountPlan.id !== null)
-              console.log('🔍 [CREATE-AGENT] Plan check from selectedUser.subAccountData:', {
-                plan: subAccountPlan,
-                planId: subAccountPlan?.planId,
-                id: subAccountPlan?.id,
-                price: subAccountPlan?.price,
-                hasPlan
-              })
             }
             
             // Fallback to Redux or local state if localStorage doesn't have plan info
@@ -1087,20 +1016,13 @@ const CreateAgent1 = ({
               hasPlan = plan !== null && 
                        plan !== undefined && 
                        (plan.planId !== null || plan.id !== null)
-              console.log('🔍 [CREATE-AGENT] Plan check from Redux/state:', {
-                plan,
-                planId: plan?.planId,
-                id: plan?.id,
-                price: plan?.price,
-                hasPlan
-              })
             }
           } catch (error) {
             console.error('Error checking plan status:', error)
             // On error, default to normal flow
             hasPlan = false
           }
-          
+
           // Check if we should skip UserPlans step
           // This prevents redirect to plans screen after subscribing and creating agent
           // Check localStorage flag FIRST (most reliable indicator that user just subscribed)
@@ -1110,15 +1032,7 @@ const CreateAgent1 = ({
           } catch (error) {
             console.error('Error reading skipUserPlansAfterSubscription from localStorage:', error)
           }
-          
-          // Also check all localStorage keys to debug
-          console.log('🔍 [CREATE-AGENT] localStorage check:', {
-            skipFlag,
-            skipFlagType: typeof skipFlag,
-            skipFlagStrict: skipFlag === 'true',
-            allKeys: Object.keys(localStorage).filter(key => key.includes('skip') || key.includes('plan') || key.includes('User'))
-          })
-          
+
           // Priority order:
           // 1. localStorage flag (most reliable - set immediately after subscription)
           // 2. User has a plan (if they have any plan, they shouldn't see UserPlans)
@@ -1127,53 +1041,17 @@ const CreateAgent1 = ({
             String(skipFlag) === 'true' ||  // Convert to string for strict comparison
             hasPlan ||              // If user has any plan, skip UserPlans
             (hasPlan && !userInitiallyHadPlan) // Backup check
-          
-          console.log('🔍 [CREATE-AGENT] Checking if should skip UserPlans:', {
-            hasPlan,
-            userInitiallyHadPlan,
-            skipFlag,
-            skipFlagString: String(skipFlag),
-            skipFlagCheck: String(skipFlag) === 'true',
-            shouldSkipUserPlans,
-            condition1: String(skipFlag) === 'true',
-            condition2: hasPlan,
-            condition3: hasPlan && !userInitiallyHadPlan,
-            finalDecision: shouldSkipUserPlans ? 'SKIP' : 'SHOW'
-          })
-          
+
           if (shouldSkipUserPlans) {
-            console.log('✅ [CREATE-AGENT] Skipping UserPlans step to avoid redirect')
             // Clear the flag after using it
             try {
               localStorage.removeItem('skipUserPlansAfterSubscription')
             } catch (error) {
               console.error('Error removing skipUserPlansAfterSubscription from localStorage:', error)
             }
-            
-            // When shouldSkipUserPlans is true, it means the user has a plan.
-            // In this case, the components array already excludes UserPlans (see page.js),
-            // so we should use handleContinue() to go to the next step (CreateAgent4),
-            // NOT handleSkipAddPayment() which would skip CreateAgent4.
-            // 
-            // The components array when user has plan is:
-            // [CreateAgent1, CreateAgent4, CreateAgentVoice]
-            // So from step 1, we need to go to step 2 (CreateAgent4), not step 3.
-            console.log('✅ [CREATE-AGENT] User has plan - using handleContinue() to go to CreateAgent4')
+
             handleContinue()
           } else {
-            console.log('ℹ️ [CREATE-AGENT] Proceeding normally - will show UserPlans')
-            console.log('⚠️ [CREATE-AGENT] DEBUG - Why not skipping:', {
-              skipFlag,
-              skipFlagString: String(skipFlag),
-              skipFlagCheck: String(skipFlag) === 'true',
-              hasPlan,
-              userInitiallyHadPlan,
-              allConditions: {
-                flag: String(skipFlag) === 'true',
-                hasPlanCheck: hasPlan,
-                backup: hasPlan && !userInitiallyHadPlan
-              }
-            })
             // User doesn't have plan, so they need to see UserPlans
             handleContinue()
           }
@@ -1677,31 +1555,18 @@ const CreateAgent1 = ({
                   handleClose={async (data) => {
                     setShowUnclockModal(false)
                     if (data) {
-                      console.log('data', data)
-                      // setSelectedUser(data)
-                      console.log('plan upgraded successfully')
                       // Refresh user data after upgrade to get new plan capabilities
                       const refreshSuccess = await refreshUserData()
-                      console.log('refreshSuccess:', refreshSuccess)
                       if (refreshSuccess) {
-                        console.log(
-                          'User data refreshed successfully after upgrade',
-                        )
-                        
                         // IMPORTANT: If user initially didn't have a plan, don't redirect them anywhere
                         // They should stay on the create agent page after upgrading
                         if (!userInitiallyHadPlan) {
-                          console.log('✅ [CREATE-AGENT] User initially had no plan - staying on create agent page after upgrade')
                           // Update the flag since they now have a plan
                           setUserInitiallyHadPlan(true)
                         }
-                        
+
                         // If there was a pending selection, apply it now with the new plan limits
                         if (pendingAgentSelection) {
-                          console.log(
-                            'Retrying pending selection with new plan limits...',
-                          )
-
                           // Check if user is still on free plan after upgrade
                           const updatedUserData = reduxUser || user
                           const isStillFreePlan = () => {
@@ -1710,27 +1575,12 @@ const CreateAgent1 = ({
                             return false
                           }
 
-                          console.log(
-                            '🔍 [CREATE-AGENT] Checking if still on free plan after upgrade:',
-                            {
-                              isStillFreePlan,
-                              planType: updatedUserData?.user?.plan?.type,
-                              maxAgents:
-                                updatedUserData?.user?.planCapabilities
-                                  ?.maxAgents,
-                              planPrice: updatedUserData?.user?.plan?.price,
-                            },
-                          )
-
                           // If still on free plan and trying to select both agents, deselect one
                           if (
                             isStillFreePlan &&
                             pendingAgentSelection.inbound &&
                             pendingAgentSelection.outbound
                           ) {
-                            console.log(
-                              '🚫 [CREATE-AGENT] Free plan user trying to select both agents - deselecting outbound',
-                            )
                             // Keep only inbound, deselect outbound for free plan users
                             const modifiedSelection = {
                               ...pendingAgentSelection,
@@ -1749,7 +1599,6 @@ const CreateAgent1 = ({
                           // Apply the selection now that limits have been upgraded
                           setInBoundCalls(pendingSelection.inbound)
                           setOutBoundCalls(pendingSelection.outbound)
-                          console.log('Applied pending selection after upgrade')
                         }
                       } else {
                         console.error(
@@ -1772,8 +1621,6 @@ const CreateAgent1 = ({
                     setShowMoreAgentsModal(false)
                     setShowUnclockModal(false) // Ensure unlock modal is closed
                     setShowUpgradePlanModal(true)
-                    // Keep the pending selection so it can be applied after upgrade
-                    console.log('🔄 [CREATE-AGENT] User chose to upgrade plan')
                   }}
                   onAddAgent={() => {
                     // Handle "Add Agent with price" - apply the pending selection
@@ -1790,41 +1637,24 @@ const CreateAgent1 = ({
 
                 <UpgradePlan
                   open={showUpgradePlanModal}
-                  setSelectedPlan={() => {
-                    console.log('setSelectedPlan is called')
-                  }}
+                  setSelectedPlan={() => {}}
                   handleClose={async (result) => {
-                    console.log('🔥 HANDLECLOSE CALLED WITH RESULT:', result)
-                    console.log('🔥 HANDLECLOSE FUNCTION STARTED')
                     try {
                       setShowUpgradePlanModal(false)
                       setShowUnclockModal(false) // Also close the unlock modal
-                      console.log('in UpgradePlan result is', result)
                       if (result) {
-                        console.log('plan upgraded successfully')
                         // Refresh user data after upgrade to get new plan capabilities
                         const refreshSuccess = await refreshUserData()
-                        console.log('refreshSuccess:', refreshSuccess)
                         if (refreshSuccess) {
-                          console.log(
-                            'User data refreshed successfully after upgrade',
-                          )
-                          
                           // IMPORTANT: If user initially didn't have a plan, don't redirect them anywhere
                           // They should stay on the create agent page after upgrading
                           if (!userInitiallyHadPlan) {
-                            console.log('✅ [CREATE-AGENT] User initially had no plan - staying on create agent page after upgrade')
                             // Store a flag in localStorage to skip UserPlans step after agent creation
                             // This ensures we skip UserPlans even if parent page's components array wasn't updated
                             // IMPORTANT: Set this BEFORE updating userInitiallyHadPlan state
                             try {
                               localStorage.setItem('skipUserPlansAfterSubscription', 'true')
                               const flagCheck = localStorage.getItem('skipUserPlansAfterSubscription')
-                              console.log('✅ [CREATE-AGENT] Set skipUserPlansAfterSubscription flag in localStorage:', {
-                                set: 'true',
-                                retrieved: flagCheck,
-                                match: flagCheck === 'true'
-                              })
                               // Verify it was set correctly
                               if (flagCheck !== 'true') {
                                 console.error('❌ [CREATE-AGENT] Flag was not set correctly!')
@@ -1834,10 +1664,10 @@ const CreateAgent1 = ({
                             } catch (error) {
                               console.error('❌ [CREATE-AGENT] Error setting localStorage flag:', error)
                             }
-                            
+
                             // Update the flag since they now have a plan (do this AFTER setting localStorage)
                             setUserInitiallyHadPlan(true)
-                            
+
                             // Dispatch custom event to notify parent page that plan was subscribed
                             // This allows parent to potentially re-evaluate components array
                             window.dispatchEvent(
@@ -1845,15 +1675,10 @@ const CreateAgent1 = ({
                                 detail: { hasPlan: true }
                               })
                             )
-                            console.log('✅ [CREATE-AGENT] Dispatched planSubscribed event')
                           }
-                          
+
                           // If there was a pending selection, apply it now with the new plan limits
                           if (pendingAgentSelection) {
-                            console.log(
-                              'Retrying pending selection with new plan limits...',
-                            )
-
                             // Check if user is still on free plan after upgrade
                             const updatedUserData = reduxUser || user
                             const isStillFreePlan = (() => {
@@ -1871,27 +1696,12 @@ const CreateAgent1 = ({
                               )
                             })()
 
-                            console.log(
-                              '🔍 [CREATE-AGENT] Checking if still on free plan after upgrade:',
-                              {
-                                isStillFreePlan,
-                                planType: updatedUserData?.user?.plan?.type,
-                                maxAgents:
-                                  updatedUserData?.user?.planCapabilities
-                                    ?.maxAgents,
-                                planPrice: updatedUserData?.user?.plan?.price,
-                              },
-                            )
-
                             // If still on free plan and trying to select both agents, deselect one
                             if (
                               isStillFreePlan &&
                               pendingAgentSelection.inbound &&
                               pendingAgentSelection.outbound
                             ) {
-                              console.log(
-                                '🚫 [CREATE-AGENT] Free plan user trying to select both agents - deselecting outbound',
-                              )
                               // Keep only inbound, deselect outbound for free plan users
                               const modifiedSelection = {
                                 ...pendingAgentSelection,
@@ -1910,9 +1720,6 @@ const CreateAgent1 = ({
                             // Apply the selection now that limits have been upgraded
                             setInBoundCalls(pendingSelection.inbound)
                             setOutBoundCalls(pendingSelection.outbound)
-                            console.log(
-                              'Applied pending selection after upgrade',
-                            )
                           }
                         } else {
                           console.error(
@@ -1947,7 +1754,6 @@ const CreateAgent1 = ({
           </div>
         </div>
       </div>
-
       <Modal
         open={showModal}
         onClose={() => setShowModal(false)}
@@ -2078,9 +1884,7 @@ const CreateAgent1 = ({
           </div>
         </Box>
       </Modal>
-
       <LoaderAnimation loaderModal={loaderModal} />
-
       {/* <Modal
                 open={loaderModal}
                 // onClose={() => loaderModal(false)}
@@ -2111,7 +1915,7 @@ const CreateAgent1 = ({
                 </Box>
             </Modal> */}
     </div>
-  )
+  );
 }
 
 export default CreateAgent1

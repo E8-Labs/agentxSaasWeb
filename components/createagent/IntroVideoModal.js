@@ -25,9 +25,7 @@ const IntroVideoModal = ({
     <Modal
       open={open}
       onClose={() => {
-        if (videoTitle === 'Welcome to AssignX') {
-          console.log('Donot close')
-        } else {
+        if (videoTitle === 'Welcome to AssignX') {} else {
           onClose()
         }
       }}
@@ -112,7 +110,7 @@ const IntroVideoModal = ({
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
 
 export default IntroVideoModal

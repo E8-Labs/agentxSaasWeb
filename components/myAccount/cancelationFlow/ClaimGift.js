@@ -28,7 +28,6 @@ function ClaimGift({ handleContinue, setShowSnak, selectedUser = null }) {
     setLoading(true)
     let data = await getDiscount()
 
-    console.log('data', data)
     if (data?.discountOffer?.alreadyUsed === false) {
       let nextAction = 'obtainOffer'
       handleContinue(nextAction)

@@ -460,7 +460,6 @@ const ThreadsList = ({
           </div>
         )}
       </div>
-
       {/* New Contact Drawer */}
       <NewContactDrawer
         open={showNewContactDrawer}
@@ -475,7 +474,7 @@ const ThreadsList = ({
         selectedUser={selectedUser}
       />
     </div>
-  )
+  );
 }
 
 export default ThreadsList

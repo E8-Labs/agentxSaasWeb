@@ -194,7 +194,6 @@ const AdminLeads = ({
       if (selectedUser?.id) {
         const user = await AdminGetProfileDetails(selectedUser.id)
         if (user) {
-          console.log('user', user)
           setUserDetails(user)
         }
       }
@@ -731,16 +730,8 @@ const AdminLeads = ({
     // If appending (lazy load), check if already loading to prevent duplicates (like subaccounts)
     if (append) {
       if (isLoadingMoreRef.current) {
-        console.log('⚠️ Already loading more, skipping duplicate request', {
-          isLoadingMoreRef: isLoadingMoreRef.current,
-          moreLeadsLoader,
-        })
         return
       }
-      console.log('✅ Setting loading flags for append mode', {
-        currentCursor,
-        nextCursorRef: nextCursorRef.current,
-      })
       setMoreLeadsLoader(true)
       isLoadingMoreRef.current = true
     } else {
@@ -807,16 +798,15 @@ const AdminLeads = ({
           const responseLeads = responseData?.data || []
           const newCursor = responseData?.nextCursor ?? 0
           const apiHasMore = responseData?.hasMore ?? false
-          
+
           // Capture the OLD cursor value before updating (to determine if this was first load)
           const wasFirstLoad = !currentCursor || currentCursor === 0
-          
+
           // Update cursor value from API response (both state and ref)
           // IMPORTANT: Update ref FIRST, then state, to ensure ref is always current
           nextCursorRef.current = newCursor // Update ref synchronously FIRST
           setNextCursorValue(newCursor) // Then update state
-          console.log('[handleFilterLeads] Updated cursor', { append, newCursor, apiHasMore, wasFirstLoad, dataLength: responseLeads?.length, FilterLeadsLength: FilterLeads.length, oldCursor: currentCursor })
-          
+
           if (response.data.status === true) {
             setShowFilterModal(false)
             setTotalLeads(response.data.leadCount)
@@ -887,10 +877,7 @@ const AdminLeads = ({
                   setLeadColumns([])
                 }
               }
-            } else {
-              // Response is for a different sheet, ignore it
-              console.log('Ignoring response for different sheet:', sheetId, 'Current:', SelectedSheetId)
-            }
+            } else {}
 
             setHasMore(apiHasMore)
           } else {

@@ -440,8 +440,6 @@ export default function RootLayout({ children }) {
                   
                   // If GHL OAuth success detected in popup, close immediately
                   if (ghlOauthSuccess === 'success') {
-                    console.log('🚨 [GHL Popup Handler] GHL OAuth success detected in popup, closing immediately');
-                    
                     // Send message to parent window
                     try {
                       if (window.opener && !window.opener.closed) {
@@ -449,7 +447,6 @@ export default function RootLayout({ children }) {
                           type: 'GHL_OAUTH_SUCCESS',
                           locationId: locationId || null
                         }, window.location.origin);
-                        console.log('🚨 [GHL Popup Handler] Message sent to parent');
                       }
                     } catch (e) {
                       console.error('🚨 [GHL Popup Handler] Error sending message:', e);
@@ -463,14 +460,11 @@ export default function RootLayout({ children }) {
                       closeAttempts++;
                       try {
                         window.close();
-                        console.log('🚨 [GHL Popup Handler] Popup close attempted (' + closeAttempts + ')');
-                        
                         // If close doesn't work, focus parent as fallback
                         setTimeout(function() {
                           if (!window.closed && window.opener && !window.opener.closed) {
                             try {
                               window.opener.focus();
-                              console.log('🚨 [GHL Popup Handler] Focused parent as fallback');
                             } catch (e) {
                               console.error('🚨 [GHL Popup Handler] Error focusing parent:', e);
                             }
@@ -533,17 +527,9 @@ export default function RootLayout({ children }) {
         {/* Step 2 – Signup tracking helper */}
         <Script id="agentx-signup-helper" strategy="afterInteractive">
           {`
-            console.log("[DEBUG] Loading agentxTrackSignup function...");
             window.agentxTrackSignup = function(email, fullName, uid) {
-              console.log("[AgentX Tracking] agentxTrackSignup called with:", { email, fullName, uid });
               const trySignup = () => {
-                console.log("[AgentX Tracking] trySignup function executing");
-                console.log("[AgentX Tracking] window.affiliateManager exists:", !!window.affiliateManager);
-                console.log("[AgentX Tracking] trackLead function exists:", !!(window.affiliateManager && typeof window.affiliateManager.trackLead === "function"));
-                
                 if (window.affiliateManager && typeof window.affiliateManager.trackLead === "function") {
-                  console.log("[AgentX Tracking] Sending signup event...", { email, fullName, uid });
-                  
                   // Split fullName into firstName and lastName
                   const nameParts = (fullName || '').trim().split(' ');
                   const firstName = nameParts[0] || '';
@@ -559,12 +545,9 @@ export default function RootLayout({ children }) {
                   // if (uid) trackingData.uid = uid;
                   
                   setTimeout(() => {
-                    console.log("[AgentX Tracking] Calling trackLead with:", trackingData);
                     try {
                       const result = affiliateManager.trackLead(trackingData, function(result) {
-                        console.log("[AgentX Tracking] Callback result:", result);
                       });
-                      console.log("[AgentX Tracking] trackLead returned:", result);
                     } catch (e) {
                       console.error("[AgentX Tracking] Exception:", e);
                     }

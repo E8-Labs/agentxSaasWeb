@@ -7,31 +7,9 @@
  * @returns {Array} Array of feature names that will be lost
  */
 export const getFeaturesToLose = (currentPlan, targetPlan) => {
-  console.log('🔍 [DOWNGRADE] Current plan:', currentPlan)
-  console.log('🔍 [DOWNGRADE] Target plan:', targetPlan)
   if (!currentPlan || !targetPlan) {
-    console.log('❌ [DOWNGRADE] Missing current or target plan')
     return []
   }
-
-  console.log(
-    '🔍 [DOWNGRADE] Current plan capabilities type:',
-    typeof currentPlan.capabilities,
-  )
-  console.log(
-    '🔍 [DOWNGRADE] Target plan capabilities type:',
-    typeof targetPlan.capabilities,
-  )
-  console.log(
-    '🔍 [DOWNGRADE] Current plan capabilities:',
-    currentPlan.capabilities,
-  )
-  console.log(
-    '🔍 [DOWNGRADE] Target plan capabilities:',
-    targetPlan.capabilities,
-  )
-  console.log('🔍 [DOWNGRADE] Current plan features:', currentPlan.features)
-  console.log('🔍 [DOWNGRADE] Target plan features:', targetPlan.features)
 
   let featuresToLose = []
 
@@ -42,8 +20,6 @@ export const getFeaturesToLose = (currentPlan, targetPlan) => {
 
   // Check if plans have capabilities
   if (currentCapabilities && targetCapabilities) {
-    console.log('✅ [DOWNGRADE] Using capabilities for comparison')
-
     // Compare AI Agents
     const currentAgents = currentCapabilities?.maxAgents || 0
     const targetAgents = targetCapabilities?.maxAgents || 0
@@ -55,9 +31,6 @@ export const getFeaturesToLose = (currentPlan, targetPlan) => {
         featuresToLose.push(`${currentAgents} AI Agents`)
       }
     }
-
-    console.log('🔍 [DOWNGRADE] Current agents:', currentAgents)
-    console.log('🔍 [DOWNGRADE] Target agents:', targetAgents)
 
     // Compare Contacts
     const currentContacts = currentCapabilities?.maxLeads || 0
@@ -132,8 +105,6 @@ export const getFeaturesToLose = (currentPlan, targetPlan) => {
       }
     })
   } else {
-    console.log('⚠️ [DOWNGRADE] No capabilities found, using fallback logic')
-
     // Fallback: Use plan names and basic comparisons
     const currentPlanName = currentPlan.name || ''
     const targetPlanName = targetPlan.name || ''
@@ -206,7 +177,6 @@ export const getFeaturesToLose = (currentPlan, targetPlan) => {
     }
   }
 
-  console.log('📋 [DOWNGRADE] Features to lose:', featuresToLose)
   return featuresToLose
 }
 

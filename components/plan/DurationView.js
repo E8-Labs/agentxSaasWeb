@@ -9,9 +9,6 @@ export const DurationView = ({
 }) => {
   const { user: reduxUser } = useUser()
 
-  console.log('reduxUser in duration view', reduxUser)
-  console.log('from in duration view', from !== 'SubAccount')
-
   return (
     <div className="flex flex-col items-end plan-duration-container justify-end">
       {/* Discount labels row */}

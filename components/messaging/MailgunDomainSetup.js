@@ -64,7 +64,6 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess, targetUserId }) => {
 
       if (response.data?.status) {
         const dnsRecordsData = response.data.data.dnsRecords || []
-        console.log('DNS Records received:', dnsRecordsData)
         setDnsRecords(dnsRecordsData)
         setMailgunIntegrationId(response.data.data.id)
         setStep(2)

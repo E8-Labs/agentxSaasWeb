@@ -102,7 +102,6 @@ function AgencyBasicInfo({ selectedAgency }) {
     } else {
       if (LocalData) {
         const userData = JSON.parse(LocalData)
-        console.log('user data is:', userData)
         const data = userData?.user
         setValues(data)
       }
@@ -112,7 +111,6 @@ function AgencyBasicInfo({ selectedAgency }) {
   }, [])
 
   const setValues = (data) => {
-    console.log('Data passed for values are', data)
     setName(data.name)
     setSelectedImage(data.thumb_profile_image)
     setEmail(data.email)
@@ -309,7 +307,6 @@ function AgencyBasicInfo({ selectedAgency }) {
         if (selectedAgency) {
           ApiPath = ApiPath + `?userId=${selectedAgency.id}`
         }
-        console.log('Get agency default api', ApiPath)
         const response = await axios.get(ApiPath, {
           headers: {
             'Content-Type': 'application/json',

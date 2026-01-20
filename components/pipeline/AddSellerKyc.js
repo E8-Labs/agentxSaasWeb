@@ -676,7 +676,6 @@ const AddSellerKyc = ({
       // return;
       ApiData = data
 
-      console.log('APi data is :', ApiData)
       // console.log("Auth thoken is",AuthToken)
 
       const response = await axios.post(ApiPath, ApiData, {
@@ -687,7 +686,6 @@ const AddSellerKyc = ({
       })
 
       if (response) {
-        console.log('response of add kyc api is', response.data)
         if (response.data.status === true) {
           handleCloseSellerKyc()
           handleAddSellerKycData(response.data.data)
@@ -1095,7 +1093,7 @@ const AddSellerKyc = ({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default AddSellerKyc

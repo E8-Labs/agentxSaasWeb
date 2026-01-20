@@ -329,8 +329,6 @@ export async function proxy(request) {
   const redirectUri = searchParams.get('redirect_uri')
 
   if (oauthCode || oauthError) {
-    console.log('🔄 OAuth callback detected in middleware')
-    
     // Parse state to determine if we need to redirect to custom domain
     const stateData = oauthState ? parseOAuthState(oauthState) : null
     // Proper provider detection is via `state.provider`.
@@ -343,9 +341,6 @@ export async function proxy(request) {
         : pathname.startsWith('/api/ghl/exchange')
           ? 'ghl'
           : null)
-    console.log('🔄 Provider:', provider)
-    console.log('🔄 State data:', stateData)
-    console.log('🔄 Pathname:', pathname)
     // If state has customDomain, redirect to custom domain
     if (stateData?.customDomain) {
       const { customDomain } = stateData
@@ -353,7 +348,6 @@ export async function proxy(request) {
       // Check if custom domain is the same as current hostname
       // If so, redirect to exchange route on same domain (preserves popup context better)
       if (customDomain === hostname) {
-        console.log('🔄 Custom domain matches current hostname - redirecting to exchange on same domain (preserving popup context)')
         // Still redirect to exchange route, but on same domain
         // The exchange route returns HTML (not a redirect), which preserves window.opener
         const baseUrl = new URL(request.url).origin
@@ -368,16 +362,12 @@ export async function proxy(request) {
         if (provider === 'ghl' && stateData.originalRedirectUri) {
           exchangeUrl.searchParams.set('redirect_uri', stateData.originalRedirectUri)
         }
-        console.log('🔄 Redirecting to exchange on same domain:', exchangeUrl.toString())
         return NextResponse.redirect(exchangeUrl.toString())
       } else {
-        // Cross-domain redirect (existing logic)
-        console.log('🔄 Redirecting OAuth callback to custom domain:', customDomain)
-        
         // Determine protocol (http for localhost, https for production)
         const isLocalhost = customDomain.includes('localhost') || customDomain.includes('127.0.0.1')
         const protocol = isLocalhost ? 'http' : 'https'
-        
+
         // Build redirect URL to custom domain
         let callbackPath = '/oauth/callback'
         if (provider === 'google') {
@@ -385,30 +375,27 @@ export async function proxy(request) {
         } else if (provider === 'ghl') {
           callbackPath = '/api/ghl/exchange'
         }
-        
+
         const redirectUrl = new URL(callbackPath, `${protocol}://${customDomain}`)
-        
+
         // Preserve all OAuth parameters
         if (oauthCode) redirectUrl.searchParams.set('code', oauthCode)
         if (oauthState) redirectUrl.searchParams.set('state', oauthState)
         if (oauthError) redirectUrl.searchParams.set('error', oauthError)
         if (oauthErrorDescription) redirectUrl.searchParams.set('error_description', oauthErrorDescription)
         if (redirectUri) redirectUrl.searchParams.set('redirect_uri', redirectUri)
-        
+
         // For GHL, preserve originalRedirectUri from state
         if (provider === 'ghl' && stateData.originalRedirectUri) {
           redirectUrl.searchParams.set('redirect_uri', stateData.originalRedirectUri)
         }
-        
-        console.log('🔄 Redirecting to:', redirectUrl.toString())
+
         return NextResponse.redirect(redirectUrl.toString())
       }
     }
-    
-    // No custom domain in state - redirect to callback on same domain
-    console.log('🔄 No custom domain in state - redirecting to callback on same domain')
+
     const baseUrl = new URL(request.url).origin
-    
+
     if (oauthError) {
       // Handle OAuth errors
       const errorUrl = new URL('/google-auth/callback', baseUrl)
@@ -421,7 +408,7 @@ export async function proxy(request) {
       }
       return NextResponse.redirect(errorUrl.toString())
     }
-    
+
     // If provider couldn't be determined (missing/invalid state), redirect to a safe page.
     if (!provider) {
       const safeUrl = new URL('/dashboard/myAgentX', baseUrl)
@@ -448,7 +435,7 @@ export async function proxy(request) {
       }
       return NextResponse.redirect(exchangeUrl.toString())
     }
-    
+
     // Default fallback
     const callbackUrl = new URL('/google-auth/callback', baseUrl)
     callbackUrl.searchParams.set('code', oauthCode)
@@ -467,8 +454,6 @@ export async function proxy(request) {
   ]
   
   if (webhookRoutes.some(route => pathname.startsWith(route))) {
-    console.log(`🔵 [MIDDLEWARE] ✅ Allowing webhook route without auth: ${pathname}`)
-    console.log(`🔵 [MIDDLEWARE] Headers:`, JSON.stringify(Object.fromEntries(request.headers.entries()), null, 2))
     return createResponseWithBrandingHeaders(request, agencyBranding)
   }
 
@@ -478,7 +463,6 @@ export async function proxy(request) {
   if (pathname.startsWith('/api/')) {
     const authHeader = request.headers.get('Authorization')
     if (authHeader && authHeader.startsWith('Bearer ')) {
-      console.log(`🔵 [MIDDLEWARE] ✅ Allowing API route with Bearer token: ${pathname}`)
       return createResponseWithBrandingHeaders(request, agencyBranding)
     }
   }

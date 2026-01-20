@@ -122,7 +122,6 @@ function AdminAffiliates({ selectedUser }) {
         let u = JSON.parse(data)
 
         let path = Apis.chechAffiliateUniqueUrl
-        console.log('path', path)
 
         let apidata = {
           uniqueUrl: url,
@@ -137,11 +136,7 @@ function AdminAffiliates({ selectedUser }) {
         if (response.data) {
           setAffiliateUsersLoader(false)
 
-          if (response.data.status === true) {
-            console.log('', response.data.message)
-          } else {
-            console.log('api messsage is', response.data.message)
-
+          if (response.data.status === true) {} else {
             setUrlError2(response.data.message)
           }
         }
@@ -245,7 +240,6 @@ function AdminAffiliates({ selectedUser }) {
             path = `${path}&minxBar=${filter.revenue[0]}&maxxBar=${filter.revenue[1]}`
           }
         }
-        console.log('get affiliates path is', path)
 
         const response = await axios.get(path, {
           headers: {
@@ -255,7 +249,6 @@ function AdminAffiliates({ selectedUser }) {
 
         if (response) {
           setGetAffiliatesLoader(false)
-          console.log('response is', response.data)
 
           if (response.data.status === true) {
             setAffiliatesList(response.data.data)

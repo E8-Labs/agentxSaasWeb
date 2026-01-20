@@ -74,8 +74,6 @@ const TwilioIntegrations = ({
         selectedVoiceIntegrity &&
         String(selectedVoiceIntegrity).trim() !== ''
       ) {
-        // Import AddSelectedProduct API
-        console.log('drodown selected')
         const { AddSelectedProduct } = await import(
           '@/apiservicescomponent/twilioapis/AddSelectedProduct'
         )
@@ -101,7 +99,6 @@ const TwilioIntegrations = ({
           })
         }
       } else {
-        console.log('manually added voice integrity')
         // If user entered new product details, use create API
         const token = AuthToken()
         const ApiPath = Apis.createVoiceIntegrity
@@ -120,7 +117,6 @@ const TwilioIntegrations = ({
 
         if (response) {
           setLoader(false)
-          console.log('response of add voice api is')
           const ApiResponse = response.data
           if (ApiResponse.status === true) {
             setShowSnack({
@@ -133,7 +129,6 @@ const TwilioIntegrations = ({
               handleClose(ApiResponse)
             }, 300)
           } else {
-            console.log('got err')
             setShowSnack({
               message:
                 ApiResponse.message ||
@@ -146,7 +141,6 @@ const TwilioIntegrations = ({
       }
     } catch (error) {
       setLoader(false)
-      console.log('Error occured in add voice api is', error)
       let errorMessage = 'An unexpected error occurred'
 
       if (axios.isAxiosError(error)) {

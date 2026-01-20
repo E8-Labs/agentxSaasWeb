@@ -59,10 +59,6 @@ export default function DncConfirmationPopup({
         type: 'dnc',
       }
       const minimumCostData = await calculateCreditCost(minimumData)
-      console.log(
-        'DncConfirmationPopup - minimumCostData for 100 leads',
-        minimumCostData,
-      )
       setMinimumCost(minimumCostData)
       setIsMinimumEnforced(true)
 
@@ -72,17 +68,14 @@ export default function DncConfirmationPopup({
         type: 'dnc',
       }
       const credit = await calculateCreditCost(data)
-      console.log('credit cost is', credit)
       setCreditCost(credit)
     } else {
       // Normal flow - calculate for actual lead count
       let batchSize = leadsCount
-      console.log('batchSize is', batchSize)
       const credit = await calculateCreditCost({
         leadCount: batchSize,
         type: 'dnc',
       })
-      console.log('credit cost is', credit)
       setCreditCost(credit)
       setIsMinimumEnforced(false)
       setMinimumCost(null)
@@ -111,7 +104,6 @@ export default function DncConfirmationPopup({
         (leadsCount < 34 ? 1 : leadsCount * (creditCost?.pricePerLead || 0))
 
   const handleClose = (data) => {
-    console.log('data of add card', data)
     if (data) {
       setShowAddCard(false)
       onConfirm()

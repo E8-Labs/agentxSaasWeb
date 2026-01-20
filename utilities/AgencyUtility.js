@@ -29,7 +29,6 @@ export const extractAgencyUUIDFromPath = (pathname) => {
 export const saveAgencyUUID = (uuid) => {
   if (typeof window !== 'undefined' && uuid) {
     localStorage.setItem(PersistanceKeys.AgencyUUID, uuid)
-    console.log('[Agency] UUID saved:', uuid)
   }
 }
 
@@ -51,7 +50,6 @@ export const getAgencyUUID = () => {
 export const clearAgencyUUID = () => {
   if (typeof window !== 'undefined') {
     localStorage.removeItem(PersistanceKeys.AgencyUUID)
-    console.log('[Agency] UUID cleared')
   }
 }
 
@@ -87,7 +85,6 @@ export const initializeAgencyUUID = (pathname) => {
 export const getAgencyUUIDForAPI = () => {
   const uuid = getAgencyUUID()
   if (uuid) {
-    console.log('[Agency] Using UUID for registration:', uuid)
     return uuid
   }
   return null

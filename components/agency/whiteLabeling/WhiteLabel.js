@@ -56,7 +56,6 @@ const WhiteLabel = ({ selectedAgency }) => {
       // If selectedAgency is provided (admin view), use it; otherwise use localStorage
       if (selectedAgency) {
         setAgencyData(selectedAgency)
-        console.log('✅ Using selectedAgency data for admin view')
         return
       }
       
@@ -64,7 +63,6 @@ const WhiteLabel = ({ selectedAgency }) => {
       if (data) {
         let u = JSON.parse(data)
         setAgencyData(u.user)
-        console.log('✅ Data fetched successfully on attempt', attempt + 1)
       } else {
         attempt++
         if (attempt < retries) {
@@ -129,7 +127,6 @@ let targetUser = null;
           ? 'https://app.assignx.ai/'
           : 'http://dev.assignx.ai/'
       if (d) {
-        console.log('Agency uuid link copied check 3')
         const Data = JSON.parse(d)
         UUIDLink = BasePath + `onboarding/${Data.user.agencyUuid}`
       }
@@ -137,18 +134,15 @@ let targetUser = null;
       const apidata = {
         agencyOnboardingLink: UUIDLink,
       }
-      console.log('Data sending in updatee api is', apidata)
       const response = await UpdateProfile(apidata)
       if (response) {
         if (response.status === true) {
           getLocalData()
           setCopyLinkLoader(false)
-          console.log('Update api resopnse before copy link is', response)
         }
       }
     } catch (err) {
       setCopyLinkLoader(false)
-      console.log('Eror occured in update profile api is', err)
     }
   }
 
@@ -404,7 +398,7 @@ let targetUser = null;
         />
       )}
     </div>
-  )
+  );
 }
 
 export default WhiteLabel

@@ -414,7 +414,6 @@ const agentMemoji = (agent) => {
   const selectedVoice = voicesList.find(
     (voice) => voice.voice_id === agent?.voiceId,
   )
-  console.log('Avatar got details', agent)
   if (selectedVoice && selectedVoice.img) {
     // console.log("showing the compared avatar")
     return (
@@ -437,7 +436,6 @@ const agentMemoji = (agent) => {
       </div>
     )
   } else {
-    console.log('showing the hard coated avatar')
     return (
       <div
         className="flex flex-row items-center justify-center"
@@ -520,7 +518,6 @@ export function findLLMModel(value) {
       model = m
     }
   }
-  console.log('Selected model:', model)
   if (model === null) {
     return models[0] // Default to the first model if not found
   }
@@ -529,7 +526,6 @@ export function findLLMModel(value) {
 }
 
 export function agentImage(agent) {
-  console.log('Agent passed is', agent)
   let img = agent?.thumb_profile_image
   if (img) {
     return (
@@ -547,7 +543,6 @@ export function agentImage(agent) {
       />
     )
   } else {
-    console.log('Passing to avatar')
     return agentMemoji(agent)
   }
 }

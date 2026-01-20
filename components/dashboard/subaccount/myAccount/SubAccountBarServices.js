@@ -139,19 +139,13 @@ function SubAccountBarServices({ selectedUser }) {
               
               // Update xbar title if available
               if (branding?.xbarTitle) {
-                console.log('✅ [SubAccountBarServices] Fetched xbarTitle from API:', branding.xbarTitle)
                 setXbarTitle(branding.xbarTitle)
                 return
               }
             }
-          } catch (error) {
-            console.log('⚠️ [SubAccountBarServices] Error fetching branding from API:', error)
-            // Fall through to localStorage check
-          }
+          } catch (error) {}
         }
-      } catch (error) {
-        console.log('❌ [SubAccountBarServices] Error in fetchBrandingAndUpdateTitle:', error)
-      }
+      } catch (error) {}
       
       // Fallback: Get Xbar title from localStorage
       const getXbarTitle = () => {
@@ -159,12 +153,7 @@ function SubAccountBarServices({ selectedUser }) {
           const storedBranding = localStorage.getItem('agencyBranding')
           if (storedBranding) {
             const branding = JSON.parse(storedBranding)
-            console.log('📦 [SubAccountBarServices] Found branding in localStorage:', {
-              xbarTitle: branding?.xbarTitle,
-              hasXbarTitle: !!branding?.xbarTitle,
-            })
             if (branding?.xbarTitle) {
-              console.log('✅ [SubAccountBarServices] Setting xbarTitle to:', branding.xbarTitle)
               setXbarTitle(branding.xbarTitle)
               return
             }
@@ -175,16 +164,11 @@ function SubAccountBarServices({ selectedUser }) {
             const parsedUser = JSON.parse(userData)
             const branding = parsedUser?.user?.agencyBranding || parsedUser?.agencyBranding
             if (branding?.xbarTitle) {
-              console.log('✅ [SubAccountBarServices] Setting xbarTitle from user data:', branding.xbarTitle)
               setXbarTitle(branding.xbarTitle)
               return
             }
           }
-        } catch (error) {
-          console.log('❌ [SubAccountBarServices] Error getting xbar title from branding:', error)
-        }
-        // Default title
-        console.log('⚠️ [SubAccountBarServices] Using default xbarTitle: X Bar Services')
+        } catch (error) {}
         setXbarTitle('X Bar Services')
       }
       
@@ -196,9 +180,7 @@ function SubAccountBarServices({ selectedUser }) {
     
     // Listen for branding updates
     const handleBrandingUpdate = (event) => {
-      console.log('📢 [SubAccountBarServices] Received agencyBrandingUpdated event:', event?.detail?.xbarTitle)
       if (event?.detail?.xbarTitle) {
-        console.log('✅ [SubAccountBarServices] Setting xbarTitle from event:', event.detail.xbarTitle)
         setXbarTitle(event.detail.xbarTitle)
         // Also update localStorage
         const storedBranding = localStorage.getItem('agencyBranding')
@@ -242,7 +224,6 @@ function SubAccountBarServices({ selectedUser }) {
       if (selectedUser) {
         ApiPath = ApiPath + `?userId=${selectedUser.id}`
       }
-      console.log('Apipath of get plans api is', ApiPath)
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: 'Bearer ' + Token,
@@ -251,7 +232,6 @@ function SubAccountBarServices({ selectedUser }) {
       })
 
       if (response) {
-        console.log('Response of get plans api is testing', response.data.data)
         setPlans(response.data.data.xbarPlans)
         setGetPlansLoader(false)
       }
@@ -266,33 +246,28 @@ function SubAccountBarServices({ selectedUser }) {
       const localData = localStorage.getItem('User')
       let response = null
       let profileData = null
-      console.log('selectedUser', selectedUser)
       let togglePlan = null
       if (selectedUser) {
-          profileData = await AdminGetProfileDetails(selectedUser.id)
-          console.log('response of admin get profile details', profileData)
-          if (profileData) {
-            // AdminGetProfileDetails returns data directly, not wrapped in response.data.data
-            setSelectedUserDetails(profileData)
-            response = { data: { data: profileData } } // Create response-like object for consistency
-          }
-        } else {
-          response = await getProfileDetails()
-          console.log('response of get profile details', response)
-          if (response) {
-            profileData = response?.data?.data
-            setUserDetails(profileData)
-            setSelectedUserDetails(profileData)
-          }
+        profileData = await AdminGetProfileDetails(selectedUser.id)
+        if (profileData) {
+          // AdminGetProfileDetails returns data directly, not wrapped in response.data.data
+          setSelectedUserDetails(profileData)
+          response = { data: { data: profileData } } // Create response-like object for consistency
         }
+      } else {
+        response = await getProfileDetails()
+        if (response) {
+          profileData = response?.data?.data
+          setUserDetails(profileData)
+          setSelectedUserDetails(profileData)
+        }
+      }
 
       if (profileData || response) {
         const data = profileData || response?.data?.data
-        console.log('Respone for setting xbar plan', data)
         togglePlan = data?.supportPlan
         setUserLocalData(data)
       }
-      console.log('Plan id is', togglePlan)
       setTogglePlan(togglePlan)
       setCurrentPlan(togglePlan)
     } catch (error) {
@@ -318,7 +293,6 @@ function SubAccountBarServices({ selectedUser }) {
 
       if (response && response.data?.status === true) {
         const settingsData = response.data.data
-        console.log('User settings response:', settingsData)
         if (settingsData?.hireTeam && settingsData?.hireTeamUrl) {
           setHireTeamUrl(settingsData.hireTeamUrl)
           setHireTeamTitle(settingsData.hireTeamTitle || 'Speak to a Genius')
@@ -329,10 +303,7 @@ function SubAccountBarServices({ selectedUser }) {
     }
   }
 
-  useEffect(() => {
-    console.log('Toggle plan value is', togglePlan)
-    console.log('Current plan value is', currentPlan)
-  }, [togglePlan, currentPlan])
+  useEffect(() => {}, [togglePlan, currentPlan])
 
   //functions for selecting plans
   const handleTogglePlanClick = (item) => {
@@ -377,9 +348,7 @@ function SubAccountBarServices({ selectedUser }) {
         formData.append('userId', selectedUser.id)
       }
 
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`)
-      }
+      for (let [key, value] of formData.entries()) {}
 
       const ApiPath = Apis.purchaseSupportPlan
       // //console.log;
@@ -415,7 +384,6 @@ function SubAccountBarServices({ selectedUser }) {
 
           let response2 = await getProfileDetails()
           if (response2) {
-            console.log('res2 recieved', response2)
             // let newPlanId = response2?.data?.data?.plan?.planId
             setTogglePlan(togglePlan)
             setCurrentPlan(togglePlan)

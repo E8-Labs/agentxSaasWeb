@@ -67,7 +67,6 @@ function AdminIntegration({ selectedUser, agencyUser }) {
       // //console.log;
 
       let path = Apis.myApiKeys + '?userId=' + selectedUser.id
-      console.log('api path', path)
 
       const response = await axios.get(path, {
         headers: {

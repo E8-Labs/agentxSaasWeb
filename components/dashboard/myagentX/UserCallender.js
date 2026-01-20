@@ -128,16 +128,8 @@ const UserCalender = ({
   }, [])
 
   useEffect(() => {
-    console.log('Selected agent calendar is =====', selectedAgent)
-
-    // let cal = previousCalenders.find(item => item.id === selectedAgent?.calendar?.id);
-    // console.log("Calender found is =====", cal);
-    console.log('previousCalenders are =====', previousCalenders)
-
     setAllCalendars(previousCalenders)
-    console.log('Selected agent ', selectedAgent)
     if (selectedAgent?.calendar) {
-      console.log('Log trigered')
       setSelectCalender(selectedAgent.calendar)
       setSelectedCalenderTitle(selectedAgent.calendar?.id || '')
     } else {
@@ -147,7 +139,6 @@ const UserCalender = ({
   }, [])
 
   useEffect(() => {
-    console.log('selectedCalenderTitle changed:', selectedCalenderTitle)
     if (selectedCalenderTitle) {
       setCalendarSelected(selectedCalenderTitle)
     }
@@ -161,9 +152,7 @@ const UserCalender = ({
     //console.log;
   }, [selectCalender])
 
-  useEffect(() => {
-    console.log('Agent changed ', agent)
-  }, [agent])
+  useEffect(() => {}, [agent])
 
   // useEffect(() => {
   //   if (calenderTitle && calenderApiKey && eventId && selectTimeZone) {
@@ -195,7 +184,6 @@ const UserCalender = ({
       if (selectedUser) {
         ApiPath = `${ApiPath}?userId=${selectedUser.id}`
       }
-      console.log('Getting calendars for ', ApiPath)
       //// //console.log;
 
       const response = await axios.get(ApiPath, {
@@ -206,7 +194,6 @@ const UserCalender = ({
       })
 
       if (response) {
-        console.log('Calendars from api are', response.data.data)
         setAllCalendars(response.data.data || [])
       }
     } catch (error) {
@@ -255,7 +242,6 @@ const UserCalender = ({
         let apiData = {
           calendarId: calendarToDelete.id,
         }
-        console.log('Del calendar api data is', apiData)
         // return;
 
         let path = Apis.deleteCalendar
@@ -270,13 +256,10 @@ const UserCalender = ({
         setCalenderDelLoader(null)
 
         if (response.data.status === true) {
-          console.log('Response of del cal api is', response.data)
           let newCalList = allCalendars.filter(
             (item) => item.id != calendarToDelete.id,
             // (item) => item.apiKey != calendarToDelete.apiKey
           )
-          console.log('Calendar to del is', calendarToDelete)
-          console.log('List updated of cals', newCalList)
           setShowDelPopup(false)
           setAllCalendars(newCalList)
           setCalendarToDelete(null)
@@ -300,17 +283,13 @@ const UserCalender = ({
 
   //code for add calender api
   const handleAddCalender = async (calendar, isNewCalendar = true) => {
-    console.log('Calendar details passed from addgoogle calednar', calendar)
-    console.log('Is new calendar', isNewCalendar)
     // return
     try {
       if (calendar?.isFromAddGoogleCal) {
-        console.log('Is from google cal', calendar?.isFromAddGoogleCal)
         setGoogleCalenderLoader(true)
       } else if (calendar?.isFromAddGHLCal) {
         setGHLCalenderLoader(true)
       } else {
-        console.log('Is not from google cal')
         setAddCalenderLoader(true)
       }
 
@@ -395,7 +374,6 @@ const UserCalender = ({
         if (selectGHLCalendar) {
           // formData.append("mainAgentId", calendarDetails.id);
           formData.append('ghlCalendarId', selectGHLCalendar?.id) //|| selected calendar id
-          console.log('Sending calendar id ', selectGHLCalendar?.id)
         }
         // formData.append("eventId", calendar?.eventId || eventId); //|| eventId
 
@@ -415,7 +393,6 @@ const UserCalender = ({
         if (calendar?.id) {
           // formData.append("mainAgentId", calendarDetails.id);
           formData.append('calendarId', calendar?.id) //|| selected calendar id
-          console.log('Sending calendar id ', calendar?.id)
         }
         formData.append('eventId', calendar?.eventId || eventId) //|| eventId
 
@@ -430,9 +407,7 @@ const UserCalender = ({
         }
       }
 
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} ===== ${value}`)
-      }
+      for (let [key, value] of formData.entries()) {}
 
       // return;
 
@@ -443,7 +418,6 @@ const UserCalender = ({
       })
 
       if (response) {
-        console.log('add calendar response is', response.data)
         if (calendar) {
           setIsVisible2(true)
         } else {
@@ -555,9 +529,7 @@ const UserCalender = ({
     }
   }
 
-  useEffect(() => {
-    console.log('MCP tools are', mcpTools)
-  }, [mcpTools])
+  useEffect(() => {}, [mcpTools])
 
   const styles = {
     inputStyles: {
@@ -593,7 +565,6 @@ const UserCalender = ({
           }}
         />
       )}
-
       {isVisible2 && (
         <AgentSelectSnackMessage
           type={type}
@@ -604,7 +575,6 @@ const UserCalender = ({
           }}
         />
       )}
-
       <div className="bg-white rounded-2xl w-full pb-4 flex flex-col">
         {showTools ? (
           <MCPView
@@ -796,7 +766,7 @@ const UserCalender = ({
                                 // calendarToDelete?.id === item.id ? (
                                 //   <CircularProgress size={25} />
                                 // ) :
-                                <button
+                                (<button
                                   onClick={(e) => {
                                     // e.stopPropagation(); // Prevents dropdown from closing
                                     // setSelectCalender(item);
@@ -812,9 +782,8 @@ const UserCalender = ({
                                     color: '#7902df',
                                     fontWeight: '500',
                                   }}
-                                >
-                                  Delete
-                                </button>
+                                >Delete
+                                                                  </button>)
                               )}
                             </div>
                           </MenuItem>
@@ -886,7 +855,6 @@ const UserCalender = ({
               <NoCalendarView
                 showVideo={true}
                 addCalendarAction={() => {
-                  console.log('Clicked on add cal')
                   setShowCalendarConfirmation(true)
                 }}
               />
@@ -1003,7 +971,7 @@ const UserCalender = ({
         />
       </div>
     </div>
-  )
+  );
 }
 
 export default UserCalender

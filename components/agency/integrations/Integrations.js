@@ -33,7 +33,6 @@ const Integrations = ({ selectedAgency, reduxUser, refreshUserData }) => {
   //remove trust hub data
   const [removeTrustHubData, setRemoveTrustHubData] = useState(false)
 
-  console.log('reduxUser', reduxUser)
   useEffect(() => {
     getLocalData()
   }, [])
@@ -45,7 +44,6 @@ const Integrations = ({ selectedAgency, reduxUser, refreshUserData }) => {
       let u = JSON.parse(data)
       await getProfileDetails()
       setAgencyData(u.user)
-      console.log('Agency data is', u.user.twilio)
       if (u.user.phonePrice) {
         setAllowUpSellPhone(true)
       }

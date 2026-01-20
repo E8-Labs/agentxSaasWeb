@@ -129,10 +129,6 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
           text: key,
           thumb: value,
         }))
-
-      console.log('Features array at dashboard plans is', featuresArray)
-
-      // setCustomPlanFeatures(selectedPlanDetails.customFeatures);
     }
   }, [selectedPlanDetails])
 
@@ -153,8 +149,6 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
         } else {
           setAgencyPlanCost(selectedAgency?.plan?.capabilities?.aiCreditRate)
         }
-        console.log('Selected agency is UseEffect 88', selectedAgency)
-        // setAgencyPlanCost(selectedAgency?.plan?.capabilities?.aiCreditRate);
       } else {
         let agencyFromLocal = u.user
 
@@ -165,14 +159,6 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
           } else {
             setAgencyPlanCost(agencyFromLocal?.plan?.capabilities?.aiCreditRate)
           }
-          console.log('LocalStorage agency is', agencyFromLocal)
-          // const matchedPlan = u.find(plan => plan.id === currentPlanId);
-          // console.log("Matched plan is", matchedPlan);
-          // if (matchedPlan?.capabilities?.aiCreditRate) {
-          //     console.log("matchedPlan plan is", matchedPlan)
-          //     // capabilities?.aiCreditRate
-          //     setAgencyPlanCost(matchedPlan?.capabilities?.aiCreditRate);
-          // }
         }
       }
     }
@@ -187,30 +173,20 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
     }
 
     const fetchAgencyCostIfMissing = async () => {
-      console.log('fetching agency cost if missing')
       // Only fetch if cost is missing or zero, and we're not already fetching
       if ((!agencyPlanCost || Number(agencyPlanCost) === 0) && !fetchingCostRef.current) {
         fetchingCostRef.current = true
-        console.log('fetching agency cost if missing 2')
         try {
-          console.log('🔄 [DashboardPlans] Agency cost missing, fetching profile...')
           const profileResponse = await getProfileDetails(selectedAgency)
-          console.log('profile response is', profileResponse) 
           if (profileResponse?.data?.status === true) {
-            console.log('profile response is true')
-            
             const userData = profileResponse.data.data
-            console.log('Plan capabilities is', userData?.planCapabilities || [])
-            console.log('user data is', userData)
             const cost = 
               userData?.planCapabilities?.aiCreditRate || 
               userData?.plan?.grandfatheredFeatures?.aiCreditRate ||
               userData?.plan?.features?.aiCreditRate ||
               selectedAgency?.planCapabilities?.aiCreditRate ||
               selectedAgency?.plan?.capabilities?.aiCreditRate
-            console.log('cost is', cost)
             if (cost && Number(cost) > 0) {
-              console.log('✅ [DashboardPlans] Agency cost fetched:', cost)
               setAgencyPlanCost(cost)
             } else {
               console.warn('⚠️ [DashboardPlans] Agency cost still not available after fetch')
@@ -251,10 +227,8 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
 
   //check if plan has already trial true
   useEffect(() => {
-    console.log('Trigered one 2')
     for (let i = 0; i < plansList?.length; i++) {
       if (plansList[i].hasTrial === true) {
-        console.log('hasTrial is true at index', i)
         setCanAddPlan(false)
         break // Stop looping after the first match
       }
@@ -269,9 +243,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
     } else {
       getStripe = CheckStripe()
     }
-    console.log('Status of stripe is', getStripe)
     if (!getStripe) {
-      console.log('Show stripe warning ⚠️')
       setSnackMsg('Stripe needs to be connected')
       setSnackMsgType(SnackbarTypes.Warning)
     } else {
@@ -310,11 +282,8 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
   // };
 
   const handlePlanCreated = (response) => {
-    console.log('Response received is:', response)
     let newPlan = response?.data?.data
-    console.log("New plan is", newPlan)
     if(!newPlan) {
-      console.log("New plan is not found")
       setSnackMsg(response?.data?.message || 'An error occurred')
       setSnackMsgType(SnackbarTypes.Success)
       return
@@ -323,7 +292,6 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
     // Load existing plans based on type
     let localPlans = []
     if (planType === 'monthly') {
-      console.log('')
       const LP = localStorage.getItem('agencyMonthlyPlans')
       if (LP) {
         localPlans = JSON.parse(LP)
@@ -334,14 +302,12 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
         localPlans = JSON.parse(LP)
       }
     }
-    console.log('Local Plans list is', localPlans)
 
     // Update if exists, otherwise add
     let updatedPlans = []
     const idToCompare = newPlan.id
     const existingIndex = localPlans.findIndex(
       (plan) => {
-        console.log('Plan is', plan)
         return plan.id === idToCompare
       },
     )
@@ -355,7 +321,6 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
       updatedPlans = [...localPlans, newPlan]
     }
 
-    console.log('Updated plans are', updatedPlans)
     // Save to localStorage
     if (planType === 'monthly') {
       localStorage.setItem('agencyMonthlyPlans', JSON.stringify(updatedPlans))
@@ -386,14 +351,12 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
       if (localPlans) {
         setPlansList(JSON.parse(localPlans))
         setFilteredList(JSON.parse(localPlans))
-        console.log('Plans list is', JSON.parse(localPlans))
       } //else {
       const Token = AuthToken()
       let ApiPath = Apis.getMonthlyPlan
       if (selectedAgency) {
         ApiPath = ApiPath + `?userId=${selectedAgency.id}`
       }
-      console.log('Api path for dashboard monthly plans api is', ApiPath)
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: 'Bearer ' + Token,
@@ -401,7 +364,6 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
         },
       })
       if (response) {
-        console.log('Response of get monthly plan api is', response.data)
         setPlansList(response.data.data)
         setFilteredList(response.data.data)
         localStorage.setItem(
@@ -413,7 +375,6 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
       setInitialLoader(false)
       console.error('Error occured in getting monthly plan', error)
     } finally {
-      console.log('data recieved')
       setInitialLoader(false)
     }
   }
@@ -421,22 +382,18 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
   //code to get the XBar Options
   const getXBarOptions = async () => {
     try {
-      console.log('trigered xbar plaans api')
       setInitialLoader(true)
       const localXbarPlans = localStorage.getItem('XBarOptions')
       if (localXbarPlans) {
         const d = JSON.parse(localXbarPlans)
-        console.log(d)
         setPlansList(JSON.parse(localXbarPlans))
         setFilteredList(JSON.parse(localXbarPlans))
       } //else {
-      console.log('Passed here 1')
       const Token = AuthToken()
       let ApiPath = Apis.getXBarOptions
       if (selectedAgency) {
         ApiPath = ApiPath + `?userId=${selectedAgency.id}`
       }
-      console.log('Api path for dashboard monthly plans api is', ApiPath)
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: 'Bearer ' + Token,
@@ -444,7 +401,6 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
         },
       })
       if (response) {
-        console.log('Response of XBar Option api is', response.data)
         setPlansList(response.data.data)
         setFilteredList(response.data.data)
         localStorage.setItem('XBarOptions', JSON.stringify(response.data.data))
@@ -452,21 +408,16 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
       // }
     } catch (error) {
       setInitialLoader(false)
-      console.log('Error occured in getting XBar Option is', error.message)
     } finally {
       setInitialLoader(false)
-      console.log('data recieved')
     }
   }
 
-  useEffect(() => {
-    console.log('Plan type is', planType)
-  }, [planType])
+  useEffect(() => {}, [planType])
 
   //code for closing popup
   const handleClosePlanPopUp = (mesg) => {
     setOpen(false)
-    console.log('test check 23', mesg)
     if (mesg) {
       setSnackMsg(mesg)
       setSnackMsgType(SnackbarTypes.Success)
@@ -483,7 +434,7 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
     try {
       setDelLoading(true)
       const token = AuthToken()
-      
+
       // Use selectedPlan.id instead of moreDropdown (which gets cleared when menu closes)
       const planId = selectedPlan?.id || moreDropdown
       if (!planId) {
@@ -493,14 +444,13 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
         setShowDeleteModal(false)
         return
       }
-      
+
       let ApiPath = ''
       if (planType === 'monthly') {
         ApiPath = `${Apis.removeAgencyPlan}/${planId}`
       } else if (planType === 'Xbar') {
         ApiPath = `${Apis.removeAgencyXBar}/${planId}`
       }
-      console.log('api path is', ApiPath)
       // return
       let delData = {}
       if (selectedAgency) {
@@ -515,7 +465,6 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
       })
 
       if (response) {
-        console.log('Response of del plans api is', response.data)
         if (response.data?.status === true) {
           // Close modal and clear selections first
           setShowDeleteModal(false)
@@ -530,7 +479,6 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
           // Set snackbar message after a small delay to ensure it shows after modal closes
           setTimeout(() => {
             const message = response.data?.message || 'Plan deleted successfully'
-            console.log('Setting success snackbar:', message)
             setSnackMsg(message)
             setSnackMsgType(SnackbarTypes.Success)
           }, 100)
@@ -538,7 +486,6 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
           setShowDeleteModal(false)
           setTimeout(() => {
             const message = response.data?.message || 'Failed to delete plan'
-            console.log('Setting error snackbar:', message)
             setSnackMsg(message)
             setSnackMsgType(SnackbarTypes.Error)
           }, 100)
@@ -546,14 +493,12 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
           // Handle unexpected response structure
           setShowDeleteModal(false)
           setTimeout(() => {
-            console.log('Setting fallback snackbar')
             setSnackMsg('Plan deleted successfully')
             setSnackMsgType(SnackbarTypes.Success)
           }, 100)
         }
       }
     } catch (error) {
-      console.log('Error found in del plan api is', error)
       setSnackMsg(
         error?.response?.data?.message ||
           'Failed to delete plan. Please try again.',
@@ -567,7 +512,6 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
 
   //code to show plan details only
   const showPlanDetails = (item) => {
-    console.log('Select plan is', item)
     setSelectedPlanDetails(item)
     // if (planType === "monthly") {
     // } else {
@@ -651,7 +595,6 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
         }}
         type={snackMsgType}
       />
-
       <div className="flex w-full flex-row items-center justify-between px-5 py-5 border-b">
         <div
           style={{
@@ -667,7 +610,6 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
           <NotficationsDrawer />
         </div>
       </div>
-
       <div className="w-[95%] h-[90vh] rounded-lg flex flex-col items-center  p-5 shadow-md">
         <div
           className="w-full h-32 flex flex-row items-center justify-between rounded-lg px-6 relative overflow-hidden"
@@ -865,7 +807,6 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
                             <div
                               className="w-1/12"
                               onClick={() => {
-                                console.log('Item is', item)
                                 showPlanDetails(item)
                               }}
                             >
@@ -1103,12 +1044,11 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
           </Modal>
         )}
       </div>
-
       {/*
                 <SupportFile />
             */}
     </div>
-  )
+  );
 }
 
 export default DashboardPlans

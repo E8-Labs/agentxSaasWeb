@@ -23,10 +23,8 @@ export default function RootLayout({ children }) {
             window.agentxTrackSignup = function(email, firstName, lastName) {
               const trySignup = () => {
                 if (window.affiliateManager && typeof window.affiliateManager.signup === "function") {
-                  console.log("[AgentX Tracking] Sending signup event...");
                   affiliateManager.signup(email, { firstname: firstName || '', lastname: lastName || '' });
                 } else if (window.affiliateManager && typeof window.affiliateManager.signUp === "function") {
-                  console.log("[AgentX Tracking] Sending signup event...");
                   affiliateManager.signUp(email, { firstname: firstName || '', lastname: lastName || '' });
                 } else {
                   console.warn("[AgentX Tracking] Signup method not found on affiliateManager");

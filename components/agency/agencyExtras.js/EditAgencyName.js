@@ -38,7 +38,6 @@ const EditAgencyName = ({ flex = false }) => {
       // console.log("Data of update api is", data);
       // return
       const response = await UpdateProfile(data)
-      console.log('Response of update api is', response)
 
       // Update Redux store with updated user data from API response
       if (response) {

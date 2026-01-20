@@ -97,14 +97,12 @@ const Page = () => {
   // console.log("Rendering step:", index, components[index]);
 
   useEffect(() => {
-
     localStorage.removeItem("AddCadenceDetails")
-    console.log('Cleared AddCadenceDetails from local storage')
     // Wait for page to be ready and React to finish hydration
     const readyTimer1 = setTimeout(() => {
       setPageReady(true)
     }, 100)
-    
+
     const initTimer = setTimeout(() => {
       let size = null
       if (typeof window !== 'undefined') {
@@ -129,7 +127,6 @@ const Page = () => {
           parsed?.user?.userRole === 'AgencySubAccount' ||
           parsed?.userRole === 'AgencySubAccount'
         ) {
-          console.log('User is subaccount', true)
           setIsSubaccount(true)
         }
       }
@@ -144,13 +141,11 @@ const Page = () => {
           ) {
             setIsSubaccount(true)
           }
-        } catch (error) {
-          console.log('Error parsing User data:', error)
-        }
+        } catch (error) {}
       }
       // //console.log;
     }, 300) // Delay to allow page initialization
-    
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
     return () => {
       clearTimeout(initTimer)
@@ -216,11 +211,10 @@ const Page = () => {
       if (d) {
         fromAdmin = JSON.parse(d)
       }
-      console.log('data form admin is', fromAdmin)
-      
+
       // Set componentsReady to false before changing components to prevent removeChild errors
       setComponentsReady(false)
-      
+
       // Use setTimeout to ensure DOM cleanup completes before setting new components
       setTimeout(() => {
         if (!fromAdmin) {
@@ -287,7 +281,6 @@ const Page = () => {
             CreateAgent4,
             CreateAgentVoice,
           ])
-          console.log('This is admin')
         }
         
         // Mark components as ready after a small delay to ensure React has processed the changes
@@ -302,7 +295,6 @@ const Page = () => {
   }
 
   useEffect(() => {
-    console.log('windowSize', windowSize)
     // Wait for windowSize to be set before determining components
     updateComponentsArray()
   }, [windowSize, subAccount])
@@ -310,7 +302,6 @@ const Page = () => {
   // Listen for plan subscription event to re-evaluate components array
   useEffect(() => {
     const handlePlanSubscribed = () => {
-      console.log('🔄 [CREATE-AGENT-PAGE] Plan subscribed event received, re-evaluating components array')
       // Re-evaluate components array after plan subscription
       updateComponentsArray()
     }
@@ -371,9 +362,7 @@ const Page = () => {
           return `hsl(${computedColor})`
         }
       }
-    } catch (error) {
-      console.log('Error getting brand color:', error)
-    }
+    } catch (error) {}
     return 'hsl(270, 75%, 50%)'
   }
 
@@ -412,9 +401,7 @@ const Page = () => {
           if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
             return true
           }
-        } catch (error) {
-          console.log('Error parsing User data:', error)
-        }
+        } catch (error) {}
       }
       
       const localUser = localStorage.getItem('LocalStorageUser')
@@ -425,9 +412,7 @@ const Page = () => {
           if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
             return true
           }
-        } catch (error) {
-          console.log('Error parsing LocalStorageUser:', error)
-        }
+        } catch (error) {}
       }
       
       const subAccountData = localStorage.getItem('SubaccoutDetails')
@@ -437,9 +422,7 @@ const Page = () => {
           if (parsed) {
             return true
           }
-        } catch (error) {
-          console.log('Error parsing SubaccoutDetails:', error)
-        }
+        } catch (error) {}
       }
       
       return false

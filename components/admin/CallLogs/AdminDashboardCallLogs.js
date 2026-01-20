@@ -132,9 +132,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
     },
   ]
 
-  useEffect(() => {
-    console.log('Call logs list is', filteredCallDetails.length)
-  }, [filteredCallDetails])
+  useEffect(() => {}, [filteredCallDetails])
 
   // useEffect(() => {
   //   //console.log;
@@ -187,13 +185,11 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
         setFilteredCallDetails(C)
         setCallDetails(C)
         setHasFetchedFromAPIOnce(true) // ← ADD THIS LINE
-        console.log('Get admin all calls from local are ', C.length)
         if (C.length < LimitPerPage) {
           setHasMore(false)
         }
         getCallLogs(0)
       } else {
-        console.log('calls are not available in local storage')
         setIsLocalCallsAvailable(false)
         getCallLogs(0)
       }
@@ -208,7 +204,6 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
       clearTimeout(filterRef.current)
     }
     filterRef.current = setTimeout(() => {
-      console.log('is local call ', isLocalCallsAvailable)
       if (!isLocalCallsAvailable || hasFetchedFromAPIOnce) {
         setHasMore(true)
         setCallDetails([])
@@ -285,13 +280,6 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
   //code for getting call log details
   const getCallLogs = async (offset = null, filterOverrides = {}) => {
-    console.log(
-      'Getting call logs with offset:',
-      offset,
-      'filterOverrides:',
-      filterOverrides,
-    )
-
     // Use override values if provided, otherwise use state values
     const fromDate =
       filterOverrides.selectedFromDate !== undefined
@@ -380,8 +368,6 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
         ApiPath += `&status=${status.join(',')}`
       }
 
-      console.log('API Path:', ApiPath)
-
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: 'Bearer ' + AuthToken,
@@ -392,7 +378,6 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
 
       if (response) {
         const data = response.data.data
-        console.log('Fetched call logs from API:', data)
 
         // If offset is 0, replace the calls completely, otherwise append
         let calls
@@ -402,7 +387,6 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
           calls = [...callDetails, ...data]
         }
 
-        console.log('Updated calls:', calls.length, 'total items')
         setCallDetails(calls)
         setFilteredCallDetails(calls)
         setHasFetchedFromAPIOnce(true)
@@ -413,7 +397,6 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
             PersistanceKeys.LocalAllCalls,
             JSON.stringify(calls),
           )
-          console.log('Saved call logs to cache:', calls.length, 'items')
         }
 
         setIsLocalCallsAvailable(false)
@@ -557,8 +540,6 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
                   <button
                     className="outline-none"
                     onClick={() => {
-                      console.log('filter.key', filter.key)
-
                       // Calculate the updated filter values before updating state
                       let updatedFromDate = selectedFromDate
                       let updatedToDate = selectedToDate
@@ -608,7 +589,6 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
           </div>
         </div>
       </div>
-
       <div className="w-full flex-1 flex flex-col min-h-0">
         {activeTab === 'Campaigns' ? (
           <AdminDashboardActiveCall
@@ -846,7 +826,6 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
           'No Activities found'
         )}
       </div>
-
       {/* Code for filter modal */}
       <div>
         <Modal
@@ -1205,7 +1184,7 @@ function AdminDashboardCallLogs({ selectedAgency, isFromAgency = false }) {
         </Modal>
       </div>
     </div>
-  )
+  );
 }
 
 export default AdminDashboardCallLogs

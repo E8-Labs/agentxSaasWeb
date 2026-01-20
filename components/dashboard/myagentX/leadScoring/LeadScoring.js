@@ -107,8 +107,6 @@ function LeadScoring({
     }
   }
 
-  console.log('templates', templates)
-
   const showSnackbar = (title, message, type = SnackbarTypes.Error) => {
     setSnackbar({
       isVisible: true,
@@ -358,7 +356,6 @@ function LeadScoring({
           />
         )}
       </div>
-
       {/* Add Scoring Modal */}
       <AddScoringModal
         selectedUser={selectedUser}
@@ -371,13 +368,11 @@ function LeadScoring({
         selectedAgent={showDrawerSelectedAgent}
         editingTemplate={editingTemplate}
         onSubmit={(templateData) => {
-          console.log('Template created/updated:', templateData)
           // Refresh templates after creation/update
           showSnackbar('', 'Lead Score Added', SnackbarTypes.Success)
           const newId =
             templateData?.data?.scoringConfiguration?.id ??
             templateData?.data?.scoringConfiguration?.templateId
-          console.log('newId', newId)
           if (newId) {
             setSelectedTemplate(String(newId))
           }
@@ -412,7 +407,6 @@ function LeadScoring({
           setEditingTemplate(null)
         }}
       />
-
       {/* Snackbar for notifications */}
       <AgentSelectSnackMessage
         isVisible={snackbar.isVisible}
@@ -422,7 +416,7 @@ function LeadScoring({
         hide={hideSnackbar}
       />
     </div>
-  )
+  );
 }
 
 export default LeadScoring

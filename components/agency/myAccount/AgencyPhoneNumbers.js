@@ -53,7 +53,6 @@ function AgencyPhoneNumbers({ selectedAgency }) {
           'Content-Type': 'application/json',
         },
       })
-      console.log('Agency phone number s response ', response)
 
       if (response?.data?.status === true) {
         const data = response.data.data

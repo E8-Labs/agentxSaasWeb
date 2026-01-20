@@ -65,9 +65,7 @@ const AddTwilioAnimation = ({
   // }
 
   const handleContinue = (formData) => {
-    if (formData) {
-      console.log(formData)
-    }
+    if (formData) {}
     setDirection(1)
     setCurrentIndex((prevIndex) => prevIndex + 1)
   }
@@ -79,13 +77,8 @@ const AddTwilioAnimation = ({
 
   //handle continue after add the twilio, trust products
   const handleContinueTrustProduct = async (d, from) => {
-    console.log('Api response is', d)
     setGetProfileLoader(true)
     const response = await getBusinessProfile()
-    console.log(
-      'Response of get business profile is',
-      response.data.trustProducts[from].all.length > 0,
-    )
     if (response.data.trustProducts[from].all.length > 0) {
       setTrustProducts(response.data.trustProducts)
       handleContinue()
@@ -107,7 +100,6 @@ const AddTwilioAnimation = ({
       setShowAnimation(false)
     } catch (error) {
       setCloseLoader(false)
-      console.log('Error occured in api is', error)
     }
   }
 

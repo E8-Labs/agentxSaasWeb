@@ -219,8 +219,6 @@ export default function AddMonthlyPlan({
 
   //check marks list of allowed features
   useEffect(() => {
-    console.log('configuration data passed is 99', configurationData)
-
     // setFeaturesData();
 
     const coreFeatures = featuresList
@@ -230,8 +228,6 @@ export default function AddMonthlyPlan({
         id: item.stateKey,
         text: item.label,
       }))
-
-    console.log('core features', coreFeatures)
 
     const extraFeatures = []
 
@@ -288,18 +284,8 @@ export default function AddMonthlyPlan({
   //check if is edit plan is true then store the predefault values
   // Priority: basicsData > selectedPlan (basicsData is set from selectedPlan in parent)
   useEffect(() => {
-    console.log(
-      'Edit plan useEffect - isEditPlan:',
-      isEditPlan,
-      'selectedPlan:',
-      selectedPlan,
-      'basicsData:',
-      basicsData,
-    )
-
     // If we have basicsData, use it (it's already processed from selectedPlan)
     if (basicsData && Object.keys(basicsData).length > 0) {
-      console.log('Populating from basicsData:', basicsData)
       setPlanPassed(selectedPlan)
       setTitle(basicsData?.title || '')
       setIsDefault(basicsData?.isDefault || false)
@@ -336,7 +322,6 @@ export default function AddMonthlyPlan({
     }
     // Fallback: if no basicsData but we have selectedPlan and isEditPlan, populate directly
     else if (selectedPlan && isEditPlan) {
-      console.log('Populating from selectedPlan (fallback):', selectedPlan)
       setPlanPassed(selectedPlan)
       setTitle(selectedPlan?.title || '')
       setIsDefault(selectedPlan?.isDefault || false)
@@ -391,7 +376,6 @@ export default function AddMonthlyPlan({
       const priceNum = parseNumber(discountedPrice)
       const minutesNum = parseNumber(minutes)
       const P = (priceNum * 100) / minutesNum
-      console.log('Calculated price is', P)
     }
   }, [minutes, discountedPrice])
 
@@ -430,11 +414,8 @@ export default function AddMonthlyPlan({
   const checkCalulations = () => {
     const originalPriceNum = parseNumber(originalPrice)
     if (originalPriceNum > 0) {
-      console.log('OP ===', originalPrice) //updated
-      console.log('DP ===', discountedPrice) // discountedPrice is now total price per month
       const percentage =
         ((originalPriceNum - parseNumber(discountedPrice)) / originalPriceNum) * 100
-      console.log('Percenage of addmonthly plan is', percentage)
     }
   }
 
@@ -603,7 +584,7 @@ export default function AddMonthlyPlan({
       setSnackMsgType(SnackbarTypes.Error)
       return
     }
-    
+
     if (margin < 10) {
       setSnackMsg(
         `Profit margin must be at least 10%. Current margin: ${margin.toFixed(2)}%`,
@@ -612,9 +593,6 @@ export default function AddMonthlyPlan({
       return
     }
 
-    console.log(
-      `value of original price is${originalPrice} && is default value is ${Boolean(isDefault)}`,
-    )
     const planData = {
       title: title,
       tag: tag,
@@ -1073,7 +1051,7 @@ export default function AddMonthlyPlan({
                   {discountedPrice &&
                     minutes &&
                     agencyPlanCost && ( //
-                      <div className="w-full">
+                      (<div className="w-full">
                         <div
                           className="flex flex-row items-center justify-between mt-4"
                           style={{ ...styles.inputs, color: getClr() }}
@@ -1107,7 +1085,7 @@ export default function AddMonthlyPlan({
                           )}
                           %
                         </div>
-                      </div>
+                      </div>)
                     )}
                 </div>
               </div>
@@ -1195,7 +1173,7 @@ export default function AddMonthlyPlan({
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
 
 // <div

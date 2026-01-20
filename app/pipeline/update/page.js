@@ -37,7 +37,6 @@ const Page = () => {
   // Redux user state
   const { user: userData, setUser: setUserData, token } = useUser()
 
-  console.log('🔥 PIPELINE-UPDATE - Current userData from Redux:', userData)
   let components = [Pipeline1]
 
   let CurrentComp = components[index]
@@ -54,9 +53,7 @@ const Page = () => {
           return `hsl(${computedColor})`
         }
       }
-    } catch (error) {
-      console.log('Error getting brand color:', error)
-    }
+    } catch (error) {}
     return 'hsl(270, 75%, 50%)'
   }
 
@@ -95,9 +92,7 @@ const Page = () => {
           if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
             return true
           }
-        } catch (error) {
-          console.log('Error parsing User data:', error)
-        }
+        } catch (error) {}
       }
       
       const localUser = localStorage.getItem('LocalStorageUser')
@@ -108,9 +103,7 @@ const Page = () => {
           if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
             return true
           }
-        } catch (error) {
-          console.log('Error parsing LocalStorageUser:', error)
-        }
+        } catch (error) {}
       }
       
       const subAccountData = localStorage.getItem('SubaccoutDetails')
@@ -120,9 +113,7 @@ const Page = () => {
           if (parsed) {
             return true
           }
-        } catch (error) {
-          console.log('Error parsing SubaccoutDetails:', error)
-        }
+        } catch (error) {}
       }
       
       // Check if we're on a custom domain or subdomain and have branding
@@ -144,9 +135,7 @@ const Page = () => {
           if ((isCustomDomain || isAssignxSubdomain) && brandingData?.primaryColor) {
             return true
           }
-        } catch (error) {
-          console.log('Error parsing branding:', error)
-        }
+        } catch (error) {}
       }
       
       return false
@@ -231,13 +220,6 @@ const Page = () => {
         return
       }
 
-      //console.log;
-
-      //console.log;
-
-      console.log('Cadence is ', cadence)
-      console.log('Main agent', mainAgentId)
-
       let ApiData = {
         pipelineId: cadence.pipelineID,
         mainAgentId: mainAgentId,
@@ -246,7 +228,6 @@ const Page = () => {
       if (targetUserId) {
         ApiData.userId = targetUserId
       }
-      console.log('ApiData is ', ApiData)
       // return
 
       const ApiPath = Apis.createPipeLineCadence
@@ -262,31 +243,15 @@ const Page = () => {
       if (response) {
         //console.log;
         if (response.data.status === true) {
-          console.log(
-            '🔥 PIPELINE-UPDATE - Update cadence API successful:',
-            response,
-          )
-
           localStorage.removeItem('AddCadenceDetails')
           localStorage.removeItem(PersistanceKeys.selectedUser)
 
-          // Refresh user data properly
-          console.log('🔥 PIPELINE-UPDATE - Refreshing user data...')
           try {
             const profileResponse = await getProfileDetails()
-            console.log(
-              '🔥 PIPELINE-UPDATE - getProfileDetails response:',
-              profileResponse,
-            )
 
             if (profileResponse?.data?.status === true) {
               const freshUserData = profileResponse.data.data
               const localData = JSON.parse(localStorage.getItem('User') || '{}')
-
-              console.log(
-                '🔥 PIPELINE-UPDATE - Fresh user data:',
-                freshUserData,
-              )
 
               // Update Redux and localStorage with fresh data
               const updatedUserData = {
@@ -294,24 +259,15 @@ const Page = () => {
                 user: freshUserData,
               }
 
-              console.log(
-                '🔥 PIPELINE-UPDATE - About to call setUserData (Redux)',
-              )
               setUserData(updatedUserData)
-              console.log('🔥 PIPELINE-UPDATE - Redux update completed')
 
               // Verify localStorage was updated
               setTimeout(() => {
                 const localStorageData = localStorage.getItem('User')
-                console.log(
-                  '🔥 PIPELINE-UPDATE - localStorage after update:',
-                  localStorageData ? JSON.parse(localStorageData) : null,
-                )
               }, 100)
 
               // Route based on updated user data
               if (freshUserData.userType === 'admin') {
-                console.log('🔥 PIPELINE-UPDATE - Routing to admin')
                 router.push('/admin')
                 return
               }
@@ -346,17 +302,14 @@ const Page = () => {
           const isFromSubaccount = isFromAgencyOrAdmin?.isFrom === 'subaccount' || 
                                    isFromAgencyOrAdmin?.isFromAgency === 'subaccount' ||
                                    (isFromAgencyOrAdmin?.subAccountData && !isFromAdmin) // If subAccountData exists and not admin, assume subaccount
-          
+
           if (isFromAdmin) {
-            console.log('🔥 PIPELINE-UPDATE - Routing to admin')
             router.push('/admin')
             localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
           } else if (isFromSubaccount) {
-            console.log('🔥 PIPELINE-UPDATE - Routing to agency subaccounts')
             router.push('/agency/dashboard/subAccounts')
             localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
           } else {
-            console.log('🔥 PIPELINE-UPDATE - Routing to dashboard')
             router.push('/dashboard/myAgentX')
           }
         } else {
@@ -371,10 +324,10 @@ const Page = () => {
       }
     } catch (error) {
       console.error('Error occured in api is :', error)
-      
+
       // Handle axios errors (network errors, non-200 status codes)
       let errorMsg = 'Failed to create pipeline cadence. Please try again.'
-      
+
       if (error.response) {
         // The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -390,9 +343,7 @@ const Page = () => {
         // Something happened in setting up the request
         errorMsg = error.message || errorMsg
       }
-      
-      console.log('Error message is :', errorMsg)
-      console.log('Error is :', error)
+
       setErrorMessage(errorMsg)
       setErrorType(SnackbarTypes.Error)
       setIsErrorVisible(true)
@@ -411,6 +362,10 @@ const Page = () => {
   }
 
   return (
+    // <div className='w-full h-screen' style={{display: "flex", flexDirection: "row", justifyContent: "center", alignItems:" center" }}>
+    //     <div style={{width: "90%", height: "80%"}}>
+    //     </div>
+    // </div>
     <div
       style={backgroundImage}
       className={`overflow-y-none flex flex-row justify-center items-center ${shouldShowGradient ? '' : 'bg-brand-primary'}`}
@@ -440,12 +395,7 @@ const Page = () => {
       />
       <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
     </div>
-    // <div className='w-full h-screen' style={{display: "flex", flexDirection: "row", justifyContent: "center", alignItems:" center" }}>
-    //     <div style={{width: "90%", height: "80%"}}>
-
-    //     </div>
-    // </div>
-  )
+  );
 }
 
 export default Page

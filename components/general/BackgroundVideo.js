@@ -36,13 +36,10 @@ export default function BackgroundVideo({
         try {
           const parsedUser = JSON.parse(userData)
           const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
-          console.log('[BackgroundVideo] User role from User:', userRole)
           if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
             return true
           }
-        } catch (error) {
-          console.log('Error parsing User data:', error)
-        }
+        } catch (error) {}
       }
       
       // Check LocalStorageUser
@@ -51,13 +48,10 @@ export default function BackgroundVideo({
         try {
           const parsed = JSON.parse(localUser)
           const userRole = parsed?.user?.userRole || parsed?.userRole
-          console.log('[BackgroundVideo] User role from LocalStorageUser:', userRole)
           if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
             return true
           }
-        } catch (error) {
-          console.log('Error parsing LocalStorageUser:', error)
-        }
+        } catch (error) {}
       }
       
       // Check SubaccoutDetails
@@ -65,13 +59,10 @@ export default function BackgroundVideo({
       if (subAccountData) {
         try {
           const parsed = JSON.parse(subAccountData)
-          console.log('[BackgroundVideo] SubaccoutDetails found:', !!parsed)
           if (parsed) {
             return true
           }
-        } catch (error) {
-          console.log('Error parsing SubaccoutDetails:', error)
-        }
+        } catch (error) {}
       }
       
       return false
@@ -106,9 +97,7 @@ export default function BackgroundVideo({
           if ((isCustomDomain || isAssignxSubdomain) && brandingData?.primaryColor) {
             return true
           }
-        } catch (error) {
-          console.log('Error parsing branding:', error)
-        }
+        } catch (error) {}
       }
       return false
     }
@@ -118,13 +107,11 @@ export default function BackgroundVideo({
       const isSubaccountOrAgency = checkUserRole()
       const hasBranding = checkBranding()
       const brandColor = getBrandColor()
-      
-      console.log('[BackgroundVideo] isSubaccountOrAgency:', isSubaccountOrAgency, 'hasBranding:', hasBranding, 'shouldShowGradient:', isSubaccountOrAgency || hasBranding, 'brandColor:', brandColor)
-      
+
       // Show gradient if user is subaccount/agency OR if on custom domain/subdomain with branding
       setShouldShowGradient(isSubaccountOrAgency || hasBranding)
       setGradientColor(brandColor)
-      
+
       // Check video support for normal users (only if not showing gradient)
       if (!isSubaccountOrAgency && !hasBranding) {
         const checkVideoAutoplaySupport = async () => {
@@ -164,9 +151,9 @@ export default function BackgroundVideo({
       const userData = localStorage.getItem('User')
       const localUser = localStorage.getItem('LocalStorageUser')
       const subAccountData = localStorage.getItem('SubaccoutDetails')
-      
+
       let isSubaccountOrAgency = false
-      
+
       if (userData) {
         try {
           const parsedUser = JSON.parse(userData)
@@ -174,11 +161,9 @@ export default function BackgroundVideo({
           if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
             isSubaccountOrAgency = true
           }
-        } catch (error) {
-          console.log('Error parsing User data:', error)
-        }
+        } catch (error) {}
       }
-      
+
       if (!isSubaccountOrAgency && localUser) {
         try {
           const parsed = JSON.parse(localUser)
@@ -186,22 +171,18 @@ export default function BackgroundVideo({
           if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
             isSubaccountOrAgency = true
           }
-        } catch (error) {
-          console.log('Error parsing LocalStorageUser:', error)
-        }
+        } catch (error) {}
       }
-      
+
       if (!isSubaccountOrAgency && subAccountData) {
         try {
           const parsed = JSON.parse(subAccountData)
           if (parsed) {
             isSubaccountOrAgency = true
           }
-        } catch (error) {
-          console.log('Error parsing SubaccoutDetails:', error)
-        }
+        } catch (error) {}
       }
-      
+
       // Re-check branding
       const hostname = window.location.hostname
       const isDevDomain = hostname === 'dev.assignx.ai'
@@ -213,7 +194,7 @@ export default function BackgroundVideo({
                                  !isDevDomain && 
                                  !isProdDomain && 
                                  !isLocalhost
-      
+
       const branding = localStorage.getItem('agencyBranding')
       let hasBranding = false
       if (branding) {
@@ -222,19 +203,16 @@ export default function BackgroundVideo({
           if ((isCustomDomain || isAssignxSubdomain) && brandingData?.primaryColor) {
             hasBranding = true
           }
-        } catch (error) {
-          console.log('Error parsing branding:', error)
-        }
+        } catch (error) {}
       }
-      
+
       // Get brand color
       const brandColor = getComputedStyle(document.documentElement).getPropertyValue('--brand-primary').trim()
       const computedColor = brandColor 
         ? (brandColor.startsWith('hsl') ? brandColor : `hsl(${brandColor})`)
         : 'hsl(270, 75%, 50%)'
       setGradientColor(computedColor)
-      
-      console.log('[BackgroundVideo] Update - isSubaccountOrAgency:', isSubaccountOrAgency, 'hasBranding:', hasBranding, 'shouldShowGradient:', isSubaccountOrAgency || hasBranding)
+
       setShouldShowGradient(isSubaccountOrAgency || hasBranding)
     }
 
@@ -243,8 +221,6 @@ export default function BackgroundVideo({
       window.removeEventListener('agencyBrandingUpdated', handleUpdate)
     }
   }, [])
-
-  console.log('[BackgroundVideo] Render - shouldShowGradient:', shouldShowGradient, 'gradientColor:', gradientColor, 'isVideoSupported:', isVideoSupported, 'showImageOnly:', showImageOnly)
 
   // Compute gradient string
   const getGradientString = () => {
@@ -266,7 +242,6 @@ export default function BackgroundVideo({
         ? 'linear-gradient(to bottom left'
         : 'radial-gradient(circle at top right'
       const gradientString = `${gradientType}, ${baseColor} 0%, ${colorWithOpacity} 100%)`
-      console.log('[BackgroundVideo] Gradient string:', gradientString, 'baseColor:', baseColor, 'colorWithOpacity:', colorWithOpacity)
       return gradientString
     }
     // Fallback
@@ -274,16 +249,11 @@ export default function BackgroundVideo({
       ? 'linear-gradient(to bottom left'
       : 'radial-gradient(circle at top right'
     const fallbackGradient = `${gradientType}, hsl(270, 75%, 50%) 0%, hsla(270, 75%, 50%, 0.4) 100%)`
-    console.log('[BackgroundVideo] Fallback gradient string:', fallbackGradient)
     return fallbackGradient
   }
 
-  // Always render something - use gradient if shouldShowGradient is true, otherwise video/image
-  console.log('[BackgroundVideo] Rendering - shouldShowGradient:', shouldShowGradient)
-  
   if (shouldShowGradient) {
     const gradientStr = getGradientString()
-    console.log('[BackgroundVideo] Rendering gradient:', gradientStr)
     return (
       <div
         style={{
@@ -299,7 +269,6 @@ export default function BackgroundVideo({
   }
 
   if (!showImageOnly && isVideoSupported) {
-    console.log('[BackgroundVideo] Rendering video')
     return (
       <video
         autoPlay
@@ -320,8 +289,6 @@ export default function BackgroundVideo({
     )
   }
 
-  // Fallback to image
-  console.log('[BackgroundVideo] Rendering image fallback')
   return (
     <div
       style={{

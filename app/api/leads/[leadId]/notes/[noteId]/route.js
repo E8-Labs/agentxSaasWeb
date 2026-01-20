@@ -25,8 +25,6 @@ const getBackendBaseUrl = () => {
 
 const BASE_API_URL = getBackendBaseUrl()
 
-console.log('[Next.js API] Base API URL:', BASE_API_URL)
-
 /**
  * PUT /api/leads/[leadId]/notes/[noteId]
  * Update a lead note
@@ -79,13 +77,6 @@ export async function PUT(req, { params }) {
       note: note,
     }
 
-    console.log('[Next.js API] Calling backend:', {
-      url: backendUrl,
-      method: 'PUT',
-      noteId: parseInt(noteId),
-      leadId: leadId,
-    })
-
     let response
     try {
       response = await fetch(backendUrl, {
@@ -108,13 +99,6 @@ export async function PUT(req, { params }) {
       throw fetchError
     }
 
-    console.log('[Next.js API] Backend response:', {
-      status: response.status,
-      statusText: response.statusText,
-      ok: response.ok,
-      headers: Object.fromEntries(response.headers.entries()),
-    })
-
     // Check content type before parsing
     const contentType = response.headers.get('content-type')
     let data
@@ -128,8 +112,6 @@ export async function PUT(req, { params }) {
         { status: response.status },
       )
     }
-
-    console.log('[Next.js API] Backend response data:', data)
 
     if (!response.ok) {
       console.error('[Next.js API] Backend error:', {
@@ -193,13 +175,6 @@ export async function DELETE(req, { params }) {
       noteId: parseInt(noteId),
     }
 
-    console.log('[Next.js API] Calling backend:', {
-      url: backendUrl,
-      method: 'DELETE',
-      noteId: parseInt(noteId),
-      leadId: leadId,
-    })
-
     let response
     try {
       response = await fetch(backendUrl, {
@@ -222,13 +197,6 @@ export async function DELETE(req, { params }) {
       throw fetchError
     }
 
-    console.log('[Next.js API] Backend response:', {
-      status: response.status,
-      statusText: response.statusText,
-      ok: response.ok,
-      headers: Object.fromEntries(response.headers.entries()),
-    })
-
     // Check content type before parsing
     const contentType = response.headers.get('content-type')
     let data
@@ -242,8 +210,6 @@ export async function DELETE(req, { params }) {
         { status: response.status },
       )
     }
-
-    console.log('[Next.js API] Backend response data:', data)
 
     if (!response.ok) {
       console.error('[Next.js API] Backend error:', {

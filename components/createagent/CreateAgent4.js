@@ -45,17 +45,6 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   const [isFromAgencyOrAdmin, setIsFromAgencyOrAdmin] = useState(null)
   const [isSubaccount, setIsSubaccount] = useState(false)
 
-  // Log current userData state
-  console.log('🔥 CREATEAGENT4 - Current userData from Redux:', userData)
-  console.log(
-    '🔥 CREATEAGENT4 - Agency capabilities:',
-    userData?.agencyCapabilities,
-  )
-  console.log(
-    '🔥 CREATEAGENT4 - Plan capabilities:',
-    userData?.planCapabilities,
-  )
-
   //agent type
   const [agentType, setAgentType] = useState('')
   //variable for video card
@@ -113,9 +102,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             parsedUser?.userRole === 'AgencySubAccount',
           )
         }
-      } catch (error) {
-        console.log('Error parsing user data:', error)
-      }
+      } catch (error) {}
     }
   }, [userData])
 
@@ -125,7 +112,6 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     const AT = localStorage.getItem('agentType')
     if (AT) {
       let t = JSON.parse(AT)
-      console.log('Agent type is', t)
       setAgentType(t)
     }
     let loc = getLocalLocation()
@@ -402,20 +388,17 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     const localData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
     if (localData) {
       const data = JSON.parse(localData)
-      console.log('Data is from agency or a admin is', data)
       // setIsFromAgencyOrAdmin(data);
       const subUserProfile = await AdminGetProfileDetails(
         data.subAccountData.id,
       )
       setIsFromAgencyOrAdmin(subUserProfile)
-      console.log('Subuser profile is', subUserProfile)
     }
   }
 
   //get available phonenumbers
   const getAvailabePhoneNumbers = async () => {
     try {
-      console.log('Trigered the get numbers api')
       // Use Redux token instead of AuthToken()
       if (!token) {
         console.error('No token available')
@@ -424,14 +407,12 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
       let userId = null
       const U = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
-      console.log('check 343')
       if (U) {
         // const d = JSON.parse(U);
         // console.log("Subaccount data recieved on createagent_1 screen is", d);
         // userId = d.subAccountData.id;
         try {
           const d = JSON.parse(U)
-          console.log('Subaccount data recieved')
           userId = d.subAccountData.id
         } catch (e) {
           console.error('Failed to parse isFromAdminOrAgency', e)
@@ -441,13 +422,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       // //console.log;
       let ApiPath = null
       if (U) {
-        console.log('UserId is', userId)
         ApiPath = `${Apis.userAvailablePhoneNumber}?userId=${userId}`
       } else {
-        console.log('UserId is not found')
         ApiPath = Apis.userAvailablePhoneNumber
       }
-      console.log('ApiPath on create agent is', ApiPath)
       // //console.log;
 
       // return
@@ -458,7 +436,6 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       })
 
       if (response) {
-        console.log('Numbers list iis', response.data.data)
         setPreviousNumber(response.data.data)
       }
     } catch (error) {
@@ -503,9 +480,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
       const ApiPath = Apis.asignPhoneNumber
 
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`)
-      }
+      for (let [key, value] of formData.entries()) {}
       // return;
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -514,8 +489,6 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
       })
 
       if (response) {
-        console.log('Response of assign number is', response.data)
-        console.log('Check 1')
         if (response.data.status === true) {
           setOpenCalimNumDropDown(false)
           // handleContinue();
@@ -688,9 +661,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                           // onChange={handleSelectNumber}
                           onChange={(e) => {
                             let value = e.target.value
-                            console.log('Value updated bcz clicked on menu item')
                             if (agentType?.agentType !== 'inbound') {
-                              console.log('Value for outbound is', value)
                               setSelectNumber(value)
                               setOpenCalimNumDropDown(false)
                             }
@@ -742,13 +713,10 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                               }
                               className="flex flex-row items-center gap-2"
                               onClick={(e) => {
-                                console.log('Menu item clicked')
                                 // return;
                                 if (showReassignBtn && item?.claimedBy) {
                                   e.stopPropagation()
                                   setShowConfirmationModal(item)
-                                  console.log('Hit release number api', item)
-                                  // AssignNumber
                                 } else {
                                   AssignNumber()
                                 }
@@ -838,11 +806,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                       handleCloseClaimPopup={handleCloseClaimPopup}
                       setOpenCalimNumDropDown={setOpenCalimNumDropDown}
                       setSelectNumber={(number) => {
-                        console.log('Number is', number)
                         setSelectNumber(number)
                       }}
                       setPreviousNumber={(numbers) => {
-                        console.log('Numbers are', numbers)
                         setPreviousNumber(numbers)
                       }}
                       previousNumber={previousNumber}
@@ -1029,7 +995,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                   {userData?.userRole === 'AgencySubAccount' &&
                     userData?.agencyCapabilities?.allowLiveCallTransfer === false ? (
                     // userData?.agencyCapabilities?.allowLiveCallTransfer === true || userData?.planCapabilities?.allowLiveCallTransfer === true)
-                    <div className="w-full h-[35vh]  flex items-center justify-center">
+                    (<div className="w-full h-[35vh]  flex items-center justify-center">
                       <UpgardView
                         setShowSnackMsg={setShowSnackMsg}
                         title={'Enable Live Transfer'}
@@ -1038,45 +1004,17 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         }
                         userData={userData}
                         onUpgradeSuccess={(userData) => {
-                          console.log(
-                            '🔥 CREATEAGENT4 - LT:Upgrade successful',
-                            userData,
-                          )
-                          console.log('🔥 CREATEAGENT4 - UserData type check:', {
-                            hasToken: userData?.hasOwnProperty('token'),
-                            hasUser: userData?.hasOwnProperty('user'),
-                            isFullFormat:
-                              userData?.hasOwnProperty('token') &&
-                              userData?.hasOwnProperty('user'),
-                            dataStructure: Object.keys(userData || {}),
-                          })
-
-                          console.log(
-                            '🔥 CREATEAGENT4 - About to call setUpdatedUserData',
-                          )
                           setUpdatedUserData(userData)
-                          console.log(
-                            '🔥 CREATEAGENT4 - About to call setUserData (Redux)',
-                          )
                           setUserData(userData)
-                          console.log(
-                            '🔥 CREATEAGENT4 - Both setters called successfully',
-                          )
 
                           // Verify localStorage was updated
                           setTimeout(() => {
                             const localStorageData = localStorage.getItem('User')
-                            console.log(
-                              '🔥 CREATEAGENT4 - localStorage after update:',
-                              localStorageData
-                                ? JSON.parse(localStorageData)
-                                : null,
-                            )
                           }, 100)
                         }}
                       // handleContinue={handleContinue}
                       />
-                    </div>
+                    </div>)
                   ) : isFromAgencyOrAdmin?.planCapabilities
                     ?.allowLiveCallTransfer === true ||
                     (!isFromAgencyOrAdmin &&
@@ -1180,43 +1118,12 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                           }
                           userData={userData}
                           onUpgradeSuccess={(userData) => {
-                            console.log(
-                              '🔥 CREATEAGENT4 - Second LT:Upgrade successful',
-                              userData,
-                            )
-                            console.log(
-                              '🔥 CREATEAGENT4 - Second - UserData type check:',
-                              {
-                                hasToken: userData?.hasOwnProperty('token'),
-                                hasUser: userData?.hasOwnProperty('user'),
-                                isFullFormat:
-                                  userData?.hasOwnProperty('token') &&
-                                  userData?.hasOwnProperty('user'),
-                                dataStructure: Object.keys(userData || {}),
-                              },
-                            )
-
-                            console.log(
-                              '🔥 CREATEAGENT4 - Second - About to call setUpdatedUserData',
-                            )
                             setUpdatedUserData(userData)
-                            console.log(
-                              '🔥 CREATEAGENT4 - Second - About to call setUserData (Redux)',
-                            )
                             setUserData(userData)
-                            console.log(
-                              '🔥 CREATEAGENT4 - Second - Both setters called successfully',
-                            )
 
                             // Verify localStorage was updated
                             setTimeout(() => {
                               const localStorageData = localStorage.getItem('User')
-                              console.log(
-                                '🔥 CREATEAGENT4 - Second - localStorage after update:',
-                                localStorageData
-                                  ? JSON.parse(localStorageData)
-                                  : null,
-                              )
                             }, 100)
                           }}
                         // handleContinue={handleContinue}
@@ -1237,10 +1144,8 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
             <Footer
               handleContinue={() => {
                 if (agentType?.agentType === 'inbound' && !selectNumber) {
-                  console.log('Without api call')
                   handleContinue()
                 } else {
-                  console.log('With api call')
                   setAssignLoader(true)
                   AssignNumber()
                   handleContinue()
@@ -1345,7 +1250,6 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                     fontSize: '20',
                   }}
                   onClick={() => {
-                    console.log('Discard  btn clicked')
                     setShowConfirmationModal(null)
                     setShowClaimPopup(null)
                     // setSelectNumber("");
@@ -1384,7 +1288,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
         </Modal>
       </div>
     </div>
-  )
+  );
 }
 
 export default CreateAgent4

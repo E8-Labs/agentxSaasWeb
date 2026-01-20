@@ -88,7 +88,6 @@ export function AffiliatesFilterModal({
     setusers(filters.users || [0, 1000])
     setrevenue(filters.revenue || [0, 10000])
     setXBar(filters.xBar || [0, 10000])
-    console.log('filters', filters)
   }, [showFilterModal]) // Reset filters every time the modal opens
 
   const handleApplyFilters = () => {

@@ -203,7 +203,6 @@ const NewInviteTeamModal = ({
 
   //funcion to invitem tem member
   const inviteTeamMember = async () => {
-    console.log('Check 1')
     // return
     if (
       teamMembers.some(
@@ -216,9 +215,7 @@ const NewInviteTeamModal = ({
       setShowError(true)
       return
     }
-    console.log('Check 2')
     try {
-      console.log('Check 3')
       const data = localStorage.getItem('User')
       setInviteTeamLoader(true)
       if (data) {
@@ -238,8 +235,6 @@ const NewInviteTeamModal = ({
           permissions: selectedPermissions, // Include permissions if set
         }
 
-        console.log('Api data is', apidata)
-
         // return
 
         const response = await axios.post(path, apidata, {
@@ -250,7 +245,6 @@ const NewInviteTeamModal = ({
 
         if (response) {
           setInviteTeamLoader(false)
-          console.log('Response of api is', response.data)
           if (response.data.status === true) {
             setShowSnak(true)
             handleCloseInviteTeam('showSnack')
