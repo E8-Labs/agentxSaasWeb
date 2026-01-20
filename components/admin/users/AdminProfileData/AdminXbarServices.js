@@ -116,9 +116,7 @@ function AdminXbarServices({ selectedUser }) {
             return
           }
         }
-      } catch (error) {
-        console.log('Error getting xbar title from branding:', error)
-      }
+      } catch (error) {}
       // Default title
       setXbarTitle('X Bar Services')
     }
@@ -136,11 +134,7 @@ function AdminXbarServices({ selectedUser }) {
     }
   }, [])
 
-  useEffect(() => {
-    console.log('Passed client data is', selectedUser)
-    console.log('Toggle plan passed is', togglePlan)
-    console.log('Current plan passed is', currentPlan)
-  }, [togglePlan, currentPlan])
+  useEffect(() => {}, [togglePlan, currentPlan])
 
   useEffect(() => {
     setGetPlansLoader(true)
@@ -158,9 +152,7 @@ function AdminXbarServices({ selectedUser }) {
     }
   }, [role])
 
-  useEffect(() => {
-    console.log('Status of get plans loader is', getPlansLoader)
-  }, [getPlansLoader])
+  useEffect(() => {}, [getPlansLoader])
 
   const getPlans = async () => {
     try {
@@ -175,7 +167,6 @@ function AdminXbarServices({ selectedUser }) {
       })
 
       if (response) {
-        console.log('Response of get plans api is', response.data.data)
         setPlans(response.data.data.xbarPlans)
         setGetPlansLoader(false)
       }
@@ -192,7 +183,6 @@ function AdminXbarServices({ selectedUser }) {
       let response = await AdminGetProfileDetails(selectedUser.id)
       //console.log;
       if (response) {
-        console.log('Response of get profile apis is', response)
         setRole(response?.userRole)
         setSelectedUserDetails(response?.data?.data)
         let togglePlan = response?.supportPlan
@@ -209,13 +199,10 @@ function AdminXbarServices({ selectedUser }) {
           }
         } else {
           let type = plans?.find((item) => item?.title === togglePlan)
-          // planType = type?.id;
-          console.log('Passed support plan id is', selectedUser?.supportPlan)
           planType = selectedUser?.supportPlan
         }
         // }
         setUserLocalData(response)
-        console.log('plan type is ', response)
         setTogglePlan(planType)
         setCurrentPlan(planType)
       }
@@ -253,7 +240,6 @@ function AdminXbarServices({ selectedUser }) {
         let type = plans?.find((item) => item.id === togglePlan)
         planType = type?.id
       }
-      console.log('plan type is ', planType)
       // return
 
       setSubscribePlanLoader(true)
@@ -279,8 +265,6 @@ function AdminXbarServices({ selectedUser }) {
         supportPlan: planType,
         userId: selectedUser.id,
       }
-
-      console.log('ApiData is', ApiData)
 
       const ApiPath = Apis.purchaseSupportPlan
       // //console.log;
@@ -396,7 +380,6 @@ function AdminXbarServices({ selectedUser }) {
   }
 
   const handleSpeakToAGenius = () => {
-    console.log('Selected user details are', selectedUserDetails)
     if (role !== 'Agency') {
       let url = PersistanceKeys.GlobalConsultationUrl
       if (typeof window !== 'undefined') {

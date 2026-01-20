@@ -46,12 +46,10 @@ function InviteAgentX({ isSubAccount }) {
     try {
       setInitialLoader(true)
       let plansList = await getUserPlans()
-      console.log('plansList are', plansList)
       let userData = getUserLocalData()
 
-      console.log('isSubaccountTeamMember', isSubaccountTeamMember(userData))
       let filteredPlans = []
-      
+
       // Handle case where getUserPlans returns monthlyPlans array directly (for subAccount)
       // or an object with monthlyPlans property (for regular users)
       let plansArray = Array.isArray(plansList) 
@@ -75,8 +73,6 @@ function InviteAgentX({ isSubAccount }) {
             features: plan.features ? plan.features.slice(0, 6) : [],
           }))
         }
-
-        console.log('filteredPlans after filtering', filteredPlans)
 
         // Ensure we only show monthly plans
         const monthlyPlans = filteredPlans.filter(
@@ -144,9 +140,7 @@ function InviteAgentX({ isSubAccount }) {
       }
 
       if (isSubAccount) {
-        for (let [key, value] of formData.entries()) {
-          console.log(`${key} = ${value}`)
-        }
+        for (let [key, value] of formData.entries()) {}
       }
 
       const response = await axios.post(ApiPath, ApiData, {
@@ -270,11 +264,9 @@ function InviteAgentX({ isSubAccount }) {
       <div style={{ fontSize: 22, fontWeight: '700', color: '#000' }}>
         Invite Agent
       </div>
-
       <div style={{ fontSize: 12, fontWeight: '500', color: '#00000090' }}>
         {'Account > Invite Agent'}
       </div>
-
       <div
         className="w-10/12 p-6 rounded-lg flex flex-row items-center"
         style={{
@@ -308,10 +300,9 @@ function InviteAgentX({ isSubAccount }) {
           </p>
         </div>
       </div>
-
       {userDetails && userDetails?.plan && userDetails?.isTrial === true ? (
         // {true ? (
-        <div className="w-full flex flex-col items-center">
+        (<div className="w-full flex flex-col items-center">
           <div className="w-full flex flex-row justify-center mt-4">
             <div
               className="w-10/12 flex flex-row items-start gap-2"
@@ -512,7 +503,6 @@ function InviteAgentX({ isSubAccount }) {
               ))}
             </div>
           )}
-
           {subscribePlanLoader ? (
             <div className="flex flex-row items-center justify-center h-[50px]">
               <CircularProgress size={30} />
@@ -534,7 +524,7 @@ function InviteAgentX({ isSubAccount }) {
               </button>
             </div>
           )}
-        </div>
+        </div>)
       ) : (
         <div
           style={{ alignSelf: 'center' }}
@@ -582,7 +572,7 @@ function InviteAgentX({ isSubAccount }) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export default InviteAgentX

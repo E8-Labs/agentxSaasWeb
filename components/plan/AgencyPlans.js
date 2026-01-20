@@ -118,12 +118,9 @@ function AgencyPlans({
     if (localData) {
       const userData = JSON.parse(localData)
       const plan = userData.user?.plan
-      console.log('Current user plan in AgencyPlans:', plan)
       setCurrentUserPlan(plan)
     }
   }
-
-  console.log('disAblePlans', disAblePlans)
 
   // Function to check if a plan is the current user's plan
   const isPlanCurrent = (item) => {
@@ -163,10 +160,7 @@ function AgencyPlans({
     // }
   }
 
-  useEffect(() => {
-    console.log('selectedPlanIndex', selectedPlanIndex)
-    console.log('togglePlan', togglePlan)
-  }, [selectedPlan, togglePlan])
+  useEffect(() => {}, [selectedPlan, togglePlan])
 
   //continue monthly plan
   const continueMonthly = () => {
@@ -188,7 +182,6 @@ function AgencyPlans({
 
   //check the profit state
   const checkCanSelectYearly = () => {
-    console.log('Selected duration plan is', selectedDuration)
     if (selectedDuration.title === 'Yearly') {
       setShowYearlyPlan(false)
     } else {
@@ -202,7 +195,6 @@ function AgencyPlans({
 
   //handle select plan
   const handleTogglePlanClick = (item, index) => {
-    console.log('Selected plan index is', index, item)
     setSelectedPlanIndex(index)
     setTogglePlan(item.id)
     // setSelectedPlan((prevId) => (prevId === item ? null : item));
@@ -211,8 +203,6 @@ function AgencyPlans({
 
   //claim early access
   const handleClaimEarlyAccess = (item, index) => {
-    console.log('handleClaimEarlyAccess called with:', { item, index })
-
     if (!item) {
       console.error('Item is undefined in handleClaimEarlyAccess')
       return
@@ -235,7 +225,6 @@ function AgencyPlans({
 
   //close add card popup
   const handleClose = async (data) => {
-    console.log('Card added details are here', data)
     if (data) {
       const userProfile = await getProfileDetails()
       // Clear failure state when card is successfully added
@@ -245,7 +234,6 @@ function AgencyPlans({
       // Check if subscription was already handled by AgencyAddCard component
       // If data has a status indicating subscription was already processed, don't call again
       if (data.status && data.subscriptionHandled) {
-        console.log('✅ Subscription already handled by AgencyAddCard, skipping duplicate call')
         setAddPaymentPopUp(false)
         return
       }
@@ -269,7 +257,6 @@ function AgencyPlans({
   const getPlans = async () => {
     setLoading(true)
     try {
-      console.log('trying to get plans')
       let localData = localStorage.getItem(PersistanceKeys.LocalStorageUser)
       if (localData) {
         let u = JSON.parse(localData)
@@ -283,7 +270,6 @@ function AgencyPlans({
         if (response.data) {
           setLoading(false)
           if (response.data.status === true) {
-            console.log('plans list is: ', response.data.data)
             let plansList =
               response.data.data?.map((plan) => {
                 const normalizedTitle = plan?.title?.toLowerCase?.() || ''
@@ -341,14 +327,11 @@ function AgencyPlans({
             setYearlyPlans(yearly)
 
             selectDefaultPlan(monthly)
-          } else {
-            console.log('Error in getting plans: ', response.data.message)
-          }
+          } else {}
         }
       }
     } catch (error) {
       setLoading(false)
-      console.log('Error in getPlans: ', error)
     }
   }
 
@@ -360,24 +343,16 @@ function AgencyPlans({
 
     // Check if there was a previous payment failure for this plan
     if (subscriptionPaymentFailed && failedPlanId === actualPlanId) {
-      console.log(
-        '🧪 Previous payment failure detected for this plan - showing add card modal immediately',
-      )
       setAddPaymentPopUp(true)
       return
     }
 
-    // setAddPaymentPopUp(true);
-    // return
-    console.log('trying to subscribe')
     // code for show plan add card popup
     const D = localStorage.getItem('User')
     let isPaymentMethodAdded = false
     if (D) {
       const userData = JSON.parse(D)
-      console.log('userData', userData)
       if (userData.user.cards.length > 0) {
-        console.log('Cards are available')
         isPaymentMethodAdded = true
       } else {
         setAddPaymentPopUp(true)
@@ -392,9 +367,7 @@ function AgencyPlans({
         const ApiPath = Apis.subAgencyAndSubAccountPlans
         const formData = new FormData()
         formData.append('planId', actualPlanId)
-        for (let [key, value] of formData.entries()) {
-          console.log(`${key} = ${value}`)
-        }
+        for (let [key, value] of formData.entries()) {}
 
         const response = await axios.post(ApiPath, formData, {
           headers: {
@@ -403,7 +376,6 @@ function AgencyPlans({
         })
 
         if (response) {
-          console.log('Response of subscribe subaccount plan is', response.data)
           setSubPlanLoader(null)
           if (response.data.status === true) {
             // Clear failure state on successful subscription
@@ -422,7 +394,6 @@ function AgencyPlans({
             )
 
             if (isFrom === 'addPlan') {
-              console.log('call handleCloseModal')
               handleCloseModal(response.data.message)
               return
             }
@@ -433,27 +404,19 @@ function AgencyPlans({
             if (isFrom === 'page') {
               // For mobile agencies, redirect to continue to desktop screen
               if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
-                console.log('Mobile agency - redirecting to continue to desktop screen')
                 redirectPath = '/createagent/desktop'
               } else {
-                console.log('Desktop agency - redirecting to dashboard')
                 redirectPath = '/agency/dashboard'
               }
             } else {
               // For mobile agencies, redirect to continue to desktop screen
               if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
-                console.log('Mobile agency - redirecting to continue to desktop screen')
                 redirectPath = '/createagent/desktop'
               } else {
-                console.log('Desktop agency - redirecting to verify')
                 redirectPath = '/agency/verify'
               }
             }
 
-            // Use window.location.href for hard redirect to ensure clean page reload
-            // This prevents DOM cleanup errors during navigation
-            // Don't set state before redirect - it causes React cleanup errors during navigation
-            console.log('✅ Subscription successful, redirecting to:', redirectPath)
             // Use setTimeout to ensure redirect happens in next event loop, avoiding React cleanup conflicts
             setTimeout(() => {
               window.location.href = redirectPath
@@ -466,9 +429,6 @@ function AgencyPlans({
               response.data.isSubscription === true
 
             if (isSubscriptionFailure) {
-              console.log(
-                '💳 Subscription payment failure detected - will show add card modal on retry',
-              )
               setSubscriptionPaymentFailed(true)
               setFailedPlanId(actualPlanId)
               setErrorMsg(
@@ -882,7 +842,6 @@ function AgencyPlans({
                   disabled={disAblePlans || (isCurrentPlan && currentUserPlan?.status !== 'cancelled')}
                   onMouseEnter={() => {
                     if (!isCurrentPlan || currentUserPlan?.status === 'cancelled') {
-                      console.log('Hover entered on plan', item.tag)
                       setHoverPlan(item)
                     }
                   }}
@@ -1089,7 +1048,7 @@ function AgencyPlans({
                     </div>
                   </div>
                 </button>
-              ) : null
+              ) : null;
             })
           )}
         </div>
@@ -1215,7 +1174,7 @@ function AgencyPlans({
                 </div> */}
       </div>
     </div>
-  )
+  );
 }
 
 export default AgencyPlans

@@ -565,46 +565,37 @@ function DialerModal({
       
       // Only initialize if we haven't already initialized AND we don't have a working device
       if (!hasInitializedRef.current && !isInitializingRef.current && !isDeviceReady) {
-        console.log('[DialerModal] Modal opened, initializing for first time')
         isInitializingRef.current = true
-      dialogJustOpened.current = true
-      isClosingRef.current = false
+        dialogJustOpened.current = true
+        isClosingRef.current = false
 
-      // Reset position to default when modal opens (if it was closed)
-      if (dialerPosition.x !== null || dialerPosition.y !== null) {
-        dispatch(updatePosition({ x: null, y: null }))
-        rightPositionRef.current = null
-      }
-      
-      // Reset dropdown anchor when modal opens
-      setNumberDropdownAnchor(null)
-      
-      // Reset flag after a delay to allow dialog to fully open
-      const timeoutId = setTimeout(() => {
-        console.log('[DialerModal] Dialog fully opened, clearing protection flag')
-        dialogJustOpened.current = false
-      }, 1000) // Increased to 1 second
-      
-      checkDialerNumber()
-      // Fetch phone numbers with agents when modal opens
-      if (hasDialerNumber) {
-        fetchPhoneNumbersWithAgents()
-      }
-        
+        // Reset position to default when modal opens (if it was closed)
+        if (dialerPosition.x !== null || dialerPosition.y !== null) {
+          dispatch(updatePosition({ x: null, y: null }))
+          rightPositionRef.current = null
+        }
+
+        // Reset dropdown anchor when modal opens
+        setNumberDropdownAnchor(null)
+
+        // Reset flag after a delay to allow dialog to fully open
+        const timeoutId = setTimeout(() => {
+          dialogJustOpened.current = false
+        }, 1000) // Increased to 1 second
+
+        checkDialerNumber()
+        // Fetch phone numbers with agents when modal opens
+        if (hasDialerNumber) {
+          fetchPhoneNumbersWithAgents()
+        }
+
         hasInitializedRef.current = true
         isInitializingRef.current = false
-      
-      return () => {
-        clearTimeout(timeoutId)
-      }
+
+        return () => {
+          clearTimeout(timeoutId)
+        }
       } else if (isDeviceReady) {
-        // Device already exists and is ready - just mark as initialized, don't re-check
-        console.log('[DialerModal] Device already ready, skipping re-initialization', {
-          hasDevice: !!existingDevice,
-          deviceState: existingDevice ? (existingDevice as any).state : 'none',
-          deviceRegistered,
-          hasInitialized: hasInitializedRef.current
-        })
         if (!hasInitializedRef.current) {
           hasInitializedRef.current = true
         }
@@ -624,7 +615,7 @@ function DialerModal({
         if (initialPhoneNumber && initialPhoneNumber !== phoneNumber) {
           setPhoneNumber(initialPhoneNumber)
       }
-    } else {
+      } else {
         // Already initialized, just update phone number if needed
         if (initialPhoneNumber && initialPhoneNumber !== phoneNumber) {
           setPhoneNumber(initialPhoneNumber)
@@ -663,7 +654,6 @@ function DialerModal({
       }
       
       if ((isClosingRef.current || !dialogJustOpened.current) && !isCallActive) {
-        console.log('[DialerModal] Modal closing, but keeping device registered for incoming calls')
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:291', message: 'Modal closing - preserving device for incoming calls', data: { reduxCallStatus, localCallStatus: callStatus, hasDevice: !!device }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
         // #endregion
@@ -674,12 +664,6 @@ function DialerModal({
           simulationTimeoutRef.current = null
         }
 
-        // IMPORTANT: Do NOT destroy the device when modal closes
-        // The device must stay registered to receive incoming calls
-        // Only destroy on explicit cleanup (logout, refresh, etc.)
-        // The device will remain registered in the background
-        console.log('[DialerModal] Device preserved for incoming calls - not destroying')
-        
         // Don't reset device state - keep it registered for incoming calls
         // Only reset call status to idle (not device registration)
         if (!isCallActive) {
@@ -690,13 +674,8 @@ function DialerModal({
           // Only reset call status
           updateCallStatusInRedux('idle')
           // Don't reset initialization flags - device is still initialized and registered
-        } else {
-          console.log('[DialerModal] Preserving device and call state - active call in progress')
-        }
-      } else if (isCallActive) {
-        console.log('[DialerModal] Modal closing prevented - active call in progress, preserving connection')
-        // Keep device and call alive - don't cleanup
-      }
+        } else {}
+      } else if (isCallActive) {}
     }
   }, [open, dispatch, hasDialerNumber, initialPhoneNumber, phoneNumber, reduxCallStatus, callStatus, device, activeCall, deviceRegistered])
 
@@ -921,7 +900,7 @@ function DialerModal({
         toast.error('Not authenticated. Please log in again.')
         return
       }
-      
+
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:168', message: 'Requesting access token', data: { hasToken: !!token }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
       // #endregion
@@ -944,7 +923,7 @@ function DialerModal({
       // Check if response is JSON before parsing
       const contentType = response.headers.get('content-type')
       let data: any = {}
-      
+
       if (contentType && contentType.includes('application/json')) {
         try {
           data = await response.json()
@@ -975,7 +954,7 @@ function DialerModal({
         isInitializingRef.current = false
         return
       }
-      
+
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:192', message: 'Token received', data: { hasToken: !!data.token }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
       // #endregion
@@ -1005,12 +984,6 @@ function DialerModal({
             exp: payload.exp,
             iat: payload.iat,
           }
-          // Log Twilio account info for debugging
-          console.log('[DialerModal] Access Token Details:', {
-            accountSid: payload.iss,
-            identity: payload.grants?.identity,
-            twimlAppSid: payload.grants?.voice?.outgoing?.application_sid,
-          })
           // #region agent log
           fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:981', message: 'H3,H4: Access token decoded on frontend', data: { accountSid: payload.iss, identity: payload.grants?.identity, twimlAppSid: payload.grants?.voice?.outgoing?.application_sid, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H3,H4' }) }).catch(() => { });
           // #endregion
@@ -1020,15 +993,14 @@ function DialerModal({
       }
       fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:201', message: 'Creating Twilio Device', data: { tokenLength: data.token.length, tokenPreview }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
       // #endregion
-      
+
       let twilioDevice: Device
       try {
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:260', message: 'About to create Device', data: { tokenLength: data.token.length }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
         // #endregion
-        
+
         const configuredEdge = 'ashburn' // US East edge - change to 'umatilla' for US West if needed
-        console.log('[DialerModal] Creating Twilio Device with edge:', configuredEdge)
         twilioDevice = new Device(data.token, {
           logLevel: 1, // DEBUG level (0=TRACE, 1=DEBUG, 2=INFO, 3=WARN, 4=ERROR, 5=SILENT)
           // Disable automatic error alerts
@@ -1037,7 +1009,7 @@ function DialerModal({
           // This ensures device registers in US region, matching phone number configuration
           edge: configuredEdge, // US East edge - change to 'umatilla' for US West if needed
         } as any)
-        
+
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:270', message: 'Device created, checking state', data: { state: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
         // #endregion
@@ -1070,7 +1042,7 @@ function DialerModal({
         let edge = 'unknown'
         let region = 'unknown'
         const configuredEdge = 'ashburn' // The edge we configured when creating the device
-        
+
         try {
           const tokenParts = data.token.split('.')
           if (tokenParts.length === 3) {
@@ -1104,25 +1076,12 @@ function DialerModal({
           // If we can't read it, use the configured edge
           edge = configuredEdge + ' (configured, read failed)'
         }
-        
-        console.log('[DialerModal] Twilio Device registered:', {
-          state: twilioDevice.state,
-          isRegistered: (twilioDevice as any).isRegistered,
-          identity: deviceIdentity,
-          accountSid: accountSid,
-          twimlAppSid: (twilioDevice as any).outgoingConnection?.applicationSid || 'unknown',
-          edge: edge,
-          region: region,
-          configuredEdge: configuredEdge, // Always show what we configured
-        })
+
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1030', message: 'H1,H4,H5,H6: Device registered event', data: { state: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered, identity: deviceIdentity, accountSid, edge, region, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H1,H4,H5,H6' }) }).catch(() => { });
         // #endregion
         clearTimeout(registrationTimeout)
-        
-        // Device is now registered in US region (ashburn/US_EAST_VIRGINIA/us1)
-        // No need to call register() again - device is already registered and listening
-        console.log('[DialerModal] Device registered successfully in US region - ready for incoming calls')
+
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1070', message: 'H6: Ensuring device stays registered for incoming calls', data: { state: twilioDevice.state, identity: deviceIdentity, edge, region, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H6' }) }).catch(() => { });
         // #endregion
@@ -1135,22 +1094,20 @@ function DialerModal({
         dispatch(updateDeviceState({ deviceRegistered: true, initializing: false }))
         isInitializingRef.current = false
       })
-      
+
       // Note: The Device should automatically register when created with a valid token
       // If registration fails, check browser console for errors
       // Common issues:
       // 1. Invalid API key credentials (even if token structure is correct)
       // 2. Network connectivity issues
       // 3. CORS or firewall blocking Twilio servers
-      
+
       // Listen for token expiration which might prevent registration
       twilioDevice.on('tokenWillExpire', () => {
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:285', message: 'Token will expire soon', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
-        // #endregion
-        console.log('Token will expire soon, refreshing...')
       })
-      
+
       // Check device state periodically to see if it's trying to register
       let checkCount = 0
       const stateCheckInterval = setInterval(() => {
@@ -1189,22 +1146,15 @@ function DialerModal({
           clearInterval(stateCheckInterval)
         }
       }, 1000)
-      
+
       twilioDevice.on('unregistered', (reason: string) => {
-        console.log('[DialerModal] ⚠️ Device unregistered:', {
-          reason,
-          state: twilioDevice.state,
-          identity: (twilioDevice as any).identity,
-        })
-        console.log('[DialerModal] ⚠️ This will prevent incoming calls from working!')
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1115', message: 'H1: Device unregistered event', data: { reason, state: twilioDevice.state, identity: (twilioDevice as any).identity, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H1' }) }).catch(() => { });
         // #endregion
         dispatch(updateDeviceState({ deviceRegistered: false }))
-        
+
         // Try to re-register if unregistered unexpectedly
         if (reason && !reason.includes('token')) {
-          console.log('[DialerModal] Attempting to re-register device...')
           try {
             twilioDevice.register()
             // #region agent log
@@ -1233,7 +1183,6 @@ function DialerModal({
                               error.message?.includes('20104')
         
         if (isTokenExpired) {
-          console.log('[DialerModal] Access token expired (20104), automatically re-initializing device...')
           // #region agent log
           fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1224', message: 'AccessTokenExpired detected, re-initializing', data: { errorCode: error.code, errorTwilioCode: error.twilioError?.code }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
           // #endregion
@@ -1270,7 +1219,7 @@ function DialerModal({
         }
         toast.error(errorMsg)
       })
-      
+
       // Listen for warning events (might indicate registration issues)
       twilioDevice.on('warning', (name: string, data: any) => {
         console.warn('[DialerModal] Twilio Device warning:', name, data)
@@ -1278,24 +1227,17 @@ function DialerModal({
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:343', message: 'Device warning event', data: { warningName: name, warningData: data }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
         // #endregion
       })
-      
+
       // Listen for state changes to track registration progress
       const originalState = twilioDevice.state
-      console.log('[DialerModal] Device initial state:', originalState)
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1180', message: 'H5: Device initial state', data: { state: originalState, isRegistered: (twilioDevice as any).isRegistered, identity: (twilioDevice as any).identity, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H5' }) }).catch(() => { });
       // #endregion
-      
+
       // Monitor state changes
       const stateCheck = setInterval(() => {
         const currentState = twilioDevice.state
         if (currentState !== originalState) {
-          console.log('[DialerModal] Device state changed:', {
-            from: originalState,
-            to: currentState,
-            isRegistered: (twilioDevice as any).isRegistered,
-            identity: (twilioDevice as any).identity,
-          })
           // #region agent log
           fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1190', message: 'H5: Device state changed', data: { from: originalState, to: currentState, isRegistered: (twilioDevice as any).isRegistered, identity: (twilioDevice as any).identity, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H5' }) }).catch(() => { });
           // #endregion
@@ -1305,42 +1247,23 @@ function DialerModal({
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1195', message: 'H5: Periodic device state check', data: { state: currentState, isRegistered: (twilioDevice as any).isRegistered, identity: (twilioDevice as any).identity, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H5' }) }).catch(() => { });
         // #endregion
       }, 5000) // Check every 5 seconds
-      
+
       // Clear interval after 2 minutes to allow monitoring during test
       setTimeout(() => clearInterval(stateCheck), 120000)
 
       twilioDevice.on('incoming', (call: Call) => {
-        console.log('[DialerModal] ✅✅✅ INCOMING CALL EVENT RECEIVED ✅✅✅')
-        console.log('[DialerModal] Incoming call event received:', {
-          callSid: call.parameters?.CallSid,
-          from: call.parameters?.From,
-          to: call.parameters?.To,
-          deviceState: twilioDevice.state,
-          isRegistered: (twilioDevice as any).isRegistered,
-          deviceIdentity: (twilioDevice as any).identity,
-          hasActiveCall: !!activeCall,
-        })
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1190', message: 'H2,H6: Incoming call event received on device', data: { callSid: call.parameters?.CallSid, from: call.parameters?.From, to: call.parameters?.To, deviceState: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered, deviceIdentity: (twilioDevice as any).identity, hasActiveCall: !!activeCall, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H2,H6' }) }).catch(() => { });
         // #endregion
         handleIncomingCall(call)
       })
-      
-      // Log when device is ready to receive incoming calls
-      console.log('[DialerModal] Device incoming call listener set up. Device should receive incoming calls now.')
-      console.log('[DialerModal] Current device state:', {
-        state: twilioDevice.state,
-        isRegistered: (twilioDevice as any).isRegistered,
-        identity: (twilioDevice as any).identity,
-      }) 
+
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1205', message: 'H2: Incoming call listener attached', data: { state: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered, identity: (twilioDevice as any).identity, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H2' }) }).catch(() => { });
       // #endregion
-      
+
       // Log device identity when registered
-      twilioDevice.on('registered', () => {
-        console.log('[DialerModal] Device registered with identity:', (twilioDevice as any).identity)
-      })
+      twilioDevice.on('registered', () => {})
 
 
       setDevice(twilioDevice)
@@ -1352,7 +1275,7 @@ function DialerModal({
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:404', message: 'Device initialized and set, attempting explicit registration', data: { hasDevice: !!twilioDevice, state: twilioDevice.state, isRegistered: (twilioDevice as any).isRegistered }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
       // #endregion
-      
+
       // Explicitly register the device (required by some browsers for audio access)
       // This is called after user interaction (modal open), so it should work
       try {
@@ -1366,7 +1289,7 @@ function DialerModal({
         // #endregion
         console.error('Error registering device:', registerError)
       }
-      
+
       // Note: Don't set initializing to false here - wait for 'registered' event or timeout
     } catch (error: any) {
       console.error('Error initializing device:', error)
@@ -1582,14 +1505,7 @@ function DialerModal({
         if (!callEndedInError && callStatus !== 'error') {
         // toast.info('Call ended')
         }
-        
-        // Log device state after call ends to ensure it's still registered for incoming calls
-        console.log('[DialerModal] Call disconnected. Device state:', {
-          state: device?.state,
-          isRegistered: (device as any)?.isRegistered,
-          identity: (device as any)?.identity,
-        })
-        console.log('[DialerModal] Device should still be registered for incoming calls')
+
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:1434', message: 'H1,H5: Device state after outbound call disconnect', data: { deviceState: device?.state, isRegistered: (device as any)?.isRegistered, identity: (device as any)?.identity, callStatus: newStatus, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'H1,H5' }) }).catch(() => { });
         // #endregion
@@ -1864,14 +1780,6 @@ function DialerModal({
 
   // Handle incoming call
   const handleIncomingCall = async (call: Call) => {
-    console.log('[DialerModal] Incoming call received:', {
-      hasDevice: !!device,
-      deviceRegistered,
-      deviceState: device?.state,
-      isRegistered: (device as any)?.isRegistered,
-      callParameters: call.parameters,
-    })
-
     // Check if there's an active call - reject if allowIncomingWhileBusy is false
     if (activeCall || activeCallRef.current) {
       // Reject incoming call automatically
@@ -1887,8 +1795,6 @@ function DialerModal({
     // Extract caller information
     const from = call.parameters?.From || call.parameters?.from || ''
     const to = call.parameters?.To || call.parameters?.to || ''
-
-    console.log('[DialerModal] Incoming call details:', { from, to, callSid: call.parameters?.CallSid })
 
     // Store incoming call in state and global store
     setIncomingCall(call)
@@ -2319,14 +2225,12 @@ function DialerModal({
         // Reset duration to 0 when call starts
         callDurationRef.current = 0
         dispatch(updateCallState({ callDuration: 0 }))
-        
+
         // Start the interval
         callDurationIntervalRef.current = setInterval(() => {
           callDurationRef.current += 1
           dispatch(updateCallState({ callDuration: callDurationRef.current }))
         }, 1000)
-        
-        console.log('[Dialer] Call duration timer started (from useEffect)')
       }
     } else if (callStatus !== 'in-call' && callDurationIntervalRef.current) {
       // Stop timer when call status changes away from 'in-call'
@@ -2336,7 +2240,6 @@ function DialerModal({
         // This is a safety net in case the disconnect event didn't fire
         clearInterval(callDurationIntervalRef.current)
         callDurationIntervalRef.current = null
-        console.log('[Dialer] Call duration timer stopped (from useEffect)')
       }
     }
     
@@ -2384,7 +2287,6 @@ function DialerModal({
   const handleOpenChange = (isOpen: boolean) => {
     // Prevent closing if dialog just opened
     if (!isOpen && dialogJustOpened.current) {
-      console.log('[DialerModal] Ignoring close event - dialog just opened')
       return
     }
     
@@ -2834,7 +2736,6 @@ function DialerModal({
           <X size={20} />
                         </Button>
                       </div>
-
       <div 
         className="flex flex-row" 
         style={{ minHeight: '500px', maxHeight: '80vh' }}
@@ -3428,7 +3329,7 @@ function DialerModal({
                   </div>
                 ) : callStatus === 'ended' || callStatus === 'error' ? (
                   /* Call Summary UI - Show when call ends */
-                  <div className="space-y-3 py-2 flex flex-col items-center">
+                  (<div className="space-y-3 py-2 flex flex-col items-center">
                     {/* Contact Info - Name and Phone in a row */}
                     <div className="w-full flex flex-row items-center gap-3 w-full justify-center">
                       <div className="text-base font-semibold text-gray-900">
@@ -3438,7 +3339,6 @@ function DialerModal({
                         <div className="text-sm text-gray-600">{phoneNumber}</div>
                 )}
               </div>
-
                     {/* Call Status - Side by Side */}
                     <div className="flex items-center gap-4 justify-center">
               <div className="flex items-center gap-2">
@@ -3477,12 +3377,10 @@ function DialerModal({
                 </div>
               )}
                     </div>
-
                     {/* Call Duration */}
                     <div className="text-sm text-gray-900 text-center">
                       {formatDurationForSummary(callDuration)}
                     </div>
-
                     {/* Call Back Button - 60% width, centered */}
                     {/* <div className="w-full flex justify-center">
                       <Button
@@ -3516,10 +3414,8 @@ function DialerModal({
                         Call Back
                       </Button>
                     </div> */}
-
                     {/* Divider */}
                     <div className="border-t border-dashed border-gray-300 my-3 w-full"></div>
-
                     {/* Follow Up Section */}
                     <div className="w-full">
                       <div className="flex items-center gap-2 mb-3">
@@ -3617,10 +3513,10 @@ function DialerModal({
                   </Button>
                       </div>
                     </div>
-                  </div>
+                  </div>)
                 ) : (
                   /* Pre-call UI - Show when not in call */
-                  <>
+                  (<>
                     {/* Contact Information Section */}
                     <div className="flex flex-col items-center space-y-3 py-6">
                       {/* Contact Avatar */}
@@ -3648,7 +3544,6 @@ function DialerModal({
                         )}
                       </div>
                     </div>
-
                     {/* Create Script Button - Show if no script exists */}
                     <div className="flex w-full justify-center">
                       <Button
@@ -3681,7 +3576,7 @@ function DialerModal({
                         View Script
                   </Button>
                     </div>
-            </>
+                  </>)
           )}
         </div>
                 )}
@@ -3733,7 +3628,6 @@ function DialerModal({
           )}
                 </div>
       </div>
-
       {/* Call Notes Window - Bottom Right */}
       {(callStatus === 'ringing' || callStatus === 'in-call' || callStatus === 'connecting') && (
         <CallNotesWindow
@@ -3743,7 +3637,6 @@ function DialerModal({
           leadName={leadName}
         />
       )}
-
       {/* Claim Number Modal */}
       <ClaimNumber
         showClaimPopup={showClaimNumberModal}
@@ -3762,9 +3655,8 @@ function DialerModal({
         }}
         selectedUSer={selectedUser}
       />
-
-        </div>
-  )
+    </div>
+  );
 }
 
 // Memoize component to prevent unnecessary re-renders on navigation
@@ -3773,11 +3665,10 @@ function DialerModal({
 const MemoizedDialerModal = memo(DialerModal, (prevProps, nextProps) => {
   // Return true if props are equal (skip re-render), false if different (re-render)
   const propsEqual = (
-    prevProps.open === nextProps.open &&
+    (prevProps.open === nextProps.open &&
     prevProps.initialPhoneNumber === nextProps.initialPhoneNumber &&
     prevProps.leadId === nextProps.leadId &&
-    prevProps.leadName === nextProps.leadName &&
-    prevProps.onClose === nextProps.onClose // Also check onClose reference
+    prevProps.leadName === nextProps.leadName && prevProps.onClose === nextProps.onClose) // Also check onClose reference
   )
   // #region agent log
   if (typeof window !== 'undefined' && !propsEqual) {

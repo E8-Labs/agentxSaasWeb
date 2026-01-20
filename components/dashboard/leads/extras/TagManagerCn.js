@@ -84,7 +84,6 @@ const TagManagerCn = ({
         if(showSnackbar) {
           showSnackbar(response.data.message, SnackbarTypes.Success)
         }
-        console.log('response of delete tag permanently api is', response)
         // Refresh the suggestions list
         if (onRefreshSuggestions) {
           await onRefreshSuggestions()

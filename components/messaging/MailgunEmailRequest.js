@@ -14,7 +14,6 @@ import MailgunDomainSetup from './MailgunDomainSetup'
 import ViewDnsRecordsModal from './ViewDnsRecordsModal'
 
 const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
-  console.log("Target User ID in MailgunEmailRequest", targetUserId)
   const [mailgunIntegrations, setMailgunIntegrations] = useState([])
   const [allMailgunIntegrations, setAllMailgunIntegrations] = useState([]) // Store all integrations for checking pending domains
   const [availableDomains, setAvailableDomains] = useState([]) // For subdomain creation
@@ -28,7 +27,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
   const [selectedParentDomainId, setSelectedParentDomainId] = useState('')
   const [creatingSubdomain, setCreatingSubdomain] = useState(false)
   const [showDomainSetup, setShowDomainSetup] = useState(false)
-  
+
   // For subaccount custom domain setup
   const [isSubaccount, setIsSubaccount] = useState(false)
   const [isAgentX, setIsAgentX] = useState(false)
@@ -310,10 +309,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
       // Add userId if provided (for Agency/Admin creating email for subaccount)
       if (targetUserId) {
         requestBody.userId = targetUserId
-        console.log('📧 Creating email for target user:', targetUserId)
-      } else {
-        console.log('📧 Creating email for current user (no targetUserId provided)')
-      }
+      } else {}
 
       const response = await axios.post(
         Apis.requestMailgunEmail,
@@ -579,12 +575,12 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
             </div>
           ) : isSubaccount && !agencyHasMailgun ? (
             // Show message if subaccount and agency doesn't have Mailgun
-            <div className="text-center py-8">
+            (<div className="text-center py-8">
               <AlertCircle className="text-gray-400 mx-auto mb-4" size={48} />
               <p className="text-sm text-gray-600">
                 Contact your admin to get your email setup
               </p>
-            </div>
+            </div>)
           ) : (
             <>
               {/* Tab 1: Use Existing Domain */}
@@ -846,12 +842,12 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
                 <div className="space-y-4">
                   {isSubaccount && !agencyHasMailgun ? (
                     // Subaccount with no agency Mailgun: Show message
-                    <div className="text-center py-8">
+                    (<div className="text-center py-8">
                       <AlertCircle className="text-gray-400 mx-auto mb-4" size={48} />
                       <p className="text-sm text-gray-600">
                         Contact your admin to get your email setup
                       </p>
-                    </div>
+                    </div>)
                   ) : (
                     <>
                       <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
@@ -875,7 +871,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
 
                       {(isSubaccount || isAgentX) ? (
                         // Subaccount or AgentX: Show domain management list
-                        <>
+                        (<>
                           {/* List of connected domains */}
                           {(() => {
                             const userDomains = allMailgunIntegrations.filter(
@@ -1007,10 +1003,10 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
                               </div>
                             )
                           })()}
-                        </>
+                        </>)
                       ) : (
                         // Non-subaccount: Show "Start Domain Setup" button (original behavior)
-                        <div className="text-center py-6">
+                        (<div className="text-center py-6">
                           <Settings className="text-gray-400 mx-auto mb-4" size={48} />
                           <p className="text-sm font-medium text-gray-900 mb-2">
                             Ready to set up your custom domain?
@@ -1026,7 +1022,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
                             <Settings size={16} className="mr-2" />
                             Start Domain Setup
                           </Button>
-                        </div>
+                        </div>)
                       )}
                     </>
                   )}
@@ -1069,7 +1065,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
   if (typeof window !== 'undefined') {
     return createPortal(modalContent, document.body)
   }
-  
+
   return modalContent
 }
 

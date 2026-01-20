@@ -29,7 +29,6 @@ const CustomerProfile = ({
 }) => {
   //how to video
   const [introVideoModal2, setIntroVideoModal2] = useState(false)
-  console.log('Trust hub data passed is', twilioHubData)
 
   const [showDetails, setShowDetails] = useState(false)
   //add twilio

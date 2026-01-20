@@ -46,9 +46,7 @@ export default function XBarConfirmationModal({
             return
           }
         }
-      } catch (error) {
-        console.log('Error getting xbar title from branding:', error)
-      }
+      } catch (error) {}
       // Default title
       setXbarTitle('X Bar Services')
     }

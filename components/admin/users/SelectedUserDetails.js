@@ -98,14 +98,12 @@ function SelectedUserDetails({
       selectedImage: '/svgIcons/selectedProfileCircle.svg',
       unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
     }
-  
+
 
   if (!agencyUser) {
     //push account menu to the end of the menu bar
     manuBar.push(accountMenu)
   }
-
-  console.log('Status of agency user', agencyUser)
 
   const [selectedManu, setSelectedManu] = useState(manuBar[0])
   const [showAddMinutesModal, setShowAddMinutesModal] = useState(false)
@@ -134,7 +132,6 @@ function SelectedUserDetails({
   const [showActivityLogs, setShowActivityLogs] = useState(false)
 
   useEffect(() => {
-    console.log('selected user', selectedUser)
     if (selectedUser?.profile_status === 'paused') {
       setPauseToggleBtn(true)
     } else if (selectedUser?.profile_status === 'active') {
@@ -148,7 +145,6 @@ function SelectedUserDetails({
 
       if (d) {
         setUser(d)
-        console.log('selected user details from api', d.profile_status)
       }
 
       // console.log('selectedUser after api', selectedUser)
@@ -161,7 +157,6 @@ function SelectedUserDetails({
   useEffect(() => {
     const handleRefreshUser = async (event) => {
       if (event.detail?.userId === selectedUser?.id) {
-        console.log('Refreshing selectedUser profile after agent creation...')
         try {
           const refreshedData = await AdminGetProfileDetails(selectedUser.id)
           if (refreshedData) {
@@ -195,7 +190,6 @@ function SelectedUserDetails({
           const foundTab = manuBar.find((tab) => tab.name === tabName)
           if (foundTab) {
             setSelectedManu(foundTab)
-            console.log('Restored tab state:', tabName)
           }
         }
       }
@@ -245,7 +239,6 @@ function SelectedUserDetails({
   }
 
   const handleManuClick = (item) => {
-    console.log('item', item)
     setSelectedManu(item)
     // Store tab state for restoration (only for admin/agency users)
     storeTabState(item.name)
@@ -348,7 +341,6 @@ function SelectedUserDetails({
           },
         })
         if (response) {
-          console.log('Respose of pause unpause apis is', response)
           if (response.data.status === true) {
             selectedUser.profile_status = 'paused'
             setShowSnackMessage(response.data.message)
@@ -356,7 +348,6 @@ function SelectedUserDetails({
             setpauseLoader(false)
             setShowPauseConfirmationPopup(false)
           }
-          console.log('response.data.data', response.data)
         }
       }
     } catch (e) {
@@ -380,8 +371,6 @@ function SelectedUserDetails({
           trialEndDate: selectedDate,
         }
 
-        console.log('apidata of reset trail', apidata)
-
         const response = await axios.post(Apis.resetTrail, apidata, {
           headers: {
             Authorization: 'Bearer ' + u.token,
@@ -389,13 +378,11 @@ function SelectedUserDetails({
           },
         })
         if (response) {
-          console.log('Respose of reset trail api is', response)
           if (response.data.status === true) {
             setShowSnackMessage(response.data.message)
             setResetTrailLoader(false)
             setShowResetTrialPopup(false)
           }
-          console.log('response.data.data', response.data)
         }
       }
     } catch (e) {
@@ -414,7 +401,6 @@ function SelectedUserDetails({
         type={SnackbarTypes.Success}
         message={showSnackMessage}
       />
-
       <div className="flex flex-col items-center justify-center w-full">
         <div
           style={{ alignSelf: 'center' }}
@@ -445,7 +431,7 @@ function SelectedUserDetails({
                   </div>
                 ) : (
                   /* AppLogo handles logo display based on hostname */
-                  <div className="flex justify-start ">
+                  (<div className="flex justify-start ">
                     <Image
                       src={user?.agencyBranding?.logoUrl}
                       alt="logo"
@@ -454,7 +440,7 @@ function SelectedUserDetails({
                       style={{ objectFit: 'contain', maxHeight: '40px', maxWidth: '140px' }}
                       unoptimized={true}
                     />
-                  </div>
+                  </div>)
                 )}
               </div>
               )}
@@ -474,7 +460,6 @@ function SelectedUserDetails({
                     ) : (
                       <button
                         onClick={() => {
-                          console.log('selectedUser.id', selectedUser.id)
                           if (selectedUser?.id) {
                             // Open a new tab with user ID as query param
                             let url = ''
@@ -553,8 +538,6 @@ function SelectedUserDetails({
 
               {agencyUser && (
                 <div onClick={() => {
-                  console.log('clicked')
-                  
                   handleManuClick(accountMenu)
                   //set account info to the right side of the screen
                   // setAccountInfo(true)
@@ -654,7 +637,6 @@ function SelectedUserDetails({
                         style={{ height: '50px' }}
                         onClick={() => {
                           setShowResetTrialPopup(true)
-                          console.log('clicked')
                         }}
                       >
                         Reset Trial
@@ -760,7 +742,6 @@ function SelectedUserDetails({
           </div>
         </div>
       </div>
-
       {/* View Details Button - Bottom Left */}
       {!hideViewDetails && (
         <div className="absolute bottom-4 left-4">
@@ -781,7 +762,6 @@ function SelectedUserDetails({
           </button>
         </div>
       )}
-
       {/* Code to del user */}
       <Modal
         open={showDeleteModal}
@@ -871,7 +851,6 @@ function SelectedUserDetails({
           </div>
         </Box>
       </Modal>
-
       {/* Add minutes modal  */}
       <Modal
         open={showAddMinutesModal}
@@ -928,7 +907,6 @@ function SelectedUserDetails({
           </div>
         </Box>
       </Modal>
-
       {/* User Activity Logs Modal */}
       <UserActivityLogs
         open={showActivityLogs}
@@ -937,7 +915,7 @@ function SelectedUserDetails({
         userName={selectedUser?.name}
       />
     </div>
-  )
+  );
 }
 
 export default SelectedUserDetails

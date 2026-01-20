@@ -58,8 +58,6 @@ export function VapiWidget({
 
     const init = async () => {
       try {
-        console.log('initializing vapi sdk')
-
         const mod = await import('@vapi-ai/web')
         const VapiClient = mod.default ?? mod
         instance = new VapiClient(API_KEY)
@@ -80,7 +78,6 @@ export function VapiWidget({
         })
         instance.on('speech-start', () => setIsSpeaking(true))
         instance.on('speech-end', () => setIsSpeaking(false))
-        instance.on('message', (msg) => console.log('Vapi msg:', msg))
         instance.on('error', (err) => {
           console.error('Vapi error:', err)
           handleClose()
@@ -120,13 +117,7 @@ export function VapiWidget({
     }
     const response = await axios.get(path)
 
-    console.log('api path of get user by agent id is', path)
-
     if (response.data.status && response.data.data.user) {
-      console.log(
-        'response of get user api by agent id is',
-        response.data.data.user,
-      )
       const { totalSecondsAvailable } = response.data.data.user
 
       if (totalSecondsAvailable < 120) {
@@ -157,8 +148,6 @@ export function VapiWidget({
           // pipeline_details: JSON.stringify(pipelineData)
         },
       }
-
-      console.log('assistante overrides', assistantOverrides)
 
       vapi.start(assistantId, assistantOverrides)
     }
@@ -193,7 +182,6 @@ export function VapiWidget({
   }
 
   const getProfileSupportDetails = async () => {
-    console.log('get profile support details api calling')
     let user = null
     try {
       const data = localStorage.getItem('User')
@@ -211,7 +199,6 @@ export function VapiWidget({
 
         if (response.data) {
           if (response.data.status === true) {
-            console.log('profile support details are', response.data)
             let data = response.data.data
             let pipelineData = data.pipelines
 
@@ -223,14 +210,11 @@ export function VapiWidget({
               pipelines: pipelineData,
             }
           } else {
-            console.log('profile support message is', response.data.message)
-
             return user.user
           }
         }
       }
     } catch (e) {
-      console.log('error in get profile suppport details api is', e)
       return user.user
     }
   }

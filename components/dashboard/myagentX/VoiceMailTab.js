@@ -175,7 +175,6 @@ function VoiceMailTab({
       }
     } catch (e) {
       setLoading(false)
-      console.log('error in set voice mail', e)
     } finally {
       setLoading(false)
     }
@@ -259,7 +258,6 @@ function VoiceMailTab({
       }
     } catch (e) {
       setLoading2(false)
-      console.log('error in set voice mail', e)
     } finally {
       setLoading2(false)
     }
@@ -311,6 +309,7 @@ function VoiceMailTab({
                   'Increase response rate by 10% when you activate voicemails. Your AI can customize each voicemail.'
                 }
                 setShowSnackMsg={setShowSnackMsg}
+                selectedUser={selectedUser}
               />
             )
           } else {

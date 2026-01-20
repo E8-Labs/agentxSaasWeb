@@ -20,7 +20,6 @@ const ConfigurePopup = ({
 }) => {
   const [configureValue, setConfigureValue] = useState('')
   const [isDisable, setIsDisable] = useState(true)
-  console.log('Selected stage passed is', selectedStage)
 
   //set the default value
   useEffect(() => {
@@ -38,7 +37,6 @@ const ConfigurePopup = ({
 
   //handle add/update configure
   const handleAddUpdateConfigure = async () => {
-    console.log('add/update configure')
     try {
       setConfigureLoader(true)
       const token = AuthToken()
@@ -49,9 +47,7 @@ const ConfigurePopup = ({
       formData.append('pipelineId', selectedStage.pipelineId)
       formData.append('description', configureValue)
 
-      for (let [key, value] of formData) {
-        console.log(`${key} ===== ${value}`)
-      }
+      for (let [key, value] of formData) {}
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -64,7 +60,6 @@ const ConfigurePopup = ({
         //response success
         if (response.data.status === true) {
           setConfigureLoader(false)
-          console.log('Response of api is', response.data)
           setSnackMessage({
             message: response.data.message,
             type: SnackbarTypes.Success,
@@ -81,7 +76,6 @@ const ConfigurePopup = ({
         }
       }
     } catch (error) {
-      console.log('error occured in api is', error)
       setConfigureLoader(false)
     }
   }

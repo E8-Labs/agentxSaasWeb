@@ -55,7 +55,6 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
       })
 
       if (response) {
-        console.log('get cards data', response.data)
         if (response.data.status === true) {
           setCards(response.data.data)
           let cards = response.data.data
@@ -66,9 +65,7 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
           })
         }
       }
-    } catch (error) {
-      console.log(error)
-    } finally {
+    } catch (error) {} finally {
       // //console.log;
       setGetCardLoader(false)
     }
@@ -109,9 +106,6 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
 
       const ApiPath = Apis.subscribePlan
 
-      console.log('apipath', ApiPath)
-      console.log('apiDatta', ApiData)
-
       // return
 
       const response = await axios.post(ApiPath, ApiData, {
@@ -122,7 +116,6 @@ const UpgradePlanView = ({ onCancel, selectedPlan, onClose }) => {
       })
 
       if (response) {
-        console.log('response', response)
         if (response.data.status === true) {
           await handleAutoCharge()
           setShowSuccessSnack(true)

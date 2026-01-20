@@ -68,10 +68,6 @@ const AgentsListPaginated = ({
   initialLoader,
   selectedUser,
 }) => {
-  console.log('loader for more data ')
-
-  console.log('agencyUser in agents list paginated', agencyUser)
-  console.log('from in agents list paginated', from)
   // console.log("Agents in paginated list ", agentsListSeparatedParam);
   const [agentsListSeparated, setAgentsListSeparated] = useState(
     agentsListSeparatedParam,
@@ -92,11 +88,9 @@ const AgentsListPaginated = ({
 
   useEffect(() => {
     setAgentsListSeparated(agentsListSeparatedParam)
-    console.log('agentsListSeperatedParam', agentsListSeparatedParam)
   }, [agentsListSeparatedParam])
 
   useEffect(() => {
-    console.log('can get more status is', canGetMore)
     if (canGetMore === true) {
       setHasMoreAgents(true)
     } else if (canGetMore === false) {
@@ -161,7 +155,6 @@ const AgentsListPaginated = ({
     )
   }
   const fetchMoreAgents = async () => {
-    console.log('Fetch more agents please', search)
     // console.log(`Old agenst list length is ${agentsListSeparatedParam.length}`);
     getAgents(true, search)
   }
@@ -264,7 +257,6 @@ const AgentsListPaginated = ({
           </div>
         </div>
       </Popover>
-
       <WarningModal
         ShowWarningModal={ShowWarningModal}
         setShowWarningModal={setShowWarningModal}
@@ -432,7 +424,6 @@ const AgentsListPaginated = ({
                         <button
                           onClick={() => {
                             handleShowDrawer(item)
-                            console.log('selected item is', item)
                           }}
                         >
                           <div>More info</div>
@@ -466,9 +457,7 @@ const AgentsListPaginated = ({
                     <button
                       className="bg-brand-primary px-4 py-2 rounded-lg text-white"
                       onClick={() => {
-                        console.log('Show test ai modal', item)
                         if (!item.phoneNumber) {
-                          console.log('Show warning modal')
                           setShowWarningModal(item)
                         } else {
                           setOpenTestAiModal(true)
@@ -589,15 +578,15 @@ const AgentsListPaginated = ({
         </InfiniteScroll>
       ) : (
         // <div> hello</div>
-        <NoAgent
+        (<NoAgent
           showBtn={search ? false : true}
           from={from}
           title={search ? 'No agent found' : 'You have no active agents'}
           selectedUser={selectedUser}
-        />
+        />)
       )}
     </div>
-  )
+  );
 }
 
 export default AgentsListPaginated

@@ -29,8 +29,6 @@ const GuardianSetting = ({
   kycsData,
   uniqueColumns,
 }) => {
-  console.log('Kycs data passed too guardrails screen is:', kycsData)
-
   const [guardrailsList, setGuardrailsList] = useState([])
   const [initialLoader, setInitialLoader] = useState(false)
   const [showAddObjForm, setShowAddObjForm] = useState(false)

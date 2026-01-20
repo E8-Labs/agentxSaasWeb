@@ -274,7 +274,6 @@ const Page = ({ handleContinue, handleBack, length = 6, onComplete }) => {
 
   //code for number verification
   const handleVerifyCode = () => {
-    console.log('verify code is: ', VerifyCode)
     setPhoneVerifiedSuccessSnack(true)
     handleRegister()
   }
@@ -310,9 +309,7 @@ const Page = ({ handleContinue, handleBack, length = 6, onComplete }) => {
       formData.append('verificationCode', VerifyCode.join(''))
 
       // //console.log;
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value)
-      }
+      for (let [key, value] of formData.entries()) {}
 
       // return;
       const response = await axios.post(ApiPath, formData)

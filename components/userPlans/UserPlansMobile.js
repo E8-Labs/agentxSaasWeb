@@ -361,7 +361,6 @@ function UserPlansMobile({
             // Use window.location.href for hard redirect to ensure clean page reload
             // This prevents DOM cleanup errors during navigation
             if (redirectPath) {
-              console.log('✅ Subscription successful, redirecting to:', redirectPath)
               // Use setTimeout to ensure redirect happens in next event loop, avoiding React cleanup conflicts
               setTimeout(() => {
                 window.location.href = redirectPath
@@ -514,9 +513,7 @@ function UserPlansMobile({
         const userData = JSON.parse(localData)
         return userData?.user?.plan || null
       }
-    } catch (error) {
-      console.log('Error getting current user plan:', error)
-    }
+    } catch (error) {}
     return null
   }
 

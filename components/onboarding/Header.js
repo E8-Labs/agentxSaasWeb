@@ -51,26 +51,18 @@ const Header = ({
       const userData = localStorage.getItem('User')
       let isSub = false
       let isAgency = false
-      
+
       // Check if it's a subaccount registration (has AgencyUUID but no User data yet)
       const agencyUuid = getAgencyUUIDForAPI()
       const isSubaccountRegistration = !!agencyUuid && !userData
-      
+
       if (userData) {
         const parsedUser = JSON.parse(userData)
         const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
         isSub = userRole === 'AgencySubAccount'
         isAgency = userRole === 'Agency'
         setIsSubaccount(isSub)
-        
-        console.log('🔍 [Header] User role check:', {
-          userRole,
-          isSub,
-          isAgency,
-          parsedUserUserRole: parsedUser?.user?.userRole,
-          parsedUserRole: parsedUser?.userRole
-        })
-        
+
         // Check if current user is Agency and creating agent for subaccount
         if (isAgency) {
           const { PersistanceKeys } = require('@/constants/Constants')
@@ -84,7 +76,6 @@ const Header = ({
                 setIsAgencyCreatingForSubaccount(false)
               }
             } catch (error) {
-              console.log('Error parsing isFromAdminOrAgency:', error)
               setIsAgencyCreatingForSubaccount(false)
             }
           } else {
@@ -98,11 +89,10 @@ const Header = ({
         setIsSubaccount(true)
         setIsAgencyCreatingForSubaccount(false)
       }
-      
+
       // Fallback: If we have agency UUID but user role check didn't detect as subaccount,
       // still treat as subaccount (might be during onboarding flow or role not set yet)
       if (!isSub && agencyUuid) {
-        console.log('🔍 [Header] Fallback: Agency UUID present, treating as subaccount')
         setIsSubaccount(true)
       }
 
@@ -112,9 +102,7 @@ const Header = ({
       if (storedBranding) {
         try {
           branding = JSON.parse(storedBranding)
-        } catch (error) {
-          console.log('Error parsing agencyBranding from localStorage:', error)
-        }
+        } catch (error) {}
       }
 
       // Also check user data for agencyBranding
@@ -122,37 +110,21 @@ const Header = ({
         
         try {
           const parsedUser = JSON.parse(userData)
-          console.log('🔍 [Header] User data:', parsedUser)
           if (parsedUser?.user?.agencyBranding) {
-            console.log('🔍 [Header] User agencyBranding:', parsedUser.user.agencyBranding)
             branding = parsedUser.user.agencyBranding
           } else if (parsedUser?.agencyBranding) {
             branding = parsedUser.agencyBranding
           } else if (parsedUser?.user?.agency?.agencyBranding) {
             branding = parsedUser.user.agency.agencyBranding
           }
-        } catch (error) {
-          console.log('Error parsing user data for agencyBranding:', error)
-        }
+        } catch (error) {}
       }
 
       // Set hasAgencyLogo if logoUrl exists
       const hasLogo = branding?.logoUrl
       setHasAgencyLogo(hasLogo)
       setAgencyLogoUrl(branding?.logoUrl || null)
-      
-      console.log('🔍 [Header] Branding check:', {
-        isSubaccount: isSub || isSubaccountRegistration,
-        isSubaccountRegistration,
-        agencyUuid,
-        hasAgencyLogo: hasLogo,
-        logoUrl: branding?.logoUrl,
-        branding: branding,
-        isAgencyCreatingForSubaccount: isAgencyCreatingForSubaccount
-      })
-    } catch (error) {
-      console.log('Error parsing user data:', error)
-    }
+    } catch (error) {}
   }
 
   useEffect(() => {
@@ -283,20 +255,11 @@ const Header = ({
             const currentIsCustomDomain = typeof window !== 'undefined' 
               ? window.location.hostname !== 'app.assignx.ai' && window.location.hostname !== 'dev.assignx.ai'
               : isCustomDomain
-            
+
             // Hide orb if it's a custom domain (not app.assignx.ai or dev.assignx.ai)
             // Also hide if subaccount has agency logo
             // Also hide if agency is creating agent for subaccount
             const shouldShowOrb = !currentIsCustomDomain && (!isSubaccount || (isSubaccount && !hasAgencyLogo)) && !isAgencyCreatingForSubaccount
-            console.log('🎯 [Header] Orb visibility:', {
-              hostname: typeof window !== 'undefined' ? window.location.hostname : 'N/A',
-              isSubaccount,
-              hasAgencyLogo,
-              isCustomDomain,
-              currentIsCustomDomain,
-              isAgencyCreatingForSubaccount,
-              shouldShowOrb,
-            })
             return shouldShowOrb ? (
               <div className="hidden md:flex">
                 <AgentXOrb
@@ -358,7 +321,7 @@ const Header = ({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default Header

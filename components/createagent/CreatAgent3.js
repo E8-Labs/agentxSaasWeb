@@ -66,16 +66,13 @@ const CreatAgent3 = ({
               parsedUser?.userRole === 'AgencySubAccount',
           )
         }
-      } catch (error) {
-        console.log('Error parsing user data:', error)
-      }
+      } catch (error) {}
     }
   }, [])
 
   // Function to load plans for onboarding context
   const loadOnboardingPlans = async () => {
     try {
-      console.log('Loading onboarding plans')
       // Load main plans with trial
       const mainPlansData = await PlansService.getCachedPlans(
         'onboarding_plans_main',
@@ -103,7 +100,6 @@ const CreatAgent3 = ({
 
   useEffect(() => {
     const handlePopState = () => {
-      console.log('🔙 Back gesture or browser back triggered')
       // if(window.screenWidth < 640){
       handleBack()
       // }
@@ -348,7 +344,6 @@ const CreatAgent3 = ({
 
   const windowWidth = () => {
     if (typeof window !== 'undefined') {
-      console.log('Window width is', window.innerWidth)
       return window.innerWidth
     }
   }
@@ -1275,7 +1270,6 @@ export default CreatAgent3
 function TermsText() {
   const windowWidth = () => {
     if (typeof window !== 'undefined') {
-      console.log('Window width is', window.innerWidth)
       return window.innerWidth
     }
   }

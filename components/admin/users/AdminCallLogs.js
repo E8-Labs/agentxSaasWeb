@@ -34,7 +34,6 @@ function AdminCallLogs({ selectedUser }) {
         </div>
         <div style={{ fontSize: 24, fontWeight: '600' }}>Activity</div>
       </div>
-
       <div className=" w-full flex mt-4  gap-8 pb-2 mb-4 pl-10 ">
         {['All Activities', 'Campaign Activity'].map((tab) => (
           <button
@@ -51,17 +50,16 @@ function AdminCallLogs({ selectedUser }) {
           </button>
         ))}
       </div>
-
       <div className="flex  flex-1 w-full">
         {activeTab === 'All Activities' ? (
-          <AdminAllCalls selectedUser={selectedUser} />
+          (<AdminAllCalls selectedUser={selectedUser} />)
           // <div></div>
         ) : (
           <AdminActiveCalls selectedUser={selectedUser} />
         )}
       </div>
     </div>
-  )
+  );
 }
 
 export default AdminCallLogs

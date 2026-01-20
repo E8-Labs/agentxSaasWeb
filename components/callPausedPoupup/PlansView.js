@@ -67,7 +67,6 @@ function PlansView({
       )
       if (matchingPlan) {
         setCurrentSelectedPlan(matchingPlan)
-        console.log('Pre-selected plan set:', matchingPlan)
       }
     }
   }, [selectedPlan, monthlyPlans, quaterlyPlans, yearlyPlans])
@@ -109,10 +108,6 @@ function PlansView({
         setMonthlyPlans(monthly)
         setQuaterlyPlans(quarterly)
         setYearlyPlans(yearly)
-
-        console.log('monthly plans loaded:', monthly)
-        console.log('quarterly plans loaded:', quarterly)
-        console.log('yearly plans loaded:', yearly)
       }
     } catch (error) {
       console.error('Error fetching plans:', error)
@@ -147,7 +142,6 @@ function PlansView({
         })
 
         if (response) {
-          console.log('multiple charge api reponse is', response.data)
           if (response.data.status === true) {
             setShowMessage({
               message: response.data.message,
@@ -159,17 +153,10 @@ function PlansView({
               message: response.data.message,
               type: SnackbarTypes.Error,
             })
-            console.log('multiple charge api message is', response.data.message)
           }
         }
       }
-    } catch (e) {
-      console.log('error in multiple charge api', e)
-      // setShowMessage({
-      //     message:e,
-      //     type:SnackbarTypes.Error
-      // })
-    } finally {
+    } catch (e) {} finally {
       setMulitpleChargeLoading(false)
     }
   }
@@ -188,7 +175,6 @@ function PlansView({
   }
 
   const handleTogglePlanClick = (plan, index) => {
-    console.log('Plan selected:', plan)
     setCurrentSelectedPlan(plan)
 
     // Update the selectedPlan prop if setSelectedPlan is provided
@@ -209,9 +195,7 @@ function PlansView({
 
   // Log selected plan changes
   useEffect(() => {
-    if (currentSelectedPlan) {
-      console.log('Selected plan value:', currentSelectedPlan)
-    }
+    if (currentSelectedPlan) {}
   }, [currentSelectedPlan])
 
   return (
@@ -407,7 +391,6 @@ export const handleAutoCharge = async () => {
       let userData = JSON.parse(data)
 
       let ApiPath = Apis.confirmContinueCharging
-      console.log('ApiPath', ApiPath)
 
       const response = await axios.post(
         ApiPath,
@@ -419,15 +402,11 @@ export const handleAutoCharge = async () => {
         },
       )
 
-      console.log('response', response)
-
       if (response.data.status) {
         return true
       }
     }
-  } catch (error) {
-    console.log('error', error)
-  } finally {
+  } catch (error) {} finally {
     // setIsLoading(false);
   }
 }

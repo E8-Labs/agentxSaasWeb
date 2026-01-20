@@ -56,7 +56,7 @@ const linkifyText = (text) => {
   })
 
   // Preserve newlines
-  return linked.replace(/\n/g, '<br />')
+  return linked.replace(/\n/g, '<br />');
 }
 
 const EmailTimelineModal = ({

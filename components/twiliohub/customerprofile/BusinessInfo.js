@@ -172,7 +172,6 @@ const BusinessInfo = ({
                 // onChange={handleselectBusinessType}
                 onChange={(e) => {
                   let value = e.target.value
-                  console.log('Value for business type is', value)
                   setSelectBusinessType(value)
                   setOpenBusinessTypeDropwDown(false)
                 }}
@@ -234,7 +233,6 @@ const BusinessInfo = ({
                 // onChange={handleselectBusinessType}
                 onChange={(e) => {
                   let value = e.target.value
-                  console.log('Value for business industry is', value)
                   setBusinessIndustry(value)
                   setOpenBusinessIndustryTypeDropwDown(false)
                 }}
@@ -295,7 +293,6 @@ const BusinessInfo = ({
                 // onChange={handleselectBusinessType}
                 onChange={(e) => {
                   let value = e.target.value
-                  console.log('Value for business industry is', value)
                   setBusinessRegIdType(value)
                   setOpenBusinessRegIdType(false)
                 }}
@@ -372,7 +369,7 @@ const BusinessInfo = ({
                   }}
                 >
                   {businessOperatingRegion === item.areaName ? ( //toggleBusinessRegion.includes(item.id)
-                    <div
+                    (<div
                       className="bg-purple flex flex-row items-center justify-center rounded"
                       style={{ height: '24px', width: '24px' }}
                     >
@@ -382,7 +379,7 @@ const BusinessInfo = ({
                         width={10}
                         alt="*"
                       />
-                    </div>
+                    </div>)
                   ) : (
                     <div
                       className="bg-none border-2 flex flex-row items-center justify-center rounded"
@@ -392,7 +389,7 @@ const BusinessInfo = ({
                 </button>
                 <div style={styles.normalTxt}>{item.areaName}</div>
               </div>
-            )
+            );
           })}
         </div>
         <div className="mt-4" style={styles.normalTxt}>
@@ -420,7 +417,7 @@ const BusinessInfo = ({
         </button>
       </div>
     </div>
-  )
+  );
 }
 
 export default BusinessInfo

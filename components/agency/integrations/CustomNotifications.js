@@ -90,7 +90,6 @@ const CustomNotifications = () => {
         },
       })
       if (response) {
-        console.log('response of get user settings api is', response)
         const Data = response?.data?.data
         setAllowSuportWebCalendar(Data?.supportWebinarCalendar || false)
         setSuportWebCalendar(Data?.supportWebinarCalendarUrl || '')
@@ -111,14 +110,12 @@ const CustomNotifications = () => {
         setBillingAndSupportTitle(Data?.billingAndSupportTitle)
       }
     } catch (err) {
-      console.log('Error occured in api is', err)
       setInitialLoader(false)
     }
   }
 
   //user settings api data
   const userSettingDataUpgrade = (from) => {
-    console.log('Api will run for', from)
     if (from === 'suportWebCalendar') {
       setAddSuportWebCalendarLoader(true)
       return {
@@ -154,7 +151,6 @@ const CustomNotifications = () => {
 
   //api data for deleting user setting
   const userSettingDataDel = (from) => {
-    console.log('Api will run for', from)
     if (from === 'suportWebCalendarDel') {
       setDelSuportWebCalendarLoader(true)
       return {
@@ -223,14 +219,12 @@ const CustomNotifications = () => {
       } else {
         ApiData = userSettingDataUpgrade(from)
       }
-      console.log('Api data sending in user setting api is', ApiData)
       const response = await axios.put(ApiPath, ApiData, {
         headers: {
           Authorization: 'Bearer ' + Auth,
           'Content-Type': 'application/json',
         },
       })
-      console.log('Response of user settings api is', response)
       if (response) {
         if (response.data.status === true) {
           setShowSnackMessage('Link updated')

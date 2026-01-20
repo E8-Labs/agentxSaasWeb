@@ -55,7 +55,6 @@ const WhiteLabel = ({ selectedAgency }) => {
       // If selectedAgency is provided (admin view), use it; otherwise use localStorage
       if (selectedAgency) {
         setAgencyData(selectedAgency)
-        console.log('✅ Using selectedAgency data for admin view')
         return
       }
       
@@ -63,7 +62,6 @@ const WhiteLabel = ({ selectedAgency }) => {
       if (data) {
         let u = JSON.parse(data)
         setAgencyData(u.user)
-        console.log('✅ Data fetched successfully on attempt', attempt + 1)
       } else {
         attempt++
         if (attempt < retries) {
@@ -88,7 +86,6 @@ const WhiteLabel = ({ selectedAgency }) => {
           ? 'https://app.assignx.ai/'
           : 'http://dev.assignx.ai/'
       if (d) {
-        console.log('Agency uuid link copied check 3')
         const Data = JSON.parse(d)
         UUIDLink = BasePath + `onboarding/${Data.user.agencyUuid}`
       }
@@ -96,18 +93,15 @@ const WhiteLabel = ({ selectedAgency }) => {
       const apidata = {
         agencyOnboardingLink: UUIDLink,
       }
-      console.log('Data sending in updatee api is', apidata)
       const response = await UpdateProfile(apidata)
       if (response) {
         if (response.status === true) {
           getLocalData()
           setCopyLinkLoader(false)
-          console.log('Update api resopnse before copy link is', response)
         }
       }
     } catch (err) {
       setCopyLinkLoader(false)
-      console.log('Eror occured in update profile api is', err)
     }
   }
 
@@ -323,11 +317,6 @@ const WhiteLabel = ({ selectedAgency }) => {
                   })
                   return
                 }
-                console.log(
-                  'reduxUser?.planCapabilities?.maxSubAccounts',
-                  reduxUser?.planCapabilities?.maxSubAccounts,
-                )
-                console.log('reduxUser?.plan?.title', reduxUser?.plan?.title)
                 if (
                   reduxUser?.plan?.title !== 'Scale' &&
                   reduxUser?.planCapabilities?.maxSubAccounts < 1000 &&
@@ -390,7 +379,7 @@ const WhiteLabel = ({ selectedAgency }) => {
         />
       )}
     </div>
-  )
+  );
 }
 
 export default WhiteLabel

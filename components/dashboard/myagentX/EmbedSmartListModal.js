@@ -118,10 +118,6 @@ const EmbedSmartListModal = ({
   }
 
   const updateSupportButton = async () => {
-    console.log(
-      '🔧 EMBED-SMARTLIST - Updating agent support button settings...',
-    )
-
     try {
       let AuthToken = null
       const localData = localStorage.getItem('User')
@@ -160,28 +156,12 @@ const EmbedSmartListModal = ({
         formData.append('userId', selectedUser.id)
       }
 
-      console.log('🔧 EMBED-SMARTLIST - updateSupportButton using agentId:', {
-        originalAgentId: agentId,
-        agentIdType: typeof agentId,
-        agentIdFromAgent: agent?.id,
-        finalAgentId: agentIdToUse,
-        finalAgentIdType: typeof agentIdToUse,
-      })
       if (logoFile) {
         formData.append('media', logoFile)
-        console.log('🔧 EMBED-SMARTLIST - Adding logo file to update')
       }
       formData.append('supportButtonText', buttonLabel)
       formData.append('smartListEnabled', 'true')
       formData.append('agentType', 'embed') // Specify agent type for embed agents
-
-      console.log('🔧 EMBED-SMARTLIST - Support button settings:', {
-        agentId,
-        userId: selectedUser?.id,
-        buttonLabel,
-        smartListEnabled: true,
-        hasLogo: !!logoFile,
-      })
 
       const response = await axios.post(
         Apis.updateAgentSupportButton,
@@ -194,7 +174,6 @@ const EmbedSmartListModal = ({
       )
 
       if (response.data?.status === true) {
-        console.log('🔧 EMBED-SMARTLIST - Support button updated successfully')
         return true
       } else {
         throw new Error(
@@ -211,8 +190,6 @@ const EmbedSmartListModal = ({
   }
 
   const createSmartList = async () => {
-    console.log('🔧 EMBED-SMARTLIST - Creating new smart list...')
-
     try {
       let AuthToken = null
       const localData = localStorage.getItem('User')
@@ -268,28 +245,9 @@ const EmbedSmartListModal = ({
         agentType: 'embed', // Specify agent type for embed agents
       }
 
-      console.log('🔧 EMBED-SMARTLIST - Using agentId:', {
-        originalAgentId: agentId,
-        agentIdType: typeof agentId,
-        agentIdFromAgent: agent?.id,
-        finalAgentId: agentIdToUse,
-        finalAgentIdType: typeof agentIdToUse,
-      })
-
       if (selectedUser) {
         payload.userId = selectedUser?.id
       }
-
-      console.log(
-        '🔧 EMBED-SMARTLIST - Creating smart list with payload:',
-        payload,
-      )
-      console.log(
-        '🔧 EMBED-SMARTLIST - agentType in payload:',
-        payload.agentType,
-        'type:',
-        typeof payload.agentType,
-      )
 
       const response = await axios.post(
         Apis.addSmartList,
@@ -303,7 +261,6 @@ const EmbedSmartListModal = ({
       )
 
       if (response.data?.status === true) {
-        console.log('🔧 EMBED-SMARTLIST - Smart list created successfully')
         return response.data
       } else {
         throw new Error(response.data?.message || 'Failed to create smart list')
@@ -355,12 +312,6 @@ const EmbedSmartListModal = ({
 
     try {
       setLoading(true)
-      console.log('🔧 EMBED-SMARTLIST - Starting save process...', {
-        agentId: agentIdToUse,
-        originalAgentId: agentId,
-        agentIdFromAgent: agent?.id,
-        agent,
-      })
 
       // Step 1: Update support button settings first (including logo and button text)
       await updateSupportButton()
@@ -762,7 +713,6 @@ const EmbedSmartListModal = ({
                   <div style={{ position: 'absolute', top: 16, right: 16 }}>
                     <CloseBtn
                       onClick={(e) => {
-                        console.log('Cross button clicked')
                         e.stopPropagation()
                         handleClose()
                       }}
@@ -819,7 +769,7 @@ const EmbedSmartListModal = ({
         </Box>
       </Modal>
     </>
-  )
+  );
 }
 
 export default EmbedSmartListModal

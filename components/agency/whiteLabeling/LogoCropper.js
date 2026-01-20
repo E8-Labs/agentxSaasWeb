@@ -20,12 +20,7 @@ const LogoCropper = ({
   const [error, setError] = useState(null)
 
   // Debug logging
-  useEffect(() => {
-    console.log('🖼️ [LogoCropper] Props changed:', {
-      open,
-      hasImageSrc: !!imageSrc,
-    })
-  }, [open, imageSrc])
+  useEffect(() => {}, [open, imageSrc])
 
   // Reset state when modal closes
   useEffect(() => {
@@ -149,13 +144,6 @@ const LogoCropper = ({
       setLoading(false)
     }
   }
-
-  console.log(
-    '🖼️ [LogoCropper] Rendering with open:',
-    open,
-    'imageSrc:',
-    !!imageSrc,
-  )
 
   return (
     <>

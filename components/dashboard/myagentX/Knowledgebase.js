@@ -55,7 +55,6 @@ function Knowledgebase({ user, agent }) {
       const data = await response.json()
 
       if (response.ok) {
-        console.log('kb list is ', data.data)
         setKb(data.data)
       } else {
         console.error('Failed to fetch kb:', data.error)
@@ -84,6 +83,7 @@ function Knowledgebase({ user, agent }) {
           subTitle={
             'Upgrade to teach your AI agent on your own custom data. You can add Youtube videos, website links, documents and more.'
           }
+          selectedUser={user}
         />
       )
     } else

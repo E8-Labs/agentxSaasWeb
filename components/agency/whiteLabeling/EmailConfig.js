@@ -167,7 +167,6 @@ const EmailConfig = ({ selectedAgency }) => {
               ...userInfo,
             }
 
-            console.log('Google login details are', googleLoginData)
             const response = await connectGmailAccount(googleLoginData, selectedAgency)
             setConnecting(false)
 

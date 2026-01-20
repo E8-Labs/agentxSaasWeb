@@ -13,7 +13,6 @@ const SupportFile = ({
   cancelAction,
   metadata = {},
 }) => {
-  console.log('metadata in support file', metadata)
   const benifits1 = [
     { id: 1, title: 'More Mins of AI Credits', subTitle: '' },
     { id: 2, title: 'Unlimited Agents', subTitle: '' },

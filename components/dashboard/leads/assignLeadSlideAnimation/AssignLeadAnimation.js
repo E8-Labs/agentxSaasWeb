@@ -95,9 +95,7 @@ export default function AssignLeadAnimation({
   ])
 
   const handleContinue = (formData) => {
-    if (formData) {
-      console.log(formData)
-    }
+    if (formData) {}
     setDirection(1)
     setCurrentIndex((prevIndex) => prevIndex + 1)
   }
@@ -137,13 +135,7 @@ export default function AssignLeadAnimation({
       if (
         isAfterStartTime && // After 7:00 AM
         isBeforeEndTime // Before 8:30 PM
-      ) {
-        console.log(
-          '✅ Selected time is between 7 AM and 9 PM.',
-          selectedDate.format(),
-        )
-        // setSelectedDateTime(selectedDate);
-      } else {
+      ) {} else {
         setShowTimeError('Calls can only be scheduled between 7 AM to 9 PM')
         return
       }
@@ -165,14 +157,11 @@ export default function AssignLeadAnimation({
       }
 
       if (CallNow) {
-        console.log('Call now')
         timer = 0
       } else if (CallLater) {
-        console.log('Call later')
         const currentDateTime = dayjs() // Get current date and time using Day.js
 
         const differenceInMilliseconds = selectedDateTime.diff(currentDateTime) // Difference in ms
-        console.log('selectedDate is', differenceInMilliseconds)
         const minutes = differenceInMilliseconds / (1000 * 60) // Convert ms to minutes
         timer = minutes.toFixed(0) // Round to nearest integer
 
@@ -191,7 +180,6 @@ export default function AssignLeadAnimation({
         dncCheck: isDncChecked ? true : false,
       }
 
-      console.log('Data sending in assign lead api api is', Apidata)
       // return;
       if (filters && selectedAll) {
         Apidata = {
@@ -215,7 +203,6 @@ export default function AssignLeadAnimation({
         AuthToken = UserDetails.token
       }
 
-      console.log('Data sending in api is', Apidata)
       // return
       const ApiPath = Apis.assignLeadToPipeLine
 
@@ -250,10 +237,7 @@ export default function AssignLeadAnimation({
       const endTime = Date.now() // record end time
       const duration = endTime - startTime // in milliseconds
 
-      console.log('API Response time (ms):', duration)
-
       if (duration > 30000) {
-        console.log('⚠️ API response took MORE than 30 seconds!')
         handleClose({
           status: false,
           showSnack: 'Lead assigned',
@@ -269,9 +253,7 @@ export default function AssignLeadAnimation({
         window.dispatchEvent(
           new CustomEvent('UpdateCheckList', { detail: { update: true } }),
         )
-      } else {
-        console.log('✅ API response took LESS than 30 seconds.')
-      }
+      } else {}
 
       if (response) {
         // //console.log;
@@ -422,9 +404,7 @@ export default function AssignLeadAnimation({
                     userProfile={userProfile} // this is the .user object doesn't include token
                     oldAgents={oldAgents}
                     handleContinue={({ SelectedAgents, agentsList }) => {
-                      console.log('Selected agent is', SelectedAgents)
                       setSelectedAgents(SelectedAgents)
-                      console.log('agents passed are', agentsList)
                       setOldAgents(agentsList)
                       handleContinue()
                     }}
@@ -456,7 +436,6 @@ export default function AssignLeadAnimation({
                     userProfile={userProfile}
                     handleBack={(D) => {
                       if (D) {
-                        console.log('Data ppassed is', D)
                         setSelectedDateTime(D.selectedDate)
                         setNoOfLeadsToSend(D.numberOfLeads)
                         setCustomLeadsToSend(D.cutomLeads)
@@ -469,7 +448,6 @@ export default function AssignLeadAnimation({
                     }}
                     lastStepData={lastStepData}
                     handleContinue={(D) => {
-                      console.log('Data ppassed is', D)
                       setSelectedDateTime(D.selectedDate)
                       setNoOfLeadsToSend(D.numberOfLeads)
                       setCustomLeadsToSend(D.cutomLeads)
@@ -480,7 +458,6 @@ export default function AssignLeadAnimation({
                       const localData = localStorage.getItem('User')
                       if (localData) {
                         const UserDetails = JSON.parse(localData)
-                        console.log(UserDetails.user.smartRefill)
                         if (UserDetails.user.smartRefill === false) {
                           // setShowSmartRefillPopUp(true);
                           //handle continue here
@@ -546,7 +523,7 @@ export default function AssignLeadAnimation({
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
 
 const styles = {

@@ -66,8 +66,6 @@ export const uploadBatchSequence = async ({
           }),
         )
 
-        console.log('batch uploaded at index', nextIndex)
-
         if (setUserLeads) {
           localStorage.setItem('userLeads', JSON.stringify(response.data.data))
           setUserLeads(response.data.data)

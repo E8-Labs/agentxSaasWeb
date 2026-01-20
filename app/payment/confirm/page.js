@@ -43,14 +43,13 @@ function ConfirmPaymentCode() {
       })
         .then((res) => res.json())
         .then((data) => {
-          console.log('Payment intent is ', data)
-          if (data.status && data.data?.client_secret) {
-            setClientSecret(data.data.client_secret)
-          } else {
-            toast.error('Unable to fetch payment intent.')
-          }
-          setLoading(false)
-        })
+        if (data.status && data.data?.client_secret) {
+          setClientSecret(data.data.client_secret)
+        } else {
+          toast.error('Unable to fetch payment intent.')
+        }
+        setLoading(false)
+      })
         .catch(() => {
           toast.error('Server error.')
           setLoading(false)
@@ -86,7 +85,6 @@ function ConfirmPaymentCode() {
   )
 }
 function PaymentConfirmationForm({ clientSecret }) {
-  console.log('Client secret ', clientSecret)
   const [processing, setProcessing] = useState(false)
   const stripe = useStripe()
   const elements = useElements()

@@ -61,16 +61,12 @@ export default function AgencyDashboard({ selectedAgency }) {
   }, [searchParams])
 
   useEffect(() => {
-    console.log('check 1')
     let userData = localStorage.getItem('User')
     if (userData) {
       let user = JSON.parse(userData)
-      console.log('userdata', user)
 
       setUser(user)
-    } else {
-      console.log('no data found')
-    }
+    } else {}
   }, [])
 
   // Handle tab change and update URL

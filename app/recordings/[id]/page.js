@@ -20,7 +20,6 @@ const Page = () => {
   const [screenWidth, setScreenWidth] = useState(null)
 
   useEffect(() => {
-    console.log('id is', id)
     const D = localStorage.getItem('User')
     if (D) {
       getRecordings()
@@ -42,17 +41,14 @@ const Page = () => {
       })
       if (response) {
         const ResponseData = response.data
-        console.log('response is', response)
         if (ResponseData.status === true) {
           const data = ResponseData.data
-          console.log('data is', data)
           setRecordingUrl(ResponseData.data.recordingUrl)
         }
         setRecordingLoader(false)
       }
     } catch (error) {
       setRecordingLoader(false)
-      console.log('error is', error)
       setStatus(error.response.status)
       if (error.response?.status === 404) {
         const errMsg = error.response.data?.error || ''

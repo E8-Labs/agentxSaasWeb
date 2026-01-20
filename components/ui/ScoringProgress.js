@@ -22,8 +22,6 @@ const ScoringProgress = ({
   // Calculate the percentage for the progress
   const percentage = (value / maxValue) * 100
 
-  console.log('tooltipContent', questions)
-
   // Create tooltip content if questions are provided
   const tooltipContent =
     questions.length > 0 ? (

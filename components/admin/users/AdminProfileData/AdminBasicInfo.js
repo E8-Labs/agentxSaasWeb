@@ -240,11 +240,9 @@ function AdminBasicInfo({ selectedUser }) {
   const getProfile = async () => {
     try {
       let LocalData = await AdminGetProfileDetails(selectedUser.id)
-      console.log('Local data for selected user', LocalData)
       if (LocalData) {
         const userData = LocalData
         await getAgentDefaultData(userData)
-        console.log('image is ', LocalData)
 
         setUserRole(userData?.userRole)
         setUserType(userData?.userType)
@@ -331,7 +329,6 @@ function AdminBasicInfo({ selectedUser }) {
         })
 
         if (response) {
-          console.log('Default agent data', response.data.data)
           setAgentServices(response.data.data.agentServices)
           setAgentAreasOfFocus(response.data.data.areaOfFocus)
           setAgentIndustries(response.data.data.userIndustry)
@@ -569,9 +566,7 @@ function AdminBasicInfo({ selectedUser }) {
         apidata.append('media', imageUrl)
         apidata.append('userId', selectedUser.id)
         // //console.log;
-        for (let pair of apidata.entries()) {
-          console.log(pair) // Debug FormData contents
-        }
+        for (let pair of apidata.entries()) {}
         let path = Apis.updateProfileApi
 
         // //console.log;
@@ -585,7 +580,6 @@ function AdminBasicInfo({ selectedUser }) {
 
         if (response) {
           if (response.data.status === true) {
-            console.log('imageUploaded', response.data.data)
             u.user = response.data.data
 
             //// //console.log
@@ -598,9 +592,7 @@ function AdminBasicInfo({ selectedUser }) {
           }
         }
       }
-    } catch (e) {
-      console.log('error in upload image:', e)
-    } finally {
+    } catch (e) {} finally {
       setloading5(false)
     }
   }
@@ -626,7 +618,6 @@ function AdminBasicInfo({ selectedUser }) {
           </div>
         </div>
       </div>
-
       <button
         className="mt-8"
         onClick={() => {
@@ -676,7 +667,6 @@ function AdminBasicInfo({ selectedUser }) {
           </div>
         )}
       </button>
-
       {/* Hidden file input */}
       <input
         type="file"
@@ -685,7 +675,6 @@ function AdminBasicInfo({ selectedUser }) {
         style={{ display: 'none' }}
         onChange={handleImageChange}
       />
-
       <div
         style={{
           fontSize: 16,
@@ -696,7 +685,6 @@ function AdminBasicInfo({ selectedUser }) {
       >
         Full Name
       </div>
-
       <div className="flex items-center w-6/12 mt-2 gap-2">
         <div
           className="flex items-center rounded-lg px-3 py-2 w-full"
@@ -748,7 +736,6 @@ function AdminBasicInfo({ selectedUser }) {
           </button>
         )}
       </div>
-
       <div
         style={{
           fontSize: 16,
@@ -810,7 +797,6 @@ function AdminBasicInfo({ selectedUser }) {
           </button>
         )}
       </div>
-
       {!isInternal && (
         <>
           <div
@@ -846,7 +832,6 @@ function AdminBasicInfo({ selectedUser }) {
           </div>
         </>
       )}
-
       {userRole && userRole != 'Invitee' && userRole != 'AgencySubAccount' && (
         <>
           {(userType && userType === UserTypes.RealEstateAgent) ||
@@ -1862,7 +1847,6 @@ function AdminBasicInfo({ selectedUser }) {
           )}
         </>
       )}
-
       {userRole && userRole != 'Invitee' && (
         <>
           <div className="w-full flex flex-row items-center justify-between">
@@ -1881,11 +1865,6 @@ function AdminBasicInfo({ selectedUser }) {
 
           <div className="w-9/12 flex flex-row flex-wrap gap-2">
             {agentServices.map((item, index) => {
-              console
-                .log
-                // `${item.id} included in array `,
-                // serviceId.includes(item.id)
-                ()
               return (
                 <div
                   key={index}
@@ -2006,7 +1985,7 @@ function AdminBasicInfo({ selectedUser }) {
         </>
       )}
     </div>
-  )
+  );
 }
 
 export default AdminBasicInfo

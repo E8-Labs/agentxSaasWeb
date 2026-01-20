@@ -89,7 +89,6 @@ const UpgradeModal = ({
       window.removeEventListener('agencyBrandingUpdated', updateBrandColor)
     }
   }, [])
-  console.log('SelectedPlan in UpgradeModal is ', selectedPlan)
   const stripePromise = getStripe()
 
   // Get features based on functionality or use provided features
@@ -119,7 +118,6 @@ const UpgradeModal = ({
     useState(false)
 
   const handleRequestFeature = (featureTitle) => {
-    console.log('featureTitle in upgrade modal is', featureTitle)
     setShowUnlockPremiumFeaturesPopup(true)
   }
 
@@ -274,7 +272,6 @@ const UpgradeModal = ({
           </div>
         </Box>
       </Modal>
-
       <UnlockPremiunFeatures
         title={featureTitle}
         open={showUnlockPremiumFeaturesPopup}
@@ -283,7 +280,6 @@ const UpgradeModal = ({
           handleClose()
         }}
       />
-
       <Elements stripe={stripePromise}>
         <UpgradePlan
           open={showUpgradePlanPopup}
@@ -294,9 +290,6 @@ const UpgradeModal = ({
             // If upgrade was successful, call the success callback
             // The upgradeResult indicates success but doesn't contain profile data
             if (upgradeResult && onUpgradeSuccess) {
-              console.log(
-                '🎉 [UPGRADE-MODAL] Upgrade successful, calling success callback',
-              )
               await onUpgradeSuccess()
             }
           }}
@@ -306,7 +299,7 @@ const UpgradeModal = ({
         />
       </Elements>
     </div>
-  )
+  );
 }
 
 export default UpgradeModal

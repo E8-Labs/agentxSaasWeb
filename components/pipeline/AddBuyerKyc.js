@@ -1066,7 +1066,7 @@ const AddBuyerKyc = ({
                 </div> */}
       </div>
     </div>
-  )
+  );
 }
 
 export default AddBuyerKyc

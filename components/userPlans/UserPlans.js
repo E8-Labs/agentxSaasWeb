@@ -103,11 +103,7 @@ function UserPlans({
       if (localData) {
         const userData = JSON.parse(localData)
         const cards = userData?.data?.user?.cards
-        console.log('🔍 [hasPaymentMethod] Checking localStorage cards:', cards)
         if (Array.isArray(cards) && cards.length > 0) {
-          console.log(
-            '✅ [hasPaymentMethod] Found payment method in localStorage',
-          )
           return true
         }
       }
@@ -117,9 +113,6 @@ function UserPlans({
         Array.isArray(reduxUser.cards) &&
         reduxUser.cards.length > 0
       ) {
-        console.log(
-          '✅ [hasPaymentMethod] Found payment method in reduxUser.cards',
-        )
         return true
       }
       if (
@@ -127,12 +120,8 @@ function UserPlans({
         Array.isArray(reduxUser.user.cards) &&
         reduxUser.user.cards.length > 0
       ) {
-        console.log(
-          '✅ [hasPaymentMethod] Found payment method in reduxUser.user.cards',
-        )
         return true
       }
-      console.log('❌ [hasPaymentMethod] No payment method found')
       return false
     } catch (error) {
       console.error('Error checking payment methods:', error)
@@ -141,7 +130,6 @@ function UserPlans({
   }
 
   useEffect(() => {
-    console.log('reduxUser', reduxUser)
     // Only auto-continue if user has a plan AND we're not in modal view (billing-modal)
     if (
       reduxUser?.plan &&
@@ -152,7 +140,7 @@ function UserPlans({
         handleContinue()
       }
     }
-    
+
     // Determine user type - use prop if provided, otherwise detect from user data
     let detectedFrom = isFrom
     if (!detectedFrom) {
@@ -160,8 +148,7 @@ function UserPlans({
       if (data) {
         let user = JSON.parse(data)
         const userRole = user?.user?.userRole
-        console.log('user.user.userRole', userRole)
-        
+
         // Only set to SubAccount if user is actually a subaccount
         if (userRole === 'AgencySubAccount') {
           detectedFrom = 'SubAccount'
@@ -190,7 +177,6 @@ function UserPlans({
   }, [])
 
   const handleClose = async (data) => {
-    console.log('Card added details are here', data)
     if (data) {
       // Check if this is a subscription completion (from AgencyAddCard)
       const isSubscriptionComplete = data.subscriptionHandled === true || data.status === true
@@ -234,7 +220,6 @@ function UserPlans({
           // For mobile normal users and subaccounts, redirect to continue to desktop screen
           if ((screenWidth <= SM_SCREEN_SIZE || isMobileDevice) && 
               (isFrom === 'SubAccount' || routedFrom === 'SubAccount' || reduxUser?.userRole === 'AgencySubAccount' || !isFrom || isFrom === 'User')) {
-            console.log('Mobile user/subaccount - redirecting to continue to desktop screen')
             router.push('/createagent/desktop')
           } else {
             // Otherwise, continue to next step (for createagent flow)
@@ -267,18 +252,12 @@ function UserPlans({
   // Function to refresh user data after plan upgrade
   const refreshUserData = async () => {
     try {
-      console.log(
-        '🔄 [subscribe plan] Refreshing user data after plan upgrade...',
-      )
       const profileResponse = await getProfileDetails()
 
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data
         const localData = JSON.parse(localStorage.getItem('User') || '{}')
 
-        console.log(
-          '🔄 [subscribe plan] Fresh user data received after upgrade',
-        )
         // Update Redux with fresh data
         setReduxUser({
           token: localData.token,
@@ -302,12 +281,11 @@ function UserPlans({
         selectedPlan &&
         (selectedPlan.discountedPrice === 0 ||
           selectedPlan.discountedPrice === null)
-      
+
       // For paid plans, check if payment method exists
       if (!isFreePlan) {
         const hasPM = hasPaymentMethod()
         if (!hasPM) {
-          console.log('❌ [handleSubscribePlan] No payment method found - showing payment modal')
           setShouldAutoSubscribe(true)
           setAddPaymentPopUp(true)
           setSubscribeLoader(null)
@@ -318,7 +296,6 @@ function UserPlans({
       let planType = selectedPlan?.planType
 
       setSubscribeLoader(selectedPlan?.id)
-      console.log('subscribeLoader', subscribeLoader)
       let AuthToken = null
       const localData = localStorage.getItem('User')
       if (localData) {
@@ -348,8 +325,6 @@ function UserPlans({
       if (isFrom === 'SubAccount' || reduxUser?.userRole === 'Agency') {
         ApiPath = Apis.subAgencyAndSubAccountPlans
       }
-      // //console.log;
-      console.log('Api data', ApiData)
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
           Authorization: 'Bearer ' + AuthToken,
@@ -358,16 +333,14 @@ function UserPlans({
       })
 
       if (response) {
-        console.log('Response of subscribe plan api is', response.data)
         if (response.data.status === true) {
           await refreshUserData()
           
           // If subscribing for a subaccount (agency/admin context), refresh the subaccount's profile
           if (selectedUser && (isFrom === 'SubAccount' || reduxUser?.userRole === 'Agency')) {
             try {
-              console.log('🔄 [USER-PLANS] Refreshing subaccount profile after plan subscription')
               const refreshedUserData = await AdminGetProfileDetails(selectedUser.id)
-              
+
               if (refreshedUserData) {
                 // Dispatch custom event to notify parent components
                 window.dispatchEvent(
@@ -375,11 +348,9 @@ function UserPlans({
                     detail: { userId: selectedUser.id, userData: refreshedUserData },
                   }),
                 )
-                
+
                 // Store updated user data in localStorage for other screens
                 localStorage.setItem('selectedSubAccount', JSON.stringify(refreshedUserData))
-                
-                console.log('✅ [USER-PLANS] Subaccount profile refreshed and event dispatched')
               }
             } catch (error) {
               console.error('Error refreshing subaccount profile after subscription:', error)
@@ -408,10 +379,8 @@ function UserPlans({
             // For mobile normal users and subaccounts, redirect to continue to desktop screen
             if ((screenWidth <= SM_SCREEN_SIZE || isMobileDevice) && 
                 (isFrom === 'SubAccount' || reduxUser?.userRole === 'AgencySubAccount' || !isFrom || isFrom === 'User')) {
-              console.log('Mobile user/subaccount - redirecting to continue to desktop screen')
               redirectPath = '/createagent/desktop'
             } else {
-              console.log('handle continue ')
               if (handleContinue) {
                 handleContinue()
                 return // Exit early if handleContinue is called
@@ -422,17 +391,14 @@ function UserPlans({
           // Use window.location.href for hard redirect to ensure clean page reload
           // This prevents DOM cleanup errors during navigation
           if (redirectPath) {
-            console.log('✅ Subscription successful, redirecting to:', redirectPath)
             window.location.href = redirectPath
             return
           }
         } else if (response.data.status === false) {
           // Handle subscription failure - check if it's due to missing payment method
           const errorMessage = response.data.message || 'Subscription failed. Please try again.'
-          console.log('❌ [handleSubscribePlan] Subscription failed:', errorMessage)
-          
+
           if (response.data.message === 'No payment method added' || response.data.message?.toLowerCase().includes('payment')) {
-            console.log('❌ [handleSubscribePlan] API returned no payment method error - showing payment modal')
             setShouldAutoSubscribe(true)
             setAddPaymentPopUp(true)
           } else {
@@ -451,7 +417,6 @@ function UserPlans({
       // If error is related to payment, show payment modal
       if (error?.response?.data?.message?.toLowerCase().includes('payment') || 
           error?.response?.data?.message?.toLowerCase().includes('card')) {
-        console.log('❌ [handleSubscribePlan] Payment error detected - showing payment modal')
         setShouldAutoSubscribe(true)
         setAddPaymentPopUp(true)
       } else {
@@ -466,12 +431,8 @@ function UserPlans({
 
   const getPlans = async (overrideFrom = null) => {
     const fromValue = overrideFrom || isFrom || routedFrom
-    console.log('getPlans is called', fromValue)
-    console.log('selectedUser is', selectedUser)
     let plansList = await getUserPlans(fromValue, selectedUser)
-    console.log('Plans list found is', plansList)
     if (plansList) {
-      console.log('isFrom is', fromValue)
       // Filter features in each plan to only show features where thumb = false
       let filteredPlans = []
 
@@ -491,12 +452,10 @@ function UserPlans({
             plan.features && Array.isArray(plan.features) ? plan.features : [], //.filter(feature => feature.thumb === true) : []
         }))
       }
-      console.log('Filtered plans are', filteredPlans)
       const monthly = []
       const quarterly = []
       const yearly = []
       let freePlan = null
-      console.log('Status f is from is', fromValue)
       // Handle both SubAccount plans (with duration) and normal plans (with billingCycle)
       let plansToProcess = fromValue === 'SubAccount' ? plansList : filteredPlans
       plansToProcess = plansToProcess?.monthlyPlans || plansToProcess
@@ -521,13 +480,6 @@ function UserPlans({
         }
       })
 
-      // if (freePlan) {
-      //     quarterly.unshift({ ...freePlan, billingCycle: "quarterly" });
-      //     yearly.unshift({ ...freePlan, billingCycle: "yearly" });
-      // }
-
-      //select duration selection dynamically
-      console.log('Isfrom is', fromValue)
       if (fromValue === 'SubAccount') {
         if (
           monthly.length > 0 &&
@@ -537,17 +489,14 @@ function UserPlans({
           setSelectedDuration({ id: 1, title: 'Monthly' })
         } else {
           if (monthly.length > 0) {
-            console.log('Should select the 0 index')
             setSelectedDuration({ id: 1, title: 'Monthly' })
           }
           // Check inside quarterly plans
           else if (quarterly.length > 0) {
-            console.log('Should select the 2 index')
             setSelectedDuration({ id: 2, title: 'Quarterly' })
           }
           // Check inside yearly plans
           else if (yearly.length > 0) {
-            console.log('Should select the 3 index')
             setSelectedDuration({ id: 3, title: 'Yearly' })
           }
         }
@@ -556,20 +505,16 @@ function UserPlans({
       const emptyDurations = [monthly, quarterly, yearly].filter(
         (arr) => arr.length === 0,
       ).length
-      console.log('Empty durations are', emptyDurations)
       if (emptyDurations >= 2) {
         setDuration([])
       } else {
         if (monthly.length === 0) {
-          console.log('Remove monthly')
           setDuration((prev) => prev.filter((item) => item.id !== 1))
         }
         if (quarterly.length === 0) {
-          console.log('Remove quarterly')
           setDuration((prev) => prev.filter((item) => item.id !== 2))
         }
         if (yearly.length === 0) {
-          console.log('Remove yearly')
           setDuration((prev) => prev.filter((item) => item.id !== 3))
         }
       }
@@ -577,10 +522,6 @@ function UserPlans({
       setMonthlyPlans(monthly)
       setQuaterlyPlans(quarterly)
       setYearlyPlans(yearly)
-
-      console.log('monthly', monthly)
-      console.log('quarterly', quarterly)
-      console.log('yearly', yearly)
     }
   }
   const getCurrentPlans = () => {
@@ -593,34 +534,9 @@ function UserPlans({
   // Check if a plan is the current user's plan
   const isCurrentPlan = (plan) => {
     if (!reduxUser?.plan || !plan) {
-      console.log('🔍 [isCurrentPlan] Early return:', {
-        hasReduxPlan: !!reduxUser?.plan,
-        hasPlan: !!plan,
-      })
       return false
     }
     const userPlan = reduxUser.plan
-
-    // Log user's current plan details
-    console.log('🔍 [isCurrentPlan] User Plan Details:', {
-      userPlanId: userPlan.id,
-      userPlanPlanId: userPlan.planId,
-      userName: userPlan.name,
-      userTitle: userPlan.title,
-      userBillingCycle: userPlan.billingCycle,
-      userDuration: userPlan.duration,
-      userStatus: userPlan.status,
-    })
-
-    // Log plan being checked
-    console.log('🔍 [isCurrentPlan] Checking Plan:', {
-      planId: plan.id,
-      planPlanId: plan.planId,
-      planName: plan.name,
-      planTitle: plan.title,
-      planBillingCycle: plan.billingCycle,
-      planDuration: plan.duration,
-    })
 
     // First, try to match by planId (most reliable)
     // Prioritize planId over id because id might be a subscription/user_plan ID, not the actual plan ID
@@ -633,33 +549,11 @@ function UserPlans({
       // Convert to strings for consistent comparison (handles number vs string)
       const userPlanPlanIdStr = String(userPlanPlanId)
       const planIdStr = String(planId)
-      
-      console.log('🔍 [isCurrentPlan] ID Comparison:', {
-        userPlanId: userPlan.id,
-        userPlanPlanId,
-        planId,
-        userPlanPlanIdStr,
-        planIdStr,
-        match: userPlanPlanIdStr === planIdStr,
-      })
 
       if (userPlanPlanIdStr === planIdStr) {
-        console.log('✅ [isCurrentPlan] MATCHED BY PLAN ID:', {
-          planId: plan.id,
-          planPlanId: plan.planId,
-          planTitle: plan.title || plan.name,
-          userPlanPlanId,
-          planId,
-        })
         return true
       }
-    } else {
-      console.log('⚠️ [isCurrentPlan] ID comparison skipped:', {
-        userPlanPlanId,
-        planId,
-        reason: userPlanPlanId == null ? 'userPlanPlanId is null/undefined' : 'planId is null/undefined',
-      })
-    }
+    } else {}
 
     // Fallback: Match by name and billing cycle ONLY if both plan IDs are missing
     // This is a last resort - we should always prefer ID matching
@@ -674,15 +568,6 @@ function UserPlans({
         .toLowerCase()
         .trim()
 
-      console.log('🔍 [isCurrentPlan] Name & Billing Cycle Comparison (fallback - no IDs available):', {
-        userPlanName,
-        planName,
-        userBillingCycle,
-        planBillingCycle,
-        nameMatch: userPlanName && planName && userPlanName === planName,
-        billingCycleMatch: userBillingCycle && planBillingCycle && userBillingCycle === planBillingCycle,
-      })
-
       // Both name and billing cycle must exist and match
       if (userPlanName && planName && userPlanName === planName) {
         if (
@@ -690,45 +575,15 @@ function UserPlans({
           planBillingCycle &&
           userBillingCycle === planBillingCycle
         ) {
-          console.log('✅ [isCurrentPlan] MATCHED BY NAME + BILLING CYCLE (fallback):', {
-            planId: plan.id,
-            planPlanId: plan.planId,
-            planTitle: plan.title || plan.name,
-            planName,
-            planBillingCycle,
-            userPlanName,
-            userBillingCycle,
-          })
           return true
-        } else {
-          console.log('⚠️ [isCurrentPlan] Name matched but billing cycle did not:', {
-            planId: plan.id,
-            planTitle: plan.title || plan.name,
-            planName,
-            planBillingCycle,
-            userPlanName,
-            userBillingCycle,
-          })
-        }
+        } else {}
       }
-    } else {
-      console.log('⚠️ [isCurrentPlan] Skipping name fallback - IDs are available but did not match:', {
-        userPlanPlanId,
-        planId,
-        reason: 'Should match by ID, not by name',
-      })
-    }
+    } else {}
 
-    console.log('❌ [isCurrentPlan] NO MATCH:', {
-      planId: plan.id,
-      planPlanId: plan.planId,
-      planTitle: plan.title || plan.name,
-    })
     return false
   }
 
   const handleTogglePlanClick = (item, index) => {
-    console.log('Selected plan index is', index, item)
     setSelectedPlanIndex(index)
     setTogglePlan(item.id)
     setSelectedPlan(item)
@@ -961,7 +816,7 @@ function UserPlans({
             if (allPlans?.length > 0) {
               const matchedPlans = []
               const unmatchedPlans = []
-              
+
               allPlans.forEach((plan) => {
                 const isCurrent = isCurrentPlan(plan)
                 if (isCurrent) {
@@ -982,23 +837,6 @@ function UserPlans({
                   })
                 }
               })
-              
-              console.log('📊 [UserPlans] PLAN MATCHING SUMMARY:', {
-                totalPlans: allPlans.length,
-                matchedPlansCount: matchedPlans.length,
-                unmatchedPlansCount: unmatchedPlans.length,
-                matchedPlans: matchedPlans,
-                unmatchedPlans: unmatchedPlans,
-                userPlan: reduxUser?.plan ? {
-                  id: reduxUser.plan.id,
-                  planId: reduxUser.plan.planId,
-                  name: reduxUser.plan.name,
-                  title: reduxUser.plan.title,
-                  billingCycle: reduxUser.plan.billingCycle,
-                  duration: reduxUser.plan.duration,
-                  status: reduxUser.plan.status,
-                } : null,
-              })
             }
             return allPlans
           })().length > 0 &&
@@ -1006,15 +844,6 @@ function UserPlans({
               const isCurrentUserPlan = isCurrentPlan(item)
               const currentPlanStatus = reduxUser?.plan?.status
               const isDisabled = disAblePlans || (isCurrentUserPlan && currentPlanStatus !== 'cancelled')
-              
-              console.log(`🔍 [UserPlans] Rendering Plan ${index + 1}:`, {
-                planId: item.id,
-                planPlanId: item.planId,
-                title: item.title || item.name,
-                isCurrentUserPlan,
-                currentPlanStatus,
-                isDisabled,
-              })
 
               return (
                 <button
@@ -1111,11 +940,6 @@ function UserPlans({
                                 e.preventDefault()
                                 e.stopPropagation()
                                 handleTogglePlanClick(item, index)
-                                console.log(
-                                  'item.discountPrice',
-                                  item.discountedPrice,
-                                )
-                                console.log('isFrom in user plans', isFrom)
                                 if (
                                   reduxUser?.consecutivePaymentFailures >= 3
                                 ) {
@@ -1142,19 +966,6 @@ function UserPlans({
 
                                 // Check if user has payment method
                                 const hasPM = hasPaymentMethod()
-                                console.log(
-                                  '🔍 [Subscribe Click] Plan:',
-                                  item.name,
-                                  'Price:',
-                                  item.discountedPrice,
-                                  'isFreePlan:',
-                                  isFreePlan,
-                                  'hasPM:',
-                                  hasPM,
-                                  'userRole:',
-                                  reduxUser?.userRole ||
-                                    reduxUser?.user?.userRole,
-                                )
 
                                 // Handle Agency users
                                 if (
@@ -1292,7 +1103,7 @@ function UserPlans({
                     </div>
                   </div>
                 </button>
-              )
+              );
             })}
         </div>
       </div>
@@ -1311,12 +1122,9 @@ function UserPlans({
               }
             }
           }}
-          setSelectedPlan={() => {
-            console.log('setSelectedPlan is called')
-          }}
+          setSelectedPlan={() => {}}
         />
       </Elements>
-
       <YearlyPlanModal
         open={showYearlyPlanModal}
         handleClose={() => setShowYearlyPlanModal(false)}
@@ -1326,7 +1134,6 @@ function UserPlans({
         loading={subscribeLoader}
         isFree={!selectedPlan?.discountedPrice ? true : false}
       />
-
       <Modal
         open={addPaymentPopUp}
         // open={true}
@@ -1389,7 +1196,7 @@ function UserPlans({
         </Box>
       </Modal>
     </div>
-  )
+  );
 }
 
 const styles = {

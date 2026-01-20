@@ -45,9 +45,7 @@ const Page = () => {
             if (parsed?.subAccountData) {
               setIsAgencyCreatingForSubaccount(true)
             }
-          } catch (error) {
-            console.log('Error parsing isFromAdminOrAgency:', error)
-          }
+          } catch (error) {}
         }
       }
     }

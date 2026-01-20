@@ -85,13 +85,10 @@ export const LanguagesSelection = ({
   }
 
   useEffect(() => {
-    console.log('Language to show', selectedLanguage)
     if (selectedLanguage === true) {
-      console.log('Select multilingual')
       setLanguage('multilingual')
       setLanguageTitle('Multilingual Compatible')
     } else if (selectedLanguage === false) {
-      console.log('Select english')
       setLanguage('english')
       setLanguageTitle('English and Spanish Compatible')
     }

@@ -164,19 +164,18 @@ const TutorialConfig = ({ selectedAgency }) => {
   const getHowToVideos = async () => {
     try {
       let token = AuthToken()
-      
+
       // Add userId parameter if selectedAgency is provided (admin view)
       let apiUrl = Apis.getHowToVideo
       if (selectedAgency?.id) {
         apiUrl += `?userId=${selectedAgency.id}`
       }
-      
+
       const response = await axios.get(apiUrl, {
         headers: {
           Authorization: 'Bearer ' + token,
         },
       })
-      console.log('response is of getHowToVideos', response.data)
 
       if (response.data.status === true) {
         let uploadedVideos = response.data.data || []
@@ -205,12 +204,9 @@ const TutorialConfig = ({ selectedAgency }) => {
 
         setTutorials(mergedTutorials)
       } else {
-        // If API fails, show defaults
-        console.log('error is of getHowToVideos', response.data.message)
         setTutorials(defaultTutorials)
       }
     } catch (error) {
-      console.log('error is of getHowToVideos', error)
       setTutorials(defaultTutorials) // Fallback to defaults
     }
   }
@@ -243,10 +239,6 @@ const TutorialConfig = ({ selectedAgency }) => {
       let token = AuthToken()
       let response
 
-      console.log('updatedData is of handleSaveTutorial', updatedData)
-      console.log('selectedTutorial is', selectedTutorial)
-      console.log('isEditMode is', isEditMode)
-
       const formData = new FormData()
 
       // Check if this is an uploaded video (has database properties like uploadStatus, userId, or videoUrl from uploads)
@@ -267,24 +259,11 @@ const TutorialConfig = ({ selectedAgency }) => {
         typeof selectedTutorial.id === 'number' &&
         selectedTutorial.id > 11 // Database IDs are > 11, default tutorial IDs are 1-11
 
-      console.log('isUploadedVideo check:', {
-        id: selectedTutorial?.id,
-        idType: typeof selectedTutorial?.id,
-        idGreaterThan11: selectedTutorial?.id > 11,
-        uploadStatus: selectedTutorial?.uploadStatus,
-        userId: selectedTutorial?.userId,
-        videoUrl: selectedTutorial?.videoUrl,
-        isUploadedVideo: isUploadedVideo,
-      })
-
       // Only append videoId if this is an existing uploaded video (not a default tutorial)
       // Default tutorials have IDs 1-11, uploaded videos have database IDs > 11
       if (isEditMode && isUploadedVideo && selectedTutorial.id && selectedTutorial.id > 11) {
         formData.append('videoId', selectedTutorial.id)
-        console.log('Appending videoId:', selectedTutorial.id)
-      } else {
-        console.log('NOT appending videoId - using upload endpoint for default tutorial or new upload')
-      }
+      } else {}
 
       // Only append media if a new file is selected
       if (updatedData.media) {
@@ -301,16 +280,13 @@ const TutorialConfig = ({ selectedAgency }) => {
         'enabled',
         isEditMode && selectedTutorial ? selectedTutorial.enabled : true,
       )
-      
+
       // Add userId if selectedAgency is provided (admin view)
       if (selectedAgency?.id) {
         formData.append('userId', selectedAgency.id)
       }
 
-      formData.forEach((value, key) => {
-        console.log('key is of formData', key)
-        console.log('value is of formData', value)
-      })
+      formData.forEach((value, key) => {})
 
       // Use update endpoint only if editing an existing uploaded video
       // Use upload endpoint for default tutorials (even in "edit" mode) or new uploads
@@ -318,9 +294,6 @@ const TutorialConfig = ({ selectedAgency }) => {
         isEditMode && isUploadedVideo && selectedTutorial.id
           ? Apis.updateHowToVideo
           : Apis.uploadHowToVideo
-
-      console.log('Using API endpoint:', apiEndpoint)
-      console.log('isUploadedVideo:', isUploadedVideo)
 
       response = await axios.post(apiEndpoint, formData, {
         headers: {
@@ -343,7 +316,6 @@ const TutorialConfig = ({ selectedAgency }) => {
       setSelectedTutorial(null)
       setIsEditMode(false)
     } catch (error) {
-      console.log('error saving tutorial:', error)
       setShowSnack({
         type: SnackbarTypes.Error,
         message:
@@ -410,7 +382,6 @@ const TutorialConfig = ({ selectedAgency }) => {
         title={'Tutorial Videos'}
         description={'Control the tutorial videos you display for your users.'}
       />
-
       {/* Brand Configuration Card */}
       <div className="w-full flex flex-row justify-center pt-8">
         <div className="w-8/12 px-3 py-4 bg-white rounded-2xl shadow-[0px_11px_39.3px_0px_rgba(0,0,0,0.06)] flex flex-col items-center gap-4 overflow-hidden">
@@ -429,19 +400,18 @@ const TutorialConfig = ({ selectedAgency }) => {
           <div className="w-full flex flex-col gap-8">
             {tutorials.map((tutorial) => (
               // onToggleSwitch={() => handleToggleSwitch(tutorial.id)} - Toggle functionality commented out - toggle buttons removed
-              <TutorialViewCard
+              (<TutorialViewCard
                 key={tutorial.id}
                 tutorialData={tutorial}
                 onEditClick={handleEditClick}
                 onPlayVideo={handlePlayVideo}
                 isEnabled={tutorial.enabled}
                 thumbnailSrc={tutorial.thumbnailSrc}
-              />
+              />)
             ))}
           </div>
         </div>
       </div>
-
       {/* Edit Tutorial Modal */}
       <AddEditTutorials
         showModal={showEditModal}
@@ -451,7 +421,6 @@ const TutorialConfig = ({ selectedAgency }) => {
         isEditMode={isEditMode}
         isLoading={isSaving}
       />
-
       {/* Video Player Modal */}
       <VideoPlayerModal
         open={showVideoModal}
@@ -463,7 +432,7 @@ const TutorialConfig = ({ selectedAgency }) => {
         videoUrl={selectedTutorial?.videoUrl}
       />
     </div>
-  )
+  );
 }
 
 export default TutorialConfig

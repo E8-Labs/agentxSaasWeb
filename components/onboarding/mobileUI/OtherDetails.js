@@ -206,11 +206,6 @@ const OtherDetails = ({
         setShouldContinue(true)
       }
     } else if (userData?.userTypeTitle === UserTypes.RealEstateAgent) {
-      console.log('Real Estate Agent Fields:', {
-        userFarm,
-        userBrokage,
-        userTransaction,
-      })
       if (userFarm && userBrokage && userTransaction) {
         setShouldContinue(false)
       } else if (!userFarm || !userBrokage || !userTransaction) {
@@ -711,9 +706,6 @@ const OtherDetails = ({
             // //console.log;
             // handleContinue();
             handleShowRedirectPopup()
-            // Use window.location.href for hard redirect to ensure clean page reload
-            // This prevents DOM cleanup errors during navigation
-            console.log('✅ Registration successful, redirecting to: /createagent')
             window.location.href = '/createagent'
             return
           }
@@ -1254,30 +1246,21 @@ const OtherDetails = ({
                           onClick={(e) => {
                             e.preventDefault()
                             e.stopPropagation()
-                            
+
                             // Check if user is on mobile - use both screen width and user agent
                             const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
                             const SM_SCREEN_SIZE = 640
                             const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
                               typeof navigator !== 'undefined' ? navigator.userAgent : ''
                             )
-                            
-                            console.log('Get Started clicked - screenWidth:', screenWidth, 'isMobileDevice:', isMobileDevice)
-                            
+
                             // If mobile device OR small screen, navigate to payment step (step 4) to allow subscription
                             if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
-                              // Mobile: Navigate to payment step (step 4) to allow subscription
-                              console.log('Mobile detected - navigating to payment step')
                               router.push('/createagent?step=4')
                             } else {
-                              // Desktop: Navigate to createagent
-                              console.log('Desktop detected - navigating to createagent')
                               if (handleShowRedirectPopup) {
                                 handleShowRedirectPopup()
                               }
-                              // Use window.location.href for hard redirect to ensure clean page reload
-                              // This prevents DOM cleanup errors during navigation
-                              console.log('✅ Registration successful, redirecting to: /createagent')
                               window.location.href = '/createagent'
                               return
                             }
@@ -1320,7 +1303,7 @@ const OtherDetails = ({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default OtherDetails

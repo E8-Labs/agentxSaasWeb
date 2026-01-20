@@ -82,7 +82,6 @@ function AgencyMyAccount({ selectedAgency }) {
 
   useEffect(() => {
     const tab = searchParams.get('tab') // Get the value of 'tab'
-    console.log('Value of tab is', tab)
     let number = Number(tab) || 2
     // //console.log;
     setTabSelected(number)
@@ -130,6 +129,7 @@ function AgencyMyAccount({ selectedAgency }) {
 
   return (
     // <Suspense>
+    // </Suspense>
     <div
       className="w-full flex flex-col items-center"
       style={{ overflow: 'hidden', height: '100vh' }}
@@ -144,7 +144,6 @@ function AgencyMyAccount({ selectedAgency }) {
           <NotficationsDrawer />
         </div>
       </div>
-
       <div className="w-full flex flex-row item-center pl-4">
         <div className="w-4/12 items-center flex flex-col pt-4 pr-2">
           {manuBar.map((item, index) => (
@@ -227,8 +226,7 @@ function AgencyMyAccount({ selectedAgency }) {
         </div>
       </div>
     </div>
-    // </Suspense>
-  )
+  );
 }
 
 export default AgencyMyAccount

@@ -71,9 +71,7 @@ const TwilioCustomerProfileAnimation = ({ showModal }) => {
   // const [loader, setLoader] = useState(false);
 
   const handleContinue = (formData) => {
-    if (formData) {
-      console.log(formData)
-    }
+    if (formData) {}
     setDirection(1)
     setCurrentIndex((prevIndex) => prevIndex + 1)
   }
@@ -119,7 +117,7 @@ const TwilioCustomerProfileAnimation = ({ showModal }) => {
         if (typeof str !== 'string' || str === null || str === undefined) {
           return '' // Or you could return the original string depending on your preference
         }
-        return str.replace(/\s+/g, '').toLowerCase()
+        return str.replace(/\s+/g, '').toLowerCase();
       }
       const ApiData = {
         friendlyName: profileFriendlyName,
@@ -149,8 +147,6 @@ const TwilioCustomerProfileAnimation = ({ showModal }) => {
         contactTermsAccepted: agreeTerms,
       }
 
-      console.log('Data sending in api is', ApiData)
-
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
           Authorization: 'Bearer ' + token,
@@ -159,10 +155,6 @@ const TwilioCustomerProfileAnimation = ({ showModal }) => {
       })
 
       if (response) {
-        console.log(
-          'Response of create trust hub profile api is',
-          response.data,
-        )
         setLoader(false)
         if (response.data) {
           const result = response.data

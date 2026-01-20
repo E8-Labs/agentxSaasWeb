@@ -168,10 +168,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
       const userId = selectedUser?.id || selectedUser?.userId || selectedUser?.user?.id
       if (userId) {
         queryString += `&userId=${userId}`
-        console.log('📋 [NewContactDrawer] Fetching all smartlists for userId:', userId)
-      } else {
-        console.log('📋 [NewContactDrawer] Fetching all smartlists')
-      }
+      } else {}
 
       const apiPath = `/api/smartlists?${queryString}`
       const response = await axios.get(apiPath, {
@@ -183,7 +180,6 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
 
       if (response.data?.status && response.data?.data) {
         setSmartlists(response.data.data)
-        console.log('✅ [NewContactDrawer] Loaded smartlists:', response.data.data.length)
       } else {
         console.warn('⚠️ [NewContactDrawer] No smartlists returned')
         setSmartlists([])
@@ -211,7 +207,6 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
       const userId = selectedUser?.id || selectedUser?.userId || selectedUser?.user?.id
       if (userId) {
         queryString += `&userId=${userId}`
-        console.log('📋 [NewContactDrawer] Fetching pipelines for userId:', userId)
       }
 
       const response = await axios.get(`/api/pipelines?${queryString}`, {
@@ -223,7 +218,6 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
 
       if (response.data?.status && response.data?.data) {
         setPipelines(response.data.data)
-        console.log('✅ [NewContactDrawer] Loaded pipelines:', response.data.data.length)
       } else {
         console.warn('⚠️ [NewContactDrawer] No pipelines returned')
         setPipelines([])
@@ -593,7 +587,6 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
       const userId = selectedUser?.id || selectedUser?.userId || selectedUser?.user?.id
       if (userId) {
         payload.userId = userId.toString()
-        console.log('📋 [NewContactDrawer] Creating contact for userId:', userId)
       }
 
       const response = await axios.post('/api/leads/create', payload, {

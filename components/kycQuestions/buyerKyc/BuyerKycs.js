@@ -861,7 +861,7 @@ const BuyerKycs = ({ handleContinue }) => {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default BuyerKycs

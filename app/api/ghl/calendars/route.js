@@ -9,9 +9,6 @@ export async function GET(req) {
   const cookieStore = await cookies()
   const token = cookieStore.get('ghl_access_token')?.value
 
-  console.log('[calendars] hit', new Date().toISOString())
-  console.log('[calendars] hasToken?', Boolean(token))
-
   if (!token) {
     return NextResponse.json({ error: 'Not authorized' }, { status: 401 })
   }
@@ -24,8 +21,6 @@ export async function GET(req) {
   const url = new URL('https://services.leadconnectorhq.com/calendars/')
   if (locationId) url.searchParams.set('locationId', cLoc)
 
-  console.log('[calendars] requesting ->', url.toString())
-
   const r = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,
@@ -36,8 +31,7 @@ export async function GET(req) {
   })
 
   const text = await r.text()
-  console.log('[calendars] upstream status:', r)
-  if (!r.ok) console.log('[calendars] upstream body:', text)
+  !r.ok;
 
   return new NextResponse(text, {
     status: r.ok ? 200 : r.status,

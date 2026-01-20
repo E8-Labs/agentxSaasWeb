@@ -944,7 +944,7 @@ const SellerKycs = ({ handleContinue }) => {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default SellerKycs

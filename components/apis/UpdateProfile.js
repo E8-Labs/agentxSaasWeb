@@ -35,11 +35,9 @@ export const UpdateProfile = async (apidata) => {
       })
 
       if (response) {
-        console.log(response.data)
         if (response.data.status === true) {
           u.user = response.data.data
 
-          console.log('response.data.data', response.data.data)
           localStorage.setItem('User', JSON.stringify(u))
           //console.log
           window.dispatchEvent(
@@ -51,7 +49,5 @@ export const UpdateProfile = async (apidata) => {
     } else {
       //console.log
     }
-  } catch (e) {
-    console.log('error in update profile api', e)
-  }
+  } catch (e) {}
 }

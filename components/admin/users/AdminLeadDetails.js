@@ -280,7 +280,6 @@ const AdminLeadDetails = ({
         let path = Apis.getTeam
         // Add userId parameter to fetch team members for the selected user
         path = path + `?userId=${selectedUser.id}`
-        console.log('Api path for getting team members for selected user:', path)
 
         const response = await axios.get(path, {
           headers: {
@@ -329,7 +328,6 @@ const AdminLeadDetails = ({
       //console.log;
       handleClosePopup()
       setGlobalLoader(true)
-      console.log('Item passed is', item)
       let ApiData = null
       if (item.invitedUserId) {
         ApiData = {
@@ -342,7 +340,6 @@ const AdminLeadDetails = ({
           teamMemberUserId: item.id,
         }
       }
-      console.log('Api data to send in api is', ApiData)
       let response = await AssignTeamMember(ApiData, selectedUser)
       if (response && response.data && response.data.status === true) {
         setSelectedLeadsDetails((prevData) => {
@@ -822,9 +819,7 @@ const AdminLeadDetails = ({
           }
         }
       }
-    } catch (e) {
-      console.log('error in call log delete api is', e)
-    } finally {
+    } catch (e) {} finally {
       setdelCallLoader(false)
     }
   }
@@ -969,7 +964,6 @@ const AdminLeadDetails = ({
       }
     } catch (e) {
       setLoading(false)
-      console.log('error in enrich lead is', e)
     } finally {
       setLoading(false)
     }
@@ -2404,8 +2398,6 @@ const AdminLeadDetails = ({
           </div>
         </Box>
       </Modal>
-
-
       {/* Warning Modal for no voice */}
       <Modal
         open={showNoAudioPlay}
@@ -2448,7 +2440,6 @@ const AdminLeadDetails = ({
           </div>
         </Box>
       </Modal>
-
       {/* delete lead modal */}
       <Modal
         open={showDelModal}
@@ -2519,7 +2510,6 @@ const AdminLeadDetails = ({
           </div>
         </Box>
       </Modal>
-
       {/* Modal for audio play */}
       <Modal
         open={showAudioPlay}
@@ -2579,7 +2569,6 @@ const AdminLeadDetails = ({
           </div>
         </Box>
       </Modal>
-
       {/* Email Template Modal */}
       <AuthSelectionPopup
         open={showAuthSelectionPopup}
@@ -2599,7 +2588,6 @@ const AdminLeadDetails = ({
         }}
         selectedUser={selectedUser}
       />
-
       <EmailTempletePopup
         open={showEmailModal}
         onClose={() => setShowEmailModal(false)}
@@ -2619,7 +2607,6 @@ const AdminLeadDetails = ({
         leadId={selectedLeadsDetails?.id}
         selectedUser={selectedUser}
       />
-
       {/* SMS Template Modal */}
       <SMSTempletePopup
         open={showSMSModal}
@@ -2637,14 +2624,11 @@ const AdminLeadDetails = ({
         leadId={selectedLeadsDetails?.id}
         selectedUser={selectedUser}
       />
-
       {/* Upgrade Plan Modal */}
       <Elements stripe={stripePromise}>
         <UpgradePlan
           selectedPlan={selectedPlan}
-          setSelectedPlan={() => {
-            console.log('setSelectedPlan is called')
-          }}
+          setSelectedPlan={() => {}}
           open={showUpgradeModal}
           handleClose={async (upgradeResult) => {
             setShowUpgradeModal(false)
@@ -2664,7 +2648,7 @@ const AdminLeadDetails = ({
         />
       </Elements>
     </div>
-  )
+  );
 }
 
 export default AdminLeadDetails

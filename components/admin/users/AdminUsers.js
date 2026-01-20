@@ -180,7 +180,6 @@ function AdminUsers() {
           setShowFilterModal(false)
         }}
       />
-
       <div className="flex flex-row justify-start items-center gap-4 p-6 w-full">
         <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border  rounded-full pe-2">
           <input
@@ -479,7 +478,6 @@ function AdminUsers() {
                         index % 2 == 0 ? 'bg-gray-100' : ''
                       }`}
                       onClick={() => {
-                        console.log('Selected user on users screen', item)
                         setSelectedUser(item)
                         setShowUserDetails(true)
                       }}
@@ -549,7 +547,6 @@ function AdminUsers() {
           selectedUser={selectedUser}
         />
       )} */}
-
       <Modal
         open={selectedUser ? true : false}
         onClose={() => {
@@ -582,8 +579,6 @@ function AdminUsers() {
               setSelectedUser(null)
             }}
             handlePauseUser={(d) => {
-              console.log('User paused')
-
               const updatedStatus =
                 selectedUser.profile_status === 'active' ? 'paused' : 'active'
 
@@ -628,7 +623,6 @@ function AdminUsers() {
           />
         </Box>
       </Modal>
-
       {/* User Activity Logs Modal */}
       <UserActivityLogs
         open={showActivityLogs}
@@ -637,7 +631,7 @@ function AdminUsers() {
         userName={selectedUser?.name}
       />
     </div>
-  )
+  );
 }
 
 export default AdminUsers

@@ -156,8 +156,6 @@ export const GreetingTagInput = ({
       questions = kycsList?.map((item) => item.question)
     }
     mergedArray = [...uniqueColumns, ...questions]
-    console.log('merged array is:', mergedArray)
-    console.log('Kycs list recieved is:', kycsList)
   }, [])
 
   const handleKeyUp = (e) => {

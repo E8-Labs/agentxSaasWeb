@@ -8,13 +8,10 @@ export const dynamic = 'force-dynamic'
 export async function GET() {
   const cookieStore = await cookies()
   const token = cookieStore.get('ghl_access_token')?.value
-  console.log('GHL token is', Boolean(token))
   if (!token)
     return NextResponse.json({ error: 'Not authorized' }, { status: 401 })
 
   const url = new URL('https://services.leadconnectorhq.com/locations/')
-
-  console.log('[locations] requesting ->', url.toString())
 
   const r = await fetch(url, {
     headers: {

@@ -169,7 +169,6 @@ function NotficationsDrawer({ close }) {
         if (response) {
           setLoading(false)
           if (response.data.status === true) {
-            console.log('response.data.data.notifications', response.data.data.notifications);
             // setNotifications(response.data.data.notifications);
             localStorage.setItem(
               'userNotifications',

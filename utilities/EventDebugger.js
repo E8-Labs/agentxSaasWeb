@@ -15,26 +15,14 @@ export const setupEventDebugger = () => {
     const originalDispatchEvent = window.dispatchEvent
 
     window.dispatchEvent = function (event) {
-      if (event.type === eventName) {
-        console.log(`🎯 Event Dispatched: ${eventName}`, {
-          detail: event.detail,
-          timestamp: new Date().toISOString(),
-          stack: new Error().stack,
-        })
-      }
+      if (event.type === eventName) {}
       return originalDispatchEvent.call(this, event)
     }
   })
 
   // Listen for all custom events
   eventsToDebug.forEach((eventName) => {
-    window.addEventListener(eventName, (event) => {
-      console.log(`👂 Event Received: ${eventName}`, {
-        detail: event.detail,
-        timestamp: new Date().toISOString(),
-        listener: 'EventDebugger',
-      })
-    })
+    window.addEventListener(eventName, (event) => {})
   })
 }
 

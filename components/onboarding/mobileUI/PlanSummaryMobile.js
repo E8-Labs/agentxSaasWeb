@@ -33,7 +33,6 @@ function PlanSummaryMobile({ selectedPlan,
     if (localData) {
       const userData = JSON.parse(localData)
       const plan = userData.user?.plan
-      console.log('Current user plan from localStorage:', plan)
       setCurrentUserPlan(plan)
       return plan
     }

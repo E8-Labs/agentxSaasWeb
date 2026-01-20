@@ -397,7 +397,7 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                           {formData.discountDurationMonths &&
                           formData.discountDurationMonths > 0 ? (
                             // Recurring discount - show area chart over time
-                            <AreaChart data={recurringDiscountData}>
+                            (<AreaChart data={recurringDiscountData}>
                               <CartesianGrid
                                 strokeDasharray="3 3"
                                 className="stroke-muted"
@@ -440,10 +440,10 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                                 fillOpacity={0.2}
                                 strokeWidth={2}
                               />
-                            </AreaChart>
+                            </AreaChart>)
                           ) : (
                             // One-time discount - show bar chart
-                            <BarChart
+                            (<BarChart
                               data={[
                                 {
                                   type:
@@ -491,7 +491,7 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
                                 fill="hsl(var(--chart-1))"
                                 radius={[8, 8, 0, 0]}
                               />
-                            </BarChart>
+                            </BarChart>)
                           )}
                         </ChartContainer>
                         <div className="mt-4 text-sm text-gray-600 text-center">
@@ -685,7 +685,7 @@ const PromoCodeModal = ({ promoCode, onClose }) => {
         </form>
       </div>
     </div>
-  )
+  );
 }
 
 export default PromoCodeModal

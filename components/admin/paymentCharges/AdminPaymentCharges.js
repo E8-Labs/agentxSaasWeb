@@ -69,7 +69,6 @@ function AdminPaymentCharges() {
       )
 
       if (response.data.status) {
-        console.log('API Response:', response.data.data) // Debug log
         setPaymentCharges(response.data.data)
       } else {
         setError('Failed to fetch payment charges')

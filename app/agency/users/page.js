@@ -19,7 +19,6 @@ export default function Page() {
       const id = params.get('userId')
       const isFromAgency = params.get('agencyUser')
       setIsFromAgency(isFromAgency)
-      console.log('is agency user', isFromAgency)
       if (id) {
         setUserId(id)
       }

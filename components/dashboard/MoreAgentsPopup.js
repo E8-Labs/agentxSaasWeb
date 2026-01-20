@@ -31,11 +31,6 @@ const MoreAgentsPopup = ({
       const timer = setTimeout(() => {
         setMounted(true)
         removeAriaHidden()
-        console.log('MoreAgentsPopup is open', {
-          onClose: typeof onClose,
-          onUpgrade: typeof onUpgrade,
-          onAddAgent: typeof onAddAgent,
-        })
       }, 50)
 
       return () => {
@@ -60,7 +55,6 @@ const MoreAgentsPopup = ({
       e.preventDefault()
       e.stopPropagation()
     }
-    console.log('handleUpgrade called', { onUpgrade, onClose })
     // Close modal first, then open upgrade after a small delay to prevent React DOM errors
     if (onClose && typeof onClose === 'function') {
       onClose()
@@ -78,7 +72,6 @@ const MoreAgentsPopup = ({
       e.preventDefault()
       e.stopPropagation()
     }
-    console.log('handleAddAgent called', { onAddAgent })
     // Close modal first, then execute action after a small delay
     if (onClose && typeof onClose === 'function') {
       onClose()
@@ -96,7 +89,6 @@ const MoreAgentsPopup = ({
       e.preventDefault()
       e.stopPropagation()
     }
-    console.log('handleClose called', { onClose })
     if (onClose && typeof onClose === 'function') {
       onClose()
     }

@@ -116,9 +116,9 @@ function SheduledCalls({ user }) {
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
-        item.firstName.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      )
+        (item.firstName.toLowerCase().includes(term))
+      );
     })
 
     setFilteredSelectedLeadsList(filtered)
@@ -162,8 +162,6 @@ function SheduledCalls({ user }) {
       })
 
       if (response) {
-        console.log('response is of gat active calls', response.data.data)
-
         let newData = response.data?.data || []
 
         if (offset === 0) {
@@ -219,9 +217,9 @@ function SheduledCalls({ user }) {
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
-        item.firstName.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      )
+        (item.firstName.toLowerCase().includes(term))
+      );
     })
 
     setFilteredSheduledCalllogs(filtered)
@@ -245,9 +243,9 @@ function SheduledCalls({ user }) {
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
-        item?.agents[0]?.name?.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      )
+        (item?.agents[0]?.name?.toLowerCase().includes(term))
+      );
     })
 
     setFilteredAgentsList(filtered)
@@ -406,7 +404,6 @@ function SheduledCalls({ user }) {
 
       const token = user.token // Extract JWT token
       let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}`
-      console.log('Api Call Leads : ', path)
       const response = await fetch(path, {
         method: 'GET',
         headers: {
@@ -418,15 +415,6 @@ function SheduledCalls({ user }) {
       const data = await response.json()
 
       if (response.ok) {
-        //console.log;
-        // setSelectedLeadsList(data.data);
-        // setFilteredSelectedLeadsList(data.data);
-        // localStorage.setItem(
-        //   PersistanceKeys.LeadsInBatch + `${batch.id}`,
-        //   JSON.stringify(data.data)
-        // );
-
-        console.log('Response of leads list detail', data.data)
         if (firstApiCall) {
           setSelectedLeadsList(data.data)
           setFilteredSelectedLeadsList(data.data)

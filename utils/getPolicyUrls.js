@@ -43,15 +43,14 @@ export const getPolicyUrls =async (selectedUser) => {
     if (!userData) {
       return defaultUrls
     }
-let user = null
-let userRole = null
+    let user = null
+    let userRole = null
     if (selectedUser) {
 
       user = await AdminGetProfileDetails(selectedUser.id)
     } else {
       user = JSON.parse(userData)?.user || JSON.parse(userData)
     }
-console.log('user in get policy urls', user);
     userRole = user?.userRole
 
     // For Agency users, return static agency URLs (NOT agencyBranding)

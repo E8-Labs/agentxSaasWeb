@@ -9,7 +9,6 @@ export default function EmbedVapi() {
   const searchParams = useSearchParams()
   const assistantId = searchParams.get('assistantId') || DEFAULT_ASSISTANT_ID
 
-  console.log('assistant id is ', assistantId)
   return (
     <div style={{ backgroundColor: 'transparent' }}>
       <VapiWidget

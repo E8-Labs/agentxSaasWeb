@@ -15,7 +15,6 @@ const TagsInput = ({ setTags, tags }) => {
   const [value, setValue] = useState([])
 
   useEffect(() => {
-    console.log('Test code trigered')
     if (
       tags &&
       Array.isArray(tags) &&

@@ -60,7 +60,7 @@ const AttachmentList = ({ message, isOutbound, onAttachmentClick }) => {
         )
       })}
     </div>
-  )
+  );
 }
 
 const EmailBubble = ({
@@ -226,7 +226,7 @@ const linkifyText = (text) => {
   })
 
   // Preserve newlines
-  return linked.replace(/\n/g, '<br />')
+  return linked.replace(/\n/g, '<br />');
 }
 
 // Helper function to sanitize HTML, convert to plain text, and linkify URLs
@@ -324,7 +324,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;')
+        .replace(/'/g, '&#39;');
     }
 
     // If it's a comment, highlight @mentions using position-based bolding
@@ -452,7 +452,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
 
     // For other system messages (stage changes, assignments), parse markdown-style bold (**text**)
     // Use system-text color (#0E0E0E) for bold text
-    return content.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-system-text">$1</strong>')
+    return content.replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-system-text">$1</strong>');
   }
 
   // Format the date for the tooltip
@@ -480,8 +480,6 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
 
     // Get caller name from senderUser or agent
     const getCallerName = () => {
-      console.log('🔍 [getCallerName] message:', message)
-      console.log('🔍 [getCallerName] typeof:', message.caller)
       if (message.caller?.name) {
         return message.caller?.name
       }
@@ -499,7 +497,6 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
     }
 
     const callerName = getCallerName()
-    console.log('🔍 [callerName] callerName:', callerName)
     const callDate = message.createdAt ? moment(message.createdAt).format('MMM D, h:mm A') : ''
 
     // Handler functions for call actions
@@ -782,9 +779,6 @@ const ConversationView = ({
   onOpenEmailTimeline,
   updateComposerFromMessage,
 }) => {
-
-  console.log('🔍 [ConversationView] selectedThread:', selectedThread)
-
   // State for transcript modal
   const [showTranscriptModal, setShowTranscriptModal] = useState(null)
 
@@ -795,7 +789,7 @@ const ConversationView = ({
     return subject
       .replace(/^(re|fwd|fw|aw):\s*/i, '')
       .replace(/^\[.*?\]\s*/, '')
-      .trim()
+      .trim();
   }
 
   // Track if we've already populated composer from last message for current thread
@@ -821,12 +815,6 @@ const ConversationView = ({
 
     if (emailMessages.length > 0) {
       const lastEmailMessage = emailMessages[0]
-      console.log('🔍 [ConversationView] Populating composer from last email message:', {
-        messageId: lastEmailMessage.id,
-        subject: lastEmailMessage.subject,
-        ccEmails: lastEmailMessage.ccEmails,
-        bccEmails: lastEmailMessage.bccEmails,
-      })
       updateComposerFromMessage(lastEmailMessage)
       hasPopulatedComposerRef.current = true
     }
@@ -933,7 +921,6 @@ const ConversationView = ({
           </div>
         </div>
       )}
-
       {messagesLoading && messages.length === 0 ? (
         <div className="text-center text-gray-500 py-8">Loading messages...</div>
       ) : messages.length === 0 ? (
@@ -1112,13 +1099,6 @@ const ConversationView = ({
 
                         {isOutbound && (
                           <div className="flex-shrink-0">
-                            {console.log('🔍 [ConversationView] Rendering avatar for message:', {
-                              messageId: message.id,
-                              isOutbound,
-                              hasSenderUser: !!message.senderUser,
-                              senderUser: message.senderUser,
-                              messageDirection: message.direction,
-                            })}
                             {getAgentAvatar(message)}
                           </div>
                         )}
@@ -1126,13 +1106,12 @@ const ConversationView = ({
                     </div>
                   )}
                 </React.Fragment>
-              )
-            })
+              );
+            });
           })()}
           <div ref={messagesEndRef} />
         </>
       )}
-
       {/* Call Transcript Modal */}
       <CallTranscriptModal
         open={!!showTranscriptModal}
@@ -1144,7 +1123,7 @@ const ConversationView = ({
         callId={showTranscriptModal?.callId || showTranscriptModal?.id || ''}
       />
     </div>
-  )
+  );
 }
 
 export default ConversationView

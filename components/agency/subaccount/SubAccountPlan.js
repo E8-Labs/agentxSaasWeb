@@ -101,17 +101,13 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
     try {
       setDisableContinue(true)
       await getProfileDetails()
-      console.log('Card added details are here', data)
       if (data) {
-        console.log('try to close popup')
         setAddPaymentPopUp(false)
         if (togglePlan) {
-          console.log('trying to suubscribe')
           await subscribePlanClick()
         }
       }
     } catch (err) {
-      console.log('Error occrued', err)
       setDisableContinue(false)
     }
   }
@@ -129,10 +125,6 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
       })
 
       if (response) {
-        console.log(
-          'Response of get plans api is 2',
-          response.data?.data?.monthlyPlans,
-        )
         setUserPlans(response.data?.data?.monthlyPlans)
         setInitialLoader(false)
       }
@@ -150,15 +142,11 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
 
         // Check multiple possible paths for cards
         const cards = u?.data?.user?.cards || u?.user?.cards || u?.cards || []
-        
-        console.log('🔍 [isCardsAvailable] Checking cards:', cards)
-        
+
         if (Array.isArray(cards) && cards.length > 0) {
-          console.log('✅ [isCardsAvailable] Payment method found')
           return true
         }
       }
-      console.log('❌ [isCardsAvailable] No payment method found')
       return false
     } catch (error) {
       console.error('Error checking payment methods:', error)
@@ -181,9 +169,7 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
       const ApiPath = Apis.subAgencyAndSubAccountPlans
       const formData = new FormData()
       formData.append('planId', togglePlan)
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`)
-      }
+      for (let [key, value] of formData.entries()) {}
       const response = await axios.post(ApiPath, formData, {
         headers: {
           Authorization: 'Bearer ' + Token,
@@ -191,7 +177,6 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
       })
 
       if (response) {
-        console.log('Response of subscribe subaccount plan is', response.data)
         setSubPlanLoader(false)
         if (response.data.status === true) {
           setErrorMsg(response.data.message)
@@ -206,24 +191,19 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
           const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
             typeof navigator !== 'undefined' ? navigator.userAgent : ''
           )
-          
+
           // Determine redirect path
           let redirectPath = '/dashboard'
-          
+
           // For mobile subaccounts, redirect to continue to desktop screen
           if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
-            console.log('Mobile subaccount - redirecting to continue to desktop screen')
             redirectPath = '/createagent/desktop'
           } else if (handleContinue && subaccount) {
             // Only call handleContinue if it exists and subaccount is from onboarding flow
             handleContinue()
             return // Exit early if handleContinue is called
           }
-          
-          // Use window.location.href for hard redirect to ensure clean page reload
-          // This prevents DOM cleanup errors during navigation
-          // Don't set state before redirect - it causes React cleanup errors during navigation
-          console.log('✅ Subscription successful, redirecting to:', redirectPath)
+
           // Use setTimeout to ensure redirect happens in next event loop, avoiding React cleanup conflicts
           setTimeout(() => {
             window.location.href = redirectPath
@@ -324,7 +304,6 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
         }}
         type={snackMsgType}
       />
-
       {/* Progress bar */}
       {isMobile ? (
         <UserPlansMobile
@@ -343,7 +322,6 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
               
               // For mobile subaccounts, redirect to continue to desktop screen
               if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
-                console.log('Mobile subaccount - redirecting to continue to desktop screen')
                 // Use window.location.href for hard redirect to prevent React cleanup errors
                 setTimeout(() => {
                   window.location.href = '/createagent/desktop'
@@ -380,7 +358,6 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
               
               // For mobile subaccounts, redirect to continue to desktop screen
               if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
-                console.log('Mobile subaccount - redirecting to continue to desktop screen')
                 // Use window.location.href for hard redirect to prevent React cleanup errors
                 setTimeout(() => {
                   window.location.href = '/createagent/desktop'
@@ -401,12 +378,10 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
           // handleBack={handleBack}
         />
       )}
-
       <LoaderAnimation
         isOpen={planSubscribed || subPlanLoader}
         title="Redirecting to dashboard..."
       />
-
       {/* Code for add card */}
       {/* Add Payment Modal */}
       <Modal
@@ -467,7 +442,7 @@ const SubAccountPlan = ({ handleContinue, isFrom, handleClose }) => {
         </Box>
       </Modal>
     </div>
-  )
+  );
 }
 
 export default SubAccountPlan

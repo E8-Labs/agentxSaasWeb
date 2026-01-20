@@ -110,7 +110,6 @@ const TemFix = () => {
       if (d) {
         fromAdmin = JSON.parse(d)
       }
-      console.log('data form admin is', fromAdmin)
       if (!fromAdmin) {
         // Use Redux user data instead of localStorage
         const userHasPlan = reduxUser?.plan
@@ -186,7 +185,6 @@ const TemFix = () => {
           CreateAgent4,
           CreateAgentVoice,
         ])
-        console.log('This is admin')
       }
     }
   }, [windowSize, reduxUser, canCreateAgent, subAccount])
@@ -197,30 +195,15 @@ const TemFix = () => {
 
   // Check if user should see upgrade popup using Redux
   useEffect(() => {
-    console.log('🎯 [TEMPFIX] Plan check triggered:', {
-      hasReduxUser: !!reduxUser,
-      canCreateAgent,
-      isFreePlan,
-      currentAgents,
-      maxAgents,
-      planType: reduxUser?.plan?.type,
-    })
-
     if (reduxUser && !canCreateAgent) {
       if (isFreePlan && currentAgents >= 1) {
-        console.log(
-          '🚫 [TEMPFIX] Free plan limit reached - showing unlock modal',
-        )
         setModalDesc('The free plan only allows for 1 AI Agent.')
         setShowUnlockModal(true)
       } else if (currentAgents >= maxAgents) {
-        console.log('🚫 [TEMPFIX] Plan limit reached - showing unlock modal')
         setModalDesc(getUpgradeMessage('agents'))
         setShowUnlockModal(true)
       }
-    } else if (reduxUser && canCreateAgent) {
-      console.log('✅ [TEMPFIX] User can create agents - no modal needed')
-    }
+    } else if (reduxUser && canCreateAgent) {}
   }, [
     reduxUser,
     canCreateAgent,

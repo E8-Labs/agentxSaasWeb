@@ -8,7 +8,6 @@ export const LeadProgressBanner = ({
   uploadProgress,
   title = 'Uploading Leads',
 }) => {
-  console.log('banner')
   if (!uploading) return null
   return (
     <Card className="fixed bottom-4 right-4 transform  w-[15%] z-50 shadow-lg p-4">

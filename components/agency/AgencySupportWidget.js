@@ -245,11 +245,9 @@ const AgencySupportWidget = ({
           shouldStart={shouldStartCall}
           setShowAskSkyModal={setShowAskSkyModal}
           setShouldStartCall={setShouldStartCall}
-          loadingChanged={(loading) => {
-            console.log(`Loading state changed`, loading)
-          }}
+          loadingChanged={(loading) => {}}
         />
-      )
+      );
     } else {
       return (
         <div className="flex flex-col items-end justify-end w-full gap-3">
@@ -333,7 +331,6 @@ const AgencySupportWidget = ({
           )}
         </AnimatePresence>
       </div>
-
       {/* Icon Button (bottom-right) */}
       <AnimatePresence>
         {showIcon && !showAskSkyModal && !visible && (
@@ -377,7 +374,6 @@ const AgencySupportWidget = ({
           </motion.div>
         )}
       </AnimatePresence>
-
       <Modal
         open={showAskSkyModal}
         onClose={() => {
@@ -401,14 +397,12 @@ const AgencySupportWidget = ({
             shouldStart={shouldStartCall}
             setShowAskSkyModal={setShowAskSkyModal}
             setShouldStartCall={setShouldStartCall}
-            loadingChanged={(loading) => {
-              console.log(`Loading state changed`, loading)
-            }}
+            loadingChanged={(loading) => {}}
           />
         </div>
       </Modal>
     </div>
-  )
+  );
 }
 
 export default AgencySupportWidget

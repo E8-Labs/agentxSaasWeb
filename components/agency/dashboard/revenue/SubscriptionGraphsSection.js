@@ -28,7 +28,7 @@ import CustomTooltip from '@/utilities/CustomTooltip'
 
 // Helper function to format numbers with commas
 const formatNumberWithCommas = (num) => {
-  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
 }
 
 // Helper function to format currency with commas
@@ -261,7 +261,6 @@ function SubscriptionGraphsSection({
       )
 
       if (response.data?.status && response.data?.data) {
-        console.log('Subscription data received:', response.data.data)
         setLocalSubscriptionData(response.data.data)
         setHasFetchedData(true) // Mark that we've fetched our own data
       }
@@ -294,7 +293,6 @@ function SubscriptionGraphsSection({
       subscriptionData &&
       Object.keys(subscriptionData).length > 0
     ) {
-      console.log('Using prop subscriptionData:', subscriptionData)
       setLocalSubscriptionData(subscriptionData)
     }
   }, [subscriptionData, hasFetchedData])
@@ -340,11 +338,7 @@ function SubscriptionGraphsSection({
 
   // Debug: Log the data to see what we're working with
   useEffect(() => {
-    if (hasFetchedData || Object.keys(localSubscriptionData).length > 0) {
-      console.log('Local subscription data:', localSubscriptionData)
-      console.log('Active plans users:', activePlansUsers)
-      console.log('Reactivations by plan:', reactivationsByPlan)
-    }
+    if (hasFetchedData || Object.keys(localSubscriptionData).length > 0) {}
   }, [
     localSubscriptionData,
     activePlansUsers,
@@ -396,48 +390,40 @@ function SubscriptionGraphsSection({
     }
 
     const keys = Object.keys(activePlansUsers)
-    console.log('ActivePlansUsers keys:', keys)
 
     return keys
       .map((planName, index) => {
-        // Handle new structure: { revenue, userCount }
-        const planData = activePlansUsers[planName]
-        let revenue, userCount
+      // Handle new structure: { revenue, userCount }
+      const planData = activePlansUsers[planName]
+      let revenue, userCount
 
-        if (typeof planData === 'object' && planData !== null) {
-          // New structure
-          revenue = planData.revenue || 0
-          userCount = planData.userCount || 0
-        } else {
-          // Fallback for old structure (backward compatibility)
-          revenue = planData || 0
-          userCount = null
-        }
+      if (typeof planData === 'object' && planData !== null) {
+        // New structure
+        revenue = planData.revenue || 0
+        userCount = planData.userCount || 0
+      } else {
+        // Fallback for old structure (backward compatibility)
+        revenue = planData || 0
+        userCount = null
+      }
 
-        // Convert string values to numbers (API returns revenue as strings)
-        const numericValue =
-          typeof revenue === 'string'
-            ? parseFloat(revenue)
-            : Number(revenue) || 0
-        console.log(
-          `Plan: ${planName}, Revenue: ${revenue}, UserCount: ${userCount}, Numeric: ${numericValue}`,
-        )
-        return {
-          name: planName || '',
-          value: numericValue,
-          userCount: userCount,
-          color: colors[index % colors.length],
-        }
-      })
+      // Convert string values to numbers (API returns revenue as strings)
+      const numericValue =
+        typeof revenue === 'string'
+          ? parseFloat(revenue)
+          : Number(revenue) || 0
+      return {
+        name: planName || '',
+        value: numericValue,
+        userCount: userCount,
+        color: colors[index % colors.length],
+      }
+    })
       .filter((item) => {
         const hasValue = item.value > 0
-        if (!hasValue) {
-          console.log(
-            `Filtering out plan ${item.name} with value ${item.value}`,
-          )
-        }
+        if (!hasValue) {}
         return hasValue
-      }) // Only include plans with data
+      }); // Only include plans with data
   })()
 
   const maxPlanValue =
@@ -453,33 +439,25 @@ function SubscriptionGraphsSection({
     }
 
     const keys = Object.keys(reactivationsByPlan)
-    console.log('ReactivationsByPlan keys:', keys)
 
     return keys
       .map((planName, index) => {
-        const rawValue = reactivationsByPlan[planName] || 0
-        const numericValue =
-          typeof rawValue === 'string'
-            ? parseInt(rawValue, 10)
-            : Number(rawValue) || 0
-        console.log(
-          `Reactivation Plan: ${planName}, Raw: ${rawValue}, Numeric: ${numericValue}`,
-        )
-        return {
-          name: planName || '',
-          value: numericValue,
-          color: colors[index % colors.length],
-        }
-      })
+      const rawValue = reactivationsByPlan[planName] || 0
+      const numericValue =
+        typeof rawValue === 'string'
+          ? parseInt(rawValue, 10)
+          : Number(rawValue) || 0
+      return {
+        name: planName || '',
+        value: numericValue,
+        color: colors[index % colors.length],
+      }
+    })
       .filter((item) => {
         const hasValue = item.value > 0
-        if (!hasValue) {
-          console.log(
-            `Filtering out reactivation plan ${item.name} with value ${item.value}`,
-          )
-        }
+        if (!hasValue) {}
         return hasValue
-      }) // Only include plans with data
+      }); // Only include plans with data
   })()
 
   const maxReactivationValue =
@@ -489,12 +467,8 @@ function SubscriptionGraphsSection({
 
   // Debug: Log transformed chart data
   useEffect(() => {
-    if (planChartData.length > 0) {
-      console.log('Plan chart data:', planChartData)
-    }
-    if (reActivationChartData.length > 0) {
-      console.log('Reactivation chart data:', reActivationChartData)
-    }
+    if (planChartData.length > 0) {}
+    if (reActivationChartData.length > 0) {}
   }, [planChartData, reActivationChartData])
 
   return (

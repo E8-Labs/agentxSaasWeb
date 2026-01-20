@@ -258,7 +258,6 @@ const AgencySignupMobile = ({
 
   //code for number verification
   const handleVerifyCode = () => {
-    console.log('verify code is: ', VerifyCode)
     setPhoneVerifiedSuccessSnack(true)
     handleRegister()
   }
@@ -318,10 +317,6 @@ const AgencySignupMobile = ({
         setResponse(result)
         setIsVisible(true)
         if (response.data.status === true) {
-          console.log(
-            '[DEBUG] Registration successful, starting affiliate tracking...',
-          )
-          console.log('agency signup data is', response.data.data)
           localStorage.removeItem(PersistanceKeys.RegisterDetails)
           // CRITICAL: Clear logout flag on successful registration
           const { clearLogoutFlag } = require('@/utilities/UserUtility')

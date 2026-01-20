@@ -18,24 +18,21 @@ const Congrats = () => {
 
   const handleNext = (e) => {
     e.preventDefault()
-    
+
     // Check if user is on mobile
     const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
     const SM_SCREEN_SIZE = 640
     const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       typeof navigator !== 'undefined' ? navigator.userAgent : ''
     )
-    
+
     // Determine redirect path
     let redirectPath = '/createagent'
     if (screenWidth <= SM_SCREEN_SIZE || isMobileDevice) {
       // Mobile: Navigate to payment step (step 4) to allow subscription
       redirectPath = '/createagent?step=4'
     }
-    
-    // Use window.location.href for hard redirect to ensure clean page reload
-    // This prevents DOM cleanup errors during navigation
-    console.log('✅ Redirecting to:', redirectPath)
+
     window.location.href = redirectPath
   }
 

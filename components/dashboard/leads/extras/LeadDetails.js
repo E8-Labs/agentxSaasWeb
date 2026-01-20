@@ -245,9 +245,7 @@ const LeadDetails = ({
     isVisible: false,
   })
 
-  useEffect(() => {
-    console.log('showSnackMsg', showSnackMsg)
-  }, [showSnackMsg])
+  useEffect(() => {}, [showSnackMsg])
 
   // Helper function to show snackbar messages
   const showSnackbar = (message, type = SnackbarTypes.Success) => {
@@ -319,10 +317,6 @@ const LeadDetails = ({
     // Only use selectedUser prop if it has an id - no fallback to userLocalData
     // This ensures we're always using the correct selectedUser prop
     const userToPass = selectedUser?.id ? selectedUser : null
-    console.log('🔍 [LeadDetails] Memoized selectedUser for UpgradePlan:', {
-      selectedUserProp: selectedUser ? { id: selectedUser.id, hasId: !!selectedUser.id } : 'null',
-      memoizedUser: userToPass ? { id: userToPass.id, hasId: !!userToPass.id, userRole: userToPass.userRole } : 'null'
-    })
     return userToPass
   }, [selectedUser?.id]) // Only recalculate when selectedUser.id changes
 
@@ -448,7 +442,6 @@ const LeadDetails = ({
         // Add userId parameter if selectedUser is provided (admin view)
         if (selectedUser?.id) {
           path = path + `?userId=${selectedUser.id}`
-          console.log('Api path for getting team members for selected user:', path)
         }
 
         const response = await axios.get(path, {
@@ -461,17 +454,6 @@ const LeadDetails = ({
           setGetTeamLoader(false)
 
           if (response.data.status === true) {
-            //console.log;
-            console.log('🔍 [LeadDetails] getMyteam response:', {
-              myTeam: response.data.data,
-              myTeamAdmin: response.data.admin,
-              myTeamStructure: response.data.data?.map(t => ({
-                id: t.id,
-                invitedUserId: t.invitedUserId,
-                invitedUser_id: t.invitedUser?.id,
-                name: t.name || t.invitedUser?.name,
-              })),
-            })
             setMyTeam(response.data.data)
             setMyTeamAdmin(response.data.admin)
           } else {
@@ -492,13 +474,6 @@ const LeadDetails = ({
       //console.log;
       handleClosePopup()
       setGlobalLoader(true)
-      console.log('🔵 [LeadDetails] Item passed is', item)
-      console.log('🔵 [LeadDetails] Item details:', {
-        itemId: item.id,
-        itemInvitedUserId: item.invitedUserId,
-        itemInvitedUser_id: item.invitedUser?.id,
-        itemName: item.name,
-      })
       let ApiData = null
       if (item.invitedUserId) {
         ApiData = {
@@ -511,14 +486,10 @@ const LeadDetails = ({
           teamMemberUserId: item.id,
         }
       }
-      console.log('🔵 [LeadDetails] Api data to send in api is', ApiData)
       // selectedLeadsDetails.id,
       //   item.invitingUserId
       // return;
       let response = await AssignTeamMember(ApiData)
-      console.log('🔵 [LeadDetails] Assignment response:', response?.data)
-      console.log('🔵 [LeadDetails] Response status:', response?.data?.status)
-      console.log('🔵 [LeadDetails] Response message:', response?.data?.message)
       if (response && response.data && response.data.status === true) {
         let updatedLead = null
         setSelectedLeadsDetails((prevData) => {
@@ -558,14 +529,11 @@ const LeadDetails = ({
   const handleUnassignLeadFromTeammember = async (userId) => {
     try {
       setGlobalLoader(true)
-      console.log('Unassigning user with ID:', userId)
 
       let ApiData = {
         leadId: selectedLeadsDetails.id,
         teamMemberUserId: userId,
       }
-
-      console.log('Api data to send in unassign api is', ApiData)
 
       let response = await UnassignTeamMember(ApiData)
 
@@ -608,8 +576,6 @@ const LeadDetails = ({
   }
 
   const getNumbers = async () => {
-    console.log('getNumbers is called')
-
     // Use selectedUser prop if provided (admin view), otherwise fall back to localStorage (existing behavior)
     let userId = null
     if (selectedUser?.id) {
@@ -618,14 +584,11 @@ const LeadDetails = ({
     } else {
       // Fall back to localStorage (existing behavior for backward compatibility)
       let data = localStorage.getItem('selectedUser')
-      console.log('data', data)
-      console.log('typeof data', typeof data)
 
       // Fix: Check if data exists and is not "undefined" string, then safely parse
       if (data && data !== 'undefined' && data !== 'null') {
         try {
           const parsedUser = JSON.parse(data)
-          console.log('selected user data from local', parsedUser)
           userId = parsedUser?.id
         } catch (error) {
           console.error('Error parsing selectedUser from localStorage:', error)
@@ -815,8 +778,6 @@ const LeadDetails = ({
 
       const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedLead}`
 
-      console.log('Api path is ', ApiPath)
-
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: 'Bearer ' + AuthToken,
@@ -837,20 +798,6 @@ const LeadDetails = ({
         ]
         // setLeadColumns(response.data.columns);
         setSelectedLeadsDetails(response.data.data)
-        console.log('🔍 [LeadDetails] Lead details response:', response.data.data)
-        console.log('🔍 [LeadDetails] Teams assigned count:', response.data.data?.teamsAssigned?.length || 0)
-        console.log('🔍 [LeadDetails] Teams assigned details:', {
-          teamsAssigned: response.data.data?.teamsAssigned,
-          teamsAssignedStructure: response.data.data?.teamsAssigned?.map(t => ({
-            id: t.id,
-            invitedUserId: t.invitedUserId,
-            invitedUser_id: t.invitedUser?.id,
-            invitedUser_name: t.invitedUser?.name,
-            name: t.name || t.invitedUser?.name,
-            fullObject: t, // Log full object for debugging
-          })),
-        })
-        console.log('🔍 [LeadDetails] Full teamsAssigned array:', JSON.stringify(response.data.data?.teamsAssigned, null, 2))
         setSelectedStage(response?.data?.data?.stage?.stageTitle)
         // setSelectedStage(response?.data?.data?.stage?.stageTitle);
         setLeadColumns(dynamicColumns)
@@ -921,11 +868,7 @@ const LeadDetails = ({
         if (response.data.status === true) {
           // console.log("stages list are", response.data.data.stages);
           setStagesList(response.data.data.stages)
-        } else {
-          // setShowErrorSnack(response.data.message);
-          console.log('Error in stages list', response.data.message)
-          // setShowErrorSnack2(true);
-        }
+        } else {}
       }
     } catch (error) {
       console.error('Error occured in stage list api is', error)
@@ -1061,8 +1004,6 @@ const LeadDetails = ({
 
   //fucntion to ShowMore ActivityData transcript text
   const handleShowMoreActivityData = (item) => {
-    // setIsExpanded(!isExpanded);
-    console.log('item', item)
     if (item.callOutcome === 'No Answer') {
       return
     }
@@ -1110,8 +1051,6 @@ const LeadDetails = ({
         phoneNumber: selectedLeadsDetails.phone
       }
 
-      console.log('ApiData for add tag is', ApiData)
-
       const ApiPath = Apis.updateLead
       const response = await axios.put(ApiPath, ApiData, {
         headers: {
@@ -1122,7 +1061,6 @@ const LeadDetails = ({
 
       if (response) {
         if (response.data.status === true) {
-          console.log('response of add tag api is', response.data)
           setSelectedLeadsDetails((prevDetails) => ({
             ...prevDetails,
             tags: updatedTags,
@@ -1219,10 +1157,7 @@ const LeadDetails = ({
       })
 
       if (response) {
-        console.log('response of del tag api is', response)
         if (response.data.status === true) {
-          console.log('response of del tag api is true')
-
           const updatedTags = selectedLeadsDetails.tags.filter(
             (item) => item !== tag,
           )
@@ -1412,14 +1347,11 @@ const LeadDetails = ({
             setshowConfirmPerplexity(false)
           } else {
             showSnackbar(response.data.message, SnackbarTypes.Error)
-
-            console.log('response.data.message', response.data.message)
           }
         }
       }
     } catch (e) {
       setLoading(false)
-      console.log('error in enrich lead is', e)
     } finally {
       setLoading(false)
     }
@@ -1457,7 +1389,6 @@ const LeadDetails = ({
 
         if (response) {
           if (response.data) {
-            console.log('delete call log api data is', response.data.data)
             let call = response.data.data
             setSelectedLeadsDetails((prev) => ({
               ...prev,
@@ -1472,9 +1403,7 @@ const LeadDetails = ({
           }
         }
       }
-    } catch (e) {
-      console.log('error in call log delete api is', e)
-    } finally {
+    } catch (e) {} finally {
       setdelCallLoader(false)
     }
   }
@@ -1483,8 +1412,6 @@ const LeadDetails = ({
   // Send email API function
   const sendEmailToLead = async (emailData) => {
     try {
-      console.log('Sending email to lead', emailData)
-      console.log('gmailAccountId', emailData.gmailAccountId)
       setSendEmailLoader(true)
 
       const localData = localStorage.getItem('User')
@@ -1537,7 +1464,6 @@ const LeadDetails = ({
   // Send SMS API function
   const sendSMSToLead = async (smsData) => {
     try {
-      console.log('Sending SMS to lead', smsData)
       setSendSMSLoader(true)
 
       const localData = localStorage.getItem('User')
@@ -1555,9 +1481,7 @@ const LeadDetails = ({
       formData.append('leadId', selectedLeadsDetails?.id || '')
 
       //print form data
-      formData.forEach((value, key) => {
-        console.log(`${key}: ${value}`)
-      })
+      formData.forEach((value, key) => {})
       const response = await axios.post(Apis.sendSMSToLead, formData, {
         headers: {
           Authorization: `Bearer ${userData.token}`,
@@ -1708,7 +1632,6 @@ const LeadDetails = ({
       }
       setMessageModalMode('email')
 
-      console.log("Selected User in LeadDetails", selectedUser)
       setShowMessageModal(true)
     } else if (opt.value === 'call') {
       if (!dialerCapability.hasAccess) {
@@ -2086,49 +2009,20 @@ const LeadDetails = ({
                               // We need to use invitedUserId or invitedUser.id, NOT tm.id
                               const id = tm.invitedUserId || tm.invitedUser?.id || tm.id
 
-                              // Log the team member structure
-                              console.log('🔍 [LeadDetails] Processing team member:', {
-                                tm: tm,
-                                tmId: tm.id,
-                                tmInvitedUserId: tm.invitedUserId,
-                                tmInvitedUser_id: tm.invitedUser?.id,
-                                finalId: id,
-                                tmName: tm.name || tm.invitedUser?.name,
-                              })
-
                               const isSelected = (selectedLeadsDetails?.teamsAssigned || []).some(
                                 (assigned) => {
                                   // Check all possible ID fields in the assigned team member
                                   const assignedId = assigned.id || assigned.invitedUserId || assigned.invitedUser?.id
                                   const matches = String(assignedId) === String(id)
 
-                                  if (matches) {
-                                    console.log('✅ [LeadDetails] Match found:', {
-                                      teamMemberId: id,
-                                      teamMemberName: tm.name || tm.invitedUser?.name,
-                                      assignedId: assignedId,
-                                      assignedName: assigned.name || assigned.invitedUser?.name,
-                                      assignedFullObject: assigned,
-                                    })
-                                  }
+                                  if (matches) {}
 
                                   return matches
                                 }
                               )
 
                               // Log for debugging
-                              if (selectedLeadsDetails?.teamsAssigned && selectedLeadsDetails.teamsAssigned.length > 0) {
-                                console.log('🔍 [LeadDetails] Team member check:', {
-                                  teamMemberId: id,
-                                  teamMemberName: tm.name || tm.invitedUser?.name,
-                                  isSelected: isSelected,
-                                  teamsAssignedIds: selectedLeadsDetails.teamsAssigned.map(t => ({
-                                    id: t.id,
-                                    invitedUserId: t.invitedUserId,
-                                    invitedUser_id: t.invitedUser?.id,
-                                  })),
-                                })
-                              }
+                              if (selectedLeadsDetails?.teamsAssigned && selectedLeadsDetails.teamsAssigned.length > 0) {}
 
                               return {
                                 id,
@@ -2669,9 +2563,7 @@ const LeadDetails = ({
       >
         {mainContent}
       </Drawer>
-
       {/* Note modals - REMOVED: Now handled by NotesTabCN component */}
-
       {/* Warning Modal for no voice */}
       <Modal
         open={showNoAudioPlay}
@@ -2714,9 +2606,6 @@ const LeadDetails = ({
           </div>
         </Box>
       </Modal>
-
-
-
       <Modal
         open={showAudioPlay}
         onClose={() => setShowAudioPlay(null)}
@@ -2807,7 +2696,6 @@ const LeadDetails = ({
           </div>
         </Box>
       </Modal>
-
       {/* Unified Message Modal (Email and SMS) */}
       <NewMessageModal
         open={showMessageModal}
@@ -2824,24 +2712,17 @@ const LeadDetails = ({
         setReduxUser={setReduxUser}
         isLeadMode={true}
       />
-
       {/* Dialer Modal is now rendered in app/dashboard/layout.js */}
-
       {/* Upgrade Plan Modal */}
       <Elements stripe={stripePromise}>
         <UpgradePlan
           selectedPlan={selectedPlan}
-          setSelectedPlan={() => {
-            console.log('setSelectedPlan is called')
-          }}
+          setSelectedPlan={() => {}}
           open={showUpgradeModal}
           // setShowSnackMsg={setShowSnackMsg}
           handleClose={async (upgradeResult) => {
             setShowUpgradeModal(false)
             if (upgradeResult) {
-              console.log(
-                '🔄 [LEAD-DETAILS] Upgrade successful, refreshing profile...',
-              )
               // Refresh user data after successful upgrade
               const getData = async () => {
                 // Use AdminGetProfileDetails if selectedUser is provided (admin view), otherwise use getProfileDetails (regular user)
@@ -2863,7 +2744,7 @@ const LeadDetails = ({
         />
       </Elements>
     </div>
-  )
+  );
 }
 
 export default LeadDetails

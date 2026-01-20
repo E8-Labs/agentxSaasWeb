@@ -111,9 +111,9 @@ function AdminDashboardScheduledCalls({}) {
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
-        item.firstName.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      )
+        (item.firstName.toLowerCase().includes(term))
+      );
     })
 
     setFilteredSelectedLeadsList(filtered)
@@ -121,8 +121,6 @@ function AdminDashboardScheduledCalls({}) {
 
   //code to get agents
   const getAgents = async (passedData) => {
-    console.log('Getting scheduled calls data with params:', passedData)
-
     // Check if we should load from cache (initial load with no pagination)
     const shouldLoadFromCache = !passedData?.length && !passedData?.isPagination
 
@@ -131,7 +129,6 @@ function AdminDashboardScheduledCalls({}) {
       if (localScheduleCalls) {
         try {
           const S = JSON.parse(localScheduleCalls)
-          console.log('Loading scheduled calls from cache:', S.length, 'items')
           setFilteredAgentsList(S)
           setCallDetails(S)
           setAgentsList(S)
@@ -140,9 +137,7 @@ function AdminDashboardScheduledCalls({}) {
           console.warn('Error parsing cached scheduled calls data', err)
           localStorage.removeItem('adminScheduledCalls')
         }
-      } else {
-        console.log('No cached data found for scheduled calls')
-      }
+      } else {}
     }
 
     try {
@@ -169,8 +164,6 @@ function AdminDashboardScheduledCalls({}) {
       const offset = passedData?.length || 0
       let ApiPath = `${Apis.getAdminSheduledCallLogs}?scheduled=true&offset=${offset}&limit=${LimitPerPage}`
 
-      console.log('API Path:', ApiPath)
-
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: 'Bearer ' + AuthToken,
@@ -180,23 +173,15 @@ function AdminDashboardScheduledCalls({}) {
 
       if (response) {
         const D = response.data.data
-        console.log('Fetched scheduled calls from API:', D.length, 'items')
-        console.log('Sample data structure:', D[0])
 
         // Handle pagination vs initial load differently
         if (passedData?.isPagination) {
           // For pagination, append to existing data
           const updatedData = [...filteredAgentsList, ...D]
-          console.log(
-            'Appending paginated data. Total items now:',
-            updatedData.length,
-          )
           setFilteredAgentsList(updatedData)
           setCallDetails(updatedData)
           setAgentsList(updatedData)
         } else {
-          // For initial load, replace all data
-          console.log('Replacing all data with fresh API data')
           setFilteredAgentsList(D)
           setCallDetails(D)
           setAgentsList(D)
@@ -208,15 +193,12 @@ function AdminDashboardScheduledCalls({}) {
         // Save to cache only for initial load
         if (shouldLoadFromCache) {
           localStorage.setItem('adminScheduledCalls', JSON.stringify(D))
-          console.log('Saved scheduled calls to cache:', D.length, 'items')
         }
 
         if (D.length < LimitPerPage) {
           setHasMore(false)
         }
-      } else {
-        console.log('No data received from API:', response?.data)
-      }
+      } else {}
     } catch (error) {
       console.error('Error occurred in getting scheduled calls API:', error)
       // If API fails and we have cached data, keep showing cached data
@@ -306,7 +288,6 @@ function AdminDashboardScheduledCalls({}) {
 
       const token = user.token // Extract JWT token
       let path = Apis.getLeadsInBatch + `?batchId=${batch.id}&offset=${offset}`
-      console.log('Api Call Leads : ', path)
       const response = await fetch(path, {
         method: 'GET',
         headers: {
@@ -318,15 +299,6 @@ function AdminDashboardScheduledCalls({}) {
       const data = await response.json()
 
       if (response.ok) {
-        //console.log;
-        // setSelectedLeadsList(data.data);
-        // setFilteredSelectedLeadsList(data.data);
-        // localStorage.setItem(
-        //   PersistanceKeys.LeadsInBatch + `${batch.id}`,
-        //   JSON.stringify(data.data)
-        // );
-
-        console.log('Response of leads list detail', data.data)
         if (firstApiCall) {
           setSelectedLeadsList(data.data)
           setFilteredSelectedLeadsList(data.data)
@@ -369,9 +341,9 @@ function AdminDashboardScheduledCalls({}) {
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
-        item.firstName.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      )
+        (item.firstName.toLowerCase().includes(term))
+      );
     })
 
     setFilteredSheduledCallDetails(filtered)
@@ -391,9 +363,9 @@ function AdminDashboardScheduledCalls({}) {
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
-        item?.agents[0]?.name?.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      )
+        (item?.agents[0]?.name?.toLowerCase().includes(term))
+      );
     })
 
     setFilteredAgentsList(filtered)

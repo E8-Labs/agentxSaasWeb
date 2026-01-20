@@ -224,7 +224,6 @@ const Leads1 = () => {
         enrich: savedLeads.enrich,
       }
 
-      console.log('trying to resume leads from batch ', savedLeads.currentBatch)
       handleAddLead(true, savedLeads.currentBatch, resumeData)
     }
   }, [])
@@ -370,26 +369,17 @@ const Leads1 = () => {
   //donot match the custom column with matching array //just compare with the default 5 columns we have
   function ChangeColumnName(UpdatedColumnName) {
     let ColumnToUpdate = UpdateHeader
-    console.log('Updated column value passed is', UpdatedColumnName)
-    console.log('Update header is', ColumnToUpdate)
     if (UpdatedColumnName == null) {
-      console.log('Update columns name are null')
-      console.log('New columns obtained list is', NewColumnsObtained)
       let updatedColumns = NewColumnsObtained.map((item) => {
         if (item.ColumnNameInSheet == ColumnToUpdate.ColumnNameInSheet) {
           item.matchedColumn = null
           item.UserFacingName = null
-          console.log('Conditional column name is', item)
           return item
         }
-        console.log('Non conditional column nam is', item)
         return item
       })
-      console.log('Updated columns list is', updatedColumns)
       setNewColumnsObtained(updatedColumns)
     } else {
-      console.log('Update columns name exists')
-      console.log('New columns obtained from the sheet are', NewColumnsObtained)
       let updatedColumns = NewColumnsObtained.map((item) => {
         if (item.ColumnNameInSheet == ColumnToUpdate.ColumnNameInSheet) {
           // First check if any default column matches this name (prioritize default mappings)
@@ -398,8 +388,6 @@ const Leads1 = () => {
               LeadDefaultColumns[key].UserFacingName.toLowerCase() ===
               UpdatedColumnName.toLowerCase(),
           )
-
-          console.log('Matched column keys are', matchedColumnKey)
 
           if (matchedColumnKey) {
             // Check if this default column is already mapped to another sheet column
@@ -410,25 +398,7 @@ const Leads1 = () => {
                 existingItem?.matchedColumn?.dbName === matchedColumnKey,
             )
 
-            console.log(
-              `Checking if default column '${matchedColumnKey}' is already used...`,
-            )
-            console.log(
-              'Currently mapped columns:',
-              NewColumnsObtained.map((col) => ({
-                sheet: col.ColumnNameInSheet,
-                matched: col.matchedColumn?.dbName,
-                custom: col.UserFacingName,
-              })),
-            )
-            console.log(`Already exists: ${alreadyExists}`)
-
             if (alreadyExists) {
-              // Default column already used, treat this as custom column instead
-              console.log(
-                `Default column ${matchedColumnKey} already used, treating "${UpdatedColumnName}" as custom column`,
-              )
-
               // Check if custom name already exists
               const customNameExists = NewColumnsObtained.some(
                 (existingItem) =>
@@ -447,8 +417,6 @@ const Leads1 = () => {
                 item.UserFacingName = UpdatedColumnName
               }
             } else {
-              // Default column is available, use it
-              console.log('Default column is available, mapping it.')
               let defaultColumn = { ...LeadDefaultColumns[matchedColumnKey] }
               item.matchedColumn = defaultColumn
               item.UserFacingName = null
@@ -467,7 +435,6 @@ const Leads1 = () => {
               setShowErrSnack(true)
               return item // Don't update if already exists
             } else {
-              console.log('Creating custom column:', UpdatedColumnName)
               item.matchedColumn = null
               item.UserFacingName = UpdatedColumnName
             }
@@ -697,7 +664,7 @@ const Leads1 = () => {
     if (!validData || validData.length === 0) {
       let errorMessage = 'No valid leads found. All rows were filtered out because:'
       const reasons = []
-      
+
       if (bothInvalidCount > 0) {
         reasons.push(`${bothInvalidCount} row(s) have both invalid phone numbers and missing name fields`)
       }
@@ -707,7 +674,7 @@ const Leads1 = () => {
       if (missingNameCount > 0) {
         reasons.push(`${missingNameCount} row(s) are missing name fields (First Name, Last Name, or Full Name)`)
       }
-      
+
       // If no stats available (shouldn't happen), provide generic message
       if (reasons.length === 0) {
         errorMessage = 'No valid leads found. All rows were filtered out because they are missing valid phone numbers or name fields.'
@@ -715,7 +682,6 @@ const Leads1 = () => {
         errorMessage += '\n• ' + reasons.join('\n• ')
         errorMessage += '\n\nPlease check your file and ensure all rows have valid phone numbers (in a recognized format) and at least one name field (First Name, Last Name, or Full Name).'
       }
-      console.log('errorMessage', errorMessage)
       setErrSnack(errorMessage)
       setErrSnackTitle('No Valid Leads Found')
       setShowErrSnack(true)
@@ -729,12 +695,10 @@ const Leads1 = () => {
   //File readi
   const handleFileUpload = useCallback(
     (file) => {
-      console.log("file in handleFileUpload is", file)
       const reader = new FileReader()
       const isCSV = file.name.toLowerCase().endsWith('.csv')
       reader.onload = (event) => {
         const binaryStr = event.target.result
-        console.log("binaryStr in handleFileUpload ")
         // const workbook = XLSX.read(binaryStr, { type: "binary" });
 
         const workbook = XLSX.read(binaryStr, {
@@ -900,7 +864,7 @@ const Leads1 = () => {
           let invalidPhoneCount = 0
           let missingNameCount = 0
           let bothInvalidCount = 0
-          
+
           const validData = transformedData.filter((row) => {
             const phone = phoneColumn ? String(row[phoneColumn] || '').trim() : ''
             const hasPhone = isValidPhone(phone)
@@ -927,14 +891,8 @@ const Leads1 = () => {
           })
 
           const filteredCount = transformedData.length - validData.length
-          if (filteredCount > 0) {
-            console.log(
-              `Filtered out ${filteredCount} rows: ${invalidPhoneCount} invalid phone, ${missingNameCount} missing name, ${bothInvalidCount} both invalid`,
-            )
-          }
+          if (filteredCount > 0) {}
 
-          // Update state
-          console.log("Transformed data (first 10):", JSON.stringify(validData.slice(0, 10), null, 2));
           setProcessedData(validData)
           setOriginalTransformedData(transformedData) // Store original unfiltered data for re-validation
           setNewColumnsObtained(mappedColumns) // Store the column mappings
@@ -986,14 +944,11 @@ const Leads1 = () => {
   // Function to refresh user data after plan upgrade
   const refreshUserData = async () => {
     try {
-      console.log('🔄 [LEADS] Refreshing user data after plan upgrade...')
       const profileResponse = await getProfileDetails()
 
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data
         const localData = JSON.parse(localStorage.getItem('User') || '{}')
-
-        console.log('🔄 [LEADS] Fresh user data received after upgrade')
 
         // Update Redux with fresh data
         const updatedUserData = {
@@ -1039,7 +994,6 @@ const Leads1 = () => {
 
     if (isEnrichToggle) {
       let enrichmentPayment = await processEnrichmentPayment()
-      console.log('enrichmentPayment', enrichmentPayment)
 
       if (enrichmentPayment.status === false) {
         setShowErrSnack(enrichmentPayment.message)
@@ -1065,10 +1019,6 @@ const Leads1 = () => {
     setCurrentBatch(startIndex)
     setTotalBatches(totalBatches)
     setUploadProgress(Math.floor((startIndex / totalBatches) * 100))
-    console.log('data', data)
-    console.log(
-      `Uploading ${resumeData ? resumeData.data.length : data.length} leads in ${totalBatches} batches of ${BATCH_SIZE}...`,
-    )
 
     // Send custom event to hide dashboard slider
     window.dispatchEvent(
@@ -1086,7 +1036,6 @@ const Leads1 = () => {
       data: data.resumeData ? resumeData.data : data,
     }
 
-    console.log('leads data', uploadData)
     // return
     localStorage.setItem(
       PersistanceKeys.leadUploadState,
@@ -1222,9 +1171,6 @@ const Leads1 = () => {
       (col) => col.UserFacingName.toLowerCase(),
     )
 
-    console.log('All default db names:', allDefaultDbNames)
-    console.log('Currently matched db names:', matchedDbNames)
-
     // Find default columns that were NOT matched
     const defaultColumnsNotMatched = allDefaultDbNames
       .filter((dbName) => !matchedDbNames.includes(dbName))
@@ -1253,10 +1199,6 @@ const Leads1 = () => {
       ...defaultColumnsNotMatched,
       ...availableUniqueColumns,
     ]
-
-    console.log('Available default columns for dropdown:', defaultColumnsNotMatched)
-    console.log('Available unique columns for dropdown:', availableUniqueColumns)
-    console.log('All available columns:', allAvailableColumns)
 
     return allAvailableColumns
   }
@@ -1399,7 +1341,7 @@ const Leads1 = () => {
               />
             </div>
           ) : (
-            <div className="h-screen flex flex-col">
+            (<div className="h-screen flex flex-col">
               {reduxUser?.planCapabilities?.maxLeads < 10000000 &&
                 reduxUser?.plan?.planId != null && (
                   <div
@@ -1413,7 +1355,6 @@ const Leads1 = () => {
                     {`${formatFractional2(reduxUser?.currentUsage?.maxLeads)}/${formatFractional2(reduxUser?.planCapabilities?.maxLeads || 0)} used`}
                   </div>
                 )}
-
               <div className="h-[95%] flex flex-col">
                 <div className="flex flex-row items-start justify-center  mt-48 w-full">
                   <Image
@@ -1492,7 +1433,7 @@ const Leads1 = () => {
                   />
                 </div>
               </div>
-            </div>
+            </div>)
             // </div>
           )}
         </div>
@@ -1882,7 +1823,6 @@ const Leads1 = () => {
                                 // );
                                 setUpdateColumnValue(item.columnNameTransformed)
                                 handleColumnPopoverClick(event)
-                                console.log('dropdown clicking item is', item)
                                 setUpdateHeader(item)
                                 // }
                               }
@@ -1900,12 +1840,10 @@ const Leads1 = () => {
                             )}
                           </button>
                         </div>
-
                         {item.matchedColumn || item.UserFacingName ? (
                           <button
                             className="underline text-brand-primary w-1/12 outline-none ps-4"
                             onClick={() => {
-                              console.log('Clicking crss item is', item)
                               setUpdateHeader(item)
                               setShowDelCol(true)
                               // setUpdateHeader(item)
@@ -1922,7 +1860,6 @@ const Leads1 = () => {
                         ) : (
                           <div></div>
                         )}
-
                         {/* <Modal
                           open = {ShowDelCol}
                           onClose={()=>setShowDelCol(false)}
@@ -1934,7 +1871,7 @@ const Leads1 = () => {
 
                       </Modal> */}
                       </div>
-                    )
+                    );
                   })}
                     </div>
                   </>
@@ -1963,11 +1900,9 @@ const Leads1 = () => {
                           // validateColumns();
                           let validated = validateColumns()
 
-                          console.log('Validated', validated)
                           // return;
                           // validated will be the validated data array if successful, or false if validation failed
                           if (validated && Array.isArray(validated) && validated.length > 0) {
-                            console.log('Show enrich')
                             handleAddLead()
                           }
                         }}
@@ -2006,7 +1941,6 @@ const Leads1 = () => {
           setShowenrichConfirmModal={setShowenrichConfirmModal}
           handleAddLead={(value) => {
             if (value === true) {
-              console.log('Value passed is', value)
               setIsEnrich(value)
               setShowenrichModal(false)
               setShowenrichConfirmModal(false)
@@ -2020,7 +1954,6 @@ const Leads1 = () => {
         <ConfirmPerplexityModal
           showConfirmPerplexity={showenrichConfirmModal2}
           setshowConfirmPerplexity={(value) => {
-            console.log('value', value)
             setShowenrichConfirmModal2(value)
             setIsEnrich(value)
           }}
@@ -2259,7 +2192,6 @@ const Leads1 = () => {
                       )
                       setShowErrSnack(true)
                     } else {
-                      console.log('Column name is valid, proceeding...')
                       ChangeColumnName(updateColumnValue)
                     }
                   }}
@@ -2654,7 +2586,7 @@ const Leads1 = () => {
       {/* )
       } */}
     </div>
-  )
+  );
 }
 
 export default Leads1

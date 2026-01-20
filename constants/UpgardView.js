@@ -59,6 +59,7 @@ function UpgardView({
   userData,
   onUpgradeSuccess,
   setShowSnackMsg,
+  selectedUser = null, // User being viewed (for admin/agency contexts)
   // handleContinue
 }) {
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
@@ -94,8 +95,6 @@ function UpgardView({
   useEffect(() => {
     fetchLocalUserData()
     const Data = localUserData?.agencyCapabilities
-    console.log('Title passed to upgrade view is', title)
-    console.log('Plan capabilities in upgrade view is', Data)
     if (localUserData?.userRole === 'AgencySubAccount') {
       // For "Unlock Actions" - cascading check
       if (title === 'Unlock Actions') {
@@ -148,7 +147,6 @@ function UpgardView({
   const fetchLocalUserData = (attempt = 1, maxAttempts = 5) => {
     if (userData) {
       localUserData = userData
-      console.log(`✅ Found userData directly on attempt ${attempt}`)
       return
     }
 
@@ -160,9 +158,6 @@ function UpgardView({
         localUserData = Data?.user
 
         if (localUserData) {
-          console.log(
-            `✅ Successfully fetched local data on attempt ${attempt}`,
-          )
           return
         } else {
           console.warn(
@@ -178,7 +173,6 @@ function UpgardView({
 
     // Retry if not found and attempts remain
     if (attempt < maxAttempts) {
-      console.log(`⏳ Retrying... attempt ${attempt + 1} in 300ms`)
       setTimeout(() => fetchLocalUserData(attempt + 1, maxAttempts), 300)
     } else {
       console.error('❌ Max attempts reached. Could not fetch local data.')
@@ -195,7 +189,6 @@ function UpgardView({
         const freshUserData = profileResponse.data.data
         const localData = JSON.parse(localStorage.getItem('User') || '{}')
 
-        console.log('🔄 [Upgrade view] Fresh user data received after upgrade')
         // Update Redux with fresh data
         setReduxUser({
           token: localData.token,
@@ -314,15 +307,10 @@ function UpgardView({
           />
 
           <Elements stripe={stripePromise}>
-            {
-              console.log('Showing Upgrade Popup from Upgrade Plan; No User Passed', showUpgradePlanPopup)
-            }
             <UpgradePlan
               open={showUpgradePlanPopup}
               // setShowSnackMsg={setShowSnackMsg}
-              setSelectedPlan={() => {
-                console.log('setSelectedPlan is called')
-              }}
+              setSelectedPlan={() => {}}
               handleClose={async (data) => {
                 setShowUpgradePlanPopup(false)
                 if (data) {
@@ -332,12 +320,14 @@ function UpgardView({
                 }
                 // handleContinue()
               }}
+              selectedUser={selectedUser}
+              from={selectedUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : selectedUser?.userRole === 'Agency' ? 'agency' : 'User'}
             />
           </Elements>
         </div>
       )}
     </>
-  )
+  );
 }
 
 export default UpgardView

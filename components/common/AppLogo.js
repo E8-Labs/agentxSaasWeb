@@ -42,9 +42,7 @@ const AppLogo = ({
           parsedUser?.user?.userRole === 'AgencySubAccount' ||
           parsedUser?.userRole === 'AgencySubAccount'
       }
-    } catch (error) {
-      console.log('Error parsing user data:', error)
-    }
+    } catch (error) {}
 
     // Check if agency/admin is creating agent for subaccount
     let isAgencyCreatingForSubaccount = false
@@ -58,9 +56,7 @@ const AppLogo = ({
           subaccountData = parsed.subAccountData
         }
       }
-    } catch (error) {
-      console.log('Error parsing isFromAdminOrAgency:', error)
-    }
+    } catch (error) {}
 
     // If assignx domain AND not a subaccount AND not agency creating for subaccount, always show assignx logo
     // Exception: If subaccount OR agency creating for subaccount, check for agency branding even on assignx.ai domains
@@ -98,9 +94,7 @@ const AppLogo = ({
       if (storedBranding) {
         try {
           branding = JSON.parse(storedBranding)
-        } catch (error) {
-          console.log('Error parsing agencyBranding from localStorage:', error)
-        }
+        } catch (error) {}
       }
     }
 
@@ -119,9 +113,7 @@ const AppLogo = ({
             branding = parsedUser.user.agency.agencyBranding
           }
         }
-      } catch (error) {
-        console.log('Error parsing user data for agencyBranding:', error)
-      }
+      } catch (error) {}
     }
 
     // Additional fallback: If agency is creating agent for subaccount, fetch subaccount's agency branding
@@ -134,9 +126,7 @@ const AppLogo = ({
           // We'll fetch branding via API in the fetchBrandingFromAPI function
           // This will be handled below
         }
-      } catch (error) {
-        console.log('Error getting branding for subaccount:', error)
-      }
+      } catch (error) {}
     }
 
     // Function to fetch branding from API (for custom domains or subaccounts)
@@ -291,9 +281,7 @@ const AppLogo = ({
             if (retryBranding?.logoUrl) {
               setLogoUrl(retryBranding.logoUrl)
             }
-          } catch (error) {
-            console.log('Error parsing retry cookie:', error)
-          }
+          } catch (error) {}
         }
       }, 300) // Wait 300ms for middleware to set cookie
 
@@ -316,18 +304,14 @@ const AppLogo = ({
         if (retryCookie) {
           try {
             updatedBranding = JSON.parse(decodeURIComponent(retryCookie))
-          } catch (error) {
-            console.log('Error parsing branding cookie:', error)
-          }
+          } catch (error) {}
         }
         if (!updatedBranding) {
           const storedBranding = localStorage.getItem('agencyBranding')
           if (storedBranding) {
             try {
               updatedBranding = JSON.parse(storedBranding)
-            } catch (error) {
-              console.log('Error parsing branding from localStorage:', error)
-            }
+            } catch (error) {}
           }
         }
         if (updatedBranding?.logoUrl) {

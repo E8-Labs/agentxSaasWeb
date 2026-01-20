@@ -14,8 +14,6 @@ import { AuthToken } from '../plan/AuthDetails'
 import { getMonthlyPlan } from './GetPlansList'
 
 const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
-  console.log('selected user passed is', selectedUser)
-
   const [initialLoader, setInitialLoader] = useState(false)
   const [agencyPlans, setAgencyPlans] = useState([])
   const [subAccountPlans, setSubAccountPlans] = useState([])
@@ -32,9 +30,7 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
     }
   }, [subAccountPlans])
 
-  useEffect(() => {
-    console.log('Current selected plan is', selectedPlans)
-  }, [selectedPlans])
+  useEffect(() => {}, [selectedPlans])
 
   useEffect(() => {
     getPlans()
@@ -55,12 +51,9 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
       // });
       const response = await getMonthlyPlan()
       if (response) {
-        console.log('Response of get hosted plans api is', response)
         setAgencyPlans(response)
       }
-    } catch (error) {
-      console.log('Error occured in getAgencysubaccount plans is', error)
-    }
+    } catch (error) {}
   }
 
   //get plans from user id api
@@ -68,14 +61,12 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
     try {
       setInitialLoader(true)
       const Token = AuthToken()
-      console.log('user id is', selectedUser?.id)
       let ApiPath = null
       if (selectedUser) {
         ApiPath = `${Apis.getSubAccountPlans}?userId=${selectedUser?.id}`
       } else {
         ApiPath = Apis.getSubAccountPlans
       }
-      console.log('Api path of get plan is', ApiPath)
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: 'Bearer ' + Token,
@@ -84,7 +75,6 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
       })
 
       if (response) {
-        console.log('Response of get plans api is', response.data.data)
         setSubAccountPlans(response.data.data.monthlyPlans)
         setInitialLoader(false)
       }
@@ -110,7 +100,6 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
       setUpdatePlansLoader(true)
       const Token = AuthToken()
       const ApiPath = Apis.updateSubAccountPlansFromAgency
-      console.log('Selected user is', selectedUser)
       const apiData = {
         subaccountUserId: selectedUser.id,
         monthlyPlans: selectedPlans,
@@ -122,10 +111,6 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
         },
       })
       if (response) {
-        console.log(
-          'Response of update agency subaccount plans api is',
-          response.data,
-        )
         if (response.data.status === true) {
           setSnackMsg('Plans Updated.')
           setSnackMsgType(SnackbarTypes.Success)
@@ -139,7 +124,6 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
       }
     } catch (error) {
       setUpdatePlansLoader(false)
-      console.log('Error occured in update agency plans api is', error)
     }
   }
 
@@ -150,8 +134,6 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
     const sortedA = [...a].sort()
     const sortedB = [...b].sort()
     return sortedA.every((val, index) => val === sortedB[index])
-    console.log('Agency plans passed are', a)
-    console.log('Selected palns passed are', b)
     const comparing =
       a.map((item) => {
         return item
@@ -159,7 +141,6 @@ const ViewSubAccountPlans = ({ showPlans, hidePlans, selectedUser }) => {
       b.map((item) => {
         return item
       })
-    console.log('is cparing true or false', Boolean(comparing))
   }
 
   return (

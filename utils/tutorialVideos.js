@@ -37,7 +37,7 @@ const replaceAssignXInTitle = (title, agencyBranding) => {
     return title
   }
   // Replace "AssignX" with agency company name
-  return title.replace(/AssignX/g, agencyBranding.companyName)
+  return title.replace(/AssignX/g, agencyBranding.companyName);
 }
 
 /**
@@ -294,15 +294,6 @@ export const getTutorialVideos = () => {
               ? formatDuration(agencyVideo.videoDuration)
               : defaultTutorial.description
 
-          console.log(
-            `[TutorialVideos] Merging agency video for ${defaultTutorial.videoType}:`,
-            {
-              videoDuration: agencyVideo.videoDuration,
-              formattedDuration: formattedDuration,
-              title: agencyVideo.title,
-            },
-          )
-
           return {
             ...agencyVideo,
             id: defaultTutorial.id,
@@ -316,7 +307,7 @@ export const getTutorialVideos = () => {
           ...defaultTutorial,
           title: replaceAssignXInTitle(defaultTutorial.title, agencyBranding),
         }
-      })
+      });
     }
 
     // Normal user - return defaults with company name replacement if agency branding exists

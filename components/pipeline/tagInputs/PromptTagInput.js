@@ -19,7 +19,6 @@ export const PromptTagInput = ({
   placeholder = 'Type here...',
   editTitle,
 }) => {
-  console.log('kycs list in prompt tag input', kycsList)
   const [popupVisible, setPopupVisible] = useState(false)
   const [popupPosition, setPopupPosition] = useState({ top: 0, left: 0 })
   const [options, setOptions] = useState([
@@ -56,8 +55,6 @@ export const PromptTagInput = ({
         }
       })
     }
-    console.log('kycs list is:', kycsList)
-    console.log('arr is:', arr)
     setOptions(arr)
 
     // setOptions((prev) => {

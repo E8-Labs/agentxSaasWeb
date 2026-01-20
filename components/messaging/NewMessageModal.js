@@ -45,7 +45,7 @@ const stripHTML = (html) => {
     tempDiv.innerHTML = processedHtml
     const text = tempDiv.textContent || tempDiv.innerText || ''
     // Normalize multiple newlines to single newlines, but preserve intentional line breaks
-    return text.replace(/\n{3,}/g, '\n\n').trim()
+    return text.replace(/\n{3,}/g, '\n\n').trim();
   }
   // Fallback for SSR: strip HTML tags and preserve line breaks
   return html
@@ -60,7 +60,7 @@ const stripHTML = (html) => {
     .replace(/&lt;/g, '<')           // Convert &lt; to <
     .replace(/&gt;/g, '>')           // Convert &gt; to >
     .replace(/\n{3,}/g, '\n\n')      // Normalize multiple newlines
-    .trim()
+    .trim();
 }
 
 // Helper function to get brand primary color as hex
@@ -118,7 +118,6 @@ const NewMessageModal = ({
   selectedUser = null,
   isLeadMode = false,
 }) => {
-  console.log("Selected User in NewMessageModal", selectedUser)
   const [selectedMode, setSelectedMode] = useState(mode)
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
   const [searchQuery, setSearchQuery] = useState('')
@@ -186,12 +185,9 @@ const NewMessageModal = ({
   // Determine if upgrade view should be shown (only for SMS tab)
   const shouldShowUpgradeView = selectedMode === 'sms' && !canSendSMS
 
-const hasSmsAccess = reduxUser?.planCapabilities?.allowTextMessages === true
-const hasEmailAccess = reduxUser?.planCapabilities?.allowEmails === true
+  const hasSmsAccess = reduxUser?.planCapabilities?.allowTextMessages === true
+  const hasEmailAccess = reduxUser?.planCapabilities?.allowEmails === true
 
-
-console.log("hasSmsAccess is ", hasSmsAccess)
-console.log("hasEmailAccess is ", hasEmailAccess)
 
   // Function to render Lucide icon with branding color
   const renderBrandedLucideIcon = (IconComponent, size = 20, isActive = false) => {
@@ -394,12 +390,10 @@ console.log("hasEmailAccess is ", hasEmailAccess)
         const leadsData = Array.isArray(response.data.data)
           ? response.data.data
           : []
-        console.log('Search results received:', leadsData.length, 'leads')
         setFilteredLeads(leadsData)
         // Ensure dropdown stays open when results arrive
         setShowLeadList(true)
       } else {
-        console.log('No results in response:', response.data)
         setFilteredLeads([])
       }
     } catch (error) {

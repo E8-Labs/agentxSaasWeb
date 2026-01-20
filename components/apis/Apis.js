@@ -8,11 +8,6 @@ let BasePath =
     ? 'https://apimyagentx.com/agentx/'
     : 'https://apimyagentx.com/agentxtest/')
 
-// Plans API Base URL (temporary ngrok URL)
-// BasePath = "https://65ea59dbae33.ngrok-free.app/";
-
-console.log('Current base url is', BasePath)
-
 const Apis = {
   BasePath: BasePath,
   getCalenders: `${BasePath}api/calendar/calendars`,

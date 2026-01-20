@@ -32,8 +32,6 @@ export default function SetXBarOptions({
 
   //getting the plans list
   useEffect(() => {
-    console.log(formData)
-    console.log('Xbar plan passed is', xBars)
     setSelectedXBarPlans(xBars)
     getPlansList()
   }, [])
@@ -44,7 +42,6 @@ export default function SetXBarOptions({
       setLoading(true)
       const plans = await getXBarOptions(selectedAgency)
       setLoading(false)
-      console.log('x bar Plans list recieved is', plans)
       setXBarPlans(plans)
     } catch (error) {
       console.error('Error occured in getting plans on  sub act is', error)
@@ -105,7 +102,6 @@ export default function SetXBarOptions({
           userId: selectedAgency.id,
         }
       }
-      console.log('Api data is', ApiData)
       // return
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
@@ -115,15 +111,11 @@ export default function SetXBarOptions({
       })
 
       if (response) {
-        console.log('responese of create sub account api is', response.data)
         if (response.data.status === true) {
           // Refresh profile data to get latest internal account count
           try {
-            console.log('🔄 Refreshing profile data after subaccount creation...')
             const profileResponse = await getProfileDetails()
-            if (profileResponse?.data?.status === true) {
-              console.log('✅ Profile data refreshed successfully')
-            } else {
+            if (profileResponse?.data?.status === true) {} else {
               console.warn('⚠️ Profile refresh returned non-success status')
             }
           } catch (profileError) {
@@ -162,7 +154,6 @@ export default function SetXBarOptions({
       console.error('Error occured in create sub account api is', error)
       setSubAccountLoader(false)
     } finally {
-      console.log('Sub account created')
       setSubAccountLoader(false)
     }
   }
@@ -184,7 +175,6 @@ export default function SetXBarOptions({
           Select XBar Options
         </h2>
       </div>
-
       <div
         className="space-y-4 max-h-[400px] overflow-y-auto pr-1 scrollbar-hide"
         sx={{
@@ -234,7 +224,6 @@ export default function SetXBarOptions({
           ))
         )}
       </div>
-
       <div className="flex justify-between mt-6">
         <button
           onClick={() => {
@@ -249,7 +238,6 @@ export default function SetXBarOptions({
         ) : (
           <button
             onClick={() => {
-              console.log('close all')
               handleCreateSubAccount()
             }}
             disabled={selectedXBarPlans.length === 0}
@@ -260,5 +248,5 @@ export default function SetXBarOptions({
         )}
       </div>
     </div>
-  )
+  );
 }

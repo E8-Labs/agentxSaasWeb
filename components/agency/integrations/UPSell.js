@@ -169,7 +169,6 @@ const UPSell = ({ selectedAgency }) => {
         },
       })
       if (response) {
-        console.log('response of get user settings api is', response)
         const Data = response?.data?.data
         setPhonePrice(Data?.phonePrice || '')
         setDncPrice((Data?.dncPrice).toFixed(2) || '')
@@ -196,7 +195,6 @@ const UPSell = ({ selectedAgency }) => {
         }
       }
     } catch (err) {
-      console.log('Error occured in api is', err)
       setInitialLoader(false)
     }
   }
@@ -208,7 +206,6 @@ const UPSell = ({ selectedAgency }) => {
       let u = JSON.parse(data)
       const UD = u.user
       setAgencyData(UD)
-      console.log('Agency data is', u.user.twilio)
       setPhonePrice(UD?.phonePrice?.price)
       // if (u.user.phonePrice) {
       //     setAllowUpSellPhone(true);
@@ -218,7 +215,6 @@ const UPSell = ({ selectedAgency }) => {
 
   //user settings api data
   const userSettingDataUpgrade = (from) => {
-    console.log('Api will run for upgrade', from)
     if (from === 'phonePrice') {
       setSavePhoneLoader(true)
       return {
@@ -242,7 +238,6 @@ const UPSell = ({ selectedAgency }) => {
 
   //for deleting data
   const userSettingDataDel = (from) => {
-    console.log('Api will run for', from)
     if (from === 'phonePriceDel') {
       setDelPhoneLoader(true)
       return {
@@ -288,20 +283,18 @@ const UPSell = ({ selectedAgency }) => {
       } else {
         ApiData = userSettingDataUpgrade(from)
       }
-      
+
       // Add userId if selectedAgency is provided (admin view)
       if (selectedAgency?.id) {
         ApiData.userId = selectedAgency.id
       }
-      
-      console.log('Api data sending in user setting api is', ApiData)
+
       const response = await axios.put(ApiPath, ApiData, {
         headers: {
           Authorization: 'Bearer ' + Auth,
           'Content-Type': 'application/json',
         },
       })
-      console.log('Response of user settings api is', response)
       if (response) {
         if (response.data.status === true) {
           setShowSnackMessage('Upsell updated')
@@ -995,7 +988,7 @@ const UPSell = ({ selectedAgency }) => {
         )}
       </div>
     </div>
-  )
+  );
 }
 
 export default UPSell

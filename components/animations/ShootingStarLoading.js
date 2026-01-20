@@ -97,7 +97,6 @@ function ShootingStarLoading({ open }) {
       // This works on localhost too - if UUID is present, show subaccount loader
       const hasAgencyUuid = hasAgencyUUID()
       if (hasAgencyUuid) {
-        console.log('🎯 [ShootingStarLoading] Agency UUID detected, showing subaccount loader')
         setIsSubaccount(true)
         return
       }
@@ -116,7 +115,6 @@ function ShootingStarLoading({ open }) {
           !hostname.includes('dev.assignx.ai')
         
         if (isCustomDomain) {
-          console.log('🎯 [ShootingStarLoading] Custom domain detected:', hostname)
           setIsSubaccount(true)
           return
         }
@@ -127,7 +125,6 @@ function ShootingStarLoading({ open }) {
         const pathname = window.location.pathname
         const uuidPattern = /\/onboarding\/([^\/]+)/
         if (uuidPattern.test(pathname)) {
-          console.log('🎯 [ShootingStarLoading] Agency UUID in URL path detected')
           setIsSubaccount(true)
           return
         }
@@ -211,7 +208,7 @@ function ShootingStarLoading({ open }) {
             </div>
           ) : (
             /* Shooting Star Progress Bar */
-            <div className="w-full relative" style={{ height: '2px' }}>
+            (<div className="w-full relative" style={{ height: '2px' }}>
               <div
                 className="absolute inset-0 rounded-full"
                 style={{
@@ -247,12 +244,12 @@ function ShootingStarLoading({ open }) {
                   }}
                 />
               </div>
-            </div>
+            </div>)
           )}
         </div>
       </div>
     </>
-  )
+  );
 }
 
 export default ShootingStarLoading

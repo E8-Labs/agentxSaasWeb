@@ -16,7 +16,6 @@ function Page() {
       if (data) {
         let u = JSON.parse(data)
 
-        console.log('u.user.userRole', u.user.userRole)
         setRole(u.user.userRole)
         setRoleLoader(false)
       }

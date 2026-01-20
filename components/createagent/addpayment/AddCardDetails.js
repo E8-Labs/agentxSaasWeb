@@ -191,7 +191,7 @@ const AddCardDetails = ({
     if (selectedUser) {
       setupIntentUrl = `${Apis.createSetupIntent}?userId=${selectedUser.id}`
     }
-    
+
     const res = await fetch(setupIntentUrl, {
       method: 'POST',
       headers: {
@@ -202,7 +202,6 @@ const AddCardDetails = ({
     })
 
     const data = await res.json()
-    console.log('Setup intent response is ', data)
 
     const result = await stripeReact.confirmCardSetup(data.data, {
       payment_method: {
@@ -213,11 +212,8 @@ const AddCardDetails = ({
       },
     })
 
-    console.log('Result confirm payment', result)
-
     if (result.error) {
       setAddCardLoader(false)
-      console.log('Error confirm payment')
       setAddCardFailure(true)
       setAddCardErrtxt(
         result.error.message || 'Error confirming payment method',
@@ -248,7 +244,6 @@ const AddCardDetails = ({
           inviteCode: inviteCode,
         }
       }
-      console.log('Request data sending in api is', requestBody)
       const addCardRes = await fetch(Apis.addCard, {
         method: 'POST',
         headers: {
@@ -259,7 +254,6 @@ const AddCardDetails = ({
       })
 
       const result2 = await addCardRes.json()
-      console.log('Result is ', result2)
       setAddCardLoader(false)
       if (result2.status === true) {
         setAddCardSuccess(true)
@@ -310,8 +304,6 @@ const AddCardDetails = ({
       // //console.log;
 
       const ApiPath = Apis.subscribePlan
-      // //console.log;
-      console.log('Api data', ApiData)
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
           Authorization: 'Bearer ' + AuthToken,
@@ -320,7 +312,6 @@ const AddCardDetails = ({
       })
 
       if (response) {
-        console.log('Response of subscribe plan api is', response.data)
         if (response.data.status === true) {
           handleClose(response.data)
           if (setAddPaymentSuccessPopUp) setAddPaymentSuccessPopUp(true)
@@ -362,10 +353,8 @@ const AddCardDetails = ({
 
   //referal code chek
   const isValidReferralCode = async (value) => {
-    console.log('Api data for invalid referral code', value.trim())
     setInviteCodeLoader(true)
     const response = await checkReferralCode(value.trim())
-    console.log('response of isvalidcode api is', response)
     if (response) {
       if (response.status === true) {
         setIsValidCode('Valid')

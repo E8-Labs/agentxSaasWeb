@@ -72,19 +72,13 @@ function SubAccountMyAccount() {
               
               // Update xbar title if available
               if (branding?.xbarTitle) {
-                console.log('✅ [SubAccountMyAccount] Fetched xbarTitle from API:', branding.xbarTitle)
                 setXbarTitle(branding.xbarTitle)
                 return
               }
             }
-          } catch (error) {
-            console.log('⚠️ [SubAccountMyAccount] Error fetching branding from API:', error)
-            // Fall through to localStorage check
-          }
+          } catch (error) {}
         }
-      } catch (error) {
-        console.log('❌ [SubAccountMyAccount] Error in fetchBrandingAndUpdateTitle:', error)
-      }
+      } catch (error) {}
       
       // Fallback: Get Xbar title from localStorage
       const getXbarTitle = () => {
@@ -107,9 +101,7 @@ function SubAccountMyAccount() {
               return
             }
           }
-        } catch (error) {
-          console.log('Error getting xbar title from branding:', error)
-        }
+        } catch (error) {}
         // Default title
         setXbarTitle('Bar Services')
       }
@@ -304,14 +296,11 @@ function SubAccountMyAccount() {
     if (localData) {
       const Data = JSON.parse(localData)
       const D = Data.user
-      console.log(
-        `user role is ${D.userRole} and allow twilio status is ${D.allowSubaccountTwilio}`,
-      )
       // manuBar and manuBar2 already have the current xbarTitle since they're recreated on each render
       // Just use them directly - no need to map since xbarTitle is already in the arrays
       const updatedManuBar = manuBar
       const updatedManuBar2 = manuBar2
-      
+
       if (
         D.userRole === UserRole.AgencySubAccount &&
         D.allowSubaccountTwilio === false
@@ -323,7 +312,6 @@ function SubAccountMyAccount() {
       setInitialLoader(false)
     } else {
       setInitialLoader(false)
-      console.log('couldNotFetch local data')
     }
     // console.log("Test check fail")
   }, [xbarTitle])
@@ -402,6 +390,7 @@ function SubAccountMyAccount() {
 
   return (
     // <Suspense>
+    // </Suspense>
     <div
       className="w-full flex flex-col items-center"
       style={{ overflow: 'hidden', height: '100vh' }}
@@ -416,7 +405,6 @@ function SubAccountMyAccount() {
           <NotficationsDrawer />
         </div>
       </div>
-
       <div className="w-full flex flex-row item-center pl-4">
         {initialLoader ? (
           <div className="w-4/12 flex flex-row items-center justify-center">
@@ -495,8 +483,7 @@ function SubAccountMyAccount() {
         </div>
       </div>
     </div>
-    // </Suspense>
-  )
+  );
 }
 
 export default SubAccountMyAccount

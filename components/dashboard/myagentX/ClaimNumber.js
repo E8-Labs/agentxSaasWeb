@@ -25,8 +25,6 @@ const ClaimNumber = ({
   AssignNumber,
   selectedUSer,
 }) => {
-
-  console.log('selectedUSer in claim number', selectedUSer)
   const stripePromise = getStripe()
   const timerRef = useRef(null)
 
@@ -53,7 +51,6 @@ const ClaimNumber = ({
   }
 
   const handleClose = (data) => {
-    console.log('data of add card', data)
     if (data) {
       setShowAddCard(false)
       handlePurchaseNumber()
@@ -63,7 +60,6 @@ const ClaimNumber = ({
 
   // function for purchasing number api
   const handlePurchaseNumber = async () => {
-    console.log('purchase number')
     // return
     try {
       setPurchaseLoader(true)
@@ -98,9 +94,7 @@ const ClaimNumber = ({
         formData.append('userId', selectedUSer?.id)
       }
 
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} === ${value}`)
-      }
+      for (let [key, value] of formData.entries()) {}
 
       //for testing
       // localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
@@ -123,13 +117,10 @@ const ClaimNumber = ({
         },
       })
 
-      console.log('Response of purchase number is', response)
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          console.log('Response of purchase number is true')
           setOpenPurchaseSuccessModal(true)
-          console.log('Previous number is', previousNumber)
           setPreviousNumber([...previousNumber, selectedPurchasedNumber])
           if (setSelectNumber) {
             setSelectNumber(selectedPurchasedNumber.phoneNumber)
@@ -460,7 +451,6 @@ const ClaimNumber = ({
           </div>
         </Box>
       </Modal>
-
       {/* Code for Purchase number success popup */}
       <Modal
         open={openPurchaseSuccessModal}
@@ -505,7 +495,6 @@ const ClaimNumber = ({
           </div>
         </Box>
       </Modal>
-
       {/* Add Payment Modal */}
       <Modal
         open={showAddCard} //addPaymentPopUp
@@ -564,7 +553,7 @@ const ClaimNumber = ({
         </Box>
       </Modal>
     </div>
-  )
+  );
 }
 
 export default ClaimNumber

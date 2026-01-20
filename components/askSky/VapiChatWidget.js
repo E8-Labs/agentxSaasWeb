@@ -57,7 +57,6 @@ export default function VapiChatWidget({
 
         // Listen to incoming messages
         instance.on('message', (msg) => {
-          console.log('msg received ', msg)
           if (msg?.type === 'conversation-update') {
             let newMsg = msg?.messages || []
 
@@ -116,7 +115,6 @@ export default function VapiChatWidget({
     setInputValue('')
   }
   const getProfileSupportDetails = async () => {
-    console.log('get profile support details api calling')
     let user = null
     try {
       const data = localStorage.getItem('User')
@@ -134,7 +132,6 @@ export default function VapiChatWidget({
 
         if (response.data) {
           if (response.data.status === true) {
-            console.log('profile support details are', response.data)
             let data = response.data.data
             let pipelineData = data.pipelines
 
@@ -146,14 +143,11 @@ export default function VapiChatWidget({
               pipelines: pipelineData,
             }
           } else {
-            console.log('profile support message is', response.data.message)
-
             return user.user
           }
         }
       }
     } catch (e) {
-      console.log('error in get profile suppport details api is', e)
       return user.user
     }
   }
@@ -166,9 +160,6 @@ export default function VapiChatWidget({
   const muteAssistantAudio = (mute) => {
     // Find all audio elements (Vapi might create them)
     const audioElements = document.querySelectorAll('audio')
-    console.log(
-      `${mute ? 'Muting' : 'Unmuting'} ${audioElements.length} audio elements`,
-    )
 
     audioElements.forEach((audio) => {
       audio.muted = mute
@@ -188,14 +179,11 @@ export default function VapiChatWidget({
         }
       } catch (e) {
         console.error(e)
-        // Cross-origin iframe, can't access
-        console.log('Cannot access iframe audio elements (cross-origin)')
       }
     })
   }
 
   const startChat = async () => {
-    console.log('starting chat')
     if (vapi) {
       // vapi.setMuted(true)
       let userProfile = await getProfileSupportDetails()
@@ -209,8 +197,6 @@ export default function VapiChatWidget({
           customer_details: JSON.stringify(userProfile),
         },
       }
-
-      console.log('assistante overrides', assistantOverrides)
 
       vapi.start(assistantId, assistantOverrides)
       // setLoading(false);

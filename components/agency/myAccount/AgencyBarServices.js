@@ -148,9 +148,7 @@ function AgencyBarServices() {
             return
           }
         }
-      } catch (error) {
-        console.log('Error getting xbar title from branding:', error)
-      }
+      } catch (error) {}
       // Default title
       setXbarTitle('X Bar Plans')
     }
@@ -187,9 +185,7 @@ function AgencyBarServices() {
             setTextColor(isLight ? '#000' : '#fff')
           }
         }
-      } catch (error) {
-        console.log('Error parsing user data:', error)
-      }
+      } catch (error) {}
     }
   }, [])
 
