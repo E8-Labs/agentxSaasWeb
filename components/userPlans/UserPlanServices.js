@@ -139,17 +139,18 @@ export const getUserPlans = async (from, selectedUser) => {
       isSubAccount,
     })
 
-    // Priority 1: Check if explicitly set via 'from' prop
-    if (from === 'agency' || from === 'Agency') {
+    // Priority 1: Check if selectedUser is a subaccount (agency viewing subaccount)
+    // This MUST come first to ensure we use subaccount endpoint when viewing subaccounts
+    if (selectedUser && (selectedUser.userRole === 'AgencySubAccount' || selectedUser?.user?.userRole === 'AgencySubAccount')) {
+      console.log('✅ Using subaccount endpoint (selectedUser is subaccount - highest priority)')
+      path = Apis.getSubAccountPlans
+    }
+    // Priority 2: Check if explicitly set via 'from' prop (but only if selectedUser is not a subaccount)
+    else if (from === 'agency' || from === 'Agency') {
       console.log('✅ Using agency endpoint (from prop)')
       path = Apis.getPlansForAgency
     } else if (from === 'SubAccount') {
       console.log('✅ Using subaccount endpoint (from prop)')
-      path = Apis.getSubAccountPlans
-    }
-    // Priority 2: Check if selectedUser is a subaccount (agency viewing subaccount)
-    else if (selectedUser && (selectedUser.userRole === 'AgencySubAccount' || selectedUser?.user?.userRole === 'AgencySubAccount')) {
-      console.log('✅ Using subaccount endpoint (selectedUser is subaccount)')
       path = Apis.getSubAccountPlans
     }
     // Priority 3: Check logged-in user's role

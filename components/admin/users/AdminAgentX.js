@@ -4445,6 +4445,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                           }
                                           reduxUser={reduxUser}
                                           setReduxUser={setReduxUser}
+                                          selectedUser={selectedUser}
                                         />
                                       )}
                                   </MenuItem>
@@ -5274,12 +5275,14 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                           reduxUser={reduxUser}
                           setReduxUser={setReduxUser}
                           requestFeature={true}
+                          selectedUser={selectedUser}
                         />
                       ) : selectedUser?.planCapabilities
                         ?.allowLiveCallTransfer === false ? (
                         <UpgradeTagWithModal
                           reduxUser={reduxUser}
                           setReduxUser={setReduxUser}
+                          selectedUser={selectedUser}
                         />
                       ) : (
                         <div className="flex flex-row items-center justify-between gap-2">

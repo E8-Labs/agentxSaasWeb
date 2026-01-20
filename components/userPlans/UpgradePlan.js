@@ -238,7 +238,6 @@ function UpgradePlanContent({
   showSnackMsg = null,
   selectedUser,
 }) {
-  console.log("Selected User in Upgrade Plan Content", selectedUser)
   const stripeReact = useStripe()
   const elements = useElements()
 
@@ -340,26 +339,18 @@ function UpgradePlanContent({
   const isUpgradeButtonEnabled = () => {
     //disable if snack msg is visible
     if (showSnackMsg?.isVisible) {
-      console.log('Button disabled: snack msg visible')
       return false
     }
 
     // Must have a selected plan
     if (!currentSelectedPlan) {
-      console.log('Button disabled: no selected plan')
       return false
     }
 
     // Check if selected plan is the current plan
     const isCurrent = isPlanCurrent(currentSelectedPlan)
-    console.log('isPlanCurrent check:', {
-      currentSelectedPlanId: currentSelectedPlan?.id,
-      currentUserPlanId: currentUserPlan?.planId,
-      isCurrent: isCurrent,
-    })
 
     if (isCurrent) {
-      console.log('Button disabled: selected plan is current plan')
       return false
     }
 

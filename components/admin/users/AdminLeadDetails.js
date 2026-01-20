@@ -1217,6 +1217,7 @@ const AdminLeadDetails = ({
                                           <UpgradeTagWithModal
                                             reduxUser={userLocalData}
                                             setReduxUser={setUserLocalData}
+                                            selectedUser={selectedUser}
                                           />
                                         )}
                                       </div>
@@ -2659,6 +2660,7 @@ const AdminLeadDetails = ({
           }}
           plan={selectedPlan}
           currentFullPlan={currentFullPlan}
+          selectedUser={selectedUser}
         />
       </Elements>
     </div>
