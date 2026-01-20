@@ -65,6 +65,7 @@ import UserCalender from '@/components/dashboard/myagentX/UserCallender'
 import VoiceMailTab from '@/components/dashboard/myagentX/VoiceMailTab'
 import WebAgentModal from '@/components/dashboard/myagentX/WebAgentModal'
 import CloseBtn, { CloseBtn2 } from '@/components/globalExtras/CloseBtn'
+import AdvancedSettingsModalCN from '@/components/ui/AdvancedSettingsModalCN'
 import AddScoringModal from '@/components/modals/add-scoring-modal'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
 import { getLocalLocation } from '@/components/onboarding/services/apisServices/ApiService'
@@ -292,6 +293,9 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const [showScriptModal, setShowScriptModal] = useState(null)
   const [showScript, setShowScript] = useState(false)
   const [SeledtedScriptKYC, setSeledtedScriptKYC] = useState(false)
+  //code for advanced settings
+  const [showAdvancedSettingsModal, setShowAdvancedSettingsModal] = useState(false)
+  const [advancedSettingsLoader, setAdvancedSettingsLoader] = useState(false)
   //show objection and guadrails
   const [showObjection, setShowObjection] = useState(false)
   const [showGuardrails, setShowGuardrails] = useState(false)
@@ -1935,6 +1939,23 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     setSeledtedScriptAdvanceSetting(false)
   }
 
+  // Handler for saving advanced settings
+  const handleSaveAdvancedSettings = async (settings) => {
+    setAdvancedSettingsLoader(true)
+    try {
+      await updateSubAgent({
+        maxDurationSeconds: settings.maxDurationSeconds,
+        idleTimeoutSeconds: settings.idleTimeoutSeconds,
+        idleMessage: settings.idleMessage,
+      })
+      setShowAdvancedSettingsModal(false)
+    } catch (error) {
+      console.error('Error saving advanced settings:', error)
+    } finally {
+      setAdvancedSettingsLoader(false)
+    }
+  }
+
   const AssignNumber = async (phoneNumber) => {
     if (showDrawerSelectedAgent.phoneNumber == phoneNumber) {
       return
@@ -2895,6 +2916,17 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
         if (model) {
           formData.append('agentLLmModel', model)
+        }
+
+        // Advanced settings
+        if (voiceData?.maxDurationSeconds !== undefined) {
+          formData.append('maxDurationSeconds', voiceData.maxDurationSeconds)
+        }
+        if (voiceData?.idleTimeoutSeconds !== undefined) {
+          formData.append('idleTimeoutSeconds', voiceData.idleTimeoutSeconds)
+        }
+        if (voiceData?.idleMessage !== undefined) {
+          formData.append('idleMessage', voiceData.idleMessage)
         }
 
         for (let [key, value] of formData.entries()) {}
@@ -4763,6 +4795,26 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     <div
                       style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
                     >
+                      Advanced Settings
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <div
+                        style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
+                      >
+                        Configure call duration, timeout, and silence response
+                      </div>
+                      <button
+                        onClick={() => setShowAdvancedSettingsModal(true)}
+                        className="text-brand-primary hover:text-brand-primary/80 text-sm font-medium"
+                      >
+                        Configure
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex flex-col gap-1 mt-4">
+                    <div
+                      style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
+                    >
                       Contact
                     </div>
 
@@ -6242,6 +6294,17 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         isEmbedFlow={true}
         embedCode={embedCode}
         fetureType={fetureType}
+      />
+      <AdvancedSettingsModalCN
+        open={showAdvancedSettingsModal}
+        onOpenChange={setShowAdvancedSettingsModal}
+        onSave={handleSaveAdvancedSettings}
+        initialValues={{
+          maxDurationSeconds: showDrawerSelectedAgent?.maxDurationSeconds ?? 600,
+          idleTimeoutSeconds: showDrawerSelectedAgent?.idleTimeoutSeconds ?? 10,
+          idleMessage: showDrawerSelectedAgent?.idleMessage ?? 'Are you there?',
+        }}
+        loading={advancedSettingsLoader}
       />
     </div>
   );

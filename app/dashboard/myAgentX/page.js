@@ -120,6 +120,7 @@ import { forceApplyBranding } from '@/utilities/applyBranding'
 import { hexToHsl, calculateIconFilter } from '@/utilities/colorUtils'
 
 import VoiceMailTab from '../../../components/dashboard/myagentX/VoiceMailTab'
+import AdvancedSettingsModalCN from '@/components/ui/AdvancedSettingsModalCN'
 
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
@@ -556,6 +557,9 @@ function Page() {
   const [showScriptModal, setShowScriptModal] = useState(null)
   const [showScript, setShowScript] = useState(false)
   const [SeledtedScriptKYC, setSeledtedScriptKYC] = useState(false)
+  //code for advanced settings
+  const [showAdvancedSettingsModal, setShowAdvancedSettingsModal] = useState(false)
+  const [advancedSettingsLoader, setAdvancedSettingsLoader] = useState(false)
   //show objection and guadrails
   const [showObjection, setShowObjection] = useState(false)
   const [showGuardrails, setShowGuardrails] = useState(false)
@@ -2677,6 +2681,17 @@ function Page() {
           formData.append('agentLLmModel', model)
         }
 
+        // Advanced settings
+        if (voiceData?.maxDurationSeconds !== undefined) {
+          formData.append('maxDurationSeconds', voiceData.maxDurationSeconds)
+        }
+        if (voiceData?.idleTimeoutSeconds !== undefined) {
+          formData.append('idleTimeoutSeconds', voiceData.idleTimeoutSeconds)
+        }
+        if (voiceData?.idleMessage !== undefined) {
+          formData.append('idleMessage', voiceData.idleMessage)
+        }
+
         // console.log("Data to update");
         for (let [key, value] of formData.entries()) {
           // console.log(`${key}: ${value}`);
@@ -2756,6 +2771,23 @@ function Page() {
     setShowScript(true)
     setSeledtedScriptKYC(false)
     setSeledtedScriptAdvanceSetting(false)
+  }
+
+  // Handler for saving advanced settings
+  const handleSaveAdvancedSettings = async (settings) => {
+    setAdvancedSettingsLoader(true)
+    try {
+      await updateSubAgent({
+        maxDurationSeconds: settings.maxDurationSeconds,
+        idleTimeoutSeconds: settings.idleTimeoutSeconds,
+        idleMessage: settings.idleMessage,
+      })
+      setShowAdvancedSettingsModal(false)
+    } catch (error) {
+      console.error('Error saving advanced settings:', error)
+    } finally {
+      setAdvancedSettingsLoader(false)
+    }
   }
 
   const AssignNumber = async (phoneNumber) => {
@@ -5840,6 +5872,26 @@ function Page() {
                   <div
                     style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
                   >
+                    Advanced Settings
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <div
+                      style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
+                    >
+                      Configure call duration, timeout, and silence response
+                    </div>
+                    <button
+                      onClick={() => setShowAdvancedSettingsModal(true)}
+                      className="text-brand-primary hover:text-brand-primary/80 text-sm font-medium"
+                    >
+                      Configure
+                    </button>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-1 mt-4">
+                  <div
+                    style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
+                  >
                     Contact
                   </div>
 
@@ -7032,6 +7084,17 @@ function Page() {
           AssignNumber={AssignNumber}
         />
       )}
+      <AdvancedSettingsModalCN
+        open={showAdvancedSettingsModal}
+        onOpenChange={setShowAdvancedSettingsModal}
+        onSave={handleSaveAdvancedSettings}
+        initialValues={{
+          maxDurationSeconds: showDrawerSelectedAgent?.maxDurationSeconds ?? 600,
+          idleTimeoutSeconds: showDrawerSelectedAgent?.idleTimeoutSeconds ?? 10,
+          idleMessage: showDrawerSelectedAgent?.idleMessage ?? 'Are you there?',
+        }}
+        loading={advancedSettingsLoader}
+      />
       {/* Web Agent Modals */}
       <WebAgentModal
         open={showWebAgentModal}
