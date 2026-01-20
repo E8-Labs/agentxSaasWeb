@@ -137,6 +137,7 @@ const LeadDetails = ({
 
   const [selectedLeadsDetails, setSelectedLeadsDetails] = useState(null)
   const [leadColumns, setLeadColumns] = useState([])
+  const [recentlyDeletedTags, setRecentlyDeletedTags] = useState(new Set())
 
   const [globalLoader, setGlobalLoader] = useState(false)
   //code for emailPopup
@@ -836,8 +837,15 @@ const LeadDetails = ({
           },
         ]
         // setLeadColumns(response.data.columns);
-        setSelectedLeadsDetails(response.data.data)
-        console.log('🔍 [LeadDetails] Lead details response:', response.data.data)
+        // Filter out recently deleted tags to prevent them from being added back
+        const updatedLeadData = {
+          ...response.data.data,
+          tags: (response.data.data.tags || []).filter(
+            (tag) => !recentlyDeletedTags.has(tag)
+          ),
+        }
+        setSelectedLeadsDetails(updatedLeadData)
+        console.log('🔍 [LeadDetails] Lead details response:', updatedLeadData)
         console.log('🔍 [LeadDetails] Teams assigned count:', response.data.data?.teamsAssigned?.length || 0)
         console.log('🔍 [LeadDetails] Teams assigned details:', {
           teamsAssigned: response.data.data?.teamsAssigned,
@@ -888,6 +896,32 @@ const LeadDetails = ({
     } catch (error) {
       console.error('Error refreshing notes:', error)
     }
+  }
+
+  // Handler to update tags after tag deletion (optimistic update only)
+  const handleLeadDetailsUpdated = async (deletedTagName) => {
+    if (!selectedLead || !deletedTagName) return
+    
+    // Mark this tag as recently deleted to prevent it from being added back
+    setRecentlyDeletedTags((prev) => new Set([...prev, deletedTagName]))
+    
+    // Optimistically remove the tag from local state immediately
+    // The backend deletion is already complete, so we just update the UI
+    if (selectedLeadsDetails?.tags) {
+      setSelectedLeadsDetails((prevDetails) => ({
+        ...prevDetails,
+        tags: (prevDetails.tags || []).filter((tag) => tag !== deletedTagName),
+      }))
+    }
+    
+    // Clear the recently deleted tag after 5 seconds to allow normal updates
+    setTimeout(() => {
+      setRecentlyDeletedTags((prev) => {
+        const newSet = new Set(prev)
+        newSet.delete(deletedTagName)
+        return newSet
+      })
+    }, 5000)
   }
 
   //function to get the stages list using pipelineId
@@ -2062,6 +2096,9 @@ const LeadDetails = ({
                             onRemoveTag={handleDelTag}
                             delTagLoader={DelTagLoader}
                             onRefreshSuggestions={getUniqueTags}
+                            selectedUser={selectedUser}
+                            showSnackbar={showSnackbar}
+                            onLeadDetailsUpdated={handleLeadDetailsUpdated}
                           />
                         </div>
                         <div className="flex items-center gap-2">
