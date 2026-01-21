@@ -110,9 +110,6 @@ function PlanSummaryMobile({ selectedPlan,
 
   const totalPrice = calculateTotalPrice()
 
-  // Calculate next charge date
-  const nextChargeDate = getNextChargeDate(planDuration)
-
   // Format card expiry
   const formatCardExpiry = (card) => {
     if (!card?.expMonth || !card?.expYear) return '12/28'
