@@ -44,6 +44,7 @@ function SelectedUserDetails({
   enablePermissionChecks = true,
   hideViewDetails = false,
   handleClose,
+  agencyUser = false,
 }) {
 
   // Component to check permission for a menu item
@@ -592,7 +593,7 @@ function SelectedUserDetails({
   }
 
   return (
-    <div className="w-full flex flex-col items-center justify-center ">
+    <div className="w-full flex flex-col h-full items-center justify-center ">
       <AgentSelectSnackMessage
         isVisible={showSnackMessage != null && showSnackMessage !== ''}
         hide={() => {
@@ -602,10 +603,10 @@ function SelectedUserDetails({
         type={SnackbarTypes.Success}
         message={showSnackMessage}
       />
-      <div className="flex flex-col items-center justify-center w-full">
+      <div className="flex flex-col items-center justify-center w-full h-full">
         <div
           style={{ alignSelf: 'center' }}
-          className={`w-full ${enablePermissionChecks ? 'h-[100svh] overflow-hidden' : 'h-[90vh]'} items-center justify-center`}
+          className={`w-full overflow-hidden h-full items-center justify-center`}
         >
           {/*
                         <div className='flex flex-row items-center justify-between w-full px-4 pt-2'>
@@ -718,13 +719,11 @@ function SelectedUserDetails({
           )}
           <div className="flex flex-row items-start w-full  ">
             <div className={`flex border-r border-[#00000015] ${!enablePermissionChecks && '-mt-10'} flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} ${enablePermissionChecks ? 'h-auto max-h-[85vh] overflow-y-auto' : 'h-auto'}`}>
-              {enablePermissionChecks && (
               
-                logoBranding()
-              
-              )}
               {
-                !enablePermissionChecks && (
+                agencyUser ? (
+                logoBranding()
+                ):(
 
                 <div className={`flex flex-row gap-2 items-center justify-start w-full pt-3 ${enablePermissionChecks ? 'pt-3' : ''}`}>
 
@@ -898,11 +897,11 @@ function SelectedUserDetails({
             </div>
 
             <div
-              className={`flex flex-col items-center justify-center pt-2 px-4 ${enablePermissionChecks ? 'max-h-[85vh]' : 'h-[80vh]'} overflow-auto w-10/12`}
+              className={`flex flex-col items-center justify-start pt-2 px-4 h-[95vh] overflow-auto w-10/12`}
             >
 
               <div
-                className={`flex flex-col ${selectedManu.name == 'Leads' ? 'items-stretch' : 'items-center justify-center'} ${enablePermissionChecks ? 'max-h-[85vh]' : 'h-[76vh]'} ${selectedManu.name == 'Leads' ? 'overflow-hidden' : 'overflow-auto'} w-full`}
+                className={`flex flex-col h-full ${selectedManu.name == 'Leads' ? 'items-stretch' : 'items-center justify-center'} ${enablePermissionChecks ? 'max-h-[85vh]' : 'h-[76vh]'} ${selectedManu.name == 'Leads' ? 'overflow-hidden' : 'overflow-auto'} w-full`}
                 id={selectedManu.name == 'Leads' ? 'adminLeadsParentContainer' : undefined}
                 style={selectedManu.name == 'Leads' ? { overflow: 'hidden', maxHeight: enablePermissionChecks ? '85vh' : '76vh' } : {}}
               >
@@ -926,9 +925,11 @@ function SelectedUserDetails({
                 ) : selectedManu.name == 'Pipeline' ? (
                   <AdminPipeline1 selectedUser={selectedUser} />
                 ) : selectedManu.name == 'Agents' ? (
+                  
                   <AdminAgentX
                     selectedUser={user && user}
                     from={from}
+                    agencyUser={agencyUser}
                     enablePermissionChecks={enablePermissionChecks}
                   />
                 ) : selectedManu.name == 'Activity' ? (
@@ -1050,7 +1051,7 @@ function SelectedUserDetails({
                   </div>
                 ) : (
                   <button
-                    className="mt-4 bg-red outline-none"
+                    className="mt-4  outline-none"
                     style={{
                       color: 'white',
                       height: '50px',

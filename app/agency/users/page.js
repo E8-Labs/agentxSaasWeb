@@ -17,7 +17,7 @@ export default function Page() {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
       const id = params.get('userId')
-      const isFromAgency = params.get('agencyUser')
+      const isFromAgency = params.get('enablePermissionChecks')
       setIsFromAgency(isFromAgency)
       if (id) {
         setUserId(id)
