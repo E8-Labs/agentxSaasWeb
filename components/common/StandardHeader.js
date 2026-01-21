@@ -132,7 +132,7 @@ function StandardHeader({
               )}
             </button>
           )}
-          {showTasks && process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && (
+          {showTasks && (
             <button
               ref={taskButtonRef}
               onClick={() => setTaskBoardOpen(true)}
