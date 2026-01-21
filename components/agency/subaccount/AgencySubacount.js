@@ -1505,14 +1505,14 @@ function AgencySubacount({ selectedAgency }) {
           }}
         >
           <Box
-            className="w-11/12 p-8 rounded-[15px] max-h-[90vh] overflow-auto"
+            className="w-11/12 rounded-[15px] h-[90vh]"
             sx={{
               ...styles.modalsStyle,
               backgroundColor: 'white',
               position: 'relative',
               zIndex: 1301, // Keep modal content above its backdrop
-              maxHeight: '90vh',
               overflowY: 'auto',
+              scrollbarWidth: 'none',
             }}
           >
             <SelectedUserDetails
@@ -1557,9 +1557,6 @@ const styles = {
     textOverflow: 'ellipsis', // Add ellipsis for overflow text
   },
   modalsStyle: {
-    height: 'auto',
-    bgcolor: 'transparent',
-    p: 2,
     mx: 'auto',
     my: '50vh',
     transform: 'translateY(-50%)',

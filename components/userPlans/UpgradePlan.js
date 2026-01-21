@@ -1828,7 +1828,7 @@ console.log('getButtonText()', getButtonText())
                                       }}
                                     >
                                       Next Charge Date{' '}
-                                      {moment(getNextChargeDate(currentSelectedPlan)).format('MMMM DD, YYYY')}
+                                      {moment(getNextChargeDate(currentSelectedPlan))?.format('MMMM DD, YYYY')}
                                     </div>
                                   </div>
                                   <div
@@ -1925,7 +1925,7 @@ console.log('getButtonText()', getButtonText())
                                     }}
                                   >
                                     Next Charge Date{' '}
-                                    {getNextChargeDate(currentSelectedPlan)}
+                                    {moment(getNextChargeDate(currentSelectedPlan))?.format('MMMM DD, YYYY')}
                                   </div>
                                   {discountCalculation &&
                                     discountCalculation.discountMonths > 0 && (

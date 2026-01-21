@@ -106,7 +106,7 @@ export const TagPill = ({ label, onRemove, isLoading, onDeletePermanently, delet
     >
       <TypographyCaption className="font-medium text-foreground">{label}</TypographyCaption>
       <div className="flex items-center gap-0.5 ml-1">
-        {onDeletePermanently && (
+     {/*   {onDeletePermanently && (
           <button
             type="button"
             onClick={handleDeletePermanently}
@@ -125,7 +125,7 @@ export const TagPill = ({ label, onRemove, isLoading, onDeletePermanently, delet
               <Trash2 className="h-3 w-3 text-muted-foreground hover:text-destructive transition-colors" />
             )}
           </button>
-        )}
+        )}*/} 
         {onRemove && (
           <button
             type="button"

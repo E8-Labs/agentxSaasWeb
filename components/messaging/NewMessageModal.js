@@ -1462,7 +1462,7 @@ const NewMessageModal = ({
               {/* From and To Fields - Same Line */}
               <div className={`flex items-center gap-4 ${isPipelineMode ? '' : ''}`} ref={leadSearchRef}>
                 {/* From Field */}
-                <div className={isPipelineMode ? "w-full relative" : "flex-1 relative min-w-0"} style={{ flexBasis: 0 }}>
+                <div className={isPipelineMode ? "w-full flex-1 relative" : "flex-1 relative w-full"} style={{ flexBasis: 0 }}>
                   {selectedMode === 'sms' ? (
                     <div className="relative" ref={phoneDropdownRef}>
                       <button
@@ -1471,7 +1471,7 @@ const NewMessageModal = ({
                         className="w-full px-3 py-2 h-[42px] border rounded-[8px] focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
                         style={{ height: '42px', borderColor: '#E2E8F0', borderWidth: '1px' }}
                       >
-                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-1">
                           <span className="text-sm text-gray-500 flex-shrink-0">From:</span>
                           <span className="text-sm text-gray-700 truncate">
                             {selectedPhoneNumber
@@ -1496,7 +1496,7 @@ const NewMessageModal = ({
                               </button>
                               {phoneNumbers.length === 0 && (
                                 <Tooltip
-                                  title="No phone numbers available. Please add a phone number to send SMS."
+                                  title="You need to complete A2P to text"
                                   placement="top"
                                   arrow
                                   componentsProps={{
@@ -1577,7 +1577,7 @@ const NewMessageModal = ({
                         <div className="flex flex-row gap-2 items-center justify-center">
                           <button
                             onClick={() => setShowAuthSelectionPopup(true)}
-                            className="w-full px-3 py-2 h-[42px] border rounded-[8px] text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+                            className="w-full whitespace-nowrap px-3 py-2 h-[42px] border rounded-[8px] text-brand-primary hover:bg-brand-primary/10 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                             style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px' }}
 
                           >
@@ -1603,7 +1603,7 @@ const NewMessageModal = ({
                               style={{ borderColor: '#E2E8F0', borderWidth: '1px', height: '42px' }}
 
                             >
-                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <div className="flex items-center gap-2 flex-1">
                                 <span className="text-sm text-gray-500 flex-shrink-0">From:</span>
                                 <span className="text-sm truncate">
                                   {selectedEmailAccount
@@ -1653,7 +1653,7 @@ const NewMessageModal = ({
                                       setShowAuthSelectionPopup(true)
                                       setEmailDropdownOpen(false)
                                     }}
-                                    className="w-full px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
+                                    className="w-full px-3 whitespace-nowrap py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-md transition-colors flex items-center justify-center gap-2"
                                   >
                                     <Plus className="w-4 h-4" />
                                     Connect Email
