@@ -118,7 +118,7 @@ function BillingHistory({ selectedUser }) {
 
   return (
     <div
-      className={`w-full flex flex-col items-start pl-8 py-2 ${selectedUser ? 'h-[90%]' : 'h-screen'} overflow-y-auto overflow-x-hidden`}
+      className={`w-full flex flex-col items-start pl-8 py-2 ${selectedUser ? 'h-[70vh]' : 'h-screen'} overflow-y-auto overflow-x-hidden`}
       style={{
         paddingBottom: '50px',
         scrollbarWidth: 'none', // For Firefox
