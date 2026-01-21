@@ -1335,7 +1335,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           style={{ fontWeight: '500', fontSize: 11.6 }}
         >
           <div className="flex-shrink-0">
-            Copyrights @ 2025 {agencyBranding?.companyName || 'AssignX'}. All Rights Reserved.
+            Copyrights @ 2026 {agencyBranding?.companyName || 'AssignX'}. All Rights Reserved.
           </div>
           {domainTypeDetermined && isAssignxDomain && !agencyBranding && (
             <>
@@ -1399,7 +1399,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             className="flex-shrink-0 text-center"
             style={{ fontWeight: '500', fontSize: 11.6 }}
           >
-            Copyrights @ 2025 {agencyBranding?.companyName || 'AssignX'}. All Rights Reserved.
+            Copyrights @ 2026 {agencyBranding?.companyName || 'AssignX'}. All Rights Reserved.
           </div>
         </div>
       </div>
