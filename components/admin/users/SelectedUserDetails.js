@@ -41,15 +41,16 @@ function SelectedUserDetails({
   handleDel,
   from = 'admin',
   handlePauseUser,
-  agencyUser = false,
+  enablePermissionChecks = true,
   hideViewDetails = false,
   handleClose,
 }) {
 
   // Component to check permission for a menu item
-  function MenuItemWithPermission({ item, children, contextUserId, agencyUser }) {
-    // If not viewing from agency context, show all items
-    if (!agencyUser) {
+  function MenuItemWithPermission({ item, children, contextUserId, enablePermissionChecks }) {
+    // If permission checks are disabled, show all items
+    if (!enablePermissionChecks) {
+      console.log('MenuItemWithPermission: permission checks disabled')
       return <>{children}</>
     }
 
@@ -79,13 +80,16 @@ function SelectedUserDetails({
 
     // Don't render if no permission (only for Invitee users)
     if (effectiveIsLoading) {
+      console.log('EffectiveIsLoading: return null')
       return null // Hide while loading
     }
 
     if (!effectiveHasAccess) {
+      console.log('MenuItemWithPermission: no access return null')
       return null // Hide if no permission (only applies to Invitee)
     }
 
+    console.log('MenuItemWithPermission: have access', item)
     return <>{children}</>
   }
 
@@ -158,27 +162,27 @@ function SelectedUserDetails({
 
   // Filter menu items based on permissions when viewing from agency
   const manuBar = React.useMemo(() => {
-    // If not viewing from agency context, show all items
-    if (!agencyUser || !selectedUser?.id) {
+    // If permission checks disabled or no selected user, show all items
+    if (!enablePermissionChecks || !selectedUser?.id) {
       const menuItems = [...allMenuItems]
-      // Add account menu for non-agency users
-      if (!agencyUser) {
+      // Add account menu if permission checks disabled
+      if (!enablePermissionChecks) {
         menuItems.push(accountMenu)
       }
       return menuItems
     }
 
-    // For agency context, we'll filter in the render using MenuItemWithPermission
+    // For permission-enabled context, we'll filter in the render using MenuItemWithPermission
     // This allows async permission checks
     return allMenuItems
-  }, [agencyUser, selectedUser?.id])
+  }, [enablePermissionChecks, selectedUser?.id])
 
-  console.log('Status of agency user', agencyUser)
+  console.log('Permission checks enabled:', enablePermissionChecks)
 
   // Initialize selectedManu - ensure it's a valid menu item
   const [selectedManu, setSelectedManu] = useState(() => {
-    // If viewing from agency and we have a stored tab, try to restore it
-    if (agencyUser && selectedUser?.id) {
+    // If permission checks enabled and we have a stored tab, try to restore it
+    if (enablePermissionChecks && selectedUser?.id) {
       try {
         const storedState = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
         if (storedState) {
@@ -223,21 +227,21 @@ function SelectedUserDetails({
   // For admin users viewing normal AgentX users (not agency context), skip permission checks
   const [hasCurrentPermission, isCheckingCurrentPermission] = useHasPermission(
     // Only check permissions if: viewing from agency context AND user is Invitee AND permission key exists
-    agencyUser && isInvitee && currentPermissionKey ? currentPermissionKey : '',
-    agencyUser && isInvitee ? selectedUser?.id : null
+    enablePermissionChecks && isInvitee && currentPermissionKey ? currentPermissionKey : '',
+    enablePermissionChecks && isInvitee ? selectedUser?.id : null
   )
 
   // Agency users (non-Invitee) and non-agency contexts have full access
   // If PermissionProvider is not available, default to true (allow access)
-  const effectiveHasPermission = (agencyUser && isInvitee) ? hasCurrentPermission : true
-  const effectiveIsChecking = (agencyUser && isInvitee) ? isCheckingCurrentPermission : false
+  const effectiveHasPermission = (enablePermissionChecks && isInvitee) ? hasCurrentPermission : true
+  const effectiveIsChecking = (enablePermissionChecks && isInvitee) ? isCheckingCurrentPermission : false
 
   // #region agent log
   useEffect(() => {
-    if (agencyUser && selectedUser?.id) {
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SelectedUserDetails.js:207', message: 'Permission check for subaccount content', data: { agencyUser, selectedUserId: selectedUser?.id, currentMenuItemName: selectedManu?.name, currentPermissionKey, isInvitee, hasCurrentPermission, isCheckingCurrentPermission, effectiveHasPermission, effectiveIsChecking, willBlockAccess: agencyUser && isInvitee && currentPermissionKey && !effectiveIsChecking && !effectiveHasPermission }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'I' }) }).catch(() => { });
+    if (enablePermissionChecks && selectedUser?.id) {
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SelectedUserDetails.js:207', message: 'Permission check for subaccount content', data: { enablePermissionChecks, selectedUserId: selectedUser?.id, currentMenuItemName: selectedManu?.name, currentPermissionKey, isInvitee, hasCurrentPermission, isCheckingCurrentPermission, effectiveHasPermission, effectiveIsChecking, willBlockAccess: enablePermissionChecks && isInvitee && currentPermissionKey && !effectiveIsChecking && !effectiveHasPermission }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'I' }) }).catch(() => { });
     }
-  }, [agencyUser, selectedUser?.id, currentPermissionKey, hasCurrentPermission, isCheckingCurrentPermission, selectedManu?.name, isInvitee, effectiveHasPermission, effectiveIsChecking])
+  }, [enablePermissionChecks, selectedUser?.id, currentPermissionKey, hasCurrentPermission, isCheckingCurrentPermission, selectedManu?.name, isInvitee, effectiveHasPermission, effectiveIsChecking])
   // #endregion
   const [showAddMinutesModal, setShowAddMinutesModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -375,7 +379,7 @@ function SelectedUserDetails({
     console.log('item', item)
 
     // When viewing from agency, check permission before allowing navigation
-    if (agencyUser && selectedUser?.id) {
+    if (enablePermissionChecks && selectedUser?.id) {
       const menuItem = allMenuItems.find(m => m.id === item.id)
       // Account menu doesn't have permissionKey, so allow it
       if (menuItem?.permissionKey || item.name === 'Account') {
@@ -601,7 +605,7 @@ function SelectedUserDetails({
       <div className="flex flex-col items-center justify-center w-full">
         <div
           style={{ alignSelf: 'center' }}
-          className={`w-full ${agencyUser ? 'h-[100svh] overflow-hidden' : 'h-[90vh]'} items-center justify-center`}
+          className={`w-full ${enablePermissionChecks ? 'h-[100svh] overflow-hidden' : 'h-[90vh]'} items-center justify-center`}
         >
           {/*
                         <div className='flex flex-row items-center justify-between w-full px-4 pt-2'>
@@ -609,12 +613,12 @@ function SelectedUserDetails({
                     */}
 
           {/* Action buttons with 3-dot menu */}
-          {!agencyUser && (
+          {!enablePermissionChecks && (
             <div className="flex flex-row items-center justify-end w-full px-4 pt-2 relative" style={{ zIndex: 10 }}>
               <div className="flex flex-row items-center gap-4">
                 {/* 3-dot menu for actions */}
                 {
-                  !agencyUser && from !== 'subaccount' && (
+                  !enablePermissionChecks && from !== 'subaccount' && (
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button
@@ -713,16 +717,16 @@ function SelectedUserDetails({
             </div>
           )}
           <div className="flex flex-row items-start w-full  ">
-            <div className={`flex border-r border-[#00000015] ${!agencyUser && '-mt-10'} flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} ${agencyUser ? 'h-auto max-h-[85vh] overflow-y-auto' : 'h-auto'}`}>
-              {agencyUser && (
+            <div className={`flex border-r border-[#00000015] ${!enablePermissionChecks && '-mt-10'} flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} ${enablePermissionChecks ? 'h-auto max-h-[85vh] overflow-y-auto' : 'h-auto'}`}>
+              {enablePermissionChecks && (
               
                 logoBranding()
               
               )}
               {
-                !agencyUser && (
+                !enablePermissionChecks && (
 
-                <div className={`flex flex-row gap-2 items-center justify-start w-full pt-3 ${agencyUser ? 'pt-3' : ''}`}>
+                <div className={`flex flex-row gap-2 items-center justify-start w-full pt-3 ${enablePermissionChecks ? 'pt-3' : ''}`}>
 
 
                   <div className="flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white">
@@ -743,10 +747,10 @@ function SelectedUserDetails({
                           // Open a new tab with user ID as query param
                           let url = ''
                           if (from === 'admin') {
-                            url = `/admin/users?userId=${selectedUser.id}&agencyUser=true`
+                            url = `/admin/users?userId=${selectedUser.id}&enablePermissionChecks=true`
                           } else if (from === 'subaccount') {
                             // url = `/agency/users?userId=${selectedUser.id}`
-                            url = `/agency/users?userId=${selectedUser.id}&agencyUser=true`
+                            url = `/agency/users?userId=${selectedUser.id}&enablePermissionChecks=true`
                           }
                           // url = `admin/users?userId=${selectedUser.id}`
                           //console.log
@@ -770,8 +774,8 @@ function SelectedUserDetails({
                   <MenuItemWithPermission
                     key={item.id}
                     item={item}
-                    contextUserId={agencyUser ? selectedUser?.id : null}
-                    agencyUser={agencyUser}
+                    contextUserId={enablePermissionChecks ? selectedUser?.id : null}
+                    enablePermissionChecks={enablePermissionChecks}
                   >
                     <button
                       onClick={() => {
@@ -821,7 +825,7 @@ function SelectedUserDetails({
                 ))}
               </div>
 
-              {agencyUser && (
+              {enablePermissionChecks && (
                 <div
                   onClick={() => {
                     console.log('clicked')
@@ -894,17 +898,17 @@ function SelectedUserDetails({
             </div>
 
             <div
-              className={`flex flex-col items-center justify-center pt-2 px-4 ${agencyUser ? 'max-h-[85vh]' : 'h-[80vh]'} overflow-auto w-10/12`}
+              className={`flex flex-col items-center justify-center pt-2 px-4 ${enablePermissionChecks ? 'max-h-[85vh]' : 'h-[80vh]'} overflow-auto w-10/12`}
             >
 
               <div
-                className={`flex flex-col ${selectedManu.name == 'Leads' ? 'items-stretch' : 'items-center justify-center'} ${agencyUser ? 'max-h-[85vh]' : 'h-[76vh]'} ${selectedManu.name == 'Leads' ? 'overflow-hidden' : 'overflow-auto'} w-full`}
+                className={`flex flex-col ${selectedManu.name == 'Leads' ? 'items-stretch' : 'items-center justify-center'} ${enablePermissionChecks ? 'max-h-[85vh]' : 'h-[76vh]'} ${selectedManu.name == 'Leads' ? 'overflow-hidden' : 'overflow-auto'} w-full`}
                 id={selectedManu.name == 'Leads' ? 'adminLeadsParentContainer' : undefined}
-                style={selectedManu.name == 'Leads' ? { overflow: 'hidden', maxHeight: agencyUser ? '85vh' : '76vh' } : {}}
+                style={selectedManu.name == 'Leads' ? { overflow: 'hidden', maxHeight: enablePermissionChecks ? '85vh' : '76vh' } : {}}
               >
-                {/* Check permission before rendering content when viewing from agency */}
+                {/* Check permission before rendering content when permission checks enabled */}
                 {/* Only block if we're done checking AND permission is denied (for Invitee users only) */}
-                {agencyUser && isInvitee && currentPermissionKey && !effectiveIsChecking && !effectiveHasPermission ? (
+                {enablePermissionChecks && isInvitee && currentPermissionKey && !effectiveIsChecking && !effectiveHasPermission ? (
                   <div className="flex flex-col items-center justify-center h-full">
                     <h3 className="text-lg font-semibold text-foreground mb-2">Access Denied</h3>
                     <p className="text-sm text-muted-foreground">
@@ -917,7 +921,7 @@ function SelectedUserDetails({
                 ) : selectedManu.name == 'Leads' ? (
                   <AdminLeads1
                     selectedUser={selectedUser}
-                    agencyUser={agencyUser}
+                    enablePermissionChecks={enablePermissionChecks}
                   />
                 ) : selectedManu.name == 'Pipeline' ? (
                   <AdminPipeline1 selectedUser={selectedUser} />
@@ -925,27 +929,27 @@ function SelectedUserDetails({
                   <AdminAgentX
                     selectedUser={user && user}
                     from={from}
-                    agencyUser={agencyUser}
+                    enablePermissionChecks={enablePermissionChecks}
                   />
                 ) : selectedManu.name == 'Activity' ? (
                   <AdminCallLogs selectedUser={selectedUser} />
                 ) : selectedManu.name == 'Dashboard' ? (
-                  <AdminDashboard selectedUser={selectedUser} agencyUser={agencyUser} />
+                  <AdminDashboard selectedUser={selectedUser} agencyUser={enablePermissionChecks} />
                 ) : selectedManu.name == 'Integration' ? (
-                  <AdminIntegration selectedUser={selectedUser} agencyUser={agencyUser}/>
+                  <AdminIntegration selectedUser={selectedUser} agencyUser={enablePermissionChecks}/>
                 ) : selectedManu.name == 'Team' ? (
-                  <AdminTeam selectedUser={selectedUser} agencyUser={agencyUser} />
+                  <AdminTeam selectedUser={selectedUser} agencyUser={enablePermissionChecks} />
                 ) : selectedManu.name == 'Account' ? (
                   <AdminProfileData
                     selectedUser={selectedUser}
                     from={from}
-                    agencyUser={agencyUser}
+                    agencyUser={enablePermissionChecks}
                     handleDel={handleDel}
                     handlePauseUser={handlePauseUser}
                     handleClose={handleClose}
                   />
                 ) : selectedManu.name == 'Messages (Beta)' ? (
-                  <Messages selectedUser={selectedUser} agencyUser={agencyUser} />
+                  <Messages selectedUser={selectedUser} agencyUser={enablePermissionChecks} />
                 ) : (
                   'Coming soon...'
                 )

@@ -22,7 +22,7 @@ import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { TypographyH3 } from '@/lib/typography'
 import { cn } from '@/lib/utils'
-import { AuthToken } from '@/utilities/auth'
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
 
 /**
  * PermissionManager Component

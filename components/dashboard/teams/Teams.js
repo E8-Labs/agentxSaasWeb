@@ -30,8 +30,13 @@ import CloseBtn from '@/components/globalExtras/CloseBtn'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
 import StandardHeader from '@/components/common/StandardHeader'
 import PermissionManager from '@/components/permissions/PermissionManager'
-import { PermissionProvider } from '@/contexts/PermissionContext'
+import { PermissionProvider, usePermission } from '@/contexts/PermissionContext'
 import { TypographyH3 } from '@/lib/typography'
+import { ChevronRight, ArrowLeft } from 'lucide-react'
+import { Switch } from '@/components/ui/switch'
+import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import {
   checkPhoneNumber,
   getLocalLocation,
@@ -48,7 +53,8 @@ import { formatPhoneNumber } from '@/utilities/agentUtilities'
 
 import MoreTeamMembers from '../MoreTeamMembers'
 
-function Teams({ agencyData, selectedAgency, from }) {
+function TeamsContent({ agencyData, selectedAgency, from }) {
+  const permissionContext = usePermission()
   const timerRef = useRef(null)
   const openModalRef = useRef(null)
   const router = useRouter()
@@ -123,15 +129,279 @@ function Teams({ agencyData, selectedAgency, from }) {
   const [upgradePlan, setUpgradePlan] = useState(false)
   const [showUpgradeModalMore, setShowUpgradeModalMore] = useState(false)
 
-  // Permission management
+  // Permission management for existing team members
   const [showPermissionModal, setShowPermissionModal] = useState(false)
   const [selectedTeamMemberForPermissions, setSelectedTeamMemberForPermissions] = useState(null)
+  const [managePermissionModalStep, setManagePermissionModalStep] = useState('initial')
+  
+  // Existing team member permission states
+  const [existingAgencyPermissions, setExistingAgencyPermissions] = useState([])
+  const [existingAgencyPermissionStates, setExistingAgencyPermissionStates] = useState({})
+  const [loadingExistingAgencyPermissions, setLoadingExistingAgencyPermissions] = useState(false)
+  
+  const [existingSubaccountPermissions, setExistingSubaccountPermissions] = useState([])
+  const [existingSubaccountPermissionStates, setExistingSubaccountPermissionStates] = useState({})
+  const [loadingExistingSubaccountPermissions, setLoadingExistingSubaccountPermissions] = useState(false)
+  
+  const [existingSubaccountsList, setExistingSubaccountsList] = useState([])
+  const [existingSubaccountsListLoading, setExistingSubaccountsListLoading] = useState(false)
+  const [existingSubaccountSearchTerm, setExistingSubaccountSearchTerm] = useState('')
+  const [existingSelectedSubaccountIds, setExistingSelectedSubaccountIds] = useState([])
+  const [existingSubaccountsListOffset, setExistingSubaccountsListOffset] = useState(0)
+  const [hasMoreExistingSubaccountsList, setHasMoreExistingSubaccountsList] = useState(true)
+  const [savingPermissions, setSavingPermissions] = useState(false)
   
   // Permission management for invitations
   const [showInvitationPermissionManager, setShowInvitationPermissionManager] = useState(false)
   const [selectedInvitationPermissions, setSelectedInvitationPermissions] = useState(null)
   const [selectedSubaccountIds, setSelectedSubaccountIds] = useState([])
   
+  // Modal step state: 'initial', 'agency', 'subaccount'
+  const [inviteModalStep, setInviteModalStep] = useState('initial')
+  
+  // Agency permissions state
+  const [agencyPermissions, setAgencyPermissions] = useState([])
+  const [agencyPermissionStates, setAgencyPermissionStates] = useState({})
+  const [loadingAgencyPermissions, setLoadingAgencyPermissions] = useState(false)
+  
+  // Subaccount permissions state
+  const [subaccountPermissions, setSubaccountPermissions] = useState([])
+  const [subaccountPermissionStates, setSubaccountPermissionStates] = useState({})
+  const [loadingSubaccountPermissions, setLoadingSubaccountPermissions] = useState(false)
+  
+  // Subaccount list state (for subaccount selection)
+  const [subaccountsList, setSubaccountsList] = useState([])
+  const [subaccountsListLoading, setSubaccountsListLoading] = useState(false)
+  const [subaccountSearchTerm, setSubaccountSearchTerm] = useState('')
+  const [subaccountsListOffset, setSubaccountsListOffset] = useState(0)
+  const [hasMoreSubaccountsList, setHasMoreSubaccountsList] = useState(true)
+  
+  // Load existing team member permissions (for manage permissions modal)
+  const loadExistingAgencyPermissions = async () => {
+    if (!permissionContext || !selectedTeamMemberForPermissions?.invitedUserId) {
+      console.error('PermissionContext or team member ID not available')
+      return
+    }
+    try {
+      setLoadingExistingAgencyPermissions(true)
+      const available = await permissionContext.fetchAvailablePermissions('agency')
+      console.log('Loaded existing agency permissions:', available)
+      setExistingAgencyPermissions(available || [])
+      
+      // Fetch current permissions for this team member
+      const current = await permissionContext.fetchTeamMemberPermissions(
+        selectedTeamMemberForPermissions.invitedUserId,
+        null
+      )
+      
+      // Create permission map
+      const permissionMap = {}
+      if (current && Array.isArray(current)) {
+        current.forEach((perm) => {
+          const key = perm.permissionKey || perm.permissionDefinition?.key || perm.key
+          const granted = perm.granted !== undefined ? perm.granted : true
+          if (key && !perm.contextUserId) { // Only agency-level permissions (no contextUserId)
+            permissionMap[key] = granted
+          }
+        })
+      }
+      
+      // Initialize permission states with existing selections
+      setExistingAgencyPermissionStates(prevStates => {
+        const states = { ...prevStates }
+        available?.forEach((perm) => {
+          const key = perm.key || perm.permissionKey
+          if (key && states[key] === undefined) {
+            states[key] = permissionMap[key] || false
+          }
+        })
+        return states
+      })
+    } catch (error) {
+      console.error('Error loading existing agency permissions:', error)
+    } finally {
+      setLoadingExistingAgencyPermissions(false)
+    }
+  }
+
+  // Load existing subaccount permissions
+  const loadExistingSubaccountPermissions = async () => {
+    if (!permissionContext || !selectedTeamMemberForPermissions?.invitedUserId) {
+      console.error('PermissionContext or team member ID not available')
+      return
+    }
+    try {
+      setLoadingExistingSubaccountPermissions(true)
+      const available = await permissionContext.fetchAvailablePermissions('subaccount')
+      console.log('Loaded existing subaccount permissions:', available)
+      setExistingSubaccountPermissions(available || [])
+      
+      // Fetch current permissions for this team member
+      const current = await permissionContext.fetchTeamMemberPermissions(
+        selectedTeamMemberForPermissions.invitedUserId,
+        null
+      )
+      
+      // Create permission map (only subaccount permissions)
+      const permissionMap = {}
+      if (current && Array.isArray(current)) {
+        current.forEach((perm) => {
+          const key = perm.permissionKey || perm.permissionDefinition?.key || perm.key
+          const granted = perm.granted !== undefined ? perm.granted : true
+          if (key && key.startsWith('subaccount.') && !perm.contextUserId) {
+            permissionMap[key] = granted
+          }
+        })
+      }
+      
+      // Initialize permission states with existing selections
+      setExistingSubaccountPermissionStates(prevStates => {
+        const states = { ...prevStates }
+        available?.forEach((perm) => {
+          const key = perm.key || perm.permissionKey
+          if (key && states[key] === undefined) {
+            states[key] = permissionMap[key] || false
+          }
+        })
+        return states
+      })
+      
+      // Load existing allowed subaccounts
+      await loadExistingSubaccounts()
+    } catch (error) {
+      console.error('Error loading existing subaccount permissions:', error)
+    } finally {
+      setLoadingExistingSubaccountPermissions(false)
+    }
+  }
+
+  // Load existing allowed subaccounts for team member
+  const loadExistingSubaccounts = async () => {
+    if (!selectedTeamMemberForPermissions?.invitedUserId) return
+    
+    try {
+      setExistingSubaccountsListLoading(true)
+      const token = AuthToken()
+      
+      // Fetch allowed subaccounts from API
+      const response = await axios.get(
+        `/api/permissions/team/${selectedTeamMemberForPermissions.invitedUserId}/subaccounts`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      ).catch(async (error) => {
+        // If endpoint doesn't exist, return empty array
+        console.log('Subaccounts endpoint not available, returning empty array')
+        return { data: { status: true, data: [] } }
+      })
+      
+      if (response?.data?.status && response?.data?.data) {
+        const allowedSubaccountIds = Array.isArray(response.data.data) 
+          ? response.data.data.map(s => s.subaccountId || s.id || s)
+          : []
+        setExistingSelectedSubaccountIds(allowedSubaccountIds)
+        
+        // Also load the full subaccounts list for display
+        await loadExistingSubaccountsList(0, '')
+      }
+    } catch (error) {
+      console.error('Error loading existing allowed subaccounts:', error)
+      // If endpoint doesn't exist yet, try to get from TeamMemberSubaccounts via permissions API
+      // For now, just load the subaccounts list
+      await loadExistingSubaccountsList(0, '')
+    } finally {
+      setExistingSubaccountsListLoading(false)
+    }
+  }
+
+  // Load subaccounts list for existing permissions modal
+  const loadExistingSubaccountsList = async (offset = 0, search = '') => {
+    try {
+      setExistingSubaccountsListLoading(true)
+      const queryParams = new URLSearchParams()
+      queryParams.append('offset', offset.toString())
+      queryParams.append('limit', '50')
+      if (search && search.trim()) {
+        queryParams.append('search', search.trim())
+      }
+      
+      const agencyId = selectedAgency?.id || agencyData?.id || userLocalData?.id
+      if (agencyId) {
+        queryParams.append('userId', agencyId.toString())
+      }
+
+      const token = AuthToken()
+      const response = await axios.get(`/api/agency/subaccounts?${queryParams.toString()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response && response.data && response.data.status) {
+        const newSubaccounts = Array.isArray(response.data.data) ? response.data.data : []
+        const pagination = response.data.pagination || {}
+        
+        if (offset === 0) {
+          setExistingSubaccountsList(newSubaccounts)
+        } else {
+          setExistingSubaccountsList(prev => [...prev, ...newSubaccounts])
+        }
+        
+        setExistingSubaccountsListOffset(offset + newSubaccounts.length)
+        setHasMoreExistingSubaccountsList(newSubaccounts.length === 50 && (offset + newSubaccounts.length) < (pagination.total || 0))
+      } else {
+        setExistingSubaccountsList([])
+      }
+    } catch (error) {
+      console.error('Error loading existing subaccounts list:', error)
+      setExistingSubaccountsList([])
+    } finally {
+      setExistingSubaccountsListLoading(false)
+    }
+  }
+
+  // Handle opening manage permissions modal - load permissions immediately
+  useEffect(() => {
+    if (showPermissionModal && selectedTeamMemberForPermissions && permissionContext) {
+      setManagePermissionModalStep('initial')
+      
+      // Load permissions immediately so counts show up
+      const loadPermissions = async () => {
+        try {
+          // Reset states first
+          setExistingAgencyPermissionStates({})
+          setExistingSubaccountPermissionStates({})
+          setExistingSelectedSubaccountIds([])
+          setExistingSubaccountsList([])
+          setExistingSubaccountSearchTerm('')
+          setExistingSubaccountsListOffset(0)
+          
+          // Then load permissions (this will update the states)
+          await Promise.all([
+            loadExistingAgencyPermissions(),
+            loadExistingSubaccountPermissions()
+          ])
+        } catch (error) {
+          console.error('Error loading permissions:', error)
+        }
+      }
+      
+      loadPermissions()
+    } else if (!showPermissionModal) {
+      // Reset states when modal closes
+      setExistingAgencyPermissionStates({})
+      setExistingSubaccountPermissionStates({})
+      setExistingSelectedSubaccountIds([])
+      setExistingSubaccountsList([])
+      setExistingSubaccountSearchTerm('')
+      setExistingSubaccountsListOffset(0)
+    }
+  }, [showPermissionModal, selectedTeamMemberForPermissions?.invitedUserId])
+
   // Wrapper to log permission manager state changes
   const setShowInvitationPermissionManagerWithLog = (value) => {
     // #region agent log
@@ -148,6 +418,332 @@ function Teams({ agencyData, selectedAgency, from }) {
       // #endregion
     }
   }, [showInvitationPermissionManager])
+
+  // Load agency permissions
+  const loadAgencyPermissions = async () => {
+    if (!permissionContext) {
+      console.error('PermissionContext not available')
+      return
+    }
+    try {
+      setLoadingAgencyPermissions(true)
+      const available = await permissionContext.fetchAvailablePermissions('agency')
+      console.log('Loaded agency permissions:', available)
+      setAgencyPermissions(available || [])
+      
+      // Initialize permission states - preserve existing selections
+      setAgencyPermissionStates(prevStates => {
+        const states = { ...prevStates } // Keep existing state
+        available?.forEach((perm) => {
+          const key = perm.key || perm.permissionKey
+          if (key && states[key] === undefined) {
+            // Only set to false if not already in state
+            // Check if this permission was already selected in selectedInvitationPermissions
+            const wasSelected = selectedInvitationPermissions?.some(
+              p => p.permissionKey === key && (!p.contextUserId || p.contextUserId === null)
+            )
+            states[key] = wasSelected || false
+          }
+        })
+        return states
+      })
+    } catch (error) {
+      console.error('Error loading agency permissions:', error)
+    } finally {
+      setLoadingAgencyPermissions(false)
+    }
+  }
+
+  // Load subaccount permissions
+  const loadSubaccountPermissions = async () => {
+    if (!permissionContext) {
+      console.error('PermissionContext not available')
+      return
+    }
+    try {
+      setLoadingSubaccountPermissions(true)
+      const available = await permissionContext.fetchAvailablePermissions('subaccount')
+      console.log('Loaded subaccount permissions:', available)
+      setSubaccountPermissions(available || [])
+      
+      // Initialize permission states - preserve existing selections
+      setSubaccountPermissionStates(prevStates => {
+        const states = { ...prevStates } // Keep existing state
+        available?.forEach((perm) => {
+          const key = perm.key || perm.permissionKey
+          if (key && states[key] === undefined) {
+            // Only set to false if not already in state
+            // Check if this permission was already selected in selectedInvitationPermissions
+            const wasSelected = selectedInvitationPermissions?.some(
+              p => p.permissionKey === key && (p.contextUserId === null || !p.contextUserId)
+            )
+            states[key] = wasSelected || false
+          }
+        })
+        return states
+      })
+      
+      // Always load subaccounts list when entering subaccount view
+      loadSubaccountsList(0, '')
+    } catch (error) {
+      console.error('Error loading subaccount permissions:', error)
+    } finally {
+      setLoadingSubaccountPermissions(false)
+    }
+  }
+
+  // Load subaccounts list
+  const loadSubaccountsList = async (offset = 0, search = '') => {
+    try {
+      setSubaccountsListLoading(true)
+      const queryParams = new URLSearchParams()
+      queryParams.append('offset', offset.toString())
+      queryParams.append('limit', '50')
+      if (search && search.trim()) {
+        queryParams.append('search', search.trim())
+      }
+      
+      // Use agencyData or userLocalData to get the agency ID
+      const agencyId = selectedAgency?.id || agencyData?.id || userLocalData?.id
+      if (agencyId) {
+        queryParams.append('userId', agencyId.toString())
+      }
+
+      const token = AuthToken()
+      console.log('Loading subaccounts with params:', queryParams.toString())
+      const response = await axios.get(`/api/agency/subaccounts?${queryParams.toString()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      console.log('Subaccounts API response:', response.data)
+      if (response && response.data && response.data.status) {
+        // Backend returns: { status: true, data: [...subaccounts], pagination: {...} }
+        const newSubaccounts = Array.isArray(response.data.data) ? response.data.data : []
+        const pagination = response.data.pagination || {}
+        
+        console.log('Loaded subaccounts:', newSubaccounts, 'Pagination:', pagination)
+        if (offset === 0) {
+          setSubaccountsList(newSubaccounts)
+        } else {
+          setSubaccountsList(prev => [...prev, ...newSubaccounts])
+        }
+        
+        setSubaccountsListOffset(offset + newSubaccounts.length)
+        setHasMoreSubaccountsList(newSubaccounts.length === 50 && (offset + newSubaccounts.length) < (pagination.total || 0))
+      } else {
+        console.error('Subaccounts API returned error:', response.data)
+        setSubaccountsList([])
+      }
+    } catch (error) {
+      console.error('Error loading subaccounts list:', error)
+      console.error('Error details:', error.response?.data || error.message)
+    } finally {
+      setSubaccountsListLoading(false)
+    }
+  }
+
+  // Handle agency permission toggle
+  const handleAgencyPermissionToggle = (permissionKey) => {
+    setAgencyPermissionStates(prev => ({
+      ...prev,
+      [permissionKey]: !prev[permissionKey],
+    }))
+  }
+
+  // Handle subaccount permission toggle
+  const handleSubaccountPermissionToggle = (permissionKey) => {
+    setSubaccountPermissionStates(prev => ({
+      ...prev,
+      [permissionKey]: !prev[permissionKey],
+    }))
+  }
+
+  // Handle subaccount selection toggle
+  const handleSubaccountSelectionToggle = (subaccountId) => {
+    setSelectedSubaccountIds(prev => {
+      if (prev.includes(subaccountId)) {
+        return prev.filter(id => id !== subaccountId)
+      } else {
+        return [...prev, subaccountId]
+      }
+    })
+  }
+
+  // Collect all permissions when sending invite
+  const collectAllPermissions = () => {
+    const permissions = []
+    
+    // Add agency permissions
+    Object.entries(agencyPermissionStates).forEach(([key, granted]) => {
+      if (granted) {
+        permissions.push({
+          permissionKey: key,
+          granted: true,
+          contextUserId: null,
+        })
+      }
+    })
+    
+    // Add subaccount permissions
+    Object.entries(subaccountPermissionStates).forEach(([key, granted]) => {
+      if (granted) {
+        permissions.push({
+          permissionKey: key,
+          granted: true,
+          contextUserId: null, // Will be set per subaccount when accessing
+        })
+      }
+    })
+    
+    return permissions
+  }
+
+  // Calculate selected permission counts (reactive)
+  const agencyPermissionsCount = React.useMemo(() => {
+    return Object.values(agencyPermissionStates).filter(Boolean).length
+  }, [agencyPermissionStates])
+  
+  const subaccountPermissionsCount = React.useMemo(() => {
+    return Object.values(subaccountPermissionStates).filter(Boolean).length
+  }, [subaccountPermissionStates])
+
+  // Calculate existing permission counts (reactive)
+  const existingAgencyPermissionsCount = React.useMemo(() => {
+    return Object.values(existingAgencyPermissionStates).filter(Boolean).length
+  }, [existingAgencyPermissionStates])
+  
+  const existingSubaccountPermissionsCount = React.useMemo(() => {
+    return Object.values(existingSubaccountPermissionStates).filter(Boolean).length
+  }, [existingSubaccountPermissionStates])
+
+  // Handle existing agency permission toggle
+  const handleExistingAgencyPermissionToggle = (permissionKey) => {
+    setExistingAgencyPermissionStates(prev => ({
+      ...prev,
+      [permissionKey]: !prev[permissionKey],
+    }))
+  }
+
+  // Handle existing subaccount permission toggle
+  const handleExistingSubaccountPermissionToggle = (permissionKey) => {
+    setExistingSubaccountPermissionStates(prev => ({
+      ...prev,
+      [permissionKey]: !prev[permissionKey],
+    }))
+  }
+
+  // Handle existing subaccount selection toggle
+  const handleExistingSubaccountSelectionToggle = (subaccountId) => {
+    setExistingSelectedSubaccountIds(prev => {
+      if (prev.includes(subaccountId)) {
+        return prev.filter(id => id !== subaccountId)
+      } else {
+        return [...prev, subaccountId]
+      }
+    })
+  }
+
+  // Save existing team member permissions
+  const saveExistingPermissions = async () => {
+    if (!selectedTeamMemberForPermissions?.invitedUserId) {
+      setSnackTitle('Team member not selected')
+      setShowSnak(true)
+      return
+    }
+
+    try {
+      setSavingPermissions(true)
+      const token = AuthToken()
+      
+      // Collect all permissions
+      const permissions = []
+      
+      // Add agency permissions
+      Object.entries(existingAgencyPermissionStates).forEach(([key, granted]) => {
+        permissions.push({
+          permissionKey: key,
+          granted: granted,
+        })
+      })
+      
+      // Add subaccount permissions
+      Object.entries(existingSubaccountPermissionStates).forEach(([key, granted]) => {
+        permissions.push({
+          permissionKey: key,
+          granted: granted,
+        })
+      })
+
+      // Update permissions via bulk update API
+      const response = await axios.put(
+        '/api/permissions/bulk',
+        {
+          teamMemberId: selectedTeamMemberForPermissions.invitedUserId,
+          permissions: permissions,
+          contextUserId: null,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
+      if (response?.data?.status) {
+        // Update subaccount access if agency context
+        const isAgency = agencyData?.userRole === 'Agency' || userLocalData?.userRole === 'Agency'
+        if (isAgency && existingSelectedSubaccountIds.length >= 0) {
+          // Update allowed subaccounts
+          try {
+            const userData = JSON.parse(localStorage.getItem('User'))
+            const grantingUserId = userData?.user?.id || userLocalData?.id
+            
+            const subaccountResponse = await axios.put(
+              '/api/permissions/team/subaccounts',
+              {
+                teamMemberId: selectedTeamMemberForPermissions.invitedUserId,
+                subaccountIds: existingSelectedSubaccountIds,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+              }
+            )
+            
+            if (!subaccountResponse?.data?.status) {
+              console.error('Error updating subaccount access:', subaccountResponse?.data?.message)
+            }
+          } catch (subaccountError) {
+            console.error('Error updating subaccount access:', subaccountError)
+            // Don't fail the whole operation if subaccount update fails
+          }
+        }
+
+        setSnackTitle('Permissions updated successfully')
+        setShowSnak(true)
+        setShowPermissionModal(false)
+        setSelectedTeamMemberForPermissions(null)
+        setManagePermissionModalStep('initial')
+        // Refresh team data
+        getMyteam()
+      } else {
+        setSnackTitle(response?.data?.message || 'Error updating permissions')
+        setShowSnak(true)
+      }
+    } catch (error) {
+      console.error('Error saving permissions:', error)
+      setSnackTitle(error?.response?.data?.message || 'Error updating permissions')
+      setShowSnak(true)
+    } finally {
+      setSavingPermissions(false)
+    }
+  }
 
   //get local Data
   useEffect(() => {
@@ -1439,7 +2035,7 @@ function Teams({ agencyData, selectedAgency, from }) {
         }}
       >
         <Box 
-          className="lg:w-5/12 sm:w-full w-6/12r" 
+          className="lg:w-[31.25%] sm:w-full w-6/12r" 
           sx={styles.modalsStyle}
           component="div"
           onKeyDown={(e) => {
@@ -1474,17 +2070,42 @@ function Teams({ agencyData, selectedAgency, from }) {
                 }
               }}
             >
-              <div className="flex flex-row justify-between">
-                <div className="flex flex-row gap-3">
-                  <div
-                    style={{ fontSize: 16, fontWeight: '500', color: '#000' }}
+              <div className="flex flex-row justify-between items-center">
+                {inviteModalStep !== 'initial' ? (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setInviteModalStep('initial')
+                    }}
+                    className="p-1 hover:bg-gray-100 rounded transition-colors"
                   >
-                    New Invite
+                    <ArrowLeft className="w-5 h-5 text-gray-700" />
+                  </button>
+                ) : (
+                  <div className="flex flex-row gap-3">
+                    <div
+                      style={{ fontSize: 16, fontWeight: '500', color: '#000' }}
+                    >
+                      New Invite
+                    </div>
                   </div>
-                </div>
+                )}
                 <CloseBtn
                   onClick={() => {
                     setOpenInvitePopup(false)
+                    setInviteModalStep('initial')
+                    // Reset form when closing
+                    setName('')
+                    setEmail('')
+                    setPhone('')
+                    setSelectedInvitationPermissions(null)
+                    setSelectedSubaccountIds([])
+                    setAgencyPermissionStates({})
+                    setSubaccountPermissionStates({})
+                    setSubaccountsList([])
+                    setSubaccountSearchTerm('')
                   }}
                 />
               </div>
@@ -1497,217 +2118,382 @@ function Teams({ agencyData, selectedAgency, from }) {
                   marginTop: 20,
                 }}
               >
-                Invite Team
+                {inviteModalStep === 'agency' ? 'Agency Permission' : inviteModalStep === 'subaccount' ? 'Subaccount permission' : 'Invite Team'}
               </div>
+              
 
-              <div className="pt-5" style={styles.headingStyle}>
-                Name
-              </div>
-              <input
-                placeholder="Type here"
-                className="w-full border mt-2 rounded p-2 outline-none outline-none focus:ring-0"
-                style={styles.inputFieldStyle}
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value)
-                  setShowError(false)
-                }}
-              />
+              {/* Conditional Content Based on Modal Step */}
+              {inviteModalStep === 'initial' && (
+                <>
+                  {/* Initial Form Fields */}
+                  <div className="pt-5" style={styles.headingStyle}>
+                    Name
+                  </div>
+                  <input
+                    placeholder="Type here"
+                    className="w-full border mt-2 rounded p-2 outline-none outline-none focus:ring-0"
+                    style={styles.inputFieldStyle}
+                    value={name}
+                    onChange={(e) => {
+                      setName(e.target.value)
+                      setShowError(false)
+                    }}
+                  />
 
-              <div className="pt-5 w-full flex flex-row items-center justify-between">
-                <div style={styles.headingStyle}>Email Address</div>
-                <div>
-                  {emailLoader ? (
-                    <p style={{ ...styles.errmsg, color: 'black' }}>
-                      Checking ...
-                    </p>
-                  ) : (
+                  <div className="pt-5 w-full flex flex-row items-center justify-between">
+                    <div style={styles.headingStyle}>Email Address</div>
                     <div>
-                      {email && emailCheckResponse ? (
-                        <p
-                          style={{
-                            ...styles.errmsg,
-                            color:
-                              emailCheckResponse?.status === true
-                                ? 'green'
-                                : 'red',
-                          }}
-                        >
-                          {emailCheckResponse?.message
-                            ?.slice(0, 1)
-                            .toUpperCase() +
-                            emailCheckResponse?.message?.slice(1)}
+                      {emailLoader ? (
+                        <p style={{ ...styles.errmsg, color: 'black' }}>
+                          Checking ...
                         </p>
                       ) : (
-                        <div />
+                        <div>
+                          {email && emailCheckResponse ? (
+                            <p
+                              style={{
+                                ...styles.errmsg,
+                                color:
+                                  emailCheckResponse?.status === true
+                                    ? 'green'
+                                    : 'red',
+                              }}
+                            >
+                              {emailCheckResponse?.message
+                                ?.slice(0, 1)
+                                .toUpperCase() +
+                                emailCheckResponse?.message?.slice(1)}
+                            </p>
+                          ) : (
+                            <div />
+                          )}
+                        </div>
                       )}
+                      <div style={{ ...styles.errmsg, color: 'red' }}>
+                        {validEmail}
+                      </div>
+                    </div>
+                  </div>
+
+                  <input
+                    placeholder="Type here"
+                    className="w-full border rounded mt-2 p-2 focus:ring-0 outline-none"
+                    style={styles.inputFieldStyle}
+                    value={email}
+                    onChange={(e) => {
+                      let value = e.target.value
+                      setEmail(value)
+                      setShowError(false)
+                      if (timerRef.current) {
+                        clearTimeout(timerRef.current)
+                      }
+
+                      setEmailCheckResponse(null)
+
+                      if (!value) {
+                        setValidEmail('')
+                        return
+                      }
+
+                      if (!validateEmail(value)) {
+                        setValidEmail('Invalid')
+                      } else {
+                        if (value) {
+                          timerRef.current = setTimeout(() => {
+                            checkEmail(value)
+                          }, 300)
+                        } else {
+                          setEmailCheckResponse(null)
+                          setValidEmail('')
+                        }
+                      }
+                    }}
+                  />
+
+                  <div className="pt-5 flex flex-row items-center justify-between w-full">
+                    <div style={styles.headingStyle}>Phone Number</div>
+                    <div>
+                      <div>
+                        {errorMessage && (
+                          <div
+                            className={`text-red`}
+                            style={{
+                              ...styles.errmsg,
+                              color:
+                                checkPhoneResponse?.status === true
+                                  ? 'green'
+                                  : 'red',
+                            }}
+                          >
+                            {errorMessage}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        {checkPhoneLoader && (
+                          <div className={`text-red`} style={{ ...styles.errmsg }}>
+                            {checkPhoneLoader}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-row items-center justify-center gap-2 w-full mt-3">
+                    <div className="flex flex-row items-center gap-2 border rounded-lg w-full justify-between pe-4">
+                      <div className="w-full">
+                        <PhoneInput
+                          className="outline-none bg-transparent focus:ring-0"
+                          country="us"
+                          onlyCountries={['us', 'ca', 'mx']}
+                          value={phone}
+                          onChange={handlePhoneNumberChange}
+                          placeholder={'Type here'}
+                          style={{
+                            borderRadius: '7px',
+                            outline: 'none',
+                            boxShadow: 'none',
+                          }}
+                          inputStyle={{
+                            width: '100%',
+                            borderWidth: '0px',
+                            backgroundColor: 'transparent',
+                            paddingLeft: '60px',
+                            paddingTop: '12px',
+                            paddingBottom: '12px',
+                            fontSize: 15,
+                            fontWeight: '500',
+                            height: '50px',
+                            outline: 'none',
+                            boxShadow: 'none',
+                          }}
+                          buttonStyle={{
+                            border: 'none',
+                            backgroundColor: 'transparent',
+                            outline: 'none',
+                          }}
+                          dropdownStyle={{
+                            maxHeight: '150px',
+                            overflowY: 'auto',
+                          }}
+                          countryCodeEditable={true}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Permissions Section */}
+                  {(agencyData?.userRole === 'Agency' || userLocalData?.userRole === 'Agency') && (
+                    <div className="mt-6 space-y-2">
+                      <div className="text-sm font-medium text-gray-700">Permissions</div>
+                      <div className="space-y-1">
+                        <div
+                          className="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            setInviteModalStep('agency')
+                            loadAgencyPermissions()
+                          }}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-gray-900">Agency</span>
+                            {agencyPermissionsCount > 0 && (
+                              <span 
+                                className="text-xs font-medium px-2 py-0.5 rounded-full"
+                                style={{
+                                  backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                  color: 'hsl(var(--brand-primary))',
+                                }}
+                              >
+                                {agencyPermissionsCount}
+                              </span>
+                            )}
+                          </div>
+                          <ChevronRight className="w-5 h-5 text-gray-400" />
+                        </div>
+                        <div
+                          className="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            setInviteModalStep('subaccount')
+                            loadSubaccountPermissions()
+                          }}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-gray-900">Subaccount</span>
+                            {subaccountPermissionsCount > 0 && (
+                              <span 
+                                className="text-xs font-medium px-2 py-0.5 rounded-full"
+                                style={{
+                                  backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                  color: 'hsl(var(--brand-primary))',
+                                }}
+                              >
+                                {subaccountPermissionsCount}
+                              </span>
+                            )}
+                          </div>
+                          <ChevronRight className="w-5 h-5 text-gray-400" />
+                        </div>
+                      </div>
                     </div>
                   )}
-                  <div style={{ ...styles.errmsg, color: 'red' }}>
-                    {validEmail}
-                  </div>
+                </>
+              )}
+
+              {/* Agency Permissions View */}
+              {inviteModalStep === 'agency' && (
+                <div className="mt-4 space-y-3 max-h-[60vh] overflow-y-auto">
+                  {loadingAgencyPermissions ? (
+                    <div className="flex justify-center items-center py-8">
+                      <CircularProgress size={24} />
+                    </div>
+                  ) : agencyPermissions.length === 0 ? (
+                    <div className="text-sm text-gray-500 py-8 text-center">
+                      No agency permissions found. Please check your permissions configuration.
+                    </div>
+                  ) : (
+                    agencyPermissions.map((perm, index) => {
+                      const permKey = perm.key || perm.permissionKey
+                      const permName = perm.name || perm.permissionDefinition?.name || permKey
+                      const isChecked = agencyPermissionStates[permKey] || false
+                      
+                      return (
+                        <div key={permKey}>
+                          <div className="flex items-center justify-between p-3">
+                            <span className="text-sm font-medium text-gray-900">{permName}</span>
+                            <Switch
+                              checked={isChecked}
+                              onCheckedChange={() => handleAgencyPermissionToggle(permKey)}
+                              className="data-[state=checked]:bg-brand-primary"
+                            />
+                          </div>
+                          {index < agencyPermissions.length - 1 && (
+                            <div className="border-t border-gray-200"></div>
+                          )}
+                        </div>
+                      )
+                    })
+                  )}
                 </div>
-              </div>
+              )}
 
-              <input
-                placeholder="Type here"
-                className="w-full border rounded mt-2 p-2 focus:ring-0 outline-none"
-                style={styles.inputFieldStyle}
-                value={email}
-                onChange={(e) => {
-                  let value = e.target.value
-                  setEmail(value)
-                  setShowError(false)
-                  if (timerRef.current) {
-                    clearTimeout(timerRef.current)
-                  }
-
-                  setEmailCheckResponse(null)
-
-                  if (!value) {
-                    // //console.log;
-                    setValidEmail('')
-                    return
-                  }
-
-                  if (!validateEmail(value)) {
-                    // //console.log;
-                    setValidEmail('Invalid')
-                  } else {
-                    // //console.log;
-                    if (value) {
-                      // Set a new timeout
-                      timerRef.current = setTimeout(() => {
-                        checkEmail(value)
-                      }, 300)
-                    } else {
-                      // Reset the response if input is cleared
-                      setEmailCheckResponse(null)
-                      setValidEmail('')
-                    }
-                  }
-                }}
-              />
-
-              <div className="pt-5 flex flex-row items-center justify-between w-full">
-                <div style={styles.headingStyle}>Phone Number</div>
-                {/* Code for error messages */}
-                <div>
-                  <div>
-                    {errorMessage && (
-                      <div
-                        className={`text-red`}
-                        style={{
-                          ...styles.errmsg,
-                          color:
-                            checkPhoneResponse?.status === true
-                              ? 'green'
-                              : 'red',
-                        }}
-                      >
-                        {errorMessage}
+              {/* Subaccount Permissions View */}
+              {inviteModalStep === 'subaccount' && (
+                <div className="mt-4 space-y-4 max-h-[60vh] overflow-y-auto">
+                  {/* Permission Capsules */}
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-gray-700">
+                      Features this user can access at subaccount level
+                    </div>
+                    {loadingSubaccountPermissions ? (
+                      <div className="flex justify-center items-center py-4">
+                        <CircularProgress size={20} />
+                      </div>
+                    ) : subaccountPermissions.length === 0 ? (
+                      <div className="text-sm text-gray-500 py-4 text-center">
+                        No subaccount permissions found. Please check your permissions configuration.
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {subaccountPermissions.map((perm) => {
+                          const permKey = perm.key || perm.permissionKey
+                          const permName = perm.name || perm.permissionDefinition?.name || permKey
+                          const isSelected = subaccountPermissionStates[permKey] || false
+                          
+                          return (
+                            <button
+                              key={permKey}
+                              type="button"
+                              onClick={() => handleSubaccountPermissionToggle(permKey)}
+                              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                                isSelected
+                                  ? 'bg-brand-primary text-white'
+                                  : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                              }`}
+                              style={isSelected ? {
+                                backgroundColor: 'hsl(var(--brand-primary))',
+                                color: 'white',
+                              } : {}}
+                            >
+                              {permName}
+                            </button>
+                          )
+                        })}
                       </div>
                     )}
                   </div>
-                  <div>
-                    {checkPhoneLoader && (
-                      <div className={`text-red`} style={{ ...styles.errmsg }}>
-                        {checkPhoneLoader}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-row items-center justify-center gap-2 w-full mt-3">
-                <div className="flex flex-row items-center gap-2 border rounded-lg w-full justify-between pe-4">
-                  <div className="w-full">
-                    <PhoneInput
-                      className="outline-none bg-transparent focus:ring-0"
-                      country="us" // Default country
-                      onlyCountries={['us', 'ca', 'mx']} // Allow US, Canada, and Mexico
-                      value={phone}
-                      onChange={handlePhoneNumberChange}
-                      // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                      placeholder={'Type here'}
-                      // disabled={loading}
-                      style={{
-                        borderRadius: '7px',
-                        outline: 'none', // Ensure no outline on wrapper
-                        boxShadow: 'none', // Remove any shadow
+
+                  {/* Subaccount Selection */}
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-gray-700">
+                      Manage subaccount this user can have access to
+                    </div>
+                    <Input
+                      placeholder="Search"
+                      value={subaccountSearchTerm}
+                      onChange={(e) => {
+                        const value = e.target.value
+                        setSubaccountSearchTerm(value)
+                        setSubaccountsListOffset(0)
+                        setHasMoreSubaccountsList(true)
+                        loadSubaccountsList(0, value)
                       }}
-                      inputStyle={{
-                        width: '100%',
-                        borderWidth: '0px',
-                        backgroundColor: 'transparent',
-                        paddingLeft: '60px',
-                        paddingTop: '12px',
-                        paddingBottom: '12px',
-                        fontSize: 15,
-                        fontWeight: '500',
-                        height: '50px',
-                        outline: 'none', // Remove outline on input
-                        boxShadow: 'none', // Remove shadow as well
-                      }}
-                      buttonStyle={{
-                        border: 'none',
-                        backgroundColor: 'transparent',
-                        outline: 'none', // Ensure no outline on button
-                      }}
-                      dropdownStyle={{
-                        maxHeight: '150px',
-                        overflowY: 'auto',
-                      }}
-                      countryCodeEditable={true}
-                    // defaultMask={locationLoader ? "Loading..." : undefined}
+                      className="w-full"
                     />
+                    <div className="max-h-[200px] overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-1">
+                      {subaccountsListLoading && subaccountsList.length === 0 ? (
+                        <div className="flex justify-center items-center py-4">
+                          <CircularProgress size={20} />
+                        </div>
+                      ) : subaccountsList.length === 0 ? (
+                        <div className="text-sm text-gray-500 py-4 text-center">
+                          {subaccountSearchTerm ? 'No subaccounts found matching your search' : 'No subaccounts found'}
+                        </div>
+                      ) : (
+                        <>
+                          {subaccountsList.map((subaccount) => {
+                            const isSelected = selectedSubaccountIds.includes(subaccount.id)
+                            return (
+                              <div
+                                key={subaccount.id}
+                                className="flex items-center gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer"
+                                onClick={() => handleSubaccountSelectionToggle(subaccount.id)}
+                              >
+                                <Checkbox
+                                  checked={isSelected}
+                                  onCheckedChange={() => handleSubaccountSelectionToggle(subaccount.id)}
+                                />
+                                <span className="text-sm text-gray-900">
+                                  {subaccount.name || subaccount.email || `Subaccount ${subaccount.id}`}
+                                </span>
+                              </div>
+                            )
+                          })}
+                          {hasMoreSubaccountsList && (
+                            <div className="flex justify-center pt-2">
+                              <Button
+                                variant="outlined"
+                                size="small"
+                                onClick={() => loadSubaccountsList(subaccountsListOffset, subaccountSearchTerm)}
+                                disabled={subaccountsListLoading}
+                                sx={{
+                                  textTransform: 'none',
+                                  borderColor: 'hsl(var(--brand-primary))',
+                                  color: 'hsl(var(--brand-primary))',
+                                }}
+                              >
+                                {subaccountsListLoading ? 'Loading...' : 'Load More'}
+                              </Button>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <div 
-                className="flex flex-row gap-3 mt-4"
-                onClick={(e) => {
-                  // Prevent any clicks in this container from bubbling
-                  e.stopPropagation()
-                }}
-                onMouseDown={(e) => {
-                  // Prevent mousedown from triggering form submission
-                  e.preventDefault()
-                  e.stopPropagation()
-                }}
-              >
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    // #region agent log
-                    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:set-permissions-button-click',message:'Set Permissions button clicked',data:{defaultPrevented: e.defaultPrevented, target: e.target?.tagName, hasForm: !!e.target.closest('form')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
-                    // #endregion
-                    e.preventDefault()
-                    e.stopPropagation()
-                    e.stopImmediatePropagation?.()
-                    console.log('🔵 Set Permissions button clicked')
-                    // Close the invite modal first to avoid focus trap conflicts
-                    setOpenInvitePopup(false)
-                    // Use setTimeout to defer opening permission manager
-                    setTimeout(() => {
-                      setShowInvitationPermissionManagerWithLog(true)
-                    }, 100)
-                    return false
-                  }}
-                  onMouseDown={(e) => {
-                    // Prevent mousedown from triggering form submission
-                    e.preventDefault()
-                    e.stopPropagation()
-                  }}
-                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                  style={{
-                    borderColor: selectedInvitationPermissions ? 'hsl(var(--brand-primary))' : undefined,
-                    color: selectedInvitationPermissions ? 'hsl(var(--brand-primary))' : undefined,
-                  }}
-                >
-                  {selectedInvitationPermissions ? `Permissions Set (${selectedInvitationPermissions.length})` : 'Set Permissions'}
-                </button>
-              </div>
+              )}
 
               {inviteTeamLoader ? (
                 <div className="flex flex-col items-center p-5">
@@ -1728,6 +2514,10 @@ function Teams({ agencyData, selectedAgency, from }) {
                   }}
                   className="w-full flex bg-brand-primary p-3 rounded-lg items-center justify-center"
                   onClick={() => {
+                    // Collect permissions from all steps
+                    const allPermissions = collectAllPermissions()
+                    setSelectedInvitationPermissions(allPermissions.length > 0 ? allPermissions : null)
+                    
                     let data = {
                       name: name,
                       email: email,
@@ -1736,11 +2526,13 @@ function Teams({ agencyData, selectedAgency, from }) {
                     inviteTeamMember(data)
                   }}
                   disabled={
-                    !name ||
-                    !email ||
-                    !phone ||
-                    emailCheckResponse?.status !== true ||
-                    checkPhoneResponse?.status !== true
+                    inviteModalStep === 'initial' && (
+                      !name ||
+                      !email ||
+                      !phone ||
+                      emailCheckResponse?.status !== true ||
+                      checkPhoneResponse?.status !== true
+                    )
                   }
                 >
                   <div
@@ -1748,11 +2540,13 @@ function Teams({ agencyData, selectedAgency, from }) {
                       fontSize: 16,
                       fontWeight: '500',
                       color:
-                        !name ||
+                        inviteModalStep === 'initial' && (
+                          !name ||
                           !email ||
                           !phone ||
                           emailCheckResponse?.status !== true ||
                           checkPhoneResponse?.status !== true
+                        )
                           ? '#000000'
                           : '#ffffff',
                     }}
@@ -1852,71 +2646,395 @@ function Teams({ agencyData, selectedAgency, from }) {
         </Box>
       </Modal>
 
-      {/* Permission Management Modal */}
-      <PermissionProvider>
-        {selectedTeamMemberForPermissions && (
-          <PermissionManager
-            open={showPermissionModal}
-            teamMemberId={selectedTeamMemberForPermissions.invitedUserId}
-            context={
-              agencyData?.userRole === 'Agency' ||
-              userLocalData?.userRole === 'Agency'
-                ? 'agency'
-                : agencyData?.userRole === 'AgencySubAccount' ||
-                  userLocalData?.userRole === 'AgencySubAccount'
-                ? 'subaccount_user'
-                : 'agentx'
-            }
-            onClose={() => {
-              setShowPermissionModal(false)
-              setSelectedTeamMemberForPermissions(null)
-            }}
-          />
-        )}
-        
-        {/* Invitation Permission Manager */}
-        <PermissionManager
-          open={showInvitationPermissionManager}
-          onClose={() => {
-            setShowInvitationPermissionManagerWithLog(false)
-            // Reopen the invite modal when permissions are closed
-            if (!selectedInvitationPermissions || selectedInvitationPermissions.length === 0) {
-              setTimeout(() => {
-                setOpenInvitePopup(true)
-              }, 100)
-            }
-          }}
-          teamMemberId={null}
-          context={
-            agencyData?.userRole === 'Agency' ||
-            userLocalData?.userRole === 'Agency'
-              ? 'agency'
-              : agencyData?.userRole === 'AgencySubAccount' ||
-                userLocalData?.userRole === 'AgencySubAccount'
-              ? 'subaccount_user'
-              : 'agentx'
-          }
-          contextUserId={null}
-          onPermissionsChange={(permissions) => {
-            setSelectedInvitationPermissions(permissions)
-            setShowInvitationPermissionManagerWithLog(false)
-            // Reopen the invite modal after permissions are set
+      {/* Permission Management Modal - Multi-step flow */}
+      <Modal
+        open={showPermissionModal && !!selectedTeamMemberForPermissions}
+        onClose={() => {
+          setShowPermissionModal(false)
+          setSelectedTeamMemberForPermissions(null)
+          setManagePermissionModalStep('initial')
+        }}
+        closeAfterTransition={false}
+        disableEscapeKeyDown={false}
+        BackdropProps={{
+          timeout: 500,
+          sx: {
+            backgroundColor: '#00000030',
+          },
+        }}
+      >
+        <Box 
+          className="lg:w-[31.25%] sm:w-full w-6/12r" 
+          sx={styles.modalsStyle}
+          component="div"
+        >
+          <div className="flex flex-row justify-center w-full">
+            <div
+              className="sm:w-full w-full p-8"
+              style={{
+                backgroundColor: '#ffffff',
+                borderRadius: '13px',
+              }}
+            >
+              <div className="flex flex-row justify-between items-center">
+                {managePermissionModalStep !== 'initial' ? (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      setManagePermissionModalStep('initial')
+                    }}
+                    className="p-1 hover:bg-gray-100 rounded transition-colors"
+                  >
+                    <ArrowLeft className="w-5 h-5 text-gray-700" />
+                  </button>
+                ) : (
+                  <div className="flex flex-row gap-3">
+                    <div
+                      style={{ fontSize: 16, fontWeight: '500', color: '#000' }}
+                    >
+                      Manage Permissions
+                    </div>
+                  </div>
+                )}
+                <CloseBtn
+                  onClick={() => {
+                    setShowPermissionModal(false)
+                    setSelectedTeamMemberForPermissions(null)
+                    setManagePermissionModalStep('initial')
+                  }}
+                />
+              </div>
+
+              <div
+                style={{
+                  fontSize: 24,
+                  fontWeight: '700',
+                  color: '#000',
+                  marginTop: 20,
+                }}
+              >
+                {managePermissionModalStep === 'agency' ? 'Agency Permission' : managePermissionModalStep === 'subaccount' ? 'Subaccount permission' : 'Manage Permissions'}
+              </div>
+
+              {/* Initial View */}
+              {managePermissionModalStep === 'initial' && (
+                <div className="mt-6 space-y-2">
+                  <div className="text-sm font-medium text-gray-700">Permissions</div>
+                  <div className="space-y-1">
+                    {(agencyData?.userRole === 'Agency' || userLocalData?.userRole === 'Agency') && (
+                      <>
+                        <div
+                          className="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            setManagePermissionModalStep('agency')
+                            // Permissions already loaded, but reload if needed
+                            if (existingAgencyPermissions.length === 0) {
+                              loadExistingAgencyPermissions()
+                            }
+                          }}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-gray-900">Agency</span>
+                            {existingAgencyPermissionsCount > 0 && (
+                              <span 
+                                className="text-xs font-medium px-2 py-0.5 rounded-full"
+                                style={{
+                                  backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                  color: 'hsl(var(--brand-primary))',
+                                }}
+                              >
+                                {existingAgencyPermissionsCount}
+                              </span>
+                            )}
+                          </div>
+                          <ChevronRight className="w-5 h-5 text-gray-400" />
+                        </div>
+                        <div
+                          className="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            setManagePermissionModalStep('subaccount')
+                            // Permissions already loaded, but reload if needed
+                            if (existingSubaccountPermissions.length === 0) {
+                              loadExistingSubaccountPermissions()
+                            }
+                          }}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-gray-900">Subaccount</span>
+                            {existingSubaccountPermissionsCount > 0 && (
+                              <span 
+                                className="text-xs font-medium px-2 py-0.5 rounded-full"
+                                style={{
+                                  backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                  color: 'hsl(var(--brand-primary))',
+                                }}
+                              >
+                                {existingSubaccountPermissionsCount}
+                              </span>
+                            )}
+                          </div>
+                          <ChevronRight className="w-5 h-5 text-gray-400" />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Agency Permissions View */}
+              {managePermissionModalStep === 'agency' && (
+                <div className="mt-4 space-y-3 max-h-[60vh] overflow-y-auto">
+                  <div className="text-sm text-gray-600 mb-4">
+                    Manage what this user can access in agency panel.
+                  </div>
+                  {loadingExistingAgencyPermissions ? (
+                    <div className="flex justify-center items-center py-8">
+                      <CircularProgress size={24} />
+                    </div>
+                  ) : existingAgencyPermissions.length === 0 ? (
+                    <div className="text-sm text-gray-500 py-8 text-center">
+                      No agency permissions found.
+                    </div>
+                  ) : (
+                    existingAgencyPermissions.map((perm, index) => {
+                      const permKey = perm.key || perm.permissionKey
+                      const permName = perm.name || perm.permissionDefinition?.name || permKey
+                      const isChecked = existingAgencyPermissionStates[permKey] || false
+                      
+                      return (
+                        <div key={permKey}>
+                          <div className="flex items-center justify-between p-3">
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium text-gray-900">{permName}</span>
+                              {perm.description && (
+                                <span className="text-xs text-gray-500 mt-1">{perm.description}</span>
+                              )}
+                            </div>
+                            <Switch
+                              checked={isChecked}
+                              onCheckedChange={() => handleExistingAgencyPermissionToggle(permKey)}
+                              className="data-[state=checked]:bg-brand-primary"
+                            />
+                          </div>
+                          {index < existingAgencyPermissions.length - 1 && (
+                            <div className="border-t border-gray-200"></div>
+                          )}
+                        </div>
+                      )
+                    })
+                  )}
+                </div>
+              )}
+
+              {/* Subaccount Permissions View */}
+              {managePermissionModalStep === 'subaccount' && (
+                <div className="mt-4 space-y-4 max-h-[60vh] overflow-y-auto">
+                  <div className="text-sm text-gray-600 mb-4">
+                    Manage what this user can access at subaccount level.
+                  </div>
+                  
+                  {/* Permission Capsules */}
+                  <div className="space-y-2">
+                    <div className="text-sm font-medium text-gray-700">
+                      Features this user can access at subaccount level
+                    </div>
+                    {loadingExistingSubaccountPermissions ? (
+                      <div className="flex justify-center items-center py-4">
+                        <CircularProgress size={20} />
+                      </div>
+                    ) : existingSubaccountPermissions.length === 0 ? (
+                      <div className="text-sm text-gray-500 py-4 text-center">
+                        No subaccount permissions found.
+                      </div>
+                    ) : (
+                      <div className="flex flex-wrap gap-2">
+                        {existingSubaccountPermissions.map((perm) => {
+                          const permKey = perm.key || perm.permissionKey
+                          const permName = perm.name || perm.permissionDefinition?.name || permKey
+                          const isSelected = existingSubaccountPermissionStates[permKey] || false
+                          
+                          return (
+                            <button
+                              key={permKey}
+                              type="button"
+                              onClick={() => handleExistingSubaccountPermissionToggle(permKey)}
+                              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                                isSelected
+                                  ? 'bg-brand-primary text-white'
+                                  : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
+                              }`}
+                              style={isSelected ? {
+                                backgroundColor: 'hsl(var(--brand-primary))',
+                                color: 'white',
+                              } : {}}
+                            >
+                              {permName}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Subaccount Selection */}
+                  {(agencyData?.userRole === 'Agency' || userLocalData?.userRole === 'Agency') && (
+                    <div className="space-y-2">
+                      <div className="text-sm font-medium text-gray-700">
+                        Manage subaccounts this user can have access to
+                      </div>
+                      <Input
+                        placeholder="Search subaccounts"
+                        value={existingSubaccountSearchTerm}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          setExistingSubaccountSearchTerm(value)
+                          setExistingSubaccountsListOffset(0)
+                          setHasMoreExistingSubaccountsList(true)
+                          loadExistingSubaccountsList(0, value)
+                        }}
+                        className="w-full"
+                      />
+                      <div className="max-h-[200px] overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-1">
+                        {existingSubaccountsListLoading && existingSubaccountsList.length === 0 ? (
+                          <div className="flex justify-center items-center py-4">
+                            <CircularProgress size={20} />
+                          </div>
+                        ) : existingSubaccountsList.length === 0 ? (
+                          <div className="text-sm text-gray-500 py-4 text-center">
+                            {existingSubaccountSearchTerm ? 'No subaccounts found matching your search' : 'No subaccounts found'}
+                          </div>
+                        ) : (
+                          <>
+                            {existingSubaccountsList.map((subaccount) => {
+                              const isSelected = existingSelectedSubaccountIds.includes(subaccount.id)
+                              return (
+                                <div
+                                  key={subaccount.id}
+                                  className="flex items-center gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer"
+                                  onClick={() => handleExistingSubaccountSelectionToggle(subaccount.id)}
+                                >
+                                  <Checkbox
+                                    checked={isSelected}
+                                    onCheckedChange={() => handleExistingSubaccountSelectionToggle(subaccount.id)}
+                                  />
+                                  <span className="text-sm text-gray-900">
+                                    {subaccount.name || subaccount.email || `Subaccount ${subaccount.id}`}
+                                  </span>
+                                </div>
+                              )
+                            })}
+                            {hasMoreExistingSubaccountsList && (
+                              <div className="flex justify-center pt-2">
+                                <Button
+                                  variant="outlined"
+                                  size="small"
+                                  onClick={() => loadExistingSubaccountsList(existingSubaccountsListOffset, existingSubaccountSearchTerm)}
+                                  disabled={existingSubaccountsListLoading}
+                                  sx={{
+                                    textTransform: 'none',
+                                    borderColor: 'hsl(var(--brand-primary))',
+                                    color: 'hsl(var(--brand-primary))',
+                                  }}
+                                >
+                                  {existingSubaccountsListLoading ? 'Loading...' : 'Load More'}
+                                </Button>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              {managePermissionModalStep !== 'initial' && (
+                <div className="flex gap-3 mt-6">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowPermissionModal(false)
+                      setSelectedTeamMemberForPermissions(null)
+                      setManagePermissionModalStep('initial')
+                    }}
+                    className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={saveExistingPermissions}
+                    disabled={savingPermissions}
+                    className="flex-1 px-4 py-2 bg-brand-primary text-white rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
+                    style={{
+                      backgroundColor: 'hsl(var(--brand-primary))',
+                    }}
+                  >
+                    {savingPermissions ? 'Saving...' : 'Save Permissions'}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </Box>
+      </Modal>
+      
+      {/* Invitation Permission Manager */}
+      <PermissionManager
+        open={showInvitationPermissionManager}
+        onClose={() => {
+          setShowInvitationPermissionManagerWithLog(false)
+          // Reopen the invite modal when permissions are closed
+          if (!selectedInvitationPermissions || selectedInvitationPermissions.length === 0) {
             setTimeout(() => {
               setOpenInvitePopup(true)
             }, 100)
-          }}
-          onSubaccountsChange={(subaccountIds) => {
-            setSelectedSubaccountIds(subaccountIds || [])
-          }}
-          initialPermissions={selectedInvitationPermissions}
-          allowedSubaccountIds={selectedSubaccountIds}
-        />
-      </PermissionProvider>
+          }
+        }}
+        teamMemberId={null}
+        context={
+          agencyData?.userRole === 'Agency' ||
+          userLocalData?.userRole === 'Agency'
+            ? 'agency'
+            : agencyData?.userRole === 'AgencySubAccount' ||
+              userLocalData?.userRole === 'AgencySubAccount'
+            ? 'subaccount_user'
+            : 'agentx'
+        }
+        contextUserId={null}
+        onPermissionsChange={(permissions) => {
+          setSelectedInvitationPermissions(permissions)
+          setShowInvitationPermissionManagerWithLog(false)
+          // Reopen the invite modal after permissions are set
+          setTimeout(() => {
+            setOpenInvitePopup(true)
+          }, 100)
+        }}
+        onSubaccountsChange={(subaccountIds) => {
+          setSelectedSubaccountIds(subaccountIds || [])
+        }}
+        initialPermissions={selectedInvitationPermissions}
+        allowedSubaccountIds={selectedSubaccountIds}
+      />
     </div>
   );
 }
 
-export default Teams
+// Export wrapper component that provides PermissionProvider
+export default function Teams({ agencyData, selectedAgency, from }) {
+  return (
+    <PermissionProvider>
+      <TeamsContent agencyData={agencyData} selectedAgency={selectedAgency} from={from} />
+    </PermissionProvider>
+  )
+}
 
 const styles = {
   itemText: {
