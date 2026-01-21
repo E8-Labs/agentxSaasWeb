@@ -44,9 +44,7 @@ const AddAp2MessageAnimation = ({ showModal, handleClose }) => {
   // const [loader, setLoader] = useState(false);
 
   const handleContinue = (formData) => {
-    if (formData) {
-      console.log('trying to log form data in userfconset', formData)
-    }
+    if (formData) {}
     setDirection(1)
     setCurrentIndex((prevIndex) => prevIndex + 1)
   }
@@ -105,7 +103,6 @@ const AddAp2MessageAnimation = ({ showModal, handleClose }) => {
                   <CampaignDetails
                     handleContinue={handleContinue}
                     handleClose={() => {
-                      console.log('Trigered close')
                       handleClose()
                     }}
                   />
@@ -167,7 +164,7 @@ const AddAp2MessageAnimation = ({ showModal, handleClose }) => {
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
 
 export default AddAp2MessageAnimation

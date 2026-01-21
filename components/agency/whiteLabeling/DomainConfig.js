@@ -429,7 +429,6 @@ const DomainConfig = ({ selectedAgency }) => {
       document.body.removeChild(textArea)
 
       if (successful) {
-        console.log('✅ Agency link copied using execCommand')
         return true
       } else {
         console.error('execCommand copy failed')
@@ -457,7 +456,6 @@ const DomainConfig = ({ selectedAgency }) => {
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
           await navigator.clipboard.writeText(text)
-          console.log('✅ Agency link copied using Clipboard API')
           setCopiedFields((prev) => ({ ...prev, [fieldId]: true }))
           setShowSnackMessage({
             type: SnackbarTypes.Success,

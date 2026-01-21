@@ -76,7 +76,6 @@ export function SupportWidget({
   useEffect(() => {
     // Load agent details when component mounts
     if (assistantId) {
-      console.log('🔍 SUPPORT-WIDGET - Loading agent details for:', assistantId)
       getAgentByVapiId()
     }
   }, [assistantId])
@@ -84,10 +83,7 @@ export function SupportWidget({
   useEffect(() => {
     // setLoadingMsg()
   }, [loading])
-  useEffect(() => {
-    console.log('isEmbed', isEmbed)
-    console.log('loading', loading)
-  }, [loading, isEmbed])
+  useEffect(() => {}, [loading, isEmbed])
 
   // 1) Safer loading message
   const setLoadingMsg = async () => {
@@ -104,7 +100,6 @@ export function SupportWidget({
         setloadingMessage('...getting coffee...')
       }, 3000)
     } catch (e) {
-      console.log('setLoadingMsg error:', e)
       setloadingMessage('Sky is booting up...')
       setTimeout(() => {
         setloadingMessage('...getting coffee...')
@@ -113,71 +108,41 @@ export function SupportWidget({
   }
 
   const getAgentByVapiId = async () => {
-    console.log('try to get agentembed tst')
-
     try {
       let path = `${Apis.getUserByAgentVapiId}/${assistantId}`
       // Add agentType query parameter for embed agents
       if (isEmbed) {
         path += '?agentType=embed'
       }
-      console.log('api path of agent is', path)
 
       const response = await axios.get(path)
 
       if (response) {
-        console.log(
-          '🔍 SUPPORT-WIDGET - Agent details response:',
-          response?.data?.data,
-        )
-        console.log(
-          '🔍 SUPPORT-WIDGET - Support button avatar:',
-          response?.data?.data?.agent?.supportButtonAvatar,
-        )
-        console.log(
-          '🔍 SUPPORT-WIDGET - Profile image:',
-          response?.data?.data?.agent?.profile_image,
-        )
-        console.log(
-          '🔍 SUPPORT-WIDGET - Support button text:',
-          response?.data?.data?.agent?.supportButtonText,
-        )
         setAgentUserDetails(response?.data?.data ?? null)
         setSmartListData(response?.data?.data?.smartList)
-        console.log(
-          '🔍 SUPPORT-WIDGET - Smart list data:',
-          response?.data?.data?.smartList,
-        )
         return response?.data?.data?.agent ?? null
       }
-    } catch (e) {
-      console.log('error in get agent by id', e)
-    }
+    } catch (e) {}
   }
 
   useEffect(() => {
     const vapiInstance = new Vapi(API_KEY)
-    console.log('vapInstance', API_KEY)
     setVapi(vapiInstance)
     vapiInstance.on('call-start', () => {
-      console.log('📞 CALL-START: Call started')
       setLoading(false)
       setOpen(true)
       setIsCallRunning(true)
     })
     vapiInstance.on('call-end', () => {
-      console.log('📞 CALL-END: Call ended')
       setIsSpeaking(false)
       setOpen(false)
       setShowAskSkyModal(false)
       setIsCallRunning(false)
     })
     vapiInstance.on('speech-start', () => {
-      console.log('🎤 SPEECH-START: Assistant started speaking')
       setIsSpeaking(true)
     })
     vapiInstance.on('speech-end', () => {
-      console.log('🔇 SPEECH-END: Assistant stopped speaking')
       setIsSpeaking(false)
     })
     vapiInstance.on('message', (message) => {
@@ -186,8 +151,6 @@ export function SupportWidget({
         : 100
 
       setTranscript((prev) => [...prev, message])
-      console.log('MESSAGE:', message)
-      console.log('MAGNITUDE:', mag)
     })
     vapiInstance.on('error', (error) => {
       console.error('Vapi error:', error)
@@ -224,7 +187,6 @@ export function SupportWidget({
   // },[shouldStart,])
 
   useEffect(() => {
-    console.log('vapi', vapi)
     if (!isEmbed) {
       handleStartCall(true)
     }
@@ -232,7 +194,6 @@ export function SupportWidget({
 
   // Form handling functions
   const handleFormDataChange = (field, value) => {
-    console.log(`Updating form field ${field} with value:`, value)
     const newFormData = {
       ...formData,
       [field]: value,
@@ -241,7 +202,6 @@ export function SupportWidget({
   }
 
   const handleSmartListFieldChange = (field, value) => {
-    console.log(`Updating smart list field ${field} with value:`, value)
     const newSmartListFields = {
       ...smartListFields,
       [field]: value,
@@ -251,21 +211,15 @@ export function SupportWidget({
 
   // Handle modal actions
   const handleModalOpen = () => {
-    console.log('🔍 SUPPORT-WIDGET - Opening smart list modal')
     setShowLeadModal(true)
   }
 
   const handleModalClose = () => {
-    console.log('🔍 SUPPORT-WIDGET - Closing smart list modal')
     setShowLeadModal(false)
   }
 
   // Handle form submission and call initiation with overrides
   const handleFormSubmit = async () => {
-    console.log('🔍 SUPPORT-WIDGET - Submitting form data:', {
-      formData,
-      smartListFields,
-    })
     setIsSubmitting(true)
 
     try {
@@ -286,8 +240,6 @@ export function SupportWidget({
         extraColumns: extraColumns,
       }
 
-      console.log('🔍 SUPPORT-WIDGET - Sending lead details:', leadDetails)
-
       // Call POST API to get assistant overrides (matching web-agent format)
       const response = await axios.post(
         `${Apis.getUserByAgentVapiIdWithLeadDetails}/${assistantId}?agentType=embed`,
@@ -297,20 +249,10 @@ export function SupportWidget({
       )
 
       if (response?.data?.status === true) {
-        console.log(
-          '🔍 SUPPORT-WIDGET - Form submitted successfully:',
-          response.data,
-        )
-
         // Check if user has sufficient balance
         const { totalSecondsAvailable } = response.data.data.user
-        console.log(
-          '🔍 SUPPORT-WIDGET - User total seconds available:',
-          totalSecondsAvailable,
-        )
 
         if (totalSecondsAvailable < 120) {
-          console.log('🔍 SUPPORT-WIDGET - Insufficient balance, showing error')
           setSnackbarMessage('Insufficient Balance')
           setSnackbarSeverity('error')
           setSnackbarOpen(true)
@@ -321,9 +263,6 @@ export function SupportWidget({
         const newOverrides = response?.data?.data?.assistantOverrides
 
         setShowLeadModal(false)
-        console.log(
-          '🔍 SUPPORT-WIDGET - Setting up call UI and starting call with new overrides',
-        )
         setLoading(true)
         setloadingMessage('')
 
@@ -344,17 +283,10 @@ export function SupportWidget({
 
   // Handle Get Help button click - check for smart list
   const handleGetHelpClick = () => {
-    console.log('🔍 SUPPORT-WIDGET - Get Help button clicked')
-    console.log('🔍 SUPPORT-WIDGET - Smart list data:', smartListData)
-
     // Check if agent has smartList attached
     if (smartListData && smartListData.id) {
-      console.log('🔍 SUPPORT-WIDGET - Agent has smart list, showing modal')
       handleModalOpen()
     } else {
-      console.log(
-        '🔍 SUPPORT-WIDGET - No smart list found, starting call directly',
-      )
       handleStartCall(true)
     }
   }
@@ -362,15 +294,10 @@ export function SupportWidget({
   async function startCall(overrides = null) {
     // Check if user has sufficient minutes before starting call
     let path = `${Apis.getUserByAgentVapiId}/${assistantId}`
-    console.log('api path of get user by agent id is', path)
 
     const response = await axios.get(path)
 
     if (response.data.status && response.data.data.user) {
-      console.log(
-        'response of get user api by agent id is',
-        response.data.data.user,
-      )
       const { totalSecondsAvailable } = response.data.data.user
 
       if (totalSecondsAvailable < 120) {
@@ -381,16 +308,13 @@ export function SupportWidget({
       }
     }
 
-    console.log('🔍 SUPPORT-WIDGET - starting call with overrides:', overrides)
     if (vapi) {
       // Use overrides passed as parameter (from form submission) or get default profile data
       let assistantOverrides
 
       if (overrides) {
-        console.log('🔍 SUPPORT-WIDGET - Using form submission overrides')
         assistantOverrides = overrides
       } else {
-        console.log('🔍 SUPPORT-WIDGET - Getting default profile data')
         const { pipelines = [], ...userProfile } =
           (await getProfileSupportDetails()) || {}
 
@@ -411,35 +335,14 @@ export function SupportWidget({
       ) {
         cleanedOverrides = { ...assistantOverrides }
         delete cleanedOverrides.variableValues
-        console.log(
-          '🔍 SUPPORT-WIDGET - Removed variableValues from overrides:',
-          cleanedOverrides,
-        )
       }
 
-      console.log(
-        '🔍 SUPPORT-WIDGET - Current assistant overrides:',
-        assistantOverrides,
-      )
-      console.log(
-        '🔍 SUPPORT-WIDGET - Cleaned overrides for VAPI:',
-        cleanedOverrides,
-      )
-
       const payloadSize = new Blob([JSON.stringify(cleanedOverrides)]).size
-      console.log(`🔍 SUPPORT-WIDGET - Payload size: ${payloadSize} bytes`)
 
       // Check if agent has smart list to determine which assistant ID to use
       if (smartListData?.id) {
-        console.log(
-          '🔍 SUPPORT-WIDGET - Agent has smart list, using assistant ID:',
-          assistantId,
-        )
         vapi.start(assistantId, cleanedOverrides)
       } else {
-        console.log(
-          '🔍 SUPPORT-WIDGET - No smart list, using provided assistant ID',
-        )
         vapi.start(assistantId)
       }
     } else {
@@ -465,7 +368,6 @@ export function SupportWidget({
 
   async function handleStartCall(voice) {
     setOpen(true)
-    console.log('trying to start call')
     setLoading(true)
     await setLoadingMsg()
     if (voice) {
@@ -482,7 +384,6 @@ export function SupportWidget({
   }
 
   async function getProfileSupportDetails() {
-    console.log('get profile support details api calling')
     let user = null
     try {
       const data = localStorage.getItem('User')
@@ -500,7 +401,6 @@ export function SupportWidget({
 
         if (response.data) {
           if (response.data.status === true) {
-            console.log('profile support details are', response.data)
             let data = response.data.data
             let pipelineData = data.pipelines
 
@@ -514,14 +414,11 @@ export function SupportWidget({
               pipelines: pipelineData,
             }
           } else {
-            console.log('profile support message is', response.data.message)
-
             return user.user
           }
         }
       }
     } catch (e) {
-      console.log('error in get profile suppport details api is', e)
       return user.user
     }
   }

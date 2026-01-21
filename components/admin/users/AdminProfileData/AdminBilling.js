@@ -245,7 +245,6 @@ function AdminBilling({ selectedUser, from }) {
     const d = localStorage.getItem('User')
     if (d) {
       const Data = JSON.parse(d)
-      console.log('Smart refill is', Data.user.smartRefill)
       setAllowSmartRefill(Data.user.smartRefill)
     }
     getProfile()
@@ -253,9 +252,7 @@ function AdminBilling({ selectedUser, from }) {
     getCardsList()
   }, [])
 
-  useEffect(() => {
-    console.log('selectedPlan changed:', selectedPlan)
-  }, [selectedPlan])
+  useEffect(() => {}, [selectedPlan])
 
   useEffect(() => {
     let screenWidth = 1000
@@ -267,11 +264,10 @@ function AdminBilling({ selectedUser, from }) {
   }, [])
 
   const getPlans = async () => {
-    let plansList = await getUserPlans()
+    let plansList = await getUserPlans(from,selectedUser)
     console.log('plansList are', plansList)
     let userData = getUserLocalData()
 
-    console.log('isSubaccountTeamMember', isSubaccountTeamMember(userData.user))
     let filteredPlans = []
     if (plansList) {
       // Filter features in each plan to only show features where thumb = true
@@ -294,15 +290,10 @@ function AdminBilling({ selectedUser, from }) {
         setPlans(filteredPlans)
       }
 
-      console.log('filteredPlans after filtering', filteredPlans)
-
       let currentPlan = userData?.user?.plan?.planId
-
-      console.log('currentPlan for filter', currentPlan)
 
       let planFromList = filteredPlans.find((plan) => plan.id === currentPlan)
 
-      console.log('filtered current plan is', planFromList)
       const monthly = []
       const quarterly = []
       const yearly = []
@@ -333,10 +324,6 @@ function AdminBilling({ selectedUser, from }) {
       setMonthlyPlans(monthly)
       setQuaterlyPlans(quarterly)
       setYearlyPlans(yearly)
-
-      console.log('monthly', monthly)
-      console.log('quarterly', quarterly)
-      console.log('yearly', yearly)
     } else {
       setPlans(plansList)
     }
@@ -348,12 +335,6 @@ function AdminBilling({ selectedUser, from }) {
     if (initialPlanSelectionDone) {
       return
     }
-
-    console.log('Auto-select useEffect triggered')
-    console.log('currentFullPlan:', currentFullPlan)
-    console.log('monthlyPlans length:', monthlyPlans.length)
-    console.log('quaterlyPlans length:', quaterlyPlans.length)
-    console.log('yearlyPlans length:', yearlyPlans.length)
 
     if (userLocalData && userLocalData.plan) {
       setTogglePlan(userLocalData.plan.planId)
@@ -369,20 +350,14 @@ function AdminBilling({ selectedUser, from }) {
         yearlyPlans.length > 0)
     ) {
       const billingCycle = getBillingCycleFromPlan(currentFullPlan)
-      console.log('Detected billing cycle from plan:', billingCycle)
-      console.log('Current plan details:', currentFullPlan)
 
       // Set the appropriate duration based on billing cycle
       let targetDuration = duration[0] // Default to monthly
       if (billingCycle === 'quarterly') {
         targetDuration = duration[1]
-        console.log('Setting quarterly duration')
       } else if (billingCycle === 'yearly') {
         targetDuration = duration[2]
-        console.log('Setting yearly duration')
-      } else {
-        console.log('Setting monthly duration (default)')
-      }
+      } else {}
 
       setSelectedDuration(targetDuration)
 
@@ -396,24 +371,17 @@ function AdminBilling({ selectedUser, from }) {
         currentPlans = yearlyPlans
       }
 
-      console.log('Target plans for billing cycle:', currentPlans)
       const matchingPlan = findMatchingPlan(currentFullPlan, currentPlans)
-      console.log('Found matching plan:', matchingPlan)
 
       if (matchingPlan) {
-        console.log('Auto-selecting plan:', matchingPlan.name)
         setTogglePlan(matchingPlan.id)
         setToggleFullPlan(matchingPlan)
         setSelectedPlan(matchingPlan)
-      } else {
-        console.log('No matching plan found')
-      }
+      } else {}
 
       // Mark that we've done the initial selection
       setInitialPlanSelectionDone(true)
-    } else {
-      console.log('Conditions not met for auto-selection')
-    }
+    } else {}
   }, [
     currentFullPlan,
     monthlyPlans,
@@ -432,19 +400,12 @@ function AdminBilling({ selectedUser, from }) {
         quaterlyPlans.length > 0 ||
         yearlyPlans.length > 0)
     ) {
-      console.log(
-        '🔄 [PLAN-SYNC] Attempting to match profile plan with plans list',
-      )
       const matchedPlan = findMatchingPlanFromAllArrays(profilePlan)
 
       if (matchedPlan) {
         matchedPlan.planId = profilePlan.planId
-        console.log('🔄 [PLAN-SYNC] Successfully matched plan:', matchedPlan)
         setCurrentFullPlan(matchedPlan)
       } else {
-        console.log(
-          '🔄 [PLAN-SYNC] No match found, using profile plan as fallback',
-        )
         setCurrentFullPlan(profilePlan)
       }
     }
@@ -491,11 +452,8 @@ function AdminBilling({ selectedUser, from }) {
         //     }
         // }
         setUserLocalData(response)
-        console.log('User get profile data is', response)
         setTogglePlan(planType)
         setCurrentPlan(planType)
-        console.log('setTogglePlan', planType)
-        // console.log('plan', plan)
       }
     } catch (error) {
       // console.error("Error in getprofile api is", error);
@@ -508,7 +466,6 @@ function AdminBilling({ selectedUser, from }) {
 
   //function to close the add card popup
   const handleClose = (data) => {
-    console.log('Data recieved is', data)
     if (data) {
       setAddPaymentPopup(false)
       window.dispatchEvent(
@@ -524,11 +481,9 @@ function AdminBilling({ selectedUser, from }) {
   //functiion to get cards list
   const getCardsList = async () => {
     if (!selectedUser?.id) {
-      console.log('No selected user, skipping getCardsList')
       return
     }
 
-    console.log('Get cards api trigered')
     try {
       setGetCardLoader(true)
 
@@ -557,7 +512,6 @@ function AdminBilling({ selectedUser, from }) {
       })
 
       if (response) {
-        console.log('Response of get cars api is', response.data)
         if (response.data.status === true) {
           setCards(response.data.data)
         }
@@ -662,8 +616,6 @@ function AdminBilling({ selectedUser, from }) {
         userId: selectedUser.id,
       }
 
-      console.log(ApiData)
-
       const ApiPath = Apis.subscribePlan
       // //console.log;
 
@@ -679,10 +631,6 @@ function AdminBilling({ selectedUser, from }) {
       if (response) {
         // console.log
         if (response.data.status === true) {
-          console.log(
-            '✅ [NEW-BILLING] Plan subscription successful:',
-            response.data.data,
-          )
           // Refresh profile and update all state
           await refreshProfileAndState()
 
@@ -943,23 +891,18 @@ function AdminBilling({ selectedUser, from }) {
   const getBillingCycleFromPlan = (plan) => {
     if (!plan) return 'monthly' // Default to monthly for free plans
 
-    console.log('Analyzing plan for billing cycle:', plan)
-
     // Check if plan has billingCycle property
     if (plan.billingCycle) {
-      console.log('Found billingCycle property:', plan.billingCycle)
       return plan.billingCycle
     }
 
     // Check if plan has billing_cycle property (alternative naming)
     if (plan.billing_cycle) {
-      console.log('Found billing_cycle property:', plan.billing_cycle)
       return plan.billing_cycle
     }
 
     // Check plan type for legacy plans
     if (plan.planType) {
-      console.log('Found planType:', plan.planType)
       // Map planType to billing cycle based on common patterns
       if (
         plan.planType.toLowerCase().includes('yearly') ||
@@ -981,7 +924,6 @@ function AdminBilling({ selectedUser, from }) {
 
     // Check plan name for billing cycle indicators
     if (plan.name) {
-      console.log('Checking plan name:', plan.name)
       if (
         plan.name.toLowerCase().includes('yearly') ||
         plan.name.toLowerCase().includes('year')
@@ -1002,11 +944,9 @@ function AdminBilling({ selectedUser, from }) {
 
     // Check if it's a free plan (default to monthly)
     if (plan.isFree || plan.price <= 0) {
-      console.log('Detected free plan, defaulting to monthly')
       return 'monthly'
     }
 
-    console.log('No billing cycle detected, defaulting to monthly')
     // Default to monthly
     return 'monthly'
   }
@@ -1014,17 +954,12 @@ function AdminBilling({ selectedUser, from }) {
   // Function to find matching plan in different billing cycles
   const findMatchingPlan = (plan, plansList) => {
     if (!plan || !plansList) {
-      console.log('findMatchingPlan: Missing plan or plansList')
       return null
     }
-
-    console.log('findMatchingPlan: Looking for plan:', plan)
-    console.log('findMatchingPlan: In plans list:', plansList)
 
     // First try to match by name
     let matchingPlan = plansList.find((p) => p.name === plan.name)
     if (matchingPlan) {
-      console.log('findMatchingPlan: Found match by name:', matchingPlan)
       return matchingPlan
     }
 
@@ -1032,7 +967,6 @@ function AdminBilling({ selectedUser, from }) {
     if (plan.planType) {
       matchingPlan = plansList.find((p) => p.planType === plan.planType)
       if (matchingPlan) {
-        console.log('findMatchingPlan: Found match by planType:', matchingPlan)
         return matchingPlan
       }
     }
@@ -1041,10 +975,6 @@ function AdminBilling({ selectedUser, from }) {
     if (plan.price <= 0 || plan.isFree) {
       matchingPlan = plansList.find((p) => p.isFree || p.price <= 0)
       if (matchingPlan) {
-        console.log(
-          'findMatchingPlan: Found match for free plan:',
-          matchingPlan,
-        )
         return matchingPlan
       }
     }
@@ -1059,15 +989,10 @@ function AdminBilling({ selectedUser, from }) {
         return planNameWords.some((word) => pNameWords.includes(word))
       })
       if (matchingPlan) {
-        console.log(
-          'findMatchingPlan: Found match by similar name:',
-          matchingPlan,
-        )
         return matchingPlan
       }
     }
 
-    console.log('findMatchingPlan: No matching plan found')
     return null
   }
 
@@ -1079,7 +1004,6 @@ function AdminBilling({ selectedUser, from }) {
     const allPlans = [...monthlyPlans, ...quaterlyPlans, ...yearlyPlans]
 
     if (allPlans.length === 0) {
-      console.log('🔍 [PLAN-MATCH] No plans available yet')
       return null
     }
 
@@ -1089,7 +1013,6 @@ function AdminBilling({ selectedUser, from }) {
         (plan) => plan.id === profilePlan.planId,
       )
       if (matchByPlanId) {
-        console.log('🔍 [PLAN-MATCH] Found by planId:', matchByPlanId)
         return matchByPlanId
       }
     }
@@ -1100,7 +1023,6 @@ function AdminBilling({ selectedUser, from }) {
         (plan) => plan.planType === profilePlan.type,
       )
       if (matchByType) {
-        console.log('🔍 [PLAN-MATCH] Found by planType:', matchByType)
         return matchByType
       }
     }
@@ -1111,12 +1033,10 @@ function AdminBilling({ selectedUser, from }) {
         (plan) => plan.name === profilePlan.title,
       )
       if (matchByTitle) {
-        console.log('🔍 [PLAN-MATCH] Found by title:', matchByTitle)
         return matchByTitle
       }
     }
 
-    console.log('🔍 [PLAN-MATCH] No matching plan found for:', profilePlan)
     return null
   }
 
@@ -1133,19 +1053,14 @@ function AdminBilling({ selectedUser, from }) {
       setShowCancelPoup(true)
     } else {
       const planComparison = comparePlans(currentFullPlan, selectedPlan)
-      console.log('🔍 [PLAN-CHANGE] Comparison result:', planComparison)
 
       if (planComparison === 'upgrade') {
         setShowUpgradeModal(true)
       } else if (planComparison === 'downgrade') {
-        console.log('🔍 [PLAN-CHANGE] Downgrade plan:', selectedPlan)
         // Set title based on target plan
         setDowngradeTitle(`Confirm ${selectedPlan?.name} Plan`)
 
-        // Calculate features that would be lost
-        console.log('🔍 [DOWNGRADE] target plan before func:', selectedPlan)
         const featuresToLose = getFeaturesToLose(currentFullPlan, selectedPlan)
-        console.log('🔍 [PLAN-CHANGE] Features to lose:', featuresToLose)
         setDowngradeFeatures(featuresToLose)
         if (featuresToLose.length > 0) {
           setShowDowngradeModal(true)
@@ -1174,23 +1089,6 @@ function AdminBilling({ selectedUser, from }) {
     // Get monthly prices (discountPrice is already per-month for all billing cycles)
     const currentPrice = currentPlan.discountPrice || currentPlan.price || 0
     const targetPrice = targetPlan.discountPrice || targetPlan.price || 0
-
-    console.log(
-      '🔍 [PLAN-COMPARE] Current plan:',
-      currentPlan.name,
-      'Price:',
-      currentPrice,
-      'Billing:',
-      currentPlan.billingCycle,
-    )
-    console.log(
-      '🔍 [PLAN-COMPARE] Target plan:',
-      targetPlan.name,
-      'Price:',
-      targetPrice,
-      'Billing:',
-      targetPlan.billingCycle,
-    )
 
     // If same plan (by ID), it's the same
     if (
@@ -1264,7 +1162,6 @@ function AdminBilling({ selectedUser, from }) {
   // Function to refresh profile and update all related state
   const refreshProfileAndState = async () => {
     try {
-      console.log('🔄 [NEW-BILLING] Refreshing profile after plan change...')
       const response = await AdminGetProfileDetails(selectedUser.id)
 
       if (response) {
@@ -1282,12 +1179,6 @@ function AdminBilling({ selectedUser, from }) {
 
         // Update pause status
         setIsPaused(plan?.pauseExpiresAt != null ? true : false)
-
-        console.log('✅ [NEW-BILLING] Profile refreshed successfully:', {
-          planId: plan?.planId,
-          planType: plan?.type,
-          planPrice: plan?.price,
-        })
 
         // Dispatch custom event to notify parent components (like AgencySubacount) to refresh selectedUser
         window.dispatchEvent(
@@ -1315,11 +1206,6 @@ function AdminBilling({ selectedUser, from }) {
 
   // Function to determine button text and action
   const getButtonConfig = () => {
-    console.log('currentPlan', currentFullPlan)
-    console.log('selectedPlan', selectedPlan)
-    console.log('isLagecyPlan(currentFullPlan)', isLagecyPlan(currentFullPlan))
-    console.log('isLagecyPlan(selectedPlan)', isLagecyPlan(selectedPlan))
-
     // If no plan is selected, show loading or disabled state
     if (!selectedPlan) {
       return {
@@ -1334,7 +1220,6 @@ function AdminBilling({ selectedUser, from }) {
 
     // Compare plans based on price
     const planComparison = comparePlans(currentFullPlan, selectedPlan)
-    console.log('🔍 [BUTTON-CONFIG] Plan comparison:', planComparison)
 
     // If still loading (currentFullPlan not ready), don't show any button
     if (planComparison === null) {
@@ -1425,7 +1310,6 @@ function AdminBilling({ selectedUser, from }) {
         message={successSnack}
         type={SnackbarTypes.Success}
       />
-
       <AgentSelectSnackMessage
         isVisible={showSnack.message == null ? false : true}
         hide={() => {
@@ -1474,7 +1358,6 @@ function AdminBilling({ selectedUser, from }) {
           </button>
         */}
       </div>
-
       {/* Payment Cards Section */}
       <div className="w-full mt-6">
         <div
@@ -1594,14 +1477,12 @@ function AdminBilling({ selectedUser, from }) {
           </div>
         )}
       </div>
-
       <SmartRefillCard
         selectedUser={selectedUser}
         isDisabled={false}
         onDisabledClick={handleSmartRefillDisabledClick}
         isFreePlan={isFreePlan()}
       />
-
       {/* code for current plans available */}
       <div className="w-full flex flex-row items-center justify-end">
         <div className="flex flex-col items-end  w-full mt-4">
@@ -1636,7 +1517,6 @@ function AdminBilling({ selectedUser, from }) {
           />
         </div>
       </div>
-
       <div
         className="w-full flex flex-row gap-4"
         style={{
@@ -1843,8 +1723,6 @@ function AdminBilling({ selectedUser, from }) {
                   <div
                     className="view-details-btn ml-auto flex px-2 py-1 rounded-full cursor-pointer hover:underline"
                     onClick={(e) => {
-                      // e.stopPropagation();
-                      console.log('View Details clicked, opening modal')
                       setShowUserPlansModal(true)
                     }}
                     style={{
@@ -1863,11 +1741,9 @@ function AdminBilling({ selectedUser, from }) {
           </div>
         ))}
       </div>
-
       <div className="w-full flex flex-row items-center justify-center gap-3 mt-8">
         {(() => {
           const buttonConfig = getButtonConfig()
-          console.log('selected plan in button config', selectedPlan)
 
           // If buttonConfig is null (still loading), show loading spinner
           if (buttonConfig === null) {
@@ -1902,7 +1778,6 @@ function AdminBilling({ selectedUser, from }) {
           )
         })()}
       </div>
-
       <LeggacyPlanUpgrade
         open={showLegacyPlanUpgrade}
         handleClose={() => setShowLegacyPlanUpgrade(false)}
@@ -1914,7 +1789,6 @@ function AdminBilling({ selectedUser, from }) {
         }}
         reduxUser={reduxUser}
       />
-
       <DowngradePlanPopup
         open={showDowngradeModal}
         handleClose={() => setShowDowngradeModal(false)}
@@ -1925,7 +1799,6 @@ function AdminBilling({ selectedUser, from }) {
         downgradeTitle={downgradeTitle}
         features={downgradeFeatures}
       />
-
       <CancelPlanAnimation
         showModal={showCancelPopup}
         handleClose={handleCloseCancelation}
@@ -1933,7 +1806,6 @@ function AdminBilling({ selectedUser, from }) {
         setShowSnak={setShowSnack}
         isPaused={isPaused}
       />
-
       <Elements stripe={stripePromise}>
         <UpgradePlan
           selectedPlan={selectedPlan}
@@ -1944,14 +1816,6 @@ function AdminBilling({ selectedUser, from }) {
 
             // If upgrade was successful, refresh profile and state
             if (upgradeResult) {
-              // setShowSnack({
-              //     message: "Upgraded to " + selectedPlan.name + " Plan",
-              //     type: SnackbarTypes.Success
-              // });
-              console.log(
-                '🔄 [NEW-BILLING] Upgrade successful, refreshing profile...',
-                upgradeResult,
-              )
               await refreshProfileAndState()
             }
           }}
@@ -1960,7 +1824,6 @@ function AdminBilling({ selectedUser, from }) {
           selectedUser={selectedUser}
         />
       </Elements>
-
       {/* Smart Refill Upgrade Modal */}
       <UpgradeModal
         title="Enable Smart Refill"
@@ -1971,13 +1834,11 @@ function AdminBilling({ selectedUser, from }) {
         onUpgradeSuccess={handleSmartRefillUpgrade}
         functionality={'smartRefill'}
       />
-
       {/* UserPlans Modal */}
       {showUserPlansModal && (
         <Modal
           open={showUserPlansModal}
           onClose={() => {
-            console.log('Modal onClose triggered')
             setShowUserPlansModal(false)
           }}
           closeAfterTransition
@@ -2035,7 +1896,6 @@ function AdminBilling({ selectedUser, from }) {
                     handleBack={() => setShowUserPlansModal(false)}
                     from="billing-modal"
                     onPlanSelected={(plan) => {
-                      console.log('Plan selected from modal:', plan)
                       // Close UserPlans modal
                       setShowUserPlansModal(false)
                       // Set the selected plan
@@ -2059,7 +1919,6 @@ function AdminBilling({ selectedUser, from }) {
           </Box>
         </Modal>
       )}
-
       {/* Add Payment Modal */}
       <Modal
         open={addPaymentPopUp} //addPaymentPopUp
@@ -2114,7 +1973,6 @@ function AdminBilling({ selectedUser, from }) {
           </div>
         </Box>
       </Modal>
-
       <LeggacyPlanUpgrade
         open={showLegacyPlanUpgrade}
         handleClose={() => setShowLegacyPlanUpgrade(false)}
@@ -2126,7 +1984,6 @@ function AdminBilling({ selectedUser, from }) {
         }}
         reduxUser={userLocalData}
       />
-
       <DowngradePlanPopup
         open={showDowngradeModal}
         handleClose={() => setShowDowngradeModal(false)}
@@ -2137,7 +1994,6 @@ function AdminBilling({ selectedUser, from }) {
         downgradeTitle={downgradeTitle}
         features={downgradeFeatures}
       />
-
       <CancelPlanAnimation
         showModal={showCancelPopup}
         handleClose={handleCloseCancelation}
@@ -2147,7 +2003,7 @@ function AdminBilling({ selectedUser, from }) {
         selectedUser={selectedUser}
       />
     </div>
-  )
+  );
 }
 
 export default AdminBilling

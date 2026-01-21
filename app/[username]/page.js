@@ -262,7 +262,7 @@ const Page = ({ length = 6, onComplete }) => {
                         }
                       }
                     })
-                    .catch(err => console.log('Error fetching branding after login:', err))
+                    .catch(() => {})
                 })
               }
             }
@@ -650,7 +650,7 @@ const Page = ({ length = 6, onComplete }) => {
             style={{ fontWeight: '500', fontSize: 11.6 }}
           >
             <div className="flex-shrink-0">
-              Copyrights @ 2025 MyAgentX. All Rights Reserved.
+              Copyrights @ 2026 MyAgentX. All Rights Reserved.
             </div>
             <button
               className="flex-shrink-0 outline-none"
@@ -706,7 +706,7 @@ const Page = ({ length = 6, onComplete }) => {
               className="flex-shrink-0 text-center"
               style={{ fontWeight: '500', fontSize: 11.6 }}
             >
-              Copyrights @ 2025 MyAgentX. All Rights Reserved.
+              Copyrights @ 2026 MyAgentX. All Rights Reserved.
             </div>
           </div>
         </div>

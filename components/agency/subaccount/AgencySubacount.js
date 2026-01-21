@@ -156,7 +156,6 @@ function AgencySubacount({ selectedAgency }) {
     const timer = setTimeout(() => {
       const scrollableDiv = document.getElementById('scrollableDiv1')
       if (!scrollableDiv) {
-        console.log('⚠️ Scrollable div not found')
         return
       }
 
@@ -173,18 +172,7 @@ function AgencySubacount({ selectedAgency }) {
           const threshold = 100
           
           // Debug logging (only when near bottom to reduce noise)
-          if (distanceFromBottom < threshold + 50) {
-            console.log('📜 Scroll near bottom:', {
-              distanceFromBottom,
-              threshold,
-              hasMore,
-              loadingMore,
-              initialLoader,
-              isLoadingMoreRef: isLoadingMoreRef.current,
-              currentOffset: currentOffsetRef.current,
-              listLength: filteredList.length,
-            })
-          }
+          if (distanceFromBottom < threshold + 50) {}
           
           if (
             distanceFromBottom < threshold &&
@@ -193,21 +181,13 @@ function AgencySubacount({ selectedAgency }) {
             !initialLoader &&
             !isLoadingMoreRef.current
           ) {
-            console.log('✅ Conditions met, loading more...')
-            
             // Get current filters and search term
             const currentFilters = appliedFilters || null
             const currentSearch = searchValue && searchValue.trim() ? searchValue.trim() : null
-            
+
             // Use ref to get current offset synchronously
             const offsetToUse = currentOffsetRef.current
-            console.log('🚀 Loading more subaccounts...', {
-              offsetToUse,
-              hasMore,
-              loadingMore,
-              isLoadingMoreRef: isLoadingMoreRef.current,
-            })
-            
+
             // Call getSubAccounts with the current offset from ref
             // Don't set the flag here - let getSubAccounts handle it
             getSubAccounts(currentFilters, currentSearch, true, offsetToUse)
@@ -235,20 +215,18 @@ function AgencySubacount({ selectedAgency }) {
   useEffect(() => {
     const handleRefreshSelectedUser = async (event) => {
       const { userId, userData } = event.detail || {}
-      
+
       // Check if this event is for any user in our subaccount list (not just selectedUser)
       const targetUserId = userId || userData?.id
       if (!targetUserId) return
-      
+
       // Find the user in our list
       const userInList = subAccountList.find((user) => user.id === targetUserId)
       if (!userInList) return
-      
-      console.log('🔄 [AGENCY-SUBACCOUNT] Refreshing subaccount after plan subscription:', targetUserId)
-      
+
       // If userData is provided, use it directly
       let refreshedData = userData
-      
+
       // Otherwise, fetch fresh data
       if (!refreshedData) {
         try {
@@ -258,13 +236,13 @@ function AgencySubacount({ selectedAgency }) {
           return
         }
       }
-      
+
       if (refreshedData) {
         // Update selectedUser if it matches
         if (selectedUser && selectedUser.id === targetUserId) {
           setSelectedUser(refreshedData)
         }
-        
+
         // Update the user in both lists
         setSubAccountsList((prevList) => {
           return prevList.map((user) => 
@@ -276,11 +254,9 @@ function AgencySubacount({ selectedAgency }) {
             user.id === targetUserId ? { ...user, ...refreshedData, plan: refreshedData.plan } : user
           )
         })
-        
+
         // Store in localStorage for other screens
         localStorage.setItem('selectedSubAccount', JSON.stringify(refreshedData))
-        
-        console.log('✅ [AGENCY-SUBACCOUNT] Subaccount updated in list:', refreshedData.plan)
       }
     }
 
@@ -325,8 +301,7 @@ function AgencySubacount({ selectedAgency }) {
           const foundUser = subAccountList.find((item) => item.id === userId)
           if (foundUser) {
             setSelectedUser(foundUser)
-            console.log('Restored subaccount modal state:', userId)
-            
+
             // Clean up restoreState after a delay to allow all components to restore
             setTimeout(() => {
               try {
@@ -340,7 +315,6 @@ function AgencySubacount({ selectedAgency }) {
                       PersistanceKeys.isFromAdminOrAgency,
                       JSON.stringify(currentState)
                     )
-                    console.log('Cleaned up restoreState from localStorage')
                   }
                 }
               } catch (error) {
@@ -421,12 +395,9 @@ function AgencySubacount({ selectedAgency }) {
       const xBars = xBarOptions || []
 
       let stripeStatus = null
-      console.log('Current checking data is', selectedAgency)
       if (selectedAgency) {
-        console.log('selected agency is', selectedAgency)
         stripeStatus = selectedAgency.stripeConnected
       } else {
-        console.log('no selected agency')
         stripeStatus = CheckStripe()
       }
 
@@ -474,24 +445,14 @@ function AgencySubacount({ selectedAgency }) {
 
   // /code for getting the subaccouts list
   const getSubAccounts = async (filterData = null, searchTerm = null, append = false, offset = 0) => {
-    console.log('🔵 Trigered get subaccounts', { filterData, searchTerm, append, offset, isLoadingMoreRef: isLoadingMoreRef.current })
-    
     // If appending (lazy load), check if already loading to prevent duplicates
     if (append) {
       if (isLoadingMoreRef.current) {
-        console.log('⚠️ Already loading more, skipping duplicate request', {
-          isLoadingMoreRef: isLoadingMoreRef.current,
-          loadingMore,
-        })
         return
       }
-      console.log('✅ Setting loading flags for append mode', {
-        offset,
-        currentOffsetRef: currentOffsetRef.current,
-      })
       setLoadingMore(true)
       isLoadingMoreRef.current = true
-      
+
       // Safety timeout to reset flag if request takes too long (10 seconds)
       setTimeout(() => {
         if (isLoadingMoreRef.current) {
@@ -545,7 +506,6 @@ function AgencySubacount({ selectedAgency }) {
         ApiPAth += '?' + queryParams.join('&')
       }
 
-      console.log('🌐 Making API request:', ApiPAth)
       const Token = AuthToken()
       const response = await axios.get(ApiPAth, {
         headers: {
@@ -553,45 +513,31 @@ function AgencySubacount({ selectedAgency }) {
           'Content-Type': 'application/json',
         },
       })
-      
-      console.log('✅ API Response received:', {
-        status: response.data?.status,
-        dataLength: response.data?.data?.length,
-        pagination: response.data?.pagination,
-      })
+
       if (response && response.data) {
         const newAccounts = response.data.data || []
         const pagination = response.data.pagination || {}
-        
+
         // Update total count
         if (pagination.total !== undefined) {
           setTotalCount(pagination.total)
         }
-        
+
         // Update hasMore based on pagination
         const currentOffset = pagination.offset || offset
         const limit = pagination.limit || 50
         const total = pagination.total || 0
         const returned = pagination.returned || newAccounts.length
-        
+
         // Calculate hasMore: if we got fewer items than requested, or if offset + returned < total
         const hasMoreData = returned === limit && (currentOffset + returned < total)
-        console.log('Pagination calculation:', {
-          currentOffset,
-          returned,
-          limit,
-          total,
-          hasMoreData,
-          calculation: `${currentOffset} + ${returned} < ${total} = ${currentOffset + returned < total}`,
-        })
         setHasMore(hasMoreData)
-        
+
         if (append) {
           // Append new accounts to existing list, preventing duplicates by ID
           setSubAccountsList((prev) => {
             const existingIds = new Set(prev.map((item) => item.id))
             const uniqueNewAccounts = newAccounts.filter((item) => !existingIds.has(item.id))
-            console.log(`Appending ${uniqueNewAccounts.length} new accounts (${newAccounts.length - uniqueNewAccounts.length} duplicates filtered)`)
             return [...prev, ...uniqueNewAccounts]
           })
           setFilteredList((prev) => {
@@ -603,7 +549,6 @@ function AgencySubacount({ selectedAgency }) {
           setPaginationOffset((prevOffset) => {
             const newOffset = prevOffset + newAccounts.length
             currentOffsetRef.current = newOffset // Update ref as well
-            console.log(`Updated offset: ${prevOffset} -> ${newOffset}`)
             return newOffset
           })
         } else {
@@ -614,11 +559,11 @@ function AgencySubacount({ selectedAgency }) {
           setPaginationOffset(newOffset)
           currentOffsetRef.current = newOffset // Update ref as well
         }
-        
+
         setInitialLoader(false)
         setLoadingMore(false)
         isLoadingMoreRef.current = false // Reset flag after request completes
-        
+
         if (filterData && !append) {
           setShowFilterModal(false)
           setShowSnackMessage('Filter Applied')
@@ -644,8 +589,6 @@ function AgencySubacount({ selectedAgency }) {
           userId: moreDropdown,
         }
 
-        console.log('Api data is', apidata)
-
         const response = await axios.post(Apis.pauseProfile, apidata, {
           headers: {
             Authorization: 'Bearer ' + u.token,
@@ -664,7 +607,6 @@ function AgencySubacount({ selectedAgency }) {
             const currentSearch = searchValue && searchValue.trim() ? searchValue.trim() : null
             getSubAccounts(currentFilters, currentSearch)
           }
-          console.log('response.data.data', response.data)
         }
       }
     } catch (error) {
@@ -687,8 +629,6 @@ function AgencySubacount({ selectedAgency }) {
         let apidata = {
           userId: moreDropdown,
         }
-        console.log('Api data is', apidata)
-        console.log('selectedItem is', selectedItem)
         // return
 
         const response = await axios.post(path, apidata, {
@@ -697,21 +637,15 @@ function AgencySubacount({ selectedAgency }) {
           },
         })
 
-        console.log('Response of del account apis is', response)
         if (response.data) {
-          console.log('Response of del account apis is', response.data)
-          
           // Check if the deleted subaccount was an internal account
           // Use selectedItem which contains the full subaccount object
           const wasInternalAccount = selectedItem?.isInternal
-          
+
           // Refresh profile data to get latest internal account count
           try {
-            console.log('🔄 Refreshing profile data after subaccount deletion...')
             const profileResponse = await getProfileDetails()
-            if (profileResponse?.data?.status === true) {
-              console.log('✅ Profile data refreshed successfully after deletion')
-            } else {
+            if (profileResponse?.data?.status === true) {} else {
               console.warn('⚠️ Profile refresh returned non-success status')
               // Fallback: update localStorage manually if profile refresh fails
               if (wasInternalAccount) {
@@ -722,7 +656,6 @@ function AgencySubacount({ selectedAgency }) {
                     if (parsedData.user) {
                       parsedData.user.hasInternalAccount = false
                       localStorage.setItem('User', JSON.stringify(parsedData))
-                      console.log('Updated hasInternalAccount to false in localStorage (fallback)')
                     }
                   } catch (error) {
                     console.error('Error updating hasInternalAccount in localStorage:', error)
@@ -741,7 +674,6 @@ function AgencySubacount({ selectedAgency }) {
                   if (parsedData.user) {
                     parsedData.user.hasInternalAccount = false
                     localStorage.setItem('User', JSON.stringify(parsedData))
-                    console.log('Updated hasInternalAccount to false in localStorage (fallback)')
                   }
                 } catch (error) {
                   console.error('Error updating hasInternalAccount in localStorage:', error)
@@ -749,20 +681,20 @@ function AgencySubacount({ selectedAgency }) {
               }
             }
           }
-          
+
           setShowSnackMessage('Sub account deleted')
           setDelLoader(false)
           setShowDelConfirmationPopup(false)
           setmoreDropdown(null)
           setSelectedItem(null)
-          
+
           // Dispatch event to notify other components about subaccount deletion
           window.dispatchEvent(
             new CustomEvent('SubAccountUpdated', {
               detail: { wasInternalAccount: wasInternalAccount },
             }),
           )
-          
+
           // Preserve search term and applied filters after delete
           const currentFilters = appliedFilters || null
           const currentSearch = searchValue && searchValue.trim() ? searchValue.trim() : null
@@ -808,7 +740,6 @@ function AgencySubacount({ selectedAgency }) {
     const localPlans = localStorage.getItem('agencyMonthlyPlans')
     if (localPlans) {
       setPlansList(JSON.parse(localPlans))
-      console.log('Plans list is', JSON.parse(localPlans))
     }
   }
 
@@ -847,20 +778,13 @@ function AgencySubacount({ selectedAgency }) {
   }, [searchTimeout])
 
   const refreshUserData = async () => {
-    console.log('🔄 REFRESH USER DATA STARTED')
     try {
-      console.log('🔄 Calling getProfileDetails...')
       const profileResponse = await getProfileDetails()
-      console.log('🔄 getProfileDetails response:', profileResponse)
 
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data
         const localData = JSON.parse(localStorage.getItem('User') || '{}')
 
-        // console.log('🔄 [CREATE-AGENT] Fresh user data received after upgrade');
-
-        // Update Redux and localStorage with fresh data
-        console.log('updating redux user', freshUserData)
         const updatedUserData = {
           token: localData.token,
           user: freshUserData,
@@ -891,10 +815,6 @@ function AgencySubacount({ selectedAgency }) {
         profileResponse = await getProfileDetails()
       }
       if (profileResponse) {
-        console.log(
-          'habibi twilio status is',
-          profileResponse?.data?.data?.isTwilioConnected,
-        )
         setAgencyData(profileResponse?.data?.data)
         if (profileResponse?.data?.data?.isTwilioConnected) {
           setNoTwillio(false)
@@ -906,7 +826,6 @@ function AgencySubacount({ selectedAgency }) {
       }
     } catch (err) {
       setInitialLoader(false)
-      console.log('Err occured in get profile at subacc screen is', err)
     }
   }
 
@@ -927,7 +846,6 @@ function AgencySubacount({ selectedAgency }) {
         type={showSnackType}
         message={showSnackMessage}
       />
-
       <div className="flex w-full flex-row items-center justify-between px-5 py-5 border-b">
         <div
           style={{
@@ -945,7 +863,6 @@ function AgencySubacount({ selectedAgency }) {
           <NotficationsDrawer />
         </div>
       </div>
-
       {/* Code for twilio warning <TwilioWarning
         // agencyData={agencyData}
         showSuccess={(d) => {
@@ -957,7 +874,6 @@ function AgencySubacount({ selectedAgency }) {
           setTwilioConnectedStatus(d.status);
         }}
       /> */}
-
       <TwillioWarning
         open={noTwillio}
         handleClose={(d) => {
@@ -976,7 +892,6 @@ function AgencySubacount({ selectedAgency }) {
       //   setShowSnackType(SnackbarTypes.Success);
       // }}
       />
-
       <div className="w-[95%] h-[90vh] rounded-lg flex flex-col items-center  p-5 bg-white shadow-md">
      
         <div
@@ -1554,7 +1469,6 @@ function AgencySubacount({ selectedAgency }) {
           handleApplyFilters={(data) => {
             setAppliedFilters(data)
             setShowFilterModal(false)
-            console.log('FilterData is', data)
             // Preserve search term when applying filters
             getSubAccounts(data, searchValue && searchValue.trim() ? searchValue.trim() : null)
           }}
@@ -1590,24 +1504,28 @@ function AgencySubacount({ selectedAgency }) {
           }}
         >
           <Box
-            className="w-11/12 p-8 rounded-[15px]"
+            className="w-11/12 p-8 rounded-[15px] max-h-[90vh] overflow-auto"
             sx={{
               ...styles.modalsStyle,
               backgroundColor: 'white',
               position: 'relative',
               zIndex: 1301, // Keep modal content above its backdrop
+              maxHeight: '90vh',
+              overflowY: 'auto',
             }}
           >
             <SelectedUserDetails
               from="subaccount"
               selectedUser={selectedUser}
-              // agencyUser={true}
               hideViewDetails={true}
               handleDel={() => {
-                // setUsers((prev) => prev.filter((u) =>
-                //     u.id != selectedUser.id
-                // ))
-                // setSelectedUser(null)
+                // Remove user from both lists
+                setSubAccountsList((prev) => prev.filter((u) => u.id !== selectedUser.id))
+                setFilteredList((prev) => prev.filter((u) => u.id !== selectedUser.id))
+                // Close the modal
+                setSelectedUser(null)
+                // Update total count
+                setTotalCount((prev) => Math.max(0, prev - 1))
               }}
               handleClose={() => {
                 setSelectedUser(null)
@@ -1617,7 +1535,7 @@ function AgencySubacount({ selectedAgency }) {
         </Modal>
       </div>
     </div>
-  )
+  );
 }
 
 export default AgencySubacount

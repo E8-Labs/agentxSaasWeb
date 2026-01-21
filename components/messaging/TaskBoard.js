@@ -370,15 +370,14 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
           animation: 'fadeIn 0.2s ease-out',
         }}
       />
-      
       {/* Task Board Modal */}
       <div
         ref={taskBoardRef}
         data-task-board
         className="fixed bg-white rounded-xl shadow-[0px_8px_24.4px_0px_rgba(0,0,0,0.10)] z-[101] flex flex-col overflow-hidden"
         style={{
-          width: '552px',
-          height: '771px',
+          width: '38vw',
+          height: '95vh',
           top: `${position.top}px`,
           right: `${position.right}px`,
           animation: 'slideInFromButton 0.3s ease-out',
@@ -421,7 +420,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
         <div className="flex-1 flex flex-col overflow-hidden min-h-0">
           {isCreating || selectedTask ? (
             /* Task Form */
-            <ScrollArea className="flex-1 px-4 py-4">
+            (<ScrollArea className="flex-1 px-4 py-4">
               <TaskForm
                 task={selectedTask}
                 teamMembers={teamMembers}
@@ -435,10 +434,10 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
                 callId={callId}
                 showButtons={false}
               />
-            </ScrollArea>
+            </ScrollArea>)
           ) : (
             /* Task List */
-            <ScrollArea className="flex-1 px-4 py-4 min-h-0">
+            (<ScrollArea className="flex-1 px-4 py-4 min-h-0">
               {loading ? (
                 <div className="flex items-center justify-center py-12">
                   <div className="text-muted-foreground">Loading tasks...</div>
@@ -463,7 +462,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
                   ))}
                 </div>
               )}
-            </ScrollArea>
+            </ScrollArea>)
           )}
 
           {/* Action Buttons - Always visible in footer */}
@@ -504,7 +503,6 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
           </div>
         </div>
       </div>
-
       <style jsx>{`
         @keyframes fadeIn {
           from {
@@ -527,7 +525,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
         }
       `}</style>
     </>
-  )
+  );
 }
 
 export default TaskBoard

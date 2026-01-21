@@ -277,8 +277,8 @@ const TaskCard = ({
               ) : (
                 <TypographyCaption
                   className={cn(
-                    'pointer-events-none',
-                    dueDateInfo?.isPastDue ? 'text-red-500 font-semibold' : 'text-muted-foreground',
+                    'pointer-events-none whitespace-nowrap',
+                    dueDateInfo?.isPastDue ? 'text-red-500 font-normal text-[12px]' : 'text-muted-foreground text-sm',
                   )}
                 >
                   {dueDateInfo ? dueDateInfo.text : 'Due Date'}
@@ -290,7 +290,7 @@ const TaskCard = ({
           <PopoverContent 
             className="w-auto p-0" 
             align="start"
-            style={{ zIndex: 200 }}
+            style={{ zIndex: 1500 }}
             onInteractOutside={(e) => {
               // Prevent handling if already saving
               if (savingRef.current || isSavingDate) {
@@ -395,7 +395,7 @@ const TaskCard = ({
                   className="w-2 h-2 rounded-full" 
                   style={{ backgroundColor: statusColors[task.status] || '#9CA3AF' }}
                 />
-                <TypographyCaption>{statusDisplayText[task.status] || task.status}</TypographyCaption>
+                <TypographyCaption className = {'whitespace-nowrap'}>{statusDisplayText[task.status] || task.status}</TypographyCaption>
               </div>
             }
             options={statusOptions.map((opt) => ({

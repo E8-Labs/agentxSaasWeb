@@ -146,7 +146,6 @@ const CampaignDetails = ({ handleContinue, handleClose }) => {
                   // onChange={handleselectBusinessType}
                   onChange={(e) => {
                     let value = e.target.value
-                    console.log('Value for business type is', value)
                     setCampaignUserCase(value)
                     setOpenBusinessTypeDropwDown(false)
                   }}
@@ -279,7 +278,7 @@ const CampaignDetails = ({ handleContinue, handleClose }) => {
         </button>
       </div>
     </div>
-  )
+  );
 }
 
 export default CampaignDetails

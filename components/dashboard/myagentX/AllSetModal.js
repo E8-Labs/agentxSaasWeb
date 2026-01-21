@@ -44,11 +44,7 @@ const AllSetModal = ({
 
   // Debug: Log fetureType when modal opens or fetureType changes
   React.useEffect(() => {
-    if (open) {
-      console.log('🔧 AllSetModal - Modal opened with fetureType:', fetureType)
-      console.log('🔧 AllSetModal - isEmbedFlow:', isEmbedFlow)
-      console.log('🔧 AllSetModal - Will show:', getAgentTypeLabel())
-    }
+    if (open) {}
   }, [open, fetureType, isEmbedFlow])
 
   const showSnackbar = (title, message, type = SnackbarTypes.Success) => {

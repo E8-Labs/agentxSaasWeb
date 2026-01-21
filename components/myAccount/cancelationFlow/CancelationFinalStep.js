@@ -1,6 +1,5 @@
 import { CircularProgress, TextField } from '@mui/material'
-import axios from 'axios'
-import Image from 'next/image'
+import axios from 'axios' 
 import React, { useRef, useState } from 'react'
 
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
@@ -12,6 +11,7 @@ import {
   completeCancelation,
   pauseSubscription,
 } from '@/components/userPlans/UserPlanServices'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 function CancelationFinalStep({
   handleContinue,
@@ -97,13 +97,8 @@ function CancelationFinalStep({
         message={showError}
       />
       <div className="flex flex-row items-center justify-center">
-        <Image
-          src={'/otherAssets/feedbackIcon2.png'}
-          height={48}
-          width={48}
-          alt="*"
-        />
-      </div>
+         {renderBrandedIcon('/otherAssets/feedbackIcon2.png', 48, 48)}
+        </div>
 
       <div className="text-xl font-semibold mt-4">One Final Step to Cancel</div>
 
@@ -132,8 +127,8 @@ function CancelationFinalStep({
                 style={{
                   border:
                     item.reason === selectReason
-                      ? '2px solid #7902DF'
-                      : '2px solid #15151510',
+                      ? '2px solid hsl(var(--brand-primary))'
+                      : '2px solid hsl(var(--border))',
                   // backgroundColor: item.reason === selectReason ? "#7902DF" : "",
                   // margin: item.reason === selectReason && "5px",
                   height: '20px',
@@ -143,7 +138,7 @@ function CancelationFinalStep({
                 <div
                   className="w-full h-full rounded-full"
                   style={{
-                    backgroundColor: item.reason === selectReason && '#7902DF',
+                    backgroundColor: item.reason === selectReason && 'hsl(var(--brand-primary))',
                     height: '12px',
                     width: '12px',
                   }}
@@ -178,19 +173,12 @@ function CancelationFinalStep({
           </div>
         ) : (
           <button
-            className="w-full flex flex-row items-center h-[50px] rounded-lg text-white justify-center mt-10"
+            className={`w-full flex flex-row items-center h-[50px] rounded-lg justify-center mt-10 ${!selectReason && (selectReason !== 'Others' || otherReasonInput) ? 'bg-gray-300 text-black' : 'bg-brand-primary text-white'}`}
             style={{
               fontWeight: '400',
               fontSize: 16.8,
               outline: 'none',
-              backgroundColor:
-                selectReason && (selectReason !== 'Others' || otherReasonInput)
-                  ? '#7902df'
-                  : '#00000050',
-              color:
-                selectReason && (selectReason !== 'Others' || otherReasonInput)
-                  ? '#ffffff'
-                  : '#000000',
+             
             }}
             onClick={() => {
               handleCancel()

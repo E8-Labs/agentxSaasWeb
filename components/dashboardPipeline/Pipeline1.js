@@ -664,7 +664,6 @@ const Pipeline1 = () => {
           setStagesList(jsonData[index].stages)
           setOldStages(jsonData[index].stages)
           setLeadsList(jsonData[index].leads)
-          console.log('Leads list is', jsonData[index].leads)
         }
         // setSelectedPipeline(jsonData[selectedPipelineIndex]);
         // setStagesList(jsonData[selectedPipelineIndex].stages);
@@ -710,19 +709,7 @@ const Pipeline1 = () => {
 
       setPipelineDetailLoader(false)
       if (response) {
-        console.log(
-          'Response of getpipeline details api is :',
-          response.data.data,
-        )
         const pipelineDetails = response.data.data
-
-        // Log pipeline type for debugging
-        console.log('🔍 Pipeline Type:', pipelineDetails.pipelineType)
-        console.log('🔍 Pipeline Details:', {
-          id: pipelineDetails.id,
-          title: pipelineDetails.title,
-          pipelineType: pipelineDetails.pipelineType,
-        })
 
         //  Merge updated details with existing pipelines list
         let updatedPipelines = PipeLines?.map((p) =>
@@ -735,27 +722,11 @@ const Pipeline1 = () => {
           selectedPipelineIndex.current == -1 ||
           pipeline.id == PipeLines[selectedPipelineIndex].id
         ) {
-          console.log(
-            'leads list in getpipeline details is',
-            pipelineDetails.leads,
-          )
-          
           // Log detailed lead information for agency_use pipeline
           if (pipelineDetails.pipelineType === 'agency_use') {
-            console.log('🔍 Agency Use Pipeline - Leads Data:')
-            pipelineDetails.leads?.forEach((lead, index) => {
-              console.log(`🔍 Lead ${index + 1}:`, {
-                leadId: lead.lead?.id,
-                firstName: lead.lead?.firstName,
-                email: lead.lead?.email,
-                phone: lead.lead?.phone,
-                agencyUseInfo: lead.lead?.agencyUseInfo,
-                planPrice: lead.lead?.agencyUseInfo?.planPrice,
-                fullLead: lead.lead,
-              })
-            })
+            pipelineDetails.leads?.forEach((lead, index) => {})
           }
-          
+
           //in admin side i was unable to find this function now if getting error related to leadscount in stage in admin and agency side then first find getpipeline details
           setLeadsCountInStage(pipelineDetails.leadsCountInStage)
           setReservedLeadsCountInStage(pipelineDetails.leadsCountInStage)
@@ -784,7 +755,6 @@ const Pipeline1 = () => {
 
   //code for get more Leads In Stage
   const getMoreLeadsInStage = async ({ stageId, offset = 0, search }) => {
-    console.log('Search value is', search)
     try {
       // return;
       const Auth = AuthToken()
@@ -796,7 +766,6 @@ const Pipeline1 = () => {
       if (appliedTeamMemberIds && appliedTeamMemberIds.length > 0) {
         ApiPath += `&teamMemberIds=${appliedTeamMemberIds.join(',')}`
       }
-      console.log(`Api path is ${ApiPath}`)
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: 'Bearer ' + Auth,
@@ -816,14 +785,10 @@ const Pipeline1 = () => {
             ...prev,
             [stageId]: newLeads.length >= 7,
           }
-          console.log('Updated hasMoreMap:', updated) // ← ✅ Console log here
           return updated
         })
 
-        console.log('New leads list is', newLeads)
-
         if (offset === 0) {
-          console.log('Set leads for search value', response.data.data)
           setLeadsList(newLeads)
           setLeadsCountInStage(response.data.leadsCountInStage)
           // setReservedLeadsCountInStage(response.data.leadsCountInStage)
@@ -831,9 +796,7 @@ const Pipeline1 = () => {
           setLeadsList([...LeadsList, ...newLeads])
         }
       }
-    } catch (error) {
-      console.log('Error occured in api is', error)
-    }
+    } catch (error) {}
   }
 
   //code for get pipeline
@@ -865,7 +828,6 @@ const Pipeline1 = () => {
       })
       if (response) {
         setInitialLoader(false)
-        console.log('Initial response', response.data.data)
 
         localStorage.setItem(
           PersistanceKeys.LocalStoragePipelines,
@@ -1056,7 +1018,6 @@ const Pipeline1 = () => {
         tags: tagsValue,
         teams: assignLeadToMember,
       }
-      console.log('add stgae api data is', ApiData)
 
       // return
 
@@ -1068,7 +1029,6 @@ const Pipeline1 = () => {
       })
 
       if (response) {
-        console.log('Response of add stage api is', response.data)
         if (response.data.status === true) {
           setLeadsCountInStage(response.data.data.leadsCountInStage)
           setReservedLeadsCountInStage(response.data.data.leadsCountInStage)
@@ -1129,16 +1089,11 @@ const Pipeline1 = () => {
         }
       })
 
-      console.log('Tags are', tagsValue)
-
       tagsValue.forEach((tag, i) => {
         if (typeof tag === 'string' && tag.trim()) {
           formData.append(`tags[${i}]`, tag.trim())
         }
       })
-
-      console.log('Teams list 1.0 is', assignToMember)
-      console.log('Teams list is', assignLeadToMember)
 
       assignLeadToMember.forEach((assignedTeam, i) => {
         formData.append(`teams[${i}]`, assignedTeam)
@@ -1146,10 +1101,7 @@ const Pipeline1 = () => {
         // }
       })
 
-      console.log('Update stage API data:')
-      for (let [key, value] of formData) {
-        console.log(`${key} = ${value}`)
-      }
+      for (let [key, value] of formData) {}
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -1159,7 +1111,6 @@ const Pipeline1 = () => {
       })
 
       if (response) {
-        console.log('Response of update stage api is', response.data)
         if (response.data.status === true) {
           setStagesList(response.data.data.stages)
           handleCloseAddStage()
@@ -1921,10 +1872,7 @@ const Pipeline1 = () => {
       setLeadsList(filteredLeads)
       setSelectedLeadsDetails(null) // Clear selected lead
       setShowDetailsModal(false) // Hide modal
-    } catch (error) {
-      console.log('error in delete lead', error)
-      // Handle error
-    }
+    } catch (error) {}
   }
 
   function handldSearch(e) {
@@ -2369,21 +2317,12 @@ const Pipeline1 = () => {
                                 <button
                                   className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
                                   onClick={() => {
-                                    console.log(
-                                      'Configure button clicked for stage:',
-                                      selectedStage,
-                                    )
-
                                     // Parse advancedConfig JSON string to get action and examples
                                     let parsedConfig = {}
                                     if (selectedStage.advancedConfig) {
                                       try {
                                         parsedConfig = JSON.parse(
                                           selectedStage.advancedConfig,
-                                        )
-                                        console.log(
-                                          'Parsed advanced config:',
-                                          parsedConfig,
                                         )
                                       } catch (error) {
                                         console.error(
@@ -2405,7 +2344,6 @@ const Pipeline1 = () => {
                                       (item) => item.tag,
                                     )
 
-                                    console.log(tagNames)
                                     setTagsValue(tagNames)
                                     // setAssignToMember(
                                     //   selectedStage?.teams[0]?.name
@@ -2424,10 +2362,6 @@ const Pipeline1 = () => {
                                     // Pre-populate sample answers if they exist
                                     const stageExamples =
                                       parsedConfig.examples || []
-                                    console.log(
-                                      'Found examples:',
-                                      stageExamples,
-                                    )
 
                                     if (
                                       stageExamples &&
@@ -2547,7 +2481,6 @@ const Pipeline1 = () => {
                                 ).length
                               }
                               next={() => {
-                                console.log('Load Next Leads')
                                 let leadsInStage = LeadsList.filter(
                                   (lead) => lead.lead.stage === stage.id,
                                 )
@@ -2641,16 +2574,7 @@ const Pipeline1 = () => {
                                           const planPrice = lead?.lead?.agencyUseInfo?.planPrice
                                           
                                           // Debug logging
-                                          if (isAgencyUse) {
-                                            console.log('🔍 Rendering lead card:', {
-                                              leadId: lead?.lead?.id,
-                                              leadName: lead?.lead?.firstName,
-                                              isAgencyUse,
-                                              planPrice,
-                                              agencyUseInfo: lead?.lead?.agencyUseInfo,
-                                              SelectedPipelineType: SelectedPipeline?.pipelineType,
-                                            })
-                                          }
+                                          if (isAgencyUse) {}
                                           
                                           return isAgencyUse && planPrice ? (
                                             <div
@@ -2836,7 +2760,7 @@ const Pipeline1 = () => {
                                                     </button>
                                                   )}
                                                 </div>
-                                              )
+                                              );
                                             })}
                                           {lead.lead.tags.length > 1 && (
                                             <div>
@@ -3668,7 +3592,19 @@ const Pipeline1 = () => {
                   </div>
                 </div>
 
-                {selectedStage?.hasLeads ? (
+                {(() => {
+                  // Check actual lead count instead of relying on cached hasLeads
+                  // This handles the case where a lead was deleted but hasLeads wasn't updated
+                  const actualLeadCount = LeadsList.filter(
+                    (lead) => lead.lead?.stage === selectedStage?.id
+                  ).length
+                  // Prioritize actual count - if we have LeadsList data, use actual count only
+                  // Only fall back to cached hasLeads if LeadsList is empty (not loaded yet)
+                  const stageHasLeads = LeadsList.length > 0 
+                    ? actualLeadCount > 0 
+                    : (selectedStage?.hasLeads || false)
+                  return stageHasLeads
+                })() ? (
                   <div>
                     <div
                       className="max-h-[60vh] overflow-auto"
@@ -4596,7 +4532,7 @@ const Pipeline1 = () => {
         </>
       )}
     </div>
-  )
+  );
 }
 
 export default Pipeline1

@@ -25,8 +25,6 @@ const ClaimNumber = ({
   AssignNumber,
   selectedUSer,
 }) => {
-
-  console.log('selectedUSer in claim number', selectedUSer)
   const stripePromise = getStripe()
   const timerRef = useRef(null)
 
@@ -53,7 +51,6 @@ const ClaimNumber = ({
   }
 
   const handleClose = (data) => {
-    console.log('data of add card', data)
     if (data) {
       setShowAddCard(false)
       handlePurchaseNumber()
@@ -63,7 +60,6 @@ const ClaimNumber = ({
 
   // function for purchasing number api
   const handlePurchaseNumber = async () => {
-    console.log('purchase number')
     // return
     try {
       setPurchaseLoader(true)
@@ -98,9 +94,7 @@ const ClaimNumber = ({
         formData.append('userId', selectedUSer?.id)
       }
 
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} === ${value}`)
-      }
+      for (let [key, value] of formData.entries()) {}
 
       //for testing
       // localStorage.setItem("purchasedNumberDetails", JSON.stringify(response.data.data));
@@ -123,13 +117,10 @@ const ClaimNumber = ({
         },
       })
 
-      console.log('Response of purchase number is', response)
       if (response) {
         // //console.log;
         if (response.data.status === true) {
-          console.log('Response of purchase number is true')
           setOpenPurchaseSuccessModal(true)
-          console.log('Previous number is', previousNumber)
           setPreviousNumber([...previousNumber, selectedPurchasedNumber])
           if (setSelectNumber) {
             setSelectNumber(selectedPurchasedNumber.phoneNumber)
@@ -244,6 +235,7 @@ const ClaimNumber = ({
       borderRadius: 2,
       border: 'none',
       outline: 'none',
+      zIndex: 1600,
     },
   }
 
@@ -255,9 +247,13 @@ const ClaimNumber = ({
         BackdropProps={{
           timeout: 1000,
           sx: {
+            // zIndex: 1400,
             backgroundColor: '#00000020',
             // //backdropFilter: "blur(20px)",
           },
+        }}
+        sx={{
+          zIndex:1500
         }}
       >
         <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.claimPopup}>
@@ -460,7 +456,6 @@ const ClaimNumber = ({
           </div>
         </Box>
       </Modal>
-
       {/* Code for Purchase number success popup */}
       <Modal
         open={openPurchaseSuccessModal}
@@ -470,11 +465,16 @@ const ClaimNumber = ({
           timeout: 1000,
           sx: {
             backgroundColor: '#00000020',
+
             // //backdropFilter: "blur(20px)",
           },
         }}
+
+        sx={{
+          zIndex:1510
+        }}
       >
-        <Box className="lg:w-6/12 sm:w-full w-6/12" sx={styles.claimPopup}>
+        <Box className="lg:w-6/12 sm:w-full w-6/12" sx={{...styles.claimPopup, zIndex:1700}}>
           <div className="flex flex-row justify-center w-full">
             <div
               className="sm:w-8/12 w-full min-h-[50vh] max-h-[80vh] flex flex-col justify-between"
@@ -505,7 +505,6 @@ const ClaimNumber = ({
           </div>
         </Box>
       </Modal>
-
       {/* Add Payment Modal */}
       <Modal
         open={showAddCard} //addPaymentPopUp
@@ -564,7 +563,7 @@ const ClaimNumber = ({
         </Box>
       </Modal>
     </div>
-  )
+  );
 }
 
 export default ClaimNumber

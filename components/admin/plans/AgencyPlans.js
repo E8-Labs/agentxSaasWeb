@@ -29,7 +29,6 @@ const AgencyPlans = () => {
     try {
       setLoading(true)
       const data = await PlanApiService.getAgencyPlans()
-      console.log('Agency Plans API Response:', data)
       setPlans(data.data || [])
     } catch (error) {
       console.error('Error fetching plans:', error)
@@ -105,7 +104,6 @@ const AgencyPlans = () => {
           Add New Plan
         </Button>
       </div>
-
       <Card>
         <CardHeader>
           <CardTitle>All Agency Plans</CardTitle>
@@ -127,7 +125,6 @@ const AgencyPlans = () => {
               </TableHeader>
               <TableBody>
                 {plans.map((plan) => {
-                  console.log('Individual Agency Plan:', plan)
                   return (
                     <TableRow key={plan.id}>
                       <TableCell className="font-medium">
@@ -199,24 +196,20 @@ const AgencyPlans = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => {
-                              // Handle view details
-                              console.log('View plan:', plan)
-                            }}
+                            onClick={() => {}}
                           >
                             <Eye className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>
                     </TableRow>
-                  )
+                  );
                 })}
               </TableBody>
             </Table>
           </div>
         </CardContent>
       </Card>
-
       {showModal && (
         <PlanModal
           plan={editingPlan}
@@ -225,7 +218,7 @@ const AgencyPlans = () => {
         />
       )}
     </div>
-  )
+  );
 }
 
 export default AgencyPlans

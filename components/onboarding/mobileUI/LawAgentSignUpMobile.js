@@ -401,39 +401,23 @@ const LawAgentSignUpMobile = ({
         setIsVisible(true)
         // //console.log;
         if (response.data.status === true) {
-          console.log(
-            '[DEBUG] Registration successful, starting affiliate tracking...',
-          )
           // CRITICAL: Clear logout flag on successful registration
           const { clearLogoutFlag } = require('@/utilities/UserUtility')
           clearLogoutFlag()
-          
+
           localStorage.setItem('User', JSON.stringify(response.data.data))
 
           if (typeof document !== 'undefined') {
             setCookie(response.data.data.user, document)
           }
 
-          // Track signup for affiliate marketing
-          console.log(
-            '[DEBUG] Checking affiliate tracking function...',
-            typeof window.agentxTrackSignup,
-          )
           if (typeof window !== 'undefined' && window.agentxTrackSignup) {
-            console.log(
-              '[DEBUG] Calling agentxTrackSignup with:',
-              userEmail,
-              userName,
-              response.data.data.user?.id,
-            )
             window.agentxTrackSignup(
               userEmail,
               userName,
               response.data.data.user?.id,
             )
-          } else {
-            console.log('[DEBUG] agentxTrackSignup not available')
-          }
+          } else {}
 
           // Clear agency UUID after successful registration
           if (agencyUuid) {
@@ -594,7 +578,7 @@ const LawAgentSignUpMobile = ({
             >
               <div style={styles.headingStyle}>{`What's your full name`}</div>
               <Input
-                placeholder="Name"
+                placeholder="Type here"
                 className="border border-[#00000010] p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userName}
@@ -653,7 +637,7 @@ const LawAgentSignUpMobile = ({
               </div>
 
               <Input
-                placeholder="Email address"
+                placeholder="Type here"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={userEmail}
@@ -779,7 +763,7 @@ const LawAgentSignUpMobile = ({
                   placeholder={
                     locationLoader
                       ? 'Loading location ...'
-                      : 'Enter Phone Number'
+                      : 'Type here'
                   }
                   disabled={loading} // Disable input if still loading
                   style={{ borderRadius: '7px' }}
@@ -823,7 +807,7 @@ const LawAgentSignUpMobile = ({
                 Name of the firm or legal practice you work with, if any.
               </div>
               <Input
-                placeholder="Name"
+                placeholder="Type here"
                 className="border border-[#00000010] rounded p-3 outline-none focus:outline-none focus:ring-0"
                 style={{ ...styles.inputStyle, marginTop: '8px' }}
                 value={companyName}

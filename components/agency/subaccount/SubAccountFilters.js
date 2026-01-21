@@ -68,7 +68,6 @@ const SubAccountFilters = ({
     const localPlans = localStorage.getItem('agencyMonthlyPlans')
     if (localPlans) {
       setPlansList(JSON.parse(localPlans))
-      console.log('Plans list is', JSON.parse(localPlans))
     }
   }
   //status
@@ -164,7 +163,6 @@ const SubAccountFilters = ({
                   value={accountStatus}
                   // label="Age"
                   onChange={(event) => {
-                    console.log('Event is', event.target.value)
                     setAccountStatus(event.target.value)
                   }}
                   displayEmpty
@@ -235,7 +233,6 @@ const SubAccountFilters = ({
                   value={selectPlanId}
                   // label="Age"
                   onChange={(event) => {
-                    console.log('Event is', event.target.value)
                     setSelectPlanId(event.target.value)
                   }}
                   displayEmpty
@@ -325,7 +322,7 @@ const SubAccountFilters = ({
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
 
 export default SubAccountFilters

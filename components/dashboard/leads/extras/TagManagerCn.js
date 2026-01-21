@@ -27,6 +27,7 @@ const TagManagerCn = ({
   onRefreshSuggestions,
   selectedUser,
   showSnackbar,
+  onLeadDetailsUpdated,
 }) => {
   const [showTagsPopover, setShowTagsPopover] = useState(false)
   const [deletePermanentLoader, setDeletePermanentLoader] = useState(null)
@@ -72,22 +73,24 @@ const TagManagerCn = ({
       const ApiPath = Apis.delLeadTagPermanently
 
 
-      const response = await axios.delete(ApiPath, {
+      const response = await axios.post(ApiPath, ApiData, {
         headers: {
         Authorization: 'Bearer ' + AuthToken,
         'Content-Type': 'application/json',
       },
-      data: ApiData,
     })
 
       if (response?.data?.status === true) {
         if(showSnackbar) {
           showSnackbar(response.data.message, SnackbarTypes.Success)
         }
-        console.log('response of delete tag permanently api is', response)
         // Refresh the suggestions list
         if (onRefreshSuggestions) {
           await onRefreshSuggestions()
+        }
+        // Update lead details to remove tag from list (lightweight update)
+        if (onLeadDetailsUpdated) {
+          await onLeadDetailsUpdated(tag)
         }
       }
     } catch (error) {

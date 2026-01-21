@@ -29,7 +29,6 @@ const TwilioTrustHub = ({
   selectedUser,
 }) => {
   useEffect(() => {
-    console.log('Should triger the get businessprofile api')
     getBusinessProfile()
 
     // Start polling every 6 seconds (silent polling)
@@ -61,7 +60,6 @@ const TwilioTrustHub = ({
 
   useEffect(() => {
     let data = getUserLocalData()
-    console.log('Data', data)
     if (data) {
       // Check if either allowTwilioIntegration or allowTwilioTrusthub is true
       const hasTwilioAccess =
@@ -69,21 +67,12 @@ const TwilioTrustHub = ({
         data.user.planCapabilities?.allowTwilioTrusthub === true
       // Show upgrade view if user doesn't have Twilio access
       let isFree = !hasTwilioAccess
-      console.log('Plan capabilities', data.user.planCapabilities)
-      console.log('allowTwilioIntegration:', data.user.planCapabilities?.allowTwilioIntegration)
-      console.log('allowTwilioTrusthub:', data.user.planCapabilities?.allowTwilioTrusthub)
-      console.log('hasTwilioAccess:', hasTwilioAccess)
       setIsFreePlan(isFree)
-      console.log('isFree', isFree)
     }
   }, [])
 
   //triger the get business profile
   useEffect(() => {
-    console.log(
-      'Hot reload status for getBusiness profile',
-      hotReloadTrustProducts,
-    )
     if (hotReloadTrustProducts) {
       getBusinessProfile()
     }
@@ -106,27 +95,19 @@ const TwilioTrustHub = ({
 
   //get the twilio profile details
   const getBusinessProfile = async (isPolling = false, d = null) => {
-    console.log('Get business profile trigered')
     if (typeof setHotReloadTrustProducts === 'function') {
       setHotReloadTrustProducts(false)
     }
-    console.log('Check 1')
     try {
-      console.log('Check 2')
       // Only show loader on initial load, not during polling
       if (!twilioHubData && !isPolling) {
         setLoader(true)
-        console.log('Check 3')
       }
-      console.log('Check 4')
       const token = AuthToken()
-      console.log('Check 5')
       let ApiPath = Apis.getBusinessProfile
-      console.log('Check 6')
       if (selectedUser) {
         ApiPath = `${Apis.getBusinessProfile}?userId=${selectedUser.id}`
       }
-      console.log('Api path for get twilio details is', ApiPath)
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: 'Bearer ' + token,
@@ -139,7 +120,6 @@ const TwilioTrustHub = ({
         if (!isPolling) {
           setLoader(false)
         }
-        console.log('Response of get business profile is', response.data)
         const ApiResponse = response.data
         if (ApiResponse.status === true) {
           setTwilioHubData(ApiResponse.data)
@@ -150,7 +130,6 @@ const TwilioTrustHub = ({
           }
         }
         if (d) {
-          console.log('show snack in get profile', d)
           setShowSnack({
             message: d.message,
             isVisible: true,
@@ -166,7 +145,6 @@ const TwilioTrustHub = ({
       if (typeof setHotReloadTrustProducts === 'function') {
         setHotReloadTrustProducts(false)
       }
-      console.log('Error occured in getBusinessProfile api is', error)
     }
   }
 
@@ -176,11 +154,9 @@ const TwilioTrustHub = ({
       setDisConnectLoader(true)
       const token = AuthToken()
       let ApiPath = Apis.disconnectTwilio
-      console.log('Selected user passed in twilio is', Boolean(selectedUser))
       if (selectedUser) {
         ApiPath = `${Apis.disconnectTwilio}`
       }
-      console.log('Apipath fr disconnect twilio is', ApiPath)
       let ApiData = {}
       if (selectedUser) {
         ApiData = {
@@ -194,7 +170,6 @@ const TwilioTrustHub = ({
         },
       })
       if (response) {
-        console.log('Response of disconnect twilio api is', response)
         const ApiResponse = response.data
         if (ApiResponse.status === true) {
           localStorage.removeItem(PersistanceKeys.twilioHubData)
@@ -226,7 +201,6 @@ const TwilioTrustHub = ({
       }
     } catch (error) {
       setDisConnectLoader(false)
-      console.log('Error occured in disconnet twilio api is', error)
     }
   }
 

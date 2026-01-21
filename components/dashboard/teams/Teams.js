@@ -29,6 +29,8 @@ import AgentSelectSnackMessage, {
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
 import StandardHeader from '@/components/common/StandardHeader'
+import PermissionManager from '@/components/permissions/PermissionManager'
+import { PermissionProvider } from '@/contexts/PermissionContext'
 import { TypographyH3 } from '@/lib/typography'
 import {
   checkPhoneNumber,
@@ -48,10 +50,10 @@ import MoreTeamMembers from '../MoreTeamMembers'
 
 function Teams({ agencyData, selectedAgency, from }) {
   const timerRef = useRef(null)
+  const openModalRef = useRef(null)
   const router = useRouter()
 
   const { user: reduxUser, setUser: setReduxUser } = useUser()
-  console.log('reduxUser is', reduxUser)
   //stores local data
   const [userLocalData, setUserLocalData] = useState(null)
 
@@ -61,6 +63,23 @@ function Teams({ agencyData, selectedAgency, from }) {
   const [openMoreDropdown, setOpenMoreDropdown] = useState(false)
   const [selectedItem, setSelectedItem] = useState("Noah's Team")
   const [openInvitePopup, setOpenInvitePopup] = useState(false)
+  
+  // Wrapper to log state changes
+  const setOpenInvitePopupWithLog = (value) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:setOpenInvitePopup',message:'setOpenInvitePopup called',data:{value, previousValue: openInvitePopup, stack: new Error().stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+    // #endregion
+    setOpenInvitePopup(value)
+  }
+  
+  // Track when openInvitePopup changes
+  useEffect(() => {
+    if (openInvitePopup) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:openInvitePopup-effect',message:'openInvitePopup state changed to true - Modal should open',data:{value: openInvitePopup, url: window.location.href},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+      // #endregion
+    }
+  }, [openInvitePopup])
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -103,6 +122,31 @@ function Teams({ agencyData, selectedAgency, from }) {
   //upgrade user plan
   const [upgradePlan, setUpgradePlan] = useState(false)
   const [showUpgradeModalMore, setShowUpgradeModalMore] = useState(false)
+
+  // Permission management
+  const [showPermissionModal, setShowPermissionModal] = useState(false)
+  const [selectedTeamMemberForPermissions, setSelectedTeamMemberForPermissions] = useState(null)
+  
+  // Permission management for invitations
+  const [showInvitationPermissionManager, setShowInvitationPermissionManager] = useState(false)
+  const [selectedInvitationPermissions, setSelectedInvitationPermissions] = useState(null)
+  
+  // Wrapper to log permission manager state changes
+  const setShowInvitationPermissionManagerWithLog = (value) => {
+    // #region agent log
+    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:setShowInvitationPermissionManager',message:'setShowInvitationPermissionManager called',data:{value, previousValue: showInvitationPermissionManager, stack: new Error().stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
+    // #endregion
+    setShowInvitationPermissionManager(value)
+  }
+  
+  // Track when showInvitationPermissionManager changes
+  useEffect(() => {
+    if (showInvitationPermissionManager) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:showInvitationPermissionManager-effect',message:'showInvitationPermissionManager changed to true - PermissionManager should open',data:{value: showInvitationPermissionManager, url: window.location.href},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
+      // #endregion
+    }
+  }, [showInvitationPermissionManager])
 
   //get local Data
   useEffect(() => {
@@ -159,23 +203,131 @@ function Teams({ agencyData, selectedAgency, from }) {
     }
   }, [])
 
+  // Set up ref callback to open modal safely
+  useEffect(() => {
+    openModalRef.current = () => {
+      setOpenInvitePopupWithLog(true)
+    }
+  }, [])
+
+  // Global form submission prevention for debugging
+  useEffect(() => {
+    const handleFormSubmit = (e) => {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:form-submit-listener',message:'Form submit detected',data:{target: e.target?.tagName, submitter: e.submitter?.tagName, url: window.location.href, defaultPrevented: e.defaultPrevented},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      // #endregion
+      console.log('🔴 Form submit detected!', {
+        target: e.target,
+        submitter: e.submitter,
+        url: window.location.href
+      })
+      // Don't prevent by default, just log for debugging
+    }
+    
+    const handleClick = (e) => {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:global-click-listener',message:'Global click detected',data:{target: e.target?.tagName, currentTarget: e.currentTarget?.tagName, hasInviteButton: e.target?.closest('[role="button"]') !== null, defaultPrevented: e.defaultPrevented},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+      // #endregion
+    }
+    
+    const handleBeforeUnload = (e) => {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:beforeunload',message:'Page unloading',data:{url: window.location.href},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+      // #endregion
+    }
+    
+    const handlePopState = (e) => {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:popstate',message:'PopState event',data:{url: window.location.href},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+      // #endregion
+    }
+    
+    // Track navigation attempts
+    const originalPush = router.push
+    const originalReplace = router.replace
+    router.push = function(...args) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:router-push',message:'Router.push called',data:{url: args[0], stack: new Error().stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      // #endregion
+      console.log('🔴 Router.push called:', args[0], new Error().stack)
+      return originalPush.apply(this, args)
+    }
+    router.replace = function(...args) {
+      // #region agent log
+      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:router-replace',message:'Router.replace called',data:{url: args[0], stack: new Error().stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      // #endregion
+      console.log('🔴 Router.replace called:', args[0], new Error().stack)
+      return originalReplace.apply(this, args)
+    }
+    
+    // Track window.location changes using Object.defineProperty
+    try {
+      const originalAssign = window.location.assign.bind(window.location)
+      const originalReplace = window.location.replace.bind(window.location)
+      const originalReload = window.location.reload.bind(window.location)
+      
+      Object.defineProperty(window.location, 'assign', {
+        value: function(...args) {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:location-assign',message:'window.location.assign called',data:{url: args[0], stack: new Error().stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+          // #endregion
+          return originalAssign(...args)
+        },
+        writable: true,
+        configurable: true
+      })
+      
+      Object.defineProperty(window.location, 'replace', {
+        value: function(...args) {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:location-replace',message:'window.location.replace called',data:{url: args[0], stack: new Error().stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+          // #endregion
+          return originalReplace(...args)
+        },
+        writable: true,
+        configurable: true
+      })
+      
+      Object.defineProperty(window.location, 'reload', {
+        value: function(...args) {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:location-reload',message:'window.location.reload called',data:{stack: new Error().stack},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'F'})}).catch(()=>{});
+          // #endregion
+          return originalReload(...args)
+        },
+        writable: true,
+        configurable: true
+      })
+    } catch (e) {
+      // If we can't override, just log that we tried
+      console.warn('Could not override window.location methods:', e)
+    }
+    
+    document.addEventListener('submit', handleFormSubmit, true)
+    document.addEventListener('click', handleClick, true)
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    window.addEventListener('popstate', handlePopState)
+    
+    return () => {
+      document.removeEventListener('submit', handleFormSubmit, true)
+      document.removeEventListener('click', handleClick, true)
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+      window.removeEventListener('popstate', handlePopState)
+      router.push = originalPush
+      router.replace = originalReplace
+    }
+  }, [router])
+
   //calling function to store and update data on redux
   // Function to refresh user data after plan upgrade
   const refreshUserData = async () => {
-    console.log('🔄 REFRESH USER DATA STARTED')
     try {
-      console.log('🔄 Calling getProfileDetails...')
       const profileResponse = await getProfileDetails()
-      console.log('🔄 getProfileDetails response:', profileResponse)
 
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data
         const localData = JSON.parse(localStorage.getItem('User') || '{}')
 
-        // console.log('🔄 [CREATE-AGENT] Fresh user data received after upgrade');
-
-        // Update Redux and localStorage with fresh data
-        console.log('updating redux user', freshUserData)
         const updatedUserData = {
           token: localData.token,
           user: freshUserData,
@@ -233,7 +385,6 @@ function Teams({ agencyData, selectedAgency, from }) {
         if (selectedAgency) {
           path = path + `?userId=${selectedAgency.id}`
         }
-        console.log('Api path for dashboard monthly plans api is', path)
 
         const response = await axios.get(path, {
           headers: {
@@ -307,12 +458,12 @@ function Teams({ agencyData, selectedAgency, from }) {
         }
 
         let path = Apis.inviteTeamMember
-        console.log('Api path for dashboard monthly plans api is', path)
 
         let apidata = {
           name: item.name,
           email: item.email,
           phone: item.phone,
+          permissions: selectedInvitationPermissions, // Include permissions if set
         }
         if (selectedAgency) {
           apidata = {
@@ -320,8 +471,6 @@ function Teams({ agencyData, selectedAgency, from }) {
             userId: selectedAgency.id,
           }
         }
-
-        console.log('Data sending in inviteteamapi is', apidata)
 
         const response = await axios.post(path, apidata, {
           headers: {
@@ -336,6 +485,7 @@ function Teams({ agencyData, selectedAgency, from }) {
             let newMember = response.data.data[0]
             // //console.log;
             // //console.log;
+            setSelectedInvitationPermissions(null) // Reset permissions after successful invitation
             setMyTeam((prev) => {
               // //console.log;
               // //console.log;
@@ -355,6 +505,7 @@ function Teams({ agencyData, selectedAgency, from }) {
             setName('')
             setEmail('')
             setPhone('')
+            setSelectedInvitationPermissions(null) // Reset permissions after successful invitation
             // getMyteam()
           } else {
             // //console.log;
@@ -507,8 +658,6 @@ function Teams({ agencyData, selectedAgency, from }) {
         }
 
         let path = Apis.deleteTeamMember
-        // //console.log;
-        console.log('Api path for dashboard monthly plans api is', path)
         const response = await axios.post(path, apidata, {
           headers: {
             Authorization: 'Bearer ' + u.token,
@@ -516,7 +665,6 @@ function Teams({ agencyData, selectedAgency, from }) {
         })
 
         if (response) {
-          console.log('Response of add team api is', response)
           setInviteTeamLoader(false)
           if (response.data.status === true) {
             // Defensive: filter out team member by id, but handle possible null/undefined
@@ -750,7 +898,6 @@ function Teams({ agencyData, selectedAgency, from }) {
             needHelp={false} />
         </div>
       */}
-
       <div
         className="flex h-[90vh] w-full flex flex-col justify-start overflow-auto pb-50"
         style={{ scrollbarWidth: 'none' }}
@@ -758,40 +905,100 @@ function Teams({ agencyData, selectedAgency, from }) {
         <div className="w-full flex flex-col items-end p-4">
           
         {myTeam.length !== 0 && (
-          <button
-            className="rounded-lg text-white bg-brand-primary px-4"
+          <div
+            role="button"
+            tabIndex={0}
+            className="rounded-lg text-white bg-brand-primary px-4 cursor-pointer"
             style={{
               fontWeight: '500',
               fontSize: '16',
               height: '35px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               // width: '173px',
-
             }}
-            onClick={() => {
-              console.log(
-                'Current team members innvite are',
-                reduxUser?.currentUsage?.maxTeamMembers,
-              )
-              console.log(
-                'MAx team members invite are',
-                reduxUser?.planCapabilities?.maxTeamMembers,
-              )
-              if (
-                reduxUser?.currentUsage?.maxTeamMembers >=
-                reduxUser?.planCapabilities?.maxTeamMembers
-              ) {
-                setShowUpgradeModalMore(true)
-                console.log('should open upgrade warning')
-              } else {
-                console.log('Should open invite')
-                setOpenInvitePopup(true)
+            onClick={(e) => {
+              // #region agent log
+              fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:invite-button-click-entry',message:'Invite button click handler entry',data:{defaultPrevented: e.defaultPrevented, bubbles: e.bubbles, cancelable: e.cancelable, target: e.target?.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+              // #endregion
+              console.log('🔵 Button clicked - starting handler')
+              e.preventDefault()
+              e.stopPropagation()
+              e.stopImmediatePropagation?.()
+              
+              // #region agent log
+              fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:invite-button-after-prevent',message:'After preventDefault/stopPropagation',data:{defaultPrevented: e.defaultPrevented, hasForm: !!e.target.closest('form')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+              // #endregion
+              
+              // Prevent any form submission
+              const form = e.target.closest('form')
+              if (form) {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:invite-button-form-found',message:'Form element found near button',data:{formId: form.id, formAction: form.action},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+                // #endregion
+                form.addEventListener('submit', (ev) => {
+                  ev.preventDefault()
+                  ev.stopPropagation()
+                  ev.stopImmediatePropagation()
+                  return false
+                }, { once: true, capture: true })
+              }
+              
+              console.log('🔵 After preventDefault')
+              
+              // Use a longer delay to ensure all event handlers have finished
+              window.setTimeout(() => {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:invite-button-setTimeout-entry',message:'setTimeout callback entry',data:{currentUsage: reduxUser?.currentUsage?.maxTeamMembers, maxMembers: reduxUser?.planCapabilities?.maxTeamMembers},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+                // #endregion
+                console.log(
+                  'Current team members innvite are',
+                  reduxUser?.currentUsage?.maxTeamMembers,
+                )
+                console.log(
+                  'MAx team members invite are',
+                  reduxUser?.planCapabilities?.maxTeamMembers,
+                )
+                if (
+                  reduxUser?.currentUsage?.maxTeamMembers >=
+                  reduxUser?.planCapabilities?.maxTeamMembers
+                ) {
+                  // #region agent log
+                  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:invite-button-upgrade-modal',message:'Setting showUpgradeModalMore to true',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+                  // #endregion
+                  setShowUpgradeModalMore(true)
+                  console.log('should open upgrade warning')
+                } else {
+                  // #region agent log
+                  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:invite-button-set-open-invite',message:'Setting openInvitePopup to true',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'})}).catch(()=>{});
+                  // #endregion
+                  console.log('Should open invite')
+                  setOpenInvitePopupWithLog(true)
+                }
+              }, 10)
+              
+              return false
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                e.stopPropagation()
+                if (
+                  reduxUser?.currentUsage?.maxTeamMembers >=
+                  reduxUser?.planCapabilities?.maxTeamMembers
+                ) {
+                  setShowUpgradeModalMore(true)
+                } else {
+                  setOpenInvitePopup(true)
+                }
               }
             }}
           >
             {agencyData?.sellSeats || userLocalData?.sellSeats
               ? `Add Team $${userLocalData.costPerSeat}/mo`
               : '+ Invite Team'}
-          </button>
+          </div>
           )}
         </div>
         {getTeamLoader ? (
@@ -948,6 +1155,23 @@ function Teams({ agencyData, selectedAgency, from }) {
                               Resend Invite
                             </MenuItem>
                           )}
+                          {(agencyData?.userRole === 'Agency' || 
+                            userLocalData?.userRole === 'Agency' ||
+                            agencyData?.userRole === 'AgentX' ||
+                            userLocalData?.userRole === 'AgentX' ||
+                            agencyData?.userRole === 'AgencySubAccount' ||
+                            userLocalData?.userRole === 'AgencySubAccount') && 
+                            popoverTeam?.invitedUserId && (
+                            <MenuItem
+                              onClick={() => {
+                                setSelectedTeamMemberForPermissions(popoverTeam)
+                                setShowPermissionModal(true)
+                                handlePopoverClose()
+                              }}
+                            >
+                              Manage Permissions
+                            </MenuItem>
+                          )}
                           <MenuItem
                             sx={{ color: 'red' }}
                             onClick={() => {
@@ -1034,42 +1258,89 @@ function Teams({ agencyData, selectedAgency, from }) {
                   </div>
                 )}
                 <div className="">
-                  <button
-                    className="rounded-lg text-white bg-brand-primary mt-8"
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    className="rounded-lg text-white bg-brand-primary mt-8 cursor-pointer"
                     style={{
                       fontWeight: '500',
                       fontSize: '16',
                       height: '50px',
                       width: '173px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
                     }}
-                    onClick={() => {
-                      // if (!reduxUser?.plan?.price) {
-                      //   console.log("No plan price")
-                      //   setShowUpgradeModal(true)
-                      //   return
-                      // }
-
-                      if (
-                        reduxUser?.planCapabilities?.allowTeamCollaboration ===
-                        false
-                      ) {
-                        console.log('should open upgrade plan')
-                        setShowUpgradeModal(true)
-                        return
+                    onClick={(e) => {
+                      console.log('🔵 Button clicked (empty state) - starting handler')
+                      e.preventDefault()
+                      e.stopPropagation()
+                      e.stopImmediatePropagation?.()
+                      
+                      // Prevent any form submission
+                      const form = e.target.closest('form')
+                      if (form) {
+                        form.addEventListener('submit', (ev) => {
+                          ev.preventDefault()
+                          ev.stopPropagation()
+                          ev.stopImmediatePropagation()
+                          return false
+                        }, { once: true, capture: true })
                       }
-                      console.log('Current team members are', currentMembers)
-                      console.log('MAx team members are', maxTeamMembers)
+                      
+                      console.log('🔵 After preventDefault (empty state)')
+                      
+                      // Use a longer delay to ensure all event handlers have finished
+                      window.setTimeout(() => {
+                        // if (!reduxUser?.plan?.price) {
+                        //   console.log("No plan price")
+                        //   setShowUpgradeModal(true)
+                        //   return
+                        // }
 
-                      if (
-                        reduxUser?.currentUsage?.maxTeamMembers >=
-                        reduxUser?.planCapabilities?.maxTeamMembers
-                      ) {
-                        console.log('should open upgrade more')
-                        setShowUpgradeModalMore(true)
-                        console.log('should open upgrade warning')
-                      } else {
-                        console.log('Should open invite')
-                        setOpenInvitePopup(true)
+                        if (
+                          reduxUser?.planCapabilities?.allowTeamCollaboration ===
+                          false
+                        ) {
+                          console.log('should open upgrade plan')
+                          setShowUpgradeModal(true)
+                          return
+                        }
+                        console.log('Current team members are', currentMembers)
+                        console.log('MAx team members are', maxTeamMembers)
+
+                        if (
+                          reduxUser?.currentUsage?.maxTeamMembers >=
+                          reduxUser?.planCapabilities?.maxTeamMembers
+                        ) {
+                          console.log('should open upgrade more')
+                          setShowUpgradeModalMore(true)
+                          console.log('should open upgrade warning')
+                        } else {
+                          console.log('Should open invite')
+                          setOpenInvitePopupWithLog(true)
+                        }
+                      }, 10)
+                      
+                      return false
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        if (
+                          reduxUser?.planCapabilities?.allowTeamCollaboration ===
+                          false
+                        ) {
+                          setShowUpgradeModal(true)
+                        } else if (
+                          reduxUser?.currentUsage?.maxTeamMembers >=
+                          reduxUser?.planCapabilities?.maxTeamMembers
+                        ) {
+                          setShowUpgradeModalMore(true)
+                        } else {
+                          setOpenInvitePopupWithLog(true)
+                        }
                       }
                     }}
                   >
@@ -1079,7 +1350,7 @@ function Teams({ agencyData, selectedAgency, from }) {
                       : agencyData?.sellSeats || userLocalData?.sellSeats
                         ? `Add Team $${userLocalData.costPerSeat}/mo`
                         : '+ Invite Team'}
-                  </button>
+                  </div>
                 </div>
 
                 <UpgradeModal
@@ -1096,14 +1367,13 @@ function Teams({ agencyData, selectedAgency, from }) {
           </div>
         )}
       </div>
-
       <MoreTeamMembers
         open={showUpgradeModalMore}
         onClose={() => {
           setShowUpgradeModalMore(false)
         }}
         onAddTeamSeat={() => {
-          setOpenInvitePopup(true)
+          setOpenInvitePopupWithLog(true)
           setShowUpgradeModalMore(false)
         }}
         onUpgrade={() => {
@@ -1114,7 +1384,6 @@ function Teams({ agencyData, selectedAgency, from }) {
           reduxUser?.planCapabilities?.costPerAdditionalTeamSeat || 10
         }
       />
-
       <UpgradePlan
         selectedPlan={null}
         setSelectedPlan={() => { }}
@@ -1122,30 +1391,64 @@ function Teams({ agencyData, selectedAgency, from }) {
         handleClose={async (upgradeResult) => {
           setShowUpgradeModal(false)
           if (upgradeResult) {
-            console.log(
-              '🔄 [NEW-BILLING] Upgrade successful, refreshing profile...',
-              upgradeResult,
-            )
             await refreshUserData()
           }
         }}
         plan={null}
-        currentFullPlan={reduxUser?.user?.plan}
+        currentFullPlan={selectedAgency?.plan || reduxUser?.user?.plan}
+        selectedUser={selectedAgency}
+        from={
+          selectedAgency?.userRole === 'AgencySubAccount' 
+            ? 'SubAccount' 
+            : selectedAgency?.userRole === 'Agency' 
+            ? 'agency' 
+            : selectedAgency?.id && reduxUser?.userRole === 'Agency' && selectedAgency?.id !== reduxUser?.id
+            ? 'SubAccount' // If selectedAgency is provided, logged-in user is agency, and selectedAgency is different from logged-in user, it's a subaccount
+            : from
+        }
       />
-
       <Modal
         open={openInvitePopup}
-        onClose={() => setOpenInvitePopup(false)}
-        closeAfterTransition
+        onClose={(e, reason) => {
+          // #region agent log
+          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:modal-onClose',message:'Modal onClose called',data:{reason, hasEvent: !!e},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+          // #endregion
+          // Prevent any default close behavior that might cause refresh
+          if (e) {
+            e.preventDefault()
+            e.stopPropagation()
+          }
+          setOpenInvitePopup(false)
+        }}
+        closeAfterTransition={false}
+        disableEscapeKeyDown={false}
         BackdropProps={{
           timeout: 500,
           sx: {
             backgroundColor: '#00000030',
             // backdropFilter: "blur(20px)",
           },
+          onClick: (e) => {
+            // Prevent backdrop click from causing issues
+            e.stopPropagation()
+          }
         }}
       >
-        <Box className="lg:w-5/12 sm:w-full w-6/12r" sx={styles.modalsStyle}>
+        <Box 
+          className="lg:w-5/12 sm:w-full w-6/12r" 
+          sx={styles.modalsStyle}
+          component="div"
+          onKeyDown={(e) => {
+            // Prevent Enter key from submitting any form
+            if (e.key === 'Enter') {
+              // #region agent log
+              fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:Modal-Box-onKeyDown',message:'Enter key pressed in Modal Box',data:{target: e.target?.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
+              // #endregion
+              e.preventDefault()
+              e.stopPropagation()
+            }
+          }}
+        >
           <AgentSelectSnackMessage
             isVisible={showError}
             hide={() => setShowError(false)}
@@ -1158,6 +1461,13 @@ function Teams({ agencyData, selectedAgency, from }) {
                 backgroundColor: '#ffffff',
 
                 borderRadius: '13px',
+              }}
+              onKeyDown={(e) => {
+                // Prevent Enter key from submitting any form
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  e.stopPropagation()
+                }
               }}
             >
               <div className="flex flex-row justify-between">
@@ -1350,6 +1660,51 @@ function Teams({ agencyData, selectedAgency, from }) {
                 </div>
               </div>
 
+              <div 
+                className="flex flex-row gap-3 mt-4"
+                onClick={(e) => {
+                  // Prevent any clicks in this container from bubbling
+                  e.stopPropagation()
+                }}
+                onMouseDown={(e) => {
+                  // Prevent mousedown from triggering form submission
+                  e.preventDefault()
+                  e.stopPropagation()
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    // #region agent log
+                    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Teams.js:set-permissions-button-click',message:'Set Permissions button clicked',data:{defaultPrevented: e.defaultPrevented, target: e.target?.tagName, hasForm: !!e.target.closest('form')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
+                    // #endregion
+                    e.preventDefault()
+                    e.stopPropagation()
+                    e.stopImmediatePropagation?.()
+                    console.log('🔵 Set Permissions button clicked')
+                    // Close the invite modal first to avoid focus trap conflicts
+                    setOpenInvitePopup(false)
+                    // Use setTimeout to defer opening permission manager
+                    setTimeout(() => {
+                      setShowInvitationPermissionManagerWithLog(true)
+                    }, 100)
+                    return false
+                  }}
+                  onMouseDown={(e) => {
+                    // Prevent mousedown from triggering form submission
+                    e.preventDefault()
+                    e.stopPropagation()
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  style={{
+                    borderColor: selectedInvitationPermissions ? 'hsl(var(--brand-primary))' : undefined,
+                    color: selectedInvitationPermissions ? 'hsl(var(--brand-primary))' : undefined,
+                  }}
+                >
+                  {selectedInvitationPermissions ? `Permissions Set (${selectedInvitationPermissions.length})` : 'Set Permissions'}
+                </button>
+              </div>
+
               {inviteTeamLoader ? (
                 <div className="flex flex-col items-center p-5">
                   <CircularProgress size={30} sx={{ color: 'hsl(var(--brand-primary))' }} />
@@ -1405,13 +1760,34 @@ function Teams({ agencyData, selectedAgency, from }) {
                 </button>
               )}
 
+              {/* PermissionManager is rendered outside the Modal to avoid conflicts */}
+              {/* <PermissionManager
+                open={showInvitationPermissionManager}
+                onClose={() => setShowInvitationPermissionManagerWithLog(false)}
+                teamMemberId={null}
+                context={
+                  agencyData?.userRole === 'Agency' ||
+                  userLocalData?.userRole === 'Agency'
+                    ? 'agency'
+                    : agencyData?.userRole === 'AgencySubAccount' ||
+                      userLocalData?.userRole === 'AgencySubAccount'
+                    ? 'subaccount_user'
+                    : 'agentx'
+                }
+                contextUserId={null}
+                onPermissionsChange={(permissions) => {
+                  setSelectedInvitationPermissions(permissions)
+                  setShowInvitationPermissionManagerWithLog(false)
+                }}
+                initialPermissions={selectedInvitationPermissions}
+              /> */}
+
               {/* Can be use full to add shadow */}
               {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
             </div>
           </div>
         </Box>
       </Modal>
-
       {/* Code for upgrade plan modal */}
       <Modal
         open={upgradePlan}
@@ -1456,7 +1832,6 @@ function Teams({ agencyData, selectedAgency, from }) {
                 // isFrom="SubAccount"
                 from="billing-modal"
                 onPlanSelected={(plan) => {
-                  console.log('Plan selected from modal:', plan)
                   // Close UserPlans modal
                   setUpgradePlan(false)
                   refreshUserData()
@@ -1472,8 +1847,65 @@ function Teams({ agencyData, selectedAgency, from }) {
           </div>
         </Box>
       </Modal>
+
+      {/* Permission Management Modal */}
+      <PermissionProvider>
+        {selectedTeamMemberForPermissions && (
+          <PermissionManager
+            open={showPermissionModal}
+            teamMemberId={selectedTeamMemberForPermissions.invitedUserId}
+            context={
+              agencyData?.userRole === 'Agency' ||
+              userLocalData?.userRole === 'Agency'
+                ? 'agency'
+                : agencyData?.userRole === 'AgencySubAccount' ||
+                  userLocalData?.userRole === 'AgencySubAccount'
+                ? 'subaccount_user'
+                : 'agentx'
+            }
+            onClose={() => {
+              setShowPermissionModal(false)
+              setSelectedTeamMemberForPermissions(null)
+            }}
+          />
+        )}
+        
+        {/* Invitation Permission Manager */}
+        <PermissionManager
+          open={showInvitationPermissionManager}
+          onClose={() => {
+            setShowInvitationPermissionManagerWithLog(false)
+            // Reopen the invite modal when permissions are closed
+            if (!selectedInvitationPermissions || selectedInvitationPermissions.length === 0) {
+              setTimeout(() => {
+                setOpenInvitePopup(true)
+              }, 100)
+            }
+          }}
+          teamMemberId={null}
+          context={
+            agencyData?.userRole === 'Agency' ||
+            userLocalData?.userRole === 'Agency'
+              ? 'agency'
+              : agencyData?.userRole === 'AgencySubAccount' ||
+                userLocalData?.userRole === 'AgencySubAccount'
+              ? 'subaccount_user'
+              : 'agentx'
+          }
+          contextUserId={null}
+          onPermissionsChange={(permissions) => {
+            setSelectedInvitationPermissions(permissions)
+            setShowInvitationPermissionManagerWithLog(false)
+            // Reopen the invite modal after permissions are set
+            setTimeout(() => {
+              setOpenInvitePopup(true)
+            }, 100)
+          }}
+          initialPermissions={selectedInvitationPermissions}
+        />
+      </PermissionProvider>
     </div>
-  )
+  );
 }
 
 export default Teams

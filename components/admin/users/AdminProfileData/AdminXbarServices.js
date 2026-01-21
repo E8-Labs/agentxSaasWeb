@@ -74,7 +74,7 @@ function AdminXbarServices({ selectedUser }) {
 
   const [role, setRole] = useState('')
   const [selectedUserDetails, setSelectedUserDetails] = useState(null)
-  const [xbarTitle, setXbarTitle] = useState('X Bar Services') // Default title
+  const [xbarTitle, setXbarTitle] = useState('Bar Services') // Default title
   const xbarDescription = "We'll help you launch the right way, integrating your systems and optimizing everything for success from day one. Get faster results, close more deals, and do it all at a price that fits your budget."
   
   useEffect(() => {
@@ -116,9 +116,7 @@ function AdminXbarServices({ selectedUser }) {
             return
           }
         }
-      } catch (error) {
-        console.log('Error getting xbar title from branding:', error)
-      }
+      } catch (error) {}
       // Default title
       setXbarTitle('X Bar Services')
     }
@@ -136,11 +134,7 @@ function AdminXbarServices({ selectedUser }) {
     }
   }, [])
 
-  useEffect(() => {
-    console.log('Passed client data is', selectedUser)
-    console.log('Toggle plan passed is', togglePlan)
-    console.log('Current plan passed is', currentPlan)
-  }, [togglePlan, currentPlan])
+  useEffect(() => {}, [togglePlan, currentPlan])
 
   useEffect(() => {
     setGetPlansLoader(true)
@@ -158,9 +152,7 @@ function AdminXbarServices({ selectedUser }) {
     }
   }, [role])
 
-  useEffect(() => {
-    console.log('Status of get plans loader is', getPlansLoader)
-  }, [getPlansLoader])
+  useEffect(() => {}, [getPlansLoader])
 
   const getPlans = async () => {
     try {
@@ -175,7 +167,6 @@ function AdminXbarServices({ selectedUser }) {
       })
 
       if (response) {
-        console.log('Response of get plans api is', response.data.data)
         setPlans(response.data.data.xbarPlans)
         setGetPlansLoader(false)
       }
@@ -192,7 +183,6 @@ function AdminXbarServices({ selectedUser }) {
       let response = await AdminGetProfileDetails(selectedUser.id)
       //console.log;
       if (response) {
-        console.log('Response of get profile apis is', response)
         setRole(response?.userRole)
         setSelectedUserDetails(response?.data?.data)
         let togglePlan = response?.supportPlan
@@ -209,13 +199,10 @@ function AdminXbarServices({ selectedUser }) {
           }
         } else {
           let type = plans?.find((item) => item?.title === togglePlan)
-          // planType = type?.id;
-          console.log('Passed support plan id is', selectedUser?.supportPlan)
           planType = selectedUser?.supportPlan
         }
         // }
         setUserLocalData(response)
-        console.log('plan type is ', response)
         setTogglePlan(planType)
         setCurrentPlan(planType)
       }
@@ -253,7 +240,6 @@ function AdminXbarServices({ selectedUser }) {
         let type = plans?.find((item) => item.id === togglePlan)
         planType = type?.id
       }
-      console.log('plan type is ', planType)
       // return
 
       setSubscribePlanLoader(true)
@@ -279,8 +265,6 @@ function AdminXbarServices({ selectedUser }) {
         supportPlan: planType,
         userId: selectedUser.id,
       }
-
-      console.log('ApiData is', ApiData)
 
       const ApiPath = Apis.purchaseSupportPlan
       // //console.log;
@@ -397,13 +381,13 @@ function AdminXbarServices({ selectedUser }) {
 
   const handleSpeakToAGenius = () => {
     console.log('Selected user details are', selectedUserDetails)
-    if (role !== 'Agency') {
+    if (role !== 'Agency' || role !== 'AgencySubAccount') {
       let url = PersistanceKeys.GlobalConsultationUrl
       if (typeof window !== 'undefined') {
         window.open(url, '_blank')
       }
     } else {
-      let url = selectedUserDetails?.agencySettings?.hireTeamUrl
+      let url = selectedUserDetails?.userSettings?.hireTeamUrl
       if (typeof window !== 'undefined') {
         window.open(url, '_blank')
       }
@@ -503,7 +487,7 @@ function AdminXbarServices({ selectedUser }) {
               <div></div>
 
               <Tooltip
-                title={`${!selectedUserDetails?.agencySettings?.hireTeamTitle && 'Unavailable'}`}
+                title={`${(!selectedUserDetails?.userSettings?.hireTeamTitle && (role !== 'AgencySubAccount' || role !== 'Agency')) && 'Unavailable'}`}
                 placement="top"
                 arrow
                 componentsProps={{

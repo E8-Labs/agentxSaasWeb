@@ -4,7 +4,6 @@ const ShowResubmitBtn = ({ status, handleOpenModal }) => {
   const [showResubMitBtn, setShowResubmitBtn] = useState(false)
 
   useEffect(() => {
-    console.log('Status passed to resubmit is', status)
     if (status === 'twilio-rejected') {
       //rejected
       setShowResubmitBtn(true)

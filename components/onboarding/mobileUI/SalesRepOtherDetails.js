@@ -41,7 +41,7 @@ function SolarRepOtherDetails({
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
-        placeholder="Your territory"
+        placeholder="Type here"
         className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
         style={{ ...styles.inputStyle }}
         value={service}
@@ -64,7 +64,7 @@ function SolarRepOtherDetails({
         autoCorrect="off"
         spellCheck="false"
         enterKeyHint="done"
-        placeholder="Company"
+        placeholder="Type here"
         className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
         style={{ ...styles.inputStyle }}
         value={companyName}

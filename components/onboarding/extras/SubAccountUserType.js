@@ -2,12 +2,9 @@ import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
 const SubAccountUserType = ({ onClose, userData, onContinue }) => {
-  console.log(userData)
   const [selectedUserType, setSelectedUserType] = useState(null)
 
-  useEffect(() => {
-    console.log('selected user', selectedUserType)
-  }, [selectedUserType])
+  useEffect(() => {}, [selectedUserType])
 
   const handleBack = () => {
     onClose(selectedUserType)

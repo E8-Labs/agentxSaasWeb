@@ -287,7 +287,6 @@ export default function SmsTemplatePanel({
           )}
         </div>
       </div>
-
       {/* SMS Template Popup */}
       {showSmsTemplatePopup && (
         <SMSTempletePopup
@@ -304,7 +303,7 @@ export default function SmsTemplatePanel({
             .map((pn: any) => ({ id: pn.id, phone: pn.phone }))}
           phoneLoading={phoneNumbersLoading}
           communicationType="sms"
-          addRow={()=>{console.log('addRow')}}
+          addRow={()=>{}}
           isEditing={isEditingTemplate}
           editingRow={editingTemplate}
           onUpdateRow={null}
@@ -315,7 +314,6 @@ export default function SmsTemplatePanel({
           selectedUser={selectedUser}
         />
       )}
-
       {/* Template Menu */}
       {selectedTemplateForMenu && (
         <Menu
@@ -353,7 +351,7 @@ export default function SmsTemplatePanel({
         </Menu>
       )}
     </>
-  )
+  );
 }
 
 

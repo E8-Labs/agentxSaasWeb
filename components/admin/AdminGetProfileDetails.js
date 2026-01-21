@@ -31,7 +31,6 @@ const AdminGetProfileDetails = async (id) => {
     if (response) {
       if (response?.data?.status === true) {
         localDetails.user = response.data.data
-        console.log('Response of get admin profile api is', response.data)
         const DataT = response.data.data
         localStorage.setItem('AdminProfileData', JSON.stringify(DataT))
         // //console.log;

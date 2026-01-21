@@ -52,6 +52,14 @@ function StandardHeader({
   // Use containerClassName if provided, otherwise use exact MessageHeader classes
   const containerClasses = containerClassName || 'w-full p-4 border-b flex flex-row items-center justify-between h-14'
 
+  const handleTaskButtonClick = () => {
+    setTaskBoardOpen(true)
+
+    window.dispatchEvent(
+      new CustomEvent('taskBoardOpen', { detail: { update: true } }),
+    )
+  }
+
   return (
     <>
       <div className={containerClasses}>
@@ -132,10 +140,10 @@ function StandardHeader({
               )}
             </button>
           )}
-          {showTasks && process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && (
+          {showTasks && (
             <button
               ref={taskButtonRef}
-              onClick={() => setTaskBoardOpen(true)}
+              onClick={handleTaskButtonClick}
               className="mb-1 hover:opacity-70 transition-opacity flex-shrink-0 relative"
             >
               <Image 
@@ -171,7 +179,12 @@ function StandardHeader({
       {showTasks && (
         <TaskBoard 
           open={taskBoardOpen} 
-          onClose={() => setTaskBoardOpen(false)}
+          onClose={() => {
+            setTaskBoardOpen(false)
+            window.dispatchEvent(
+              new CustomEvent('taskBoardClose', { detail: { update: true } }),
+            )
+          }}
           leadId={selectedThread?.leadId || leadId || null}
           threadId={selectedThread?.id || threadId || null}
           buttonRef={taskButtonRef}

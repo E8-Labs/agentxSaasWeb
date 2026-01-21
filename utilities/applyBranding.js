@@ -20,7 +20,6 @@ export const setBrandingCookie = (branding) => {
   try {
     const value = encodeURIComponent(JSON.stringify(branding))
     document.cookie = `agencyBranding=${value}; path=/; max-age=${60 * 60 * 24}; samesite=lax`
-    console.log('🍪 [setBrandingCookie] Cookie updated with branding')
   } catch (e) {
     console.error('❌ [setBrandingCookie] Error setting cookie:', e)
     // Silent fail - cookie setting is best effort
@@ -50,11 +49,6 @@ const applyBrandingStyles = (branding) => {
     // Calculate and set icon filter
     const iconFilter = calculateIconFilter(primaryColor)
     document.documentElement.style.setProperty('--icon-filter', iconFilter)
-    
-    console.log('✅ [applyBrandingStyles] Branding styles applied:', {
-      primaryColor,
-      secondaryColor,
-    })
   } catch (error) {
     console.error('❌ [applyBrandingStyles] Error applying styles:', error)
   }
@@ -72,7 +66,6 @@ export const updateBrandingCookieAndApply = (branding, skipServerCheck = false) 
 
   // Skip if server already applied branding (unless explicitly skipped)
   if (!skipServerCheck && isServerBrandingApplied()) {
-    console.log('✅ [updateBrandingCookieAndApply] Server already applied branding, skipping client-side application')
     // Still update cookie for consistency
     setBrandingCookie(branding)
     return true
@@ -86,7 +79,6 @@ export const updateBrandingCookieAndApply = (branding, skipServerCheck = false) 
   try {
     // Update localStorage
     localStorage.setItem('agencyBranding', JSON.stringify(branding))
-    console.log('💾 [updateBrandingCookieAndApply] Updated localStorage with branding')
 
     // Update cookie
     setBrandingCookie(branding)
@@ -98,7 +90,6 @@ export const updateBrandingCookieAndApply = (branding, skipServerCheck = false) 
     window.dispatchEvent(
       new CustomEvent('agencyBrandingUpdated', { detail: branding })
     )
-    console.log('📢 [updateBrandingCookieAndApply] Dispatched agencyBrandingUpdated event')
 
     return true
   } catch (error) {
@@ -116,7 +107,6 @@ export const applyBrandingFromResponse = (responseData) => {
 
   // Skip if server already applied branding
   if (isServerBrandingApplied()) {
-    console.log('✅ [applyBranding] Server already applied branding, skipping client-side application')
     return true
   }
 

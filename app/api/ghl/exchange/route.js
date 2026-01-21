@@ -77,10 +77,8 @@ import { NextResponse } from 'next/server'
 import { parseOAuthState } from '@/utils/oauthState'
 
 export async function GET(req) {
-  console.log('Trigered the Exchange token file')
   const { searchParams } = new URL(req.url)
   const redirectUri = searchParams.get('redirect_uri') ?? '' // This is the custom domain redirect URI
-  console.log('Redirect url of GHL calendar is', redirectUri)
   const code = searchParams.get('code')
   const state = searchParams.get('state')
 
@@ -103,13 +101,13 @@ export async function GET(req) {
     }),
   }).catch(() => {})
   // #endregion agent log
-  
+
   if (!code)
     return NextResponse.json({ error: 'Missing code' }, { status: 400 })
 
   // Parse state to get the approved redirect URI (the one registered in GHL console)
   const stateData = state ? parseOAuthState(state) : null
-  
+
   // For GHL token exchange, we MUST use the approved redirect URI (dev.assignx.ai or app.assignx.ai)
   // NOT the custom domain redirect URI
   // The approved redirect URI is what was used in the initial OAuth authorization request
@@ -117,9 +115,6 @@ export async function GET(req) {
   const approvedRedirectUri = isProduction
     ? 'https://app.assignx.ai/dashboard/myAgentX'
     : 'https://dev.assignx.ai/dashboard/myAgentX'
-  
-  console.log('Using approved redirect URI for GHL token exchange:', approvedRedirectUri)
-  console.log('Custom domain redirect URI (for redirect back):', redirectUri)
 
   // #region agent log
   fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
@@ -160,10 +155,6 @@ export async function GET(req) {
   })
 
   const json = await r.json()
-  console.log('R of GHL Auth api in json is', json)
-  console.log('R of GHL Auth api simple is', r)
-  console.log('GHL Token Exchange Response Status:', r.status)
-  console.log('GHL Token Exchange Response Body:', JSON.stringify(json, null, 2))
 
   // #region agent log
   fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
@@ -186,7 +177,7 @@ export async function GET(req) {
     }),
   }).catch(() => {})
   // #endregion agent log
-  
+
   if (!r.ok) {
     console.error('❌ GHL Token Exchange Failed:')
     console.error('- Status:', r.status)
@@ -201,15 +192,13 @@ export async function GET(req) {
   // Build redirect URL back to original page (custom domain)
   // Use originalRedirectUri from state if available, otherwise use the redirectUri param
   const originalRedirectUri = stateData?.originalRedirectUri || redirectUri
-  
+
   let redirectBackUrl = originalRedirectUri
   if (!redirectBackUrl) {
     // Fallback: use current origin + /dashboard/myAgentX
     const currentUrl = new URL(req.url)
     redirectBackUrl = `${currentUrl.origin}/dashboard/myAgentX`
   }
-  
-  console.log('Redirecting back to:', redirectBackUrl)
 
   // Add success parameter to indicate OAuth completed
   const redirectUrl = new URL(redirectBackUrl)
@@ -236,7 +225,7 @@ export async function GET(req) {
     }),
   }).catch(() => {})
   // #endregion agent log
-  
+
   // ALWAYS return HTML instead of server-side redirect
   // This preserves window.opener context for popups (works on dev.assignx.ai and custom domains)
   // The client-side script will detect if it's a popup and handle accordingly
@@ -246,7 +235,6 @@ export async function GET(req) {
   <title>GHL OAuth Success</title>
   <script>
     (function() {
-      console.log('🚨 [GHL Exchange] Popup handler script running');
       var locationId = ${json.locationId ? `'${json.locationId}'` : 'null'};
       var redirectUrl = '${redirectUrl.toString().replace(/'/g, "\\'")}';
       
@@ -255,8 +243,6 @@ export async function GET(req) {
       var hasOpener = typeof window.opener !== 'undefined' && window.opener !== null;
       
       if (isPopup || hasOpener) {
-        console.log('🚨 [GHL Exchange] In popup, sending message and closing');
-        
         // Send message to parent window
         // Use '*' as origin to work across dev.assignx.ai and custom domains
         try {
@@ -267,15 +253,12 @@ export async function GET(req) {
                 type: 'GHL_OAUTH_SUCCESS',
                 locationId: locationId
               }, window.location.origin);
-              console.log('🚨 [GHL Exchange] Message sent to parent (same origin)');
             } catch (e) {
               // If same origin fails, try wildcard (for cross-domain scenarios)
-              console.log('🚨 [GHL Exchange] Same origin failed, trying wildcard:', e);
               window.opener.postMessage({
                 type: 'GHL_OAUTH_SUCCESS',
                 locationId: locationId
               }, '*');
-              console.log('🚨 [GHL Exchange] Message sent to parent (wildcard)');
             }
           }
         } catch (e) {
@@ -288,14 +271,11 @@ export async function GET(req) {
           closeAttempts++;
           try {
             window.close();
-            console.log('🚨 [GHL Exchange] Popup close attempted (' + closeAttempts + ')');
-            
             // If close doesn't work, focus parent
             setTimeout(function() {
               if (!window.closed && window.opener && !window.opener.closed) {
                 try {
                   window.opener.focus();
-                  console.log('🚨 [GHL Exchange] Focused parent as fallback');
                 } catch (e) {
                   console.error('🚨 [GHL Exchange] Error focusing parent:', e);
                 }
@@ -321,7 +301,6 @@ export async function GET(req) {
         setTimeout(tryClose, 1000);
       } else {
         // Not a popup, redirect normally
-        console.log('🚨 [GHL Exchange] Not a popup, redirecting normally');
         window.location.href = redirectUrl;
       }
     })();
@@ -331,14 +310,14 @@ export async function GET(req) {
   <p>Completing authentication...</p>
 </body>
 </html>`
-  
+
   const res = new NextResponse(html, {
     status: 200,
     headers: {
       'Content-Type': 'text/html',
     },
   })
-  
+
   // Set cookies
   res.cookies.set('ghl_access_token', json.access_token, {
     httpOnly: true,
@@ -365,8 +344,7 @@ export async function GET(req) {
       maxAge,
     })
   }
-  
-  console.log('✅ GHL OAuth exchange successful, returning HTML (popup detection on client-side)')
+
   return res
 
   res.cookies.set('ghl_access_token', json.access_token, {
@@ -395,6 +373,5 @@ export async function GET(req) {
     })
   }
 
-  console.log('✅ GHL OAuth exchange successful, redirecting to:', redirectUrl.toString())
   return res
 }

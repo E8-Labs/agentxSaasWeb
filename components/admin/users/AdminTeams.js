@@ -28,6 +28,9 @@ import { logout } from '@/utilities/UserUtility'
 import { formatPhoneNumber } from '@/utilities/agentUtilities'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import UpgradeModal from '@/constants/UpgradeModal'
+import UpgradePlan from '@/components/userPlans/UpgradePlan'
+import { Elements } from '@stripe/react-stripe-js'
+import { getStripe } from '@/lib/stripe'
 
 function AdminTeam({ selectedUser, agencyUser }) {
   const timerRef = useRef(null)
@@ -64,7 +67,8 @@ function AdminTeam({ selectedUser, agencyUser }) {
   const [countryCode, setCountryCode] = useState('') // Default country
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
-  const [showUpgradeModalMore, setShowUpgradeModalMore] = useState(false) 
+  const [showUpgradeModalMore, setShowUpgradeModalMore] = useState(false)
+  const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false) 
 
   const [selectedUserDetails, setSelectedUserDetails] = useState(null)
 
@@ -77,6 +81,7 @@ function AdminTeam({ selectedUser, agencyUser }) {
   const getUserDetails = async () => {
     try {
       const response = await AdminGetProfileDetails(selectedUser.id)
+      console.log("Response from getUserDetails", response)
       setSelectedUserDetails(response)
       agencyData = response
     } catch (error) {
@@ -148,7 +153,6 @@ function AdminTeam({ selectedUser, agencyUser }) {
 
         let path = Apis.getTeam
         path = path + '?userId=' + selectedUser.id
-        console.log('Api path for get admin team members is', path)
 
         const response = await axios.get(path, {
           headers: {
@@ -158,7 +162,6 @@ function AdminTeam({ selectedUser, agencyUser }) {
 
         if (response) {
           setGetTeamLoader(false)
-          console.log('Response os get admin team members is', response?.data)
           if (response.data.status === true) {
             //console.log;
             let admin = response.data.admin
@@ -211,8 +214,6 @@ function AdminTeam({ selectedUser, agencyUser }) {
           userId: selectedUser.id,
         }
 
-        console.log('api data is', apidata)
-
         const response = await axios.post(path, apidata, {
           headers: {
             Authorization: 'Bearer ' + u.token,
@@ -220,7 +221,6 @@ function AdminTeam({ selectedUser, agencyUser }) {
         })
 
         if (response) {
-          console.log('response of invite team api is', response)
           setInviteTeamLoader(false)
           // return
           if (response.data.status === true) {
@@ -366,9 +366,10 @@ function AdminTeam({ selectedUser, agencyUser }) {
     let phoneNumber = team.phone
     let apidata = {
       phone: phoneNumber,
+      userId: selectedUser.id,
     }
 
-    // //console.log;
+    console.log('api data is', apidata)
     // return;
 
     try {
@@ -414,14 +415,14 @@ function AdminTeam({ selectedUser, agencyUser }) {
               router.push('/')
             }
           } else {
-            // //console.log;
+            console.log('error in delete team member api is', response.data)
           }
         }
       }
     } catch (e) {
       setInviteTeamLoader(false)
       //// //console.log
-      // //console.log;
+      console.log('error in delete team member api is', e)
     }
   }
 
@@ -827,32 +828,29 @@ function AdminTeam({ selectedUser, agencyUser }) {
                       width: '173px',
                     }}
                     onClick={() => {
-                      // if (!selectedUserDetails?.plan?.price) {
-                      //   console.log("No plan price")
-                      //   setShowUpgradeModal(true)
-                      //   return
-                      // }
+                      // Logic: 
+                      // 1. If user doesn't have access to teams → Open UpgradePlan modal immediately
+                      // 2. If user has access but hit max limit → Show "You've Hit Your Members Limit" modal
+                      // 3. Otherwise → Open invite popup
 
                       if (
                         selectedUserDetails?.planCapabilities?.allowTeamCollaboration ===
                         false
                       ) {
-                        console.log('should open upgrade plan')
-                        setShowUpgradeModal(true)
+                        // User doesn't have access to teams - open UpgradePlan modal
+                        setShowUpgradePlanModal(true)
+                        console.log("Opening UpgradePlan modal", selectedUserDetails)
                         return
                       }
-                      console.log('Current team members are', selectedUserDetails?.currentUsage?.maxTeamMembers)
-                      console.log('MAx team members are', selectedUserDetails?.planCapabilities?.maxTeamMembers)
 
                       if (
                         selectedUserDetails?.currentUsage?.maxTeamMembers >=
                         selectedUserDetails?.planCapabilities?.maxTeamMembers
                       ) {
-                        console.log('should open upgrade more')
+                        // User has access but hit max limit - show limit modal
                         setShowUpgradeModalMore(true)
-                        console.log('should open upgrade warning')
                       } else {
-                        console.log('Should open invite')
+                        // User has access and hasn't hit limit - open invite popup
                         setOpenInvitePopup(true)
                       }
                     }}
@@ -867,9 +865,9 @@ function AdminTeam({ selectedUser, agencyUser }) {
                 </div>
 
                 <UpgradeModal
-                  open={false}
+                  open={showUpgradeModalMore}
                   handleClose={() => {
-                    setShowUpgradeModal(false)
+                    setShowUpgradeModalMore(false)
                   }}
                   title={"You've Hit Your Members Limit"}
                   subTitle={'Upgrade to add more team members'}
@@ -880,7 +878,6 @@ function AdminTeam({ selectedUser, agencyUser }) {
           </div>
         )}
       </div>
-
       <Modal
         open={openInvitePopup}
         onClose={() => setOpenInvitePopup(false)}
@@ -1166,8 +1163,28 @@ function AdminTeam({ selectedUser, agencyUser }) {
           </div>
         </Box>
       </Modal>
+
+      {/* UpgradePlan Modal - For users without team access */}
+      {showUpgradePlanModal && (
+        <Elements stripe={getStripe()}>
+        <UpgradePlan
+          open={showUpgradePlanModal}
+          handleClose={async (upgradeResult) => {
+            setShowUpgradePlanModal(false)
+            if (upgradeResult) {
+              // Refresh user details after successful upgrade
+              await getUserDetails()
+            }
+          }}
+          selectedUser={selectedUserDetails}
+          currentFullPlan={selectedUserDetails?.plan}
+          from={selectedUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : selectedUser?.userRole === 'Agency' ? 'agency' : 'User'}
+        />
+      </Elements>
+      )}
+      
     </div>
-  )
+  );
 }
 
 export default AdminTeam

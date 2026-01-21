@@ -45,7 +45,6 @@ function AdminPhoneNumber({ selectedUser }) {
       try {
         setLoading(true)
         let path = Apis.userAvailablePhoneNumber + '?userId=' + selectedUser.id
-        console.log('path', path)
         const response = await axios.get(path, {
           headers: {
             Authorization: 'Bearer ' + u.token,
@@ -54,7 +53,6 @@ function AdminPhoneNumber({ selectedUser }) {
         if (response) {
           setLoading(false)
           if (response.data.status === true) {
-            console.log('response', response.data.data)
             setNumbers(response.data.data)
           } else {
             //console.log
@@ -127,10 +125,10 @@ function AdminPhoneNumber({ selectedUser }) {
 
   return (
     <div
-      className="w-full flex flex-col items-start px-8 py-2"
+      className="w-full flex flex-col items-start px-8 py-2 h-screen"
       style={{
         paddingBottom: '50px',
-        height: '100%',
+
         overflow: 'auto',
         scrollbarWidth: 'none',
       }}

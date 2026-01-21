@@ -418,39 +418,23 @@ const DebtCollectorAgentSignUp = ({
         setIsVisible(true)
         // //console.log;
         if (response.data.status === true) {
-          console.log(
-            '[DEBUG] Registration successful, starting affiliate tracking...',
-          )
           // CRITICAL: Clear logout flag on successful registration
           const { clearLogoutFlag } = require('@/utilities/UserUtility')
           clearLogoutFlag()
-          
+
           localStorage.setItem('User', JSON.stringify(response.data.data))
 
           if (typeof document !== 'undefined') {
             setCookie(response.data.data.user, document)
           }
 
-          // Track signup for affiliate marketing
-          console.log(
-            '[DEBUG] Checking affiliate tracking function...',
-            typeof window.agentxTrackSignup,
-          )
           if (typeof window !== 'undefined' && window.agentxTrackSignup) {
-            console.log(
-              '[DEBUG] Calling agentxTrackSignup with:',
-              userEmail,
-              userName,
-              response.data.data.user?.id,
-            )
             window.agentxTrackSignup(
               userEmail,
               userName,
               response.data.data.user?.id,
             )
-          } else {
-            console.log('[DEBUG] agentxTrackSignup not available')
-          }
+          } else {}
 
           // Clear agency UUID after successful registration
           if (agencyUuid) {
@@ -477,14 +461,10 @@ const DebtCollectorAgentSignUp = ({
                 JSON.stringify(response.data.data),
               )
             }
-            // CRITICAL: Redirect FIRST, before showing popup
-            // This ensures redirect happens even if popup blocks execution
-            console.log('✅ Registration successful, redirecting to: /createagent')
-            
+
             // Redirect immediately - don't wait for anything
             const performRedirect = () => {
               try {
-                console.log('🔄 Attempting redirect to /createagent')
                 window.location.href = '/createagent'
               } catch (error) {
                 console.error('❌ Error with window.location.href:', error)
@@ -500,13 +480,13 @@ const DebtCollectorAgentSignUp = ({
                 }
               }
             }
-            
+
             // Execute redirect immediately (synchronous)
             performRedirect()
-            
+
             // Show popup AFTER redirect is initiated (non-blocking)
             handleShowRedirectPopup()
-            
+
             // Fallback: Force redirect after 200ms if still on onboarding page
             setTimeout(() => {
               const currentPath = window.location.pathname
@@ -515,7 +495,7 @@ const DebtCollectorAgentSignUp = ({
                 window.location.replace('/createagent')
               }
             }, 200)
-            
+
             // Final fallback: Force redirect after 800ms
             setTimeout(() => {
               const currentPath = window.location.pathname

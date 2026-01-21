@@ -20,7 +20,6 @@ const AllowSmartRefillPopup = ({
   useEffect(() => {
     const localData = userLocalData()
     if (localData) {
-      console.log('Local data', localData)
       setUserLocalDetails(localData)
     }
   }, [])
@@ -81,7 +80,6 @@ const AllowSmartRefillPopup = ({
               className="w-1/2 outline-none border rounded-lg h-[50px]"
               onClick={() => {
                 if (smartRefillLoader) {
-                  console.log('smartRefillLoader is true')
                   return
                 }
                 handleSmartRefillLater()
@@ -100,7 +98,6 @@ const AllowSmartRefillPopup = ({
               className="w-1/2 outline-none border-none bg-purple rounded-md h-[50px] text-white"
               onClick={() => {
                 if (smartRefillLoaderLater) {
-                  console.log('smartRefillLoaderLater is true')
                   return
                 }
                 handleSmartRefill()
@@ -112,7 +109,7 @@ const AllowSmartRefillPopup = ({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default AllowSmartRefillPopup

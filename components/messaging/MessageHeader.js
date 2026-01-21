@@ -13,8 +13,6 @@ function MessageHeader({ selectedThread = null, selectedUser = null }) {
     const taskButtonRef = useRef(null)
 
 
-    console.log('selectedUser is  in MessageHeader', selectedUser)
-    
     // Get task status for indicator dots
     const { hasActiveTasks, hasPastDueTasks } = useTaskStatus(
         selectedThread?.leadId || null,

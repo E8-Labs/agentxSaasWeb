@@ -106,8 +106,6 @@ function AdminTransactions() {
         const newData = response.data.data.transactions
         const newSummary = response.data.data.summary
 
-        console.log('Transactions response:', response.data)
-
         if (resetData) {
           setTransactions(newData)
           setPage(1)
@@ -230,7 +228,6 @@ function AdminTransactions() {
       <div className="py-4 px-10" style={{ fontSize: 24, fontWeight: '600' }}>
         Transactions
       </div>
-
       {/* Summary Cards */}
       {summary.totalTransactions > 0 && (
         <div className="px-10 mb-6">
@@ -257,7 +254,6 @@ function AdminTransactions() {
           </div>
         </div>
       )}
-
       {/* Filters */}
       <div className="px-10 mb-6">
         <div className="bg-white rounded-lg p-4 shadow">
@@ -377,7 +373,6 @@ function AdminTransactions() {
           </div>
         </div>
       </div>
-
       {/* Table Header */}
       <div className="w-full flex flex-row mt-3 px-10 bg-gray-50 py-3">
         <div className="w-[15%]">
@@ -412,7 +407,6 @@ function AdminTransactions() {
           <div style={styles.header}>Actions</div>
         </div>
       </div>
-
       {/* Table Content */}
       <div className="h-[60vh] overflow-auto" id="transactionsScrollDiv">
         {transactions.length > 0
@@ -427,7 +421,6 @@ function AdminTransactions() {
                     className="cursor-pointer hover:text-blue-600"
                     onClick={() => {
                       setSelectedAgency(transaction)
-                      console.log('Navigate to agency:', transaction.agencyId)
                     }}
                   >
                     {transaction.agencyName}
@@ -438,14 +431,7 @@ function AdminTransactions() {
                   <div
                     style={styles.cellLink}
                     className="cursor-pointer hover:text-blue-600"
-                    onClick={() => {
-                      // TODO: Redirect to subaccount details
-                      console.log(
-                        'Navigate to subaccount:',
-                        transaction.subaccountId,
-                      )
-                      // setSelectedSubAccount(transaction)
-                    }}
+                    onClick={() => {}}
                   >
                     {transaction.subaccountName}
                   </div>
@@ -583,7 +569,6 @@ function AdminTransactions() {
           </div>
         )}
       </div>
-
       <Modal
         open={selectedAgency ? true : false}
         onClose={() => {
@@ -624,8 +609,6 @@ function AdminTransactions() {
               setSelectedAgency(null)
             }}
             handlePauseUser={(d) => {
-              console.log('User paused')
-
               const updatedStatus =
                 selectedAgency.profile_status === 'active' ? 'paused' : 'active'
 
@@ -645,7 +628,6 @@ function AdminTransactions() {
           />
         </Box>
       </Modal>
-
       <Modal
         open={selectedSubAccount ? true : false}
         onClose={() => {
@@ -680,8 +662,6 @@ function AdminTransactions() {
               setSelectedSubAccount(null)
             }}
             handlePauseUser={(d) => {
-              console.log('User paused')
-
               const updatedStatus =
                 transactions.profile_status === 'active' ? 'paused' : 'active'
 
@@ -705,7 +685,7 @@ function AdminTransactions() {
         </Box>
       </Modal>
     </div>
-  )
+  );
 }
 
 export default AdminTransactions

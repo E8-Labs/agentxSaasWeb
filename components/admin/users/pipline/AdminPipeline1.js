@@ -610,14 +610,8 @@ const AdminPipeline1 = ({ selectedUser }) => {
       })
 
       if (response) {
-        //updated logic same like users side
-        console.log('Initial response', response.data.data)
         setInitialLoader(false)
         const pipelineDetails = response.data.data
-        console.log(
-          'Leads count in stages are',
-          pipelineDetails[0].leadsCountInStage,
-        )
         setLeadsCountInStage(pipelineDetails[0].leadsCountInStage)
 
         localStorage.setItem(
@@ -801,16 +795,11 @@ const AdminPipeline1 = ({ selectedUser }) => {
         }
       })
 
-      console.log('Tags are', tagsValue)
-
       tagsValue.forEach((tag, i) => {
         if (typeof tag === 'string' && tag.trim()) {
           formData.append(`tags[${i}]`, tag.trim())
         }
       })
-
-      console.log('Teams list 1.0 is', assignToMember)
-      console.log('Teams list is', assignLeadToMember)
 
       assignLeadToMember.forEach((assignedTeam, i) => {
         formData.append(`teams[${i}]`, assignedTeam)
@@ -818,10 +807,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
         // }
       })
 
-      console.log('Update stage API data:')
-      for (let [key, value] of formData) {
-        console.log(`${key} = ${value}`)
-      }
+      for (let [key, value] of formData) {}
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -831,7 +817,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
       })
 
       if (response) {
-        console.log('Response of update stage api is', response.data)
         if (response.data.status === true) {
           setStagesList(response.data.data.stages)
           handleCloseAddStage()
@@ -1714,7 +1699,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
       } else if (search) {
         ApiPath = `${Apis.getLeadsInStage}?stageId=${stageId}&search=${search}`
       }
-      console.log(`Api path is ${ApiPath}`)
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: 'Bearer ' + Auth,
@@ -1733,15 +1717,12 @@ const AdminPipeline1 = ({ selectedUser }) => {
           [stageId]: newLeads.length >= 10,
         }))
         if (search) {
-          console.log('Set leads for search value')
           setLeadsList(newLeads)
         } else {
           setLeadsList([...LeadsList, ...newLeads])
         }
       }
-    } catch (error) {
-      console.log('Error occured in api is', error)
-    }
+    } catch (error) {}
   }
 
   const styles = {
@@ -1789,7 +1770,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
   }
 
   return (
-    <div className="w-full flex flex-col items-start h-full mt-2">
+    <div className="w-full flex flex-col items-start h-screen mt-[18vh]">
       {/* Slider code */}
       <div
         style={{
@@ -1999,7 +1980,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
           </div>
         </div>
       </div>
-
       {initialLoader ? (
         <div className="w-full flex flex-row justify-center mt-12">
           <CircularProgress size={35} />
@@ -2184,21 +2164,12 @@ const AdminPipeline1 = ({ selectedUser }) => {
                             <button
                               className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
                               onClick={() => {
-                                console.log(
-                                  'Configure button clicked for stage:',
-                                  selectedStage,
-                                )
-
                                 // Parse advancedConfig JSON string to get action and examples
                                 let parsedConfig = {}
                                 if (selectedStage.advancedConfig) {
                                   try {
                                     parsedConfig = JSON.parse(
                                       selectedStage.advancedConfig,
-                                    )
-                                    console.log(
-                                      'Parsed advanced config:',
-                                      parsedConfig,
                                     )
                                   } catch (error) {
                                     console.error(
@@ -2218,7 +2189,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
 
                                 const tagNames = tags.map((item) => item.tag)
 
-                                console.log(tagNames)
                                 setTagsValue(tagNames)
                                 // setAssignToMember(
                                 //   selectedStage?.teams[0]?.name
@@ -2237,7 +2207,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                 // Pre-populate sample answers if they exist
                                 const stageExamples =
                                   parsedConfig.examples || []
-                                console.log('Found examples:', stageExamples)
 
                                 if (stageExamples && stageExamples.length > 0) {
                                   const updatedInputs = inputs.map(
@@ -2350,7 +2319,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
                             ).length
                           }
                           next={() => {
-                            console.log('Load Next Leads')
                             let leadsInStage = LeadsList.filter(
                               (lead) => lead.lead.stage === stage.id,
                             )
@@ -2445,12 +2413,14 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                         </div>
                                       )}
                                   </div>
-                                  <div className="flex flex-row items-center gap-0.5">
+                                  {
+                                    lead.agent && (
+                                  <div className="flex flex-row items-center gap-2">
                                     {getAgentsListImage(
                                       lead.agent?.agents[0]?.agentType ===
                                         'outbound'
                                         ? lead.agent?.agents[0]
-                                        : lead.agent?.agents[1],
+                                        : lead.agent?.agents[1]? lead.agent?.agents[1] : lead.agent?.agents[0],
                                       24,
                                       24,
                                     )}
@@ -2461,9 +2431,10 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                       {lead.agent?.agents[0]?.agentType ===
                                       'outbound'
                                         ? lead.agent?.agents[0]?.name
-                                        : lead.agent?.agents[1]?.name}
+                                        : lead.agent?.agents[1]? lead.agent?.agents[1]?.name : lead.agent?.agents[0]?.name}
                                     </div>
                                   </div>
+                                  )}
                                 </div>
 
                                 {lead?.lead?.booking?.date && (
@@ -2603,7 +2574,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                                 </button>
                                               )}
                                             </div>
-                                          )
+                                          );
                                         })}
                                       {lead.lead.tags.length > 1 && (
                                         <div>+{lead.lead.tags.length - 1}</div>
@@ -2643,11 +2614,8 @@ const AdminPipeline1 = ({ selectedUser }) => {
           )}
         </>
       )}
-
       {/* code for delete pipeline modal */}
-
       {/* handleDeletePipeline */}
-
       <Modal
         open={showDeletePipelinePopup}
         onClose={() => {
@@ -2739,7 +2707,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
           </div>
         </Box>
       </Modal>
-
       {/* Code for add stage modal */}
       <Modal
         open={addNewStageModal}
@@ -3206,7 +3173,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
           </div>
         </Box>
       </Modal>
-
       {/* Modal to Rename the Stage */}
       <Modal
         open={showRenamePopup}
@@ -3325,7 +3291,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
           </div>
         </Box>
       </Modal>
-
       {/* Modal to delete stage */}
       <Modal
         open={showDelStageModal}
@@ -3383,7 +3348,19 @@ const AdminPipeline1 = ({ selectedUser }) => {
               </div>
             </div>
 
-            {selectedStage?.hasLeads ? (
+            {(() => {
+              // Check actual lead count instead of relying on cached hasLeads
+              // This handles the case where a lead was deleted but hasLeads wasn't updated
+              const actualLeadCount = LeadsList.filter(
+                (lead) => lead.lead?.stage === selectedStage?.id
+              ).length
+              // Prioritize actual count - if we have LeadsList data, use actual count only
+              // Only fall back to cached hasLeads if LeadsList is empty (not loaded yet)
+              const stageHasLeads = LeadsList.length > 0 
+                ? actualLeadCount > 0 
+                : (selectedStage?.hasLeads || false)
+              return stageHasLeads
+            })() ? (
               <div>
                 <div
                   className="max-h-[60vh] overflow-auto"
@@ -3555,7 +3532,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
           </div>
         </Box>
       </Modal>
-
       {/* Modal to rename the pipeline */}
       <Modal
         open={showRenamePipelinePopup}
@@ -3660,7 +3636,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
           </div>
         </Box>
       </Modal>
-
       {/* Code for creating new pipeline */}
       <Modal
         open={createPipeline}
@@ -3773,7 +3748,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
           </div>
         </Box>
       </Modal>
-
       {/* Code for rearranging stages */}
       <Modal
         open={showStagesPopup}
@@ -3888,7 +3862,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
           </div>
         </Box>
       </Modal>
-
       {/* Modal for lead details */}
       {showDetailsModal && (
         <LeadDetails
@@ -3902,7 +3875,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
           leadAssignedTeam={HandleLeadAssignedTeam}
         />
       )}
-
       {/* Modal for audio play */}
       <Modal
         open={showAudioPlay}
@@ -3945,7 +3917,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
           </div>
         </Box>
       </Modal>
-
       {/* Warning Modal for no voice */}
       <Modal
         open={showNoAudioPlay}
@@ -3988,9 +3959,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
           </div>
         </Box>
       </Modal>
-
       {/* Modal to add notes */}
-
       <Modal
         open={showAddNotes}
         onClose={() => setShowAddNotes(false)}
@@ -4070,9 +4039,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
           </div>
         </Box>
       </Modal>
-
       {/* Code for side view */}
-
       {importantCalls?.length > 0 && (
         <div
           className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${
@@ -4170,7 +4137,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
           )}
         </div>
       )}
-
       {/* Code for calll worthy modal */}
       {openCallWorthyPopup && (
         <CallWorthyReviewsPopup
@@ -4181,7 +4147,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
         />
       )}
     </div>
-  )
+  );
 }
 
 export default AdminPipeline1

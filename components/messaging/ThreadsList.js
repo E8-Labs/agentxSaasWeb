@@ -10,6 +10,9 @@ import { TypographyBody, TypographyCaption, TypographyCaptionSemibold } from '@/
 import DropdownCn from '@/components/dashboard/leads/extras/DropdownCn'
 import ToggleGroupCN from '@/components/ui/ToggleGroupCN'
 import NewContactDrawer from './NewContactDrawer'
+import { useUser } from '@/hooks/redux-hooks'
+import { UpgradeTag, UpgradeTagWithModal } from '../constants/constants'
+import { toast } from '@/utils/toast'
 
 const ThreadsList = ({
   loading,
@@ -41,12 +44,13 @@ const ThreadsList = ({
   selectedUser = null,
   agencyUser = null,
   onOpenMessageSettings = null,
+  userLocalData = null,
 }) => {
   const [openMenuId, setOpenMenuId] = useState(null)
   const [showNewContactDrawer, setShowNewContactDrawer] = useState(false)
   const filterButtonRef = useRef(null)
   const filterPopoverRef = useRef(null)
-
+  const { user: reduxUser, setUser: setReduxUser } = useUser()
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (!showFilterPopover) return
@@ -68,10 +72,54 @@ const ThreadsList = ({
 
   const isAllSelected = selectedTeamMemberIds.length === 0
 
+  const effectiveUser = React.useMemo(() => {
+    return selectedUser?.id ? selectedUser : reduxUser
+  }, [selectedUser?.id, reduxUser])
+
+  const emailCapability = React.useMemo(() => {
+    const planCapabilities = effectiveUser?.planCapabilities || {}
+    return {
+      hasAccess: planCapabilities.allowEmails === true,
+      showUpgrade: planCapabilities.shouldShowAllowEmailUpgrade === true,
+      showRequestFeature: planCapabilities.shouldShowEmailRequestFeature === true,
+    }
+  }, [effectiveUser?.planCapabilities])
+
+  const smsCapability = React.useMemo(() => {
+    const planCapabilities = effectiveUser?.planCapabilities || {}
+    return {
+      hasAccess: planCapabilities.allowTextMessages === true,
+      showUpgrade: planCapabilities.shouldShowAllowSmsUpgrade === true,
+      showRequestFeature: planCapabilities.shouldShowSmsRequestFeature === true,
+    }
+  }, [effectiveUser?.planCapabilities])
+
+
+
+  // State to trigger upgrade modal externally (use counter to ensure it triggers even if already true)
+  const [triggerUpgradeModal, setTriggerUpgradeModal] = React.useState(0)
+  const [triggerEmailUpgradeModal, setTriggerEmailUpgradeModal] = React.useState(0)
+  const [triggerSMSUpgradeModal, setTriggerSMSUpgradeModal] = React.useState(0)
+
+
+
+  // Handler to trigger email upgrade modal
+  const handleEmailUpgradeClick = React.useCallback(() => {
+    setTriggerEmailUpgradeModal(prev => prev + 1)
+  }, [])
+
+  // Handler to trigger SMS upgrade modal
+  const handleSMSUpgradeClick = React.useCallback(() => {
+    setTriggerSMSUpgradeModal(prev => prev + 1)
+  }, [])
+
+
+
   const renderFilterOption = (option, isAll = false) => {
     const isSelected = isAll ? isAllSelected : selectedTeamMemberIds.includes(option.id)
     const nameInitial = option.name?.charAt(0)?.toUpperCase() || '?'
     const displayInitial = isAll ? 'All' : nameInitial
+
 
     return (
       <button
@@ -113,20 +161,38 @@ const ThreadsList = ({
           options={[
             {
               label: 'New Contact',
-              icon: UserPlus,
               value: 'contact',
+              icon: UserPlus,
               onSelect: () => setShowNewContactDrawer(true),
             },
             {
               label: 'New Text',
               icon: MessageSquare,
               value: 'message',
+              upgradeTag: (smsCapability.showUpgrade || smsCapability.showRequestFeature) ? (
+                <UpgradeTag
+                  onClick={handleSMSUpgradeClick}
+                  requestFeature={smsCapability.showRequestFeature}
+                />
+              ) : null,
+              showUpgradeTag: smsCapability.showUpgrade || smsCapability.showRequestFeature,
+              disabled: !smsCapability.hasAccess,
+              onUpgradeClick: handleSMSUpgradeClick,
               onSelect: () => onNewMessage && onNewMessage('sms'),
             },
             {
               label: 'New Email',
               icon: Mail,
               value: 'email',
+              upgradeTag: (emailCapability.showUpgrade || emailCapability.showRequestFeature) ? (
+                <UpgradeTag
+                  onClick={handleEmailUpgradeClick}
+                  requestFeature={emailCapability.showRequestFeature}
+                />
+              ) : null,
+              showUpgradeTag: emailCapability.showUpgrade || emailCapability.showRequestFeature,
+              disabled: !emailCapability.hasAccess,
+              onUpgradeClick: handleEmailUpgradeClick,
               onSelect: () => onNewMessage && onNewMessage('email'),
             },
           ]}
@@ -134,78 +200,109 @@ const ThreadsList = ({
           onSelect={(opt) => opt?.onSelect?.()}
           backgroundClassName="bg-brand-primary hover:bg-brand-primary/90 text-white border-0"
         />
+
+        {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
+          <UpgradeTagWithModal
+            reduxUser={effectiveUser}
+            setReduxUser={setReduxUser}
+            requestFeature={emailCapability.showRequestFeature}
+            externalTrigger={triggerEmailUpgradeModal > 0}
+            onModalClose={()=>{
+               setTriggerEmailUpgradeModal(0)
+              }}
+            hideTag={true}
+            selectedUser={selectedUser}
+            featureTitle="Enable Emails"
+          />
+        )}
+        {(smsCapability.showUpgrade || smsCapability.showRequestFeature) && (
+          <UpgradeTagWithModal
+            reduxUser={effectiveUser}
+            setReduxUser={setReduxUser}
+            requestFeature={smsCapability.showRequestFeature}
+            externalTrigger={triggerSMSUpgradeModal > 0}
+            onModalClose={()=>{
+               setTriggerSMSUpgradeModal(0)
+              }}
+            hideTag={true}
+            selectedUser={selectedUser}
+          />
+        )}
       </div>
 
-        <div className="relative flex items-center gap-2 mt-4">
-          <div className="relative flex-1 ">
-            <Input
-              type="text"
-              placeholder="Search"
-              value={searchValue || ''}
-              onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-10 pr-3 py-2.5 bg-gray-50 border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:bg-white"
-            />
-            {searchLoading ? (
-              <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 animate-spin" size={18} />
-            ) : (
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
-            )}
-          </div>
+      <div className="relative flex items-center gap-2 mt-4">
+        <div className="relative flex-1 ">
+          <Input
+            type="text"
+            placeholder="Search"
+            value={searchValue || ''}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="pl-10 pr-3 py-2.5 bg-gray-50 border-0 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary focus:bg-white"
+          />
+          {searchLoading ? (
+            <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 animate-spin" size={18} />
+          ) : (
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          )}
+        </div>
 
-          <div className="relative">
-            <button
-              ref={filterButtonRef}
-              onClick={() => onFilterToggle?.(!showFilterPopover)}
-              className="relative p-1.5 rounded-md hover:bg-gray-100 transition-colors"
-            >
-              <Image src="/messaging/filterIcon.svg" width={24} height={24} alt="Filter" />
-              {hasActiveFilters && (
-                <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-primary border-2 border-white" />
-              )}
-            </button>
-            {showFilterPopover && (
-              <div
-                ref={filterPopoverRef}
-                className="absolute right-0 top-12 z-30 w-64 bg-white rounded-2xl shadow-xl border border-gray-200"
-              >
-                <div className="px-4 pt-3 pb-2 text-sm font-semibold text-gray-600">Filter by</div>
-                <div className="flex flex-col max-h-64 overflow-y-auto pb-2">
-                  {renderFilterOption({}, true)}
-                  {filterTeamMembers.length === 0 ? (
-                    <div className="px-4 py-4 text-sm text-gray-500">No team members available</div>
-                  ) : (
-                    filterTeamMembers.map((member) => renderFilterOption(member, false))
-                  )}
-                </div>
-                <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between gap-2">
-                  <button
-                    onClick={() => {
-                      onClearFilter?.()
-                    }}
-                    className="text-sm text-gray-500 hover:text-gray-700"
-                  >
-                    Clear
-                  </button>
-                  <Button
-                    size="sm"
-                    className="bg-brand-primary hover:bg-brand-primary/90 text-white"
-                    onClick={() => {
-                      onApplyFilter?.()
-                    }}
-                  >
-                    Apply
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
-
+        <div className="relative">
           <button
-            onClick={() => onOpenMessageSettings?.()}
-            className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+            ref={filterButtonRef}
+            onClick={() => onFilterToggle?.(!showFilterPopover)}
+            className="relative p-1.5 rounded-md hover:bg-gray-100 transition-colors"
           >
-            <Image src="/svgIcons/threeDotsIcon.svg" width={24} height={24} alt="Message Settings" />
+            <Image src="/messaging/filterIcon.svg" width={24} height={24} alt="Filter" />
+            {hasActiveFilters && (
+              <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-brand-primary border-2 border-white" />
+            )}
           </button>
+          {showFilterPopover && (
+            <div
+              ref={filterPopoverRef}
+              className="absolute right-0 top-12 z-30 w-64 bg-white rounded-2xl shadow-xl border border-gray-200"
+            >
+              <div className="px-4 pt-3 pb-2 text-sm font-semibold text-gray-600">Filter by</div>
+              <div className="flex flex-col max-h-64 overflow-y-auto pb-2">
+                {renderFilterOption({}, true)}
+                {filterTeamMembers.length === 0 ? (
+                  <div className="px-4 py-4 text-sm text-gray-500">No team members available</div>
+                ) : (
+                  filterTeamMembers.map((member) => renderFilterOption(member, false))
+                )}
+              </div>
+              <div className="px-4 py-3 border-t border-gray-100 flex items-center justify-between gap-2">
+                <button
+                  onClick={() => {
+                    onClearFilter?.()
+                  }}
+                  className="text-sm text-gray-500 hover:text-gray-700"
+                >
+                  Clear
+                </button>
+                <Button
+                  size="sm"
+                  className="bg-brand-primary hover:bg-brand-primary/90 text-white"
+                  onClick={() => {
+                    onApplyFilter?.()
+                  }}
+                >
+                  Apply
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+
+          {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && 
+          <button className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
+          onClick={() => {
+            //show toast here to show the feature is coming soon
+            toast.success('This feature is coming soon')
+          }}
+          >
+            <Image src="/svgIcons/threeDotsIcon.svg" width={24} height={24} alt="Filter" />
+          </button> }
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -230,8 +327,8 @@ const ThreadsList = ({
                 onClick={() => onSelectThread(thread)}
                 className={cn(
                   "relative py-4 cursor-pointer border-b border-gray-100 last:border-b-0 rounded-lg  my-1",
-                  selectedThread?.id === thread.id 
-                    ? 'bg-thread-selected' 
+                  selectedThread?.id === thread.id
+                    ? 'bg-thread-selected'
                     : 'hover:bg-gray-50'
                 )}
               >
@@ -364,7 +461,6 @@ const ThreadsList = ({
           </div>
         )}
       </div>
-
       {/* New Contact Drawer */}
       <NewContactDrawer
         open={showNewContactDrawer}
@@ -379,7 +475,7 @@ const ThreadsList = ({
         selectedUser={selectedUser}
       />
     </div>
-  )
+  );
 }
 
 export default ThreadsList

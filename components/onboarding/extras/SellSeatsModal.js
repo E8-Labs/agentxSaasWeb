@@ -15,10 +15,8 @@ const SellSeatsModal = ({ showModal, closeModal, seats }) => {
   const handleClose = () => {
     if (seats) {
       closeModal(seatsPrice)
-      console.log('Modal close with sending seats')
     } else {
       closeModal()
-      console.log('Modal close without sending seats')
     }
     // setSeatsPrice("");
   }

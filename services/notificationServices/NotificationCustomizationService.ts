@@ -30,7 +30,6 @@ export const getAllNotificationCustomizations = async (userId?: number) => {
     });
 
     if (response.data.success) {
-      console.log("getAllNotificationCustomizations response:", response.data);
       return response.data;
     } else {
       console.error("getAllNotificationCustomizations error:", response.data);
@@ -60,7 +59,6 @@ export const getNotificationCustomization = async (notificationType: string, use
     });
 
     if (response.data.success) {
-      console.log("getNotificationCustomization response:", response.data);
       return response.data;
     } else {
       console.error("getNotificationCustomization error:", response.data);
@@ -98,7 +96,6 @@ export const createOrUpdateNotificationCustomization = async (
     );
 
     if (response.data.success) {
-      console.log("createOrUpdateNotificationCustomization response:", response.data);
       return response.data;
     } else {
       console.error("createOrUpdateNotificationCustomization error:", response.data);
@@ -128,7 +125,6 @@ export const deleteNotificationCustomization = async (notificationType: string, 
     });
 
     if (response.data.success) {
-      console.log("deleteNotificationCustomization response:", response.data);
       return response.data;
     } else {
       console.error("deleteNotificationCustomization error:", response.data);
@@ -162,7 +158,6 @@ export const toggleNotificationCustomization = async (notificationType: string, 
     );
 
     if (response.data.success) {
-      console.log("toggleNotificationCustomization response:", response.data);
       return response.data;
     } else {
       console.error("toggleNotificationCustomization error:", response.data);
@@ -200,7 +195,6 @@ export const previewNotificationTemplate = async (
     );
 
     if (response.data.success) {
-      console.log("previewNotificationTemplate response:", response.data);
       return response.data;
     } else {
       console.error("previewNotificationTemplate error:", response.data);
@@ -234,7 +228,6 @@ export const toggleNotificationEnabled = async (notificationType: string, userId
     );
 
     if (response.data.success) {
-      console.log("toggleNotificationEnabled response:", response.data);
       return response.data;
     } else {
       console.error("toggleNotificationEnabled error:", response.data);
@@ -272,7 +265,6 @@ export const setNotificationEnabled = async (
     );
 
     if (response.data.success) {
-      console.log("setNotificationEnabled response:", response.data);
       return response.data;
     } else {
       console.error("setNotificationEnabled error:", response.data);

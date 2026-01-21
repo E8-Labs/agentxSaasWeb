@@ -40,8 +40,6 @@ function SelectedAgencyDetails({
   agencyUser = false,
   handleClose,
 }) {
-  console.log('Selected user passed is', selectedUser)
-
   const manuBar = [
     {
       id: 1,
@@ -94,8 +92,6 @@ function SelectedAgencyDetails({
     },
   ]
 
-  console.log('Status of agency user', agencyUser)
-
   const [selectedManu, setSelectedManu] = useState(manuBar[0])
   const [showAddMinutesModal, setShowAddMinutesModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -122,7 +118,6 @@ function SelectedAgencyDetails({
   const [selectedDate, setSelectedDate] = useState(null)
 
   useEffect(() => {
-    console.log('selected user', selectedUser)
     if (selectedUser?.profile_status === 'paused') {
       setPauseToggleBtn(true)
     } else if (selectedUser?.profile_status === 'active') {
@@ -132,12 +127,10 @@ function SelectedAgencyDetails({
 
   useEffect(() => {
     const getData = async () => {
-      console.log('Trying to get agency profile data')
       let d = await AdminGetProfileDetails(selectedUser.id)
 
       if (d) {
         setUser(d)
-        console.log('selected user details from api', d.profile_status)
       }
 
       // console.log('selectedUser after api', selectedUser)
@@ -247,7 +240,6 @@ function SelectedAgencyDetails({
           },
         })
         if (response) {
-          console.log('Respose of pause unpause apis is', response)
           if (response.data.status === true) {
             selectedUser.profile_status = 'paused'
             setShowSnackMessage(response.data.message)
@@ -255,7 +247,6 @@ function SelectedAgencyDetails({
             setpauseLoader(false)
             setShowPauseConfirmationPopup(false)
           }
-          console.log('response.data.data', response.data)
         }
       }
     } catch (e) {
@@ -279,8 +270,6 @@ function SelectedAgencyDetails({
           trialEndDate: selectedDate,
         }
 
-        console.log('apidata of reset trail', apidata)
-
         const response = await axios.post(Apis.resetTrail, apidata, {
           headers: {
             Authorization: 'Bearer ' + u.token,
@@ -288,13 +277,11 @@ function SelectedAgencyDetails({
           },
         })
         if (response) {
-          console.log('Respose of reset trail api is', response)
           if (response.data.status === true) {
             setShowSnackMessage(response.data.message)
             setResetTrailLoader(false)
             setShowResetTrialPopup(false)
           }
-          console.log('response.data.data', response.data)
         }
       }
     } catch (e) {
@@ -313,7 +300,6 @@ function SelectedAgencyDetails({
         type={SnackbarTypes.Success}
         message={showSnackMessage}
       />
-
       <div className="flex flex-col items-center justify-center w-full">
         <div
           className={`w-full ${agencyUser ? 'h-[100svh] overflow-hidden' : 'h-[80vh]'} bg-white`}
@@ -330,7 +316,6 @@ function SelectedAgencyDetails({
               ) : (
                 <button
                   onClick={() => {
-                    console.log('selectedUser.id', selectedUser.id)
                     if (selectedUser?.id) {
                       // Open a new tab with user ID as query param
                       let url = ''
@@ -384,7 +369,6 @@ function SelectedAgencyDetails({
                     style={{ height: '50px' }}
                     onClick={() => {
                       setShowResetTrialPopup(true)
-                      console.log('clicked')
                     }}
                   >
                     Reset Trial
@@ -522,7 +506,6 @@ function SelectedAgencyDetails({
           </div>
         </div>
       </div>
-
       {/* Code to del user */}
       <Modal
         open={showDeleteModal}
@@ -612,7 +595,6 @@ function SelectedAgencyDetails({
           </div>
         </Box>
       </Modal>
-
       {/* Add minutes modal  */}
       <Modal
         open={showAddMinutesModal}
@@ -669,7 +651,7 @@ function SelectedAgencyDetails({
         </Box>
       </Modal>
     </div>
-  )
+  );
 }
 
 export default SelectedAgencyDetails

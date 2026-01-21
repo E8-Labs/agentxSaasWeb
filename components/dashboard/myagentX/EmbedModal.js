@@ -79,18 +79,11 @@ const EmbedModal = ({
         apiUrl += `&userId=${selectedUser.id}`
       }
 
-      console.log('🔧 EMBED-MODAL - Fetching smartlists from:', apiUrl)
-
       const response = await axios.get(apiUrl, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${AuthToken}`,
         },
-      })
-
-      console.log('🔧 EMBED-MODAL - Smartlists fetched:', {
-        count: response.data?.data?.length || 0,
-        smartlists: response.data?.data?.map(s => ({ id: s.id, name: s.sheetName })) || [],
       })
 
       if (
@@ -123,12 +116,6 @@ const EmbedModal = ({
               (list) => Number(list.id) === smartListIdNum
             )
             setSelectedSmartList(matchingList.id)
-            console.log('🔧 EMBED-MODAL - Set selected smartlist:', {
-              requestedId: smartListIdToSet,
-              setId: matchingList.id,
-              found: true,
-              listName: matchingList.sheetName,
-            })
           } else {
             console.warn('🔧 EMBED-MODAL - Smartlist ID not found in fetched list:', {
               requestedId: smartListIdToSet,
@@ -141,10 +128,6 @@ const EmbedModal = ({
         } else if (requireForm && response.data.data.length > 0) {
           // If form is required but no smartlist ID, select first one
           setSelectedSmartList(response.data.data[0].id)
-          console.log('🔧 EMBED-MODAL - No smartlist ID from agent, selected first one:', {
-            id: response.data.data[0].id,
-            name: response.data.data[0].sheetName,
-          })
         }
       } else {
         console.warn('🔧 EMBED-MODAL - No smartlists found in response')
@@ -184,10 +167,6 @@ const EmbedModal = ({
         // New fields exist - use them exclusively (ignore legacy fields)
         embedSmartListEnabled = agent.smartListEnabledForEmbed ?? false
         embedSmartListId = agent.smartListIdForEmbed || null
-        console.log('🔍 EmbedModal - Using NEW embed-specific fields:', {
-          smartListEnabledForEmbed: embedSmartListEnabled,
-          smartListIdForEmbed: embedSmartListId,
-        })
       } else {
         // No new fields - fallback to legacy (for backward compatibility before migration)
         embedSmartListEnabled = agent.smartListEnabled ?? false
@@ -254,8 +233,6 @@ const EmbedModal = ({
   }
 
   const updateSupportButton = async () => {
-    console.log('🔧 EMBED-MODAL - Updating agent support button settings...')
-
     try {
       let AuthToken = null
       const localData = localStorage.getItem('User')
@@ -271,7 +248,6 @@ const EmbedModal = ({
       }
       if (logoFile) {
         formData.append('media', logoFile)
-        console.log('🔧 EMBED-MODAL - Adding logo file to update')
       }
       formData.append('supportButtonText', buttonLabel)
       formData.append('smartListEnabled', requireForm.toString())
@@ -280,22 +256,6 @@ const EmbedModal = ({
       if (selectedSmartList) {
         formData.append('smartListId', selectedSmartList)
       }
-      
-      console.log('🔧 EMBED-MODAL - updateSupportButton payload:', {
-        agentId,
-        supportButtonText: buttonLabel,
-        smartListEnabled: requireForm,
-        agentType: 'embed',
-        smartListId: selectedSmartList || 'none',
-      })
-
-      console.log('🔧 EMBED-MODAL - Support button settings:', {
-        agentId,
-        userId: selectedUser?.id,
-        buttonLabel,
-        smartListEnabled: requireForm,
-        hasLogo: !!logoFile,
-      })
 
       const response = await axios.post(
         // 'https://apimyagentx.com/agentxtest/api/agent/updateAgentSupportButton',
@@ -309,7 +269,6 @@ const EmbedModal = ({
       )
 
       if (response.data?.status === true) {
-        console.log('🔧 EMBED-MODAL - Support button updated successfully')
         return true
       } else {
         throw new Error(
@@ -323,8 +282,6 @@ const EmbedModal = ({
   }
 
   const attachSmartList = async () => {
-    console.log('🔧 EMBED-MODAL - Attaching smart list to agent...')
-
     try {
       let AuthToken = null
       const localData = localStorage.getItem('User')
@@ -343,8 +300,6 @@ const EmbedModal = ({
         payload.userId = selectedUser.id
       }
 
-      console.log('🔧 EMBED-MODAL - Attaching smart list:', payload)
-
       const response = await axios.post(
         // 'https://apimyagentx.com/agentxtest/api/agent/attachSmartList',
         Apis.attachSmartList,payload,
@@ -357,7 +312,6 @@ const EmbedModal = ({
       )
 
       if (response.data?.status === true) {
-        console.log('🔧 EMBED-MODAL - Smart list attached successfully')
         // Update local agent state if agent prop is provided
         if (agent && selectedSmartList) {
           const updatedAgent = {
@@ -365,10 +319,6 @@ const EmbedModal = ({
             smartListIdForEmbed: selectedSmartList,
             smartListEnabledForEmbed: true,
           }
-          console.log('🔧 EMBED-MODAL - Updated local agent state:', {
-            smartListIdForEmbed: updatedAgent.smartListIdForEmbed,
-            smartListEnabledForEmbed: updatedAgent.smartListEnabledForEmbed,
-          })
           // Notify parent to update agent state
           if (onAgentUpdate) {
             onAgentUpdate(updatedAgent)
@@ -387,25 +337,15 @@ const EmbedModal = ({
   const handleCopyEmbed = async () => {
     try {
       setLoading(true)
-      console.log('🔧 EMBED-MODAL - Starting embed process...')
 
       // Step 1: Always update support button settings first
       await updateSupportButton()
 
       // Step 2: If form is required and smart list is selected, attach the smart list
       if (requireForm && selectedSmartList) {
-        console.log(
-          '🔧 EMBED-MODAL - Form required with selected smart list, attaching...',
-        )
         await attachSmartList()
-        console.log(
-          '🔧 EMBED-MODAL - Smart list attached successfully, proceeding to all set modal...',
-        )
         onShowAllSet() // Go directly to "all set" modal after attaching existing smart list
       } else {
-        console.log(
-          '🔧 EMBED-MODAL - No smart list attachment needed, proceeding to success...',
-        )
         onShowAllSet()
       }
     } catch (error) {
@@ -439,8 +379,6 @@ const EmbedModal = ({
   }
 
   if (!open) return null
-
-  console.log('EmbedModal rendering, open:', open)
 
   return (
     <Modal
@@ -781,7 +719,6 @@ const EmbedModal = ({
                 <div style={{ position: 'absolute', top: 16, right: 16 }}>
                   <CloseBtn
                     onClick={(e) => {
-                      console.log('Cross button clicked')
                       e.stopPropagation()
                       onClose()
                     }}
@@ -836,7 +773,7 @@ const EmbedModal = ({
         </div>
       </Box>
     </Modal>
-  )
+  );
 }
 
 export default EmbedModal

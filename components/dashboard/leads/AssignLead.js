@@ -219,7 +219,6 @@ const AssignLead = ({
   //get agents api
   const getAgents = async (initialoaderStatus) => {
     try {
-      console.log('Status of initial loader', initialoaderStatus)
       const checkLocalAgentsList = localStorage.getItem('localAgentDetails')
 
       if (initialoaderStatus?.initialoaderStatus === false) {
@@ -242,7 +241,6 @@ const AssignLead = ({
       // const ApiPath = Apis.getAgents;
       const offset = agentsList.length
       const ApiPath = `${Apis.getAgents}?offset=${offset}`
-      console.log('Api path is of get agents', ApiPath)
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -436,13 +434,7 @@ const AssignLead = ({
     if (
       isAfterStartTime && // After 7:00 AM
       isBeforeEndTime // Before 8:30 PM
-    ) {
-      console.log(
-        '✅ Selected time is between 7 AM and 8:30 PM.',
-        selectedDate.format(),
-      )
-      // setSelectedDateTime(selectedDate);
-    } else {
+    ) {} else {
       //console.log;
       // setInvalidTimeMessage(
       //   "Calls only between 7am-8:30pm"
@@ -654,7 +646,6 @@ const AssignLead = ({
         }}
         type=""
       />
-
       {showDncConfirmationPopup && (
         <DncConfirmationPopup
           open={showDncConfirmationPopup}
@@ -676,7 +667,6 @@ const AssignLead = ({
         />
       )}
       {/* Snackbar for invalid time */}
-
       <div className="flex flex-row items-center justify-between mt-4">
         <div style={{ fontSize: 24, fontWeight: '700' }}>Select your Agent</div>
         <div style={{ ...styles.paragraph, color: brandPrimaryColor }}>
@@ -692,7 +682,6 @@ const AssignLead = ({
       >
         Only outbound agents assigned to a stage can be selected.
       </div>
-
       {initialLoader ? (
         <div className="w-full flex flex-row justify-center mt-4">
           <CircularProgress size={30} />
@@ -885,7 +874,6 @@ const AssignLead = ({
           </InfiniteScroll>
         </div>
       )}
-
       <div>
         <button
           className="rounded-lg mt-4 w-full h-[50px]"
@@ -902,9 +890,7 @@ const AssignLead = ({
           Continue
         </button>
       </div>
-
       {/* last step modal */}
-
       <AllowSmartRefillPopup
         showSmartRefillPopUp={showSmartRefillPopUp}
         handleCloseReillPopup={() => {
@@ -915,7 +901,6 @@ const AssignLead = ({
         handleSmartRefillLater={handleSmartRefillLater}
         handleSmartRefill={handleSmartRefill}
       />
-
       <Modal
         open={lastStepModal}
         onClose={() => setLastStepModal(false)}
@@ -1444,7 +1429,6 @@ const AssignLead = ({
                         const localData = localStorage.getItem('User')
                         if (localData) {
                           const UserDetails = JSON.parse(localData)
-                          console.log(UserDetails.user.smartRefill)
                           if (UserDetails.user.smartRefill === false) {
                             setShowSmartRefillPopUp(true)
                             return
@@ -1480,7 +1464,7 @@ const AssignLead = ({
         </Box>
       </Modal>
     </div>
-  )
+  );
 }
 
 export default AssignLead

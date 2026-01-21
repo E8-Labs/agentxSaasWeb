@@ -54,7 +54,7 @@ export function htmlToPlainText(html) {
     .replace(/&#39;/g, "'") // Replace &#39; with '
     .replace(/[ \t]+/g, ' ') // Replace multiple spaces/tabs with single space (but keep newlines)
     .replace(/\n{3,}/g, '\n\n') // Replace 3+ newlines with double newline
-    .trim()
+    .trim();
 }
 
 /**

@@ -47,14 +47,104 @@ import AgentSelectSnackMessage, {
 } from '../leads/AgentSelectSnackMessage'
 import AgencyChecklist from './AgencyChecklist'
 import CheckList from './CheckList'
+import { PermissionProvider, useHasPermission } from '@/contexts/PermissionContext'
 
 const stripePromise = getStripe()
 
-const AgencyNavBar = () => {
-  // const [user, setUser] = useState(null)
+// Component to render a nav link with permission check
+function PermissionNavLink({ item, isActive }) {
+  const [hasAccess, isLoading] = useHasPermission(item.permissionKey)
+  
+  // Don't render if no permission (hide the link)
+  if (!isLoading && !hasAccess) {
+    return null
+  }
+  
+  return <NavLinkItem item={item} isActive={isActive} />
+}
 
+// Component to render a nav link
+function NavLinkItem({ item, isActive }) {
+  return (
+    <div className="w-full flex flex-col pl-3">
+      <Link
+        sx={{ cursor: 'pointer', textDecoration: 'none' }}
+        href={item.href}
+      >
+        <div
+          className={cn(
+            'w-full flex flex-row gap-2 items-center py-1 rounded-full',
+          )}
+        >
+          <div
+            className={cn(
+              isActive(item.href)
+                ? 'icon-brand-primary'
+                : 'icon-black',
+            )}
+            style={
+              isActive(item.href)
+                ? {
+                    '--icon-mask-image': `url(${
+                      isActive(item.href)
+                        ? item.selected
+                        : item.uneselected
+                    })`,
+                  }
+                : {}
+            }
+          >
+            <Image
+              src={
+                isActive(item.href)
+                  ? item.selected
+                  : item.uneselected
+              }
+              height={24}
+              width={24}
+              alt="icon"
+            />
+          </div>
+          <div
+            className={cn(
+              'text-sm font-medium',
+              isActive(item.href)
+                ? 'text-brand-primary'
+                : 'text-black',
+            )}
+          >
+            {item.name}
+          </div>
+        </div>
+      </Link>
+    </div>
+  )
+}
+
+const AgencyNavBarContent = () => {
   const router = useRouter()
   const pathname = usePathname()
+  
+  // Get user data to check if they're an Invitee
+  const [userRole, setUserRole] = useState(null)
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        try {
+          const userData = JSON.parse(localData)
+          setUserRole(userData.user?.userRole || userData.userRole)
+        } catch (error) {
+          console.error('Error parsing user data:', error)
+        }
+      }
+    }
+  }, [])
+  
+  // For non-Invitee users, show all links (they have full access)
+  // For Invitee users, we'll filter based on permissions
+  const isInvitee = userRole === 'Invitee'
 
   // Track current pathname in state to force re-renders when it changes
   // This ensures the UI updates immediately when navigation occurs
@@ -204,17 +294,14 @@ const AgencyNavBar = () => {
       const agencyProfile = await getProfileDetails()
       const stripeStatus =
         agencyProfile?.data?.data?.canAcceptPaymentsAgencyccount
-      console.log('Stripe status is', stripeStatus)
       setCheckStripeStatus(!stripeStatus)
       setCheckStripeStatusLoader(false)
     } catch (error) {
       setCheckStripeStatusLoader(false)
-      console.log('Eror in gettin stripe status', error)
     }
   }
 
   const getShowWalkThrough = () => {
-    console.log('rigered the intro video')
     const localData = localStorage.getItem('User')
     if (localData) {
       const UserDetails = JSON.parse(localData)
@@ -224,7 +311,6 @@ const AgencyNavBar = () => {
         UserDetails?.user?.plan &&
         (watched === false || watched === 'false')
       ) {
-        console.log('✅ should show intro video')
         setShowAgencyWalkThrough(true)
       } else {
         // 👇 Prevent flipping it back off if it’s already been set
@@ -244,15 +330,12 @@ const AgencyNavBar = () => {
         setShowAgencyWalkThrough(false)
       }
       // console.log("Response of update profile api is", response)
-    } catch (error) {
-      console.log('Error occured in update catch api is', error)
-    }
+    } catch (error) {}
   }
 
   //get agency plans list
   const getAgencyPlans = async () => {
     try {
-      console.log('trying to get plans')
       let localData = localStorage.getItem(PersistanceKeys.LocalStorageUser)
       if (localData) {
         let u = JSON.parse(localData)
@@ -265,17 +348,12 @@ const AgencyNavBar = () => {
 
         if (response.data) {
           if (response.data.status === true) {
-            console.log('plans list is: ', response.data.data)
             let plansList = response.data.data
             localStorage.setItem('agencyPlansList', JSON.stringify(plansList))
-          } else {
-            console.log('Error in getting plans: ', response.data.message)
-          }
+          } else {}
         }
       }
-    } catch (error) {
-      console.log('Error in getPlans: ', error)
-    }
+    } catch (error) {}
   }
 
   const getUserProfile = async () => {
@@ -283,15 +361,12 @@ const AgencyNavBar = () => {
     if (data) {
       const LocalData = JSON.parse(data)
       let stripeStatus = LocalData?.user?.canAcceptPaymentsAgencyccount || false
-      console.log('Stripe status is', stripeStatus)
       if (showAgencyWalkThrough) return //if walkthrough is shown, don't check stripe status
       setCheckStripeStatus(!stripeStatus)
       // setUserDetails(LocalData);
 
       const agencyProfile = await getProfileDetails()
       if (agencyProfile) {
-        console.log('Agency profile details are', agencyProfile)
-
         // route  on plans if paymnet failed 3 times
         const agencyProfileData = agencyProfile.data.data
 
@@ -300,10 +375,6 @@ const AgencyNavBar = () => {
           agencyProfileData?.profile_status &&
           agencyProfileData.profile_status !== 'active'
         ) {
-          console.log(
-            '❌ [getUserProfile] Profile status is not active:',
-            agencyProfileData.profile_status,
-          )
           setErrorSnack('Your account has been frozen.')
           setShowErrorSnack(true)
           // Show snackbar briefly before logout
@@ -312,10 +383,6 @@ const AgencyNavBar = () => {
           }, 2000)
           return
         }
-        console.log(
-          'agencyProfileData.plan?.status',
-          agencyProfileData.plan?.status,
-        )
         if (
           agencyProfileData.plan?.status === 'cancelled' &&
           (agencyProfileData.nextChargeDate &&
@@ -359,13 +426,7 @@ const AgencyNavBar = () => {
         ) {
           setCanAcceptPaymentsAgencyccount(true)
         }
-      } else {
-        console.log('No profile detail found yet')
-      }
-      console.log(
-        'LocalData.user.profile_status',
-        LocalData.user.profile_status,
-      )
+      } else {}
       if (LocalData.user.profile_status !== 'active') {
         setErrorSnack('Your account has been frozen.')
         setShowErrorSnack(true)
@@ -383,7 +444,6 @@ const AgencyNavBar = () => {
   }
 
   useEffect(() => {
-    console.log('called from useeffect')
     getUserProfile()
   }, [])
 
@@ -418,9 +478,7 @@ const AgencyNavBar = () => {
           isSubaccount = userRole === 'AgencySubAccount'
           isAgency = userRole === 'Agency'
         }
-      } catch (error) {
-        console.log('Error parsing user data:', error)
-      }
+      } catch (error) {}
 
       const hostname = window.location.hostname
       const isAssignxDomain =
@@ -453,9 +511,7 @@ const AgencyNavBar = () => {
       if (brandingCookie) {
         try {
           branding = JSON.parse(decodeURIComponent(brandingCookie))
-        } catch (error) {
-          console.log('Error parsing agencyBranding cookie:', error)
-        }
+        } catch (error) {}
       }
 
       // Fallback to localStorage
@@ -464,9 +520,7 @@ const AgencyNavBar = () => {
         if (storedBranding) {
           try {
             branding = JSON.parse(storedBranding)
-          } catch (error) {
-            console.log('Error parsing agencyBranding from localStorage:', error)
-          }
+          } catch (error) {}
         }
       }
 
@@ -484,9 +538,7 @@ const AgencyNavBar = () => {
               branding = parsedUser.user.agency.agencyBranding
             }
           }
-        } catch (error) {
-          console.log('Error parsing user data for agencyBranding:', error)
-        }
+        } catch (error) {}
       }
 
       // Set logo URL if available
@@ -521,7 +573,6 @@ const AgencyNavBar = () => {
     try {
       setLoader(true)
       const data = localStorage.getItem('User')
-      console.log('Working')
       if (data) {
         const D = JSON.parse(data)
         if (D.user.plan) {
@@ -539,7 +590,6 @@ const AgencyNavBar = () => {
           }
           // router.push("/agency/verify")
         } else {
-          console.log('Need to subscribe plan')
           const d = {
             subPlan: false,
           }
@@ -556,13 +606,15 @@ const AgencyNavBar = () => {
     }
   }
 
-  const agencyLinks = [
+  // Define agency links with their required permissions
+  const allAgencyLinks = [
     {
       id: 1,
       name: 'Dashboard',
       href: '/agency/dashboard',
-      selected: '/agencyNavbarIcons/selectdDashboardIcon.png', //agencyNavbarIcons
+      selected: '/agencyNavbarIcons/selectdDashboardIcon.png',
       uneselected: '/agencyNavbarIcons/unSelectedDashboardIcon.png',
+      permissionKey: 'agency.dashboard.view', // Required permission
     },
     {
       id: 2,
@@ -570,6 +622,7 @@ const AgencyNavBar = () => {
       href: '/agency/dashboard/integration',
       selected: '/agencyNavbarIcons/integrationFocus.png',
       uneselected: '/agencyNavbarIcons/integrationsUnFocus.png',
+      permissionKey: 'agency.integrations.manage', // Required permission
     },
     {
       id: 3,
@@ -577,6 +630,7 @@ const AgencyNavBar = () => {
       href: '/agency/dashboard/plans',
       selected: '/agencyNavbarIcons/selectedPlansIcon.png',
       uneselected: '/agencyNavbarIcons/unSelectedPlansIcon.png',
+      permissionKey: 'agency.plans.manage', // Required permission
     },
     {
       id: 4,
@@ -584,6 +638,7 @@ const AgencyNavBar = () => {
       href: '/agency/dashboard/subAccounts',
       selected: '/agencyNavbarIcons/selectedSubAccountIcon.png',
       uneselected: '/agencyNavbarIcons/unSelectedSubAccountIcon.png',
+      permissionKey: 'agency.subaccounts.view', // Required permission (manage implies view)
     },
     {
       id: 5,
@@ -591,6 +646,7 @@ const AgencyNavBar = () => {
       href: '/agency/dashboard/callLogs',
       selected: '/otherAssets/selectedActivityLog.png',
       uneselected: '/otherAssets/activityLog.png',
+      permissionKey: 'agency.activity.view', // Required permission
     },
     {
       id: 6,
@@ -598,6 +654,7 @@ const AgencyNavBar = () => {
       href: '/agency/dashboard/teams',
       selected: '/agencyNavbarIcons/selectedTeam.png',
       uneselected: '/agencyNavbarIcons/unSelectedTeamIcon.png',
+      permissionKey: 'agency.teams.manage', // Required permission
     },
     {
       id: 7,
@@ -605,6 +662,7 @@ const AgencyNavBar = () => {
       href: '/agency/dashboard/whitelabel',
       selected: '/agencyNavbarIcons/selectedWhitelabelling.png',
       uneselected: '/agencyNavbarIcons/unSelectedWhitelabelling.png',
+      permissionKey: 'agency.whitelabel.manage', // Required permission
     },
   ]
 
@@ -702,9 +760,7 @@ const AgencyNavBar = () => {
         message={errorSnack}
         type={SnackbarTypes.Error}
       />
-
       {/* Sticky Modal */}
-
       {checkStripeStatusLoader ? (
         <div
           style={{ position: 'absolute', bottom: 10, left: '50%', transform: 'translateX(-50%)', zIndex: 9999 }}
@@ -756,7 +812,6 @@ const AgencyNavBar = () => {
           </div>
         )
       )}
-
       <div className="h-screen w-full flex flex-col items-center justify-between">
         <div
           className="w-full pt-5 flex flex-col items-center ps-4"
@@ -771,7 +826,7 @@ const AgencyNavBar = () => {
             <div className="w-10/12 flex flex-col items-end">
               {agencyLogoUrl ? (
                 // Show logo if available
-                <div className="w-full flex justify-start items-center">
+                (<div className="w-full flex justify-start items-center">
                   <Image
                     src={agencyLogoUrl}
                     alt="agency logo"
@@ -780,12 +835,12 @@ const AgencyNavBar = () => {
                     style={{ objectFit: 'contain', maxHeight: '32px', maxWidth: '120px' }}
                     unoptimized={true}
                   />
-                </div>
+                </div>)
               ) : (
                 // Show agency name if no logo
-                <div className="w-full">
+                (<div className="w-full">
                   <EditAgencyName />
-                </div>
+                </div>)
               )}
               {/* Only show "Powered by" label if no logo is present */}
               {!agencyLogoUrl && (
@@ -807,71 +862,23 @@ const AgencyNavBar = () => {
               msOverflowStyle: 'none',
             }}
           >
-            {agencyLinks.map((item) => (
-              <div key={item.id} className="w-full flex flex-col pl-3">
-                <Link
-                  sx={{ cursor: 'pointer', textDecoration: 'none' }}
-                  href={item.href}
-                  // onClick={() => {
-                  //   router.prefetch(item.href);
-                  //   if (pathname !== item.href) {
-                  //     setNavigatingTo(item.href);
-                  //     router.push(item.href);
-                  //   }
-                  // }}
-                >
-                  <div
-                    className={cn(
-                      'w-full flex flex-row gap-2 items-center py-1 rounded-full',
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        isActive(item.href)
-                          ? 'icon-brand-primary'
-                          : 'icon-black',
-                      )}
-                      style={
-                        isActive(item.href)
-                          ? {
-                              '--icon-mask-image': `url(${
-                                isActive(item.href)
-                                  ? item.selected
-                                  : item.uneselected
-                              })`,
-                            }
-                          : {}
-                      }
-                    >
-                      <Image
-                        src={
-                          isActive(item.href)
-                            ? item.selected
-                            : item.uneselected
-                        }
-                        height={24}
-                        width={24}
-                        alt="icon"
-                      />
-                    </div>
-                    <div
-                      className={cn(
-                        'text-sm font-medium',
-                        isActive(item.href)
-                          ? 'text-brand-primary'
-                          : 'text-black',
-                      )}
-                    >
-                      {item.name}
-                    </div>
-
-                    {/*navigatingTo === item.href && (
-                      <CircularProgress size={14} />
-                    )*/}
-                  </div>
-                </Link>
-              </div>
-            ))}
+            {allAgencyLinks.map((item) => {
+              // For non-Invitee users, show all links
+              if (!isInvitee) {
+                return (
+                  <NavLinkItem key={item.id} item={item} isActive={isActive} />
+                )
+              }
+              
+              // For Invitee users, check permission
+              return (
+                <PermissionNavLink
+                  key={item.id}
+                  item={item}
+                  isActive={isActive}
+                />
+              )
+            })}
           </div>
 
           {/* <div>
@@ -929,12 +936,10 @@ const AgencyNavBar = () => {
           </Link>
         </div>
       </div>
-
       <AgencyWalkThrough
         open={showAgencyWalkThrough}
         onClose={updateWalkthroughWatched}
       />
-
       <Modal
         open={showPaymentFailedPopup}
         onClose={() => setShowPaymentFailedPopup(false)}
@@ -977,7 +982,6 @@ const AgencyNavBar = () => {
           </div>
         </Box>
       </Modal>
-
       <Modal
         open={showAddPaymentPopup} //addPaymentPopUp
         // open={true}
@@ -1009,7 +1013,6 @@ const AgencyNavBar = () => {
                   // stop={stop}
                   // getcardData={getcardData} //setAddPaymentSuccessPopUp={setAddPaymentSuccessPopUp} handleClose={handleClose}
                   handleClose={(result) => {
-                    console.log('result is', result)
                     if (result) {
                       setShowAddPaymentPopup(false)
                       setSuccessSnack('Payment method updated')
@@ -1029,6 +1032,16 @@ const AgencyNavBar = () => {
         </Box>
       </Modal>
     </div>
+  );
+}
+
+
+// Main component wrapped with PermissionProvider
+const AgencyNavBar = () => {
+  return (
+    <PermissionProvider>
+      <AgencyNavBarContent />
+    </PermissionProvider>
   )
 }
 

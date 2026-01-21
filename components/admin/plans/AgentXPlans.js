@@ -29,7 +29,6 @@ const AgentXPlans = () => {
     try {
       setLoading(true)
       const data = await PlanApiService.getAgentXPlans()
-      console.log('AgentX Plans API Response:', data)
       setPlans(data.data || [])
     } catch (error) {
       console.error('Error fetching plans:', error)
@@ -105,7 +104,6 @@ const AgentXPlans = () => {
           Add New Plan
         </Button>
       </div>
-
       <Card>
         <CardHeader>
           <CardTitle>All AssignX Plans</CardTitle>
@@ -127,7 +125,6 @@ const AgentXPlans = () => {
               </TableHeader>
               <TableBody>
                 {plans.map((plan) => {
-                  console.log('Individual AgentX Plan:', plan)
                   return (
                     <TableRow key={plan.id}>
                       <TableCell className="font-medium">
@@ -200,24 +197,20 @@ const AgentXPlans = () => {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => {
-                              // Handle view details
-                              console.log('View plan:', plan)
-                            }}
+                            onClick={() => {}}
                           >
                             <Eye className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>
                     </TableRow>
-                  )
+                  );
                 })}
               </TableBody>
             </Table>
           </div>
         </CardContent>
       </Card>
-
       {showModal && (
         <PlanModal
           plan={editingPlan}
@@ -226,7 +219,7 @@ const AgentXPlans = () => {
         />
       )}
     </div>
-  )
+  );
 }
 
 export default AgentXPlans

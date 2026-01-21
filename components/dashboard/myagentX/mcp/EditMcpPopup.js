@@ -21,7 +21,6 @@ export default function EditMcpPopup({
 }) {
   useEffect(() => {
     const updateMcpTool = async () => {
-      console.log('Selected MCP tool is', selectedMcpTool)
       if (selectedMcpTool) {
         setMcpName(selectedMcpTool.name)
         setMcpUrl(selectedMcpTool.url)

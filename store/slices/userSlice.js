@@ -16,12 +16,6 @@ const userSlice = createSlice({
     // Set complete user data from login/register API response
     setUser: (state, action) => {
       const { token, user } = action.payload
-      console.log('🟢 [REDUX] Setting user data:', {
-        userId: user?.id,
-        planType: user?.plan?.type,
-        maxAgents: user?.planCapabilities?.maxAgents,
-        currentAgents: user?.currentUsage?.maxAgents,
-      })
       state.token = token
       state.user = user // Store the complete user object
       state.isAuthenticated = !!token
@@ -37,7 +31,6 @@ const userSlice = createSlice({
     // Update user profile (used by profile updates)
     updateUserProfile: (state, action) => {
       if (state.user) {
-        console.log('🔄 [REDUX] Updating user profile:', action.payload)
         state.user = { ...state.user, ...action.payload }
       }
     },

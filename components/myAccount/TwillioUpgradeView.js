@@ -43,9 +43,6 @@ function TwillioUpgradeView({ title }) {
         localUserData = Data?.user
 
         if (localUserData) {
-          console.log(
-            `✅ Successfully fetched local data on attempt ${attempt}`,
-          )
           return
         } else {
           console.warn(
@@ -61,7 +58,6 @@ function TwillioUpgradeView({ title }) {
 
     // Retry if not found and attempts remain
     if (attempt < maxAttempts) {
-      console.log(`⏳ Retrying... attempt ${attempt + 1} in 300ms`)
       setTimeout(() => fetchLocalUserData(attempt + 1, maxAttempts), 300)
     } else {
       console.error('❌ Max attempts reached. Could not fetch local data.')
@@ -126,7 +122,6 @@ function TwillioUpgradeView({ title }) {
           </button>
         )}
       </div>
-
       {/* Upgrade Plan Modal */}
       <Elements stripe={stripePromise}>
         <UpgradePlan
@@ -134,14 +129,12 @@ function TwillioUpgradeView({ title }) {
           handleClose={() => setShowUpgradeModal(false)}
           plan={null}
           currentFullPlan={null}
-          setSelectedPlan={() => {
-            console.log('setSelectedPlan is called')
-          }}
+          setSelectedPlan={() => {}}
           // setShowSnackMsg={setShowSnackMsg}
         />
       </Elements>
     </div>
-  )
+  );
 }
 
 export default TwillioUpgradeView

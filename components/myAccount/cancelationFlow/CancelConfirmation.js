@@ -1,11 +1,12 @@
 import moment from 'moment'
-import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
 
 import { getUserPlans } from '@/components/userPlans/UserPlanServices'
 import { next30Days } from '@/constants/Constants'
 import { useUser } from '@/hooks/redux-hooks'
 import { getFeaturesToLose, getFreePlan } from '@/utilities/PlanComparisonUtils'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
+import { Checkbox } from '@/components/ui/checkbox'
 
 function CancelConfirmation({
   handleContinue,
@@ -25,16 +26,9 @@ function CancelConfirmation({
     loadCurrentPlanFeatures()
   }, [])
 
-  useEffect(() => {
-    console.log('🔍 [CANCELATION FLOW] Redux User:', reduxUser)
-  }, [reduxUser])
+  useEffect(() => {}, [reduxUser])
 
-  useEffect(() => {
-    console.log(
-      '🔍 [CANCELATION FLOW] Selected User in UseEffect:',
-      selectedUser,
-    )
-  }, [selectedUser])
+  useEffect(() => {}, [selectedUser])
 
   const getUserData = () => {
     let data = localStorage.getItem('User')
@@ -61,10 +55,6 @@ function CancelConfirmation({
         if (localData) {
           const userData = JSON.parse(localData)
           userPlan = userData.user?.plan
-          console.log(
-            '🔄 [CANCELATION FLOW] Using localStorage plan data:',
-            userPlan,
-          )
         }
       }
 
@@ -75,12 +65,6 @@ function CancelConfirmation({
         const allPlans = await getUserPlans()
         const currentPlanDetails = allPlans.find(
           (plan) => plan.id === userPlan.planId,
-        )
-        console.log('🔍 [CANCELATION FLOW] All plans:', allPlans)
-        console.log('🔍 [CANCELATION FLOW] User plan:', userPlan)
-        console.log(
-          '🔍 [CANCELATION FLOW] Current plan details:',
-          currentPlanDetails,
         )
 
         if (currentPlanDetails && !isSubaccount) {
@@ -105,10 +89,6 @@ function CancelConfirmation({
                 allowSuccessManager: false,
               },
             }
-            console.log(
-              '🔧 [CANCELATION FLOW] Added capabilities to free plan:',
-              freePlan,
-            )
           }
 
           // Use getFeaturesToLose function to get actual features that will be lost
@@ -123,27 +103,13 @@ function CancelConfirmation({
           setFeatures(planFeatures)
         } else if (isSubaccount) {
           let currentPlanFeatures = currentPlanDetails.features
-          console.log(
-            '🔍 [CANCELATION FLOW] Current plan features:',
-            currentPlanFeatures,
-          )
           if (typeof currentPlanFeatures === 'object') {
-            console.log(
-              '🔍 [CANCELATION FLOW] Current plan features is an object',
-            )
             currentPlanFeatures = currentPlanFeatures.map(
               (feature) => feature.text,
             )
           } else if (typeof currentPlanFeatures === 'string') {
-            console.log(
-              '🔍 [CANCELATION FLOW] Current plan features is a string',
-            )
             //convert to json array
             let planFeaturesJson = JSON.parse(currentPlanFeatures)
-            console.log(
-              '🔍 [CANCELATION FLOW] Plan features JSON:',
-              planFeaturesJson,
-            )
             currentPlanFeatures = planFeaturesJson.map(
               (feature) => feature.text,
             )
@@ -154,10 +120,6 @@ function CancelConfirmation({
               title: feature,
             }
           })
-          console.log(
-            '🔍 [CANCELATION FLOW] setting features for subaccount',
-            featuresToLose,
-          )
 
           setFeatures(featuresToLose)
         } else {
@@ -208,13 +170,7 @@ function CancelConfirmation({
         }}
       >
         <div className="flex flex-col items-center px-1 lg:px-0 pb-3 lg:pb-4">
-          <Image
-            src={'/otherAssets/IconAccount.png'}
-            height={48}
-            width={48}
-            alt="*"
-            className="h-10 w-10 lg:h-12 lg:w-12"
-          />
+          {renderBrandedIcon('/otherAssets/IconAccount.png', 48, 48)}
           <div className="text-center mt-1 lg:mt-2 text-lg lg:text-xl font-semibold">
             Confirm Your Cancellation
           </div>
@@ -233,7 +189,7 @@ function CancelConfirmation({
             {loading ? (
               <div className="flex items-center justify-center w-full mt-3 lg:mt-4 py-6 lg:py-8">
                 <div className="text-center">
-                  <div className="animate-spin rounded-full h-6 w-6 lg:h-8 lg:w-8 border-b-2 border-purple mx-auto mb-2"></div>
+                  <div className="animate-spin rounded-full h-6 w-6 lg:h-8 lg:w-8 border-b-2 border-brand-primary mx-auto mb-2"></div>
                   <div className="text-xs lg:text-sm text-gray-600">
                     Loading features...
                   </div>
@@ -247,13 +203,10 @@ function CancelConfirmation({
                       key={index}
                       className="flex flex-row items-center gap-1.5 lg:gap-2 flex-1 basis-1/2 min-w-0"
                     >
-                      <Image
-                        src="/svgIcons/selectedTickBtn.svg"
-                        height={24}
-                        width={24}
-                        alt="cross"
-                        className="flex-shrink-0 h-5 w-5 lg:h-6 lg:w-6"
-                      />
+                    <Checkbox
+                    checked={true}
+                    className="!rounded-full h-4 w-4 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                  />
                       <div className="text-xs lg:text-[13px] font-normal whitespace-nowrap overflow-hidden text-ellipsis">
                         {item.title}
                       </div>
@@ -275,16 +228,10 @@ function CancelConfirmation({
           >
             {confirmChecked ? (
               <div
-                className="bg-purple flex flex-row items-center justify-center rounded"
+                className="bg-brand-primary flex flex-row items-center justify-center rounded"
                 style={{ height: '20px', width: '20px' }}
               >
-                <Image
-                  src={'/assets/whiteTick.png'}
-                  height={8}
-                  width={10}
-                  alt="*"
-                  className="h-2 w-2.5"
-                />
+                {renderBrandedIcon('/assets/whiteTick.png', 8, 10)}
               </div>
             ) : (
               <div
@@ -300,7 +247,7 @@ function CancelConfirmation({
         </div>
 
         <button
-          className={`w-full flex items-center rounded-lg justify-center border h-[44px] lg:h-[50px] ${!confirmChecked ? 'bg-gray-300 text-black' : 'bg-purple text-white'}`}
+          className={`w-full flex items-center rounded-lg justify-center border h-[44px] lg:h-[50px] ${!confirmChecked ? 'bg-gray-300 text-black' : 'bg-brand-primary text-white'}`}
           style={{
             fontWeight: '400',
             fontSize: 14,

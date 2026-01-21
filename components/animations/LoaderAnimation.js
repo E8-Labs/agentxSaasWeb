@@ -106,7 +106,6 @@ const LoaderAnimation = ({
         const parsed = JSON.parse(raw)
         const role =
           parsed?.user?.userRole || parsed?.userRole || parsed?.role || null
-        console.log('🎯 [LoaderAnimation] Role:', role)
         if (role === 'AgencySubAccount' || role === 'Agency') {
           setIsSubaccount(true)
           return
@@ -118,7 +117,6 @@ const LoaderAnimation = ({
       // This works on localhost too - if UUID is present, show subaccount loader
       const hasAgencyUuid = hasAgencyUUID()
       if (hasAgencyUuid) {
-        console.log('🎯 [LoaderAnimation] Agency UUID detected, showing subaccount loader')
         setIsSubaccount(true)
         return
       }
@@ -137,7 +135,6 @@ const LoaderAnimation = ({
           !hostname.includes('dev.assignx.ai')
         
         if (isCustomDomain) {
-          console.log('🎯 [LoaderAnimation] Custom domain detected:', hostname)
           setIsSubaccount(true)
           return
         }
@@ -148,7 +145,6 @@ const LoaderAnimation = ({
         const pathname = window.location.pathname
         const uuidPattern = /\/onboarding\/([^\/]+)/
         if (uuidPattern.test(pathname)) {
-          console.log('🎯 [LoaderAnimation] Agency UUID in URL path detected')
           setIsSubaccount(true)
           return
         }

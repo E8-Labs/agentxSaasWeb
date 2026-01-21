@@ -21,16 +21,12 @@ export const getSupportUrlFor = (user) => {
 export function clearLogoutFlag() {
   if (typeof sessionStorage !== 'undefined') {
     sessionStorage.removeItem('_logout_flag')
-    console.log('✅ Logout flag cleared')
   }
 }
 
 export function logout(reason = 'Unknown reason') {
   // Log the logout event with timestamp and reason
   const timestamp = new Date().toISOString()
-  console.log(
-    `🚪 USER LOGOUT TRIGGERED - Time: ${timestamp}, Reason: ${reason}`,
-  )
 
   if (typeof document !== 'undefined') {
     // Preserve user location if needed
@@ -42,7 +38,6 @@ export function logout(reason = 'Unknown reason') {
     // This key is set by redux-persist configuration (usually 'persist:root')
     try {
       localStorage.removeItem('persist:root')
-      console.log('✅ Redux persist storage cleared')
     } catch (error) {
       console.warn('Could not clear Redux persist storage:', error)
     }
@@ -77,7 +72,6 @@ export function logout(reason = 'Unknown reason') {
     // even if localStorage gets repopulated by another script/tab/extension
     if (typeof sessionStorage !== 'undefined') {
       sessionStorage.setItem('_logout_flag', Date.now().toString())
-      console.log('✅ Logout flag set in sessionStorage')
     }
     
     // Force redirect to home page with logout parameter to prevent auto-login

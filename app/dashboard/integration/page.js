@@ -100,16 +100,12 @@ function Page() {
       if (response) {
         setKeyLoader(false)
 
-        console.log('response.data.data', response.data.data)
         if (response.data.status) {
           setMyKeys(response.data.data)
-        } else {
-          console.log('response.data.message', response.data.message)
-        }
+        } else {}
       }
     } catch (e) {
       setKeyLoader(false)
-      console.log('error in get my api keys', e)
     }
   }
 
@@ -145,15 +141,10 @@ function Page() {
         setGenrateeyLoader(false)
         setGenrateeyLoader2(false)
 
-        console.log('response.data.data', response.data.data)
         if (response.data.status) {
           setShowCopySnak('Api key generated successfully')
           setMyKeys((prevKeys) => [...prevKeys, response.data.data])
         } else {
-          console.log(
-            'get genrate api keys api message is',
-            response.data.message,
-          )
           setShowCopySnak(
             response?.data?.message || 'Failed to generate API key',
           )
@@ -163,7 +154,6 @@ function Page() {
       setGenrateeyLoader2(false)
       setGenrateeyLoader(false)
       setShowCopySnak(e.message || 'Failed to generate API key')
-      console.log('error in genrate api key', e)
     }
   }
 
@@ -311,7 +301,6 @@ function Page() {
               ...userInfo,
             }
 
-            console.log('Google login details are', googleLoginData)
             let response = await connectGmailAccount(googleLoginData)
             setGoogleAuthLoader(false)
 

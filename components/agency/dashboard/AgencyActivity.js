@@ -21,6 +21,7 @@ import UsersWithCalender from '@/components/admin/dashboard/UsersWithCalenders'
 import UsersWithLeads from '@/components/admin/dashboard/UsersWithLeads'
 import UsersWithTeam from '@/components/admin/dashboard/UsersWithTeam'
 import UsersWithUniqueNumbers from '@/components/admin/dashboard/UsersWithUniqueNumbersModal'
+import UsersWithPlan from '@/components/admin/dashboard/UsersWithPlan'
 import Apis from '@/components/apis/Apis'
 import { FindVoice } from '@/components/createagent/Voices'
 import { Avatar, AvatarImage } from '@/components/ui/avatar'
@@ -62,6 +63,8 @@ function AgencyActivity({ user, selectedAgency }) {
     useState(false)
   const [showAllUsersWithCalender, setShowAllUsersWithCalender] =
     useState(false)
+  const [showUsersWithPlan, setShowUsersWithPlan] = useState(false)
+  const [selectedPlanName, setSelectedPlanName] = useState(null)
 
   const [plans, setPlans] = useState([])
   const [loading, setLoading] = useState(false)
@@ -80,7 +83,6 @@ function AgencyActivity({ user, selectedAgency }) {
     setLoading(true)
     try {
       const token = user.token // Extract JWT token
-      console.log('Agency id passed is', selectedAgency)
       // console.log('trying to get states',token)
       let ApiPath = Apis.adminStats
       let seperator = '?'
@@ -88,8 +90,6 @@ function AgencyActivity({ user, selectedAgency }) {
         ApiPath = ApiPath + seperator + `userId=${selectedAgency.id}`
         seperator = '&'
       }
-
-      console.log('Api path for get activity is', ApiPath)
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -99,9 +99,7 @@ function AgencyActivity({ user, selectedAgency }) {
 
       if (response.data) {
         let data = response.data.data
-        console.log(data)
         setStats(data)
-        console.log('stats data is for activity tab is', data)
       } else {
         console.error('Failed to fetch admin stats:', data.error)
       }
@@ -226,7 +224,13 @@ function AgencyActivity({ user, selectedAgency }) {
       </span> */}
       {/*  Subscriptions  */}
       {stats?.totalUsers && stats?.usersOnPlans ? (
-        <SubscriptionsStatsComponent stats={stats} />
+        <SubscriptionsStatsComponent
+          stats={stats}
+          onViewPlan={(planName) => {
+            setSelectedPlanName(planName)
+            setShowUsersWithPlan(true)
+          }}
+        />
       ) : (
         <div className="w-[96%] mt-4">
           <Image
@@ -238,6 +242,19 @@ function AgencyActivity({ user, selectedAgency }) {
           />
         </div>
       )}
+
+      {/* Users with Plan Modal */}
+      <UsersWithPlan
+        user={user}
+        open={showUsersWithPlan}
+        planName={selectedPlanName}
+        onClose={() => {
+          setShowUsersWithPlan(false)
+          setSelectedPlanName(null)
+        }}
+        from="agency"
+        selectedAgency={selectedAgency}
+      />
 
       {/*  DAU MAU  */}
       <div
@@ -596,64 +613,188 @@ function VoicesComponent({
   )
 }
 
-function SubscriptionsStatsComponent({ stats, plans }) {
-  return (
-    <div className="  grid gap-2 grid-cols-7 md:grid-cols-7 lg:grid-cols-7 bg-white pe-4 rounded-lg w-[96%]">
-      {/* Top Metrics */}
-      {stats?.totalUsers ? (
-        <Card className="cursor-pointer border-none shadow-none w-[11vw]">
-          <CardHeader>
-            <CardTitle>Total Users</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <h2 className="cursor-pointer text-3xl font-bold">
-              {stats?.totalUsers}
-            </h2>
-          </CardContent>
-        </Card>
-      ) : (
-        <div>
-          <Image
-            alt="placeholder"
-            src="/agencyIcons/placeholderBox.png"
-            width={200}
-            height={120}
-          />
-        </div>
-      )}
+function SubscriptionsStatsComponent({ stats, plans, onViewPlan }) {
+  const scrollContainerRef = React.useRef(null)
+  const [showLeftArrow, setShowLeftArrow] = React.useState(false)
+  const [showRightArrow, setShowRightArrow] = React.useState(true)
 
-      {stats?.usersOnPlans ? (
-        Object.entries(stats.usersOnPlans).map(([planName, data]) => (
-          <Card
-            key={planName}
-            className="cursor-pointer border-none shadow-none w-[11vw]"
+  const checkScrollButtons = () => {
+    if (scrollContainerRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current
+      setShowLeftArrow(scrollLeft > 0)
+      setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10)
+    }
+  }
+
+  React.useEffect(() => {
+    checkScrollButtons()
+    const container = scrollContainerRef.current
+    if (container) {
+      container.addEventListener('scroll', checkScrollButtons)
+      // Check on resize
+      window.addEventListener('resize', checkScrollButtons)
+      return () => {
+        container.removeEventListener('scroll', checkScrollButtons)
+        window.removeEventListener('resize', checkScrollButtons)
+      }
+    }
+  }, [stats?.usersOnPlans])
+
+  const scroll = (direction) => {
+    if (scrollContainerRef.current) {
+      const scrollAmount = 300 // Scroll by 300px
+      const currentScroll = scrollContainerRef.current.scrollLeft
+      const newScroll =
+        direction === 'right'
+          ? currentScroll + scrollAmount
+          : currentScroll - scrollAmount
+
+      scrollContainerRef.current.scrollTo({
+        left: newScroll,
+        behavior: 'smooth',
+      })
+    }
+  }
+
+  return (
+    <>
+      <style jsx>{`
+        .plans-scroll-container::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
+      <div className="relative bg-white rounded-lg w-[96%]">
+        {/* Left Arrow Button */}
+        {showLeftArrow && (
+          <button
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-100 rounded-full p-2 shadow-lg border border-gray-200"
+            style={{ transform: 'translateY(-50%)' }}
           >
-            <CardHeader className="w-full  ">
-              <CardTitle>{planName}</CardTitle>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M15 18L9 12L15 6"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        )}
+
+        {/* Scrollable Container */}
+        <div
+          ref={scrollContainerRef}
+          className="plans-scroll-container flex gap-2 overflow-x-auto pe-4 ps-4"
+          style={{
+            scrollbarWidth: 'none',
+            msOverflowStyle: 'none',
+          }}
+          onScroll={checkScrollButtons}
+        >
+        {/* Total Users Card */}
+        {stats?.totalUsers ? (
+          <Card className="cursor-pointer border-none shadow-none flex-shrink-0 w-[11vw] min-w-[150px]">
+            <CardHeader>
+              <CardTitle>Total Users</CardTitle>
             </CardHeader>
             <CardContent>
-              <h2 className="cursor-pointer text-2xl font-regular">
-                {data.count}
+              <h2 className="cursor-pointer text-3xl font-bold">
+                {stats?.totalUsers}
               </h2>
             </CardContent>
-            <CardContent>
-              <p className="cursor-pointer text-lg font-regular text-gray-500">
-                {data.percentage}%
-              </p>
-            </CardContent>
           </Card>
-        ))
-      ) : (
-        <div>
-          <Image
-            alt="placeholder"
-            src="/agencyIcons/placeholderBox.png"
-            width={320}
-            height={120}
-          />
-        </div>
+        ) : (
+          <div className="flex-shrink-0">
+            <Image
+              alt="placeholder"
+              src="/agencyIcons/placeholderBox.png"
+              width={200}
+              height={120}
+            />
+          </div>
+        )}
+
+        {/* Plan Cards */}
+        {stats?.usersOnPlans ? (
+          Object.entries(stats.usersOnPlans).map(([planName, data]) => (
+            <Card
+              key={planName}
+              className="cursor-pointer border-none shadow-none flex-shrink-0 w-[11vw] min-w-[150px]"
+            >
+              <CardHeader className="w-full flex flex-row items-baseline justify-between pb-2">
+                <CardTitle className="text-sm truncate flex-1 pr-2 leading-tight">
+                  {planName}
+                </CardTitle>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    if (onViewPlan) {
+                      onViewPlan(planName)
+                    }
+                  }}
+                  className="text-sm text-blue-600 hover:text-blue-800 font-semibold cursor-pointer underline flex-shrink-0 leading-tight m-0 p-0 border-0 bg-transparent"
+                >
+                  View
+                </button>
+              </CardHeader>
+              <CardContent>
+                <h2 className="cursor-pointer text-2xl font-regular">
+                  {data.count}
+                </h2>
+              </CardContent>
+              <CardContent className="pt-0">
+                <p className="cursor-pointer text-lg font-regular text-gray-500">
+                  {data.percentage}%
+                </p>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <div className="flex-shrink-0">
+            <Image
+              alt="placeholder"
+              src="/agencyIcons/placeholderBox.png"
+              width={320}
+              height={120}
+            />
+          </div>
+        )}
+      </div>
+
+      {/* Right Arrow Button */}
+      {showRightArrow && (
+        <button
+          onClick={() => scroll('right')}
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-100 rounded-full p-2 shadow-lg border border-gray-200"
+          style={{ transform: 'translateY(-50%)' }}
+        >
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M9 18L15 12L9 6"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
       )}
-    </div>
+      </div>
+    </>
   )
 }
 

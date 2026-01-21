@@ -20,11 +20,8 @@ export default function StripeDetailsCard({
     try {
       setLoader(true)
 
-      console.log('stripeData', stripeData)
-
       const path = Apis.createStripeLoginLink
 
-      console.log('path', path)
       const response = await axios.post(
         path,
         {
@@ -38,9 +35,6 @@ export default function StripeDetailsCard({
         },
       )
       if (response) {
-        console.log('response', response)
-
-        console.log('response.data.url', response)
         const newWindow = window.open()
         if (newWindow) {
           newWindow.opener = null
@@ -50,9 +44,7 @@ export default function StripeDetailsCard({
           window.location.href = response.data.url
         }
       }
-    } catch (error) {
-      console.log('error', error)
-    } finally {
+    } catch (error) {} finally {
       setLoader(false)
     }
   }

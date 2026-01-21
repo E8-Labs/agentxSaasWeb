@@ -107,7 +107,6 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
         },
       })
       if (response) {
-        console.log('response of get user settings api is', response)
         const Data = response?.data?.data
         setAllowSuportWebCalendar(Data?.supportWebinarCalendar || false)
         setSuportWebCalendar(Data?.supportWebinarCalendarUrl || '')
@@ -129,7 +128,7 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
         setAllowResourceHub(Data?.resourceHub || false)
         setResourceHub(Data?.resourceHubUrl || '')
         setResourceHubTitle(Data?.resourceHubTitle)
-        
+
         // Load support widget logo and title from agency branding
         let brandingApiUrl = Apis.getAgencyBranding
         if (selectedAgency?.id) {
@@ -156,14 +155,12 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
         }
       }
     } catch (err) {
-      console.log('Error occured in api is', err)
       setInitialLoader(false)
     }
   }
 
   //user settings api data
   const userSettingDataUpgrade = (from) => {
-    console.log('Api will run for', from)
     if (from === 'suportWebCalendar') {
       setAddSuportWebCalendarLoader(true)
       return {
@@ -205,7 +202,6 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
 
   //api data for deleting user setting
   const userSettingDataDel = (from) => {
-    console.log('Api will run for', from)
     if (from === 'suportWebCalendarDel') {
       setDelSuportWebCalendarLoader(true)
       return {
@@ -284,14 +280,12 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
       } else {
         ApiData = userSettingDataUpgrade(from)
       }
-      console.log('Api data sending in user setting api is', ApiData)
       const response = await axios.put(ApiPath, ApiData, {
         headers: {
           Authorization: 'Bearer ' + Auth,
           'Content-Type': 'application/json',
         },
       })
-      console.log('Response of user settings api is', response)
       if (response) {
         if (response.data.status === true) {
           // if (from?.endsWith("Del")) {

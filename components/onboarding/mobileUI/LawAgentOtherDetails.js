@@ -45,7 +45,7 @@ function LawAgentOtherDetails({
         Where do you primarily practice law?
       </div>
       <Input
-        placeholder="Specific cities, counties, or regions"
+        placeholder="Type here"
         className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
         style={{ ...styles.inputStyle }}
         value={customerService}
@@ -58,7 +58,7 @@ function LawAgentOtherDetails({
         Name of the firm or legal practice you work with, if any.
       </div>
       <Input
-        placeholder="Name"
+        placeholder="Type here"
         className="border-[#00000010] focus:border-black focus-visible:border-black w-full mt-2"
         style={{ ...styles.inputStyle }}
         value={companyName}

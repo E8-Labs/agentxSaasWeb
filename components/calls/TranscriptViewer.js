@@ -126,14 +126,14 @@ export function TranscriptBubble({
                 </div>
               ) : (
                 // <ChatBubbleOutlineOutlined fontSize="small" />
-                <div></div>
+                (<div></div>)
               )}
             </button>
           </div>
         )}
       </div>
     </div>
-  )
+  );
 }
 
 export function TranscriptViewer({ callId, onPopoverStateChange }) {
@@ -331,7 +331,6 @@ export function TranscriptViewer({ callId, onPopoverStateChange }) {
     try {
       setLoading(true)
       let apiPath = Apis.getCallTranscript + '?callId=' + callId
-      console.log('Api path is', apiPath)
       const response = await axios.get(apiPath, {
         headers: {
           Authorization: 'Bearer ' + Token,
@@ -340,11 +339,8 @@ export function TranscriptViewer({ callId, onPopoverStateChange }) {
 
       if (response) {
         setLoading(false)
-        console.log('Response of get call transcript is', response.data)
         if (response.data.status === true) {
-          console.log('call transcript is', response.data.data)
           const filteredMessages = getMessagesWithLoopCheck(response.data.data)
-          console.log(`Filtered Transcript is `, filteredMessages)
           // const parsedMessages = parseTranscript(response.data.data.transcript);
           setMessages(filteredMessages)
         }
@@ -374,7 +370,6 @@ export function TranscriptViewer({ callId, onPopoverStateChange }) {
 
       if (response) {
         setAddCommentLoader(false)
-        console.log('Response of add comment api is', response.data)
         if (response.data.status === true) {
           if (activeIndex !== null) {
             const updatedMessages = [...messages]
@@ -472,7 +467,7 @@ export function TranscriptViewer({ callId, onPopoverStateChange }) {
             </div>
 
             <div 
-              style={{ pointerEvents: 'auto', position: 'relative', zIndex: 1 }}
+              style={{ pointerEvents: 'auto', position: 'relative', zIndex: 2 }}
               onClick={(e) => e.stopPropagation()}
               onMouseDown={(e) => e.stopPropagation()}
             >

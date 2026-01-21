@@ -119,25 +119,15 @@ const Userleads = ({
         column.key?.toLowerCase() === 'address',
     )
 
-    if (addressColumn) {
-      console.log('Address column detected:', addressColumn)
-    }
+    if (addressColumn) {}
 
     // Check if any lead has address data
     const hasAddressData = leads.some(
       (lead) => lead.address && lead.address.trim() !== '',
     )
 
-    console.log(
-      'Has address data in leads:',
-      hasAddressData,
-      'Total leads:',
-      leads.length,
-    )
-
     // If no leads have address data, filter out address column
     if (!hasAddressData && addressColumn) {
-      console.log('Filtering out address column - no leads have address data')
       return columns.filter(
         (column) =>
           column.title?.toLowerCase() !== 'address' &&
@@ -145,9 +135,7 @@ const Userleads = ({
       )
     }
 
-    if (hasAddressData && addressColumn) {
-      console.log('Keeping address column - leads have address data')
-    }
+    if (hasAddressData && addressColumn) {}
 
     return columns
   }
@@ -476,9 +464,6 @@ const Userleads = ({
   function safeLocalStorageSet(key, data, maxRetries = 2) {
     try {
       const dataString = JSON.stringify(data)
-      console.log(
-        `💾 Attempting to store ${key}, size: ${dataString.length} characters`,
-      )
 
       // Check if data is too large (localStorage typically has 5-10MB limit)
       if (dataString.length > 4 * 1024 * 1024) {
@@ -494,7 +479,6 @@ const Userleads = ({
       console.warn(`⚠️ localStorage quota exceeded for ${key}:`, error.message)
 
       if (maxRetries > 0) {
-        console.log(`🔄 Attempting cleanup and retry for ${key}`)
         try {
           // Clean up old cached leads data to free space
           cleanupOldCachedLeads()
@@ -503,7 +487,6 @@ const Userleads = ({
           localStorage.removeItem(key)
           // Try again
           localStorage.setItem(key, JSON.stringify(data))
-          console.log(`✅ Successfully stored ${key} after cleanup`)
           return true
         } catch (retryError) {
           console.warn(
@@ -534,18 +517,11 @@ const Userleads = ({
         }
       }
 
-      console.log(
-        `📊 localStorage usage: ${Math.round(totalSize / 1024)}KB total`,
-      )
-      console.log(`📊 localStorage keys: ${keysToCheck.length}`)
-
       // Show leads-related keys specifically
       const leadsKeys = keysToCheck.filter((item) =>
         item.key.startsWith('Leads'),
       )
-      leadsKeys.forEach((item) => {
-        console.log(`📋 ${item.key}: ${Math.round(item.size / 1024)}KB`)
-      })
+      leadsKeys.forEach((item) => {})
 
       return {
         totalSize,
@@ -561,7 +537,6 @@ const Userleads = ({
   // Function to clean up old cached leads data to free localStorage space
   function cleanupOldCachedLeads() {
     try {
-      console.log('🧹 Cleaning up old cached leads data')
       const usageBefore = checkLocalStorageUsage()
 
       const keysToCheck = []
@@ -580,19 +555,14 @@ const Userleads = ({
         const keysToRemove = keysToCheck.slice(0, keysToCheck.length - 2) // Keep last 2
 
         keysToRemove.forEach((key) => {
-          console.log(`🗑️ Removing old cached data: ${key}`)
           localStorage.removeItem(key)
         })
       }
 
       const usageAfter = checkLocalStorageUsage()
-      console.log(
-        `✅ Cleanup completed. Remaining cached sheets: ${keysToCheck.length}`,
-      )
 
       if (usageBefore && usageAfter) {
         const savedSpace = usageBefore.totalSize - usageAfter.totalSize
-        console.log(`💾 Freed up: ${Math.round(savedSpace / 1024)}KB`)
       }
     } catch (error) {
       console.warn('⚠️ Error during localStorage cleanup:', error.message)
@@ -1025,7 +995,6 @@ const Userleads = ({
     let leadsData = LeadsInSheet[SelectedSheetId] || null
     // //console.log;
     if (!leadsData) {
-      console.log('I am trigered check 1')
       let d = localStorage.getItem(`Leads${SelectedSheetId}`)
       if (d) {
         leadsData = JSON.parse(d)
@@ -1058,9 +1027,7 @@ const Userleads = ({
       // //console.log;
       setLeadColumns(dynamicColumns)
       // return
-    } else {
-      console.log('I am trigered check 4')
-    }
+    } else {}
   }
 
   //function for filtering leads
@@ -1103,7 +1070,6 @@ const Userleads = ({
         }
         ApiPath = `${Apis.getLeads}?sheetId=${SelectedSheetId}&id=${nextCursorValue}`
       }
-      console.log('Api path is', ApiPath)
 
       // return
       const response = await axios.get(ApiPath, {
@@ -1120,9 +1086,6 @@ const Userleads = ({
         // );
         if (currentRequestVersion === requestVersion.current) {
           const responseData = response.data
-          console.log('Response of get leads api is', responseData)
-          console.log('Cursor value is', responseData.nextCursor)
-          console.log('Has more value is', responseData.hasMore)
           setNextCursorValue(responseData.nextCursor)
           if (response.data.status === true) {
             setShowFilterModal(false)
@@ -1212,10 +1175,7 @@ const Userleads = ({
                   setLeadColumns([])
                 }
               }
-            } else {
-              // Response is for a different sheet, ignore it
-              console.log('Ignoring response for different sheet:', sheetId, 'Current:', SelectedSheetId)
-            }
+            } else {}
 
             setHasMore(responseData.hasMore)
 
@@ -1949,7 +1909,6 @@ const Userleads = ({
         },
       })
       if (response.data) {
-        console.log('response.data', response.data)
         if (response.data.status === true) {
           window.open(response.data.downloadUrl, '_blank')
         } else {
@@ -1968,9 +1927,9 @@ const Userleads = ({
   return (
     <div className="w-full flex flex-col items-center">
       {initialLoader || sheetsLoader ? ( ///|| !(LeadsList.length > 0 && showNoLeadsLabel)
-        <div className="w-screen">
+        (<div className="w-screen">
           <LeadLoading />
-        </div>
+        </div>)
       ) : (
         <>
           <AgentSelectSnackMessage
@@ -3194,10 +3153,9 @@ const Userleads = ({
           </Modal>
         </>
       )}
-
       <div></div>
     </div>
-  )
+  );
 }
 
 export default Userleads

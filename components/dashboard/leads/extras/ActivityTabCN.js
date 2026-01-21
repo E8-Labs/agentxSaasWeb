@@ -16,6 +16,9 @@ const ActivityTabCN = ({
   onCopyCallId,
   onReadTranscript,
   onPlayRecording,
+  leadId = null,
+  leadName = null,
+  selectedUser = null,
 }) => {
   if (callActivity?.length < 1) {
     return (
@@ -52,6 +55,9 @@ const ActivityTabCN = ({
           onPlayRecording={onPlayRecording}
           onCopyCallId={onCopyCallId}
           onReadTranscript={onReadTranscript}
+          leadId={leadId}
+          leadName={leadName}
+          selectedUser={selectedUser}
         />
       )
     }

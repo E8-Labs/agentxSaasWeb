@@ -17,6 +17,7 @@ import {
   checkPhoneNumber,
   getLocalLocation,
 } from '@/components/onboarding/services/apisServices/ApiService'
+import PermissionManager from '@/components/permissions/PermissionManager'
 
 const NewInviteTeamModal = ({
   openInvitePopup,
@@ -74,6 +75,10 @@ const NewInviteTeamModal = ({
   const [checkPhoneLoader, setCheckPhoneLoader] = useState(null)
   const [checkPhoneResponse, setCheckPhoneResponse] = useState(null)
   const [countryCode, setCountryCode] = useState('') // Default country
+
+  // Permission management state
+  const [showPermissionManager, setShowPermissionManager] = useState(false)
+  const [selectedPermissions, setSelectedPermissions] = useState(null)
 
   useEffect(() => {
     let loc = getLocalLocation()
@@ -198,7 +203,6 @@ const NewInviteTeamModal = ({
 
   //funcion to invitem tem member
   const inviteTeamMember = async () => {
-    console.log('Check 1')
     // return
     if (
       teamMembers.some(
@@ -211,9 +215,7 @@ const NewInviteTeamModal = ({
       setShowError(true)
       return
     }
-    console.log('Check 2')
     try {
-      console.log('Check 3')
       const data = localStorage.getItem('User')
       setInviteTeamLoader(true)
       if (data) {
@@ -230,9 +232,8 @@ const NewInviteTeamModal = ({
               email: item.email,
             })),
           userId: userID,
+          permissions: selectedPermissions, // Include permissions if set
         }
-
-        console.log('Api data is', apidata)
 
         // return
 
@@ -244,11 +245,11 @@ const NewInviteTeamModal = ({
 
         if (response) {
           setInviteTeamLoader(false)
-          console.log('Response of api is', response.data)
           if (response.data.status === true) {
             setShowSnak(true)
             handleCloseInviteTeam('showSnack')
             setTeamMembers(defaultMembers)
+            setSelectedPermissions(null) // Reset permissions after successful invitation
             // getMyteam()
           } else {
             // //console.log;
@@ -443,6 +444,20 @@ const NewInviteTeamModal = ({
                 </div>
               </div>
 
+              <div className="flex flex-row gap-3 mt-4">
+                <button
+                  type="button"
+                  onClick={() => setShowPermissionManager(true)}
+                  className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+                  style={{
+                    borderColor: selectedPermissions ? 'hsl(var(--brand-primary))' : undefined,
+                    color: selectedPermissions ? 'hsl(var(--brand-primary))' : undefined,
+                  }}
+                >
+                  {selectedPermissions ? `Permissions Set (${selectedPermissions.length})` : 'Set Permissions'}
+                </button>
+              </div>
+
               {inviteTeamLoader ? (
                 <div className="flex flex-col items-center p-5">
                   <CircularProgress size={30} sx={{ color: 'hsl(var(--brand-primary))' }} />
@@ -489,6 +504,19 @@ const NewInviteTeamModal = ({
                   </div>
                 </button>
               )}
+
+              <PermissionManager
+                open={showPermissionManager}
+                onClose={() => setShowPermissionManager(false)}
+                teamMemberId={null}
+                context="agency"
+                contextUserId={null}
+                onPermissionsChange={(permissions) => {
+                  setSelectedPermissions(permissions)
+                  setShowPermissionManager(false)
+                }}
+                initialPermissions={selectedPermissions}
+              />
 
               {/* Can be use full to add shadow */}
               {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}

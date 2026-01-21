@@ -26,7 +26,7 @@ import { Searchbar } from '@/components/general/MuiSearchBar'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
 import { allIntegrations } from '@/constants/Constants'
 
-function AdminIntegration({ selectedUser }) {
+function AdminIntegration({ selectedUser, agencyUser }) {
   const [showKeysBox, setshowKeysBox] = useState(false)
   const [myKeys, setMyKeys] = useState([])
   const [keyLoader, setKeyLoader] = useState(false)
@@ -67,7 +67,6 @@ function AdminIntegration({ selectedUser }) {
       // //console.log;
 
       let path = Apis.myApiKeys + '?userId=' + selectedUser.id
-      console.log('api path', path)
 
       const response = await axios.get(path, {
         headers: {
@@ -172,7 +171,7 @@ function AdminIntegration({ selectedUser }) {
   }
 
   return (
-    <div className="w-full h-full flex flex-col items-center">
+    <div className={`w-full h-screen flex flex-col items-center mt-[22vh]`}>
       {/* Slider code */}
       <div
         style={{

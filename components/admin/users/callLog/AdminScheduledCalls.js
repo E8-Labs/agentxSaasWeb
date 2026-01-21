@@ -113,9 +113,9 @@ function AdminScheduledCalls({ selectedUser }) {
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
-        item.firstName.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      )
+        (item.firstName.toLowerCase().includes(term))
+      );
     })
 
     setFilteredSelectedLeadsList(filtered)
@@ -157,13 +157,6 @@ function AdminScheduledCalls({ selectedUser }) {
       // const ApiPath = `${Apis.getSheduledCallLogs}?mainAgentId=${mainAgent.id}`;
       let ApiPath = `${Apis.getSheduledCallLogs}?scheduled=true&userId=${selectedUser.id}`
 
-      console.log(
-        'Fetching scheduled calls for userId:',
-        selectedUser.id,
-        'API Path:',
-        ApiPath,
-      )
-
       ApiPath = ApiPath
 
       // //console.log;
@@ -177,13 +170,10 @@ function AdminScheduledCalls({ selectedUser }) {
 
       if (response && response.data) {
         if (response.data.status && response.data.data) {
-          console.log('Scheduled calls data received:', response.data.data)
           setFilteredAgentsList(response.data.data)
           setCallDetails(response.data.data)
           setAgentsList(response.data.data)
         } else {
-          // No data returned
-          console.log('No scheduled calls data:', response.data.message)
           setFilteredAgentsList([])
           setCallDetails([])
           setAgentsList([])
@@ -220,9 +210,9 @@ function AdminScheduledCalls({ selectedUser }) {
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
-        item.firstName.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      )
+        (item.firstName.toLowerCase().includes(term))
+      );
     })
 
     setFilteredSheduledCallDetails(filtered)
@@ -242,9 +232,9 @@ function AdminScheduledCalls({ selectedUser }) {
         // item.LeadModel?.firstName.toLowerCase().includes(term) ||
         // item.LeadModel?.lastName.toLowerCase().includes(term) ||
         // item.LeadModel?.address.toLowerCase().includes(term) ||
-        item?.agents[0]?.name?.toLowerCase().includes(term)
         // (item.LeadModel?.phone && agentsList.includes(term))
-      )
+        (item?.agents[0]?.name?.toLowerCase().includes(term))
+      );
     })
 
     setFilteredAgentsList(filtered)
@@ -279,7 +269,6 @@ function AdminScheduledCalls({ selectedUser }) {
       let path =
         Apis.getLeadsInBatch +
         `?batchId=${batch.id}&offset=${offset}&userId=${selectedUser.id}`
-      console.log('Api Call Leads : ', path)
       const response = await fetch(path, {
         method: 'GET',
         headers: {
@@ -291,15 +280,6 @@ function AdminScheduledCalls({ selectedUser }) {
       const data = await response.json()
 
       if (response.ok) {
-        //console.log;
-        // setSelectedLeadsList(data.data);
-        // setFilteredSelectedLeadsList(data.data);
-        // localStorage.setItem(
-        //   PersistanceKeys.LeadsInBatch + `${batch.id}`,
-        //   JSON.stringify(data.data)
-        // );
-
-        console.log('Response of leads list detail', data.data)
         if (firstApiCall) {
           setSelectedLeadsList(data.data)
           setFilteredSelectedLeadsList(data.data)

@@ -65,7 +65,7 @@ import {
 } from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useMemo } from 'react'
 
 import Apis from '@/components/apis/Apis'
 import getProfileDetails from '@/components/apis/GetProfile'
@@ -113,6 +113,8 @@ import ActivityTabCN from './ActivityTabCN'
 import InsightsTabCN from './InsightsTabCN'
 import CustomFieldsCN from './CustomFieldsCN'
 import TabsCN from './TabsCN'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
+import { Input } from '@/components/ui/input'
 
 const LeadDetails = ({
   showDetailsModal,
@@ -137,6 +139,7 @@ const LeadDetails = ({
 
   const [selectedLeadsDetails, setSelectedLeadsDetails] = useState(null)
   const [leadColumns, setLeadColumns] = useState([])
+  const [recentlyDeletedTags, setRecentlyDeletedTags] = useState(new Set())
 
   const [globalLoader, setGlobalLoader] = useState(false)
   //code for emailPopup
@@ -245,9 +248,7 @@ const LeadDetails = ({
     isVisible: false,
   })
 
-  useEffect(() => {
-    console.log('showSnackMsg', showSnackMsg)
-  }, [showSnackMsg])
+  useEffect(() => {}, [showSnackMsg])
 
   // Helper function to show snackbar messages
   const showSnackbar = (message, type = SnackbarTypes.Success) => {
@@ -319,10 +320,6 @@ const LeadDetails = ({
     // Only use selectedUser prop if it has an id - no fallback to userLocalData
     // This ensures we're always using the correct selectedUser prop
     const userToPass = selectedUser?.id ? selectedUser : null
-    console.log('🔍 [LeadDetails] Memoized selectedUser for UpgradePlan:', {
-      selectedUserProp: selectedUser ? { id: selectedUser.id, hasId: !!selectedUser.id } : 'null',
-      memoizedUser: userToPass ? { id: userToPass.id, hasId: !!userToPass.id, userRole: userToPass.userRole } : 'null'
-    })
     return userToPass
   }, [selectedUser?.id]) // Only recalculate when selectedUser.id changes
 
@@ -448,7 +445,6 @@ const LeadDetails = ({
         // Add userId parameter if selectedUser is provided (admin view)
         if (selectedUser?.id) {
           path = path + `?userId=${selectedUser.id}`
-          console.log('Api path for getting team members for selected user:', path)
         }
 
         const response = await axios.get(path, {
@@ -461,17 +457,6 @@ const LeadDetails = ({
           setGetTeamLoader(false)
 
           if (response.data.status === true) {
-            //console.log;
-            console.log('🔍 [LeadDetails] getMyteam response:', {
-              myTeam: response.data.data,
-              myTeamAdmin: response.data.admin,
-              myTeamStructure: response.data.data?.map(t => ({
-                id: t.id,
-                invitedUserId: t.invitedUserId,
-                invitedUser_id: t.invitedUser?.id,
-                name: t.name || t.invitedUser?.name,
-              })),
-            })
             setMyTeam(response.data.data)
             setMyTeamAdmin(response.data.admin)
           } else {
@@ -487,129 +472,178 @@ const LeadDetails = ({
   }
 
   //function to assign lead to the team
+  // Function to assign lead to the team member
+  // Function to assign lead to the team member - COMPLETELY REWRITTEN
   const handleAssignLeadToTeammember = async (item) => {
+    setGlobalLoader(true);
     try {
-      //console.log;
-      handleClosePopup()
-      setGlobalLoader(true)
-      console.log('🔵 [LeadDetails] Item passed is', item)
-      console.log('🔵 [LeadDetails] Item details:', {
+      handleClosePopup();
+      setGlobalLoader(true);
+
+      console.log('🎯 [handleAssignLeadToTeammember] Starting assignment for:', {
+        item,
         itemId: item.id,
-        itemInvitedUserId: item.invitedUserId,
-        itemInvitedUser_id: item.invitedUser?.id,
-        itemName: item.name,
-      })
-      let ApiData = null
-      if (item.invitedUserId) {
-        ApiData = {
-          leadId: selectedLeadsDetails.id,
-          teamMemberUserId: item.invitedUserId,
-        }
-      } else {
-        ApiData = {
-          leadId: selectedLeadsDetails.id,
-          teamMemberUserId: item.id,
-        }
-      }
-      console.log('🔵 [LeadDetails] Api data to send in api is', ApiData)
-      // selectedLeadsDetails.id,
-      //   item.invitingUserId
-      // return;
-      let response = await AssignTeamMember(ApiData)
-      console.log('🔵 [LeadDetails] Assignment response:', response?.data)
-      console.log('🔵 [LeadDetails] Response status:', response?.data?.status)
-      console.log('🔵 [LeadDetails] Response message:', response?.data?.message)
+        invitedUserId: item.invitedUserId,
+        invitedUser_id: item.invitedUser?.id,
+        name: item.name
+      });
+
+      // Determine the user ID to send to API
+      const teamMemberUserId = item.invitedUserId || item.id;
+
+      const ApiData = {
+        leadId: selectedLeadsDetails.id,
+        teamMemberUserId: teamMemberUserId,
+      };
+
+      console.log('🎯 [handleAssignLeadToTeammember] API data:', ApiData);
+
+      let response = await AssignTeamMember(ApiData);
+      console.log('🎯 [handleAssignLeadToTeammember] API response:', response?.data);
+
       if (response && response.data && response.data.status === true) {
-        let updatedLead = null
-        setSelectedLeadsDetails((prevData) => {
-          // Filter duplicates before adding
-          const existingIds = (prevData.teamsAssigned || []).map(u => u.id || u.invitedUserId)
-          const itemId = item.id || item.invitedUserId
-
-          // Only add if not already assigned
-          if (!existingIds.includes(itemId)) {
-            updatedLead = {
-              ...prevData,
-              teamsAssigned: [...(prevData.teamsAssigned || []), item],
-            }
-            return updatedLead
+        // Create a proper team member object for state
+        const newTeamMember = {
+          id: item.id,
+          invitedUserId: item.invitedUserId,
+          invitingUserId: item.invitingUserId,
+          name: item.name || item.invitedUser?.name,
+          thumb_profile_image: item.thumb_profile_image || item.invitedUser?.thumb_profile_image,
+          invitedUser: item.invitedUser || {
+            id: item.invitedUserId || item.id,
+            name: item.name,
+            thumb_profile_image: item.thumb_profile_image
           }
-          updatedLead = prevData
-          return prevData
-        })
-        // Call callback with updated lead data
-        if (updatedLead && leadAssignedTeam) {
-          leadAssignedTeam(item, updatedLead)
-        }
-      } else if (response && response.data && response.data.status === false) {
-        // Show error message if assignment failed (e.g., duplicate)
-        showSnackbar(response.data.message || 'Failed to assign team member', SnackbarTypes.Error)
-      }
-      //console.log;
-    } catch (error) {
-      // console.error("Error occured is", error);
-    } finally {
-      setGlobalLoader(false)
-      handleClosePopup()
-    }
-  }
+        };
 
+        console.log('🎯 [handleAssignLeadToTeammember] New team member object:', newTeamMember);
+
+        // Update state IMMEDIATELY
+        setSelectedLeadsDetails(prevData => {
+          if (!prevData) return prevData;
+
+          const currentTeams = prevData.teamsAssigned || [];
+
+          // Check if already exists
+          const exists = currentTeams.some(t => {
+            const tId = t.id || t.invitedUserId || t.invitedUser?.id;
+            const newId = newTeamMember.id || newTeamMember.invitedUserId || newTeamMember.invitedUser?.id;
+            return String(tId) === String(newId);
+          });
+
+          if (exists) {
+            console.log('🎯 [handleAssignLeadToTeammember] Team member already exists, not adding again');
+            return prevData;
+          }
+
+          const updatedLead = {
+            ...prevData,
+            teamsAssigned: [...currentTeams, newTeamMember]
+          };
+
+          console.log('🎯 [handleAssignLeadToTeammember] Updated lead state:', {
+            oldTeams: currentTeams.map(t => ({ id: t.id, name: t.name })),
+            newTeams: updatedLead.teamsAssigned.map(t => ({ id: t.id, name: t.name })),
+            updatedLead
+          });
+
+          return updatedLead;
+        });
+
+        // Call callback with the new team member
+        if (leadAssignedTeam) {
+          // Get the updated state by simulating what it should be
+          const updatedTeams = [...(selectedLeadsDetails.teamsAssigned || []), newTeamMember];
+          const simulatedUpdatedLead = {
+            ...selectedLeadsDetails,
+            teamsAssigned: updatedTeams
+          };
+          leadAssignedTeam(newTeamMember, simulatedUpdatedLead);
+        }
+
+        showSnackbar(response.data.message || 'Team member assigned successfully', SnackbarTypes.Success);
+      } else {
+        showSnackbar(response?.data?.message || 'Failed to assign team member', SnackbarTypes.Error);
+      }
+    } catch (error) {
+      console.error('❌ [handleAssignLeadToTeammember] Error:', error);
+      showSnackbar('Failed to assign team member. Please try again.', SnackbarTypes.Error);
+    } finally {
+      setGlobalLoader(false);
+      handleClosePopup();
+    }
+  };
   //function to unassign lead from team member
+
   const handleUnassignLeadFromTeammember = async (userId) => {
     try {
-      setGlobalLoader(true)
-      console.log('Unassigning user with ID:', userId)
+      setGlobalLoader(true);
+      console.log('🎯 [handleUnassignLeadFromTeammember] Unassigning user with ID:', userId);
 
-      let ApiData = {
+      // Find the team member being unassigned to get their details
+      const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeam || [])];
+      const teamToUnassign = allTeams.find(t => {
+        const tId = t.invitedUserId || t.invitedUser?.id || t.id;
+        return String(tId) === String(userId);
+      });
+
+      console.log('🎯 [handleUnassignLeadFromTeammember] Team member to unassign:', teamToUnassign);
+
+      const ApiData = {
         leadId: selectedLeadsDetails.id,
         teamMemberUserId: userId,
-      }
+      };
 
-      console.log('Api data to send in unassign api is', ApiData)
+      console.log('🎯 [handleUnassignLeadFromTeammember] API data:', ApiData);
 
-      let response = await UnassignTeamMember(ApiData)
+      let response = await UnassignTeamMember(ApiData);
+      console.log('🎯 [handleUnassignLeadFromTeammember] API response:', response?.data);
 
       if (response && response.data && response.data.status === true) {
-        // Remove the user from the assigned list
-        let updatedLead = null
-        setSelectedLeadsDetails((prevData) => {
+        // Update state IMMEDIATELY
+        setSelectedLeadsDetails(prevData => {
+          if (!prevData) return prevData;
+
           const filteredTeams = (prevData.teamsAssigned || []).filter((user) => {
             // Check all possible ID fields to match the userId
-            const userIdentifier = user.id || user.invitedUserId || user.invitedUser?.id
-            // Convert both to strings for comparison to handle type mismatches
-            return String(userIdentifier) !== String(userId)
-          })
+            const userIdentifier = user.invitedUserId || user.invitedUser?.id || user.id;
+            // Convert both to strings for comparison
+            return String(userIdentifier) !== String(userId);
+          });
 
-          updatedLead = {
+          const updatedLead = {
             ...prevData,
             teamsAssigned: filteredTeams,
+          };
+
+          console.log('🎯 [handleUnassignLeadFromTeammember] Updated lead state:', {
+            oldTeamsCount: prevData.teamsAssigned?.length || 0,
+            newTeamsCount: filteredTeams.length,
+            updatedLead
+          });
+
+          // Call callback with updated lead data
+          if (leadAssignedTeam) {
+            leadAssignedTeam(null, updatedLead);
           }
 
-          return updatedLead
-        })
+          return updatedLead;
+        });
 
-        // Call callback with updated lead data to sync with parent component
-        // Use the updatedLead value we just created
-        if (updatedLead && leadAssignedTeam) {
-          leadAssignedTeam(null, updatedLead)
-        }
-
-        showSnackbar(response.data.message || 'Team member unassigned successfully', SnackbarTypes.Success)
+        showSnackbar(response.data.message || 'Team member unassigned successfully', SnackbarTypes.Success);
       } else if (response && response.data && response.data.status === false) {
         // Show error message if unassignment failed
-        showSnackbar(response.data.message || 'Failed to unassign team member', SnackbarTypes.Error)
+        showSnackbar(response.data.message || 'Failed to unassign team member', SnackbarTypes.Error);
       }
     } catch (error) {
-      console.error('Error occurred in unassign lead from team member:', error)
-      showSnackbar('Failed to unassign team member. Please try again.', SnackbarTypes.Error)
+      console.error('❌ [handleUnassignLeadFromTeammember] Error:', error);
+      showSnackbar('Failed to unassign team member. Please try again.', SnackbarTypes.Error);
     } finally {
-      setGlobalLoader(false)
+      setGlobalLoader(false);
     }
-  }
+  };
 
   const getNumbers = async () => {
-    console.log('getNumbers is called')
-
     // Use selectedUser prop if provided (admin view), otherwise fall back to localStorage (existing behavior)
     let userId = null
     if (selectedUser?.id) {
@@ -618,14 +652,11 @@ const LeadDetails = ({
     } else {
       // Fall back to localStorage (existing behavior for backward compatibility)
       let data = localStorage.getItem('selectedUser')
-      console.log('data', data)
-      console.log('typeof data', typeof data)
 
       // Fix: Check if data exists and is not "undefined" string, then safely parse
       if (data && data !== 'undefined' && data !== 'null') {
         try {
           const parsedUser = JSON.parse(data)
-          console.log('selected user data from local', parsedUser)
           userId = parsedUser?.id
         } catch (error) {
           console.error('Error parsing selectedUser from localStorage:', error)
@@ -815,8 +846,6 @@ const LeadDetails = ({
 
       const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedLead}`
 
-      console.log('Api path is ', ApiPath)
-
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: 'Bearer ' + AuthToken,
@@ -836,8 +865,15 @@ const LeadDetails = ({
           },
         ]
         // setLeadColumns(response.data.columns);
-        setSelectedLeadsDetails(response.data.data)
-        console.log('🔍 [LeadDetails] Lead details response:', response.data.data)
+        // Filter out recently deleted tags to prevent them from being added back
+        const updatedLeadData = {
+          ...response.data.data,
+          tags: (response.data.data.tags || []).filter(
+            (tag) => !recentlyDeletedTags.has(tag)
+          ),
+        }
+        setSelectedLeadsDetails(updatedLeadData)
+        console.log('🔍 [LeadDetails] Lead details response:', updatedLeadData)
         console.log('🔍 [LeadDetails] Teams assigned count:', response.data.data?.teamsAssigned?.length || 0)
         console.log('🔍 [LeadDetails] Teams assigned details:', {
           teamsAssigned: response.data.data?.teamsAssigned,
@@ -890,6 +926,32 @@ const LeadDetails = ({
     }
   }
 
+  // Handler to update tags after tag deletion (optimistic update only)
+  const handleLeadDetailsUpdated = async (deletedTagName) => {
+    if (!selectedLead || !deletedTagName) return
+    
+    // Mark this tag as recently deleted to prevent it from being added back
+    setRecentlyDeletedTags((prev) => new Set([...prev, deletedTagName]))
+    
+    // Optimistically remove the tag from local state immediately
+    // The backend deletion is already complete, so we just update the UI
+    if (selectedLeadsDetails?.tags) {
+      setSelectedLeadsDetails((prevDetails) => ({
+        ...prevDetails,
+        tags: (prevDetails.tags || []).filter((tag) => tag !== deletedTagName),
+      }))
+    }
+    
+    // Clear the recently deleted tag after 5 seconds to allow normal updates
+    setTimeout(() => {
+      setRecentlyDeletedTags((prev) => {
+        const newSet = new Set(prev)
+        newSet.delete(deletedTagName)
+        return newSet
+      })
+    }, 5000)
+  }
+
   //function to get the stages list using pipelineId
   const getStagesList = async () => {
     try {
@@ -921,11 +983,7 @@ const LeadDetails = ({
         if (response.data.status === true) {
           // console.log("stages list are", response.data.data.stages);
           setStagesList(response.data.data.stages)
-        } else {
-          // setShowErrorSnack(response.data.message);
-          console.log('Error in stages list', response.data.message)
-          // setShowErrorSnack2(true);
-        }
+        } else {}
       }
     } catch (error) {
       console.error('Error occured in stage list api is', error)
@@ -1061,8 +1119,6 @@ const LeadDetails = ({
 
   //fucntion to ShowMore ActivityData transcript text
   const handleShowMoreActivityData = (item) => {
-    // setIsExpanded(!isExpanded);
-    console.log('item', item)
     if (item.callOutcome === 'No Answer') {
       return
     }
@@ -1110,8 +1166,6 @@ const LeadDetails = ({
         phoneNumber: selectedLeadsDetails.phone
       }
 
-      console.log('ApiData for add tag is', ApiData)
-
       const ApiPath = Apis.updateLead
       const response = await axios.put(ApiPath, ApiData, {
         headers: {
@@ -1122,7 +1176,6 @@ const LeadDetails = ({
 
       if (response) {
         if (response.data.status === true) {
-          console.log('response of add tag api is', response.data)
           setSelectedLeadsDetails((prevDetails) => ({
             ...prevDetails,
             tags: updatedTags,
@@ -1219,10 +1272,7 @@ const LeadDetails = ({
       })
 
       if (response) {
-        console.log('response of del tag api is', response)
         if (response.data.status === true) {
-          console.log('response of del tag api is true')
-
           const updatedTags = selectedLeadsDetails.tags.filter(
             (item) => item !== tag,
           )
@@ -1412,14 +1462,11 @@ const LeadDetails = ({
             setshowConfirmPerplexity(false)
           } else {
             showSnackbar(response.data.message, SnackbarTypes.Error)
-
-            console.log('response.data.message', response.data.message)
           }
         }
       }
     } catch (e) {
       setLoading(false)
-      console.log('error in enrich lead is', e)
     } finally {
       setLoading(false)
     }
@@ -1457,7 +1504,6 @@ const LeadDetails = ({
 
         if (response) {
           if (response.data) {
-            console.log('delete call log api data is', response.data.data)
             let call = response.data.data
             setSelectedLeadsDetails((prev) => ({
               ...prev,
@@ -1472,9 +1518,7 @@ const LeadDetails = ({
           }
         }
       }
-    } catch (e) {
-      console.log('error in call log delete api is', e)
-    } finally {
+    } catch (e) {} finally {
       setdelCallLoader(false)
     }
   }
@@ -1483,8 +1527,6 @@ const LeadDetails = ({
   // Send email API function
   const sendEmailToLead = async (emailData) => {
     try {
-      console.log('Sending email to lead', emailData)
-      console.log('gmailAccountId', emailData.gmailAccountId)
       setSendEmailLoader(true)
 
       const localData = localStorage.getItem('User')
@@ -1537,7 +1579,6 @@ const LeadDetails = ({
   // Send SMS API function
   const sendSMSToLead = async (smsData) => {
     try {
-      console.log('Sending SMS to lead', smsData)
       setSendSMSLoader(true)
 
       const localData = localStorage.getItem('User')
@@ -1555,9 +1596,7 @@ const LeadDetails = ({
       formData.append('leadId', selectedLeadsDetails?.id || '')
 
       //print form data
-      formData.forEach((value, key) => {
-        console.log(`${key}: ${value}`)
-      })
+      formData.forEach((value, key) => {})
       const response = await axios.post(Apis.sendSMSToLead, formData, {
         headers: {
           Authorization: `Bearer ${userData.token}`,
@@ -1708,7 +1747,6 @@ const LeadDetails = ({
       }
       setMessageModalMode('email')
 
-      console.log("Selected User in LeadDetails", selectedUser)
       setShowMessageModal(true)
     } else if (opt.value === 'call') {
       if (!dialerCapability.hasAccess) {
@@ -1727,6 +1765,31 @@ const LeadDetails = ({
       setShowMessageModal(true)
     }
   }
+
+  const teamOptions = useMemo(() => {
+    const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeam || [])];
+
+    return allTeams.map((tm) => {
+      // Get the team member ID - use invitedUserId first, then id
+      const id = tm.invitedUserId || tm.invitedUser?.id || tm.id;
+
+      // Check if this team member is already assigned
+      const isSelected = (selectedLeadsDetails?.teamsAssigned || []).some(
+        (assigned) => {
+          const assignedId = assigned.invitedUserId || assigned.invitedUser?.id || assigned.id;
+          return String(assignedId) === String(id);
+        }
+      );
+
+      return {
+        id,
+        label: tm.name || tm.invitedUser?.name || 'Unknown',
+        avatar: tm.thumb_profile_image || tm.invitedUser?.thumb_profile_image,
+        selected: isSelected,
+        raw: tm,
+      };
+    });
+  }, [myTeamAdmin, myTeam, selectedLeadsDetails?.teamsAssigned])
 
   const mainContent = (
     <>
@@ -1983,53 +2046,134 @@ const LeadDetails = ({
                       </div>
                       <div className="space-y-2 text-sm mt-2">
                         {/* Email with edit functionality */}
-                        <div className="flex items-center gap-2">
-                          <MailIcon className="h-4 w-4 text-muted-foreground" />
-                          {isEditingEmail ? (
-                            <div className="flex items-center gap-2 flex-1">
-                              <input
-                                type="email"
-                                value={editedEmail}
-                                onChange={(e) => setEditedEmail(e.target.value)}
-                                className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm outline-none focus:border-brand-primary"
-                                placeholder="Enter email"
-                                disabled={updateEmailLoader}
-                                autoFocus
-                              />
-                              <button
-                                onClick={updateLeadEmail}
-                                disabled={updateEmailLoader}
-                                className="p-1 text-green-600 hover:text-green-700 disabled:opacity-50"
-                                title="Save"
-                              >
-                                {updateEmailLoader ? (
-                                  <CircularProgress size={16} />
-                                ) : (
-                                  <Check className="h-4 w-4" />
-                                )}
-                              </button>
-                              <button
-                                onClick={handleCancelEditEmail}
-                                disabled={updateEmailLoader}
-                                className="p-1 text-red-600 hover:text-red-700 disabled:opacity-50"
-                                title="Cancel"
-                              >
-                                <XIcon className="h-4 w-4" />
-                              </button>
+
+
+                        {/* Email with edit functionality - Updated Version */}
+                        {!isEditingEmail ? (
+                          (selectedLeadsDetails?.email || selectedLeadsDetails?.emails?.length > 0) && (
+                            <div className="flex flex-row items-center gap-2">
+                              <MailIcon className="h-4 w-4 text-muted-foreground" />
+                              <div className="text-sm font-medium text-foreground">
+                                {selectedLeadsDetails?.email ? (
+                                  <div className="flex items-center gap-2">
+                                    <span>{selectedLeadsDetails.email}</span>
+                                    <Tooltip title="Edit email">
+                                      <button
+                                        onClick={handleEditEmailClick}
+                                        className="text-muted-foreground hover:text-foreground transition-colors"
+                                      >
+                                        <Pencil className="h-3 w-3" />
+                                      </button>
+                                    </Tooltip>
+                                  </div>
+                                ) : selectedLeadsDetails?.emails?.length > 0 ? (
+                                  <div className="flex items-center gap-2">
+                                    <span>{selectedLeadsDetails.emails[0]?.email}</span>
+                                    <Tooltip title="Edit email">
+                                      <button
+                                        onClick={handleEditEmailClick}
+                                        className="text-muted-foreground hover:text-foreground transition-colors"
+                                      >
+                                        <Pencil className="h-3 w-3" />
+                                      </button>
+                                    </Tooltip>
+                                  </div>
+                                ) : null}
+                              </div>
                             </div>
-                          ) : (
-                            <div className="flex items-center gap-2 flex-1">
-                              <span className="text-sm">{selectedLeadsDetails?.email || 'No email'}</span>
-                              <button
-                                onClick={handleEditEmailClick}
-                                className="p-1 text-muted-foreground hover:text-brand-primary"
-                                title={selectedLeadsDetails?.email ? "Edit email" : "Add email"}
-                              >
-                                <Pencil className="h-3 w-3" />
-                              </button>
+                          )
+                        ) : (
+                          <div className="flex flex-col gap-2">
+                            <div className="flex flex-row items-center gap-2">
+                              <MailIcon className="h-4 w-4 text-muted-foreground" />
+                              <div className="flex flex-row items-center gap-2 flex-1">
+                                <Input
+                                  type="email"
+                                  value={editedEmail}
+                                  onChange={(e) => setEditedEmail(e.target.value)}
+                                  placeholder="Enter email address"
+                                  className="flex-1 text-sm h-8 border border-gray-300 rounded-md p-2 focus:border-black focus:ring-0"
+                                  disabled={updateEmailLoader}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      updateLeadEmail()
+                                    } else if (e.key === 'Escape') {
+                                      handleCancelEditEmail()
+                                    }
+                                  }}
+                                />
+                                <div className="flex items-center gap-1">
+                                  {updateEmailLoader ? (
+                                    <CircularProgress size={16} />
+                                  ) : (
+                                    <>
+                                      <Tooltip title="Save">
+                                        <button
+                                          onClick={updateLeadEmail}
+                                          disabled={!editedEmail.trim()}
+                                          className="p-1 text-brand-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                          <span className="text-sm font-semibold">Save</span>
+                                        </button>
+                                      </Tooltip>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+
+                        <div>
+                          {selectedLeadsDetails?.email && (
+                            <div className="flex flex-row w-full justify-start">
+                              {selectedLeadsDetails?.emails
+                                ?.slice(0, 1)
+                                .map((email, emailIndex) => {
+                                  return (
+                                    <div
+                                      key={emailIndex}
+                                      className="flex flex-row items-center gap-2"
+                                    >
+                                      <div
+                                        className="flex flex-row items-center gap-2 px-1 mt-1 mb-1 rounded-lg border border-[#00000020]"
+                                        style={styles.paragraph}
+                                      >
+                                        <Image
+                                          src={'/assets/power.png'}
+                                          height={9}
+                                          width={7}
+                                          alt="*"
+                                        />
+                                        <div className="text-[12px] font-[400]">
+                                          <span className="text-brand-primary text-[15px] font-[400]">
+                                            New
+                                          </span>{' '}
+                                          {truncateEmail(email.email)}
+                                        </div>
+                                      </div>
+                                      <button
+                                        className="text-brand-primary underline"
+                                        onClick={() => {
+                                          setShowAllEmails(true)
+                                        }}
+                                      >
+                                        {selectedLeadsDetails?.emails
+                                          ?.length > 1
+                                          ? `+${selectedLeadsDetails?.emails
+                                            ?.length - 1
+                                          }`
+                                          : ''}
+                                      </button>
+                                    </div>
+                                  )
+                                })}
                             </div>
                           )}
                         </div>
+
+
                         {selectedLeadsDetails?.phone && <InfoRow icon={<PhoneIcon className="h-4 w-4" />}>{selectedLeadsDetails?.phone}</InfoRow>}
                         {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>{selectedLeadsDetails?.address}</InfoRow>}
                         <InfoRow icon={<WorkflowIcon className="h-4 w-4" />}>
@@ -2062,6 +2206,9 @@ const LeadDetails = ({
                             onRemoveTag={handleDelTag}
                             delTagLoader={DelTagLoader}
                             onRefreshSuggestions={getUniqueTags}
+                            selectedUser={selectedUser}
+                            showSnackbar={showSnackbar}
+                            onLeadDetailsUpdated={handleLeadDetailsUpdated}
                           />
                         </div>
                         <div className="flex items-center gap-2">
@@ -2072,81 +2219,49 @@ const LeadDetails = ({
                                 <AvatarFallback>{selectedLeadsDetails?.assignee?.name?.[0] || 'A'}</AvatarFallback>
                             )}
                           </Avatar> */}
-                          <TeamAssignDropdownCn
-                            label="Assign"
-                            teamOptions={[
-                              ...(myTeamAdmin ? [myTeamAdmin] : []),
-                              ...(myTeam || []),
-                            ].map((tm) => {
-                              // Get the team member ID - check all possible fields
-                              // For myTeam items from TeamResource:
-                              // - tm.id is the TeamModel id (NOT the user id)
-                              // - tm.invitedUserId is the actual user ID
-                              // - tm.invitedUser.id is also the actual user ID
-                              // We need to use invitedUserId or invitedUser.id, NOT tm.id
-                              const id = tm.invitedUserId || tm.invitedUser?.id || tm.id
+                          {
 
-                              // Log the team member structure
-                              console.log('🔍 [LeadDetails] Processing team member:', {
-                                tm: tm,
-                                tmId: tm.id,
-                                tmInvitedUserId: tm.invitedUserId,
-                                tmInvitedUser_id: tm.invitedUser?.id,
-                                finalId: id,
-                                tmName: tm.name || tm.invitedUser?.name,
-                              })
+                            globalLoader ? (
+                              <CircularProgress size={20} />
+                            ) : (
 
-                              const isSelected = (selectedLeadsDetails?.teamsAssigned || []).some(
-                                (assigned) => {
-                                  // Check all possible ID fields in the assigned team member
-                                  const assignedId = assigned.id || assigned.invitedUserId || assigned.invitedUser?.id
-                                  const matches = String(assignedId) === String(id)
+                              <TeamAssignDropdownCn
+                                label="Assign"
+                                teamOptions={teamOptions}
+                                onToggle={(teamId, team, shouldAssign) => {
+                                  console.log('🎯 [TeamAssignDropdownCn] Toggle:', {
+                                    teamId,
+                                    team,
+                                    shouldAssign,
+                                    teamLabel: team?.label,
+                                    teamRaw: team?.raw
+                                  });
 
-                                  if (matches) {
-                                    console.log('✅ [LeadDetails] Match found:', {
-                                      teamMemberId: id,
-                                      teamMemberName: tm.name || tm.invitedUser?.name,
-                                      assignedId: assignedId,
-                                      assignedName: assigned.name || assigned.invitedUser?.name,
-                                      assignedFullObject: assigned,
-                                    })
+                                  if (shouldAssign) {
+                                    // If team.raw is available, use it directly
+                                    if (team?.raw) {
+                                      handleAssignLeadToTeammember(team.raw);
+                                    } else {
+                                      // Otherwise find the team in our list
+                                      const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeam || [])];
+                                      const teamToAssign = allTeams.find(t => {
+                                        const tId = t.invitedUserId || t.invitedUser?.id || t.id;
+                                        return String(tId) === String(teamId);
+                                      });
+
+                                      if (teamToAssign) {
+                                        handleAssignLeadToTeammember(teamToAssign);
+                                      } else {
+                                        console.error('❌ Could not find team member with ID:', teamId);
+                                      }
+                                    }
+                                  } else {
+                                    handleUnassignLeadFromTeammember(teamId);
                                   }
+                                }}
 
-                                  return matches
-                                }
-                              )
-
-                              // Log for debugging
-                              if (selectedLeadsDetails?.teamsAssigned && selectedLeadsDetails.teamsAssigned.length > 0) {
-                                console.log('🔍 [LeadDetails] Team member check:', {
-                                  teamMemberId: id,
-                                  teamMemberName: tm.name || tm.invitedUser?.name,
-                                  isSelected: isSelected,
-                                  teamsAssignedIds: selectedLeadsDetails.teamsAssigned.map(t => ({
-                                    id: t.id,
-                                    invitedUserId: t.invitedUserId,
-                                    invitedUser_id: t.invitedUser?.id,
-                                  })),
-                                })
-                              }
-
-                              return {
-                                id,
-                                label: tm.name || tm.invitedUser?.name || 'Unknown',
-                                avatar: tm.thumb_profile_image || tm.invitedUser?.thumb_profile_image,
-                                selected: isSelected,
-                                raw: tm,
-                              }
-                            })}
-                            onToggle={(teamId, team, shouldAssign) => {
-                              if (shouldAssign) {
-                                handleAssignLeadToTeammember?.(team.raw || team)
-                              } else {
-                                handleUnassignLeadFromTeammember?.(teamId)
-                              }
-                            }}
-                            withoutBorder={true}
-                          />
+                              />
+                            )}
                         </div>
                       </div>
 
@@ -2224,12 +2339,22 @@ const LeadDetails = ({
                         // //backdropFilter: "blur(20px)",
                       },
                     }}
+                    slotProps={{
+                      root: {
+                        style: {
+                          zIndex: 1600,
+                        },
+                      },
+                    }}
+                    sx={{
+                      zIndex: 1600,
+                    }}
                   >
                     <Box
                       className="lg:w-5/12 sm:w-full w-8/12"
                       sx={{
                         ...styles.modalsStyle,
-                        zIndex: 9999, // Higher than backdrop (1500) to appear on top
+                        zIndex: 1600, // Higher than backdrop (1500) to appear on top
                         position: 'relative',
                       }}
                     >
@@ -2251,12 +2376,9 @@ const LeadDetails = ({
                                       className="flex flex-row items-center gap-2 px-1 mt-2 rounded-lg py-2 border border-[#00000020]"
                                       style={styles.paragraph}
                                     >
-                                      <Image
-                                        src={'/assets/power.png'}
-                                        height={9}
-                                        width={7}
-                                        alt="*"
-                                      />
+                                      <div className="flex flex-row items-center gap-2">
+                                        {renderBrandedIcon("/assets/power.png", 9, 7)}
+                                      </div>
                                       <div>
                                         <span className="text-brand-primary">
                                           New
@@ -2475,6 +2597,9 @@ const LeadDetails = ({
                             setShowNoAudioPlay(true)
                           }
                         }}
+                        leadId={selectedLeadsDetails?.id}
+                        leadName={selectedLeadsDetails?.firstName || selectedLeadsDetails?.name}
+                        selectedUser={selectedUser}
                       />
                     )}
                   </div>
@@ -2561,7 +2686,6 @@ const LeadDetails = ({
               sx: {
                 backgroundColor: '#00000020',
                 zIndex: 1500, // Match Modal z-index
-                zIndex: 1600, // Match Modal z-index
                 // //backdropFilter: "blur(5px)",
               },
             }}
@@ -2570,7 +2694,7 @@ const LeadDetails = ({
               className="lg:w-4/12 sm:w-4/12 w-6/12"
               sx={{
                 ...styles.modalsStyle,
-                zIndex: 1501, // Higher than backdrop (1500) to appear on top
+                zIndex: 1601, // Higher than backdrop (1500) to appear on top
                 position: 'relative',
               }}
             >
@@ -2669,9 +2793,7 @@ const LeadDetails = ({
       >
         {mainContent}
       </Drawer>
-
       {/* Note modals - REMOVED: Now handled by NotesTabCN component */}
-
       {/* Warning Modal for no voice */}
       <Modal
         open={showNoAudioPlay}
@@ -2714,9 +2836,6 @@ const LeadDetails = ({
           </div>
         </Box>
       </Modal>
-
-
-
       <Modal
         open={showAudioPlay}
         onClose={() => setShowAudioPlay(null)}
@@ -2807,7 +2926,6 @@ const LeadDetails = ({
           </div>
         </Box>
       </Modal>
-
       {/* Unified Message Modal (Email and SMS) */}
       <NewMessageModal
         open={showMessageModal}
@@ -2824,24 +2942,17 @@ const LeadDetails = ({
         setReduxUser={setReduxUser}
         isLeadMode={true}
       />
-
       {/* Dialer Modal is now rendered in app/dashboard/layout.js */}
-
       {/* Upgrade Plan Modal */}
       <Elements stripe={stripePromise}>
         <UpgradePlan
           selectedPlan={selectedPlan}
-          setSelectedPlan={() => {
-            console.log('setSelectedPlan is called')
-          }}
+          setSelectedPlan={() => {}}
           open={showUpgradeModal}
           // setShowSnackMsg={setShowSnackMsg}
           handleClose={async (upgradeResult) => {
             setShowUpgradeModal(false)
             if (upgradeResult) {
-              console.log(
-                '🔄 [LEAD-DETAILS] Upgrade successful, refreshing profile...',
-              )
               // Refresh user data after successful upgrade
               const getData = async () => {
                 // Use AdminGetProfileDetails if selectedUser is provided (admin view), otherwise use getProfileDetails (regular user)
@@ -2863,7 +2974,7 @@ const LeadDetails = ({
         />
       </Elements>
     </div>
-  )
+  );
 }
 
 export default LeadDetails

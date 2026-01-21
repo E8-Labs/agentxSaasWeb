@@ -206,7 +206,6 @@ const StirDetails = ({
           handleClose={(d) => {
             setShowShakenStirModal(false)
             if (d) {
-              console.log('Value of d is', d)
               const data = {
                 message: 'SHAKEN/STIR is being reviewed',
                 status: 'in-review',
@@ -224,7 +223,7 @@ const StirDetails = ({
         />
       )}
     </div>
-  )
+  );
 }
 
 export default StirDetails

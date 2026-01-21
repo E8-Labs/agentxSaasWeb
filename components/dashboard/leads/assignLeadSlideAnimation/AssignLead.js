@@ -216,21 +216,13 @@ const AssignLead = ({
     // }
 
     getAgents()
-
-    console.log('Selected agents paased are', selectedAgents)
-
-    // }
   }, [selectedAgents])
 
-  useEffect(() => {
-    console.log('Selected agents ', SelectedAgents)
-    console.log('Selected agents passed are', selectedAgents)
-  }, [SelectedAgents])
+  useEffect(() => {}, [SelectedAgents])
 
   //get agents api
   const getAgents = async (initialoaderStatus) => {
     try {
-      console.log('Status of initial loader', initialoaderStatus)
       const checkLocalAgentsList = localStorage.getItem('localAgentDetails')
 
       if (initialoaderStatus?.initialoaderStatus === false) {
@@ -253,7 +245,6 @@ const AssignLead = ({
       // const ApiPath = Apis.getAgents;
       const offset = agentsList.length
       const ApiPath = `${Apis.getAgents}?offset=${offset}&agentType=outbound&pipeline=true`
-      console.log('Api path is', ApiPath)
       // return
       const response = await axios.get(ApiPath, {
         headers: {
@@ -263,7 +254,6 @@ const AssignLead = ({
       })
 
       if (response) {
-        console.log('agents response is', response.data.data)
         // localStorage.setItem(
         //   "localAgentDetails",
         //   JSON.stringify(response.data.data)
@@ -287,7 +277,6 @@ const AssignLead = ({
         let filterredAgentsList = response?.data?.data
         setAgentsList([...agentsList, ...filterredAgentsList])
         if (SelectedAgents.length > 0) {
-          console.log('Thre are selected agents', SelectedAgents)
           setSelectedAgents(SelectedAgents)
         } else if (selectedAgents.length > 0) {
           setSelectedAgents(selectedAgents)
@@ -455,13 +444,7 @@ const AssignLead = ({
     if (
       isAfterStartTime && // After 7:00 AM
       isBeforeEndTime // Before 9:00 PM
-    ) {
-      console.log(
-        '✅ Selected time is between 7 AM and 9 PM.',
-        selectedDate.format(),
-      )
-      // setSelectedDateTime(selectedDate);
-    } else {
+    ) {} else {
       //console.log;
       // setInvalidTimeMessage(
       //   "Calls only between 7am-9pm"
@@ -673,7 +656,6 @@ const AssignLead = ({
         }}
         type=""
       />
-
       {showDncConfirmationPopup && (
         <DncConfirmationPopup
           open={showDncConfirmationPopup}
@@ -695,7 +677,6 @@ const AssignLead = ({
         />
       )}
       {/* Snackbar for invalid time */}
-
       <div className="flex flex-row items-center justify-between mt-4">
         <div style={{ fontSize: 24, fontWeight: '700' }}>Select your Agent</div>
         <div className="flex flex-row items-center gap-2">
@@ -714,7 +695,6 @@ const AssignLead = ({
       >
         Only outbound agents assigned to a stage can be selected.
       </div>
-
       {initialLoader ? (
         <div className="w-full flex flex-row justify-center mt-4">
           <CircularProgress size={30} />
@@ -811,7 +791,6 @@ const AssignLead = ({
                   onClick={() => {
                     // console.log("Selected item is", item);
                     let canAssign = canAssignStage(item)
-                    console.log('Current agent selected is', item)
                     if (canAssign == 0) {
                       //push to the array
                       // //console.log;
@@ -856,7 +835,6 @@ const AssignLead = ({
                       </div>
                     </div>
                   </div>
-
                   <div
                     className="flex flex-row items-center gap-2 mt-6 pb-2 w-full overflow-auto"
                     style={{
@@ -906,12 +884,11 @@ const AssignLead = ({
                     )}
                   </div>
                 </button>
-              )
+              );
             })}
           </InfiniteScroll>
         </div>
       )}
-
       <div>
         <button
           className="rounded-lg mt-4 w-full h-[50px]"
@@ -931,7 +908,6 @@ const AssignLead = ({
           Continue
         </button>
       </div>
-
       {/* last step modal 
 
       <AllowSmartRefillPopup
@@ -1466,7 +1442,6 @@ const AssignLead = ({
                         const localData = localStorage.getItem('User')
                         if (localData) {
                           const UserDetails = JSON.parse(localData)
-                          console.log(UserDetails.user.smartRefill)
                           if (UserDetails.user.smartRefill === false) {
                             setShowSmartRefillPopUp(true)
                             return
@@ -1502,7 +1477,7 @@ const AssignLead = ({
         </Box>
       </Modal>
     </div>
-  )
+  );
 }
 
 export default AssignLead

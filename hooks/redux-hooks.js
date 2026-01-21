@@ -48,10 +48,6 @@ export const useUser = () => {
         : null
       
       if (logoutParam || logoutFlag) {
-        console.log('🚪 [REDUX-HOOKS] Logout detected, skipping Redux initialization', {
-          logoutParam: !!logoutParam,
-          logoutFlag: !!logoutFlag
-        })
         return
       }
     }
@@ -62,14 +58,6 @@ export const useUser = () => {
         if (localStorageData) {
           const userData = JSON.parse(localStorageData)
           if (userData.token && userData.user) {
-            console.log(
-              '🔄 [REDUX-HOOKS] Initializing Redux from localStorage:',
-              {
-                userId: userData.user?.id,
-                planType: userData.user?.plan?.type,
-                planName: userData.user?.plan?.name,
-              },
-            )
             dispatch(setUser(userData))
           }
         }

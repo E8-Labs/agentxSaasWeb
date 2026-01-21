@@ -17,7 +17,6 @@ export const SmartRefillApi = async (selectedUser) => {
         userId: selectedUser.id,
       }
     }
-    console.log('Api data is', ApiData)
     const response = await axios.post(ApiPath, ApiData, {
       headers: {
         Authorization: 'Bearer ' + token,
@@ -32,7 +31,6 @@ export const SmartRefillApi = async (selectedUser) => {
           let D = JSON.parse(Data)
           D.user.smartRefill = response.data.data.smartRefill
           localStorage.setItem('User', JSON.stringify(D))
-          console.log('Updated local data', D)
         }
       }
       return response
@@ -57,7 +55,6 @@ export const RemoveSmartRefillApi = async (selectedUser) => {
         userId: selectedUser.id,
       }
     }
-    console.log('Api data is', ApiData)
     const response = await axios.post(ApiPath, ApiData, {
       headers: {
         Authorization: 'Bearer ' + token,
@@ -72,7 +69,6 @@ export const RemoveSmartRefillApi = async (selectedUser) => {
           let D = JSON.parse(Data)
           D.user.smartRefill = response.data.data.smartRefill
           localStorage.setItem('User', JSON.stringify(D))
-          console.log('Updated local data', D)
         }
       }
       return response

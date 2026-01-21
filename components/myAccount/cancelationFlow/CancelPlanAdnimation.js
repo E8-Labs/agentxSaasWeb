@@ -50,11 +50,7 @@ export default function CancelPlanAnimation({
     }
   }, [showModal])
 
-  console.log('currentIndex', currentIndex)
-
   const getCUrrentComponent = async () => {
-    console.log('userLocalData', userLocalData?.subscriptionPauseUsed)
-    console.log('selectedUser', selectedUser)
     if (selectedUser) {
       userLocalData = selectedUser
     }
@@ -74,7 +70,6 @@ export default function CancelPlanAnimation({
       } else {
         let data = await getDiscount()
 
-        console.log('data', data)
         if (data?.discountOffer?.alreadyUsed === false) {
           setDirection(1)
           setCurrentIndex((prevIndex) => prevIndex + 3)
@@ -99,9 +94,7 @@ export default function CancelPlanAnimation({
   }
 
   const handleContinue = async (nextAction) => {
-    console.log('currentIndex', currentIndex)
     if (nextAction) {
-      console.log(nextAction)
       if (nextAction === 'closeModel') {
         handleClose()
         setCurrentIndex(isAgencySubAccount ? 3 : 0)
@@ -119,7 +112,6 @@ export default function CancelPlanAnimation({
         } else {
           let data = await getDiscount()
 
-          console.log('data', data)
           if (data?.discountOffer?.alreadyUsed === false) {
             setDirection(1)
             setCurrentIndex((prevIndex) => prevIndex + 2)
@@ -145,7 +137,6 @@ export default function CancelPlanAnimation({
         } else {
           let data = await getDiscount()
 
-          console.log('data', data)
           if (data?.discountOffer?.alreadyUsed === false) {
             setDirection(1)
             setCurrentIndex((prevIndex) => prevIndex + 1)
@@ -203,7 +194,7 @@ export default function CancelPlanAnimation({
         // backgroundColor: "red"
       }}
     >
-      <Box className="rounded-xl max-w-2xl w-full shadow-lg max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
+      <Box className="rounded-xl w-7/12 shadow-lg max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
         <div className="relative flex justify-center items-center w-full">
           <AnimatePresence initial={false} custom={direction}>
             {currentIndex === 0 && (

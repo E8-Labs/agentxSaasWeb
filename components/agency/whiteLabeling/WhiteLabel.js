@@ -24,6 +24,7 @@ import NotificationConfig from './WhiteLabelingCustomNotifications/NotificationC
 import CancellationRefundConfig from './CancellationRefundConfig'
 import AppLogo from '@/components/common/AppLogo'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
+import AdminGetProfileDetails from '@/components/admin/AdminGetProfileDetails'
 
 const WhiteLabel = ({ selectedAgency }) => {
   const router = useRouter()
@@ -55,7 +56,6 @@ const WhiteLabel = ({ selectedAgency }) => {
       // If selectedAgency is provided (admin view), use it; otherwise use localStorage
       if (selectedAgency) {
         setAgencyData(selectedAgency)
-        console.log('✅ Using selectedAgency data for admin view')
         return
       }
       
@@ -63,7 +63,6 @@ const WhiteLabel = ({ selectedAgency }) => {
       if (data) {
         let u = JSON.parse(data)
         setAgencyData(u.user)
-        console.log('✅ Data fetched successfully on attempt', attempt + 1)
       } else {
         attempt++
         if (attempt < retries) {
@@ -78,6 +77,46 @@ const WhiteLabel = ({ selectedAgency }) => {
     tryFetch()
   }
 
+  const handleCopyClick = async () => {
+let targetUser = null;
+    if(selectedAgency) {
+
+       targetUser =await AdminGetProfileDetails(selectedAgency?.id)
+    }
+    else {
+      targetUser = reduxUser;
+    }
+
+    if (!targetUser?.twilio?.twilAuthToken) {
+      setShowSnackMessage({
+        type: SnackbarTypes.Error,
+        message: 'Connect your Twilio first',
+        isVisible: true,
+      })
+      return
+    }
+    console.log(
+      'reduxUser?.planCapabilities?.maxSubAccounts',
+      targetUser?.planCapabilities?.maxSubAccounts,
+    )
+    console.log('reduxUser?.plan?.title', targetUser?.plan?.title)
+    if (
+      targetUser?.plan?.title !== 'Scale' &&
+      targetUser?.planCapabilities?.maxSubAccounts < 1000 &&
+      agencyData?.agencyOnboardingLink === null
+    ) {
+      setShowCopyLinkWarning(true)
+      upgradeProfile()
+    } else {
+      await copyAgencyOnboardingLink({ setLinkCopied, targetUser, selectedAgency })
+      setShowSnackMessage({
+        type: SnackbarTypes.Success,
+        message: 'Agency link copied',
+        isVisible: true,
+      })
+    }
+  }
+
   // Upgrade copy link
   const upgradeProfile = async () => {
     try {
@@ -88,7 +127,6 @@ const WhiteLabel = ({ selectedAgency }) => {
           ? 'https://app.assignx.ai/'
           : 'http://dev.assignx.ai/'
       if (d) {
-        console.log('Agency uuid link copied check 3')
         const Data = JSON.parse(d)
         UUIDLink = BasePath + `onboarding/${Data.user.agencyUuid}`
       }
@@ -96,18 +134,15 @@ const WhiteLabel = ({ selectedAgency }) => {
       const apidata = {
         agencyOnboardingLink: UUIDLink,
       }
-      console.log('Data sending in updatee api is', apidata)
       const response = await UpdateProfile(apidata)
       if (response) {
         if (response.status === true) {
           getLocalData()
           setCopyLinkLoader(false)
-          console.log('Update api resopnse before copy link is', response)
         }
       }
     } catch (err) {
       setCopyLinkLoader(false)
-      console.log('Eror occured in update profile api is', err)
     }
   }
 
@@ -315,34 +350,7 @@ const WhiteLabel = ({ selectedAgency }) => {
             <button
               className="flex flex-row items-center justify-center gap-2 rounded-lg px-4 py-2 transition-colors flex-shrink-0 bg-white hover:bg-gray-50"
               onClick={async () => {
-                if (!reduxUser?.twilio?.twilAuthToken) {
-                  setShowSnackMessage({
-                    type: SnackbarTypes.Error,
-                    message: 'Connect your Twilio first',
-                    isVisible: true,
-                  })
-                  return
-                }
-                console.log(
-                  'reduxUser?.planCapabilities?.maxSubAccounts',
-                  reduxUser?.planCapabilities?.maxSubAccounts,
-                )
-                console.log('reduxUser?.plan?.title', reduxUser?.plan?.title)
-                if (
-                  reduxUser?.plan?.title !== 'Scale' &&
-                  reduxUser?.planCapabilities?.maxSubAccounts < 1000 &&
-                  agencyData?.agencyOnboardingLink === null
-                ) {
-                  setShowCopyLinkWarning(true)
-                  upgradeProfile()
-                } else {
-                  await copyAgencyOnboardingLink({ setLinkCopied, reduxUser, selectedAgency })
-                  setShowSnackMessage({
-                    type: SnackbarTypes.Success,
-                    message: 'Agency link copied',
-                    isVisible: true,
-                  })
-                }
+               handleCopyClick()
               }}
             >
               <div
@@ -390,7 +398,7 @@ const WhiteLabel = ({ selectedAgency }) => {
         />
       )}
     </div>
-  )
+  );
 }
 
 export default WhiteLabel

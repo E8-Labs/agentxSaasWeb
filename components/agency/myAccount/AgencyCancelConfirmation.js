@@ -41,15 +41,11 @@ function AgencyCancelConfirmation({
             .map((feature) => feature.text)
             .filter((text) => text) // Remove any undefined/null values
 
-          console.log('🔍 [CANCELATION FLOW] Features to lose:', featuresToLose)
-
           // Convert to the format expected by the UI
           const planFeatures = featuresToLose.map((feature, index) => ({
             id: index + 1,
             title: feature,
           }))
-
-          console.log('🔍 [CANCELATION FLOW] Plan features:', planFeatures)
 
           setFeatures(planFeatures)
         } else {

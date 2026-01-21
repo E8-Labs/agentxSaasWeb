@@ -352,7 +352,6 @@ const AgencySignUp = ({
 
   //code for number verification
   const handleVerifyCode = () => {
-    console.log('verify code is: ', VerifyCode)
     setPhoneVerifiedSuccessSnack(true)
 
     if (showResetBtn) {
@@ -415,9 +414,7 @@ const AgencySignUp = ({
       formData.append('verificationCode', VerifyCode.join(''))
 
       // //console.log;
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value)
-      }
+      for (let [key, value] of formData.entries()) {}
 
       // return;
       const response = await axios.post(ApiPath, formData)
@@ -427,10 +424,6 @@ const AgencySignUp = ({
         setResponse(result)
         setIsVisible(true)
         if (response.data.status === true) {
-          console.log(
-            '[DEBUG] Registration successful, starting affiliate tracking...',
-          )
-          console.log('agency signup data is', response.data.data)
           localStorage.removeItem(PersistanceKeys.RegisterDetails)
 
           // CRITICAL: Clear logout flag on successful registration
@@ -443,26 +436,13 @@ const AgencySignUp = ({
             setCookie(response.data.data.user, document)
           }
 
-          // Track signup for affiliate marketing
-          console.log(
-            '[DEBUG] Checking affiliate tracking function...',
-            typeof window.agentxTrackSignup,
-          )
           if (typeof window !== 'undefined' && window.agentxTrackSignup) {
-            console.log(
-              '[DEBUG] Calling agentxTrackSignup with:',
-              userEmail,
-              userName,
-              response.data.data.user?.id,
-            )
             window.agentxTrackSignup(
               userEmail,
               userName,
               response.data.data.user?.id,
             )
-          } else {
-            console.log('[DEBUG] agentxTrackSignup not available')
-          }
+          } else {}
 
           // Clear agency UUID after successful registration
           if (agencyUuid) {
@@ -1449,7 +1429,7 @@ const AgencySignUp = ({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default AgencySignUp

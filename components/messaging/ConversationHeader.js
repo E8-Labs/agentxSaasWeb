@@ -69,7 +69,6 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             }
 
             const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedLead}`
-            console.log('🔍 [ConversationHeader] Fetching lead details, API path:', ApiPath, 'retry:', retryCount)
 
             const response = await axios.get(ApiPath, {
                 headers: {
@@ -79,24 +78,9 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             })
 
             if (response && response.data && response.data.data) {
-                console.log('🔍 [ConversationHeader] Lead details fetched:', {
-                    leadId: response.data.data.id,
-                    teamsAssigned: response.data.data.teamsAssigned,
-                    teamsAssignedLength: response.data.data.teamsAssigned?.length || 0,
-                    teamsAssignedStructure: response.data.data.teamsAssigned?.map(t => ({
-                        id: t.id,
-                        invitedUserId: t.invitedUserId,
-                        invitedUser_id: t.invitedUser?.id,
-                        invitedUser_name: t.invitedUser?.name,
-                        name: t.name || t.invitedUser?.name,
-                        fullObject: t, // Log full object for debugging
-                    })),
-                })
-                console.log('🔍 [ConversationHeader] Full teamsAssigned array:', JSON.stringify(response.data.data.teamsAssigned, null, 2))
-                
                 setLeadDetails(response.data.data)
                 setSelectedStage(response.data.data?.stage?.stageTitle || '')
-                
+
                 if (response.data.data?.pipeline?.id) {
                     setPipelineId(response.data.data.pipeline.id)
                     setPipelineTitle(response.data.data.pipeline.title || null)
@@ -106,7 +90,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                 } else {
                     setPipelineTitle(null)
                 }
-                
+
                 return response.data.data
             }
         } catch (error) {
@@ -187,15 +171,6 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             // Use a small delay to ensure state is fully updated
             const timer = setTimeout(() => {
                 setAssignmentRefreshKey(prev => prev + 1)
-                console.log('🔄 [ConversationHeader] Teams assigned changed, updating refresh key:', {
-                    key: teamsAssignedKey,
-                    count: leadDetails.teamsAssigned?.length || 0,
-                    teams: leadDetails.teamsAssigned?.map(t => ({
-                        id: t.id,
-                        invitedUserId: t.invitedUserId,
-                        invitedUser_id: t.invitedUser?.id,
-                    })),
-                })
             }, 150)
             
             return () => clearTimeout(timer)
@@ -230,23 +205,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                 if (response && response.data && response.data.status === true) {
                     const teamData = response.data.data || []
                     const adminData = response.data.admin
-                    
-                    console.log('🔍 [ConversationHeader] Team data fetched:', {
-                        myTeam: teamData,
-                        myTeamAdmin: adminData,
-                        myTeamStructure: teamData.map(t => ({
-                            id: t.id,
-                            invitedUserId: t.invitedUserId,
-                            invitedUser_id: t.invitedUser?.id,
-                            name: t.name,
-                        })),
-                        adminStructure: adminData ? {
-                            id: adminData.id,
-                            invitedUserId: adminData.invitedUserId,
-                            invitedUser_id: adminData.invitedUser?.id,
-                            name: adminData.name,
-                        } : null,
-                    })
+
                     setMyTeam(teamData)
                     setMyTeamAdmin(adminData || null)
                 }
@@ -318,7 +277,6 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             if (selectedUser) {
                 ApiData.userId = selectedUser.id
             }
-            console.log('🔵 [updateLeadStage] ApiData:', ApiData)
 
 
             const ApiPath = Apis.updateLeadStageApi
@@ -352,127 +310,167 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
     }
 
     // Function to assign lead to team member
-    const handleAssignLeadToTeammember = async (item, selectedUser) => {
+    const handleAssignLeadToTeammember = async (item) => {
+        setGlobalLoader(true);
         try {
-            let ApiData = null
-            if (item.invitedUserId) {
-                ApiData = {
-                    leadId: selectedThread.leadId,
-                    teamMemberUserId: item.invitedUserId,
-                }
-            } else {
-                ApiData = {
-                    leadId: selectedThread.leadId,
-                    teamMemberUserId: item.id,
-                }
-            }
-
-            if (selectedUser) {
-                ApiData.userId = selectedUser.id
-            }
-
-            console.log('🔵 [Assign] Team API Data:', ApiData)
-            console.log('🔵 [Assign] Item being assigned:', {
-                item: item,
-                itemId: item.id,
-                itemInvitedUserId: item.invitedUserId,
-                itemInvitedUser_id: item.invitedUser?.id,
-            })
-
-            let response = await AssignTeamMember(ApiData)
-            console.log('🔵 [Assign] Team assignment response:', response?.data)
-            console.log('🔵 [Assign] Response status:', response?.data?.status)
-            console.log('🔵 [Assign] Response message:', response?.data?.message)
-
-            if (response && response.data && response.data.status === true) {
-                // Refresh lead details to get updated team assignments
-               
-                if (selectedThread?.leadId) {
-                    // Add a small delay to ensure backend has processed the update
-                    await new Promise(resolve => setTimeout(resolve, 300))
-                    const updatedDetails = await getLeadDetails(selectedThread.leadId)
-                    // Wait for React to process the state update
-                    await new Promise(resolve => setTimeout(resolve, 200))
-                    // Explicitly update refresh key to ensure dropdown updates
-                    setAssignmentRefreshKey(prev => prev + 1)
-                    console.log('✅ [Unassign] Lead details refreshed and refresh key updated:', {
-                        teamsAssigned: updatedDetails?.teamsAssigned?.length || 0,
-                    })
-                }
-                showSnackbar('Team member assigned successfully', SnackbarTypes.Success)
-                return true
-            } else if (response && response.data && response.data.status === false) {
-                showSnackbar(response.data.message || 'Failed to assign team member', SnackbarTypes.Error)
-                return false
-            }
-            return false
+          setGlobalLoader(true);
+    
+          console.log('🎯 [handleAssignLeadToTeammember] Starting assignment for:', {
+            item,
+            itemId: item.id,
+            invitedUserId: item.invitedUserId,
+            invitedUser_id: item.invitedUser?.id,
+            name: item.name
+          });
+    
+          // Determine the user ID to send to API
+          const teamMemberUserId = item.invitedUserId || item.id;
+    
+          const ApiData = {
+                leadId: leadDetails.id,
+            teamMemberUserId: teamMemberUserId,
+          };
+    
+          console.log('🎯 [handleAssignLeadToTeammember] API data:', ApiData);
+    
+          let response = await AssignTeamMember(ApiData);
+          console.log('🎯 [handleAssignLeadToTeammember] API response:', response?.data);
+    
+          if (response && response.data && response.data.status === true) {
+            // Create a proper team member object for state
+            const newTeamMember = {
+              id: item.id,
+              invitedUserId: item.invitedUserId,
+              invitingUserId: item.invitingUserId,
+              name: item.name || item.invitedUser?.name,
+              thumb_profile_image: item.thumb_profile_image || item.invitedUser?.thumb_profile_image,
+              invitedUser: item.invitedUser || {
+                id: item.invitedUserId || item.id,
+                name: item.name,
+                thumb_profile_image: item.thumb_profile_image
+              }
+            };
+    
+            console.log('🎯 [handleAssignLeadToTeammember] New team member object:', newTeamMember);
+    
+            // Update state IMMEDIATELY
+            setLeadDetails(prevData => {
+              if (!prevData) return prevData;
+    
+              const currentTeams = prevData.teamsAssigned || [];
+    
+              // Check if already exists
+              const exists = currentTeams.some(t => {
+                const tId = t.id || t.invitedUserId || t.invitedUser?.id;
+                const newId = newTeamMember.id || newTeamMember.invitedUserId || newTeamMember.invitedUser?.id;
+                return String(tId) === String(newId);
+              });
+    
+              if (exists) {
+                console.log('🎯 [handleAssignLeadToTeammember] Team member already exists, not adding again');
+                return prevData;
+              }
+    
+              const updatedLead = {
+                ...prevData,
+                teamsAssigned: [...currentTeams, newTeamMember]
+              };
+    
+              console.log('🎯 [handleAssignLeadToTeammember] Updated lead state:', {
+                oldTeams: currentTeams.map(t => ({ id: t.id, name: t.name })),
+                newTeams: updatedLead.teamsAssigned.map(t => ({ id: t.id, name: t.name })),
+                updatedLead
+              });
+    
+              return updatedLead;
+            });
+    
+            showSnackbar(response.data.message || 'Team member assigned successfully', SnackbarTypes.Success);
+          } else {
+            showSnackbar(response?.data?.message || 'Failed to assign team member', SnackbarTypes.Error);
+          }
         } catch (error) {
-            console.error('❌ [Assign] Error assigning team member:', error)
-            showSnackbar('Failed to assign team member. Please try again.', SnackbarTypes.Error)
-            return false
-        }
-    }
-
-    // Function to unassign lead from team member
-    const handleUnassignLeadFromTeammember = async (userId, selectedUser) => {
-        try {
-            setGlobalLoader(true)
-            let ApiData = {
-                leadId: selectedThread.leadId,
-                teamMemberUserId: userId,
-            }
-
-            if (selectedUser) {
-                ApiData.userId = selectedUser.id
-            }
-
-            let response = await UnassignTeamMember(ApiData)
-
-            if (response && response.data && response.data.status === true) {
-                // Refresh lead details to get updated team assignments
-                if (selectedThread?.leadId) {
-                    // Add a small delay to ensure backend has processed the update
-                    await new Promise(resolve => setTimeout(resolve, 300))
-                    const updatedDetails = await getLeadDetails(selectedThread.leadId)
-                    console.log('✅ [Unassign] Lead details fetched:', {
-                        teamsAssigned: updatedDetails?.teamsAssigned?.length || 0,
-                        teamsAssignedIds: updatedDetails?.teamsAssigned?.map(t => ({
-                            id: t.id,
-                            invitedUserId: t.invitedUserId,
-                            invitedUser_id: t.invitedUser?.id,
-                        })),
-                    })
-                    // Wait for React to process the state update, then force refresh
-                    await new Promise(resolve => setTimeout(resolve, 300))
-                    // Explicitly update refresh key to ensure dropdown updates
-                    setAssignmentRefreshKey(prev => {
-                        console.log('🔄 [Unassign] Updating refresh key:', prev + 1)
-                        return prev + 1
-                    })
-                }
-                showSnackbar('Team member unassigned successfully', SnackbarTypes.Success)
-            } else if (response && response.data && response.data.status === false) {
-                showSnackbar(response.data.message || 'Failed to unassign team member', SnackbarTypes.Error)
-            }
-        } catch (error) {
-            console.error('Error unassigning team member:', error)
-            showSnackbar('Failed to unassign team member. Please try again.', SnackbarTypes.Error)
+          console.error('❌ [handleAssignLeadToTeammember] Error:', error);
+          showSnackbar('Failed to assign team member. Please try again.', SnackbarTypes.Error);
         } finally {
-            setGlobalLoader(false)
+          setGlobalLoader(false);
         }
-    }
+      };
+      //function to unassign lead from team member
+    
+      const handleUnassignLeadFromTeammember = async (userId) => {
+        try {
+          setGlobalLoader(true);
+          console.log('🎯 [handleUnassignLeadFromTeammember] Unassigning user with ID:', userId);
+    
+          // Find the team member being unassigned to get their details
+          const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeam || [])];
+          const teamToUnassign = allTeams.find(t => {
+            const tId = t.invitedUserId || t.invitedUser?.id || t.id;
+            return String(tId) === String(userId);
+          });
+    
+          console.log('🎯 [handleUnassignLeadFromTeammember] Team member to unassign:', teamToUnassign);
+    
+          const ApiData = {
+            leadId: leadDetails.id,
+            teamMemberUserId: userId,
+          };
+    
+          console.log('🎯 [handleUnassignLeadFromTeammember] API data:', ApiData);
+    
+          let response = await UnassignTeamMember(ApiData);
+          console.log('🎯 [handleUnassignLeadFromTeammember] API response:', response?.data);
+    
+          if (response && response.data && response.data.status === true) {
+            // Update state IMMEDIATELY
+            setLeadDetails(prevData => {
+              if (!prevData) return prevData;
+    
+              const filteredTeams = (prevData.teamsAssigned || []).filter((user) => {
+                // Check all possible ID fields to match the userId
+                const userIdentifier = user.invitedUserId || user.invitedUser?.id || user.id;
+                // Convert both to strings for comparison
+                return String(userIdentifier) !== String(userId);
+              });
+    
+              const updatedLead = {
+                ...prevData,
+                teamsAssigned: filteredTeams,
+              };
+    
+              console.log('🎯 [handleUnassignLeadFromTeammember] Updated lead state:', {
+                oldTeamsCount: prevData.teamsAssigned?.length || 0,
+                newTeamsCount: filteredTeams.length,
+                updatedLead
+              });
+    
+    
+              return updatedLead;
+            });
+    
+            showSnackbar(response.data.message || 'Team member unassigned successfully', SnackbarTypes.Success);
+          } else if (response && response.data && response.data.status === false) {
+            // Show error message if unassignment failed
+            showSnackbar(response.data.message || 'Failed to unassign team member', SnackbarTypes.Error);
+          }
+        } catch (error) {
+          console.error('❌ [handleUnassignLeadFromTeammember] Error:', error);
+          showSnackbar('Failed to unassign team member. Please try again.', SnackbarTypes.Error);
+        } finally {
+          setGlobalLoader(false);
+        }
+      };
 
     // Handle assign selection (agent or team)
     const handleAssignSelect = async (type, id, item) => {
         try {
             setGlobalLoader(true)
-            console.log('🔵 [Assign] Starting assignment:', { type, id, item })
 
             if (type === 'agent') {
                 // Assign agent to lead via pipeline
                 const agentId = item.id || item.agentId
-                console.log('🔵 [Assign] Agent assignment:', { agentId, pipeline: item.pipeline })
-                
+
                 if (!item.pipeline || !item.pipeline.id) {
                     showSnackbar('Agent must be assigned to a pipeline', SnackbarTypes.Error)
                     setGlobalLoader(false)
@@ -489,8 +487,6 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                     dncCheck: false,
                 }
 
-                console.log('🔵 [Assign] API Data:', ApiData)
-
                 const localData = localStorage.getItem('User')
                 let AuthToken = null
                 if (localData) {
@@ -504,8 +500,6 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                         'Content-Type': 'application/json',
                     },
                 })
-
-                console.log('🔵 [Assign] Agent assignment response:', response.data)
 
                 if (response && response.data && response.data.status === true) {
                     setSelectedAssignValue({ type: 'agent', id: String(agentId) })
@@ -551,8 +545,7 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             } else if (type === 'team') {
                 // Assign team member - use raw property which contains the original team member object
                 const teamMember = item.raw || item
-                console.log('🔵 [Assign] Team assignment:', { teamId: id, teamMember })
-                
+
                 const result = await handleAssignLeadToTeammember(teamMember)
                 // Update selected value after successful assignment
                 if (result) {
@@ -597,77 +590,30 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
 
     // Memoize team member options for TeamAssignDropdownCn
     const teamMemberOptions = useMemo(() => {
-        console.log('🔍 [teamMemberOptions] Generating options:', {
-            refreshKey: assignmentRefreshKey,
-            teamsAssignedKey,
-            teamsAssigned: leadDetails?.teamsAssigned,
-        })
-        const options = [
-            ...(myTeamAdmin ? [myTeamAdmin] : []),
-            ...(myTeam || []),
-        ].map((tm) => {
-            // Get the team member ID - check all possible fields
-            // For myTeam items from TeamResource:
-            // - tm.id is the TeamModel id (NOT the user id) - like 90, 91, 92
-            // - tm.invitedUserId is the actual user ID - like 593, 594, 595
-            // - tm.invitedUser.id is also the actual user ID
-            // We need to use invitedUserId or invitedUser.id, NOT tm.id
-            const id = tm.invitedUserId || tm.invitedUser?.id || tm.id
-            
-            // Check if this team member is in the assigned teams
-            const isSelected = (leadDetails?.teamsAssigned || []).some(
-                (assigned) => {
-                    // Check all possible ID fields in the assigned team member
-                    const assignedId = assigned.id || assigned.invitedUserId || assigned.invitedUser?.id
-                    
-                    // Convert both to strings for comparison
-                    const matches = String(assignedId) === String(id)
-                    
-                    if (matches) {
-                        console.log('✅ [teamMemberOptions] Match found for team member:', {
-                            teamMemberId: id,
-                            teamMemberName: tm.name || tm.invitedUser?.name,
-                            assignedId: assignedId,
-                            assignedName: assigned.name || assigned.invitedUser?.name,
-                        })
-                    }
-                    
-                    return matches
-                }
-            )
-            
-            return {
-                id,
-                label: tm.name || tm.invitedUser?.name || 'Unknown',
-                avatar: tm.thumb_profile_image || tm.invitedUser?.thumb_profile_image,
-                selected: isSelected,
-                raw: tm,
+        const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeam || [])];
+    
+        return allTeams.map((tm) => {
+          // Get the team member ID - use invitedUserId first, then id
+          const id = tm.invitedUserId || tm.invitedUser?.id || tm.id;
+    
+          // Check if this team member is already assigned
+          const isSelected = (leadDetails?.teamsAssigned || []).some(
+            (assigned) => {
+              const assignedId = assigned.invitedUserId || assigned.invitedUser?.id || assigned.id;
+              return String(assignedId) === String(id);
             }
-        })
-        
-        // Log all options for debugging
-        console.log('🔍 [teamMemberOptions] Generated options:', {
-            refreshKey: assignmentRefreshKey,
-            teamsAssignedKey,
-            totalOptions: options.length,
-            selectedCount: options.filter(o => o.selected).length,
-            selectedIds: options.filter(o => o.selected).map(o => o.id),
-            options: options.map(o => ({
-                id: o.id,
-                label: o.label,
-                selected: o.selected,
-            })),
-            teamsAssignedFromAPI: leadDetails?.teamsAssigned?.map(t => ({
-                id: t.id,
-                invitedUserId: t.invitedUserId,
-                invitedUser_id: t.invitedUser?.id,
-                name: t.name || t.invitedUser?.name,
-            })),
-        })
-        
-        return options
-    }, [myTeamAdmin, myTeam, teamsAssignedKey, assignmentRefreshKey])
-
+          );
+    
+          return {
+            id,
+            label: tm.name || tm.invitedUser?.name || 'Unknown',
+            avatar: tm.thumb_profile_image || tm.invitedUser?.thumb_profile_image,
+            selected: isSelected,
+            raw: tm,
+          };
+        });
+      }, [myTeamAdmin, myTeam, leadDetails?.teamsAssigned])
+    
     return (
         <>
             <AgentSelectSnackMessage

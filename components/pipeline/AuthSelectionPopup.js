@@ -32,14 +32,13 @@ function AuthSelectionPopup({
   setSelectedGoogleAccount,
   selectedUser,
 }) {
-  console.log("Selected User in AuthSelectionPopup", selectedUser)
   // Get userId from URL query params as fallback (for agency managing subaccount)
   const getUserIdFromUrl = () => {
     if (typeof window === 'undefined') return null
     const urlParams = new URLSearchParams(window.location.search)
     return urlParams.get('userId')
   }
-  
+
   // Determine targetUserId: prefer selectedUser.id, fallback to URL param
   const targetUserId = selectedUser?.id || getUserIdFromUrl()
   const [loading, setLoading] = useState(false)
@@ -142,7 +141,6 @@ function AuthSelectionPopup({
               ...userInfo,
             }
             setGoogleAuthDetails(googleLoginData)
-            console.log('Google login details are', googleLoginData)
             let res = await connectGmailAccount(googleLoginData, selectedUser)
             // console.log('res', res)
             setLoginLoader(false)
@@ -173,7 +171,6 @@ function AuthSelectionPopup({
   }
 
   const handleDelete = async (account) => {
-    console.log('acccount to delete', account)
     setDelLoader(account)
     await deleteAccount(account)
     setDelLoader(null)

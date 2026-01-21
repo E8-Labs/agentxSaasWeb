@@ -22,7 +22,6 @@ const EmailSmsTranscriptCN = ({ item }) => {
          
         </div>
       )}
-
       {item.sentContent && (
         <div className="flex flex-col items-start gap-2 w-full">
           <TypographyCaption className="whitespace-pre-wrap break-words text-foreground leading-normal">
@@ -57,7 +56,6 @@ const EmailSmsTranscriptCN = ({ item }) => {
           </TypographyCaption>
         </div>
       )}
-
       {item.template?.attachments?.length > 0 && (
         <div className="flex flex-col items-start gap-2 w-full">
           <TypographyBodySemibold className="text-muted-foreground">
@@ -86,7 +84,7 @@ const EmailSmsTranscriptCN = ({ item }) => {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export default EmailSmsTranscriptCN

@@ -154,7 +154,6 @@ function AgencyBilling({ selectedAgency }) {
       })
 
       if (response) {
-        console.log('Response of get plans api is', response.data.data)
         const monthly = []
         const quarterly = []
         const yearly = []
@@ -226,14 +225,9 @@ function AgencyBilling({ selectedAgency }) {
         setTogglePlan(togglePlan)
         setCurrentPlan(togglePlan)
         let userPlanDuration = response?.data?.data?.plan?.duration
-        console.log('response?.data?.data?.plan', plans)
 
         const matchedDuration = plans.find((d) => d.id === togglePlan)
 
-        console.log(
-          'plans find',
-          plans.find((d) => d.id === togglePlan),
-        )
         if (matchedDuration) {
           if (matchedDuration.duration === 'monthly') {
             setSelectedDuration(duration[0])
@@ -378,8 +372,6 @@ function AgencyBilling({ selectedAgency }) {
   //function to subscribe plan
   const handleSubscribePlan = async () => {
     try {
-      console.log('ssubscribe')
-
       setSubscribePlanLoader(true)
       let AuthToken = null
       let localDetails = null
@@ -404,9 +396,7 @@ function AgencyBilling({ selectedAgency }) {
       if (selectedAgency) {
         formData.append('userId', selectedAgency.id)
       }
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`)
-      }
+      for (let [key, value] of formData.entries()) {}
       // //console.log;
       // //console.log;
 
@@ -422,7 +412,6 @@ function AgencyBilling({ selectedAgency }) {
         // //console.log;
         if (response.data.status === true) {
           localDetails.user.plan = response.data.data
-          console.log('response.data.data', response.data)
           // let user = userLocalData
           // user.plan = response.data.data
           // setUserLocalData(user)
@@ -583,10 +572,6 @@ function AgencyBilling({ selectedAgency }) {
       if (response) {
         // //console.log;
         let response2 = await getProfileDetails()
-        console.log(
-          'response2?.data?.data?.plan?.id',
-          response2?.data?.data?.plan?.id,
-        )
         if (response2) {
           let togglePlan = response2?.data?.data?.plan?.planId
           // let planType = null;

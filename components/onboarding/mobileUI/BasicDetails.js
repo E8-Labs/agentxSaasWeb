@@ -418,9 +418,6 @@ const BasicDetails = ({
             if (handleShowRedirectPopup) {
               handleShowRedirectPopup()
             }
-            // Use window.location.href for hard redirect to ensure clean page reload
-            // This prevents DOM cleanup errors during navigation
-            console.log('✅ Registration successful, redirecting to: /createagent')
             window.location.href = '/createagent'
             return
           }
@@ -561,7 +558,7 @@ const BasicDetails = ({
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
-                placeholder="Name"
+                placeholder="Type here"
                 className="border-[#00000010] focus:border-black focus-visible:border-black mt-2"
                 ref={(el) => (inputsFields.current[0] = el)}
                 style={{ ...styles.inputStyle }}
@@ -631,7 +628,7 @@ const BasicDetails = ({
                 autoCorrect="off"
                 spellCheck="false"
                 enterKeyHint="done"
-                placeholder="Email address"
+                placeholder="Type here"
                 className="border-[#00000010] focus:border-black focus-visible:border-black mt-2"
                 style={{ ...styles.inputStyle }}
                 value={userEmail}
@@ -796,7 +793,7 @@ const BasicDetails = ({
                   placeholder={
                     locationLoader
                       ? 'Loading location ...'
-                      : 'Enter Phone Number'
+                      : 'Type here'
                   }
                   disabled={loading} // Disable input if still loading
                   inputProps={{

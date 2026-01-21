@@ -94,7 +94,7 @@ const UserAddCard = ({
   const [disableContinue, setDisableContinue] = useState(false)
   const [currentUserPlan, setCurrentUserPlan] = useState(null)
 
-  
+
 
   // Check if user is subaccount and if agency has branding
   useEffect(() => {
@@ -118,9 +118,7 @@ const UserAddCard = ({
         if (storedBranding) {
           try {
             branding = JSON.parse(storedBranding)
-          } catch (error) {
-            console.log('Error parsing agencyBranding from localStorage:', error)
-          }
+          } catch (error) { }
         }
 
         // Also check user data for agencyBranding
@@ -134,16 +132,12 @@ const UserAddCard = ({
             } else if (parsedUser?.user?.agency?.agencyBranding) {
               branding = parsedUser.user.agency.agencyBranding
             }
-          } catch (error) {
-            console.log('Error parsing user data for agencyBranding:', error)
-          }
+          } catch (error) { }
         }
 
         hasLogo = !!branding?.logoUrl
         setHasAgencyLogo(hasLogo)
-      } catch (error) {
-        console.log('Error parsing user data:', error)
-      }
+      } catch (error) { }
     }
   }, [])
 
@@ -162,7 +156,6 @@ const UserAddCard = ({
     if (localData) {
       const userData = JSON.parse(localData)
       const plan = userData.user?.plan
-      console.log('Current user plan from localStorage:', plan)
       setCurrentUserPlan(plan)
       return plan
     }
@@ -200,7 +193,6 @@ const UserAddCard = ({
         const resp = await checkReferralCode(inviteCode.trim())
 
         setReferralCodeDetails(resp)
-        console.log('referralCodeDetails', referralCodeDetails)
 
         // Double-check after async call
         if (currentSeq !== referralRequestSeqRef.current) return
@@ -271,7 +263,6 @@ const UserAddCard = ({
     })
 
     const data = await res.json()
-    console.log('Setup intent response is ', data)
 
     const result = await stripeReact.confirmCardSetup(data.data, {
       payment_method: {
@@ -282,11 +273,8 @@ const UserAddCard = ({
       },
     })
 
-    console.log('Result confirm payment', result)
-
     if (result.error) {
       setAddCardLoader(false)
-      console.log('Error confirm payment')
       setAddCardFailure(true)
       setAddCardErrtxt(
         result.error.message || 'Error confirming payment method',
@@ -315,7 +303,6 @@ const UserAddCard = ({
           inviteCode: inviteCode,
         }
       }
-      console.log('Request data sending in api is', requestBody)
       const addCardRes = await fetch(Apis.addCard, {
         method: 'POST',
         headers: {
@@ -326,7 +313,6 @@ const UserAddCard = ({
       })
 
       const result2 = await addCardRes.json()
-      console.log('Result is ', result2)
       setAddCardLoader(false)
       if (result2.status) {
         setAddCardSuccess(true)
@@ -354,18 +340,12 @@ const UserAddCard = ({
 
   const refreshUserData = async () => {
     try {
-      console.log(
-        '🔄 [subscribe plan] Refreshing user data after plan upgrade...',
-      )
       const profileResponse = await getProfileDetails()
 
       if (profileResponse?.data?.status === true) {
         const freshUserData = profileResponse.data.data
         const localData = JSON.parse(localStorage.getItem('User') || '{}')
 
-        console.log(
-          '🔄 [subscribe plan] Fresh user data received after upgrade',
-        )
         // Update Redux with fresh data
         setReduxUser({
           token: localData.token,
@@ -385,7 +365,6 @@ const UserAddCard = ({
   const handleSubscribePlan = async () => {
     // Prevent duplicate calls
     if (isSubscribingRef.current) {
-      console.log('⚠️ Subscription already in progress, skipping duplicate call')
       return
     }
 
@@ -394,8 +373,6 @@ const UserAddCard = ({
 
       let planType = selectedPlan?.planType
 
-      console.log('selected plan isnnnhhhhh', selectedPlan)
-      console.log('selected plan isnnnhhhhh', selectedPlan.id)
       // return
 
       setAddCardLoader(true)
@@ -420,18 +397,6 @@ const UserAddCard = ({
       }
       const reduxUserRole = reduxUser?.userRole || reduxUser?.user?.userRole
       const actualUserRole = userRole || reduxUserRole
-
-      // Debug logging to identify the issue
-      console.log('🔍 [UserAddCardModal] isFrom value:', isFrom, 'Type:', typeof isFrom)
-      console.log('🔍 [UserAddCardModal] Actual user role:', actualUserRole)
-      console.log('🔍 [UserAddCardModal] Comparison checks:', {
-        isSubAccount: isFrom === 'SubAccount',
-        isAgency: isFrom === 'Agency',
-        isAgencyLowercase: isFrom === 'agency',
-        isAgents: isFrom === 'agents',
-        actualRoleIsSubAccount: actualUserRole === 'AgencySubAccount',
-        actualRoleIsAgency: actualUserRole === 'Agency',
-      })
 
       // Only use agency API if user is actually an agency or subaccount
       const isActuallySubAccount = actualUserRole === 'AgencySubAccount'
@@ -461,9 +426,6 @@ const UserAddCard = ({
         // Default to normal user subscription API
         ApiPath = Apis.subscribePlan
       }
-      // //console.log;
-      console.log('Api data', ApiData)
-      console.log('Api path', ApiPath)
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
           Authorization: 'Bearer ' + AuthToken,
@@ -472,10 +434,6 @@ const UserAddCard = ({
       })
 
       if (response) {
-        console.log(
-          'Response of subscribe plan api on user add card is',
-          response.data,
-        )
         if (response.data.status === true) {
           //refresh user data from redux
           refreshUserData()
@@ -484,7 +442,6 @@ const UserAddCard = ({
         } else if (response.data.status === false) {
           // Handle subscription failure - display error message
           const errorMessage = response.data.message || 'Subscription failed. Please try again.'
-          console.log('❌ [handleSubscribePlan] Subscription failed:', errorMessage)
           setAddCardFailure(true)
           setAddCardErrtxt(errorMessage)
           setDisableContinue(false)
@@ -497,9 +454,9 @@ const UserAddCard = ({
         error,
       )
       // Display error message to user
-      const errorMessage = error?.response?.data?.message || 
-                          error?.message || 
-                          'An error occurred while subscribing to the plan. Please try again.'
+      const errorMessage = error?.response?.data?.message ||
+        error?.message ||
+        'An error occurred while subscribing to the plan. Please try again.'
       setAddCardFailure(true)
       setAddCardErrtxt(errorMessage)
       setDisableContinue(false)
@@ -566,39 +523,38 @@ const UserAddCard = ({
 
   const calculateTotalPrice = (selectedPlan) => {
 
-     // Check if plan has trial and user is subscribing for the first time
-     const hasTrial = selectedPlan?.hasTrial === true
-     const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+    // Check if plan has trial and user is subscribing for the first time
+    const hasTrial = selectedPlan?.hasTrial === true
+    const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
 
-     // If plan has trial and user has no previous plan, show $0
-     if (hasTrial && isFirstTimeSubscription) {
-       return '$0'
-     }
+    // If plan has trial and user has no previous plan, show $0
+    if (hasTrial && isFirstTimeSubscription) {
+      return '$0'
+    }
 
-     const billingMonths = GetMonthCountFronBillingCycle(
-       selectedPlan?.billingCycle || selectedPlan?.duration,
-     )
-     const monthlyPrice =
-       selectedPlan?.discountPrice ||
-       selectedPlan?.discountedPrice ||
-       selectedPlan?.originalPrice ||
-       0
+    const billingMonths = GetMonthCountFronBillingCycle(
+      selectedPlan?.billingCycle || selectedPlan?.duration,
+    )
+    const monthlyPrice =
+      selectedPlan?.discountPrice ||
+      selectedPlan?.discountedPrice ||
+      selectedPlan?.originalPrice ||
+      0
 
-     const discountCalculation = referralCodeDetails ? calculateDiscountedPrice(referralCodeDetails?.discountValue, referralCodeDetails?.discountType, billingMonths * monthlyPrice) : null
-     const finalTotal = discountCalculation ? discountCalculation : billingMonths * monthlyPrice
-     return `$${formatFractional2(monthlyPrice * billingMonths)}`
+    const discountCalculation = referralCodeDetails ? calculateDiscountedPrice(referralCodeDetails?.discountValue, referralCodeDetails?.discountType, billingMonths * monthlyPrice) : null
+    const finalTotal = discountCalculation ? discountCalculation : billingMonths * monthlyPrice
+    return `$${formatFractional2(monthlyPrice * billingMonths)}`
   }
 
   return (
     <div style={{ width: '100%' }}>
       {isSmallScreen ? (
         // Mobile Layout - Matching AgencyAddCard design
-        <div className="flex flex-col items-center h-screen w-full overflow-y-auto bg-gray-100">
+        (<div className="flex flex-col items-center h-screen w-full overflow-y-auto bg-gray-100">
           <SignupHeaderMobile
             title={reduxUser?.userRole == 'Agency' ? "Get an AI AaaS Agency" : "Grow Your Business"}
             description={reduxUser?.userRole == 'Agency' || reduxUser?.userRole == 'AgencySubAccount' ? "Gets more done than coffee. Cheaper too.😉" : "Gets more done than coffee. Cheaper too. Cancel anytime.😉"}
           />
-
           {/* White Card Container */}
           <div
             className="w-[90%] max-w-md bg-white rounded-2xl shadow-2xl p-6 mt-4"
@@ -808,7 +764,26 @@ const UserAddCard = ({
                     </div>
                   </div>
                   <div style={{ fontWeight: '600', fontSize: 15 }}>
-                   {calculateTotalPrice(selectedPlan)}
+                    {(() => {
+                      // Check if plan has trial and user is subscribing for the first time
+                      // const hasTrial = selectedPlan?.hasTrial === true
+                      // const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+
+                      // If plan has trial and user has no previous plan, show $0
+                      // if (hasTrial && isFirstTimeSubscription) {
+                      //   return '$0'
+                      // }
+
+                      const billingMonths = GetMonthCountFronBillingCycle(
+                        selectedPlan?.billingCycle || selectedPlan?.duration,
+                      )
+                      const monthlyPrice =
+                        selectedPlan?.discountPrice ||
+                        selectedPlan?.discountedPrice ||
+                        selectedPlan?.originalPrice ||
+                        0
+                      return `$${formatFractional2(billingMonths * monthlyPrice)}`
+                    })()}
                   </div>
                 </div>
 
@@ -826,7 +801,7 @@ const UserAddCard = ({
                         // Check if plan has trial and user is subscribing for the first time
                         const hasTrial = selectedPlan?.hasTrial === true
                         const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-
+                        console.log("hasTrial, isFirstTimeSubscription", hasTrial, isFirstTimeSubscription)
                         // If plan has trial and user has no previous plan, show $0
                         if (hasTrial && isFirstTimeSubscription) {
                           return '$0'
@@ -924,10 +899,10 @@ const UserAddCard = ({
               </button>
             </div>
           </div>
-        </div>
+        </div>)
       ) : (
         // Desktop Layout
-        <div
+        (<div
           className={`w-full flex flex-row items-start gap-6`}
           style={{ backgroundColor: 'transparent' }}
         >
@@ -1201,7 +1176,6 @@ const UserAddCard = ({
               ) : null}
             </div>
           </div>
-
           {/* Order Summary - Desktop only */}
           {!isSmallScreen && (
             <div
@@ -1321,7 +1295,7 @@ const UserAddCard = ({
                         // Check if plan has trial and user is subscribing for the first time (no previous plan)
                         const hasTrial = selectedPlan?.hasTrial === true
                         const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-
+                        console.log("hasTrial, isFirstTimeSubscription", hasTrial, isFirstTimeSubscription)
                         // If plan has trial and user has no previous plan, show $0 (they won't be charged immediately)
                         if (hasTrial && isFirstTimeSubscription) {
                           return '$0'
@@ -1421,10 +1395,10 @@ const UserAddCard = ({
               </div>
             </div>
           )}
-        </div>
+        </div>)
       )}
     </div>
-  )
+  );
 }
 
 export default UserAddCard

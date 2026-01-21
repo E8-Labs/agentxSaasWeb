@@ -18,7 +18,6 @@ export const getAvailabePhoneNumbers = async () => {
     let ApiPath = null
 
     ApiPath = `${Apis.userAvailablePhoneNumber}`
-    console.log('ApiPath on create agent is', ApiPath)
 
     // return
     const response = await axios.get(ApiPath, {
@@ -28,8 +27,6 @@ export const getAvailabePhoneNumbers = async () => {
     })
 
     if (response) {
-      // //console.log;
-      console.log('Numbers list iis', response.data.data)
       return response.data.data
     }
   } catch (error) {

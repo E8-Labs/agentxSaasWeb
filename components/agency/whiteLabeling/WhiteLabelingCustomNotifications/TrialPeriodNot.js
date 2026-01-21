@@ -261,14 +261,9 @@ const TrialPeriodNot = ({
         apiData.customEmailCTA = updatedData.cta || null
       }
 
-      console.log('apiData', apiData)
-      console.log('notificationType', notificationType)
-
       // Call API to save customization
       const userId = selectedAgency?.id || undefined
       await createOrUpdateNotificationCustomization(notificationType, apiData, userId)
-
-      console.log('Push notification saved successfully')
 
       // Refresh the data
       if (onRefresh) {
@@ -333,8 +328,6 @@ const TrialPeriodNot = ({
       const userId = selectedAgency?.id || undefined
       await createOrUpdateNotificationCustomization(notificationType, apiData, userId)
 
-      console.log('Email notification saved successfully')
-
       // Refresh the data
       if (onRefresh) {
         await onRefresh()
@@ -383,8 +376,6 @@ const TrialPeriodNot = ({
 
       const userId = selectedAgency?.id || undefined
       await toggleNotificationEnabled(notificationType, userId)
-
-      console.log('Notification enabled status toggled successfully')
 
       // Refresh the data
       if (onRefresh) {

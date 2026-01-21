@@ -60,14 +60,13 @@ function AdminAgencyDetails() {
 
       if (response.data?.data?.agencies) {
         const newData = response.data.data.agencies
-        console.log('response.data', response.data)
-        
+
         if (append) {
           setAgencies((prev) => [...prev, ...newData])
         } else {
           setAgencies(newData)
         }
-        
+
         // Check if there are more pages
         const pagination = response.data?.data?.pagination
         if (pagination) {
@@ -145,7 +144,6 @@ function AdminAgencyDetails() {
           placeholder="Search by agency name, email, or company"
         />
       </div>
-
       <div className="w-full flex flex-row mt-3 px-10 mt-12">
         <div className="w-3/12">
           <div style={styles.text}>Agency Name</div>
@@ -172,7 +170,6 @@ function AdminAgencyDetails() {
           <div style={styles.text}>Created</div>
         </div>
       </div>
-
       <div
         className="h-[77vh] overflow-auto"
         id="scrollableDiv1"
@@ -251,7 +248,6 @@ function AdminAgencyDetails() {
               )}
         </InfiniteScroll>
       </div>
-
       <Modal
         open={selectedUser ? true : false}
         onClose={() => {
@@ -290,8 +286,6 @@ function AdminAgencyDetails() {
               setSelectedUser(null)
             }}
             handlePauseUser={(d) => {
-              console.log('User paused')
-
               const updatedStatus =
                 selectedUser.profile_status === 'active' ? 'paused' : 'active'
 
@@ -312,7 +306,7 @@ function AdminAgencyDetails() {
         </Box>
       </Modal>
     </div>
-  )
+  );
 }
 
 export default AdminAgencyDetails

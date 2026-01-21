@@ -223,10 +223,7 @@ const AddCalender = ({ handleContinue }) => {
       )
       // }
 
-      for (let [key, value] of formData.entries()) {
-        console.log(`${key} = ${value}`)
-      }
-      console.log('Key updated')
+      for (let [key, value] of formData.entries()) {}
 
       // return
       const response = await axios.post(ApiPath, formData, {

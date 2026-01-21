@@ -98,13 +98,13 @@ const ActionsTab = ({
           })}
         </div>
       </div>
-
       {selectedActionTab === 1 ? (
         shouldShowCalendarUpgrade ? (
           <UpgardView
             setShowSnackMsg={setShowSnackMsg}
             title={'Unlock Calendar Integration'}
             subTitle={'Upgrade to enable calendar integration for your agents.'}
+            selectedUser={selectedUser}
           />
         ) : (
           <UserCalender
@@ -123,55 +123,49 @@ const ActionsTab = ({
         )
       ) : selectedActionTab === 2 ? (
         // Tools Tab
-        !hasToolsAccess ? (
-          // UpgardView automatically handles both cases:
-          // - If agencyCapabilities.allowToolsAndActions === false → Shows "Request Feature" button
-          // - If planCapabilities.allowToolsAndActions === false → Shows "Upgrade Plan" button
-          <UpgardView
-            setShowSnackMsg={setShowSnackMsg}
-            title={'Unlock Actions'}
-            subTitle={'Upgrade to enable tools and actions for your agents.'}
-          />
-        ) : (
-          // User has access - show tools
-          <UserCalender
-            calendarDetails={calendarDetails}
-            setUserDetails={setUserDetails}
-            selectedAgent={selectedAgent}
-            setSelectedAgent={setSelectedAgent}
-            mainAgentId={mainAgentId}
-            previousCalenders={previousCalenders}
-            updateVariableData={updateVariableData}
-            setShowUpgradeModal={setShowUpgradeModal}
-            showTools={true}
-            selectedUser={selectedUser}
-          />
-        )
+        (!hasToolsAccess ? // UpgardView automatically handles both cases:
+        // - If agencyCapabilities.allowToolsAndActions === false → Shows "Request Feature" button
+        // - If planCapabilities.allowToolsAndActions === false → Shows "Upgrade Plan" button
+        (<UpgardView
+          setShowSnackMsg={setShowSnackMsg}
+          title={'Unlock Actions'}
+          subTitle={'Upgrade to enable tools and actions for your agents.'}
+          selectedUser={selectedUser}
+        />) : // User has access - show tools
+        (<UserCalender
+          calendarDetails={calendarDetails}
+          setUserDetails={setUserDetails}
+          selectedAgent={selectedAgent}
+          setSelectedAgent={setSelectedAgent}
+          mainAgentId={mainAgentId}
+          previousCalenders={previousCalenders}
+          updateVariableData={updateVariableData}
+          setShowUpgradeModal={setShowUpgradeModal}
+          showTools={true}
+          selectedUser={selectedUser}
+        />))
       ) : selectedActionTab === 3 ? (
         // Lead Scoring Tab
-        !hasLeadScoringAccess ? (
-          // UpgardView automatically handles both cases:
-          // - If agencyCapabilities.allowLeadScoring === false → Shows "Request Feature" button
-          // - If planCapabilities.allowLeadScoring === false → Shows "Upgrade Plan" button
-          <UpgardView
-            setShowSnackMsg={setShowSnackMsg}
-            title={'Unlock Lead Scoring'}
-            subTitle={'Upgrade to enable lead scoring for your agents.'}
-          />
-        ) : (
-          // User has access - show lead scoring
-          <LeadScoring
-            activeTab={activeTab}
-            showDrawerSelectedAgent={showDrawerSelectedAgent}
-            setShowAddScoringModal={setShowAddScoringModal}
-            setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
-            setUserDetails={setUserDetails}
-            selectedUser={selectedUser}
-          />
-        )
+        (!hasLeadScoringAccess ? // UpgardView automatically handles both cases:
+        // - If agencyCapabilities.allowLeadScoring === false → Shows "Request Feature" button
+        // - If planCapabilities.allowLeadScoring === false → Shows "Upgrade Plan" button
+        (<UpgardView
+          setShowSnackMsg={setShowSnackMsg}
+          title={'Unlock Lead Scoring'}
+          subTitle={'Upgrade to enable lead scoring for your agents.'}
+          selectedUser={selectedUser}
+        />) : // User has access - show lead scoring
+        (<LeadScoring
+          activeTab={activeTab}
+          showDrawerSelectedAgent={showDrawerSelectedAgent}
+          setShowAddScoringModal={setShowAddScoringModal}
+          setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+          setUserDetails={setUserDetails}
+          selectedUser={selectedUser}
+        />))
       ) : null}
     </div>
-  )
+  );
 }
 
 export default ActionsTab

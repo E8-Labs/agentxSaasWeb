@@ -4,6 +4,8 @@ import { useSearchParams } from 'next/navigation'
 import React from 'react'
 
 import DashboardPlans from '@/components/agency/plan/DashboardPlans'
+import ProtectedRoute from '@/components/permissions/ProtectedRoute'
+import { PermissionProvider } from '@/contexts/PermissionContext'
 
 function Page() {
   const searchParams = useSearchParams()
@@ -12,9 +14,22 @@ function Page() {
   const initialTab = tabParam === 'xbar' ? 'Xbar' : 'monthly'
 
   return (
-    <div className="flex flex-col items-center w-full">
-      <DashboardPlans initialTab={initialTab} />
-    </div>
+    <PermissionProvider>
+      <ProtectedRoute
+        permissionKey="agency.plans.manage"
+        hideIfNoPermission={false}
+        fallback={
+          <div style={{ padding: '2rem', textAlign: 'center' }}>
+            <h2>Access Denied</h2>
+            <p>You do not have permission to manage plans.</p>
+          </div>
+        }
+      >
+        <div className="flex flex-col items-center w-full">
+          <DashboardPlans initialTab={initialTab} />
+        </div>
+      </ProtectedRoute>
+    </PermissionProvider>
   )
 }
 

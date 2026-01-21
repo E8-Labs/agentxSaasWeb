@@ -10,7 +10,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { TypographyBody } from './TypographyCN'
+import { TypographyBody, TypographyCaption } from './TypographyCN'
 
 /**
  * Team-only assign dropdown with radio buttons
@@ -48,7 +48,8 @@ const TeamAssignDropdownCn = ({
       <DropdownMenuTrigger asChild>
         <button className={`flex items-center ${withoutBorder ? '' : 'shadow-sm border px-4 py-2  border-muted/70 rounded-xl '} bg-white text-base font-semibold  focus:outline-none`}>
           {selectedTeams.length > 0 ? (
-            <div className="flex items-center -space-x-2">
+            <div className="flex items-center space-x-2">
+             <span>Assigned</span>
               {selectedTeams
                 .slice(0, 3) // Show max 3 avatars
                 .map((team, index) => (

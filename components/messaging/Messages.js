@@ -87,9 +87,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const [showMessageSettingsModal, setShowMessageSettingsModal] = useState(false)
 
   // Debug: Log when modal state changes
-  useEffect(() => {
-    console.log('🔍 [Messages] showUpgradePlanModal changed to:', showUpgradePlanModal)
-  }, [showUpgradePlanModal])
+  useEffect(() => {}, [showUpgradePlanModal])
 
   // Filter state
   const [filterType, setFilterType] = useState('all') // 'all' or 'unreplied'
@@ -104,12 +102,9 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
 
   const { user: reduxUser, setUser: setReduxUser, planCapabilities } = useUser()
-  console.log("reduxUser is ", reduxUser)
-  console.log("planCapabilities is ", reduxUser?.planCapabilities)
   // Check if user has access to messaging features
   const hasMessagingAccess = reduxUser?.planCapabilities?.allowEmails === true || reduxUser?.planCapabilities?.allowTextMessages === true
 
-  console.log("hasMessagingAccess is ", hasMessagingAccess)
   // Close email detail popover when clicking outside
   useEffect(() => {
     if (!openEmailDetailId) return
@@ -401,7 +396,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
   // Fetch threads
   const fetchThreads = useCallback(async (searchQuery = '', teamMemberIdsFilter = []) => {
-    console.log('fetchThreads is called')
     const requestId = ++threadsRequestIdRef.current
     const isSearch = searchQuery && searchQuery.trim()
     try {
@@ -436,7 +430,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       // Add userId if viewing subaccount from admin/agency
       if (selectedUser?.id) {
         params.userId = selectedUser.id
-        console.log('📧 [fetchThreads] Adding userId filter:', selectedUser.id)
       }
 
       const response = await axios.get('/api/messaging/threads', {
@@ -446,26 +439,20 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           'Content-Type': 'application/json',
         },
       })
-      console.log("Api path is /api/messaging/threads")
-      console.log("params is ", params)
-      console.log("response is ", response)
 
       // Ignore responses for stale requests so older calls can't overwrite newer results
       if (requestId !== threadsRequestIdRef.current) {
-        console.log('requestId is not the current requestId, returning')
         return
       }
 
       if (response.data?.status && Array.isArray(response.data?.data)) {
-        console.log('response.data.data is:', response.data.data)
         // Sort by lastMessageAt descending
         const sortedThreads = response.data.data.sort((a, b) => {
           const dateA = new Date(a.lastMessageAt || a.createdAt)
           const dateB = new Date(b.lastMessageAt || b.createdAt)
           return dateB - dateA
         })
-        console.log('sortedThreads is:', sortedThreads)
-        
+
         // Store all threads (for filtering)
         setThreads(sortedThreads)
       } else {
@@ -521,7 +508,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           // Add userId if viewing subaccount from admin/agency
           if (selectedUser?.id) {
             params.userId = selectedUser.id
-            console.log('📧 [fetchMessages] Adding userId filter:', selectedUser.id)
           }
 
           const response = await axios.get(
@@ -548,22 +534,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
             // Debug: Log messages with attachments and metadata structure
             fetchedMessages.forEach((msg) => {
-              console.log("msg is ", msg)
-              console.log(`🔍 Message ${msg.id} (${msg.messageType}):`, {
-                hasMetadata: !!msg.metadata,
-                metadataType: typeof msg.metadata,
-                hasAttachments: !!msg.metadata?.attachments,
-                attachmentsCount: msg.metadata?.attachments?.length || 0,
-                metadataKeys: msg.metadata ? Object.keys(msg.metadata) : [],
-              })
-              if (msg.metadata?.attachments && msg.metadata.attachments.length > 0) {
-                console.log(
-                  `📎 Message ${msg.id} has ${msg.metadata.attachments.length} attachments:`,
-                  msg.metadata.attachments,
-                )
-              } else if (msg.metadata && !msg.metadata.attachments) {
-                console.log(`⚠️ Message ${msg.id} has metadata but no attachments:`, msg.metadata)
-              }
+              if (msg.metadata?.attachments && msg.metadata.attachments.length > 0) {} else if (msg.metadata && !msg.metadata.attachments) {}
             })
 
             // Set messages (newest at bottom)
@@ -608,7 +579,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
         // Add userId if viewing subaccount from admin/agency
         if (selectedUser?.id) {
           params.userId = selectedUser.id
-          console.log('📧 [fetchMessages] Adding userId filter:', selectedUser.id)
         }
 
         const response = await axios.get(
@@ -627,21 +597,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
           // Debug: Log messages with attachments and metadata structure
           fetchedMessages.forEach((msg) => {
-            console.log(`🔍 Message ${msg.id} (${msg.messageType}):`, {
-              hasMetadata: !!msg.metadata,
-              metadataType: typeof msg.metadata,
-              hasAttachments: !!msg.metadata?.attachments,
-              attachmentsCount: msg.metadata?.attachments?.length || 0,
-              metadataKeys: msg.metadata ? Object.keys(msg.metadata) : [],
-            })
-            if (msg.metadata?.attachments && msg.metadata.attachments.length > 0) {
-              console.log(
-                `📎 Message ${msg.id} has ${msg.metadata.attachments.length} attachments:`,
-                msg.metadata.attachments,
-              )
-            } else if (msg.metadata && !msg.metadata.attachments) {
-              console.log(`⚠️ Message ${msg.id} has metadata but no attachments:`, msg.metadata)
-            }
+            if (msg.metadata?.attachments && msg.metadata.attachments.length > 0) {} else if (msg.metadata && !msg.metadata.attachments) {}
           })
 
           if (append) {
@@ -728,7 +684,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       // Add userId if viewing subaccount from admin/agency
       if (selectedUser?.id) {
         apiPath = `${apiPath}?userId=${selectedUser.id}`
-        console.log('📧 [markThreadAsRead] Adding userId filter:', selectedUser.id)
       }
 
       await axios.patch(apiPath, {}, {
@@ -782,8 +737,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           return
         }
 
-        console.log(`🔄 [Polling] Checking for new messages in thread ${selectedThread.id}, latest ID: ${currentLatestMessageId}`)
-
         // Fetch the latest messages (just the most recent ones to check for new messages)
         // Fetch a larger batch to ensure we get the most recent messages, then take the last ones
         const params = {
@@ -818,8 +771,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
             ? allFetchedMessages[allFetchedMessages.length - 1]
             : null
 
-          console.log(`🔄 [Polling] Fetched ${allFetchedMessages.length} messages, server latest ID: ${serverLatestMessage?.id}, current latest ID: ${currentLatestMessageId}`)
-
           // Check if there are new messages (messages with IDs greater than our latest)
           if (currentLatestMessageId && serverLatestMessage) {
             if (serverLatestMessage.id > currentLatestMessageId) {
@@ -829,8 +780,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
               )
 
               if (newMessages.length > 0) {
-                console.log(`🔄 [Polling] Found ${newMessages.length} new message(s) with IDs:`, newMessages.map(m => m.id))
-
                 // Append new messages to the current messages
                 setMessages((prevMessages) => {
                   // Avoid duplicates
@@ -870,12 +819,8 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                       : t
                   )
                 )
-              } else {
-                console.log(`🔄 [Polling] No new messages found (filtered count: ${newMessages.length})`)
-              }
-            } else {
-              console.log(`🔄 [Polling] Server latest (${serverLatestMessage.id}) <= current latest (${currentLatestMessageId}), no new messages`)
-            }
+              } else {}
+            } else {}
           } else if (!currentLatestMessageId && allFetchedMessages.length > 0) {
             // If we don't have any messages yet, but there are messages, fetch them
             // This handles the case where messages arrive before initial load completes
@@ -888,19 +833,15 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       }
     }
 
-    // Poll immediately, then every 5 seconds
-    console.log(`🔄 [Polling] Starting polling for thread ${selectedThread.id}`)
     pollForNewMessages()
     const intervalId = setInterval(() => {
-      console.log(`🔄 [Polling] Interval tick for thread ${selectedThread.id}`)
       pollForNewMessages()
     }, 5000)
 
     // Cleanup interval when thread changes or component unmounts
     return () => {
-      console.log(`🔄 [Polling] Stopping polling for thread ${selectedThread.id}`)
       clearInterval(intervalId)
-    }
+    };
   }, [selectedThread?.id, fetchMessages, selectedUser])
 
   // Handle thread selection
@@ -954,14 +895,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
         }
       }
     }
-
-    console.log('🔍 [handleThreadSelect] Thread CC/BCC:', {
-      threadId: thread.id,
-      ccEmails: threadCcEmails,
-      bccEmails: threadBccEmails,
-      rawCcEmails: thread.ccEmails,
-      rawBccEmails: thread.bccEmails,
-    })
 
     setCcEmails(threadCcEmails)
     setBccEmails(threadBccEmails)
@@ -1399,7 +1332,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
     return subject
       .replace(/^(re|fwd|fw|aw):\s*/i, '')
       .replace(/^\[.*?\]\s*/, '')
-      .trim()
+      .trim();
   }
 
   // Update composer fields (subject, CC, BCC) from a message
@@ -1445,13 +1378,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
     if (bccEmailsArray.length > 0) {
       setBccEmails(bccEmailsArray)
     }
-
-    console.log('🔍 [updateComposerFromMessage] Updated composer from message:', {
-      messageId: message.id,
-      subject: message.subject,
-      ccEmails: ccEmailsArray,
-      bccEmails: bccEmailsArray,
-    })
   }
 
   // Handle reply click
@@ -1498,15 +1424,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const getAgentAvatar = (message) => {
     // Priority 1: Team member sender (if message was sent by a team member)
     if (message.senderUser) {
-      console.log('🔍 [getAgentAvatar] Found senderUser:', {
-        messageId: message.id,
-        senderUserId: message.senderUser.id,
-        senderName: message.senderUser.name,
-        senderEmail: message.senderUser.email,
-        hasProfileImage: !!message.senderUser.thumb_profile_image,
-        profileImageUrl: message.senderUser.thumb_profile_image,
-      })
-
       // Try team member profile image first
       if (message.senderUser.thumb_profile_image) {
         return (
@@ -1532,30 +1449,21 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
               onError={(e) => {
                 console.error('❌ [getAgentAvatar] Failed to load profile image:', message.senderUser.thumb_profile_image, e)
               }}
-              onLoad={() => {
-                console.log('✅ [getAgentAvatar] Successfully loaded profile image:', message.senderUser.thumb_profile_image)
-              }}
+              onLoad={() => {}}
             />
           </div>
-        )
+        );
       }
 
       // Fallback to team member name initial
       const teamMemberName = message.senderUser.name || message.senderUser.email || 'T'
       const teamMemberLetter = teamMemberName.charAt(0).toUpperCase()
-      console.log('🔍 [getAgentAvatar] Using fallback initial:', teamMemberLetter)
       return (
         <div className="w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary">
           {teamMemberLetter}
         </div>
       )
     }
-
-    console.log('⚠️ [getAgentAvatar] No senderUser found for message:', {
-      messageId: message.id,
-      hasSenderUser: !!message.senderUser,
-      messageKeys: Object.keys(message),
-    })
 
     // Priority 2: Agent image or bitmoji
     if (message.agent) {
@@ -1648,7 +1556,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
         // Add userId if viewing subaccount from admin/agency
         if (selectedUser?.id) {
           smsPayload.userId = selectedUser.id
-          console.log('📧 [handleSendMessage] Adding userId to SMS payload:', selectedUser.id)
         }
 
         const response = await axios.post(
@@ -1717,7 +1624,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
               // Add userId if viewing subaccount from admin/agency
               if (selectedUser?.id) {
                 params.userId = selectedUser.id
-                console.log('📧 [fetchEmailsBySubject] Adding userId filter:', selectedUser.id)
               }
 
               const response = await axios.get(Apis.getEmailsBySubject, {
@@ -1730,7 +1636,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
               if (response.data?.status && response.data?.data) {
                 emailMessages = response.data.data
-                console.log(`📧 Fetched ${emailMessages.length} emails by subject for threading`)
               }
             }
           } catch (error) {
@@ -1770,13 +1675,11 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
             // Get the most recent matching email message (messages are sorted oldest to newest)
             const mostRecentEmail = matchingMessages[matchingMessages.length - 1]
             replyToMessageId = mostRecentEmail.id
-            console.log(`📧 Using most recent matching message ${replyToMessageId} for threading with subject: ${emailSubject}`)
           } else if (emailMessages.length > 0) {
             // Fallback: use the most recent email even if subject doesn't match exactly
             // This can happen if subjects have slight variations
             const mostRecentEmail = emailMessages[emailMessages.length - 1]
             replyToMessageId = mostRecentEmail.id
-            console.log(`📧 Using most recent message ${replyToMessageId} for threading (subject match not found)`)
           }
         }
 
@@ -1793,19 +1696,16 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
         // Add userId if viewing subaccount from admin/agency
         if (selectedUser?.id) {
           formData.append('userId', selectedUser.id.toString())
-          console.log('📧 [handleSendMessage] Adding userId to email payload:', selectedUser.id)
         }
 
         // Add threadId for CC/BCC persistence
         if (selectedThread?.id) {
           formData.append('threadId', selectedThread.id.toString())
-          console.log(`📧 Sending email with threadId: ${selectedThread.id} for CC/BCC persistence`)
         }
 
         // Add replyToMessageId if we found one (for proper Gmail threading)
         if (replyToMessageId) {
           formData.append('replyToMessageId', replyToMessageId.toString())
-          console.log(`📧 Sending email with replyToMessageId: ${replyToMessageId} for subject: ${emailSubject}`)
         } else {
           console.warn(`⚠️ No replyToMessageId found for subject: ${emailSubject}. Email may create a new thread. Available messages: ${emailMessages.length}`)
         }
@@ -1895,7 +1795,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       // Add userId if viewing subaccount from admin/agency
       if (selectedUser?.id) {
         apiPath = `${apiPath}?userId=${selectedUser.id}`
-        console.log('📧 [fetchPhoneNumbers] Adding userId filter:', selectedUser.id)
       }
 
       const response = await axios.get(apiPath, {
@@ -1929,7 +1828,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       // Add userId if viewing subaccount from admin/agency
       if (selectedUser?.id) {
         apiPath = `${apiPath}?userId=${selectedUser.id}`
-        console.log('📧 [fetchEmailAccounts] Adding userId filter:', selectedUser.id)
       }
 
       const response = await axios.get(apiPath, {
@@ -2106,7 +2004,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           // Add userId if viewing subaccount from admin/agency
           if (selectedUser?.id) {
             params.userId = selectedUser.id
-            console.log('📧 [fetchEmailTimeline] Adding userId filter:', selectedUser.id)
           }
 
           const response = await axios.get(Apis.getEmailsBySubject, {
@@ -2140,7 +2037,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       // Add userId if viewing subaccount from admin/agency
       if (selectedUser?.id) {
         threadsParams.userId = selectedUser.id
-        console.log('📧 [fetchEmailTimeline] Adding userId to threads fetch:', selectedUser.id)
       }
 
       const threadsResponse = await axios.get('/api/messaging/threads', {
@@ -2313,10 +2209,8 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       // Add userId if viewing subaccount from admin/agency
       if (selectedUser?.id) {
         path = `${path}?userId=${selectedUser.id}`
-        console.log('📧 [handleDeleteThread] Adding userId filter:', selectedUser.id)
       }
 
-      console.log('path is ', path)
       const response = await axios.delete(path,
         {
           headers: {
@@ -2393,7 +2287,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   if (!hasMessagingAccess) {
     return (
       <>
-        <div className="w-full h-full flex flex-col items-center justify-center bg-white">
+        <div className={`w-full h-full flex flex-col items-center justify-center bg-white }`}>
           <Image
             src={'/otherAssets/noTemView.png'}
             height={280}
@@ -2420,7 +2314,6 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                 width: '173px',
               }}
               onClick={() => {
-                console.log("Here is the upgrade plan modal button clicked")
                 setShowUpgradePlanModal(true)
               }}
             >
@@ -2428,14 +2321,12 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
             </button>
           </div>
         </div>
-
         {/* Upgrade Plan Modal - For users without messaging access */}
         {showUpgradePlanModal && (
           <UpgradePlan
             key="upgrade-plan-modal"
             open={showUpgradePlanModal}
             handleClose={(upgradeResult) => {
-              console.log('UpgradePlan handleClose called with:', upgradeResult)
               setShowUpgradePlanModal(false)
               // Refresh user data if upgrade was successful
               if (upgradeResult) {
@@ -2449,11 +2340,11 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           />
         )}
       </>
-    )
+    );
   }
 
   return (
-    <div className = {`w-full flex flex-col ${selectedUser && !agencyUser ? 'h-[80vh]' : 'h-[93vh]'}`}>
+    <div className = {`w-full flex flex-col h-full ${selectedUser && agencyUser ? "mt-[18vh]" : ""}`}>
       <AgentSelectSnackMessage
         isVisible={snackbar.isVisible}
         title={snackbar.title}

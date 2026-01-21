@@ -32,6 +32,7 @@ import AppLogo from '@/components/common/AppLogo'
 import {
   calculatePlanPrice,
   checkReferralCode,
+  getEffectiveUser,
   getNextChargeDate,
   getUserLocalData,
   getUserPlans,
@@ -238,7 +239,6 @@ function UpgradePlanContent({
   showSnackMsg = null,
   selectedUser,
 }) {
-  console.log("Selected User in Upgrade Plan Content", selectedUser)
   const stripeReact = useStripe()
   const elements = useElements()
 
@@ -340,64 +340,40 @@ function UpgradePlanContent({
   const isUpgradeButtonEnabled = () => {
     //disable if snack msg is visible
     if (showSnackMsg?.isVisible) {
-      console.log('Button disabled: snack msg visible')
       return false
     }
 
     // Must have a selected plan
     if (!currentSelectedPlan) {
-      console.log('Button disabled: no selected plan')
       return false
     }
 
     // Check if selected plan is the current plan
     const isCurrent = isPlanCurrent(currentSelectedPlan)
-    console.log('isPlanCurrent check:', {
-      currentSelectedPlanId: currentSelectedPlan?.id,
-      currentUserPlanId: currentUserPlan?.planId,
-      isCurrent: isCurrent,
-    })
 
     if (isCurrent) {
-      console.log('Button disabled: selected plan is current plan')
       return false
     }
 
     // If user is adding a new payment method, they must agree to terms
     if (isAddingNewPaymentMethod && !agreeTerms) {
-      console.log('Button disabled: adding payment but terms not agreed')
       return false
     }
 
     // If user has existing payment methods and is not adding new ones, they can proceed
     if (haveCards && !isAddingNewPaymentMethod) {
-      console.log('Button enabled: has cards and not adding new')
       return true
     }
 
     // If user has no payment methods, they must be adding one
     if (!haveCards && isAddingNewPaymentMethod) {
       const canProceed = CardAdded && CardExpiry && CVC && agreeTerms
-      console.log('Button check (no cards, adding new):', {
-        CardAdded,
-        CardExpiry,
-        CVC,
-        agreeTerms,
-        canProceed,
-      })
       return canProceed
     }
 
     // If user has payment methods and is adding new ones, they must complete the form
     if (haveCards && isAddingNewPaymentMethod) {
       const canProceed = CardAdded && CardExpiry && CVC && agreeTerms
-      console.log('Button check (has cards, adding new):', {
-        CardAdded,
-        CardExpiry,
-        CVC,
-        agreeTerms,
-        canProceed,
-      })
       return canProceed
     }
 
@@ -414,17 +390,14 @@ function UpgradePlanContent({
     if (!haveCards && !isAddingNewPaymentMethod) {
       // If it's a free plan, allow subscription without payment method
       if (isFreePlan) {
-        console.log('Button enabled: free plan, no payment method required')
         return true
       }
       // If it's a paid plan and user hasn't started entering card details, hide the button
       // (isAddingNewPaymentMethod is false means they haven't started entering card details)
-      console.log('Button hidden: paid plan requires payment method, no card details entered')
       return false
     }
 
     // Fallback case (shouldn't reach here, but just in case)
-    console.log('Button enabled: fallback case')
     return true
   }
 
@@ -453,7 +426,6 @@ function UpgradePlanContent({
             }
           }
         } catch (error) {
-          console.log('Error getting brand color:', error)
         }
       }
     }
@@ -478,7 +450,6 @@ function UpgradePlanContent({
   }, [open])
 
   useEffect(() => {
-    console.log('usercurrentplanselected is', currentSelectedPlan)
   }, [currentSelectedPlan])
 
   useEffect(() => {
@@ -565,12 +536,6 @@ function UpgradePlanContent({
   // const [selectedUserPlan, setSelectedUserPlan] = useState(null);
 
   useEffect(() => {
-    console.log('Open rerendered')
-    // if (!open || currentSelectedPlan) return;
-    // if (!plan && !currentFullPlan) {
-    //     console.log("No plan or current full plan")
-    //     return;
-    // }
     if (open) {
     }
   }, [open])
@@ -595,40 +560,26 @@ function UpgradePlanContent({
       getCardsList()
       getCurrentUserPlan()
 
-      console.log('plansData in initializePlans', plansData)
 
       // Only proceed with plan selection if we have plans data and haven't triggered yet
       if (plansData && !isPreSelectedPlanTriggered) {
         setIsPreSelectedPlanTriggered(true)
 
-        console.log(
-          'selected plan from previous screen in pre selected plan useeffect is ',
-          selectedPlan,
-        )
 
         // Set selected duration based on the plan's billing cycle if selectedPlan is not null
         let planDuration = null
 
         if (selectedPlan) {
-          console.log(
-            'Finding duration from billing cycle of selected plan',
-            selectedPlan?.billingCycle,
-          )
           planDuration = getDurationFromBillingCycle(selectedPlan?.billingCycle)
-          console.log('Found Billing cycle of selected plan', planDuration)
           if (planDuration) {
             setSelectedDuration(planDuration)
           }
         } else {
-          console.log(
-            'no selected plan, set first plan as current selected plan ',
-          )
           // if selectedPlan is null then set selected duration of current plan
           if (currentUserPlan && currentUserPlan.billingCycle) {
             planDuration = getDurationFromBillingCycle(
               currentUserPlan.billingCycle,
             )
-            console.log('Billing bicycle of current user plan', planDuration)
           } else {
             // Use the first available plan from the loaded data
             const firstPlan =
@@ -641,7 +592,6 @@ function UpgradePlanContent({
           }
           if (planDuration) {
             setSelectedDuration(planDuration)
-            console.log('Billing bicycle of current plan2', planDuration)
           }
         }
 
@@ -653,12 +603,6 @@ function UpgradePlanContent({
           else if (planDuration?.id === 2) currentPlans = plansData.quarterly
           else if (planDuration?.id === 3) currentPlans = plansData.yearly
 
-          console.log('selected plan duration is ', planDuration)
-          console.log(
-            'current plans are before checking matching plan',
-            currentPlans,
-          )
-
           const matchingPlan = currentPlans.find(
             (plan) =>
               // plan.name === selectedPlan?.name ||
@@ -667,8 +611,6 @@ function UpgradePlanContent({
           )
 
           if (matchingPlan) {
-            console.log('matching plan found is', matchingPlan)
-            console.log('selected duration is', planDuration)
             setCurrentSelectedPlan(matchingPlan)
             const planIndex = currentPlans.findIndex(
               (plan) => plan.id === matchingPlan.id,
@@ -679,7 +621,6 @@ function UpgradePlanContent({
             setCurrentSelectedPlan(currentPlans[0])
             setSelectedPlanIndex(0)
             setTogglePlan(currentPlans[0]?.id)
-            console.log('no matching plan found, setting first plan')
           }
           setLoading(false)
         }, 100)
@@ -694,67 +635,48 @@ function UpgradePlanContent({
     if (localData) {
       const userData = JSON.parse(localData)
       const plan = userData.user?.plan
-      console.log('Current user plan from localStorage:', plan)
       setCurrentUserPlan(plan)
       return plan
     }
     return null
   }
 
-  useEffect(() => {
-    console.log('duration in upgrade plan is', duration)
-  }, [duration])
+  useEffect(() => {}, [duration])
 
   const getPlans = async () => {
-    console.log('🔍 [UpgradePlan.getPlans] Calling getUserPlans with:', {
-      from,
-      selectedUser: selectedUser ? { 
-        id: selectedUser.id, 
-        role: selectedUser.userRole || selectedUser.role,
-        hasId: !!selectedUser.id,
-        allKeys: Object.keys(selectedUser)
-      } : 'null/undefined',
-    })
     // Ensure we pass selectedUser even if it's from userLocalData fallback
     let plansList = await getUserPlans(from, selectedUser)
-    console.log('🔍 [UpgradePlan.getPlans] Received plansList:', plansList ? `Array with ${Array.isArray(plansList) ? plansList.length : 'data'} items` : 'null')
     if (plansList) {
-      console.log('Plans list found is', plansList)
       const monthly = []
       const quarterly = []
       const yearly = []
       let freePlan = null
       const UserLocalData = getUserLocalData()
-      
+
       // Determine if we're dealing with a subaccount
       // Check selectedUser's role if provided (agency viewing subaccount), otherwise check logged-in user's role
       const isSubAccount = from === 'SubAccount' || 
                           selectedUser?.userRole === 'AgencySubAccount' ||
                           UserLocalData?.userRole === 'AgencySubAccount'
-      
+
       if (isSubAccount) {
-        console.log('Current plan upgrade type is subaccount')
         plansList = plansList?.monthlyPlans || plansList
         plansList?.forEach((plan) => {
           switch (plan.billingCycle) {
             case 'monthly':
               monthly.push(plan)
-              console.log('Added monthly plan', plan)
               break
             case 'quarterly':
               quarterly.push(plan)
-              console.log('Added quarterly plan', plan)
               break
             case 'yearly':
               yearly.push(plan)
-              console.log('Added yearly plan', plan)
               break
             default:
               break
           }
         })
       } else {
-        console.log('Current plan upgrade type is Simple user')
         plansList.forEach((plan) => {
           switch (plan.billingCycle) {
             case 'monthly':
@@ -790,29 +712,20 @@ function UpgradePlanContent({
       const emptyDurations = [monthly, quarterly, yearly].filter(
         (arr) => arr.length === 0,
       ).length
-      console.log('Empty durations are', emptyDurations)
       // if (from === "SubAccount") {
       if (emptyDurations >= 2) {
         setDuration([])
       } else {
         if (monthly.length === 0) {
-          console.log('Remove monthly')
           setDuration((prev) => prev.filter((item) => item.id !== 1))
         }
         if (quarterly.length === 0) {
-          console.log('Remove quarterly')
           setDuration((prev) => prev.filter((item) => item.id !== 2))
         }
         if (yearly.length === 0) {
-          console.log('Remove yearly')
           setDuration((prev) => prev.filter((item) => item.id !== 3))
         }
       }
-      // }
-
-      console.log('monthly', monthly)
-      console.log('quarterly', quarterly)
-      console.log('yearly', yearly)
 
       // Return the plans data for immediate use
       return { monthly, quarterly, yearly, freePlan }
@@ -873,10 +786,8 @@ function UpgradePlanContent({
     // Don't allow selection of current plan
     const isCurrentPlan = isPlanCurrent(item)
     if (isCurrentPlan) {
-      console.log('Cannot select current plan:', item.name)
       return
     }
-    console.log('Selected plan index is', index, item)
     // setSelectedPlan(item);
     // setSelectedPlanIndex(index);
     setTogglePlan(item.id)
@@ -907,29 +818,13 @@ function UpgradePlanContent({
       itemPlanId === currentPlanId &&
       planToCompare.status !== 'cancelled'
     ) {
-      console.log(
-        '✅ isPlanCurrent: plan IDs match - THIS IS THE CURRENT PLAN',
-        {
-          itemPlanId,
-          currentPlanId,
-          itemTitle: item.title || item.name,
-          usingSelectedUserPlan: !!selectedUser?.id,
-        },
-      )
       return true
     }
 
     // Fallback comparison by name (if both have names)
     const itemName = item.name || item.title
     const currentPlanName = planToCompare.name || planToCompare.title
-    if (itemName && currentPlanName && itemName === currentPlanName) {
-      console.log('✅ isPlanCurrent: plan names match', {
-        itemName,
-        currentPlanName,
-        usingSelectedUserPlan: !!selectedUser?.id,
-      })
-      return true
-    }
+  
 
     // Not the current plan - don't log to reduce noise
     return false
@@ -1028,7 +923,6 @@ function UpgradePlanContent({
 
   // Function to get duration object from billing cycle
   const getDurationFromBillingCycle = (billingCycle) => {
-    console.log('billingCycle is', billingCycle)
     switch (billingCycle) {
       case 'monthly':
         return duration[0] // Monthly
@@ -1063,23 +957,17 @@ function UpgradePlanContent({
       })
 
       if (response) {
-        // //console.log;
-        console.log('response', response)
-
         if (response.data.status === true) {
           setCards(response.data.data)
         }
       }
-    } catch (error) {
-      console.log(error)
-    } finally {
+    } catch (error) {} finally {
       // //console.log;
       // setGetCardLoader(false);
     }
   }
 
   const handleAddCard = async (e) => {
-    console.log('handleAddCard')
     setAddCardLoader(true)
     if (e && e.preventDefault) {
       e.preventDefault()
@@ -1250,8 +1138,6 @@ function UpgradePlanContent({
       const selectedUserLocalData = localStorage.getItem(
         PersistanceKeys.isFromAdminOrAgency,
       )
-      // let selectedUser = null;
-      console.log('Selected user local data passed is', selectedUser)
       // return
       // if (selectedUserLocalData !== "undefined" && selectedUserLocalData !== null) {
       //     selectedUser = JSON.parse(selectedUserLocalData);
@@ -1263,7 +1149,6 @@ function UpgradePlanContent({
 
       // If user is adding a new payment method, add it first
       if (isAddingNewPaymentMethod) {
-        console.log('Adding new payment method before subscription...')
         paymentMethodId = await handleAddCard()
         if (!paymentMethodId) {
           console.error('Failed to add payment method')
@@ -1273,30 +1158,27 @@ function UpgradePlanContent({
       } else if (haveCards && selectedCard) {
         // Use existing payment method
         paymentMethodId = selectedCard.id
-        console.log('Using existing payment method:', paymentMethodId)
       }
 
       const UserLocalData = getUserLocalData()
-      console.log('User local data', UserLocalData)
+      
+      // Determine effective user (selectedUser if provided, otherwise logged-in user)
+      const effectiveUser = getEffectiveUser(selectedUser, UserLocalData)
+      const effectiveRole = effectiveUser?.userRole
+      
       let DataToSendInApi = null
-      // if (UserLocalData?.userRole === "AgencySubAccount") {
-      //     console.log("Check 111");
-      //     let formData = new FormData();
-      //     formData.append("planId", currentSelectedPlan?.id);
-      //     DataToSendInApi = formData;
-      // } else {
-      console.log('Check 222')
       let ApiData = {
         plan: planType,
       }
+      
+      // For agency and subaccount plans, use planId instead of plan type
       if (
+        effectiveRole === 'AgencySubAccount' ||
+        effectiveRole === 'Agency' ||
         from === 'SubAccount' ||
-        UserLocalData?.userRole === 'AgencySubAccount'
+        from === 'agency' ||
+        from === 'Agency'
       ) {
-        ApiData = {
-          planId: currentSelectedPlan?.id,
-        }
-      } else if (from === 'agency') {
         ApiData = {
           planId: currentSelectedPlan?.id,
         }
@@ -1307,31 +1189,41 @@ function UpgradePlanContent({
         ApiData.paymentMethodId = paymentMethodId
       }
 
+      // Add userId if we're subscribing for another user (admin/agency viewing subaccount)
       if (selectedUser) {
-        ApiData.userId = selectedUser?.id
+        ApiData.userId = selectedUser?.id || effectiveUser?.id
       }
-      console.log('Check 333')
       DataToSendInApi = ApiData
 
-      let ApiPath = Apis.subscribePlan
-      if (UserLocalData?.userRole === 'AgencySubAccount') {
+      // Determine the correct API endpoint based on effective user's role
+      let ApiPath = Apis.subscribePlan // Default for regular users
+      
+      if (
+        effectiveRole === 'AgencySubAccount' ||
+        effectiveRole === 'Agency' ||
+        from === 'SubAccount' ||
+        from === 'agency' ||
+        from === 'Agency'
+      ) {
         ApiPath = Apis.subAgencyAndSubAccountPlans
       }
-      if (from === 'SubAccount') {
-        ApiPath = Apis.subAgencyAndSubAccountPlans
-      } else if (from === 'agency') {
-        ApiPath = Apis.subAgencyAndSubAccountPlans
+      
+      // Log which API endpoint is being used for debugging
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[UpgradePlan] Subscription API endpoint:', ApiPath)
+        console.log('[UpgradePlan] Effective user role:', effectiveRole)
+        console.log('[UpgradePlan] From prop:', from)
+        console.log('[UpgradePlan] Selected user:', selectedUser)
       }
-      console.log('Api data for upgrade plan', DataToSendInApi)
-
-      console.log('Api path is', ApiPath)
 
       //headers for api
       let headers = {
         Authorization: 'Bearer ' + AuthToken,
       }
 
-      if (!(UserLocalData?.userRole === 'AgencySubAccount')) {
+      // Only add Content-Type header for non-subaccount subscriptions
+      // Subaccount subscriptions use form-data (multipart/form-data)
+      if (effectiveRole !== 'AgencySubAccount' && from !== 'SubAccount') {
         headers['Content-Type'] = 'application/json'
       }
 
@@ -1340,7 +1232,6 @@ function UpgradePlanContent({
       })
 
       if (response) {
-        console.log('Response of subscribe plan api is', response.data)
         setsubscribeLoader(false)
 
         // Call getProfileDetails to refresh the profile
@@ -1378,8 +1269,6 @@ function UpgradePlanContent({
     }
   }
 
-  console.log('price is ', currentSelectedPlan?.discountPrice)
-
   // Function to get button text, checking for cancelled plan status first
   const getButtonText = () => {
     if (!currentSelectedPlan) return 'Select a Plan'
@@ -1387,24 +1276,16 @@ function UpgradePlanContent({
     // When selectedUser is provided (agency/admin viewing subaccount/other user),
     // use currentFullPlan (selected user's plan) instead of currentUserPlan (logged-in user's plan from localStorage)
     const planToCompare = selectedUser?.id ? currentFullPlan : currentUserPlan
-    
+
     // Check user's plan status from userLocalData (not currentFullPlan which is from DB)
     // currentFullPlan comes from database plan list and doesn't have status field
     // getUserLocalData() returns the user object directly, so access plan directly
     // Also check currentUserPlan state which is set from localStorage
     const UserLocalData = getUserLocalData()
     const planStatus = UserLocalData?.plan?.status || planToCompare?.status || currentUserPlan?.status
-    console.log('🔍 [getButtonText] selectedUser provided:', !!selectedUser?.id)
-    console.log('🔍 [getButtonText] UserLocalData:', UserLocalData)
-    console.log('🔍 [getButtonText] currentUserPlan (logged-in user):', currentUserPlan)
-    console.log('🔍 [getButtonText] currentFullPlan (selected user):', currentFullPlan)
-    console.log('🔍 [getButtonText] planToCompare (plan being used):', planToCompare)
-    console.log('🔍 [getButtonText] currentSelectedPlan:', currentSelectedPlan)
-    console.log('🔍 [getButtonText] Plan status:', planStatus)
 
     // If plan is cancelled, show "Subscribe" regardless of which plan is selected
     if (planStatus === 'cancelled') {
-      console.log('🔍 [getButtonText] Plan cancelled, returning Subscribe')
       return 'Subscribe'
     }
 
@@ -1418,35 +1299,18 @@ function UpgradePlanContent({
       currentSelectedPlan.planId === planToCompare.planId
     )
 
-    console.log('🔍 [getButtonText] isCurrentPlan:', isCurrentPlan, {
-      selectedPlanId: currentSelectedPlan.id,
-      currentPlanId: planToCompare?.id || planToCompare?.planId,
-    })
-
     // If selected plan is the current plan, show "Cancel Subscription"
     if (isCurrentPlan) {
-      console.log('🔍 [getButtonText] Same plan, returning Cancel Subscription')
       //let's not return any title and disable the button
       return 'Cancel Subscription'
     }
 
     // If no current plan, show "Subscribe"
     if (!planToCompare) {
-      console.log('🔍 [getButtonText] No current plan, returning Subscribe')
       return 'Subscribe'
     }
 
-    // Use planToCompare (which is currentFullPlan when selectedUser is provided, otherwise currentUserPlan)
-    const comparison = comparePlans(planToCompare, currentSelectedPlan)
-    console.log('🔍 [getButtonText] Comparison result:', comparison)
 
-    if (comparison === 'upgrade') {
-      return 'Upgrade'
-    } else if (comparison === 'downgrade') {
-      return 'Downgrade'
-    } else if (comparison === 'same') {
-      return 'Cancel Subscription'
-    }
 
     // Fallback: Compare prices directly from planToCompare and currentSelectedPlan
     // Try multiple possible price fields
@@ -1462,24 +1326,13 @@ function UpgradePlanContent({
       currentSelectedPlan?.originalPrice ||
       0
 
-    console.log('🔍 [getButtonText] Price comparison:', {
-      currentPrice,
-      selectedPrice,
-      currentSelectedPlanKeys: Object.keys(currentSelectedPlan || {}),
-      currentSelectedPlanFull: currentSelectedPlan,
-    })
-
     if (selectedPrice > currentPrice && selectedPrice > 0) {
-      console.log('🔍 [getButtonText] Price-based upgrade')
       return 'Upgrade'
     } else if (selectedPrice < currentPrice && selectedPrice > 0) {
-      console.log('🔍 [getButtonText] Price-based downgrade')
       return 'Downgrade'
     }
 
-    // Final fallback
-    console.log('🔍 [getButtonText] Fallback to Subscribe')
-    return 'Subscribe'
+    return 'Upgrade'
   }
 
   const comparePlans = (currentPlan, targetPlan) => {
@@ -1533,71 +1386,7 @@ function UpgradePlanContent({
     let currentTierRank = -1
     let targetTierRank = -1
 
-    // Try to match tier from title/name
-    for (const [tier, rank] of Object.entries(tierRanking)) {
-      if (currentTitle.includes(tier.toLowerCase())) {
-        currentTierRank = rank
-      }
-      if (targetTitle.includes(tier.toLowerCase())) {
-        targetTierRank = rank
-      }
-    }
 
-    console.log('🔍 [comparePlans] Comparison:', {
-      currentTitle: currentPlan.title || currentPlan.name,
-      currentTierRank,
-      targetTitle: targetPlan.title || targetPlan.name,
-      targetTierRank,
-      currentBillingCycle: currentPlan.billingCycle || currentPlan.duration,
-      targetBillingCycle: targetPlan.billingCycle || targetPlan.duration,
-      currentBillingOrder,
-      targetBillingOrder,
-    })
-
-    // If we can determine tier ranks, compare them first
-    // Rule: Scale > Growth > Starter (regardless of billing cycle)
-    if (currentTierRank >= 0 && targetTierRank >= 0) {
-      // Different tiers - tier comparison determines upgrade/downgrade
-      if (targetTierRank > currentTierRank) {
-        console.log('🔍 [comparePlans] Result: UPGRADE (tier change)')
-        return 'upgrade'
-      } else if (targetTierRank < currentTierRank) {
-        console.log('🔍 [comparePlans] Result: DOWNGRADE (tier change)')
-        return 'downgrade'
-      }
-      // Same tier - compare billing cycles
-      if (targetBillingOrder > currentBillingOrder) {
-        console.log(
-          '🔍 [comparePlans] Result: UPGRADE (same tier, longer billing cycle)',
-        )
-        return 'upgrade'
-      } else if (targetBillingOrder < currentBillingOrder) {
-        console.log(
-          '🔍 [comparePlans] Result: DOWNGRADE (same tier, shorter billing cycle)',
-        )
-        return 'downgrade'
-      } else {
-        console.log(
-          '🔍 [comparePlans] Result: SAME (same tier and billing cycle)',
-        )
-        return 'same'
-      }
-    }
-
-    // If tier can't be determined, compare billing cycles first
-    // Longer billing cycle (yearly > quarterly > monthly) is generally an upgrade
-    // This handles cases like "Malik's Plan" monthly -> yearly where tier detection fails
-    if (targetBillingOrder > currentBillingOrder) {
-      console.log(
-        '🔍 [comparePlans] Result: UPGRADE (longer billing cycle, tier unknown)',
-      )
-      return 'upgrade'
-    } else if (targetBillingOrder < currentBillingOrder) {
-      console.log(
-        '🔍 [comparePlans] Result: DOWNGRADE (shorter billing cycle, tier unknown)',
-      )
-      return 'downgrade'
-    }
 
     // Fall back to price comparison if billing cycles are the same
     const currentPrice =
@@ -1612,11 +1401,6 @@ function UpgradePlanContent({
       targetPlan.price ||
       targetPlan.originalPrice ||
       0
-
-    console.log('🔍 [comparePlans] Fallback to price comparison:', {
-      currentPrice,
-      targetPrice,
-    })
 
     // If target is free plan and current is paid, it's a downgrade
     if ((targetPlan.isFree || targetPrice === 0) && currentPrice > 0) {
@@ -1641,12 +1425,8 @@ function UpgradePlanContent({
 
   // Function to determine button text and action
   const getButtonConfig = () => {
-    console.log('currentPlan', currentFullPlan)
-    console.log('selectedPlan', selectedPlan)
-
     // Compare plans based on price
     const planComparison = comparePlans(currentFullPlan, selectedPlan)
-    console.log('🔍 [BUTTON-CONFIG] Plan comparison:', planComparison)
 
     // If still loading (currentFullPlan not ready), don't show any button
     if (planComparison === null) {
@@ -1689,6 +1469,11 @@ function UpgradePlanContent({
     }
   }
 
+
+  console.log('currentSelectedPlan', currentSelectedPlan)
+
+  console.log('currentSelectedPlan && !isPlanCurrent(currentSelectedPlan) && getButtonText() !== Cancel Subscription ', currentSelectedPlan && !isPlanCurrent(currentSelectedPlan) && getButtonText() !== 'Cancel Subscription' )
+console.log('getButtonText()', getButtonText())
   return (
     <Modal
       open={open}
@@ -2295,6 +2080,8 @@ function UpgradePlanContent({
                           return '$0'
                         }
 
+                        console.log("hasTrial, isFirstTimeSubscription", hasTrial, isFirstTimeSubscription)
+
                         const discountCalculation = promoCodeDetails
                           ? calculateDiscountedPrice(
                             currentSelectedPlan,
@@ -2448,6 +2235,161 @@ const elementOptions = {
  * - Selected plan is stored in currentSelectedPlan
  * - Payment methods are stored in cards array
  */
+/**
+ * Utility function to get the parent component name from the call stack
+ * This helps identify which component is rendering UpgradePlan
+ * Uses Error stack trace to find the calling component
+ */
+const getParentComponentName = () => {
+  try {
+    const error = new Error()
+    const stack = error.stack || ''
+    
+    // Split stack into lines
+    const stackLines = stack.split('\n')
+    
+    // Debug: Log first few relevant lines to see what we're working with
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[UpgradePlan Debug] First 10 stack lines:', stackLines.slice(0, 10))
+    }
+    
+    // Common React/Next.js internal patterns to skip
+    const skipPatterns = [
+      'UpgradePlan',
+      'at Object.',
+      'at eval',
+      'at Function.',
+      'at Array.',
+      'next.js',
+      'node_modules',
+      'webpack',
+      'react-dom',
+      'react.js',
+      'useMemo',
+      'useEffect',
+      'useState',
+      'useCallback',
+      'renderWithHooks',
+      'updateFunctionComponent',
+      'beginWork',
+      'performUnitOfWork',
+    ]
+    
+    // Look for React component patterns in the stack
+    for (let i = 0; i < stackLines.length; i++) {
+      const line = stackLines[i]
+      
+      // Skip UpgradePlan itself and internal React/Next.js functions
+      if (skipPatterns.some(pattern => line.includes(pattern))) {
+        continue
+      }
+      
+      // Pattern 1: Look for component names in format "at ComponentName" or "ComponentName.render"
+      // Try multiple regex patterns
+      const patterns = [
+        /at\s+(\w+)/,                                    // "at ComponentName"
+        /at\s+(\w+)\.render/,                            // "at ComponentName.render"
+        /at\s+(\w+)\s+\(/,                               // "at ComponentName ("
+        /(\w+)\s+\([^)]*\.(jsx?|tsx?)/,                  // "ComponentName (file.jsx)"
+        /(\w+)\s+\[as\s+\w+\]/,                          // "ComponentName [as ...]"
+      ]
+      
+      for (const pattern of patterns) {
+        const match = line.match(pattern)
+        if (match && match[1]) {
+          const componentName = match[1]
+          // Filter out common non-component names
+          const invalidNames = [
+            'Error', 'getParentComponentName', 'Object', 'Array', 'Function', 
+            'Promise', 'setTimeout', 'setInterval', 'requestAnimationFrame',
+            'call', 'apply', 'bind', 'toString', 'valueOf', 'constructor'
+          ]
+          if (
+            !invalidNames.includes(componentName) &&
+            componentName[0] === componentName[0].toUpperCase() && // Component names usually start with uppercase
+            componentName.length > 2 && // Filter out very short names
+            !componentName.includes('$') && // Skip webpack internal names
+            !componentName.startsWith('_') // Skip internal names
+          ) {
+            return componentName
+          }
+        }
+      }
+      
+      // Pattern 2: Check for JSX/TSX file patterns and extract component name from filename
+      // Try multiple file path patterns
+      const filePatterns = [
+        /components[\/\\]([^\/\\]+)[\/\\]([^\/\\]+\.(jsx?|tsx?))/, // "components/admin/AdminAgentX.js"
+        /([^\/\\]+)[\/\\]([^\/\\]+\.(jsx?|tsx?))/,      // "admin/AdminAgentX.js"
+        /\(([^)]+\.(jsx?|tsx?))/,                        // "(path/to/file.jsx)"
+        /([^/\s]+\.(jsx?|tsx?))/,                        // "file.jsx"
+      ]
+      
+      for (const filePattern of filePatterns) {
+        const fileMatch = line.match(filePattern)
+        if (fileMatch) {
+          // Try to get component name from the match
+          let filePath = fileMatch[1] || fileMatch[2] || fileMatch[0]
+          if (!filePath) continue
+          
+          const fileName = filePath.split('/').pop() || filePath.split('\\').pop()
+          
+          // Extract component name from filename (e.g., "AdminAgentX.js" -> "AdminAgentX")
+          const nameFromFile = fileName.replace(/\.(js|jsx|ts|tsx)$/, '')
+          
+          // Check if it looks like a component name
+          if (
+            nameFromFile &&
+            nameFromFile[0] === nameFromFile[0].toUpperCase() &&
+            nameFromFile.length > 2 &&
+            !nameFromFile.includes('.') && // Avoid nested paths
+            !nameFromFile.includes('$') && // Skip webpack internal names
+            !nameFromFile.startsWith('_') // Skip internal names
+          ) {
+            return nameFromFile
+          }
+          
+          // Also try to extract from path (e.g., "components/admin/users/AdminAgentX.js")
+          const pathParts = filePath.split(/[\/\\]/)
+          for (let j = pathParts.length - 1; j >= 0; j--) {
+            const part = pathParts[j].replace(/\.(js|jsx|ts|tsx)$/, '')
+            if (
+              part &&
+              part[0] === part[0].toUpperCase() &&
+              part.length > 2 &&
+              !part.includes('.') &&
+              !part.includes('$') &&
+              !part.startsWith('_')
+            ) {
+              return part
+            }
+          }
+        }
+      }
+      
+      // Pattern 3: Look for component-like patterns in the line itself
+      // Sometimes components appear as "ComponentName (file.jsx:123:45)"
+      const componentFileMatch = line.match(/([A-Z][a-zA-Z0-9]+)\s*\([^)]*\.(jsx?|tsx?)/)
+      if (componentFileMatch && componentFileMatch[1]) {
+        const componentName = componentFileMatch[1]
+        if (
+          componentName.length > 2 &&
+          !componentName.includes('$') &&
+          !componentName.startsWith('_')
+        ) {
+          return componentName
+        }
+      }
+    }
+    
+    // If we still haven't found anything, return a more informative message
+    return 'Unknown (check console for stack trace)'
+  } catch (error) {
+    console.error('[UpgradePlan] Error getting parent component name:', error)
+    return 'Error getting parent name'
+  }
+}
+
 function UpgradePlan({
   open,
   handleClose,
@@ -2459,7 +2401,29 @@ function UpgradePlan({
   selectedUser,
   // setShowSnackMsg = null
 }) {
-  console.log("Selected User in Upgrade Plan", selectedUser)
+  // Get parent component name for debugging (without props)
+  const parentComponentNameRef = React.useRef(null)
+  
+  React.useEffect(() => {
+    if (open && !parentComponentNameRef.current) {
+      // Only get parent name when modal opens to avoid performance issues
+      parentComponentNameRef.current = getParentComponentName()
+      
+      console.log(`[UpgradePlan] Rendered from parent component: ${parentComponentNameRef.current || 'Unknown'}`)
+      console.log(`[UpgradePlan] Selected user:`, selectedUser)
+      console.log(`[UpgradePlan] From prop:`, from)
+      
+      // Log full stack trace for debugging
+      if (process.env.NODE_ENV === 'development') {
+        const error = new Error()
+        console.log(`[UpgradePlan Debug] Full stack trace:`, error.stack)
+      }
+    } else if (!open) {
+      // Reset when modal closes
+      parentComponentNameRef.current = null
+    }
+  }, [open, selectedUser, from])
+
   const stripePromise = getStripe()
 
   const [showSnackMsg, setShowSnackMsg] = useState({
@@ -2467,19 +2431,6 @@ function UpgradePlan({
     message: '',
     isVisible: false,
   })
-
-  console.log('🔍 [UpgradePlan] Component received props:', {
-    open,
-    selectedUser: selectedUser ? { 
-      id: selectedUser.id, 
-      role: selectedUser.userRole || selectedUser.role, 
-      email: selectedUser.email,
-      hasId: !!selectedUser.id,
-      fullObject: selectedUser
-    } : 'null/undefined',
-    from,
-    selectedPlan: selectedPlan ? { id: selectedPlan.id, title: selectedPlan.title } : 'null',
-  });
 
   return (
     <Elements stripe={stripePromise}>

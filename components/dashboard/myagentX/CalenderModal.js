@@ -85,12 +85,6 @@ function CalendarModal(props) {
     const ghlOauthSuccess = qs.get('ghl_oauth')
     const locationId = qs.get('locationId')
 
-    console.log('Popup OAuth detection:')
-    console.log('- Code:', code)
-    console.log('- Error:', error)
-    console.log('- GHL OAuth Success:', ghlOauthSuccess)
-    console.log('- Location ID:', locationId)
-
     // #region agent log
     fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
       method: 'POST',
@@ -131,7 +125,6 @@ function CalendarModal(props) {
       
       // Case 2: Success redirect from exchange route (custom domain flow)
       if (ghlOauthSuccess === 'success') {
-        console.log('✅ GHL OAuth successful in popup, sending success message to parent')
         try {
           window.opener.postMessage(
             { 
@@ -182,7 +175,6 @@ function CalendarModal(props) {
         return
       }
       const calendars = await calRes.json()
-      console.log('Calendars fetched are', calendars)
       setStatus('')
       let ghlCalendars = calendars?.calendars
       setGHLCalendars(ghlCalendars)
@@ -246,35 +238,33 @@ function CalendarModal(props) {
 
         // Got the code from the popup → exchange on server
         ;(async () => {
-          setShowAddNewGHLCalender(true)
-          setStatus('Exchanging code...')
-          const res = await fetch(
-            `/api/ghl/exchange?code=${encodeURIComponent(code)}&redirect_uri=${encodeURIComponent(window.location.origin + window.location.pathname)}`,
-          )
+        setShowAddNewGHLCalender(true)
+        setStatus('Exchanging code...')
+        const res = await fetch(
+          `/api/ghl/exchange?code=${encodeURIComponent(code)}&redirect_uri=${encodeURIComponent(window.location.origin + window.location.pathname)}`,
+        )
 
-          const json = await res.json()
-          if (!res.ok) {
-            setStatus('Exchange failed')
-            setShowSnack({
-              message: 'Exchange failed',
-              type: SnackbarTypes.Error,
-              isVisible: true,
-            })
-            console.error(json)
-            return
-          }
-          console.log('Token recieving are', json)
-          setTokens(json)
-          
-          // Load calendars after successful exchange
-          await handleGHLSuccess(json.locationId)
-        })()
+        const json = await res.json()
+        if (!res.ok) {
+          setStatus('Exchange failed')
+          setShowSnack({
+            message: 'Exchange failed',
+            type: SnackbarTypes.Error,
+            isVisible: true,
+          })
+          console.error(json)
+          return
+        }
+        setTokens(json)
+
+        // Load calendars after successful exchange
+        await handleGHLSuccess(json.locationId)
+      })()
         return
       }
       
       // Handle success message from popup (custom domain flow - token already exchanged)
       if (type === 'GHL_OAUTH_SUCCESS') {
-        console.log('✅ Received GHL OAuth success from popup, loading calendars')
         handleGHLSuccess(locationId || null)
         return
       }
@@ -321,13 +311,12 @@ function CalendarModal(props) {
       // GHL_CLIENT_SECRET: process.env.NEXT_PUBLIC_GHL_CLIENT_SECRET,
       // GHL_REDIRECT_URI: process.env.NEXT_PUBLIC_GHL_REDIRECT_URI,
     }
-    console.log('GHL ENV variables are', ghlVariables)
   }
 
   //ghl calendar popup click
   const startGHLAuthPopup = useCallback(async () => {
     const currentPath = window.location.origin + window.location.pathname
-    
+
     // Use /dashboard/myAgentX as the OAuth redirect landing page
     const isProduction = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
     const GHL_REDIRECT_URI = isProduction
@@ -353,18 +342,6 @@ function CalendarModal(props) {
     // This ensures state is always generated and popup context is preserved
     const domainToUse = currentHostname
 
-    // Debug logging
-    console.log('GHL OAuth Initiation - Debug Info:')
-    console.log('- Current hostname:', currentHostname)
-    console.log('- Current path:', currentPath)
-    console.log('- Agency ID:', agencyId)
-    console.log('- Subaccount ID (from selectedUser):', selectedUser?.id)
-    console.log('- Subaccount ID (from API):', apiSubaccountId)
-    console.log('- Subaccount ID (final):', subaccountId)
-    console.log('- Custom Domain from API:', customDomain)
-    console.log('- Is custom domain/subdomain:', isCustomDomain)
-    console.log('- Domain to use:', domainToUse)
-
     // Generate state parameter (provider signal). Keep it even if agencyId is missing,
     // because middleware relies on `state.provider` to route the callback correctly.
     let stateParam = null
@@ -376,12 +353,7 @@ function CalendarModal(props) {
         subaccountId: subaccountId, // Include subaccountId if user is a subaccount or agency is managing one
         originalRedirectUri: currentPath, // Store original for GHL flow
       })
-      console.log('Generated state parameter for custom domain:', stateParam)
-    } else {
-      console.log('No custom domain or agencyId - state parameter will not be included')
-      console.log('- domainToUse:', domainToUse)
-      console.log('- agencyId:', agencyId)
-    }
+    } else {}
 
     // Build scopes as a space-separated string
     const scope =
@@ -395,7 +367,6 @@ function CalendarModal(props) {
         'locations.readonly',
         'locations/customFields.readonly',
       ].join(' ')
-    console.log('GHL Check 1 scopes are', scope)
     const params = new URLSearchParams({
       response_type: 'code',
       client_id: process.env.NEXT_PUBLIC_GHL_CLIENT_ID,
@@ -409,11 +380,9 @@ function CalendarModal(props) {
     if (stateParam) {
       params.set('state', stateParam)
     }
-    console.log('GHL Check 2 param are', params)
     const authUrl =
       'https://marketplace.gohighlevel.com/oauth/chooselocation?' +
       params.toString()
-    console.log('GHL Check 3', authUrl)
 
     // #region agent log
     fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
@@ -441,54 +410,43 @@ function CalendarModal(props) {
     const h = 650
     const y = window.top.outerHeight / 2 + window.top.screenY - h / 2
     const x = window.top.outerWidth / 2 + window.top.screenX - w / 2
-    console.log('GHL Check 4')
     // Use a consistent window name to ensure the same popup is reused
     const popupName = 'ghl_oauth_popup'
-    
+
     // Check if popup already exists and is still open
     if (popupRef.current && !popupRef.current.closed) {
-      // Popup already exists, navigate it to the new URL
-      console.log('Reusing existing popup window')
       popupRef.current.location.href = authUrl
       popupRef.current.focus()
       setStatus('Waiting for authorization...')
       return // Exit early - don't try to open another popup or redirect
     }
-    
+
     // Open new popup
     popupRef.current = window.open(
       authUrl,
       popupName, // Use consistent name so browser reuses the same window
       `toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable=yes,width=${w},height=${h},top=${y},left=${x}`,
     )
-    console.log('GHL Check 5 - Popup opened:', popupRef.current)
-    
+
     // Check if popup was blocked (window.open returns null)
     if (!popupRef.current) {
-      // Popup blocked → fallback to full redirect
-      console.log('GHL Check 6 - Popup blocked, using full redirect')
       window.location.href = authUrl
       return
     }
-    
+
     // Check if popup was immediately closed (some browsers do this when blocked)
     try {
       if (popupRef.current.closed) {
-        console.log('GHL Check 6 - Popup was immediately closed, using full redirect')
         popupRef.current = null
         window.location.href = authUrl
         return
       }
     } catch (e) {
-      // Cross-origin or blocked popup - use redirect
-      console.log('GHL Check 6 - Popup access error, using full redirect:', e)
       popupRef.current = null
       window.location.href = authUrl
       return
     }
-    
-    // Popup opened successfully
-    console.log('Waiting for GHL authorization')
+
     setStatus('Waiting for authorization...')
     // Optional: poll if user closes popup without completing
     const timer = setInterval(() => {
@@ -611,22 +569,13 @@ function CalendarModal(props) {
         console.warn('No auth details found for google login')
         return
       }
-      console.log('🆔 Google User LogIn:', data)
-      console.log('🔑 Access Token:', data.access_token)
-      console.log(
-        '🔁 Refresh Token:',
-        data.refresh_token || 'No refresh token received',
-      )
       // return
       const expirySeconds = data.expires_in
       const expiryDate = new Date(
         Date.now() + expirySeconds * 1000,
       ).toISOString()
-      console.log('expiry date is', expiryDate)
 
       const userAuthToken = AuthToken()
-
-      console.log('Auth token is', userAuthToken)
 
       const googleCalendar = {
         isFromAddGoogleCal: true,
@@ -1145,7 +1094,6 @@ function CalendarModal(props) {
                     // label="Age"
                     onChange={(event) => {
                       const value = event.target.value
-                      console.log('Click on calendars', value)
                       setSelectGHLCalendar(event.target.value)
                     }}
                     displayEmpty // Enables placeholder
@@ -1247,7 +1195,7 @@ function CalendarModal(props) {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   //google calndar view
@@ -1380,12 +1328,6 @@ function CalendarModal(props) {
                   value={selectedTimeDurationLocal}
                   // label="Age"
                   onChange={(event) => {
-                    // setSelectedTimeDuration(event.target.value);
-                    console.log('Check 1', event.target.value)
-                    console.log(
-                      `Is function `,
-                      typeof setSelectedTimeDurationLocal,
-                    )
                     setSelectedTimeDurationLocal(event.target.value) // ✅ correct
                   }}
                   displayEmpty // Enables placeholder
@@ -1460,7 +1402,7 @@ function CalendarModal(props) {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   const renderView = () => {
@@ -1477,7 +1419,6 @@ function CalendarModal(props) {
 
   function isEnabled(google = false) {
     if (calendarSelected) {
-      console.log('Calendar selected is', calendarSelected)
       return true
     }
     if (google) {

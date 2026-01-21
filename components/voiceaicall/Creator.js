@@ -222,11 +222,6 @@ const Creator = ({ agentId, name }) => {
       setIsWideScreen2(window.innerWidth >= 500)
       // Check if height is greater than or equal to 1024px
       setIsHighScreen(window.innerHeight >= 950)
-
-      // Log the updated state values for debugging (Optional)
-      console.log('isWideScreen: ', window.innerWidth >= 950)
-      console.log('isWideScreen2: ', window.innerWidth >= 500)
-      console.log('isHighScreen: ', window.innerHeight >= 1024)
     }
 
     handleResize() // Set initial state
@@ -269,11 +264,7 @@ const Creator = ({ agentId, name }) => {
       ]
       const newLength = analysisPlan.structuredDataPlan.schema.required.length
 
-      if (originalLength !== newLength) {
-        console.log(
-          `Removed ${originalLength - newLength} duplicate values from analysisPlan.structuredDataPlan.schema.required`,
-        )
-      }
+      if (originalLength !== newLength) {}
     }
 
     // Ensure unique properties in structuredDataPlan.schema.properties
@@ -300,9 +291,6 @@ const Creator = ({ agentId, name }) => {
       }
 
       analysisPlan.structuredDataPlan.schema.properties = uniqueProperties
-      console.log(
-        `Ensured unique properties in analysisPlan.structuredDataPlan.schema.properties. Total properties: ${Object.keys(uniqueProperties).length}`,
-      )
     }
 
     return assistantOverrides
@@ -329,7 +317,6 @@ const Creator = ({ agentId, name }) => {
     // Remove invalid properties
     invalidProperties.forEach((prop) => {
       if (cleaned[prop] !== undefined) {
-        console.log(`Removing invalid property from assistantOverrides: ${prop}`)
         delete cleaned[prop]
       }
     })
@@ -373,12 +360,7 @@ const Creator = ({ agentId, name }) => {
       const languageValue = cleaned.language
 
       // Check if it's already a valid code
-      if (validLanguageCodes.includes(languageValue)) {
-        // Already valid, keep it
-        console.log(`Language code is valid: ${languageValue}`)
-      } else if (languageMap[languageValue]) {
-        // Map common language names to valid codes
-        console.log(`Mapping language "${languageValue}" to "${languageMap[languageValue]}"`)
+      if (validLanguageCodes.includes(languageValue)) {} else if (languageMap[languageValue]) {
         cleaned.language = languageMap[languageValue]
       } else {
         // Invalid language, remove it
@@ -399,10 +381,6 @@ const Creator = ({ agentId, name }) => {
       // Add agentType query parameter for web agents
       const apiPath = `${Apis.getUserByAgentVapiId}/${agentId}?agentType=web`
       const response = await callApiGet(apiPath)
-      // await axios.get(
-      //   `${Apis.getUserByAgentVapiId}/${agentId}`
-      // );
-      console.log('Response of getagent details by id is', response)
       if (response) {
         setAgentDetails(response)
         setVapiAgent(response?.data?.data?.agent)
@@ -416,11 +394,9 @@ const Creator = ({ agentId, name }) => {
         setAssistantOverrides(cleanedOverrides)
 
         setSmartListData(response?.data?.data?.smartList)
-        console.log('Smart list data:', response?.data?.data?.smartList)
       }
       setProfileLoader(false)
     } catch (error) {
-      console.log('Error occured in fetch user details by agent id', error)
       setProfileLoader(false)
     } finally {
       setProfileLoader(false)
@@ -438,7 +414,6 @@ const Creator = ({ agentId, name }) => {
 
   // Form handling functions
   const handleFormDataChange = (field, value) => {
-    console.log(`Updating form field ${field} with value:`, value)
     const newFormData = {
       ...formData,
       [field]: value,
@@ -456,7 +431,6 @@ const Creator = ({ agentId, name }) => {
   }
 
   const handleSmartListFieldChange = (field, value) => {
-    console.log(`Updating smart list field ${field} with value:`, value)
     const newSmartListFields = {
       ...smartListFields,
       [field]: value,
@@ -479,7 +453,6 @@ const Creator = ({ agentId, name }) => {
       const savedData = localStorage.getItem(`leadForm_${agentId}`)
       if (savedData) {
         const parsedData = JSON.parse(savedData)
-        console.log('Loading saved form data:', parsedData)
         setFormData(
           parsedData.formData || {
             firstName: '',
@@ -496,19 +469,16 @@ const Creator = ({ agentId, name }) => {
   }
 
   const handleModalClose = () => {
-    console.log('Closing lead modal')
     setShowLeadModal(false)
     // Keep form data persistent - don't clear on close
   }
 
   const handleModalOpen = () => {
-    console.log('Opening lead modal')
     loadSavedFormData() // Load saved data when opening
     setShowLeadModal(true)
   }
 
   const handleClearForm = () => {
-    console.log('Clearing form data')
     localStorage.removeItem(`leadForm_${agentId}`)
     setFormData({
       firstName: '',
@@ -517,11 +487,9 @@ const Creator = ({ agentId, name }) => {
       phone: '',
     })
     setSmartListFields({})
-    console.log('Form data cleared successfully')
   }
 
   const handleFormSubmit = async () => {
-    console.log('Submitting form data:', { formData, smartListFields })
     setIsSubmitting(true)
 
     try {
@@ -542,22 +510,16 @@ const Creator = ({ agentId, name }) => {
         extraColumns: extraColumns,
       }
 
-      console.log('Sending lead details:', leadDetails)
-
       // Call API with lead details
       const response = await callApiPost(
         `${Apis.getUserByAgentVapiIdWithLeadDetails}/${agentId}?agentType=web`,
         { lead_details: leadDetails },
       )
 
-      console.log('API response:', response)
-
       if (response && response.data && response.data.data) {
         const { totalSecondsAvailable } = response.data.data.user
-        console.log('User total seconds available:', totalSecondsAvailable)
 
         if (totalSecondsAvailable < 120) {
-          console.log('Insufficient balance, showing error')
           setSnackbarMessage('Insufficient Balance')
           setSnackbarSeverity('error')
           setSnackbarOpen(true)
@@ -571,18 +533,11 @@ const Creator = ({ agentId, name }) => {
             removeDuplicatesFromAnalysisPlan(newAssistantOverrides),
           )
           setAssistantOverrides(cleanedNewOverrides)
-          console.log('Updated assistant overrides:', cleanedNewOverrides)
-
-          // Keep form data persistent - don't clear after submission
-          console.log('Form submitted successfully, keeping data persistent')
 
           // Close modal and start call with cleaned overrides
           handleModalClose()
           handleStartCallWithOverrides(cleanedNewOverrides)
         } else {
-          // Keep form data persistent - don't clear after submission
-          console.log('Form submitted successfully, keeping data persistent')
-
           // Close modal and start call with existing overrides
           handleModalClose()
           handleStartCall()
@@ -600,9 +555,6 @@ const Creator = ({ agentId, name }) => {
 
   // Handle button click
   const handleInitiateVapi = async () => {
-    console.log('handleInitiateVapi called')
-    console.log('Smart list data:', smartListData)
-
     // Check if agent has smartList attached
     if (smartListData && smartListData.id) {
       // Check if we have persisted data
@@ -626,11 +578,6 @@ const Creator = ({ agentId, name }) => {
             isValidPhone(savedFormData.phone)
 
           if (isValidSavedData) {
-            console.log(
-              'Found persisted form data, submitting directly:',
-              parsedData,
-            )
-
             // Use the saved data to make API call directly
             setIsSubmitting(true)
             try {
@@ -694,36 +641,28 @@ const Creator = ({ agentId, name }) => {
         }
       }
 
-      // If no persisted data or incomplete data, show modal
-      console.log('No complete persisted data found, showing modal')
       handleModalOpen()
     } else {
-      console.log('No smart list found, starting call directly')
       handleStartCall()
     }
   }
 
   useEffect(() => {
     const vapiInstance = new Vapi(API_KEY)
-    console.log('vapInstance', API_KEY)
     setVapi(vapiInstance)
     vapiInstance.on('call-start', (call) => {
-      console.log('📞 CALL-START: Call started', call)
       setLoading(false)
       setOpen(true)
     })
     vapiInstance.on('call-end', () => {
-      console.log('📞 CALL-END: Call ended')
       setIsSpeaking(false)
       setOpen(false)
       setloadingMessage('')
     })
     vapiInstance.on('speech-start', () => {
-      console.log('🎤 SPEECH-START: Assistant started speaking')
       setIsSpeaking(true)
     })
     vapiInstance.on('speech-end', () => {
-      console.log('🔇 SPEECH-END: Assistant stopped speaking')
       setIsSpeaking(false)
     })
     vapiInstance.on('message', (message) => {
@@ -732,8 +671,6 @@ const Creator = ({ agentId, name }) => {
         : 100
 
       setTranscript((prev) => [...prev, message])
-      console.log('MESSAGE:', message)
-      console.log('MAGNITUDE:', mag)
     })
     vapiInstance.on('error', (error) => {
       console.error('Vapi error:', error)
@@ -745,18 +682,14 @@ const Creator = ({ agentId, name }) => {
   }, [])
 
   async function handleStartCall(voice) {
-    console.log('handleStartCall called with voice:', voice)
     try {
       setOpen(true)
-      console.log('Setting up call UI and starting call')
       setLoading(true)
       setloadingMessage('')
 
       if (voice) {
-        console.log('Setting voice interface')
         setVoiceOpen(true)
       } else {
-        console.log('Setting chat interface')
         setChatOpen(true)
       }
 
@@ -770,25 +703,22 @@ const Creator = ({ agentId, name }) => {
   }
 
   async function startCall(overrides = null) {
-    console.log('starting call')
     if (vapi) {
       try {
         // Request microphone permission before starting VAPI call
         // This prevents timeout issues when users take time to grant permission
         setloadingMessage('Requesting microphone permission...')
-        console.log('Requesting microphone permission')
-        
+
         // Check if getUserMedia is available
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
           throw new Error('Microphone access is not supported in this browser')
         }
-        
+
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
         // Stop the stream immediately - VAPI will request it again when it starts
         // But since permission is already granted, it will be instant
         stream.getTracks().forEach((track) => track.stop())
-        console.log('Microphone permission granted')
-        
+
         // Update loading message after permission is granted
         setloadingMessage('Connecting...')
       } catch (error) {
@@ -827,7 +757,6 @@ const Creator = ({ agentId, name }) => {
       if (cleanedOverrides && cleanedOverrides.variableValues !== undefined) {
         const { variableValues, ...rest } = cleanedOverrides
         cleanedOverrides = rest
-        console.log('Removed variableValues from overrides')
       }
 
       // If cleanedOverrides is empty or only has null/undefined values, set to null
@@ -835,20 +764,10 @@ const Creator = ({ agentId, name }) => {
         cleanedOverrides = null
       }
 
-      console.log('Current assistant overrides:', overridesToUse)
-      console.log('Cleaned overrides for VAPI:', cleanedOverrides)
-      console.log(
-        'Using overrides for VAPI start:',
-        cleanedOverrides ? cleanedOverrides : agentId,
-      )
-      
       // Start VAPI call - permission is already granted, so this will be instant
       if (agentDetails?.data?.data?.smartList) {
-        //change this to check if agent has smart list attached
-        console.log('agentId before starting call', agentId)
         vapi.start(agentId, cleanedOverrides ? cleanedOverrides : null)
       } else {
-        console.log('Agent has no smart list, starting call directly')
         vapi.start(agentId, cleanedOverrides ? cleanedOverrides : null)
       }
     } else {
@@ -863,13 +782,8 @@ const Creator = ({ agentId, name }) => {
 
   // Function to start call with specific overrides from form submission
   const handleStartCallWithOverrides = async (newOverrides) => {
-    console.log(
-      'handleStartCallWithOverrides called with overrides:',
-      newOverrides,
-    )
     try {
       setOpen(true)
-      console.log('Setting up call UI and starting call with new overrides')
       setLoading(true)
       setloadingMessage('')
 
@@ -911,15 +825,11 @@ const Creator = ({ agentId, name }) => {
         try {
           vapi.setMuted(newMutedState)
           setIsMuted(newMutedState)
-          console.log(`Microphone ${newMutedState ? 'muted' : 'unmuted'} via Vapi API`)
           return
         } catch (vapiError) {
           // If call object is not available, try fallback methods
           if (vapiError.message?.includes('Call object is not available') || 
-              vapiError.message?.includes('not available')) {
-            console.log('Call object not ready, using fallback mute method')
-            // Fall through to fallback methods
-          } else {
+              vapiError.message?.includes('not available')) {} else {
             throw vapiError // Re-throw if it's a different error
           }
         }
@@ -949,20 +859,14 @@ const Creator = ({ agentId, name }) => {
             })
             
             setIsMuted(newMutedState)
-            if (foundTrack) {
-              console.log(`Microphone ${newMutedState ? 'muted' : 'unmuted'} via media tracks`)
-            } else {
-              console.log(`Mute state updated in UI (no active tracks found)`)
-            }
+            if (foundTrack) {} else {}
           })
           .catch((error) => {
-            console.log('Could not enumerate devices for muting:', error)
-            setIsMuted(newMutedState) // Update UI state anyway
-          })
+          setIsMuted(newMutedState) // Update UI state anyway
+        })
       } else {
         // Last resort: Update UI state (actual muting may not work)
         setIsMuted(newMutedState)
-        console.log('Mute state updated in UI (actual muting may require Vapi API)')
       }
     } catch (error) {
       // Only show error snackbar for unexpected errors, not for "call not available"
@@ -975,10 +879,7 @@ const Creator = ({ agentId, name }) => {
         setSnackbarMessage('Error toggling mute. Please try again.')
         setSnackbarSeverity('error')
         setSnackbarOpen(true)
-      } else {
-        console.log('Call not ready for muting, will retry when call is active')
-        // Silently fail - the call might not be fully initialized yet
-      }
+      } else {}
     }
   }
 
@@ -1081,8 +982,6 @@ const Creator = ({ agentId, name }) => {
   // Helper function to check if mouse is over a specific element
   const isMouseOverRef = (ref, x, y) => {
     const rect = ref.current.getBoundingClientRect()
-    // Log the position and check if it's correctly identifying the bounding box
-    console.log('Checking mouse position over element:', rect)
     return (
       x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
     )

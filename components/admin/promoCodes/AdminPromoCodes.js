@@ -151,9 +151,6 @@ const AdminPromoCodes = () => {
       )
 
       if (response.data?.status) {
-        console.log('📊 Usage API Response:', response.data)
-        console.log('📊 Usage Data:', response.data.data)
-        console.log('📊 Summary:', response.data.data?.summary)
         setUsageData(response.data.data)
       }
     } catch (error) {

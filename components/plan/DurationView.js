@@ -9,9 +9,6 @@ export const DurationView = ({
 }) => {
   const { user: reduxUser } = useUser()
 
-  console.log('reduxUser in duration view', reduxUser)
-  console.log('from in duration view', from !== 'SubAccount')
-
   return (
     <div className="flex flex-col items-end plan-duration-container justify-end">
       {/* Discount labels row */}
@@ -23,7 +20,7 @@ export const DurationView = ({
                 <div
                   key={`discount-${item.id}`}
                   // className={`bg-white/40 shadow-[0px_4px_15.5px_0px_rgba(0,0,0,0.11)] backdrop-blur-[10px] rounded-tl-xl rounded-tr-xl px-2 py-0.5`}
-                  className={`px-2 py-1 ${selectedDuration?.id === item.id ? 'text-white bg-brand-primary shadow-sm shadow-brand-primary' : 'text-black'} rounded-tl-lg rounded-tr-lg`}
+                  className={`px-2 py-1 text-black shadow-md  ${selectedDuration?.id === item.id ? ' bg-white text-brand-primary' : ''} rounded-tl-lg rounded-tr-lg`}
                   style={{ fontWeight: '600', fontSize: '13px' }}
                 >
                   Save {item.save}
@@ -41,7 +38,7 @@ export const DurationView = ({
           <button
             key={item.id}
             // className={`px-1 py-[3px] w-full ${selectedDuration?.id === item.id ? "text-white text-[13px] font-normal bg-purple outline-none border-none shadow-md shadow-purple rounded-full" : "text-black"}`}
-            className={`px-4 py-1 ${selectedDuration?.id === item.id ? 'text-white bg-brand-primary shadow-md shadow-brand-primary rounded-full' : 'text-black'}`}
+            className={`px-4 py-1 text-black ${selectedDuration?.id === item.id ? 'bg-white shadow-md  rounded-full' : ''}`}
             onClick={() => {
               handleDurationChange(item)
               // getCurrentPlans();

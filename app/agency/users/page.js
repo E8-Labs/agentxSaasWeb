@@ -19,7 +19,6 @@ export default function Page() {
       const id = params.get('userId')
       const isFromAgency = params.get('agencyUser')
       setIsFromAgency(isFromAgency)
-      console.log('is agency user', isFromAgency)
       if (id) {
         setUserId(id)
       }
@@ -62,7 +61,7 @@ export default function Page() {
           selectedUser={selectedUser}
           agencyUser={isFromAgency}
           hideViewDetails={true}
-          from="agency"
+          from="subaccount"
         />
       ) : (
         <p>Loading...</p>

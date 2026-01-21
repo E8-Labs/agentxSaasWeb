@@ -36,9 +36,6 @@ const AgencyChecklist = ({ userDetails }) => {
       const User = LocalData?.user
       const T = LocalData?.user?.checkList?.checkList
       const canAcceptPaymentsAgencyccount = User?.canAcceptPaymentsAgencyccount
-      console.log('Agency checklist is', T)
-      // const T = userDetails?.checkList?.checkList;
-      console.log('Check list on main check list screen is', T)
       let percentage = 0
 
       const totalSteps = 6
@@ -59,8 +56,6 @@ const AgencyChecklist = ({ userDetails }) => {
       // setProgressValue(percentage.toFixed(2));
       //safe for number value
       setProgressValue(parseFloat(percentage.toFixed(2)))
-
-      console.log('percentage of check list is', T?.globalNumberClaimed) // Output: 60
 
       setCheckList([
         {

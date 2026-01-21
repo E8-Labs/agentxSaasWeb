@@ -293,7 +293,6 @@ function AdminAllCalls({ selectedUser }) {
     const timer = setTimeout(() => {
       const scrollableDiv = document.getElementById('scrollableDiv1')
       if (!scrollableDiv) {
-        console.log('⚠️ Scrollable div not found')
         // #region agent log
         fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:294',message:'scrollableDiv1 NOT FOUND',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
         // #endregion
@@ -562,7 +561,6 @@ function AdminAllCalls({ selectedUser }) {
 
       ApiPath = ApiPath + '&userId=' + selectedUser.id
 
-      console.log('api path is ', ApiPath)
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:398',message:'BEFORE API CALL',data:{apiPath:ApiPath,offset,currentLength:filteredCallDetails.length,requestVersion:currentRequestVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
       // #endregion
@@ -579,11 +577,6 @@ function AdminAllCalls({ selectedUser }) {
 
       if (currentRequestVersion === requestVersion.current) {
         if (response) {
-          console.log
-          // setCallDetails(response.data.data);
-          // setFilteredCallDetails(response.data.data);
-          console.log('call logs length is', response.data.data.length)
-
           const data = response.data.data
           // #region agent log
           fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:415',message:'AFTER API SUCCESS',data:{dataLength:data.length,limitPerPage:LimitPerPage,offset,currentLength:filteredCallDetails.length,willSetHasMore:data.length < LimitPerPage ? false : true,requestVersion:currentRequestVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C,D'})}).catch(()=>{});
@@ -803,7 +796,6 @@ function AdminAllCalls({ selectedUser }) {
           })}
         </div>
       </div>
-
       <div className="w-full flex flex-row gap-2 mt-2 px-10 mt-12">
         <div className="w-2/12">
           <div style={styles.text}>Name</div>
@@ -835,7 +827,6 @@ function AdminAllCalls({ selectedUser }) {
           <div style={styles.text}>More</div>
         </div>
       </div>
-
       {initialLoader && filteredCallDetails.length == 0 ? (
         <div
           className={`flex flex-row items-center justify-center mt-12 h-[55vh] overflow-auto`}
@@ -843,7 +834,7 @@ function AdminAllCalls({ selectedUser }) {
           <CircularProgress size={35} thickness={2} />
         </div>
       ) : (
-        <div
+        (<div
           className={`h-[55vh] overflow-auto`}
           id="scrollableDiv1"
           style={{ scrollbarWidth: 'none' }}
@@ -974,13 +965,12 @@ function AdminAllCalls({ selectedUser }) {
               {`You're all caught up`}
             </p>
           )}
-        </div>
+        </div>)
         //     )
         //   }
 
         // </div>
       )}
-
       {/* Code for filter modal */}
       <div>
         <Modal
@@ -1342,7 +1332,6 @@ function AdminAllCalls({ selectedUser }) {
           </Box>
         </Modal>
       </div>
-
       {/* Code for details view */}
       {showDetailsModal && (
         <LeadDetails
@@ -1354,7 +1343,7 @@ function AdminAllCalls({ selectedUser }) {
         />
       )}
     </div>
-  )
+  );
 }
 
 export default AdminAllCalls

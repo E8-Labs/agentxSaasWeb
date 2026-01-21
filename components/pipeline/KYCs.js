@@ -117,7 +117,6 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
         },
       })
 
-      console.log('response of get kycs', response)
       if (response) {
         kycsDetails(response.data.data)
         setKycsData(response.data.data)
@@ -384,7 +383,6 @@ const KYCs = ({ kycsDetails, mainAgentId, user, selectedUser = null }) => {
   function GetTitleForKyc() {
     let type = 'KYC - Seller'
     if (user) {
-      console.log('user is', user)
       let profile = user.user
       if (selectedUser) {
         profile = selectedUser

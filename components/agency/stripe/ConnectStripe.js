@@ -40,9 +40,7 @@ const ConnectStripe = ({ fullScreen = false }) => {
 
       setAgencyData(agencyProfile?.data?.data)
       setCheckStripeStatus(Boolean(stripeStatus))
-    } catch (error) {
-      console.log('Eror in gettin stripe status', error)
-    } finally {
+    } catch (error) {} finally {
       setCheckStripeStatusLoader(false)
     }
   }

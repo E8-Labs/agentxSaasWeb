@@ -143,13 +143,13 @@ const DashboardSlider = ({
   const initializeDashboardSlider = async () => {
     if (selectedUser) {
       setInitialLoader(true)
-      let data = await AdminGetProfileDetails(selectedUser.id)
+      let data = await AdminGetProfileDetails(selectedUser?.id)
       if (data) {
         setUserDetails(data)
         processUserSettings(data)
         // Fetch branding data if user is Agency or AgencySubAccount
         if (data?.userRole === 'Agency' || data?.userRole === 'AgencySubAccount') {
-          await fetchBrandingData(data.id)
+          // await fetchBrandingData(data.id)
         }
       }
       setInitialLoader(false)
@@ -200,7 +200,6 @@ const DashboardSlider = ({
     const vapiValue = localStorage.getItem(PersistanceKeys.showVapiModal)
     if (vapiValue) {
       const d = JSON.parse(vapiValue)
-      console.log('Vapi-value is', d)
     }
   }, [])
 
@@ -241,8 +240,6 @@ const DashboardSlider = ({
     }
   }
 
-  console.log('openUpgradePlan', openUpgradePlan)
-
   const handleOnClick = (item) => {
     const currentUser = selectedUser || userDetails
 
@@ -255,7 +252,6 @@ const DashboardSlider = ({
       item.label?.includes('Support Webinar')
     ) {
       if (!currentUser?.plan?.price) {
-        console.log('open')
         setOpenUpgradePlan(true)
       } else {
         if (typeof window !== 'undefined' && item.url) {
@@ -275,7 +271,6 @@ const DashboardSlider = ({
 
   // Process user settings for dynamic buttons
   const processUserSettings = (user) => {
-    console.log('user in processUserSettings', user)
     if (user?.userRole === 'AgencySubAccount') {
       const dynamicButtons = []
       const Data = user?.agencySettings
@@ -346,14 +341,10 @@ const DashboardSlider = ({
       setInitialLoader(true)
       setUserDetails(UserDetailsLD.user)
       AuthToken = UserDetailsLD.token
-      console.log(
-        'Checking local data in slider',
-        UserDetailsLD?.user?.userRole,
-      )
       processUserSettings(UserDetailsLD.user)
       // Fetch branding data if user is Agency or AgencySubAccount
       if (UserDetailsLD?.user?.userRole === 'Agency' || UserDetailsLD?.user?.userRole === 'AgencySubAccount') {
-        await fetchBrandingData()
+        // await fetchBrandingData()
       }
       setInitialLoader(false)
     }
@@ -368,7 +359,6 @@ const DashboardSlider = ({
           setShowAskSkyModal={setShowAskSkyModal}
           setShouldStartCall={setShouldStartCall}
           loadingChanged={(loading) => {
-            console.log(`Loading state changed`, loading)
             if (loading) {
               // TODO: Hamza show the loader here
             } else {
@@ -376,7 +366,7 @@ const DashboardSlider = ({
             }
           }}
         />
-      )
+      );
     } else if (showVapiChatWidget) {
       return <VapiChatWidget setShowVapiChatWidget={setShowVapiChatWidget} />
     } else {
@@ -538,7 +528,6 @@ const DashboardSlider = ({
           )}
         </AnimatePresence>
       </div>
-
       {/* Icon Button (bottom-left) */}
       <AnimatePresence>
         {showIcon && !showAskSkyModal && !visible && (
@@ -582,7 +571,6 @@ const DashboardSlider = ({
           </motion.div>
         )}
       </AnimatePresence>
-
       <Modal
         open={false}
         onClose={() => {
@@ -592,7 +580,6 @@ const DashboardSlider = ({
       >
         <VapiChatWidget setShowVapiChatWidget={setShowVapiChatWidget} />
       </Modal>
-
       <UpgradeModal
         title={'Unlock Live Support Webinar'}
         subTitle={
@@ -602,7 +589,6 @@ const DashboardSlider = ({
         open={openUpgradePlan}
         handleClose={handleCloseUpgrade}
       />
-
       <Modal
         open={false}
         onClose={() => {
@@ -627,7 +613,6 @@ const DashboardSlider = ({
             setShowAskSkyModal={setShowAskSkyModal}
             setShouldStartCall={setShouldStartCall}
             loadingChanged={(loading) => {
-              console.log(`Loading state changed`, loading)
               if (loading) {
                 // TODO: Hamza show the loader here
               } else {
@@ -638,7 +623,7 @@ const DashboardSlider = ({
         </div>
       </Modal>
     </div>
-  )
+  );
 }
 
 export default DashboardSlider
