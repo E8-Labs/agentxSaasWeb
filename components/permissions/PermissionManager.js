@@ -2,10 +2,10 @@
 
 import {
   Button,
-  Checkbox,
   CircularProgress,
 } from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
+import axios from 'axios'
 
 import { usePermission } from '@/contexts/PermissionContext'
 import {
@@ -17,8 +17,12 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Switch } from '@/components/ui/switch'
+import { Input } from '@/components/ui/input'
+import { Checkbox } from '@/components/ui/checkbox'
 import { TypographyH3 } from '@/lib/typography'
 import { cn } from '@/lib/utils'
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
 
 /**
  * PermissionManager Component
@@ -32,6 +36,8 @@ import { cn } from '@/lib/utils'
  * @param {number|null} props.contextUserId - Context user ID for subaccount permissions
  * @param {function} props.onPermissionsChange - Optional callback for invitation mode to return selected permissions
  * @param {Array} props.initialPermissions - Optional initial permissions for invitation mode
+ * @param {Array} props.allowedSubaccountIds - Optional initial subaccount IDs for invitation mode
+ * @param {function} props.onSubaccountsChange - Optional callback for invitation mode to return selected subaccounts
  */
 function PermissionManager({
   open,
@@ -41,6 +47,8 @@ function PermissionManager({
   contextUserId = null,
   onPermissionsChange = null,
   initialPermissions = null,
+  allowedSubaccountIds = null,
+  onSubaccountsChange = null,
 }) {
   const isInvitationMode = !teamMemberId
   const {
@@ -54,6 +62,15 @@ function PermissionManager({
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [permissionStates, setPermissionStates] = useState({})
+  
+  // Subaccount selection state (for Agency context)
+  const [selectedSubaccountIds, setSelectedSubaccountIds] = useState([])
+  const [subaccounts, setSubaccounts] = useState([])
+  const [subaccountsLoading, setSubaccountsLoading] = useState(false)
+  const [subaccountSearchTerm, setSubaccountSearchTerm] = useState('')
+  const [subaccountsOffset, setSubaccountsOffset] = useState(0)
+  const [hasMoreSubaccounts, setHasMoreSubaccounts] = useState(true)
+  const subaccountsLoadingRef = useRef(false)
 
   // Group permissions by context and category
   const groupedPermissions = React.useMemo(() => {
@@ -100,24 +117,52 @@ function PermissionManager({
     return result
   }, [availablePermissions, context])
 
+  // Get selected permissions for capsule display
+  const selectedPermissions = React.useMemo(() => {
+    return Object.entries(permissionStates)
+      .filter(([_, granted]) => granted)
+      .map(([permissionKey]) => {
+        const perm = availablePermissions.find(
+          p => (p.key || p.permissionKey) === permissionKey
+        )
+        return {
+          key: permissionKey,
+          name: perm?.name || perm?.permissionDefinition?.name || permissionKey,
+        }
+      })
+  }, [permissionStates, availablePermissions])
+
+  // Check if subaccount permissions are selected
+  const hasSubaccountPermissions = React.useMemo(() => {
+    return selectedPermissions.some(perm => 
+      perm.key.startsWith('subaccount.') || 
+      availablePermissions.find(p => (p.key || p.permissionKey) === perm.key)?.context === 'subaccount'
+    )
+  }, [selectedPermissions, availablePermissions])
+
   useEffect(() => {
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PermissionManager.js:useEffect-entry',message:'PermissionManager useEffect triggered',data:{open, teamMemberId, isInvitationMode, context},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
-    // #endregion
     if (open) {
       if (teamMemberId) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PermissionManager.js:useEffect-loadPermissions',message:'Calling loadPermissions',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
-        // #endregion
         loadPermissions()
       } else if (isInvitationMode) {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PermissionManager.js:useEffect-loadAvailable',message:'Calling loadAvailablePermissionsOnly',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
-        // #endregion
         loadAvailablePermissionsOnly()
+      }
+      
+      // Initialize subaccount IDs if provided
+      if (allowedSubaccountIds && Array.isArray(allowedSubaccountIds)) {
+        setSelectedSubaccountIds(allowedSubaccountIds)
+      } else {
+        setSelectedSubaccountIds([])
       }
     }
   }, [open, teamMemberId, context, contextUserId, isInvitationMode])
+
+  // Load subaccounts when Agency context and subaccount permissions are selected
+  useEffect(() => {
+    if (open && context === 'agency' && isInvitationMode && hasSubaccountPermissions) {
+      loadSubaccounts(0, subaccountSearchTerm)
+    }
+  }, [open, context, isInvitationMode, hasSubaccountPermissions])
 
   const loadAvailablePermissionsOnly = async () => {
     try {
@@ -233,6 +278,66 @@ function PermissionManager({
     }
   }
 
+  const loadSubaccounts = async (offset = 0, search = '') => {
+    if (subaccountsLoadingRef.current) return
+    
+    try {
+      subaccountsLoadingRef.current = true
+      setSubaccountsLoading(true)
+
+      const queryParams = new URLSearchParams()
+      queryParams.append('offset', offset.toString())
+      queryParams.append('limit', '50')
+      if (search && search.trim()) {
+        queryParams.append('search', search.trim())
+      }
+
+      const token = AuthToken()
+      const response = await axios.get(`/api/agency/subaccounts?${queryParams.toString()}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response && response.data && response.data.status) {
+        const newSubaccounts = response.data.data?.subaccounts || []
+        const pagination = response.data.pagination || {}
+        
+        if (offset === 0) {
+          setSubaccounts(newSubaccounts)
+        } else {
+          setSubaccounts(prev => [...prev, ...newSubaccounts])
+        }
+        
+        setSubaccountsOffset(offset + newSubaccounts.length)
+        setHasMoreSubaccounts(newSubaccounts.length === 50 && (offset + newSubaccounts.length) < (pagination.total || 0))
+      }
+    } catch (error) {
+      console.error('Error loading subaccounts:', error)
+    } finally {
+      setSubaccountsLoading(false)
+      subaccountsLoadingRef.current = false
+    }
+  }
+
+  const handleSubaccountSearch = (value) => {
+    setSubaccountSearchTerm(value)
+    setSubaccountsOffset(0)
+    setHasMoreSubaccounts(true)
+    loadSubaccounts(0, value)
+  }
+
+  const handleSubaccountToggle = (subaccountId) => {
+    setSelectedSubaccountIds(prev => {
+      if (prev.includes(subaccountId)) {
+        return prev.filter(id => id !== subaccountId)
+      } else {
+        return [...prev, subaccountId]
+      }
+    })
+  }
+
   const handlePermissionToggle = (permissionKey) => {
     setPermissionStates((prev) => ({
       ...prev,
@@ -268,6 +373,9 @@ function PermissionManager({
       if (isInvitationMode) {
         if (onPermissionsChange) {
           onPermissionsChange(permissions)
+        }
+        if (onSubaccountsChange && context === 'agency') {
+          onSubaccountsChange(selectedSubaccountIds)
         }
         if (onClose) {
           onClose()
@@ -314,30 +422,21 @@ function PermissionManager({
     <Dialog 
       open={open} 
       onOpenChange={(isOpen) => {
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PermissionManager.js:Dialog-onOpenChange',message:'Dialog onOpenChange called',data:{isOpen},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
-        // #endregion
         if (!isOpen) {
           onClose()
         }
       }}
     >
       <DialogContent
-        className="max-w-4xl w-[95%] sm:w-[90%] lg:w-[85%] h-[90vh] p-0 flex flex-col"
+        className="max-w-2xl w-[95%] sm:w-[90%] max-h-[85vh] p-0 flex flex-col"
         onInteractOutside={(e) => {
           e.preventDefault()
         }}
         onEscapeKeyDown={(e) => {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PermissionManager.js:DialogContent-onEscapeKeyDown',message:'DialogContent onEscapeKeyDown called',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
-          // #endregion
           e.preventDefault()
           onClose()
         }}
         onPointerDownOutside={(e) => {
-          // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'PermissionManager.js:DialogContent-onPointerDownOutside',message:'DialogContent onPointerDownOutside called',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'H'})}).catch(()=>{});
-          // #endregion
           e.preventDefault()
         }}
       >
@@ -367,18 +466,41 @@ function PermissionManager({
                   </p>
                 </div>
               ) : (
-                <div className="space-y-8">
+                <div className="space-y-6">
+                  {/* Permission Capsules/Tags */}
+                  {selectedPermissions.length > 0 && (
+                    <div className="space-y-2">
+                      <h4 className="text-sm font-medium text-foreground">Selected Permissions</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {selectedPermissions.map((perm) => (
+                          <span
+                            key={perm.key}
+                            className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+                            style={{
+                              backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                              color: 'hsl(var(--brand-primary))',
+                              border: '1px solid hsl(var(--brand-primary) / 0.3)',
+                            }}
+                          >
+                            {perm.name}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Permissions List - Single Column */}
                   {Object.entries(groupedPermissions).map(([category, group]) => {
                     const permissions = Array.isArray(group?.permissions) ? group.permissions : []
                     
                     return (
                       <div 
                         key={category} 
-                        className="space-y-4"
+                        className="space-y-3"
                         data-category={category}
                       >
                         <div className="flex items-center gap-2">
-                          <h3 className="text-base font-semibold text-foreground capitalize">
+                          <h3 className="text-sm font-semibold text-foreground capitalize">
                             {group.displayName}
                           </h3>
                           <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
@@ -391,7 +513,7 @@ function PermissionManager({
                             No permissions in this category
                           </div>
                         ) : (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="flex flex-col gap-2">
                             {permissions.map((perm) => {
                               const permKey = perm.key || perm.permissionKey
                               const permName = perm.name || perm.permissionDefinition?.name || permKey
@@ -404,46 +526,29 @@ function PermissionManager({
                                   data-permission={permKey}
                                   data-category={category}
                                   className={cn(
-                                    "relative flex items-start gap-3 p-4 rounded-lg border transition-all cursor-pointer group",
-                                    "hover:shadow-sm",
+                                    "relative flex items-center justify-between gap-4 p-3 rounded-lg border transition-all",
                                     isChecked
-                                      ? "bg-primary/5 border-primary/50 shadow-sm"
-                                      : "border-border bg-card hover:bg-accent/50"
+                                      ? "bg-brand-primary/5 border-brand-primary/50"
+                                      : "border-border bg-card"
                                   )}
-                                  style={isChecked ? {
-                                    borderColor: 'hsl(var(--brand-primary))',
-                                    backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
-                                  } : {}}
-                                  onClick={() => handlePermissionToggle(permKey)}
                                 >
-                                  <Checkbox
-                                    checked={isChecked}
-                                    onChange={() => handlePermissionToggle(permKey)}
-                                    onClick={(e) => e.stopPropagation()}
-                                    className="mt-0.5 flex-shrink-0"
-                                    size="small"
-                                    sx={{
-                                      color: 'hsl(var(--brand-primary))',
-                                      '&.Mui-checked': {
-                                        color: 'hsl(var(--brand-primary))',
-                                      },
-                                    }}
-                                  />
-                                  <div className="flex-1 min-w-0 space-y-1">
-                                    <div className="flex items-start justify-between gap-2">
-                                      <p className="text-sm font-medium text-foreground leading-snug">
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2">
+                                      <p className="text-sm font-medium text-foreground">
                                         {permName}
                                       </p>
                                     </div>
                                     {permDescription && (
-                                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                                      <p className="text-xs text-muted-foreground mt-1 line-clamp-1">
                                         {permDescription}
                                       </p>
                                     )}
-                                    <p className="text-[10px] font-mono text-muted-foreground/60 truncate mt-1">
-                                      {permKey}
-                                    </p>
                                   </div>
+                                  <Switch
+                                    checked={isChecked}
+                                    onCheckedChange={() => handlePermissionToggle(permKey)}
+                                    className="data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                                  />
                                 </div>
                               )
                             })}
@@ -452,6 +557,89 @@ function PermissionManager({
                       </div>
                     )
                   })}
+
+                  {/* Subaccount Selection for Agency Context */}
+                  {context === 'agency' && isInvitationMode && hasSubaccountPermissions && (
+                    <div className="space-y-3 pt-4 border-t">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-sm font-semibold text-foreground">
+                          Manage subaccounts this user can have access to
+                        </h3>
+                      </div>
+                      
+                      {/* Search Input */}
+                      <Input
+                        placeholder="Search subaccounts..."
+                        value={subaccountSearchTerm}
+                        onChange={(e) => handleSubaccountSearch(e.target.value)}
+                        className="w-full"
+                      />
+
+                      {/* Subaccounts List */}
+                      <div className="max-h-[300px] overflow-y-auto border rounded-lg p-2 space-y-2">
+                        {subaccountsLoading && subaccounts.length === 0 ? (
+                          <div className="flex justify-center items-center py-8">
+                            <CircularProgress size={24} />
+                          </div>
+                        ) : subaccounts.length === 0 ? (
+                          <div className="text-sm text-muted-foreground py-8 text-center">
+                            No subaccounts found
+                          </div>
+                        ) : (
+                          <>
+                            {subaccounts.map((subaccount) => {
+                              const isSelected = selectedSubaccountIds.includes(subaccount.id)
+                              return (
+                                <div
+                                  key={subaccount.id}
+                                  className="flex items-center gap-3 p-2 rounded-lg hover:bg-accent/50 cursor-pointer"
+                                  onClick={() => handleSubaccountToggle(subaccount.id)}
+                                >
+                                  <Checkbox
+                                    checked={isSelected}
+                                    onCheckedChange={() => handleSubaccountToggle(subaccount.id)}
+                                  />
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-medium text-foreground">
+                                      {subaccount.name || subaccount.email || `Subaccount ${subaccount.id}`}
+                                    </p>
+                                    {subaccount.email && (
+                                      <p className="text-xs text-muted-foreground">
+                                        {subaccount.email}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              )
+                            })}
+                            
+                            {/* Load More Button */}
+                            {hasMoreSubaccounts && (
+                              <div className="flex justify-center pt-2">
+                                <Button
+                                  variant="outlined"
+                                  size="small"
+                                  onClick={() => loadSubaccounts(subaccountsOffset, subaccountSearchTerm)}
+                                  disabled={subaccountsLoading}
+                                  sx={{
+                                    textTransform: 'none',
+                                    borderColor: 'hsl(var(--brand-primary))',
+                                    color: 'hsl(var(--brand-primary))',
+                                    '&:hover': {
+                                      borderColor: 'hsl(var(--brand-primary))',
+                                      bgcolor: 'hsl(var(--brand-primary) / 0.04)',
+                                    },
+                                  }}
+                                >
+                                  {subaccountsLoading ? 'Loading...' : 'Load More'}
+                                </Button>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

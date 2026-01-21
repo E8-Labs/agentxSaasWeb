@@ -548,7 +548,12 @@ function UserPlansMobile({
       })
     } else {
       // Normal calculation (includes trial if not first-time)
-      nextChargeDate = getNextChargeDate(selectedPlan)
+      const dateObj = getNextChargeDate(selectedPlan)
+      nextChargeDate = dateObj.toLocaleDateString(undefined, {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
     }
   }
 

@@ -11,6 +11,7 @@ import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
 import Image from 'next/image'
+import moment from 'moment'
 import React, { useEffect, useRef, useState } from 'react'
 
 import { PersistanceKeys } from '@/constants/Constants'
@@ -1827,7 +1828,7 @@ console.log('getButtonText()', getButtonText())
                                       }}
                                     >
                                       Next Charge Date{' '}
-                                      {getNextChargeDate(currentSelectedPlan)}
+                                      {moment(getNextChargeDate(currentSelectedPlan)).format('MMMM DD, YYYY')}
                                     </div>
                                   </div>
                                   <div

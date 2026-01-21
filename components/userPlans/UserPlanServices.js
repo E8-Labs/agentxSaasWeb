@@ -676,7 +676,7 @@ export const getNextChargeDate = (selectedPlan, fromDate = new Date()) => {
       })
       const todayFormatted = getTodayFormatted()
       console.log('[getNextChargeDate] Returning today\'s date as fallback:', todayFormatted)
-      return todayFormatted
+      return new Date() // Return Date object instead of string
     }
 
     console.log('[getNextChargeDate] Base date created successfully', {
@@ -755,7 +755,7 @@ export const getNextChargeDate = (selectedPlan, fromDate = new Date()) => {
       })
       const todayFormatted = getTodayFormatted()
       console.log('[getNextChargeDate] Returning today\'s date as fallback:', todayFormatted)
-      return todayFormatted
+      return new Date() // Return Date object instead of string
     }
 
     const formatted = nextDate.toLocaleDateString(undefined, {
@@ -773,7 +773,7 @@ export const getNextChargeDate = (selectedPlan, fromDate = new Date()) => {
       })
       const todayFormatted = getTodayFormatted()
       console.log('[getNextChargeDate] Returning today\'s date as fallback:', todayFormatted)
-      return todayFormatted
+      return new Date() // Return Date object instead of string
     }
 
     console.log('[getNextChargeDate] Successfully calculated next charge date', {
@@ -781,7 +781,8 @@ export const getNextChargeDate = (selectedPlan, fromDate = new Date()) => {
       nextDateISO: nextDate.toISOString(),
     })
 
-    return formatted
+    // Return Date object instead of formatted string so moment() can parse it
+    return nextDate
   } catch (e) {
     console.error('[getNextChargeDate] Error occurred during calculation', {
       error: e,
