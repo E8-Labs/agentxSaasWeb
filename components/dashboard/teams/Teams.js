@@ -130,6 +130,7 @@ function Teams({ agencyData, selectedAgency, from }) {
   // Permission management for invitations
   const [showInvitationPermissionManager, setShowInvitationPermissionManager] = useState(false)
   const [selectedInvitationPermissions, setSelectedInvitationPermissions] = useState(null)
+  const [selectedSubaccountIds, setSelectedSubaccountIds] = useState([])
   
   // Wrapper to log permission manager state changes
   const setShowInvitationPermissionManagerWithLog = (value) => {
@@ -464,6 +465,7 @@ function Teams({ agencyData, selectedAgency, from }) {
           email: item.email,
           phone: item.phone,
           permissions: selectedInvitationPermissions, // Include permissions if set
+          allowedSubaccountIds: selectedSubaccountIds && selectedSubaccountIds.length > 0 ? selectedSubaccountIds : undefined, // Include subaccount IDs if set
         }
         if (selectedAgency) {
           apidata = {
@@ -486,6 +488,7 @@ function Teams({ agencyData, selectedAgency, from }) {
             // //console.log;
             // //console.log;
             setSelectedInvitationPermissions(null) // Reset permissions after successful invitation
+            setSelectedSubaccountIds([]) // Reset subaccount IDs after successful invitation
             setMyTeam((prev) => {
               // //console.log;
               // //console.log;
@@ -506,6 +509,7 @@ function Teams({ agencyData, selectedAgency, from }) {
             setEmail('')
             setPhone('')
             setSelectedInvitationPermissions(null) // Reset permissions after successful invitation
+            setSelectedSubaccountIds([]) // Reset subaccount IDs after successful invitation
             // getMyteam()
           } else {
             // //console.log;
@@ -1901,7 +1905,11 @@ function Teams({ agencyData, selectedAgency, from }) {
               setOpenInvitePopup(true)
             }, 100)
           }}
+          onSubaccountsChange={(subaccountIds) => {
+            setSelectedSubaccountIds(subaccountIds || [])
+          }}
           initialPermissions={selectedInvitationPermissions}
+          allowedSubaccountIds={selectedSubaccountIds}
         />
       </PermissionProvider>
     </div>

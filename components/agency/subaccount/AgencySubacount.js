@@ -471,7 +471,8 @@ function AgencySubacount({ selectedAgency }) {
     }
 
     try {
-      let ApiPAth = Apis.getAgencySubAccount
+      // Use Next.js API route instead of direct backend call
+      let ApiPAth = '/api/agency/subaccounts'
       const queryParams = []
 
       if (selectedAgency) {
