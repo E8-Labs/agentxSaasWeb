@@ -29,6 +29,7 @@ import MessageHeader from './MessageHeader'
 import ConversationHeader from './ConversationHeader'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import MessageSettingsModal from './MessageSettingsModal'
+import DraftCards from './DraftCards'
 
 const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const searchParams = useSearchParams()
@@ -85,6 +86,12 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const threadsRequestIdRef = useRef(0)
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
   const [showMessageSettingsModal, setShowMessageSettingsModal] = useState(false)
+
+  // Draft state for AI-generated responses
+  const [drafts, setDrafts] = useState([])
+  const [draftsLoading, setDraftsLoading] = useState(false)
+  const [selectedDraft, setSelectedDraft] = useState(null)
+  const [lastInboundMessageId, setLastInboundMessageId] = useState(null)
 
   // Debug: Log when modal state changes
   useEffect(() => {}, [showUpgradePlanModal])
@@ -704,6 +711,118 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
     }
   }, [selectedUser])
 
+  // Fetch pending drafts for the last inbound message in a thread
+  const fetchDrafts = useCallback(async (threadId, messageId = null) => {
+    if (!threadId) return
+
+    // If no messageId provided, don't fetch (will be called once we know the last inbound message)
+    if (!messageId) {
+      setDrafts([])
+      return
+    }
+
+    try {
+      setDraftsLoading(true)
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+
+      const userData = JSON.parse(localData)
+      const token = userData.token
+
+      const params = { threadId, messageId }
+      // Add userId if viewing subaccount from admin/agency
+      if (selectedUser?.id) {
+        params.userId = selectedUser.id
+      }
+
+      const response = await axios.get(Apis.getDraftsForThread, {
+        params,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.data?.status && response.data?.data) {
+        // Filter for pending drafts only
+        const pendingDrafts = response.data.data.filter(d => d.status === 'pending')
+        setDrafts(pendingDrafts)
+      } else {
+        setDrafts([])
+      }
+    } catch (error) {
+      console.error('Error fetching drafts:', error)
+      setDrafts([])
+    } finally {
+      setDraftsLoading(false)
+    }
+  }, [selectedUser])
+
+  // Select a draft and populate the composer
+  const handleSelectDraft = useCallback((draft) => {
+    if (!draft) return
+
+    setSelectedDraft(draft)
+
+    // Set composer mode based on draft type
+    setComposerMode(draft.messageType || 'sms')
+
+    // Populate composer with draft content
+    if (draft.messageType === 'email') {
+      setComposerData(prev => ({
+        ...prev,
+        emailBody: draft.content || '',
+        subject: draft.subject || prev.subject,
+      }))
+    } else {
+      setComposerData(prev => ({
+        ...prev,
+        smsBody: draft.content || '',
+      }))
+    }
+  }, [])
+
+  // Discard a draft
+  const handleDiscardDraft = useCallback(async (draftId) => {
+    if (!draftId) return
+
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+
+      const userData = JSON.parse(localData)
+      const token = userData.token
+
+      let apiPath = `${Apis.discardDraft}/${draftId}`
+      // Add userId if viewing subaccount from admin/agency
+      if (selectedUser?.id) {
+        apiPath = `${apiPath}?userId=${selectedUser.id}`
+      }
+
+      const response = await axios.delete(apiPath, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response.data?.status) {
+        // Remove the discarded draft from state
+        setDrafts(prev => prev.filter(d => d.id !== draftId))
+        // Clear selected draft if it was the one being discarded
+        if (selectedDraft?.id === draftId) {
+          setSelectedDraft(null)
+        }
+        toast.success('Draft discarded')
+      } else {
+        toast.error(response.data?.message || 'Failed to discard draft')
+      }
+    } catch (error) {
+      console.error('Error discarding draft:', error)
+      toast.error(error.response?.data?.message || 'Error discarding draft')
+    }
+  }, [selectedUser, selectedDraft])
+
   // Update latest message ID ref when messages change
   useEffect(() => {
     if (messages.length > 0) {
@@ -712,6 +831,31 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       latestMessageIdRef.current = null
     }
   }, [messages])
+
+  // Track last inbound message and fetch drafts only if last message is inbound
+  useEffect(() => {
+    if (!selectedThread?.id || messages.length === 0) {
+      setDrafts([])
+      setLastInboundMessageId(null)
+      setSelectedDraft(null)
+      return
+    }
+
+    // Get the last message
+    const lastMessage = messages[messages.length - 1]
+
+    // Only show drafts if the last message is inbound (from the lead)
+    if (lastMessage && lastMessage.direction === 'inbound') {
+      setLastInboundMessageId(lastMessage.id)
+      // Fetch drafts for this specific inbound message
+      fetchDrafts(selectedThread.id, lastMessage.id)
+    } else {
+      // Last message is outbound, clear drafts
+      setDrafts([])
+      setLastInboundMessageId(null)
+      setSelectedDraft(null)
+    }
+  }, [messages, selectedThread?.id, fetchDrafts])
 
   // Poll for new messages every 5 seconds when a thread is selected
   useEffect(() => {
@@ -833,16 +977,52 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       }
     }
 
+    // Poll for new drafts (only if there's a last inbound message)
+    const pollForDrafts = async () => {
+      // Only poll if we have a last inbound message ID
+      if (!lastInboundMessageId) return
+
+      try {
+        const localData = localStorage.getItem('User')
+        if (!localData) return
+
+        const userData = JSON.parse(localData)
+        const token = userData.token
+
+        const params = { threadId: selectedThread.id, messageId: lastInboundMessageId }
+        if (selectedUser?.id) {
+          params.userId = selectedUser.id
+        }
+
+        const response = await axios.get(Apis.getDraftsForThread, {
+          params,
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+
+        if (response.data?.status && response.data?.data) {
+          const pendingDrafts = response.data.data.filter(d => d.status === 'pending')
+          setDrafts(pendingDrafts)
+        }
+      } catch (error) {
+        // Silently fail for draft polling
+      }
+    }
+
     pollForNewMessages()
+    pollForDrafts()
     const intervalId = setInterval(() => {
       pollForNewMessages()
+      pollForDrafts()
     }, 5000)
 
     // Cleanup interval when thread changes or component unmounts
     return () => {
       clearInterval(intervalId)
     };
-  }, [selectedThread?.id, fetchMessages, selectedUser])
+  }, [selectedThread?.id, fetchMessages, selectedUser, lastInboundMessageId])
 
   // Handle thread selection
   const handleThreadSelect = (thread) => {
@@ -854,6 +1034,11 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
     if (thread.unreadCount > 0) {
       markThreadAsRead(thread.id)
     }
+
+    // Clear draft state when switching threads (will be refetched when messages load)
+    setDrafts([])
+    setSelectedDraft(null)
+    setLastInboundMessageId(null)
 
     // Clear email timeline state when switching threads
     setEmailTimelineSubject(null)
@@ -1587,6 +1772,27 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
             attachments: [],
           }))
 
+          // If a draft was selected, mark it as sent and clear drafts
+          if (selectedDraft) {
+            try {
+              let apiPath = `${Apis.sendDraft}/${selectedDraft.id}/send`
+              if (selectedUser?.id) {
+                apiPath = `${apiPath}?userId=${selectedUser.id}`
+              }
+              await axios.post(apiPath, {}, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+              })
+            } catch (e) {
+              // Silently fail marking draft as sent
+            }
+          }
+          // Clear drafts after sending
+          setDrafts([])
+          setSelectedDraft(null)
+
           // Refresh messages and threads
           setTimeout(() => {
             fetchMessages(selectedThread.id, null, false)
@@ -1764,6 +1970,27 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           // Clear CC/BCC visibility
           setShowCC(false)
           setShowBCC(false)
+
+          // If a draft was selected, mark it as sent and clear drafts
+          if (selectedDraft) {
+            try {
+              let apiPath = `${Apis.sendDraft}/${selectedDraft.id}/send`
+              if (selectedUser?.id) {
+                apiPath = `${apiPath}?userId=${selectedUser.id}`
+              }
+              await axios.post(apiPath, {}, {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  'Content-Type': 'application/json',
+                },
+              })
+            } catch (e) {
+              // Silently fail marking draft as sent
+            }
+          }
+          // Clear drafts after sending
+          setDrafts([])
+          setSelectedDraft(null)
 
           // Refresh messages and threads
           setTimeout(() => {
@@ -1952,6 +2179,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
         setHasMoreMessages(true)
         setMessages([])
         fetchMessages(threadToSelect.id, null, false)
+        // Drafts will be fetched automatically by the messages effect when messages load
         if (threadToSelect.unreadCount > 0) {
           markThreadAsRead(threadToSelect.id)
         }
@@ -2491,6 +2719,15 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                       onReplyClick={handleReplyClick}
                       onOpenEmailTimeline={handleOpenEmailTimeline}
                       updateComposerFromMessage={updateComposerFromMessage}
+                    />
+
+                    {/* AI-Generated Draft Responses */}
+                    <DraftCards
+                      drafts={drafts}
+                      loading={draftsLoading}
+                      onSelectDraft={handleSelectDraft}
+                      onDiscardDraft={handleDiscardDraft}
+                      selectedDraftId={selectedDraft?.id}
                     />
 
                     {/* Composer */}

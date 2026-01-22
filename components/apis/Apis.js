@@ -397,6 +397,12 @@ const Apis = {
   markThreadAsRead: `${BasePath}api/user/messaging/threads`,
   deleteThread: `${BasePath}api/user/messaging/threads`,
   getEmailsBySubject: `${BasePath}api/user/messaging/emails-by-subject`,
+
+  // Auto-Reply Draft APIs
+  getDraftsForThread: `${BasePath}api/mail/drafts`,
+  getDraftById: `${BasePath}api/mail/drafts`,
+  sendDraft: `${BasePath}api/mail/drafts`,
+  discardDraft: `${BasePath}api/mail/drafts`,
   deleteProfileForAgencyRegistration: `${BasePath}api/user/deleteProfileForAgencyRegistration
 `,
 }
