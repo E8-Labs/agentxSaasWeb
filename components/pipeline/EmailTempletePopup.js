@@ -95,6 +95,7 @@ function EmailTempletePopup({
   const [delTempLoader, setDelTempLoader] = useState(null)
   const [templetes, setTempletes] = useState([])
   const [loginLoader, setLoginLoader] = useState(false)
+  const [saveAsTemplate, setSaveAsTemplate] = useState(true) // Default to true for cadence templates
 
   // above return
   // disable save if any field is missing or while saving
@@ -147,6 +148,8 @@ function EmailTempletePopup({
     // Load accounts when modal opens
     if (open) {
       getAccounts(selectedUser?.id)
+      // Reset checkbox to default (true) when modal opens
+      setSaveAsTemplate(true)
     }
   }, [open])
 
@@ -888,6 +891,7 @@ function EmailTempletePopup({
       bccEmails: bccEmails,
       attachments: attachments,
       templateName: finalTemplateName,
+      templateType: saveAsTemplate ? 'user' : 'auto', // Set templateType based on checkbox
     }
 
     // Add userId if selectedUser is provided (for agency/admin creating templates for subaccounts)
@@ -1811,6 +1815,22 @@ function EmailTempletePopup({
                   </>
                 )}
               </div>
+
+              {/* Save as template checkbox - only show when not in lead email mode */}
+              {!isLeadEmail && (
+                <div className="flex items-center gap-2 mb-2">
+                  <input
+                    type="checkbox"
+                    id="saveAsTemplate"
+                    checked={saveAsTemplate}
+                    onChange={(e) => setSaveAsTemplate(e.target.checked)}
+                    className="h-4 w-4 text-brand-primary border-gray-300 rounded focus:ring-brand-primary"
+                  />
+                  <label htmlFor="saveAsTemplate" className="text-sm text-gray-700 cursor-pointer select-none">
+                    Save as template
+                  </label>
+                </div>
+              )}
 
               <div className="flex items-center gap-4">
                 <button
