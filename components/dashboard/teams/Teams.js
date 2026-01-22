@@ -1023,7 +1023,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
   }
 
   //funcion to invitem tem member
-  const inviteTeamMember = async (item) => {
+  const inviteTeamMember = async (item, permissionsOverride = null, subaccountIdsOverride = null) => {
     // //console.log;
     // return
     if (!isPlanActive(reduxUser?.plan)) {
@@ -1056,12 +1056,16 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
 
         let path = Apis.inviteTeamMember
 
+        // Use override values if provided, otherwise use state
+        const permissionsToSend = permissionsOverride !== null ? permissionsOverride : selectedInvitationPermissions
+        const subaccountIdsToSend = subaccountIdsOverride !== null ? subaccountIdsOverride : selectedSubaccountIds
+
         let apidata = {
           name: item.name,
           email: item.email,
           phone: item.phone,
-          permissions: selectedInvitationPermissions, // Include permissions if set
-          allowedSubaccountIds: selectedSubaccountIds && selectedSubaccountIds.length > 0 ? selectedSubaccountIds : undefined, // Include subaccount IDs if set
+          permissions: permissionsToSend && permissionsToSend.length > 0 ? permissionsToSend : null, // Include permissions if set
+          allowedSubaccountIds: subaccountIdsToSend && subaccountIdsToSend.length > 0 ? subaccountIdsToSend : undefined, // Include subaccount IDs if set
         }
         if (selectedAgency) {
           apidata = {
@@ -2516,14 +2520,16 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                   onClick={() => {
                     // Collect permissions from all steps
                     const allPermissions = collectAllPermissions()
-                    setSelectedInvitationPermissions(allPermissions.length > 0 ? allPermissions : null)
+                    const permissionsToSend = allPermissions.length > 0 ? allPermissions : null
+                    setSelectedInvitationPermissions(permissionsToSend)
                     
                     let data = {
                       name: name,
                       email: email,
                       phone: phone,
                     }
-                    inviteTeamMember(data)
+                    // Pass permissions and subaccount IDs directly to avoid race condition
+                    inviteTeamMember(data, permissionsToSend, selectedSubaccountIds)
                   }}
                   disabled={
                     inviteModalStep === 'initial' && (
