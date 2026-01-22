@@ -10,12 +10,12 @@ const Page = () => {
   return (
     <PermissionProvider>
       <ProtectedRoute
-        permissionKey="agency.subaccounts.view"
+        permissionKey="agency.subaccounts.manage"
         hideIfNoPermission={false}
         fallback={
           <div style={{ padding: '2rem', textAlign: 'center' }}>
             <h2>Access Denied</h2>
-            <p>You do not have permission to view subaccounts.</p>
+            <p>You do not have permission to manage subaccounts.</p>
           </div>
         }
       >

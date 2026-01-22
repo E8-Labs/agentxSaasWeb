@@ -95,10 +95,8 @@ function PermissionManager({
       } else if (context === 'agentx') {
         groupKey = `agentx_${category}`
         displayName = category.replace(/_/g, ' ').replace('agentx ', '')
-      } else if (context === 'subaccount_user') {
-        groupKey = `subaccount_user_${category}`
-        displayName = category.replace(/_/g, ' ').replace('subaccount user ', '')
       }
+      // Note: subaccount_user context is deprecated - AgencySubAccount users now use 'agentx' context
       
       if (!acc[groupKey]) {
         acc[groupKey] = {
@@ -175,9 +173,8 @@ function PermissionManager({
         apiContext = 'subaccount'
       } else if (context === 'agentx') {
         apiContext = 'agentx'
-      } else if (context === 'subaccount_user') {
-        apiContext = 'subaccount_user'
       }
+      // Note: subaccount_user context is deprecated - AgencySubAccount users now use 'agentx' context
 
       let available = await fetchAvailablePermissions(apiContext)
 
@@ -225,9 +222,8 @@ function PermissionManager({
         apiContext = 'subaccount'
       } else if (context === 'agentx') {
         apiContext = 'agentx'
-      } else if (context === 'subaccount_user') {
-        apiContext = 'subaccount_user'
       }
+      // Note: subaccount_user context is deprecated - AgencySubAccount users now use 'agentx' context
 
       let available = await fetchAvailablePermissions(apiContext)
       

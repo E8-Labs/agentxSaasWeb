@@ -638,7 +638,7 @@ const AgencyNavBarContent = () => {
       href: '/agency/dashboard/subAccounts',
       selected: '/agencyNavbarIcons/selectedSubAccountIcon.png',
       uneselected: '/agencyNavbarIcons/unSelectedSubAccountIcon.png',
-      permissionKey: 'agency.subaccounts.view', // Required permission (manage implies view)
+      permissionKey: 'agency.subaccounts.manage', // Required permission
     },
     {
       id: 5,

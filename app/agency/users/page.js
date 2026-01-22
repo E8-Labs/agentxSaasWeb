@@ -5,20 +5,21 @@ import { useEffect, useState } from 'react'
 
 import AdminGetProfileDetails from '@/components/admin/AdminGetProfileDetails'
 import SelectedUserDetails from '@/components/admin/users/SelectedUserDetails'
+import { PermissionProvider } from '@/contexts/PermissionContext'
 
 export default function Page() {
   const router = useRouter()
   const [userId, setUserId] = useState(null)
   const [selectedUser, setSelectedUser] = useState(null)
-  const [isFromAgency, setIsFromAgency] = useState(false)
+  const [enablePermissionChecks, setEnablePermissionChecks] = useState(false)
 
   // ✅ Manually get `userId` from the URL (avoids Suspense issue)
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const params = new URLSearchParams(window.location.search)
       const id = params.get('userId')
-      const isFromAgency = params.get('enablePermissionChecks')
-      setIsFromAgency(isFromAgency)
+      const permChecks = params.get('enablePermissionChecks')
+      setEnablePermissionChecks(permChecks === 'true')
       if (id) {
         setUserId(id)
       }
@@ -28,7 +29,6 @@ export default function Page() {
   // ✅ Fetch user details when `userId` is available
   useEffect(() => {
     if (userId) {
-      //console.log;
       fetchUserDetails(userId)
     }
   }, [userId])
@@ -38,7 +38,6 @@ export default function Page() {
       const data = await AdminGetProfileDetails(userId)
       if (data) {
         setSelectedUser(data)
-        //console.log;
       }
     } catch (error) {
       console.error('Error fetching user details:', error)
@@ -46,26 +45,28 @@ export default function Page() {
   }
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center bg-white">
-      {selectedUser ? (
-        <SelectedUserDetails
-          handleDel={() => {
-            // Notify parent window to refresh
-            if (window.opener) {
-              window.opener.location.reload()
-            }
+    <PermissionProvider>
+      <div className="w-screen h-screen flex items-center justify-center bg-white">
+        {selectedUser ? (
+          <SelectedUserDetails
+            handleDel={() => {
+              // Notify parent window to refresh
+              if (window.opener) {
+                window.opener.location.reload()
+              }
 
-            // Close the current tab
-            window.close()
-          }}
-          selectedUser={selectedUser}
-          agencyUser={isFromAgency}
-          hideViewDetails={true}
-          from="subaccount"
-        />
-      ) : (
-        <p>Loading...</p>
-      )}
-    </div>
+              // Close the current tab
+              window.close()
+            }}
+            selectedUser={selectedUser}
+            enablePermissionChecks={enablePermissionChecks}
+            hideViewDetails={true}
+            from="subaccount"
+          />
+        ) : (
+          <p>Loading...</p>
+        )}
+      </div>
+    </PermissionProvider>
   )
 }

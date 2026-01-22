@@ -725,9 +725,8 @@ const ProfileNav = () => {
 
   // Determine permission prefix based on user role
   const getPermissionPrefix = () => {
-    if (reduxUser?.userRole === 'AgencySubAccount') {
-      return 'subaccount_user'
-    } else if (reduxUser?.userRole === 'AgentX') {
+    // Both AgencySubAccount and AgentX users use 'agentx' permission prefix
+    if (reduxUser?.userRole === 'AgencySubAccount' || reduxUser?.userRole === 'AgentX') {
       return 'agentx'
     }
     return null // No permission checks for other roles (Admin, etc.)

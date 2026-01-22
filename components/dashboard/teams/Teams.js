@@ -2349,6 +2349,9 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
               {/* Agency Permissions View */}
               {inviteModalStep === 'agency' && (
                 <div className="mt-4 space-y-3 max-h-[60vh] overflow-y-auto">
+                  <div className="text-sm text-gray-600 mb-4">
+                    Manage what this user can access in agency panel.
+                  </div>
                   {loadingAgencyPermissions ? (
                     <div className="flex justify-center items-center py-8">
                       <CircularProgress size={24} />
@@ -2362,11 +2365,16 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                       const permKey = perm.key || perm.permissionKey
                       const permName = perm.name || perm.permissionDefinition?.name || permKey
                       const isChecked = agencyPermissionStates[permKey] || false
-                      
+
                       return (
                         <div key={permKey}>
                           <div className="flex items-center justify-between p-3">
-                            <span className="text-sm font-medium text-gray-900">{permName}</span>
+                            <div className="flex flex-col">
+                              <span className="text-sm font-medium text-gray-900">{permName}</span>
+                              {perm.description && (
+                                <span className="text-xs text-gray-500 mt-1">{perm.description}</span>
+                              )}
+                            </div>
                             <Switch
                               checked={isChecked}
                               onCheckedChange={() => handleAgencyPermissionToggle(permKey)}
@@ -2386,6 +2394,10 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
               {/* Subaccount Permissions View */}
               {inviteModalStep === 'subaccount' && (
                 <div className="mt-4 space-y-4 max-h-[60vh] overflow-y-auto">
+                  <div className="text-sm text-gray-600 mb-4">
+                    Manage what this user can access at subaccount level.
+                  </div>
+
                   {/* Permission Capsules */}
                   <div className="space-y-2">
                     <div className="text-sm font-medium text-gray-700">
@@ -2573,10 +2585,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                   agencyData?.userRole === 'Agency' ||
                   userLocalData?.userRole === 'Agency'
                     ? 'agency'
-                    : agencyData?.userRole === 'AgencySubAccount' ||
-                      userLocalData?.userRole === 'AgencySubAccount'
-                    ? 'subaccount_user'
-                    : 'agentx'
+                    : 'agentx' // Both AgencySubAccount and AgentX users use 'agentx' context
                 }
                 contextUserId={null}
                 onPermissionsChange={(permissions) => {
@@ -3009,10 +3018,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
           agencyData?.userRole === 'Agency' ||
           userLocalData?.userRole === 'Agency'
             ? 'agency'
-            : agencyData?.userRole === 'AgencySubAccount' ||
-              userLocalData?.userRole === 'AgencySubAccount'
-            ? 'subaccount_user'
-            : 'agentx'
+            : 'agentx' // Both AgencySubAccount and AgentX users use 'agentx' context
         }
         contextUserId={null}
         onPermissionsChange={(permissions) => {
