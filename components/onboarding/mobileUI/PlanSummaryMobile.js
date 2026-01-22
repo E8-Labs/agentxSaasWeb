@@ -252,7 +252,7 @@ function PlanSummaryMobile({ selectedPlan,
                   </span>
                 </div>
                 <div className="text-sm text-gray-500">
-                  Next Charge: {moment(getNextChargeDate(selectedPlan)).format('MMMM DD, YYYY')}
+                  Next Charge: {moment(getNextChargeDate(selectedPlan))?.format('MMMM DD, YYYY')}
                 </div>
               </div>
             </div>

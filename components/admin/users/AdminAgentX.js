@@ -3360,7 +3360,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         {/* code to add new agent */}
         { agentsListSeparated.length > 0 && (
         <button
-          className="w-full py-6 flex justify-center items-center"
+          className="w-[80%] absolute bottom-5 py-6 flex justify-center items-center"
           style={{
             marginTop: 40,
             border: '1px dashed hsl(var(--brand-primary))',

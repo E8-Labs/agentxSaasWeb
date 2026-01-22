@@ -165,7 +165,9 @@ export const getAgentsListImage = (
   subAgent,
   imgHeight,
   imgWidth,
+  from = "",
   showExtraheight = true,
+
 ) => {
   //// //console.log;
 
@@ -225,12 +227,12 @@ export const getAgentsListImage = (
       let imageHeight = containerHeight
       let imageWidth = containerWidth
       
-      if (selectedVoice.name === 'Axel') {
+      if (selectedVoice.name === 'Axel' && from !== "agentsList") {
         // Axel: Use smaller dimensions to match other agents' visual size
         // Based on user side: height=28, width=28 (for 45px container, scale proportionally)
         imageHeight = 28
         imageWidth = 28
-      } else if (selectedVoice.name === 'Max') {
+      } else if (selectedVoice.name === 'Max' && from !== "agentsList") {
         // Max: Use smaller dimensions to match other agents' visual size
         // Based on user side: height=26, width=32 (for 45px container, scale proportionally)
         imageHeight = 26

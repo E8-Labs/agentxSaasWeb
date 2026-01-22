@@ -70,6 +70,7 @@ function SMSTempletePopup({
   const [delTempLoader, setDelTempLoader] = useState(null)
   const [showNewTemplateModal, setShowNewTemplateModal] = useState(false)
   const [newTemplateName, setNewTemplateName] = useState('')
+  const [saveAsTemplate, setSaveAsTemplate] = useState(true) // Default to true for cadence templates
   useEffect(() => {
     let data = getUserLocalData()
     setUser(data.user)
@@ -82,6 +83,8 @@ function SMSTempletePopup({
     // Fetch SMS templates when modal opens
     if (open) {
       fetchSmsTemplates()
+      // Reset checkbox to default (true) when modal opens
+      setSaveAsTemplate(true)
     }
   }, [open])
 
@@ -376,6 +379,7 @@ function SMSTempletePopup({
         templateName: templateName,
         content: body,
         phone: selectedPhone.phone,
+        templateType: saveAsTemplate ? 'user' : 'auto', // Set templateType based on checkbox
       }
 
       // Add userId if selectedUser is provided (for agency/admin creating templates for subaccounts)
@@ -1063,6 +1067,23 @@ function SMSTempletePopup({
                 </div>
               </div>
             </div>
+            
+            {/* Save as template checkbox - only show when not in lead SMS mode */}
+            {!isLeadSMS && (
+              <div className="flex items-center gap-2 mb-2">
+                <input
+                  type="checkbox"
+                  id="saveAsTemplateSMS"
+                  checked={saveAsTemplate}
+                  onChange={(e) => setSaveAsTemplate(e.target.checked)}
+                  className="h-4 w-4 text-brand-primary border-gray-300 rounded focus:ring-brand-primary"
+                />
+                <label htmlFor="saveAsTemplateSMS" className="text-sm text-gray-700 cursor-pointer select-none">
+                  Save as template
+                </label>
+              </div>
+            )}
+
             <div className="w-full flex flex-row items-center justify-end gap-3 mt-4">
               {/* Send Text Only Button */}
               {sendOnlyLoader ? (

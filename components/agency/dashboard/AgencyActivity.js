@@ -740,7 +740,7 @@ function SubscriptionsStatsComponent({ stats, plans, onViewPlan }) {
                       onViewPlan(planName)
                     }
                   }}
-                  className="text-sm text-blue-600 hover:text-blue-800 font-semibold cursor-pointer underline flex-shrink-0 leading-tight m-0 p-0 border-0 bg-transparent"
+                  className="text-sm text-brand-primary  font-semibold cursor-pointer underline flex-shrink-0 leading-tight m-0 p-0 border-0 bg-transparent"
                 >
                   View
                 </button>

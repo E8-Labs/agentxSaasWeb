@@ -2226,6 +2226,7 @@ const LeadDetails = ({
                             ) : (
 
                               <TeamAssignDropdownCn
+                              withoutBorder = {true}
                                 label="Assign"
                                 teamOptions={teamOptions}
                                 onToggle={(teamId, team, shouldAssign) => {
