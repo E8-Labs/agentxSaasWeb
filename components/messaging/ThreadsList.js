@@ -298,7 +298,9 @@ const ThreadsList = ({
           <button className="p-1.5 rounded-md hover:bg-gray-100 transition-colors"
           onClick={() => {
             //show toast here to show the feature is coming soon
-            toast.success('This feature is coming soon')
+            // toast.success('This feature is coming soon')
+            onOpenMessageSettings()
+
           }}
           >
             <Image src="/svgIcons/threeDotsIcon.svg" width={24} height={24} alt="Filter" />
