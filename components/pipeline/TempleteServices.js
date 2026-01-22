@@ -115,6 +115,10 @@ export const createTemplete = async (data) => {
       // Ensure it's a proper JSON array string
       formdata.append('bccEmails', JSON.stringify(data.bccEmails))
     }
+    // Add templateType if provided
+    if (data.templateType) {
+      formdata.append('templateType', data.templateType)
+    }
     for (let pair of formdata.entries()) {}
 
     let path = Apis.templets
@@ -175,6 +179,10 @@ export const updateTemplete = async (data, tempId) => {
     if (data.bccEmails && Array.isArray(data.bccEmails)) {
       // Ensure it's a proper JSON array string
       formdata.append('bccEmails', JSON.stringify(data.bccEmails))
+    }
+    // Add templateType if provided
+    if (data.templateType) {
+      formdata.append('templateType', data.templateType)
     }
     for (let pair of formdata.entries()) {}
 

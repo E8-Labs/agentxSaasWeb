@@ -1013,6 +1013,7 @@ const NewMessageModal = ({
           communicationType: selectedMode,
           templateName: templateName,
           content: messageBody,
+          templateType: 'user', // Pipeline templates are always user templates
         }
 
         // Add email-specific fields
@@ -1155,6 +1156,7 @@ const NewMessageModal = ({
               communicationType: selectedMode,
               templateName: templateName,
               content: messageBody,
+              templateType: saveAsTemplate ? 'user' : 'auto', // Set templateType based on checkbox
             }
 
             // Add email-specific fields
@@ -1314,6 +1316,7 @@ const NewMessageModal = ({
             communicationType: selectedMode,
             templateName: templateName,
             content: messageBody,
+            templateType: saveAsTemplate ? 'user' : 'auto', // Set templateType based on checkbox
           }
 
           // Add email-specific fields
