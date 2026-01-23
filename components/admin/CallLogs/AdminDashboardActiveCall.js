@@ -189,22 +189,25 @@ function AdminDashboardActiveCall({
     setFilteredSelectedLeadsList(filtered)
   }
 
+  // Function to get call status with scheduled date if applicable
   function getCallStatusWithSchedule(item) {
-    const currentTime = moment();
-    const startTime = moment(item.startTime);
+    const currentTime = moment()
+    const startTime = moment(item.startTime)
 
     // // Check if the call is scheduled in the future
-    if (item.startTime && startTime.isAfter(currentTime)) {
+    if (
+      item.startTime &&
+      startTime.isAfter(currentTime) &&
+      item.status === 'Active'
+    ) {
       // Format the date as "Scheduled - Sep 05" or similar
-      const formattedDate = startTime.format('MMM DD');
-      return `Scheduled `;
-    } else {
-    return getReadableStatus(item.status)
+      const formattedDate = startTime.format('MMM DD')
+      return `Scheduled`
     }
 
     // Return the regular readable status for past or current calls
+    return getReadableStatus(item.status)
   }
-
   //code to get agents
   const getAgents = async (passedData) => {
     // Check if we should load from cache (initial load with no pagination, sorting, or filters)
