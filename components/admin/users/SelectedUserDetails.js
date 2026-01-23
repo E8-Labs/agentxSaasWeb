@@ -27,7 +27,7 @@ import AdminPipeline1 from './pipline/AdminPipeline1'
 import { PersistanceKeys } from '@/constants/Constants'
 import Messages from '@/components/messaging/Messages'
 import AppLogo from '@/components/common/AppLogo'
-import { useHasPermission } from '@/contexts/PermissionContext'
+import { useHasPermission, usePermission } from '@/contexts/PermissionContext'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,15 +57,20 @@ function SelectedUserDetails({
 
     // Check if logged-in user is an Invitee
     const [isInvitee, setIsInvitee] = useState(false)
+    const [isCheckingRole, setIsCheckingRole] = useState(true)
     useEffect(() => {
       try {
         const localData = localStorage.getItem('User')
         if (localData) {
           const userData = JSON.parse(localData)
-          setIsInvitee(userData.user?.userRole === 'Invitee')
+          const userRole = userData.user?.userRole || userData.userRole
+          setIsInvitee(userRole === 'Invitee')
+          console.log('MenuItemWithPermission: User role check', { userRole, isInvitee: userRole === 'Invitee' })
         }
       } catch (error) {
         console.error('Error checking user role:', error)
+      } finally {
+        setIsCheckingRole(false)
       }
     }, [])
 
@@ -77,20 +82,57 @@ function SelectedUserDetails({
 
     // Agency users (non-Invitee) have full access
     const effectiveHasAccess = isInvitee ? hasAccess : true
-    const effectiveIsLoading = isInvitee ? isLoading : false
+    const effectiveIsLoading = isInvitee ? (isLoading || isCheckingRole) : false
+
+    // Debug logging
+    useEffect(() => {
+      if (enablePermissionChecks && item.permissionKey) {
+        console.log('MenuItemWithPermission: Permission check', {
+          menuItem: item.name,
+          permissionKey: item.permissionKey,
+          contextUserId,
+          isInvitee,
+          isCheckingRole,
+          isLoading,
+          hasAccess,
+          effectiveHasAccess,
+          effectiveIsLoading,
+        })
+      }
+    }, [item.name, item.permissionKey, contextUserId, isInvitee, isCheckingRole, isLoading, hasAccess, effectiveHasAccess, effectiveIsLoading, enablePermissionChecks])
 
     // Don't render if no permission (only for Invitee users)
-    if (effectiveIsLoading) {
-      console.log('EffectiveIsLoading: return null')
-      return null // Hide while loading
+    // But show while loading to avoid hiding all items during initial load
+    if (effectiveIsLoading && isInvitee) {
+      // Show items while loading instead of hiding them
+      // This prevents all menu items from disappearing during initial permission checks
+      console.log('MenuItemWithPermission: Loading permission check for', item.name, '- showing while loading')
+      return <>{children}</> // Show while loading instead of hiding
     }
 
-    if (!effectiveHasAccess) {
-      console.log('MenuItemWithPermission: no access return null')
+    // Only hide if we're done checking AND user doesn't have access
+    if (!effectiveHasAccess && isInvitee && !effectiveIsLoading) {
+      console.log('MenuItemWithPermission: no access - hiding', item.name, {
+        permissionKey: item.permissionKey,
+        contextUserId,
+        hasAccess,
+        isInvitee,
+        effectiveHasAccess,
+      })
       return null // Hide if no permission (only applies to Invitee)
     }
 
-    console.log('MenuItemWithPermission: have access', item)
+    // Show item if:
+    // 1. Not an Invitee (Agency users have full access)
+    // 2. Is Invitee and has access
+    // 3. Is Invitee and still loading (already handled above, but this is a fallback)
+    console.log('MenuItemWithPermission: showing', item.name, {
+      isInvitee,
+      hasAccess,
+      effectiveHasAccess,
+      effectiveIsLoading,
+      permissionKey: item.permissionKey,
+    })
     return <>{children}</>
   }
 
@@ -236,6 +278,59 @@ function SelectedUserDetails({
   // If PermissionProvider is not available, default to true (allow access)
   const effectiveHasPermission = (enablePermissionChecks && isInvitee) ? hasCurrentPermission : true
   const effectiveIsChecking = (enablePermissionChecks && isInvitee) ? isCheckingCurrentPermission : false
+
+  // Get permission context for async permission checks
+  const permissionContext = usePermission()
+
+  // Auto-switch to first accessible menu if current menu is not accessible
+  useEffect(() => {
+    // Only auto-switch if: permission checks enabled, user is Invitee, permission check is complete, and current menu is not accessible
+    if (enablePermissionChecks && isInvitee && !effectiveIsChecking && currentPermissionKey && !effectiveHasPermission && selectedUser?.id && permissionContext?.hasPermission) {
+      console.log('Current menu not accessible, finding first accessible menu...', {
+        currentMenu: selectedManu?.name,
+        currentPermission: currentPermissionKey,
+      })
+
+      // Find first accessible menu item by checking permissions asynchronously
+      const findFirstAccessibleMenu = async () => {
+        for (const menuItem of allMenuItems) {
+          // Skip the current menu item
+          if (menuItem.name === selectedManu?.name) {
+            continue
+          }
+
+          // If menu item has no permission key, it's accessible
+          if (!menuItem.permissionKey) {
+            console.log('Switching to menu without permission key:', menuItem.name)
+            setSelectedManu(menuItem)
+            return
+          }
+
+          // Check if user has permission for this menu item
+          try {
+            const hasAccess = await permissionContext.hasPermission(menuItem.permissionKey, selectedUser.id)
+            if (hasAccess) {
+              console.log('Switching to accessible menu:', menuItem.name)
+              setSelectedManu(menuItem)
+              return
+            }
+          } catch (error) {
+            console.error('Error checking permission for menu item:', menuItem.name, error)
+            // Continue to next menu item
+          }
+        }
+
+        // If no accessible menu found, switch to first non-Dashboard menu as fallback
+        const nonDashboardMenu = allMenuItems.find(item => item.name !== 'Dashboard')
+        if (nonDashboardMenu && nonDashboardMenu.name !== selectedManu?.name) {
+          console.log('No accessible menu found, switching to first non-Dashboard menu:', nonDashboardMenu.name)
+          setSelectedManu(nonDashboardMenu)
+        }
+      }
+
+      findFirstAccessibleMenu()
+    }
+  }, [enablePermissionChecks, isInvitee, effectiveIsChecking, currentPermissionKey, effectiveHasPermission, selectedUser?.id, selectedManu?.name, permissionContext])
 
   // #region agent log
   useEffect(() => {

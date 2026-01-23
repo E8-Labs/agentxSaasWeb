@@ -180,32 +180,53 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
 
   // Load existing team member permissions (for manage permissions modal)
   const loadExistingAgencyPermissions = async () => {
-    if (!permissionContext || !selectedTeamMemberForPermissions?.invitedUserId) {
-      console.error('PermissionContext or team member ID not available')
+    if (!permissionContext || !selectedTeamMemberForPermissions) {
+      console.error('PermissionContext or team member not available')
       return
     }
+
+    // Check if this is a pending team member (no invitedUserId)
+    const isPending = selectedTeamMemberForPermissions.status === 'Pending' || !selectedTeamMemberForPermissions.invitedUserId
+
     try {
       setLoadingExistingAgencyPermissions(true)
       const available = await permissionContext.fetchAvailablePermissions('agency')
       console.log('Loaded existing agency permissions:', available)
       setExistingAgencyPermissions(available || [])
 
-      // Fetch current permissions for this team member
-      const current = await permissionContext.fetchTeamMemberPermissions(
-        selectedTeamMemberForPermissions.invitedUserId,
-        null
-      )
+      let permissionMap = {}
 
-      // Create permission map
-      const permissionMap = {}
-      if (current && Array.isArray(current)) {
-        current.forEach((perm) => {
-          const key = perm.permissionKey || perm.permissionDefinition?.key || perm.key
+      if (isPending) {
+        // For pending members, load from TeamModel.permissions
+        const pendingPermissions = selectedTeamMemberForPermissions.permissions || []
+        console.log('Loading permissions from pending invitation:', pendingPermissions)
+        
+        pendingPermissions.forEach((perm) => {
+          const key = perm.permissionKey || perm.key
           const granted = perm.granted !== undefined ? perm.granted : true
-          if (key && !perm.contextUserId) { // Only agency-level permissions (no contextUserId)
+          // Only agency-level permissions (no contextUserId or contextUserId is null)
+          if (key && (perm.contextUserId === null || perm.contextUserId === undefined)) {
             permissionMap[key] = granted
           }
         })
+      } else {
+        // For accepted members, fetch from TeamPermission table
+        if (selectedTeamMemberForPermissions.invitedUserId) {
+          const current = await permissionContext.fetchTeamMemberPermissions(
+            selectedTeamMemberForPermissions.invitedUserId,
+            null
+          )
+
+          if (current && Array.isArray(current)) {
+            current.forEach((perm) => {
+              const key = perm.permissionKey || perm.permissionDefinition?.key || perm.key
+              const granted = perm.granted !== undefined ? perm.granted : true
+              if (key && !perm.contextUserId) { // Only agency-level permissions (no contextUserId)
+                permissionMap[key] = granted
+              }
+            })
+          }
+        }
       }
 
       // Initialize permission states with existing selections
@@ -228,32 +249,53 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
 
   // Load existing subaccount permissions
   const loadExistingSubaccountPermissions = async () => {
-    if (!permissionContext || !selectedTeamMemberForPermissions?.invitedUserId) {
-      console.error('PermissionContext or team member ID not available')
+    if (!permissionContext || !selectedTeamMemberForPermissions) {
+      console.error('PermissionContext or team member not available')
       return
     }
+
+    // Check if this is a pending team member (no invitedUserId)
+    const isPending = selectedTeamMemberForPermissions.status === 'Pending' || !selectedTeamMemberForPermissions.invitedUserId
+
     try {
       setLoadingExistingSubaccountPermissions(true)
       const available = await permissionContext.fetchAvailablePermissions('subaccount')
       console.log('Loaded existing subaccount permissions:', available)
       setExistingSubaccountPermissions(available || [])
 
-      // Fetch current permissions for this team member
-      const current = await permissionContext.fetchTeamMemberPermissions(
-        selectedTeamMemberForPermissions.invitedUserId,
-        null
-      )
+      let permissionMap = {}
 
-      // Create permission map (only subaccount permissions)
-      const permissionMap = {}
-      if (current && Array.isArray(current)) {
-        current.forEach((perm) => {
-          const key = perm.permissionKey || perm.permissionDefinition?.key || perm.key
+      if (isPending) {
+        // For pending members, load from TeamModel.permissions
+        const pendingPermissions = selectedTeamMemberForPermissions.permissions || []
+        console.log('Loading subaccount permissions from pending invitation:', pendingPermissions)
+        
+        pendingPermissions.forEach((perm) => {
+          const key = perm.permissionKey || perm.key
           const granted = perm.granted !== undefined ? perm.granted : true
-          if (key && key.startsWith('subaccount.') && !perm.contextUserId) {
+          // Only subaccount permissions (starts with 'subaccount.' and no contextUserId or contextUserId is null)
+          if (key && key.startsWith('subaccount.') && (perm.contextUserId === null || perm.contextUserId === undefined)) {
             permissionMap[key] = granted
           }
         })
+      } else {
+        // For accepted members, fetch from TeamPermission table
+        if (selectedTeamMemberForPermissions.invitedUserId) {
+          const current = await permissionContext.fetchTeamMemberPermissions(
+            selectedTeamMemberForPermissions.invitedUserId,
+            null
+          )
+
+          if (current && Array.isArray(current)) {
+            current.forEach((perm) => {
+              const key = perm.permissionKey || perm.permissionDefinition?.key || perm.key
+              const granted = perm.granted !== undefined ? perm.granted : true
+              if (key && key.startsWith('subaccount.') && !perm.contextUserId) {
+                permissionMap[key] = granted
+              }
+            })
+          }
+        }
       }
 
       // Initialize permission states with existing selections
@@ -279,44 +321,67 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
 
   // Load existing allowed subaccounts for team member
   const loadExistingSubaccounts = async () => {
-    if (!selectedTeamMemberForPermissions?.invitedUserId) return
+    if (!selectedTeamMemberForPermissions) return
+
+    // Check if this is a pending team member (no invitedUserId)
+    const isPending = selectedTeamMemberForPermissions.status === 'Pending' || !selectedTeamMemberForPermissions.invitedUserId
 
     try {
       setExistingSubaccountsListLoading(true)
-      const token = AuthToken()
-
-      // Fetch allowed subaccounts from API
-      const response = await axios.get(
-        `/api/permissions/team/${selectedTeamMemberForPermissions.invitedUserId}/subaccounts`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      ).catch(async (error) => {
-        // If endpoint doesn't exist, return empty array
-        console.log('Subaccounts endpoint not available, returning empty array')
-        return { data: { status: true, data: [] } }
-      })
-
-      if (response?.data?.status && response?.data?.data) {
-        const allowedSubaccountIds = Array.isArray(response.data.data)
-          ? response.data.data.map(s => s.subaccountId || s.id || s)
-          : []
-        setExistingSelectedSubaccountIds(allowedSubaccountIds)
-
-        // Read selectAllSubaccounts from response
-        if (response?.data?.selectAllSubaccounts !== undefined) {
-          setExistingSelectAllSubaccounts(response.data.selectAllSubaccounts)
-        }
+      
+      if (isPending) {
+        // For pending members, load from TeamModel.allowedSubaccountIds and selectAllSubaccounts
+        const allowedSubaccountIds = selectedTeamMemberForPermissions.allowedSubaccountIds || []
+        const selectAllSubaccounts = selectedTeamMemberForPermissions.selectAllSubaccounts || false
+        
+        console.log('Loading subaccounts from pending invitation:', {
+          allowedSubaccountIds,
+          selectAllSubaccounts,
+        })
+        
+        setExistingSelectedSubaccountIds(Array.isArray(allowedSubaccountIds) ? allowedSubaccountIds : [])
+        setExistingSelectAllSubaccounts(selectAllSubaccounts)
 
         // Also load the full subaccounts list for display
         await loadExistingSubaccountsList(0, '')
+      } else {
+        // For accepted members, fetch from API
+        if (selectedTeamMemberForPermissions.invitedUserId) {
+          const token = AuthToken()
+
+          // Fetch allowed subaccounts from API
+          const response = await axios.get(
+            `/api/permissions/team/${selectedTeamMemberForPermissions.invitedUserId}/subaccounts`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          ).catch(async (error) => {
+            // If endpoint doesn't exist, return empty array
+            console.log('Subaccounts endpoint not available, returning empty array')
+            return { data: { status: true, data: [] } }
+          })
+
+          if (response?.data?.status && response?.data?.data) {
+            const allowedSubaccountIds = Array.isArray(response.data.data)
+              ? response.data.data.map(s => s.subaccountId || s.id || s)
+              : []
+            setExistingSelectedSubaccountIds(allowedSubaccountIds)
+
+            // Read selectAllSubaccounts from response
+            if (response?.data?.selectAllSubaccounts !== undefined) {
+              setExistingSelectAllSubaccounts(response.data.selectAllSubaccounts)
+            }
+
+            // Also load the full subaccounts list for display
+            await loadExistingSubaccountsList(0, '')
+          }
+        }
       }
     } catch (error) {
       console.error('Error loading existing allowed subaccounts:', error)
-      // If endpoint doesn't exist yet, try to get from TeamMemberSubaccounts via permissions API
       // For now, just load the subaccounts list
       await loadExistingSubaccountsList(0, '')
     } finally {
@@ -407,7 +472,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
       setExistingSubaccountSearchTerm('')
       setExistingSubaccountsListOffset(0)
     }
-  }, [showPermissionModal, selectedTeamMemberForPermissions?.invitedUserId])
+  }, [showPermissionModal, selectedTeamMemberForPermissions?.id, selectedTeamMemberForPermissions?.invitedUserId])
 
   // Wrapper to log permission manager state changes
   const setShowInvitationPermissionManagerWithLog = (value) => {
@@ -655,11 +720,14 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
 
   // Save existing team member permissions
   const saveExistingPermissions = async () => {
-    if (!selectedTeamMemberForPermissions?.invitedUserId) {
+    if (!selectedTeamMemberForPermissions) {
       setSnackTitle('Team member not selected')
       setShowSnak(true)
       return
     }
+
+    // Check if this is a pending team member (no invitedUserId)
+    const isPending = selectedTeamMemberForPermissions.status === 'Pending' || !selectedTeamMemberForPermissions.invitedUserId
 
     try {
       setSavingPermissions(true)
@@ -670,81 +738,137 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
 
       // Add agency permissions
       Object.entries(existingAgencyPermissionStates).forEach(([key, granted]) => {
-        permissions.push({
-          permissionKey: key,
-          granted: granted,
-        })
+        if (granted) {
+          permissions.push({
+            permissionKey: key,
+            granted: true,
+            contextUserId: null,
+          })
+        }
       })
 
       // Add subaccount permissions
       Object.entries(existingSubaccountPermissionStates).forEach(([key, granted]) => {
-        permissions.push({
-          permissionKey: key,
-          granted: granted,
-        })
+        if (granted) {
+          permissions.push({
+            permissionKey: key,
+            granted: true,
+            contextUserId: null,
+          })
+        }
       })
 
-      // Update permissions via bulk update API
-      const response = await axios.put(
-        '/api/permissions/bulk',
-        {
-          teamMemberId: selectedTeamMemberForPermissions.invitedUserId,
-          permissions: permissions,
-          contextUserId: null,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        }
-      )
+      console.log('💾 Saving permissions for pending team member:', {
+        isPending,
+        permissionsCount: permissions.length,
+        permissions: permissions.map(p => p.permissionKey),
+        selectAllSubaccounts: isPending ? existingSelectAllSubaccounts : undefined,
+        allowedSubaccountIds: isPending ? existingSelectedSubaccountIds : undefined,
+      })
 
-      if (response?.data?.status) {
-        // Update subaccount access if agency context
+      if (isPending) {
+        // For pending members, update via inviteTeamMember API (which handles updating existing pending invitations)
         const isAgency = agencyData?.userRole === 'Agency' || userLocalData?.userRole === 'Agency'
-        if (isAgency && (existingSelectAllSubaccounts || existingSelectedSubaccountIds.length >= 0)) {
-          // Update allowed subaccounts
-          try {
-            const userData = JSON.parse(localStorage.getItem('User'))
-            const grantingUserId = userData?.user?.id || userLocalData?.id
-
-            const subaccountResponse = await axios.put(
-              '/api/permissions/team/subaccounts',
-              {
-                teamMemberId: selectedTeamMemberForPermissions.invitedUserId,
-                selectAllSubaccounts: existingSelectAllSubaccounts,
-                subaccountIds: !existingSelectAllSubaccounts ? existingSelectedSubaccountIds : [],
-              },
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  'Content-Type': 'application/json',
-                },
-              }
-            )
-
-            if (!subaccountResponse?.data?.status) {
-              console.error('Error updating subaccount access:', subaccountResponse?.data?.message)
-            }
-          } catch (subaccountError) {
-            console.error('Error updating subaccount access:', subaccountError)
-            // Don't fail the whole operation if subaccount update fails
-          }
+        
+        const inviteData = {
+          name: selectedTeamMemberForPermissions.name,
+          email: selectedTeamMemberForPermissions.email,
+          phone: selectedTeamMemberForPermissions.phone,
+          permissions: permissions, // Always send permissions array (even if empty)
+          skipEmail: true, // Don't resend invite email when updating permissions
         }
 
-        setSnackTitle('Permissions updated successfully')
-        setShowSnak(true)
-        // setShowPermissionModal(false)
-        // managePermissionModalStep !== 'initial'
-        // setManagePermissionModalStep('initial')
-        // setSelectedTeamMemberForPermissions(null)
-        setManagePermissionModalStep('initial')
-        // Refresh team data
-        getMyteam()
+        // Add subaccount access for agency users
+        if (isAgency) {
+          inviteData.selectAllSubaccounts = existingSelectAllSubaccounts
+          inviteData.allowedSubaccountIds = !existingSelectAllSubaccounts ? existingSelectedSubaccountIds : []
+        }
+
+        const response = await axios.post(
+          Apis.inviteTeamMember,
+          inviteData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+
+        if (response?.data?.status) {
+          console.log('✅ Permissions updated successfully:', response?.data)
+          setSnackTitle(response?.data?.message || 'Permissions updated successfully')
+          setShowSnak(true)
+          setManagePermissionModalStep('initial')
+          // Refresh team data to get updated permissions
+          getMyteam()
+        } else {
+          console.error('❌ Error updating permissions:', response?.data)
+          setSnackTitle(response?.data?.message || 'Error updating permissions')
+          setShowSnak(true)
+        }
       } else {
-        setSnackTitle(response?.data?.message || 'Error updating permissions')
-        setShowSnak(true)
+        // For accepted members, update via bulk update API
+        if (!selectedTeamMemberForPermissions.invitedUserId) {
+          setSnackTitle('Team member ID not available')
+          setShowSnak(true)
+          return
+        }
+
+        const response = await axios.put(
+          '/api/permissions/bulk',
+          {
+            teamMemberId: selectedTeamMemberForPermissions.invitedUserId,
+            permissions: permissions.map(p => ({ permissionKey: p.permissionKey, granted: p.granted })),
+            contextUserId: null,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        )
+
+        if (response?.data?.status) {
+          // Update subaccount access if agency context
+          const isAgency = agencyData?.userRole === 'Agency' || userLocalData?.userRole === 'Agency'
+          if (isAgency && (existingSelectAllSubaccounts || existingSelectedSubaccountIds.length >= 0)) {
+            // Update allowed subaccounts
+            try {
+              const subaccountResponse = await axios.put(
+                '/api/permissions/team/subaccounts',
+                {
+                  teamMemberId: selectedTeamMemberForPermissions.invitedUserId,
+                  selectAllSubaccounts: existingSelectAllSubaccounts,
+                  subaccountIds: !existingSelectAllSubaccounts ? existingSelectedSubaccountIds : [],
+                },
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                  },
+                }
+              )
+
+              if (!subaccountResponse?.data?.status) {
+                console.error('Error updating subaccount access:', subaccountResponse?.data?.message)
+              }
+            } catch (subaccountError) {
+              console.error('Error updating subaccount access:', subaccountError)
+              // Don't fail the whole operation if subaccount update fails
+            }
+          }
+
+          setSnackTitle('Permissions updated successfully')
+          setShowSnak(true)
+          setManagePermissionModalStep('initial')
+          // Refresh team data
+          getMyteam()
+        } else {
+          setSnackTitle(response?.data?.message || 'Error updating permissions')
+          setShowSnak(true)
+        }
       }
     } catch (error) {
       console.error('Error saving permissions:', error)
@@ -1777,7 +1901,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                             userLocalData?.userRole === 'AgentX' ||
                             agencyData?.userRole === 'AgencySubAccount' ||
                             userLocalData?.userRole === 'AgencySubAccount') &&
-                            popoverTeam?.invitedUserId && (
+                            (popoverTeam?.invitedUserId || popoverTeam?.status === 'Pending') && (
                               <MenuItem
                                 onClick={() => {
                                   setSelectedTeamMemberForPermissions(popoverTeam)
@@ -2479,7 +2603,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                         setHasMoreSubaccountsList(true)
                         loadSubaccountsList(0, value)
                       }}
-                      className="w-full"
+                      className="border-2 border-[#00000020] rounded p-3 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black w-full"
                     />
                     <div className={`max-h-[200px] overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-1 ${selectAllSubaccounts ? 'opacity-50' : ''}`}>
                       {selectAllSubaccounts ? (
@@ -2966,8 +3090,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                           setHasMoreExistingSubaccountsList(true)
                           loadExistingSubaccountsList(0, value)
                         }}
-                className="border w-[99%] pl-1 rounded  outline-none focus:outline-none focus:ring-0 focus:border-black transition-colors"
-
+                        className="border-2 border-[#00000020] rounded p-3 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black w-full"
                       />
                       <div className={`max-h-[200px] overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-1 ${existingSelectAllSubaccounts ? 'opacity-50' : ''}`}>
                         {existingSelectAllSubaccounts ? (
