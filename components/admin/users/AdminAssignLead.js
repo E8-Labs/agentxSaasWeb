@@ -568,11 +568,12 @@ const AdminAssignLead = ({
           open={showDncConfirmationPopup}
           onClose={() => {
             setShowDncConfirmationPopup(false)
-            //
+            // Unset the dncToggle when modal is closed (X button or backdrop click)
+            setIsDncChecked(false)
           }}
           onCancel={() => {
             setShowDncConfirmationPopup(false)
-            //Unset the dncToggle
+            // Unset the dncToggle when Cancel button is clicked
             setIsDncChecked(false)
           }}
           onConfirm={() => {
