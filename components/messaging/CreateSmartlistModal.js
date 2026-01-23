@@ -135,25 +135,34 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
       closeAfterTransition
       disablePortal={false}
       disableEnforceFocus={true}
-      disableAutoFocus={false}
+      disableAutoFocus={true}
       disableRestoreFocus={true}
+      hideBackdrop={false}
       sx={{
-        zIndex: 1500, // Higher than NewContactDrawer Sheet (1400)
+        zIndex: 9999, // Very high z-index to ensure it's above everything
+        position: 'fixed',
         '& .MuiBackdrop-root': {
-          zIndex: 1500,
+          zIndex: 9999,
+          pointerEvents: 'auto',
+        },
+        '& .MuiModal-root': {
+          zIndex: 9999,
+          pointerEvents: 'auto',
         },
       }}
       slotProps={{
         root: {
           sx: {
-            zIndex: 1500,
+            zIndex: 9999,
+            pointerEvents: 'auto',
           },
         },
       }}
       BackdropProps={{
         sx: {
-          zIndex: 1500,
+          zIndex: 9999,
           backgroundColor: '#00000020',
+          pointerEvents: 'auto',
         },
         onClick: (e) => {
           // Only close modal on backdrop click
@@ -165,10 +174,7 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
     >
       <Box
         className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto rounded-3xl h-[70vh]"
-        onClick={(e) => {
-          // Stop clicks inside modal from propagating
-          e.stopPropagation()
-        }}
+        data-modal-content="create-smartlist"
         sx={{
           position: 'absolute',
           top: '50%',
@@ -180,8 +186,21 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
           border: 'none',
           outline: 'none',
           scrollbarWidth: 'none',
-          zIndex: 1501, // Higher than backdrop (1500) to appear on top
+          zIndex: 10000, // Higher than backdrop (9999) to appear on top
           maxHeight: '70vh',
+          pointerEvents: 'auto',
+          isolation: 'isolate', // Create new stacking context
+          '& *': {
+            pointerEvents: 'auto',
+          },
+          '& input': {
+            pointerEvents: 'auto !important',
+            zIndex: 10001,
+            position: 'relative',
+            cursor: 'text',
+            WebkitUserSelect: 'text',
+            userSelect: 'text',
+          },
           '&::-webkit-scrollbar': {
             display: 'none',
           },
@@ -191,10 +210,6 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
           className="w-full flex flex-col items-center h-full justify-between"
           style={{ 
             backgroundColor: 'white',
-            pointerEvents: 'auto',
-          }}
-          onClick={(e) => {
-            e.stopPropagation()
           }}
         >
           <div className="w-full">
@@ -216,7 +231,11 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
               </button>
             </div>
 
-            <div className="px-4 w-full">
+            <div 
+              className="px-4 w-full"
+              style={{ pointerEvents: 'auto' }}
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="flex flex-row items-end justify-between mt-6 gap-2">
                 <span style={styles.paragraph}>List Name</span>
 
@@ -246,6 +265,7 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
               </div>
               <div className="mt-4">
                 <input
+                  type="text"
                   value={newSheetName}
                   onChange={(e) => {
                     setNewSheetName(e.target.value)
@@ -255,13 +275,6 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
                   style={{
                     ...styles.paragraph,
                     border: '1px solid #00000020',
-                    pointerEvents: 'auto',
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                  }}
-                  onFocus={(e) => {
-                    e.stopPropagation()
                   }}
                 />
               </div>
@@ -270,35 +283,36 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
               </div>
               <div
                 className="max-h-[30vh] overflow-auto mt-2"
-                style={{ scrollbarWidth: 'none' }}
+                style={{ 
+                  scrollbarWidth: 'none',
+                  pointerEvents: 'auto',
+                }}
+                onClick={(e) => e.stopPropagation()}
               >
                 {inputs.map((input, index) => (
                   <div
                     key={input.id}
                     className="w-full flex flex-row items-center gap-4 mt-4"
+                    style={{ pointerEvents: 'auto' }}
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <input
+                      type="text"
                       className="border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]"
                       style={{
                         ...styles.paragraph,
                         width: '95%',
                         borderColor: '#00000020',
-                        pointerEvents: 'auto',
                       }}
                       placeholder={`Column Name`}
                       value={input.value}
                       readOnly={index < 3}
                       disabled={index < 3}
+                      tabIndex={index < 3 ? -1 : 0}
                       onChange={(e) => {
                         if (index > 2) {
                           handleInputChange(input.id, e.target.value)
                         }
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                      }}
-                      onFocus={(e) => {
-                        e.stopPropagation()
                       }}
                     />
                     <div style={{ width: '5%' }}>

@@ -92,6 +92,32 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
     }
   }, [open])
 
+  // Disable pointer events on Sheet overlay and content when modal is open
+  useEffect(() => {
+    if (showCreateSmartlistModal) {
+      // Find and disable pointer events on Sheet overlay
+      const sheetOverlay = document.querySelector('[data-radix-dialog-overlay]')
+      const sheetContent = document.querySelector('[data-radix-dialog-content]')
+      
+      if (sheetOverlay) {
+        sheetOverlay.style.pointerEvents = 'none'
+        sheetOverlay.style.zIndex = '1400'
+      }
+      if (sheetContent) {
+        sheetContent.style.pointerEvents = 'none'
+      }
+      
+      return () => {
+        if (sheetOverlay) {
+          sheetOverlay.style.pointerEvents = 'auto'
+        }
+        if (sheetContent) {
+          sheetContent.style.pointerEvents = 'auto'
+        }
+      }
+    }
+  }, [showCreateSmartlistModal])
+
   // Fetch smartlists
   useEffect(() => {
     if (open) {
@@ -658,7 +684,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
         side="right"
         className={cn(
           "!w-[1000px] !max-w-[500px] sm:!max-w-[500px] p-0 flex flex-col [&>button]:hidden !z-[1400]",
-          showCreateSmartlistModal && "[&+*]:pointer-events-none"
+          showCreateSmartlistModal && "pointer-events-none"
         )}
         overlayClassName={cn(
           "!z-[1399]",
@@ -674,20 +700,21 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
           }
         }}
         onPointerDownOutside={(event) => {
-          // Only prevent closing when clicking inside CreateSmartlistModal
+          // If CreateSmartlistModal is open, ALWAYS prevent closing the drawer
+          // This ensures inputs can be clicked without closing the drawer
           if (showCreateSmartlistModal) {
-            const target = event.target
-            // Check if click is on MUI Modal backdrop or content
-            const muiBackdrop = target.closest('[role="presentation"]')
-            const muiModal = document.querySelector('[class*="MuiModal-root"]')
-            if (muiBackdrop || (muiModal && muiModal.contains(target))) {
-              event.preventDefault()
-              return
-            }
+            event.preventDefault()
+            return
           }
           
           // Allow normal closing behavior for other outside clicks
-          // Don't prevent closing for form elements - they're handled by the Sheet's default behavior
+        }}
+        onInteractOutside={(event) => {
+          // If CreateSmartlistModal is open, ALWAYS prevent closing the drawer
+          if (showCreateSmartlistModal) {
+            event.preventDefault()
+            return
+          }
         }}
         style={{
           marginTop: '12px',
@@ -698,6 +725,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
           width: '600px',
           maxWidth: '600px',
           zIndex: 1400,
+          ...(showCreateSmartlistModal && { pointerEvents: 'none' }),
         }}
       >
         <SheetHeader className="px-3 py-3 border-b border-gray-200">
