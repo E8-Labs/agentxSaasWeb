@@ -160,111 +160,89 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
   }
 
   //user settings api data
+  //user settings api data
   const userSettingDataUpgrade = (from) => {
+    const data = {}
+
     if (from === 'suportWebCalendar') {
       setAddSuportWebCalendarLoader(true)
-      return {
-        supportWebinarCalendar: true,
-        supportWebinarCalendarUrl: suportWebCalendar,
-      }
+      data.supportWebinarCalendar = true
+      data.supportWebinarCalendarUrl = suportWebCalendar
     } else if (from === 'sky') {
       setAddSkyLoader(true)
-      return {
-        skyAgent: true,
-        skyAgentId: sky,
-      }
+      data.skyAgent = true
+      data.skyAgentId = sky
     } else if (from === 'feedBack') {
       setAddFeedBackLoader(true)
-      return {
-        giveFeedback: true,
-        giveFeedbackUrl: feedBack,
-      }
+      data.giveFeedback = true
+      data.giveFeedbackUrl = feedBack
     } else if (from === 'hireTeam') {
       setAddHireTeamLoader(true)
-      return {
-        hireTeam: true,
-        hireTeamUrl: hireTeam,
-      }
+      data.hireTeam = true
+      data.hireTeamUrl = hireTeam
     } else if (from === 'billingAndSupport') {
       setAddBillingAndSupportLoader(true)
-      return {
-        billingAndSupport: true,
-        billingAndSupportUrl: billingAndSupport,
-      }
+      data.billingAndSupport = true
+      data.billingAndSupportUrl = billingAndSupport
     } else if (from === 'resourceHub') {
       setAddResourceHubLoader(true)
-      return {
-        resourceHub: true,
-        resourceHubUrl: resourceHub,
-      }
+      data.resourceHub = true
+      data.resourceHubUrl = resourceHub
     }
+
+    return data
   }
 
   //api data for deleting user setting
   const userSettingDataDel = (from) => {
+    const data = {}
+
     if (from === 'suportWebCalendarDel') {
       setDelSuportWebCalendarLoader(true)
-      return {
-        supportWebinarCalendar: false,
-        supportWebinarCalendarUrl: '',
-      }
+      data.supportWebinarCalendar = false
+      data.supportWebinarCalendarUrl = ''
     } else if (from === 'skyDel') {
       setDelSkyLoader(true)
-      return {
-        skyAgent: false,
-        skyAgentId: '',
-      }
+      data.skyAgent = false
+      data.skyAgentId = ''
     } else if (from === 'feedBackDel') {
       setDelFeedBackLoader(true)
-      return {
-        giveFeedback: false,
-        giveFeedbackUrl: '',
-      }
+      data.giveFeedback = false
+      data.giveFeedbackUrl = ''
     } else if (from === 'hireTeamDel') {
       setDelHireTeamLoader(true)
-      return {
-        hireTeam: false,
-        hireTeamUrl: '',
-      }
+      data.hireTeam = false
+      data.hireTeamUrl = ''
     } else if (from === 'billingAndSupportDel') {
       setDelBillingAndSupportLoader(true)
-      return {
-        billingAndSupport: false,
-        billingAndSupportUrl: '',
-      }
+      data.billingAndSupport = false
+      data.billingAndSupportUrl = ''
     } else if (from === 'resourceHubDel') {
       setDelResourceHubLoader(true)
-      return {
-        resourceHub: false,
-        resourceHubUrl: '',
-      }
+      data.resourceHub = false
+      data.resourceHubUrl = ''
     }
-  }
 
+    return data
+  }
   //api data for updating support widget titles
   const userSettingDataUpdateTitle = (from) => {
     setShowEditModalLoader(true)
+    const data = {}
+
     if (editTitleIndex === 0) {
-      return {
-        supportWebinarTitle: showEditModalTitle,
-      }
+      data.supportWebinarTitle = showEditModalTitle
     } else if (editTitleIndex === 1) {
-      return {
-        giveFeedbackTitle: showEditModalTitle,
-      }
+      data.giveFeedbackTitle = showEditModalTitle
     } else if (editTitleIndex === 2) {
-      return {
-        hireTeamTitle: showEditModalTitle,
-      }
+      data.hireTeamTitle = showEditModalTitle
     } else if (editTitleIndex === 3) {
-      return {
-        billingAndSupportTitle: showEditModalTitle,
-      }
+      data.billingAndSupportTitle = showEditModalTitle
     } else if (editTitleIndex === 4) {
-      return {
-        resourceHubTitle: showEditModalTitle,
-      }
+      data.resourceHubTitle = showEditModalTitle
     }
+
+    return data
   }
 
   //user settings api
@@ -273,6 +251,7 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
       const Auth = AuthToken()
       const ApiPath = Apis.userSettings
       let ApiData = null
+
       if (from?.endsWith('Del')) {
         ApiData = userSettingDataDel(from)
       } else if (from?.endsWith('UpdateTitle')) {
@@ -280,31 +259,51 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
       } else {
         ApiData = userSettingDataUpgrade(from)
       }
+
+      console.log('Sending API Data for', from, ':', ApiData)
+
       const response = await axios.put(ApiPath, ApiData, {
         headers: {
           Authorization: 'Bearer ' + Auth,
           'Content-Type': 'application/json',
         },
       })
+
       if (response) {
         if (response.data.status === true) {
-          // if (from?.endsWith("Del")) {
-          //   setShowSnackMessage("Deleted Widget");
-          // } else
-          if (from?.endsWith('UpdateTitle')) {
-            setShowSnackMessage('Title updated')
-          } else {
-            setShowSnackMessage('Link updated')
-          }
+          // Update local state based on which widget was saved
+          const updatedData = response.data.data || {}
+
+          // Create a new settings object that preserves existing data
+          setSettingsData(prev => {
+            const newData = { ...prev }
+
+            // Update only the fields that were sent/returned
+            Object.keys(updatedData).forEach(key => {
+              if (updatedData[key] !== undefined) {
+                newData[key] = updatedData[key]
+              }
+            })
+
+            return newData
+          })
+
+          setShowSnackMessage('Link updated successfully')
           setShowSnackType(SnackbarTypes.Success)
+
+          // Reset edit modes
           setAddSuportWebCalendar(false)
           setAddSky(false)
           setAddFeedBack(false)
           setAddHireTeam(false)
           setAddBillingAndSupport(false)
-          setSettingsData(response.data.data)
-          setShowEditModal(false)
-          setEditTitleIndex(null)
+          setAddResourceHub(false)
+
+          // Reset title modal
+          if (from?.endsWith('UpdateTitle')) {
+            setShowEditModal(false)
+            setEditTitleIndex(null)
+          }
         } else {
           setShowSnackMessage(response.data.message)
           setShowSnackType(SnackbarTypes.Error)
@@ -312,7 +311,9 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
         handleResetLoaders()
       }
     } catch (error) {
-      console.error('Error occured in user settings api is', error)
+      console.error('Error occurred in user settings api:', error)
+      setShowSnackMessage('Error saving settings. Please try again.')
+      setShowSnackType(SnackbarTypes.Error)
       handleResetLoaders()
     }
   }
@@ -350,10 +351,10 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
         setShowSnackType(SnackbarTypes.Error)
         return
       }
-      
+
       // Set loading state
       setLogoUploadLoading(true)
-      
+
       // Create preview
       const reader = new FileReader()
       reader.onloadend = async () => {
@@ -362,12 +363,12 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
         try {
           const formData = new FormData()
           formData.append('logo', file)
-          
+
           // Add userId if selectedAgency is provided (admin view)
           if (selectedAgency?.id) {
             formData.append('userId', selectedAgency.id)
           }
-          
+
           const Auth = AuthToken()
           const response = await axios.post(
             Apis.uploadSupportWidgetLogo,
@@ -445,26 +446,26 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
     if (!buttonLabel || buttonLabel.trim() === '') {
       return
     }
-    
+
     // Only save if the value has actually changed
     const trimmedLabel = buttonLabel.trim()
     if (trimmedLabel === originalButtonLabel) {
       return
     }
-    
+
     // Set loading state
     setButtonLabelLoading(true)
-    
+
     // Save to API
     try {
       const Auth = AuthToken()
       const updateData = { supportWidgetTitle: trimmedLabel }
-      
+
       // Add userId if selectedAgency is provided (admin view)
       if (selectedAgency?.id) {
         updateData.userId = selectedAgency.id
       }
-      
+
       const response = await axios.put(
         Apis.updateSupportWidgetTitle,
         updateData,
@@ -710,6 +711,8 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
                       settingsData?.supportWebinarTitle && (
                         <Switch
                           checked={allowSuportWebCalendar}
+
+
                           onChange={(e) => {
                             const checked = e.target.checked
                             setAllowSuportWebCalendar(checked)
