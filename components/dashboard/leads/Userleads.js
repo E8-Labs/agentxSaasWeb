@@ -1333,7 +1333,7 @@ const Userleads = ({
                     handleToggleClick(item.id)
                   }}
                 >
-                  <Image
+                  <Image className=" object-contain pb-0.5"
                     src={'/assets/whiteTick.png'}
                     height={10}
                     width={10}

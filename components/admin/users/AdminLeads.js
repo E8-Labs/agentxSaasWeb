@@ -1146,10 +1146,10 @@ const AdminLeads = ({
             <div className="w-full flex flex-row items-center gap-2 truncate">
               {toggleClick.includes(item.id) ? (
                 <button
-                  className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
+                  className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
                   onClick={() => handleToggleClick(item.id)}
                 >
-                  <Image
+                  <Image className=" object-contain pb-0.5"
                     src={'/assets/whiteTick.png'}
                     height={10}
                     width={10}

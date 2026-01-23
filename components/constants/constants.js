@@ -116,10 +116,17 @@ export const checkCurrentUserRole = () => {
 
 export const copyAgencyOnboardingLink = async ({
   setLinkCopied,
-  reduxUser = null,
+  targetUser = null,
   selectedAgency = null,
 }) => {
+
+  let reduxUser = null;
+  if(targetUser) {
+    reduxUser = targetUser;
+  } 
   try {
+    // console.log('reduxUser in copyAgencyOnboardingLink', reduxUser)
+    // console.log('selectedAgency in copyAgencyOnboardingLink', selectedAgency)
     const d = localStorage.getItem('User')
     if (!d) {
       console.error('User data not found in localStorage')
@@ -153,6 +160,10 @@ export const copyAgencyOnboardingLink = async ({
       basePath = `https://${customDomain}/`
       hasCustomDomain = true
     } else {}
+
+    // console.log('basePath in copyAgencyOnboardingLink', basePath)
+    // console.log('customDomain in copyAgencyOnboardingLink', customDomain)
+    // console.log('hasCustomDomain in copyAgencyOnboardingLink', hasCustomDomain)
 
     // Generate the onboarding link immediately (using domain from reduxUser or default)
     // If custom domain is connected, don't include UUID. If no custom domain, include UUID.

@@ -52,31 +52,31 @@ const getBrandPrimaryHex = () => {
       const h = parseInt(hslMatch[1]) / 360
       const s = parseInt(hslMatch[2]) / 100
       const l = parseInt(hslMatch[3]) / 100
-      
+
       const c = (1 - Math.abs(2 * l - 1)) * s
       const x = c * (1 - Math.abs(((h * 6) % 2) - 1))
       const m = l - c / 2
-      
+
       let r = 0, g = 0, b = 0
-      
-      if (0 <= h && h < 1/6) {
+
+      if (0 <= h && h < 1 / 6) {
         r = c; g = x; b = 0
-      } else if (1/6 <= h && h < 2/6) {
+      } else if (1 / 6 <= h && h < 2 / 6) {
         r = x; g = c; b = 0
-      } else if (2/6 <= h && h < 3/6) {
+      } else if (2 / 6 <= h && h < 3 / 6) {
         r = 0; g = c; b = x
-      } else if (3/6 <= h && h < 4/6) {
+      } else if (3 / 6 <= h && h < 4 / 6) {
         r = 0; g = x; b = c
-      } else if (4/6 <= h && h < 5/6) {
+      } else if (4 / 6 <= h && h < 5 / 6) {
         r = x; g = 0; b = c
-      } else if (5/6 <= h && h < 1) {
+      } else if (5 / 6 <= h && h < 1) {
         r = c; g = 0; b = x
       }
-      
+
       r = Math.round((r + m) * 255)
       g = Math.round((g + m) * 255)
       b = Math.round((b + m) * 255)
-      
+
       return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
     }
   }
@@ -130,21 +130,21 @@ const AdminAssignLead = ({
 
   const [hasUserSelectedDate, setHasUserSelectedDate] = useState(false)
   const [isDncChecked, setIsDncChecked] = useState(false)
-  
+
   // Get brand primary color for styling
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
-  
+
   useEffect(() => {
     const updateBrandColor = () => {
       setBrandPrimaryColor(getBrandPrimaryHex())
     }
-    
+
     // Get initial color
     updateBrandColor()
-    
+
     // Listen for branding updates
     window.addEventListener('agencyBrandingUpdated', updateBrandColor)
-    
+
     return () => {
       window.removeEventListener('agencyBrandingUpdated', updateBrandColor)
     }
@@ -346,7 +346,7 @@ const AdminAssignLead = ({
     if (
       isAfterStartTime && // After 7:00 AM
       isBeforeEndTime // Before 8:30 PM
-    ) {} else {
+    ) { } else {
       setInvalidTimeMessage(
         'Calls only between 7am-8:30pm',
         // "Calling is only available between 7AM and 8:30PM in " + userTimeZone
@@ -582,12 +582,12 @@ const AdminAssignLead = ({
           }}
           leadsCount={selectedAll ? totalLeads - leadIs.length : leadIs.length}
           targetUserId={
-            selectedUser?.userRole === 'AgencySubAccount' ? selectedUser?.id : 
-            userProfile?.userRole === 'AgencySubAccount' ? userProfile?.id : undefined
+            selectedUser?.userRole === 'AgencySubAccount' ? selectedUser?.id :
+              userProfile?.userRole === 'AgencySubAccount' ? userProfile?.id : undefined
           }
           targetUserDetails={
-            selectedUser?.userRole === 'AgencySubAccount' ? selectedUser : 
-            userProfile?.userRole === 'AgencySubAccount' ? userProfile : undefined
+            selectedUser?.userRole === 'AgencySubAccount' ? selectedUser :
+              userProfile?.userRole === 'AgencySubAccount' ? userProfile : undefined
           }
         />
       )}
@@ -913,9 +913,9 @@ const AdminAssignLead = ({
                           color: brandPrimaryColor,
                         },
                         '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
-                          {
-                            backgroundColor: brandPrimaryColor,
-                          },
+                        {
+                          backgroundColor: brandPrimaryColor,
+                        },
                         margin: 0,
                       }}
                     />
@@ -931,11 +931,10 @@ const AdminAssignLead = ({
                 <input
                   className="w-1/2 flex flex-row items-center p-4 rounded-2xl otline-none focus:ring-0"
                   style={{
-                    border: `${
-                      isFocustedCustomLeads
-                        ? `2px solid ${brandPrimaryColor}`
-                        : '1px solid #00000040'
-                    }`,
+                    border: `${isFocustedCustomLeads
+                      ? `2px solid ${brandPrimaryColor}`
+                      : '1px solid #00000040'
+                      }`,
                     height: '50px',
                   }}
                   value={customLeadsToSend}
@@ -1118,25 +1117,45 @@ const AdminAssignLead = ({
                                     },
 
                                     // Time Selection List (Large Screen)
-                                    '& .MuiPickersTimeClock-root .Mui-selected':
-                                      {
-                                        backgroundColor: `${brandPrimaryColor} !important`,
-                                        color: 'white !important',
-                                      },
-                                    '& .MuiPickersTimeClock-root .MuiButtonBase-root:hover':
-                                      {
-                                        backgroundColor: `${brandPrimaryColor}CC !important`,
-                                      },
+                                    '& .MuiPickersTimeClock-root .Mui-selected': {
+                                      backgroundColor: `${brandPrimaryColor} !important`,
+                                      color: 'white !important',
+                                    },
+                                    '& .MuiPickersTimeClock-root .MuiButtonBase-root:hover': {
+                                      backgroundColor: `${brandPrimaryColor}CC !important`,
+                                    },
 
                                     // Time Picker List (Dropdown List)
                                     '& .MuiTimeClock-root .Mui-selected': {
                                       backgroundColor: `${brandPrimaryColor} !important`,
                                       color: 'white !important',
                                     },
-                                    '& .MuiTimeClock-root .MuiButtonBase-root:hover':
-                                      {
-                                        backgroundColor: `${brandPrimaryColor}CC !important`,
+                                    '& .MuiTimeClock-root .MuiButtonBase-root:hover': {
+                                      backgroundColor: `${brandPrimaryColor}CC !important`,
+                                    },
+
+                                    // Hide scrollbar for time list container
+                                    '& .MuiList-root': {
+                                      scrollbarWidth: 'none', // Firefox
+                                      msOverflowStyle: 'none', // IE and Edge
+                                      '&::-webkit-scrollbar': {
+                                        display: 'none', // Chrome, Safari, Opera
                                       },
+                                    },
+                                    '& .MuiTimeClock-root': {
+                                      scrollbarWidth: 'none',
+                                      msOverflowStyle: 'none',
+                                      '&::-webkit-scrollbar': {
+                                        display: 'none',
+                                      },
+                                    },
+                                    '& .MuiClock-root': {
+                                      scrollbarWidth: 'none',
+                                      msOverflowStyle: 'none',
+                                      '&::-webkit-scrollbar': {
+                                        display: 'none',
+                                      },
+                                    },
                                   }}
                                   onChange={handleDateChange}
                                   renderInput={(params) => (
@@ -1222,11 +1241,6 @@ const AdminAssignLead = ({
                                     : '#00000050',
                                   borderWidth: '2px',
                                 },
-                                '&:hover fieldset': {
-                                  borderColor: hasUserSelectedDate
-                                    ? '#7902df'
-                                    : '#00000050',
-                                },
                                 '&.Mui-focused fieldset': {
                                   borderColor: hasUserSelectedDate
                                     ? '#7902df'
@@ -1237,6 +1251,7 @@ const AdminAssignLead = ({
                           },
                         }}
                         sx={{
+                          // Date Picker (Large Screen)
                           '& .MuiPickersDay-root.Mui-selected': {
                             backgroundColor: `${brandPrimaryColor} !important`,
                             color: 'white !important',
@@ -1244,14 +1259,12 @@ const AdminAssignLead = ({
                           '& .MuiPickersDay-root:hover': {
                             backgroundColor: `${brandPrimaryColor}CC !important`,
                           },
-                          '& .MuiButtonBase-root.MuiPickersDay-root:not(.Mui-selected)':
-                            {
-                              color: '#333 !important',
-                            },
                           '& .Mui-selected': {
                             backgroundColor: `${brandPrimaryColor} !important`,
                             color: '#fff !important',
                           },
+
+                          // Time Picker (Large Screen)
                           '& .MuiClock-pin': {
                             backgroundColor: `${brandPrimaryColor} !important`,
                           },
@@ -1260,6 +1273,53 @@ const AdminAssignLead = ({
                           },
                           '& .MuiClockPointer-thumb': {
                             borderColor: `${brandPrimaryColor} !important`,
+                          },
+                          '& .MuiPickersToolbar-root': {
+                            backgroundColor: `${brandPrimaryColor} !important`,
+                          },
+                          '& .MuiTypography-root': {
+                            color: `${brandPrimaryColor} !important`,
+                          },
+
+                          // Time Selection List (Large Screen)
+                          '& .MuiPickersTimeClock-root .Mui-selected': {
+                            backgroundColor: `${brandPrimaryColor} !important`,
+                            color: 'white !important',
+                          },
+                          '& .MuiPickersTimeClock-root .MuiButtonBase-root:hover': {
+                            backgroundColor: `${brandPrimaryColor}CC !important`,
+                          },
+
+                          // Time Picker List (Dropdown List)
+                          '& .MuiTimeClock-root .Mui-selected': {
+                            backgroundColor: `${brandPrimaryColor} !important`,
+                            color: 'white !important',
+                          },
+                          '& .MuiTimeClock-root .MuiButtonBase-root:hover': {
+                            backgroundColor: `${brandPrimaryColor}CC !important`,
+                          },
+
+                          // Hide scrollbar for time list container
+                          '& .MuiList-root': {
+                            scrollbarWidth: 'none', // Firefox
+                            msOverflowStyle: 'none', // IE and Edge
+                            '&::-webkit-scrollbar': {
+                              display: 'none', // Chrome, Safari, Opera
+                            },
+                          },
+                          '& .MuiTimeClock-root': {
+                            scrollbarWidth: 'none',
+                            msOverflowStyle: 'none',
+                            '&::-webkit-scrollbar': {
+                              display: 'none',
+                            },
+                          },
+                          '& .MuiClock-root': {
+                            scrollbarWidth: 'none',
+                            msOverflowStyle: 'none',
+                            '&::-webkit-scrollbar': {
+                              display: 'none',
+                            },
                           },
                         }}
                         renderInput={(params) => (
@@ -1302,8 +1362,8 @@ const AdminAssignLead = ({
               ) : (
                 <div className="w-full">
                   {(NoOfLeadsToSend || customLeadsToSend) &&
-                  (CallNow ||
-                    (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
+                    (CallNow ||
+                      (CallLater && selectedDateTime && hasUserSelectedDate)) ? (
                     <button
                       className="text-white w-full h-[50px] rounded-lg mt-4"
                       style={{ backgroundColor: brandPrimaryColor }}

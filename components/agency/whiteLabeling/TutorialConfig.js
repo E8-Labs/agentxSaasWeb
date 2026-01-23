@@ -286,7 +286,11 @@ const TutorialConfig = ({ selectedAgency }) => {
         formData.append('userId', selectedAgency.id)
       }
 
-      formData.forEach((value, key) => {})
+      formData.forEach((value, key) => {
+        console.log('data sending in api')
+        console.log('key', key)
+        console.log('value', value)
+      })
 
       // Use update endpoint only if editing an existing uploaded video
       // Use upload endpoint for default tutorials (even in "edit" mode) or new uploads

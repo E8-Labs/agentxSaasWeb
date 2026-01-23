@@ -72,16 +72,26 @@ const StandardNot = ({
     // Check if any custom field differs from default
     const hasCustomPushTitle = customization.customPushTitle && 
       customization.customPushTitle !== metadata?.defaultPushTitle
+
+    console.log('hasCustomPushTitle', hasCustomPushTitle)
     const hasCustomPushBody = customization.customPushBody && 
       customization.customPushBody !== metadata?.defaultPushBody
+
+    console.log('hasCustomPushBody', hasCustomPushBody)
     const hasCustomEmailSubject = customization.customEmailSubject && 
       customization.customEmailSubject !== metadata?.defaultEmailSubject
+
+    console.log('hasCustomEmailSubject', hasCustomEmailSubject)
     const hasCustomEmailBody = customization.customEmailBody && 
       customization.customEmailBody !== metadata?.defaultEmailBody
+
+    console.log('hasCustomEmailBody', hasCustomEmailBody)
     const hasCustomCTA = customization.customEmailCTA && 
       customization.customEmailCTA !== metadata?.defaultEmailCTA
     
-    // Return true if any content field is actually customized
+    console.log('hasCustomCTA', hasCustomCTA)
+      // Return true if any content field is actually customized
+      console.log('hasCustomPushTitle || hasCustomPushBody || hasCustomEmailSubject || hasCustomEmailBody || hasCustomCTA', hasCustomPushTitle || hasCustomPushBody || hasCustomEmailSubject || hasCustomEmailBody || hasCustomCTA)
     return hasCustomPushTitle || hasCustomPushBody || hasCustomEmailSubject || 
            hasCustomEmailBody || hasCustomCTA
   }
@@ -298,8 +308,8 @@ const StandardNot = ({
       setDeleting(notification.notificationType)
 
       const userId = selectedAgency?.id || undefined
-      await deleteNotificationCustomization(notification.notificationType, userId)
-
+    let data = await deleteNotificationCustomization(notification.notificationType, userId)
+      console.log('response of delete notification customization api is', data)
       // Refresh the data
       if (onRefresh) {
         await onRefresh()
