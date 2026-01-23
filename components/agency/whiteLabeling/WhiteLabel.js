@@ -102,6 +102,7 @@ const WhiteLabel = ({ selectedAgency }) => {
 
   const handleCopyClick = async () => {
 let targetUser = null;
+console.log('selectedAgency in handleCopyClick', selectedAgency)
     if(selectedAgency) {
 
        targetUser =await AdminGetProfileDetails(selectedAgency?.id)
@@ -109,6 +110,8 @@ let targetUser = null;
     else {
       targetUser = reduxUser;
     }
+
+    // console.log('targetUser in handleCopyClick', targetUser)
 
     if (!targetUser?.twilio?.twilAuthToken) {
       setShowSnackMessage({
@@ -131,6 +134,7 @@ let targetUser = null;
       setShowCopyLinkWarning(true)
       upgradeProfile()
     } else {
+      // console.log('copyAgencyOnboardingLink in handleCopyClick',targetUser, selectedAgency)
       await copyAgencyOnboardingLink({ setLinkCopied, targetUser, selectedAgency })
       setShowSnackMessage({
         type: SnackbarTypes.Success,

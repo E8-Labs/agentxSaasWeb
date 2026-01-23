@@ -57,6 +57,7 @@ import { GetFormattedDateString } from '@/utilities/utility'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import AdminAssignLead from './AdminAssignLead'
 import CreateSmartlistModal from '@/components/messaging/CreateSmartlistModal'
+import { TypographyH3 } from '@/lib/typography'
 
 const AdminLeads = ({
   handleShowAddLeadModal,
@@ -1146,10 +1147,10 @@ const AdminLeads = ({
             <div className="w-full flex flex-row items-center gap-2 truncate">
               {toggleClick.includes(item.id) ? (
                 <button
-                  className="h-[20px] w-[20px] border rounded bg-purple outline-none flex flex-row items-center justify-center"
+                  className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
                   onClick={() => handleToggleClick(item.id)}
                 >
-                  <Image
+                  <Image className=" object-contain pb-0.5"
                     src={'/assets/whiteTick.png'}
                     height={10}
                     width={10}
@@ -1608,7 +1609,7 @@ const AdminLeads = ({
         // style={{ borderBottom: "1px solid #15151510" }}
       >
         <div className="flex fex-row items-center gap-2">
-          <div style={{ fontWeight: '600', fontSize: 24 }}>Leads</div>
+          <TypographyH3>Leads</TypographyH3>
           {userDetails?.currentUsage?.maxLeads &&
             userDetails?.planCapabilities?.maxLeads < 10000000 &&
             userDetails?.plan?.planId != null && (

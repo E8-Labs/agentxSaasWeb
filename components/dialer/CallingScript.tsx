@@ -8,7 +8,7 @@ import { Input as InputBase } from '../ui/input'
 import { FileText, Plus, Pencil, X, Check, Hash, Square, Eye, Type, RotateCw, Grid3x3, Minus, Code, ChevronDown, Send, MoreVertical, ArrowLeft, Loader2 } from 'lucide-react'
 import { toast } from '@/utils/toast'
 
-import { Menu, MenuItem, FormControl, Select } from '@mui/material'
+import { Menu, MenuItem, FormControl, Select, Modal, Box } from '@mui/material'
 import { Card as CardBase, CardHeader as CardHeaderBase, CardTitle as CardTitleBase, CardContent as CardContentBase } from '../ui/card'
 import { Dialog as DialogBase, DialogContent as DialogContentBase, DialogDescription as DialogDescriptionBase, DialogFooter as DialogFooterBase, DialogHeader as DialogHeaderBase, DialogTitle as DialogTitleBase } from '../ui/dialog'
 import { getUniquesColumn } from '../globalExtras/GetUniqueColumns'
@@ -65,7 +65,7 @@ export default function CallingScript({
   const [selectedVariable, setSelectedVariable] = useState('')
   const [showMoreUniqueColumns, setShowMoreUniqueColumns] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-  const [scriptToDelete, setScriptToDelete] = useState<number | null>(null)
+  const [scriptToDelete, setScriptToDelete] = useState<number>(0)
   const [deleting, setDeleting] = useState(false)
   const [processedContent, setProcessedContent] = useState<string | null>(null)
   const [processingContent, setProcessingContent] = useState(false)
@@ -325,7 +325,7 @@ export default function CallingScript({
   }
 
   return (
-    <div 
+    <div
       className="flex flex-col h-full w-full border-r border-gray-200 bg-white relative"
       style={{ zIndex: 2000, position: 'relative' }}
     >
@@ -340,7 +340,7 @@ export default function CallingScript({
               onClick={handleCreateScript}
               variant="filled"
               className="rounded-full py-2 px-4 transition-all"
-              style={{ 
+              style={{
                 backgroundColor: '#F9F9F9',
                 border: '1px solid #e5e7eb',
                 color: '#374151',
@@ -356,7 +356,7 @@ export default function CallingScript({
       )}
 
       {/* Content Area */}
-      <div 
+      <div
         className="flex-1 overflow-y-auto px-6"
         style={{ position: 'relative', zIndex: 2000 }}
       >
@@ -367,9 +367,9 @@ export default function CallingScript({
         ) : scripts.length === 0 && !isCreating ? (
           <div className="flex flex-col items-center justify-center h-full gap-6">
             <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: '#F9F9F9' }}>
-              <Image 
-                src="/svgIcons/OLD AGENTX UI/script_icon.svg" 
-                alt="Script icon" 
+              <Image
+                src="/svgIcons/OLD AGENTX UI/script_icon.svg"
+                alt="Script icon"
                 width={32}
                 height={32}
               />
@@ -380,7 +380,7 @@ export default function CallingScript({
                 onClick={handleCreateScript}
                 variant="filled"
                 className="rounded-full py-2 px-4 transition-all"
-                style={{ 
+                style={{
                   backgroundColor: '#F9F9F9',
                   border: '1px solid #e5e7eb',
                   color: '#374151',
@@ -394,7 +394,7 @@ export default function CallingScript({
             </div>
           </div>
         ) : isCreating || isEditing ? (
-          <div 
+          <div
             className="space-y-4 pb-6"
             style={{ position: 'relative', zIndex: 2000 }}
           >
@@ -407,7 +407,7 @@ export default function CallingScript({
                 onChange={(e) => setEditTitle(e.target.value)}
                 placeholder="Enter script title"
                 className="border border-[#00000020] p-3 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black"
-                style={{ 
+                style={{
                   fontSize: '14px',
                   position: 'relative',
                   zIndex: 2001,
@@ -491,14 +491,14 @@ export default function CallingScript({
                   </FormControl>
                 )}
               </div>
-              
+
               <Textarea
                 ref={contentTextareaRef}
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
                 placeholder="Enter script content..."
                 className="w-full min-h-[400px] resize-none border-2 border-[#00000020] rounded-lg px-3 py-2 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black"
-                style={{ 
+                style={{
                   fontSize: '14px',
                   position: 'relative',
                   zIndex: 2001,
@@ -516,7 +516,7 @@ export default function CallingScript({
               >
                 {saving ? 'Saving...' : isCreating ? 'Create' : 'Save'}
               </Button>
-             
+
             </div>
           </div>
         ) : selectedScript ? (
@@ -563,7 +563,7 @@ export default function CallingScript({
                       <span className="ml-2 text-sm text-gray-500">Loading script with lead details...</span>
                     </div>
                   ) : (
-                    <div className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed" style={{ 
+                    <div className="whitespace-pre-wrap text-sm text-gray-700 leading-relaxed" style={{
                       lineHeight: '1.75',
                       fontSize: '14px',
                     }}>
@@ -582,8 +582,8 @@ export default function CallingScript({
                 onClick={() => setSelectedScript(script)}
                 className="p-4 rounded-lg border-2 cursor-pointer transition-all hover:shadow-md"
                 style={{
-                  borderColor: script.isActive 
-                    ? '#e5e7eb' 
+                  borderColor: script.isActive
+                    ? '#e5e7eb'
                     : '#f3f4f6',
                   backgroundColor: 'white',
                   boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
@@ -601,7 +601,7 @@ export default function CallingScript({
                         </span>
                       )}
                     </div>
-                    <p 
+                    <p
                       className="text-xs text-gray-600"
                       style={{
                         display: '-webkit-box',
@@ -635,9 +635,9 @@ export default function CallingScript({
         ) : (
           <div className="flex flex-col items-center justify-center h-full gap-6">
             <div className="w-16 h-16 rounded-full flex items-center justify-center" style={{ backgroundColor: '#F9F9F9' }}>
-              <Image 
-                src="/svgIcons/OLD AGENTX UI/script_icon.svg" 
-                alt="Script icon" 
+              <Image
+                src="/svgIcons/OLD AGENTX UI/script_icon.svg"
+                alt="Script icon"
                 width={32}
                 height={32}
               />
@@ -648,7 +648,7 @@ export default function CallingScript({
                 onClick={handleCreateScript}
                 variant="filled"
                 className="rounded-full py-2 px-4 transition-all"
-                style={{ 
+                style={{
                   backgroundColor: '#F9F9F9',
                   border: '1px solid #e5e7eb',
                   color: '#374151',
@@ -740,51 +740,61 @@ export default function CallingScript({
         </Menu>
       )}
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog 
-        open={showDeleteConfirm} 
-        onOpenChange={(open) => {
-          if (!open && !deleting) {
-            setShowDeleteConfirm(false)
-            setScriptToDelete(null)
-          }
-        }}
-      >
-        <DialogContent 
-          className="sm:max-w-[325px] w-full !max-h-none !h-auto !overflow-visible !px-4 !py-2" 
-          style={{ height: 'auto', maxHeight: 'none', overflow: 'visible', padding: '1rem' }}
-        >
-          <DialogHeader className="!mb-2">
-            <DialogTitle>Delete Script</DialogTitle>
-            
-          </DialogHeader>
 
-          <DialogDescription className="!mb-2">
+      <Modal
+        open={showDeleteConfirm}
+        onClose={() => {
+          setShowDeleteConfirm(false)
+          setScriptToDelete(0)
+        }}
+        BackdropProps={{  
+          timeout: 200,
+          sx: {
+            backgroundColor: '#00000020',
+            // zIndex: 1500,
+            // //backdropFilter: "blur(20px)",
+          },
+        }}
+        sx={{
+          zIndex: 1505,
+        }}
+
+      >
+        <Box
+          className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
+          sx={{ ...styles.modalsStyle, backgroundColor: 'white', zIndex: 15010 }}
+        >
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 10, zIndex: 15015}}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div style={{ fontWeight: '500', fontSize: 17 }}>
+                Delete Script
+              </div>
+
+            </div>
+            <div style={{ fontWeight: '500', fontSize: 15 }}>
               Are you sure you want to delete this script?
-            </DialogDescription>
-          <DialogFooter className="gap-2">
-            <Button
-              onClick={confirmDeleteScript}
-              disabled={deleting}
-              style={{
-                backgroundColor: '#dc2626',
-                color: 'white',
-                width: '100%',
-              }}
-            >
-              {deleting ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  Deleting...
-                </>
-              ) : (
-                'Delete'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'between', gap: 10, width: '100%' }}>
+              <Button variant="outline-none" className="w-1/2 text-left text-[#6b7280]" onClick={() => setShowDeleteConfirm(false)}>Cancel</Button>
+              <Button className="bg-brand-primary text-white hover:bg-brand-primary/90 w-1/2" onClick={() => confirmDeleteScript()} disabled={deleting}>
+                  {deleting ? "Deleting..." : 'Delete'}</Button>
+            </div>
+          </div>
+        </Box>
+      </Modal>
     </div>
   )
 }
 
+const styles = {
+  modalsStyle: {
+    height: 'auto',
+    bgcolor: 'transparent',
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-55%)',
+    borderRadius: 2,
+    border: 'none',
+    outline: 'none',
+  },
+}

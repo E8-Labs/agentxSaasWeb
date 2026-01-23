@@ -160,162 +160,178 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
   }
 
   //user settings api data
-  const userSettingDataUpgrade = (from) => {
-    if (from === 'suportWebCalendar') {
-      setAddSuportWebCalendarLoader(true)
-      return {
-        supportWebinarCalendar: true,
-        supportWebinarCalendarUrl: suportWebCalendar,
-      }
-    } else if (from === 'sky') {
-      setAddSkyLoader(true)
-      return {
-        skyAgent: true,
-        skyAgentId: sky,
-      }
-    } else if (from === 'feedBack') {
-      setAddFeedBackLoader(true)
-      return {
-        giveFeedback: true,
-        giveFeedbackUrl: feedBack,
-      }
-    } else if (from === 'hireTeam') {
-      setAddHireTeamLoader(true)
-      return {
-        hireTeam: true,
-        hireTeamUrl: hireTeam,
-      }
-    } else if (from === 'billingAndSupport') {
-      setAddBillingAndSupportLoader(true)
-      return {
-        billingAndSupport: true,
-        billingAndSupportUrl: billingAndSupport,
-      }
-    } else if (from === 'resourceHub') {
-      setAddResourceHubLoader(true)
-      return {
-        resourceHub: true,
-        resourceHubUrl: resourceHub,
-      }
-    }
+//user settings api data
+const userSettingDataUpgrade = (from) => {
+  const data = {}
+  
+  if (from === 'suportWebCalendar') {
+    setAddSuportWebCalendarLoader(true)
+    data.supportWebinarCalendar = true
+    data.supportWebinarCalendarUrl = suportWebCalendar
+  } else if (from === 'sky') {
+    setAddSkyLoader(true)
+    data.skyAgent = true
+    data.skyAgentId = sky
+  } else if (from === 'feedBack') {
+    setAddFeedBackLoader(true)
+    data.giveFeedback = true
+    data.giveFeedbackUrl = feedBack
+  } else if (from === 'hireTeam') {
+    setAddHireTeamLoader(true)
+    data.hireTeam = true
+    data.hireTeamUrl = hireTeam
+  } else if (from === 'billingAndSupport') {
+    setAddBillingAndSupportLoader(true)
+    data.billingAndSupport = true
+    data.billingAndSupportUrl = billingAndSupport
+  } else if (from === 'resourceHub') {
+    setAddResourceHubLoader(true)
+    data.resourceHub = true
+    data.resourceHubUrl = resourceHub
   }
+  
+  return data
+}
 
-  //api data for deleting user setting
-  const userSettingDataDel = (from) => {
-    if (from === 'suportWebCalendarDel') {
-      setDelSuportWebCalendarLoader(true)
-      return {
-        supportWebinarCalendar: false,
-        supportWebinarCalendarUrl: '',
-      }
-    } else if (from === 'skyDel') {
-      setDelSkyLoader(true)
-      return {
-        skyAgent: false,
-        skyAgentId: '',
-      }
-    } else if (from === 'feedBackDel') {
-      setDelFeedBackLoader(true)
-      return {
-        giveFeedback: false,
-        giveFeedbackUrl: '',
-      }
-    } else if (from === 'hireTeamDel') {
-      setDelHireTeamLoader(true)
-      return {
-        hireTeam: false,
-        hireTeamUrl: '',
-      }
-    } else if (from === 'billingAndSupportDel') {
-      setDelBillingAndSupportLoader(true)
-      return {
-        billingAndSupport: false,
-        billingAndSupportUrl: '',
-      }
-    } else if (from === 'resourceHubDel') {
-      setDelResourceHubLoader(true)
-      return {
-        resourceHub: false,
-        resourceHubUrl: '',
-      }
-    }
+//api data for deleting user setting
+const userSettingDataDel = (from) => {
+  const data = {}
+  
+  if (from === 'suportWebCalendarDel') {
+    setDelSuportWebCalendarLoader(true)
+    data.supportWebinarCalendar = false
+    data.supportWebinarCalendarUrl = ''
+  } else if (from === 'skyDel') {
+    setDelSkyLoader(true)
+    data.skyAgent = false
+    data.skyAgentId = ''
+  } else if (from === 'feedBackDel') {
+    setDelFeedBackLoader(true)
+    data.giveFeedback = false
+    data.giveFeedbackUrl = ''
+  } else if (from === 'hireTeamDel') {
+    setDelHireTeamLoader(true)
+    data.hireTeam = false
+    data.hireTeamUrl = ''
+  } else if (from === 'billingAndSupportDel') {
+    setDelBillingAndSupportLoader(true)
+    data.billingAndSupport = false
+    data.billingAndSupportUrl = ''
+  } else if (from === 'resourceHubDel') {
+    setDelResourceHubLoader(true)
+    data.resourceHub = false
+    data.resourceHubUrl = ''
   }
-
-  //api data for updating support widget titles
-  const userSettingDataUpdateTitle = (from) => {
-    setShowEditModalLoader(true)
-    if (editTitleIndex === 0) {
-      return {
-        supportWebinarTitle: showEditModalTitle,
-      }
-    } else if (editTitleIndex === 1) {
-      return {
-        giveFeedbackTitle: showEditModalTitle,
-      }
-    } else if (editTitleIndex === 2) {
-      return {
-        hireTeamTitle: showEditModalTitle,
-      }
-    } else if (editTitleIndex === 3) {
-      return {
-        billingAndSupportTitle: showEditModalTitle,
-      }
-    } else if (editTitleIndex === 4) {
-      return {
-        resourceHubTitle: showEditModalTitle,
-      }
-    }
+  
+  return data
+}
+//api data for updating support widget titles
+const userSettingDataUpdateTitle = (from) => {
+  setShowEditModalLoader(true)
+  const data = {}
+  
+  if (editTitleIndex === 0) {
+    data.supportWebinarTitle = showEditModalTitle
+  } else if (editTitleIndex === 1) {
+    data.giveFeedbackTitle = showEditModalTitle
+  } else if (editTitleIndex === 2) {
+    data.hireTeamTitle = showEditModalTitle
+  } else if (editTitleIndex === 3) {
+    data.billingAndSupportTitle = showEditModalTitle
+  } else if (editTitleIndex === 4) {
+    data.resourceHubTitle = showEditModalTitle
   }
+  
+  return data
+}
 
-  //user settings api
-  const handleUserSettings = async (from) => {
-    try {
-      const Auth = AuthToken()
-      const ApiPath = Apis.userSettings
-      let ApiData = null
-      if (from?.endsWith('Del')) {
-        ApiData = userSettingDataDel(from)
-      } else if (from?.endsWith('UpdateTitle')) {
-        ApiData = userSettingDataUpdateTitle(from)
-      } else {
-        ApiData = userSettingDataUpgrade(from)
-      }
-      const response = await axios.put(ApiPath, ApiData, {
-        headers: {
-          Authorization: 'Bearer ' + Auth,
-          'Content-Type': 'application/json',
-        },
-      })
-      if (response) {
-        if (response.data.status === true) {
-          // if (from?.endsWith("Del")) {
-          //   setShowSnackMessage("Deleted Widget");
-          // } else
-          if (from?.endsWith('UpdateTitle')) {
-            setShowSnackMessage('Title updated')
-          } else {
-            setShowSnackMessage('Link updated')
-          }
-          setShowSnackType(SnackbarTypes.Success)
+//user settings api
+const handleUserSettings = async (from) => {
+  try {
+    const Auth = AuthToken()
+    const ApiPath = Apis.userSettings
+    let ApiData = null
+    
+    if (from?.endsWith('Del')) {
+      ApiData = userSettingDataDel(from)
+    } else if (from?.endsWith('UpdateTitle')) {
+      ApiData = userSettingDataUpdateTitle(from)
+    } else {
+      ApiData = userSettingDataUpgrade(from)
+    }
+
+    console.log('Sending API Data for', from, ':', ApiData)
+    
+    const response = await axios.put(ApiPath, ApiData, {
+      headers: {
+        Authorization: 'Bearer ' + Auth,
+        'Content-Type': 'application/json',
+      },
+    })
+    
+    if (response) {
+      if (response.data.status === true) {
+        // Update local state based on which widget was saved
+        const updatedData = response.data.data
+
+        console.log("resonse of user settings api is",response.data)
+        
+        // Update the specific widget state based on the 'from' parameter
+        if (from === 'suportWebCalendar') {
+          setAllowSuportWebCalendar(updatedData.supportWebinarCalendar || false)
+          setSuportWebCalendar(updatedData.supportWebinarCalendarUrl || '')
+        } else if (from === 'feedBack') {
+          setAllowFeedBack(updatedData.giveFeedback || false)
+          setFeedBack(updatedData.giveFeedbackUrl || '')
+        } else if (from === 'hireTeam') {
+          setAllowHireTeam(updatedData.hireTeam || false)
+          setHireTeam(updatedData.hireTeamUrl || '')
+        } else if (from === 'billingAndSupport') {
+          setAllowBillingAndSupport(updatedData.billingAndSupport || false)
+          setBillingAndSupport(updatedData.billingAndSupportUrl || '')
+        } else if (from === 'resourceHub') {
+          setAllowResourceHub(updatedData.resourceHub || false)
+          setResourceHub(updatedData.resourceHubUrl || '')
+        }
+        
+        // Always update the full settings data
+        setSettingsData(updatedData)
+        
+        setShowSnackMessage('Link updated successfully')
+        setShowSnackType(SnackbarTypes.Success)
+        
+        // Reset edit modes
+        if(from === 'suportWebCalendar') {
           setAddSuportWebCalendar(false)
+        } else if(from === 'sky') {
           setAddSky(false)
+        } else if(from === 'feedBack') {
           setAddFeedBack(false)
+        } else if(from === 'hireTeam') {
           setAddHireTeam(false)
+        } else if(from === 'billingAndSupport') {
           setAddBillingAndSupport(false)
-          setSettingsData(response.data.data)
+        } else if(from === 'resourceHub') {
+          setAddResourceHub(false)
+        }
+        // Reset title modal
+        if (from?.endsWith('UpdateTitle')) {
           setShowEditModal(false)
           setEditTitleIndex(null)
-        } else {
-          setShowSnackMessage(response.data.message)
-          setShowSnackType(SnackbarTypes.Error)
         }
-        handleResetLoaders()
+      } else {
+        setShowSnackMessage(response.data.message)
+        setShowSnackType(SnackbarTypes.Error)
       }
-    } catch (error) {
-      console.error('Error occured in user settings api is', error)
       handleResetLoaders()
     }
+  } catch (error) {
+    console.error('Error occurred in user settings api:', error)
+    setShowSnackMessage('Error saving settings. Please try again.')
+    setShowSnackType(SnackbarTypes.Error)
+    handleResetLoaders()
   }
+}
 
   //reset loaders
   const handleResetLoaders = () => {
@@ -710,6 +726,8 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
                       settingsData?.supportWebinarTitle && (
                         <Switch
                           checked={allowSuportWebCalendar}
+
+                          
                           onChange={(e) => {
                             const checked = e.target.checked
                             setAllowSuportWebCalendar(checked)

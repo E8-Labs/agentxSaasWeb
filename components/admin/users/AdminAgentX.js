@@ -99,6 +99,7 @@ import {
 import { GetFormattedDateString } from '@/utilities/utility'
 import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
+import { TypographyH3 } from '@/lib/typography'
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
   // Redux hooks for upgrade modal functionality
@@ -193,29 +194,29 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   }
 
   useEffect(() => {
-   const upateUserDetails = async () => {
-    let data = await AdminGetProfileDetails(selectedUser?.id)
-    if (data) {
-      setMergedUser(data)
+    const upateUserDetails = async () => {
+      let data = await AdminGetProfileDetails(selectedUser?.id)
+      if (data) {
+        setMergedUser(data)
+      }
     }
-  }
-  upateUserDetails()
+    upateUserDetails()
   }, [selectedUser])
 
   // Store agent state when drawer is opened (only for admin/agency users)
   const storeAgentState = (agent) => {
     if (!isAdminOrAgency() || !agent?.id) return
-    
+
     try {
       const existingData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
       let stateObject = existingData ? JSON.parse(existingData) : {}
-      
+
       if (!stateObject.restoreState) {
         stateObject.restoreState = {}
       }
-      
+
       stateObject.restoreState.selectedAgentId = agent.id
-      
+
       localStorage.setItem(
         PersistanceKeys.isFromAdminOrAgency,
         JSON.stringify(stateObject)
@@ -458,7 +459,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   // Restore agent drawer state when component mounts and agents are loaded (only for admin/agency users)
   useEffect(() => {
     if (!isAdminOrAgency() || !agentData || agentData.length === 0) return
-    
+
     try {
       const storedData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
       if (storedData) {
@@ -771,20 +772,20 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       // Merge with existing updated agent state if available (to preserve smartlist updates)
       // Also check mainAgentsList for the most up-to-date agent data
       let agentToUse = agent
-      
+
       // First, try to get updated agent from mainAgentsList (which is updated after smartlist creation)
       const agentIdToFind = agent.id
       if (agentIdToFind && typeof agentIdToFind === 'number') {
         const updatedAgentFromList = mainAgentsList
           .flatMap(ma => ma.agents || [])
           .find(a => a.id === agentIdToFind)
-        
+
         if (updatedAgentFromList) {
           // Use the agent from mainAgentsList as it has the latest updates
           agentToUse = updatedAgentFromList
         }
       }
-      
+
       // Also merge with selectedAgentForWebAgent if it exists and matches (for additional state updates)
       if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === agent.id) {
         // Merge any additional updates from selectedAgentForWebAgent state
@@ -799,7 +800,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? agentToUse.smartListEnabledForEmbed,
         }
       }
-      
+
       setSelectedAgentForWebAgent(agentToUse)
       setShowWebAgentModal(true)
       setFetureType('webagent')
@@ -842,8 +843,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         if (selectedAgentForEmbed && selectedAgentForEmbed.id !== agent.id) {
           setSelectedAgentForEmbed(null)
         }
-        
-        if (agentFromMainList) {} else {}
+
+        if (agentFromMainList) { } else { }
       }
       setSelectedAgentForEmbed(agentToUse)
       setShowEmbedModal(true)
@@ -868,11 +869,11 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     if (!mainAgentsList || mainAgentsList.length === 0) {
       return null
     }
-    
+
     // Convert agentId to number if it's a numeric string for strict comparison
     const agentIdNum = typeof agentId === 'string' && !isNaN(agentId) ? Number(agentId) : agentId
     const agentIdStr = String(agentId)
-    
+
     for (const mainAgent of mainAgentsList) {
       if (mainAgent.agents && mainAgent.agents.length > 0) {
         const foundAgent = mainAgent.agents.find((subAgent) => {
@@ -885,13 +886,13 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             (subAgent.agentUuid && subAgent.agentUuid === agentIdStr)
           )
         })
-        
+
         if (foundAgent) {
           return foundAgent
         }
       }
     }
-    
+
     console.warn('🔍 ADMIN-GET-AGENT-FROM-MAIN-LIST - Agent not found:', {
       agentId,
       agentIdNum,
@@ -913,15 +914,15 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       const updatedSubAgents = mainAgent.agents.map((subAgent) => {
         // Strict matching: check numeric id first, then UUIDs
         let matches = false
-        
+
         // For numeric IDs, do strict numeric comparison
         if (typeof agentIdNum === 'number' && !isNaN(agentIdNum)) {
           matches = subAgent.id === agentIdNum
         }
-        
+
         // If not matched by numeric ID, try UUIDs (exact string match)
         if (!matches) {
-          matches = 
+          matches =
             (subAgent.modelIdVapi && subAgent.modelIdVapi === agentIdStr) ||
             (subAgent.agentUuid && subAgent.agentUuid === agentIdStr)
         }
@@ -949,7 +950,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         agentIdNum,
         agentIdStr,
         mainAgentsListCount: mainAgentsList.length,
-        availableAgentIds: mainAgentsList.flatMap(ma => 
+        availableAgentIds: mainAgentsList.flatMap(ma =>
           ma.agents?.map(a => ({ id: a.id, name: a.name, modelIdVapi: a.modelIdVapi })) || []
         ),
       })
@@ -989,7 +990,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       setFetureType('webhook')
     } else if (agentType === 'web') {
       setFetureType('webagent')
-    } else {}
+    } else { }
 
     // Determine which fields to update based on agentType
     const updates = {
@@ -1160,7 +1161,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
               if (matchedAgent) {
                 setDrawerSelectedAgent(matchedAgent)
-              } else {}
+              } else { }
             }
 
             if (localAgentsList) {
@@ -1528,12 +1529,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     try {
       setFindeNumberLoader(true)
       let ApiPath = `${Apis.findPhoneNumber}?areaCode=${number}`
-      
+
       // Add userId parameter if selectedUser is provided (for admin/agency searching on behalf of users)
       if (selectedUser?.id) {
         ApiPath += `&userId=${selectedUser?.id}`
       }
-      
+
       let AuthToken = null
       const LocalData = localStorage.getItem('User')
       if (LocalData) {
@@ -1860,7 +1861,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         formData.append('userId', selectedUser?.id)
       }
 
-      for (let [key, value] of formData.entries()) {}
+      for (let [key, value] of formData.entries()) { }
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -2327,17 +2328,17 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       }
     } catch (error) {
       console.error('Error occured in test api is', error)
-      
+
       // Extract error message from API response
       const errorMessage =
-        error?.response?.data?.message || 
-        error?.message || 
+        error?.response?.data?.message ||
+        error?.message ||
         'An error occurred while testing the AI agent'
-      
+
       // Display error message to user
       setShowErrorSnack(errorMessage)
       setIsVisibleSnack2(true)
-      
+
       // Only close modal if it's a non-critical error (optional)
       // setOpenTestAiModal(false)
     } finally {
@@ -2385,7 +2386,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   // Update mergedUser when selectedUser changes
   useEffect(() => {
     setMergedUser(selectedUser)
-    
+
     // Also check localStorage for updated data
     try {
       const storedSubAccount = localStorage.getItem('selectedSubAccount')
@@ -2542,7 +2543,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           JSON.stringify(newList),
         )
         setMainAgentsList(newList)
-      }else{
+      } else {
         setInitialLoader(false)
         setPaginationLoader(false)
         setShowErrorSnack(response?.data?.message)
@@ -2619,7 +2620,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
             const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
             isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
           }
-        } catch (error) {}
+        } catch (error) { }
       }
 
       // Open in new tab if current user is Admin or Agency
@@ -2636,7 +2637,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   }
 
   //function to add new agent
-  const handleAddNewAgent =async (event) => {
+  const handleAddNewAgent = async (event) => {
     setAddNewAgentLoader(true)
     event.preventDefault()
     // Use mergedUser which includes latest data from localStorage
@@ -2719,7 +2720,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
           isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
         }
-      } catch (error) {}
+      } catch (error) { }
     }
 
     // Open in new tab if current user is Admin or Agency
@@ -2938,7 +2939,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           formData.append('idleMessage', voiceData.idleMessage)
         }
 
-        for (let [key, value] of formData.entries()) {}
+        for (let [key, value] of formData.entries()) { }
 
         const response = await axios.post(ApiPath, formData, {
           headers: {
@@ -3221,12 +3222,10 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div className="flex flex-row items-center gap-3">
-          <div
-            style={{ fontSize: 24, fontWeight: '600' }}
-            onClick={() => {}}
-          >
-            Agents
-          </div>
+
+          <TypographyH3>Agents</TypographyH3>
+
+
           {selectedUser?.plan?.planId != null &&
             selectedUser?.planCapabilities?.maxAgents < 10000000 && (
               <div
@@ -3358,28 +3357,28 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         )}
 
         {/* code to add new agent */}
-        { agentsListSeparated.length > 0 && (
-        <button
-          className="w-[80%] absolute bottom-5 py-6 flex justify-center items-center"
-          style={{
-            marginTop: 40,
-            border: '1px dashed hsl(var(--brand-primary))',
-            borderRadius: '10px',
-            // borderColor: '#7902DF',
-            boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
-            backgroundColor: '#FBFCFF',
-          }}
-          onClick={handleAddNewAgent}
-        >
-          <div
-            className="flex flex-row items-center gap-1"
+        {agentsListSeparated.length > 0 && (
+          <button
+            className="w-[80%] absolute bottom-5 py-6 flex justify-center items-center"
             style={{
-              fontSize: 20,
-              fontWeight: '600',
-              color: '#000',
+              marginTop: 40,
+              border: '1px dashed hsl(var(--brand-primary))',
+              borderRadius: '10px',
+              // borderColor: '#7902DF',
+              boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
+              backgroundColor: '#FBFCFF',
             }}
+            onClick={handleAddNewAgent}
           >
-            <Plus weight="bold" size={22} /> Add New Agent
+            <div
+              className="flex flex-row items-center gap-1"
+              style={{
+                fontSize: 20,
+                fontWeight: '600',
+                color: '#000',
+              }}
+            >
+              <Plus weight="bold" size={22} /> Add New Agent
             </div>
           </button>
         )}
@@ -3945,20 +3944,20 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                           // Merge with existing updated agent state if available
                           // Also check mainAgentsList for the most up-to-date agent data
                           let agentToUse = showDrawerSelectedAgent
-                          
+
                           // First, try to get updated agent from mainAgentsList (which is updated after smartlist creation)
                           const agentIdToFind = showDrawerSelectedAgent.id
                           if (agentIdToFind && typeof agentIdToFind === 'number') {
                             const updatedAgentFromList = mainAgentsList
                               .flatMap(ma => ma.agents || [])
                               .find(a => a.id === agentIdToFind)
-                            
+
                             if (updatedAgentFromList) {
                               // Use the agent from mainAgentsList as it has the latest updates
                               agentToUse = updatedAgentFromList
                             }
                           }
-                          
+
                           // Also merge with selectedAgentForWebAgent if it exists and matches (for additional state updates)
                           if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
                             // Merge any additional updates from selectedAgentForWebAgent state
@@ -3973,7 +3972,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                               smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? agentToUse.smartListEnabledForEmbed,
                             }
                           }
-                          
+
                           setFetureType('webhook')
                           setSelectedAgentForWebAgent(agentToUse)
                           setShowWebAgentModal(true)
@@ -4392,7 +4391,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                                       flexDirection: 'row',
                                       alignItems: 'center',
                                       justifyContent: 'space-between',
-                                      
+
                                       padding: '8px 16px',
                                       width: '100%',
                                     }}
@@ -6196,7 +6195,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         onAgentUpdate={(updatedAgent) => {
           // Update the agent state when smartlist is attached/detached
           setSelectedAgentForWebAgent(updatedAgent)
-          
+
           // Also update in mainAgentsList and localStorage
           // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
           const agentIdToUpdate = updatedAgent?.id
@@ -6254,7 +6253,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
         onAgentUpdate={(updatedAgent) => {
           // Update the agent state when smartlist is attached
           setSelectedAgentForEmbed(updatedAgent)
-          
+
           // Also update in mainAgentsList and localStorage
           // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
           const agentIdToUpdate = updatedAgent?.id

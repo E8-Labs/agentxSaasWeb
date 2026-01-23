@@ -23,6 +23,7 @@ const NotificationConfig = ({ selectedAgency }) => {
       setError(null)
       const userId = selectedAgency?.id || undefined
       const response = await getAllNotificationCustomizations(userId)
+      console.log('response of get all notification customizations api is', response)
       if (response.success) {
         setNotificationsData(response.data)
       }

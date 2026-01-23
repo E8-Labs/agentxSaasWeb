@@ -25,6 +25,7 @@ import CallWorthyReviewsPopup from '@/components/dashboard/leads/CallWorthyRevie
 import { Searchbar } from '@/components/general/MuiSearchBar'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
 import { allIntegrations } from '@/constants/Constants'
+import { TypographyH3 } from '@/lib/typography'
 
 function AdminIntegration({ selectedUser, agencyUser }) {
   const [showKeysBox, setshowKeysBox] = useState(false)
@@ -192,7 +193,7 @@ function AdminIntegration({ selectedUser, agencyUser }) {
         className=" w-full flex flex-row justify-between items-center px-4"
       // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
-        <div style={{ fontSize: 24, fontWeight: '600' }}>Integration</div>
+        <TypographyH3>Integration</TypographyH3>
       </div>
       {/* <div className='w-full flex flex-row items-center justify-end p-6'>
         {

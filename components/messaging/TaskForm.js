@@ -358,16 +358,6 @@ const TaskForm = ({
               className="border-0 shadow-none h-[36px]"
               iconColor="#8A8A8A"
             />
-            {/* More Options - No border, no chevron */}
-            <DropdownCn
-              label=""
-              icon={MoreVertical}
-              options={moreOptions}
-              backgroundClassName="text-foreground"
-              className="border-0 shadow-none h-[36px]"
-              hideChevron={true}
-              iconColor="#8A8A8A"
-            />
           </div>
         </div>
 

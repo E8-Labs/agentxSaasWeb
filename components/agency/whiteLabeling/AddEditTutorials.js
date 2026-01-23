@@ -248,9 +248,9 @@ const AddEditTutorials = ({
                   style={{
                     fontSize: 13,
                     fontFamily: 'inter',
-                    border: '1px dashed #7902DF',
+                    border: '1px dashed hsl(var(--brand-primary))',
                     borderRadius: '10px',
-                    boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
+                    boxShadow: 'hsl(var(--brand-primary)/0.05)',
                     backgroundColor: '#FBFCFF',
                   }}
                 >
@@ -271,11 +271,11 @@ const AddEditTutorials = ({
                     />
                   )}
                   <div className="flex-1">
-                    <div className="text-sm font-medium text-gray-700">
+                    <div className="text-sm font-medium text-gray-700 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                       {selectedVideo?.name || 'Current Video'}
                     </div>
                     {selectedVideo && (
-                      <div className="text-xs text-gray-500">
+                      <div className="text-xs text-gray-500 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                         {(selectedVideo.size / (1024 * 1024)).toFixed(2)} MB
                       </div>
                     )}
@@ -284,7 +284,7 @@ const AddEditTutorials = ({
                     <button
                       type="button"
                       onClick={handleButtonClick}
-                      className="text-purple hover:text-purple-700 text-sm font-medium"
+                      className="text-brand-primary hover:text-brand-primary-700 text-sm font-medium"
                     >
                       Change
                     </button>
@@ -295,9 +295,9 @@ const AddEditTutorials = ({
                   className="flex flex-row w-full justify-center rounded items-center"
                   style={{
                     height: '100px',
-                    border: '1px dashed #7902DF',
+                    border: '1px dashed hsl(var(--brand-primary))',
                     borderRadius: '10px',
-                    boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
+                    boxShadow: 'hsl(var(--brand-primary)/0.05)',
                     backgroundColor: '#FBFCFF',
                   }}
                   onDragOver={handleDragOver}
@@ -315,7 +315,7 @@ const AddEditTutorials = ({
                     }}
                   >
                     Drop file or <br />{' '}
-                    <span className="text-purple"> Browse</span>
+                    <span className="text-brand-primary"> Browse</span>
                   </button>
                 </div>
               )}
@@ -338,7 +338,7 @@ const AddEditTutorials = ({
               </div>
             ) : (
               <button
-                className={`${isDisabled ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-purple text-white hover:bg-purple-700'} px-6 py-2 rounded-lg outline-none border-none transition-colors disabled:opacity-50`}
+                className={`${isDisabled ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-primary-700'} px-6 py-2 rounded-lg outline-none border-none transition-colors disabled:opacity-50`}
                 onClick={handleSaveClick}
                 disabled={isDisabled || isLoading}
               >

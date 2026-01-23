@@ -21,6 +21,7 @@ import {
 import SliderCN from '@/components/ui/SliderCN'
 import { Phone, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { Input } from '@/components/ui/input'
 
 // Predefined idle messages
 const IDLE_MESSAGES = [
@@ -54,6 +55,7 @@ const AdvancedSettingsModalCN = ({
   onSave,
   initialValues = {},
   loading = false,
+  
   className,
 }) => {
   const [maxDurationSeconds, setMaxDurationSeconds] = useState(
@@ -77,22 +79,22 @@ const AdvancedSettingsModalCN = ({
 
   // Validation: Check if values are within valid range
   const isValid = () => {
-    const maxDurationValid = 
-      maxDurationSeconds >= 10 && 
-      maxDurationSeconds <= 43200 && 
+    const maxDurationValid =
+      maxDurationSeconds >= 10 &&
+      maxDurationSeconds <= 43200 &&
       !isNaN(maxDurationSeconds)
-    const idleTimeoutValid = 
-      idleTimeoutSeconds >= 10 && 
-      idleTimeoutSeconds <= 3600 && 
+    const idleTimeoutValid =
+      idleTimeoutSeconds >= 10 &&
+      idleTimeoutSeconds <= 3600 &&
       !isNaN(idleTimeoutSeconds)
     const idleMessageValid = idleMessage.trim().length > 0
-    
+
     return maxDurationValid && idleTimeoutValid && idleMessageValid
   }
 
   const handleSave = () => {
     if (!isValid()) return
-    
+
     onSave({
       maxDurationSeconds,
       idleTimeoutSeconds,
@@ -109,8 +111,8 @@ const AdvancedSettingsModalCN = ({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn('max-w-2xl', className)}>
+    <Dialog className="z-[1500]" open={open} onOpenChange={onOpenChange}>
+      <DialogContent className={cn('max-w-2xl z-[1600]', className)}>
         <DialogHeader>
           <DialogTitle>Advanced Settings</DialogTitle>
           <DialogDescription>
@@ -119,22 +121,24 @@ const AdvancedSettingsModalCN = ({
         </DialogHeader>
 
         <div className="space-y-6 py-4">
-          {/* Maximum Duration Slider */}
-          <SliderCN
+
+          <Label htmlFor="idleMessage" className="text-base font-semibold">
+            Maximum Duration
+          </Label>
+          <p className="text-sm text-muted-foreground">
+            The maximum number of minutes a call will last. Change the unit to minutes.
+          </p>
+
+          <Input type="number"
+            className="border-2 border-[#00000020] rounded p-3 outline-none focus:outline-none focus:ring-0 focus:border-brand-primary focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-brand-primary"
             value={maxDurationSeconds}
-            onValueChange={(values) => setMaxDurationSeconds(values[0])}
-            onInputChange={(val) => {
-              const numVal = parseInt(val) || 0
-              setMaxDurationSeconds(numVal)
-            }}
+            onChange={(e) => setMaxDurationSeconds(e.target.value)}
             min={10}
             max={43200}
             step={1}
-            label="Maximum Duration"
-            description="The maximum number of seconds a call will last."
-            icon={<Clock className="h-6 w-6" />}
-            unit="sec"
+            placeholder="Maximum Duration"
           />
+      
 
           {/* Silence Timeout Slider */}
           <SliderCN
@@ -148,7 +152,7 @@ const AdvancedSettingsModalCN = ({
             max={3600}
             step={1}
             label="Silence Timeout"
-            description="How long to wait before a call is automatically ended due to inactivity."
+            description="How long should the AI wait before ending the call due to no response?"
             icon={<Phone className="h-6 w-6" />}
             unit="sec"
           />
@@ -180,13 +184,6 @@ const AdvancedSettingsModalCN = ({
         </div>
 
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={handleCancel}
-            disabled={loading}
-          >
-            Cancel
-          </Button>
           <Button
             onClick={handleSave}
             disabled={loading || !isValid()}

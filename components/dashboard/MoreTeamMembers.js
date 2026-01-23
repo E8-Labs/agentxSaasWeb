@@ -76,7 +76,7 @@ const MoreTeamMembers = ({
               <p>
                 You have reached the maximum number of team seats on your
                 current plan. You can upgrade your plan or add team seats for{' '}
-                <span className="font-semibold text-purple-600">
+                <span className="font-semibold text-brand-primary">
                   ${costPerAdditionalTeamSeat}
                 </span>{' '}
                 per month.
@@ -88,7 +88,7 @@ const MoreTeamMembers = ({
               {/* Upgrade Button */}
               <button
                 onClick={handleUpgrade}
-                className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+                className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
               >
                 Upgrade
               </button>
@@ -97,7 +97,7 @@ const MoreTeamMembers = ({
               <Link
                 href=""
                 onClick={handleAddTeamSeat}
-                className="w-full text-purple-600 hover:text-purple-700 font-semibold py-2 px-6 rounded-lg transition-colors block text-center"
+                className="w-full text-brand-primary hover:text-brand-primary/90 font-semibold py-2 px-6 rounded-lg transition-colors block text-center"
                 prefetch={true}
               >
                 Add Team Seat for ${costPerAdditionalTeamSeat} per month

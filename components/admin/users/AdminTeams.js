@@ -24,6 +24,7 @@ import {
   getLocalLocation,
 } from '@/components/onboarding/services/apisServices/ApiService'
 import { PersistanceKeys } from '@/constants/Constants'
+import { TypographyH3 } from '@/lib/typography'
 import { logout } from '@/utilities/UserUtility'
 import { formatPhoneNumber } from '@/utilities/agentUtilities'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
@@ -546,7 +547,7 @@ function AdminTeam({ selectedUser, agencyUser }) {
       // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div className="flex flex-row items-center gap-3">
-          <div style={{ fontSize: 24, fontWeight: '600' }}>Teams</div>
+          <TypographyH3>Teams</TypographyH3>
           {selectedUserDetails?.planCapabilities?.allowTeamCollaboration &&
             selectedUserDetails?.plan?.planId != null &&
             selectedUserDetails?.planCapabilities?.maxTeamMembers < 1000 && (

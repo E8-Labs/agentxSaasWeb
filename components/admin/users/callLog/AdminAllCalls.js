@@ -578,6 +578,8 @@ function AdminAllCalls({ selectedUser }) {
       if (currentRequestVersion === requestVersion.current) {
         if (response) {
           const data = response.data.data
+          console.log("data from all calls", data)
+
           // #region agent log
           fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:415',message:'AFTER API SUCCESS',data:{dataLength:data.length,limitPerPage:LimitPerPage,offset,currentLength:filteredCallDetails.length,willSetHasMore:data.length < LimitPerPage ? false : true,requestVersion:currentRequestVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C,D'})}).catch(()=>{});
           // #endregion
