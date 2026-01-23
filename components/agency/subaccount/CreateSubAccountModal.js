@@ -285,20 +285,20 @@ export default function CreateSubAccountModal({
   useEffect(() => {
     // Refresh profile data when modal opens to get latest count
     refreshProfileData()
-    
+
     // Listen for storage events to refresh when localStorage is updated elsewhere
     const handleStorageChange = () => {
       refreshProfileData()
     }
-    
+
     // Listen for custom event when subaccount is created/deleted
     const handleSubAccountUpdate = () => {
       refreshProfileData()
     }
-    
+
     window.addEventListener('storage', handleStorageChange)
     window.addEventListener('SubAccountUpdated', handleSubAccountUpdate)
-    
+
     return () => {
       window.removeEventListener('storage', handleStorageChange)
       window.removeEventListener('SubAccountUpdated', handleSubAccountUpdate)
@@ -721,7 +721,7 @@ export default function CreateSubAccountModal({
               fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
             }}
           >
-            Make this account for Agency Use?
+            Agency Use?
           </h2>
           <p
             id="agency-use-modal-description"
@@ -732,20 +732,20 @@ export default function CreateSubAccountModal({
           >
             Agency Use accounts are special internal accounts that automatically
             track subaccount registrations and subscriptions in a dedicated
-            pipeline. Only one internal account can be designated for agency use.
+            pipeline.
           </p>
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-center">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 justify-between">
             <button
               onClick={() => {
                 setIsAgencyUse(false)
                 setShowAgencyUseModal(false)
               }}
-              className="px-3 sm:px-4 py-2 text-xs sm:text-sm md:text-base text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="px-3 sm:px-4 py-2 text-xs sm:text-sm md:text-base text-brand-primary border border-gray-300 rounded-lg hover:bg-gray-50"
               style={{
                 fontSize: 'clamp(0.75rem, 2vw, 1rem)',
               }}
             >
-              No, just create internal account
+              Not now
             </button>
             <button
               onClick={() => {
@@ -757,7 +757,7 @@ export default function CreateSubAccountModal({
                 fontSize: 'clamp(0.75rem, 2vw, 1rem)',
               }}
             >
-              Yes, make it agency use
+              Dedicate for Agency
             </button>
           </div>
         </Box>
@@ -781,7 +781,7 @@ export default function CreateSubAccountModal({
         />
         <div className="flex justify-between items-center mb-4">
 
-          <h2 
+          <h2
             className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white"
             style={{
               fontSize: 'clamp(1.125rem, 3vw, 1.25rem)',
@@ -800,13 +800,13 @@ export default function CreateSubAccountModal({
           <div className="flex items-center gap-2">
             {internalAccountsCount < 3 && (
               <>
-                <label 
-              className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300"
-              style={{
-                fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
-              }}
-            >
-                {internalAccountsCount}/3 Internal Use
+                <label
+                  className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300"
+                  style={{
+                    fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
+                  }}
+                >
+                  {internalAccountsCount}/3 Internal Use
                 </label>
                 <Switch
                   checked={isInternalAccount}
@@ -834,7 +834,7 @@ export default function CreateSubAccountModal({
                 title="Maximum 3 internal accounts allowed per agency"
                 arrow
               >
-                <span 
+                <span
                   className="text-xs sm:text-sm text-gray-500 dark:text-gray-400"
                   style={{
                     fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',

@@ -21,53 +21,98 @@ function AdminProfileData({ selectedUser, from }) {
   let searchParams = useSearchParams()
   const router = useRouter()
 
-  let manuBar = [
-    {
-      id: 1,
-      heading: 'Basic Information',
-      subHeading: 'Manage personal information ',
-      icon: '/otherAssets/profileCircle.png',
-    },
-    {
-      id: 2,
-      heading: 'Plans & Payment',
-      subHeading: 'Manage your plans and payment method',
-      icon: '/otherAssets/walletIcon.png',
-    },
-    {
-      id: 3,
-      heading: 'Billing',
-      subHeading: 'Manage your billing transactions',
-      icon: '/otherAssets/billingIcon.png',
-    },
-    {
-      id: 4,
-      heading: 'Phone Numbers',
-      subHeading: 'All agent phone numbers',
-      icon: '/assets/unSelectedCallIcon.png',
-    },
-    {
-      id: 5,
-      heading: 'Twilio Trust Hub',
-      subHeading: 'Caller ID & compliance for trusted calls',
-      icon: '/svgIcons/twilioHub.svg',
-    },
+  const [xbarTitle, setXbarTitle] = useState('X Bar Services')
 
-    {
-      id: 6,
-      heading: 'Bar Services',
-      subHeading: 'Our version of the genius bar',
-      icon: '/svgIcons/agentXIcon.svg',
-    },
-  ]
+
 
   const [tabSelected, setTabSelected] = useState(1)
 
+  let manuBar = []
+
+ manuBar = [
+  {
+    id: 1,
+    heading: 'Basic Information',
+    subHeading: 'Manage personal information ',
+    icon: '/otherAssets/profileCircle.png',
+    permissionKey: null, // Basic info is always accessible
+  },
+  {
+    id: 2,
+    heading: 'Plans & Payment',
+    subHeading: 'Manage your plans and payment method',
+    icon: '/otherAssets/walletIcon.png',
+    permissionKey: 'subaccount.payment.manage',
+  },
+  {
+    id: 3,
+    heading: 'Billing',
+    subHeading: 'Manage your billing transactions',
+    icon: '/otherAssets/billingIcon.png',
+    permissionKey: 'subaccount.billing.view',
+  },
+  {
+    id: 4,
+    heading: 'Phone Numbers',
+    subHeading: 'All agent phone numbers',
+    icon: '/assets/unSelectedCallIcon.png',
+    permissionKey: 'subaccount.phone_numbers.manage',
+  },
+  {
+    id: 5,
+    heading: 'Twilio Trust Hub',
+    subHeading: 'Caller ID & compliance for trusted calls',
+    icon: '/svgIcons/twilioHub.svg',
+    permissionKey: 'subaccount.phone_numbers.manage', // Same key as for phone numbers since they do the same thing
+  },
+  {
+    id: 6,
+    heading: xbarTitle || 'Bar Services',
+    subHeading: 'Our version of the genius bar',
+    icon: '/svgIcons/agentXIcon.svg',
+    permissionKey: null, // No specific permission for this
+  },
+]
+
   const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected])
+
+
+  useEffect(() => {
+    getXbarTitle()
+  }, [selectedManu])
+  const getXbarTitle = () => {
+    try {
+      const storedBranding = localStorage.getItem('agencyBranding')
+      if (storedBranding) {
+        const branding = JSON.parse(storedBranding)
+        if (branding?.xbarTitle) {
+          setXbarTitle(branding.xbarTitle)
+          return
+        }
+      }
+      // Fallback: check user data
+      const userData = localStorage.getItem('User')
+      if (userData) {
+        const parsedUser = JSON.parse(userData)
+        const branding = parsedUser?.user?.agencyBranding || parsedUser?.agencyBranding
+        if (branding?.xbarTitle) {
+          setXbarTitle(branding.xbarTitle)
+          return
+        }
+      }
+    } catch (error) {
+      console.log('Error getting xbar title from branding:', error)
+    }
+    // Default title
+  }
+  
+
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false)
 
   // Check if the selectedUser is a subaccount
   const isSubaccount = selectedUser?.userRole === 'AgencySubAccount' || from === 'subaccount'
+
+
 
   const renderComponent = () => {
     // setTabSelected(selectedMenuId);
