@@ -13,6 +13,9 @@ import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiS
 import { toast } from '@/utils/toast'
 import { TypographyH3, TypographyBody } from '@/lib/typography'
 import { cn } from '@/lib/utils'
+import DelConfirmationPopup from '../onboarding/extras/DelConfirmationPopup'
+import { Box, CircularProgress, Modal } from '@mui/material'
+import CloseBtn from '../globalExtras/CloseBtn'
 
 const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = null, buttonRef = null, selectedUser = null }) => {
   const [tasks, setTasks] = useState([])
@@ -23,7 +26,10 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
   const [teamMembers, setTeamMembers] = useState([])
   const [counts, setCounts] = useState({ todo: 0, 'in-progress': 0, done: 0 })
   const [position, setPosition] = useState({ top: 0, right: 0 })
+  const [selectedTaskForDelete, setSelectedTaskForDelete] = useState(null)
   const taskBoardRef = useRef(null)
+
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
 
   // Priority options for dropdowns
   const priorityOptions = [
@@ -49,11 +55,11 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
         const viewportHeight = window.innerHeight
         const taskBoardWidth = 552 // From Figma
         const taskBoardHeight = 771 // From Figma
-        
+
         // Position to the right of the button, aligned to top
         let right = viewportWidth - buttonRect.right - 20 // 20px offset from button
         let top = buttonRect.top
-        
+
         // Ensure it doesn't go off screen
         if (right < 20) {
           right = 20
@@ -64,16 +70,16 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
         if (top < 20) {
           top = 20
         }
-        
+
         setPosition({ top, right })
       }
 
       updatePosition()
-      
+
       // Update on scroll/resize
       window.addEventListener('scroll', updatePosition, true)
       window.addEventListener('resize', updatePosition)
-      
+
       return () => {
         window.removeEventListener('scroll', updatePosition, true)
         window.removeEventListener('resize', updatePosition)
@@ -192,24 +198,24 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
         prevTasks.map((task) =>
           task.id === taskId
             ? {
-                ...task,
-                ...updateData,
-                // Handle assignedMembers if assignedTo is provided
-                ...(updateData.assignedTo && {
-                  assignedMembers: updateData.assignedTo.map((memberId) => {
-                    const member = teamMembers.find(
-                      (m) => (m.invitedUserId || m.invitedUser?.id || m.id) === memberId
-                    )
-                    return member
-                      ? {
-                          id: memberId,
-                          name: member.name || member.invitedUser?.name || 'Unknown',
-                          thumb_profile_image: member.thumb_profile_image || member.invitedUser?.thumb_profile_image,
-                        }
-                      : { id: memberId }
-                  }),
+              ...task,
+              ...updateData,
+              // Handle assignedMembers if assignedTo is provided
+              ...(updateData.assignedTo && {
+                assignedMembers: updateData.assignedTo.map((memberId) => {
+                  const member = teamMembers.find(
+                    (m) => (m.invitedUserId || m.invitedUser?.id || m.id) === memberId
+                  )
+                  return member
+                    ? {
+                      id: memberId,
+                      name: member.name || member.invitedUser?.name || 'Unknown',
+                      thumb_profile_image: member.thumb_profile_image || member.invitedUser?.thumb_profile_image,
+                    }
+                    : { id: memberId }
                 }),
-              }
+              }),
+            }
             : task
         )
       )
@@ -261,7 +267,10 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
   // Handle task deletion
   const handleDeleteTask = async (taskId) => {
     try {
+      setLoading(true)
       const response = await deleteTask(taskId, selectedUser?.id)
+      setShowDeleteConfirmation(false)
+      setSelectedTaskForDelete(null)
       if (response.status) {
         toast.success('Task deleted successfully')
         fetchTasks() // Refresh list
@@ -273,6 +282,8 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
     } catch (error) {
       console.error('Error deleting task:', error)
       toast.error('Failed to delete task')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -314,7 +325,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
 
     const handleClickOutside = (event) => {
       const target = event.target
-      
+
       // CRITICAL FIX: Check if click originated from inside task board using composed path
       // This catches clicks on dropdown triggers/content even if they're in portals
       const path = event.composedPath && event.composedPath() || []
@@ -329,7 +340,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
       if (shouldNotClose) {
         return
       }
-      
+
       // Don't close if clicking the button that opened it
       if (buttonRef?.current && buttonRef.current.contains(target)) {
         return
@@ -338,8 +349,8 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
       // If clicking outside task board, check if any dropdowns are open
       // If dropdowns are open, don't close modal (let dropdown handle its own closing)
       const hasOpenDropdown = document.querySelector('[data-radix-dropdown-menu-content][data-state="open"]') ||
-                              document.querySelector('[data-radix-popover-content][data-state="open"]') ||
-                              document.querySelector('[role="menu"][data-state="open"]')
+        document.querySelector('[data-radix-popover-content][data-state="open"]') ||
+        document.querySelector('[role="menu"][data-state="open"]')
       if (hasOpenDropdown) {
         return
       }
@@ -443,7 +454,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
                   <div className="text-muted-foreground">Loading tasks...</div>
                 </div>
               ) : filteredTasks.length === 0 ? (
-                <TaskEmptyState 
+                <TaskEmptyState
                   title={selectedStatus === 'todo' ? 'No Task Created' : 'No Task Found'}
                   description={selectedStatus === 'todo' ? undefined : null}
                 />
@@ -454,7 +465,10 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
                       key={task.id}
                       task={task}
                       onUpdate={handleUpdateTask}
-                      onDelete={handleDeleteTask}
+                      onDelete={() => {
+                        setShowDeleteConfirmation(true)
+                        setSelectedTaskForDelete(task)
+                      }}
                       teamMembers={teamMembers}
                       priorityOptions={priorityOptions}
                       statusOptions={statusOptions}
@@ -503,6 +517,44 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
           </div>
         </div>
       </div>
+      {showDeleteConfirmation && (
+        <Modal
+          open={showDeleteConfirmation}
+          onClose={() => {
+            setShowDeleteConfirmation(false)
+            setSelectedTaskForDelete(null)
+          }}
+          BackdropProps={{
+            timeout: 200,
+            sx: {
+              backgroundColor: '#00000020',
+              // //backdropFilter: "blur(20px)",
+            },
+          }}
+        >
+          <Box
+            className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
+            sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
+          >
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ fontWeight: '500', fontSize: 17 }}>
+                  Delete Task
+                </div>
+
+              </div>
+              <div style={{ fontWeight: '500', fontSize: 15 }}>
+                Are you sure you want to delete this task?
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'between', gap: 10 ,width: '100%'}}>
+                <Button variant="outline-none" className="w-1/2 text-left text-[#6b7280]" onClick={() => setShowDeleteConfirmation(false)}>Cancel</Button>
+                <Button className="bg-brand-primary text-white hover:bg-brand-primary/90 w-1/2" onClick={() => handleDeleteTask(selectedTaskForDelete.id)} disabled={loading}>
+                {loading ? "Deleting..." : 'Delete'}</Button>
+              </div>
+            </div>
+          </Box>
+        </Modal>
+      )}
       <style jsx>{`
         @keyframes fadeIn {
           from {
@@ -529,3 +581,17 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
 }
 
 export default TaskBoard
+
+const styles = {
+  modalsStyle: {
+    height: 'auto',
+    bgcolor: 'transparent',
+    // p: 2,
+    mx: 'auto',
+    my: '50vh',
+    transform: 'translateY(-55%)',
+    borderRadius: 2,
+    border: 'none',
+    outline: 'none',
+  },
+}

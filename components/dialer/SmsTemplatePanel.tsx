@@ -152,7 +152,7 @@ export default function SmsTemplatePanel({
                   onClick={() => onTemplateSelect(template)}
                   className={`p-3 border rounded-lg cursor-pointer transition-all ${
                     selectedTemplate?.id === template.id
-                      ? 'border-2 border-purple-500 bg-purple-50'
+                      ? 'border-2 border-brand-primary bg-brand-primary/10'
                       : 'border border-gray-200 hover:border-gray-300'
                   }`}
                 >

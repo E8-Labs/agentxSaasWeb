@@ -57,6 +57,7 @@ import { GetFormattedDateString } from '@/utilities/utility'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import AdminAssignLead from './AdminAssignLead'
 import CreateSmartlistModal from '@/components/messaging/CreateSmartlistModal'
+import { TypographyH3 } from '@/lib/typography'
 
 const AdminLeads = ({
   handleShowAddLeadModal,
@@ -1608,7 +1609,7 @@ const AdminLeads = ({
         // style={{ borderBottom: "1px solid #15151510" }}
       >
         <div className="flex fex-row items-center gap-2">
-          <div style={{ fontWeight: '600', fontSize: 24 }}>Leads</div>
+          <TypographyH3>Leads</TypographyH3>
           {userDetails?.currentUsage?.maxLeads &&
             userDetails?.planCapabilities?.maxLeads < 10000000 &&
             userDetails?.plan?.planId != null && (

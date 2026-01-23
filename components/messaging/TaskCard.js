@@ -98,9 +98,9 @@ const TaskCard = ({
       label: 'Delete',
       value: 'delete',
       onSelect: () => {
-        if (window.confirm('Are you sure you want to delete this task?')) {
+       
           onDelete(task.id)
-        }
+        
       },
     },
   ]
@@ -188,7 +188,7 @@ const TaskCard = ({
             icon={MoreVertical}
             options={moreOptions}
             backgroundClassName="text-foreground"
-            className="border-0 shadow-none h-[36px]"
+            className="border-0 shadow-none h-[36px] w-[30px]"
             hideChevron={true}
             iconColor="#8A8A8A"
           />

@@ -445,6 +445,9 @@ function AllCalls({ user }) {
       if (currentRequestVersion === requestVersion.current) {
         if (response) {
           const data = response.data.data
+
+          console.log("data from all calls", data)
+
           localStorage.setItem(
             'callDetails',
             JSON.stringify(response.data.data),

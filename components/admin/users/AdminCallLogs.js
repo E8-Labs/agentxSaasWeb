@@ -12,6 +12,7 @@ import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
 import AdminActiveCalls from './callLog/AdminActiveCalls'
 import AdminAllCalls from './callLog/AdminAllCalls'
 import AdminScheduledCalls from './callLog/AdminScheduledCalls'
+import { TypographyH3 } from '@/lib/typography'
 
 function AdminCallLogs({ selectedUser }) {
   const [activeTab, setActiveTab] = useState('All Activities')
@@ -32,7 +33,7 @@ function AdminCallLogs({ selectedUser }) {
         >
           <DashboardSlider needHelp={false} selectedUser={selectedUser} />
         </div>
-        <div style={{ fontSize: 24, fontWeight: '600' }}>Activity</div>
+        <TypographyH3>Activity</TypographyH3>
       </div>
       <div className=" w-full flex mt-4  gap-8 pb-2 mb-4 pl-10 ">
         {['All Activities', 'Campaign Activity'].map((tab) => (

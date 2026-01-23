@@ -55,6 +55,7 @@ const AdvancedSettingsModalCN = ({
   onSave,
   initialValues = {},
   loading = false,
+  
   className,
 }) => {
   const [maxDurationSeconds, setMaxDurationSeconds] = useState(
@@ -110,8 +111,8 @@ const AdvancedSettingsModalCN = ({
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn('max-w-2xl', className)}>
+    <Dialog className="z-[1500]" open={open} onOpenChange={onOpenChange}>
+      <DialogContent className={cn('max-w-2xl z-[1600]', className)}>
         <DialogHeader>
           <DialogTitle>Advanced Settings</DialogTitle>
           <DialogDescription>
@@ -137,22 +138,7 @@ const AdvancedSettingsModalCN = ({
             step={1}
             placeholder="Maximum Duration"
           />
-          {/* Maximum Duration Slider */}
-          <SliderCN
-            value={maxDurationSeconds}
-            onValueChange={(values) => setMaxDurationSeconds(values[0])}
-            onInputChange={(val) => {
-              const numVal = parseInt(val) || 0
-              setMaxDurationSeconds(numVal)
-            }}
-            min={10}
-            max={43200}
-            step={1}
-            label="Maximum Duration"
-            description="The maximum number of minutes a call will last. Change the unit to minutes."
-            icon={<Clock className="h-6 w-6" />}
-            unit="sec"
-          />
+      
 
           {/* Silence Timeout Slider */}
           <SliderCN
@@ -198,13 +184,6 @@ const AdvancedSettingsModalCN = ({
         </div>
 
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={handleCancel}
-            disabled={loading}
-          >
-            Cancel
-          </Button>
           <Button
             onClick={handleSave}
             disabled={loading || !isValid()}
