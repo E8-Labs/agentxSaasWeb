@@ -143,21 +143,37 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
       // Check if user is an agency
       const userRole = u?.user?.userRole || u?.userRole
       setIsAgency(userRole === 'Agency')
+      
+      // For Invitee users, we need to get the agency owner's plan cost
+      const isInvitee = userRole === 'Invitee'
+      
       if (selectedAgency) {
-        if (selectedAgency?.planCapabilities?.aiCreditRate) {
-          setAgencyPlanCost(selectedAgency?.planCapabilities?.aiCreditRate)
+        // If Invitee, we'll fetch agency owner's cost in the fetch effect below
+        // Otherwise, use selectedAgency's cost
+        if (isInvitee) {
+          // For Invitee users, always fetch agency owner's cost (not subaccount's)
+          // Don't set cost here, let the fetch effect handle it
         } else {
-          setAgencyPlanCost(selectedAgency?.plan?.capabilities?.aiCreditRate)
+          if (selectedAgency?.planCapabilities?.aiCreditRate) {
+            setAgencyPlanCost(selectedAgency?.planCapabilities?.aiCreditRate)
+          } else {
+            setAgencyPlanCost(selectedAgency?.plan?.capabilities?.aiCreditRate)
+          }
         }
       } else {
         let agencyFromLocal = u.user
 
         if (agencyFromLocal) {
-          // const u = JSON.parse(agencyFromLocal);
-          if (agencyFromLocal?.planCapabilities?.aiCreditRate) {
-            setAgencyPlanCost(agencyFromLocal?.planCapabilities?.aiCreditRate)
+          // For Invitee users, we need to get agency owner's plan cost
+          if (isInvitee) {
+            // We'll fetch agency owner's cost in the fetch effect below
+            // Don't set cost here
           } else {
-            setAgencyPlanCost(agencyFromLocal?.plan?.capabilities?.aiCreditRate)
+            if (agencyFromLocal?.planCapabilities?.aiCreditRate) {
+              setAgencyPlanCost(agencyFromLocal?.planCapabilities?.aiCreditRate)
+            } else {
+              setAgencyPlanCost(agencyFromLocal?.plan?.capabilities?.aiCreditRate)
+            }
           }
         }
       }
@@ -165,9 +181,18 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
   }, [selectedAgency])
 
   // Fetch agency plan cost if not available - fixes intermittent $0.00 issue
+  // Also handles Invitee users by fetching agency owner's plan cost
   useEffect(() => {
-    // Reset fetch flag when cost becomes available
-    if (agencyPlanCost && Number(agencyPlanCost) > 0) {
+    const localData = localStorage.getItem('User')
+    if (!localData) return
+    
+    const u = JSON.parse(localData)
+    const userRole = u?.user?.userRole || u?.userRole
+    const isInvitee = userRole === 'Invitee'
+    
+    // For Invitee users, always fetch (they need agency owner's cost)
+    // For others, only fetch if cost is missing
+    if (!isInvitee && agencyPlanCost && Number(agencyPlanCost) > 0) {
       fetchingCostRef.current = false
       return
     }
@@ -177,20 +202,163 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
       if ((!agencyPlanCost || Number(agencyPlanCost) === 0) && !fetchingCostRef.current) {
         fetchingCostRef.current = true
         try {
-          const profileResponse = await getProfileDetails(selectedAgency)
+          const localData = localStorage.getItem('User')
+          if (!localData) {
+            fetchingCostRef.current = false
+            return
+          }
+          
+          const u = JSON.parse(localData)
+          const userRole = u?.user?.userRole || u?.userRole
+          const isInvitee = userRole === 'Invitee'
+          
+          let targetUserId = null
+          
+          // For Invitee users, get the agency owner ID
+          if (isInvitee) {
+            // Get agency owner from team relationship using GetTeamMembers API
+            try {
+              const teamResponse = await axios.get(Apis.getTeam, {
+                headers: {
+                  Authorization: `Bearer ${u.token}`,
+                  'Content-Type': 'application/json',
+                },
+              })
+              
+              if (teamResponse?.data?.status && teamResponse.data.admin) {
+                // GetTeamMembers API returns the admin (team owner) in the response
+                const admin = teamResponse.data.admin
+                if (admin?.id && admin?.userRole === 'Agency') {
+                  targetUserId = admin.id
+                }
+              }
+            } catch (teamError) {
+              console.warn('⚠️ [DashboardPlans] Could not fetch team info:', teamError)
+            }
+            
+            // Fallback: If team fetch failed, try to get agency owner from selectedAgency
+            if (!targetUserId && selectedAgency?.agencyId) {
+              targetUserId = selectedAgency.agencyId
+            }
+          } else if (selectedAgency?.id) {
+            // For non-Invitee users, use selectedAgency's ID
+            targetUserId = selectedAgency.id
+          }
+          
+          // Fetch profile with targetUserId if available, otherwise use getProfileDetails
+          let profileResponse
+          if (targetUserId && isInvitee) {
+            // Fetch agency owner's profile
+            const Auth = u.token
+            console.log(`🔍 [DashboardPlans] Fetching agency owner (${targetUserId}) profile for Invitee user`)
+            profileResponse = await axios.get(`${Apis.getProfileFromId}?id=${targetUserId}`, {
+              headers: {
+                Authorization: `Bearer ${Auth}`,
+                'Content-Type': 'application/json',
+              },
+            })
+            console.log(`📦 [DashboardPlans] Agency owner profile response:`, profileResponse?.data?.status ? 'Success' : 'Failed')
+          } else if (!isInvitee) {
+            profileResponse = await getProfileDetails(selectedAgency)
+          } else {
+            console.warn('⚠️ [DashboardPlans] Invitee user but no targetUserId found')
+            fetchingCostRef.current = false
+            return
+          }
+          
           if (profileResponse?.data?.status === true) {
-            const userData = profileResponse.data.data
-            const cost = 
-              userData?.planCapabilities?.aiCreditRate || 
-              userData?.plan?.grandfatheredFeatures?.aiCreditRate ||
-              userData?.plan?.features?.aiCreditRate ||
-              selectedAgency?.planCapabilities?.aiCreditRate ||
-              selectedAgency?.plan?.capabilities?.aiCreditRate
+            const userData = profileResponse.data.data || profileResponse.data
+            console.log(`💰 [DashboardPlans] Extracting cost from profile:`, {
+              hasPlanCapabilities: !!userData?.planCapabilities,
+              aiCreditRate: userData?.planCapabilities?.aiCreditRate,
+              hasPlan: !!userData?.plan,
+              planFeatures: userData?.plan?.features,
+              planDynamicFeatures: userData?.plan?.dynamicFeatures,
+              subscribedPlan: userData?.subscribedPlan,
+              fullData: userData
+            })
+            
+            // Try multiple paths to find aiCreditRate
+            // The plan data structure can vary, so we check all possible locations
+            let cost = null
+            
+            // 1. planCapabilities (set by UserProfileFullResource - should have aiCreditRate)
+            if (userData?.planCapabilities?.aiCreditRate) {
+              cost = userData.planCapabilities.aiCreditRate
+            }
+            // 2. plan.features (from SubscriptionPlans - could be dynamicFeatures or features)
+            else if (userData?.plan?.features?.aiCreditRate) {
+              cost = userData.plan.features.aiCreditRate
+            }
+            // 3. plan.dynamicFeatures (direct access to dynamicFeatures)
+            else if (userData?.plan?.dynamicFeatures?.aiCreditRate) {
+              cost = userData.plan.dynamicFeatures.aiCreditRate
+            }
+            // 4. subscribedPlan.features (from userProfileFullResource - set from plan.dynamicFeatures || plan.features)
+            else if (userData?.subscribedPlan?.features?.aiCreditRate) {
+              cost = userData.subscribedPlan.features.aiCreditRate
+            }
+            // 5. plan.capabilities (alternative location)
+            else if (userData?.plan?.capabilities?.aiCreditRate) {
+              cost = userData.plan.capabilities.aiCreditRate
+            }
+            // 6. plan.grandfatheredFeatures (for grandfathered plans)
+            else if (userData?.plan?.grandfatheredFeatures?.aiCreditRate) {
+              cost = userData.plan.grandfatheredFeatures.aiCreditRate
+            }
+            // 7. Fallback to selectedAgency if available
+            else if (selectedAgency?.planCapabilities?.aiCreditRate) {
+              cost = selectedAgency.planCapabilities.aiCreditRate
+            }
+            else if (selectedAgency?.plan?.dynamicFeatures?.aiCreditRate) {
+              cost = selectedAgency.plan.dynamicFeatures.aiCreditRate
+            }
+            else if (selectedAgency?.plan?.capabilities?.aiCreditRate) {
+              cost = selectedAgency.plan.capabilities.aiCreditRate
+            }
+            
+            console.log(`💵 [DashboardPlans] Extracted cost:`, cost)
+            
             if (cost && Number(cost) > 0) {
               setAgencyPlanCost(cost)
+              console.log(`✅ [DashboardPlans] Agency plan cost set to: $${cost}`)
             } else {
-              console.warn('⚠️ [DashboardPlans] Agency cost still not available after fetch')
+              console.warn('⚠️ [DashboardPlans] Agency cost still not available after fetch. UserData keys:', Object.keys(userData || {}))
+              
+              // Last resort: Try to get plan ID from plan history and fetch plan directly
+              // Check if we can get planId from the user's plan history
+              const planId = userData?.plan?.planId || userData?.plan?.id || userData?.subscribedPlan?.id
+              if (planId && isInvitee && targetUserId) {
+                console.log(`🔄 [DashboardPlans] Attempting to fetch plan ${planId} directly for agency owner ${targetUserId}`)
+                try {
+                  // Try to fetch the plan using the plans API
+                  const planResponse = await axios.get(`${Apis.getPlanById}?id=${planId}`, {
+                    headers: {
+                      Authorization: `Bearer ${u.token}`,
+                      'Content-Type': 'application/json',
+                    },
+                  })
+                  
+                  if (planResponse?.data?.status && planResponse.data.data) {
+                    const planData = planResponse.data.data
+                    // Check both dynamicFeatures and features
+                    const directCost = planData?.dynamicFeatures?.aiCreditRate || planData?.features?.aiCreditRate
+                    if (directCost && Number(directCost) > 0) {
+                      setAgencyPlanCost(directCost)
+                      console.log(`✅ [DashboardPlans] Agency plan cost set from direct plan fetch: $${directCost}`)
+                    } else {
+                      console.warn(`⚠️ [DashboardPlans] Plan ${planId} found but no aiCreditRate in dynamicFeatures or features`)
+                    }
+                  }
+                } catch (planError) {
+                  console.error('❌ [DashboardPlans] Error fetching plan directly:', planError)
+                }
+              } else if (!planId && isInvitee) {
+                console.warn(`⚠️ [DashboardPlans] No planId found in userData for Invitee. Plan:`, userData?.plan, `SubscribedPlan:`, userData?.subscribedPlan)
+              }
             }
+          } else {
+            console.error('❌ [DashboardPlans] Profile fetch failed:', profileResponse?.data?.message || 'Unknown error')
           }
         } catch (error) {
           console.error('❌ [DashboardPlans] Error fetching agency cost:', error)
@@ -201,9 +369,20 @@ function DashboardPlans({ selectedAgency, initialTab = 'monthly' }) {
     }
 
     // Fetch when modal opens or when selectedAgency changes (but only if cost is missing)
+    // For Invitee users, always try to fetch (they need agency owner's cost)
     // Also add a small delay to let the first useEffect set the cost from props/localStorage
     const timeoutId = setTimeout(() => {
-      if (open || selectedAgency) {
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        const u = JSON.parse(localData)
+        const userRole = u?.user?.userRole || u?.userRole
+        const isInvitee = userRole === 'Invitee'
+        
+        // Always fetch for Invitee users, or if modal is open/selectedAgency is set
+        if (isInvitee || open || selectedAgency) {
+          fetchAgencyCostIfMissing()
+        }
+      } else if (open || selectedAgency) {
         fetchAgencyCostIfMissing()
       }
     }, 100) // Small delay to let other useEffects run first

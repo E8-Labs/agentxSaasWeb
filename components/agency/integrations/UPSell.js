@@ -156,9 +156,44 @@ const UPSell = ({ selectedAgency }) => {
       setInitialLoader(true)
       let ApiPath = Apis.userSettings
       
-      // Add userId parameter if selectedAgency is provided (admin view)
-      if (selectedAgency?.id) {
-        ApiPath += `?userId=${selectedAgency.id}`
+      // Check if current user is Invitee - if so, fetch agency owner's settings
+      const localData = localStorage.getItem('User')
+      let targetUserId = null
+      
+      if (localData) {
+        const u = JSON.parse(localData)
+        const userRole = u?.user?.userRole || u?.userRole
+        const isInvitee = userRole === 'Invitee'
+        
+        if (isInvitee) {
+          // For Invitee users, get the agency owner ID
+          try {
+            const teamResponse = await axios.get(Apis.getTeam, {
+              headers: {
+                Authorization: `Bearer ${u.token}`,
+                'Content-Type': 'application/json',
+              },
+            })
+            
+            if (teamResponse?.data?.status && teamResponse.data.admin) {
+              // GetTeamMembers API returns the admin (team owner) in the response
+              const admin = teamResponse.data.admin
+              if (admin?.id && admin?.userRole === 'Agency') {
+                targetUserId = admin.id
+              }
+            }
+          } catch (teamError) {
+            console.warn('⚠️ [UPSell] Could not fetch team info:', teamError)
+          }
+        } else if (selectedAgency?.id) {
+          // For non-Invitee users, use selectedAgency's ID (admin/agency view)
+          targetUserId = selectedAgency.id
+        }
+      }
+      
+      // Add userId parameter if we have a target user
+      if (targetUserId) {
+        ApiPath += `?userId=${targetUserId}`
       }
       
       const Auth = AuthToken()
