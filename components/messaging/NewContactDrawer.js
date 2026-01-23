@@ -95,9 +95,13 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
   // Disable pointer events on Sheet overlay and content when modal is open
   useEffect(() => {
     if (showCreateSmartlistModal) {
-      // Find and disable pointer events on Sheet overlay
+      // Find and disable pointer events on Sheet overlay and content
       const sheetOverlay = document.querySelector('[data-radix-dialog-overlay]')
       const sheetContent = document.querySelector('[data-radix-dialog-content]')
+      
+      // Also find all MUI Modal elements and ensure they're above everything
+      const muiModal = document.querySelector('[class*="MuiModal-root"]')
+      const muiBackdrop = document.querySelector('[class*="MuiBackdrop-root"]')
       
       if (sheetOverlay) {
         sheetOverlay.style.pointerEvents = 'none'
@@ -107,6 +111,30 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
         sheetContent.style.pointerEvents = 'none'
       }
       
+      // Ensure MUI Modal is on top
+      if (muiModal) {
+        muiModal.style.zIndex = '9999'
+        muiModal.style.pointerEvents = 'auto'
+      }
+      if (muiBackdrop) {
+        muiBackdrop.style.zIndex = '9999'
+        muiBackdrop.style.pointerEvents = 'auto'
+      }
+      
+      // Add a global click handler to ensure inputs work
+      const handleGlobalClick = (e) => {
+        const target = e.target
+        // If clicking inside the modal, ensure it's not blocked
+        if (muiModal && muiModal.contains(target)) {
+          // Allow the event to proceed normally
+          return
+        }
+      }
+      
+      document.addEventListener('click', handleGlobalClick, true)
+      document.addEventListener('mousedown', handleGlobalClick, true)
+      document.addEventListener('pointerdown', handleGlobalClick, true)
+      
       return () => {
         if (sheetOverlay) {
           sheetOverlay.style.pointerEvents = 'auto'
@@ -114,6 +142,9 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
         if (sheetContent) {
           sheetContent.style.pointerEvents = 'auto'
         }
+        document.removeEventListener('click', handleGlobalClick, true)
+        document.removeEventListener('mousedown', handleGlobalClick, true)
+        document.removeEventListener('pointerdown', handleGlobalClick, true)
       }
     }
   }, [showCreateSmartlistModal])
@@ -308,8 +339,15 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
       const userData = JSON.parse(localData)
       const token = userData.token
 
+      // Build query string with userId if selectedUser is provided (for agency viewing subaccount)
+      let queryString = ''
+      const userId = selectedUser?.id || selectedUser?.userId || selectedUser?.user?.id
+      if (userId) {
+        queryString = `?userId=${userId}`
+      }
+
       // Fetch all agents (same as AssignLead.js)
-      const response = await axios.get('/api/agents', {
+      const response = await axios.get(`/api/agents${queryString}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -679,7 +717,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
   }
 
   return (
-    <Sheet open={open} onOpenChange={handleOpenChange} modal={true}>
+    <Sheet open={open} onOpenChange={handleOpenChange} modal={!showCreateSmartlistModal}>
       <SheetContent
         side="right"
         className={cn(

@@ -17,7 +17,7 @@ import axios from 'axios'
 import { initializeApp } from 'firebase/app'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useMemo } from 'react'
 import moment from 'moment'
 
 import EditAgencyName from '@/components/agency/agencyExtras.js/EditAgencyName'
@@ -47,16 +47,14 @@ import AgentSelectSnackMessage, {
 } from '../leads/AgentSelectSnackMessage'
 import AgencyChecklist from './AgencyChecklist'
 import CheckList from './CheckList'
-import { PermissionProvider, useHasPermission } from '@/contexts/PermissionContext'
+import { PermissionProvider, useHasPermission, usePermission } from '@/contexts/PermissionContext'
 
 const stripePromise = getStripe()
 
 // Component to render a nav link with permission check
-function PermissionNavLink({ item, isActive }) {
-  const [hasAccess, isLoading] = useHasPermission(item.permissionKey)
-  
-  // Don't render if no permission (hide the link)
-  if (!isLoading && !hasAccess) {
+function PermissionNavLink({ item, isActive, hasAccess }) {
+  // hasAccess is passed from parent to avoid individual loading states
+  if (!hasAccess) {
     return null
   }
   
@@ -124,9 +122,12 @@ function NavLinkItem({ item, isActive }) {
 const AgencyNavBarContent = () => {
   const router = useRouter()
   const pathname = usePathname()
+  const permissionContext = usePermission()
   
   // Get user data to check if they're an Invitee
   const [userRole, setUserRole] = useState(null)
+  const [permissionsLoaded, setPermissionsLoaded] = useState(false)
+  const [menuPermissions, setMenuPermissions] = useState({})
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -145,6 +146,89 @@ const AgencyNavBarContent = () => {
   // For non-Invitee users, show all links (they have full access)
   // For Invitee users, we'll filter based on permissions
   const isInvitee = userRole === 'Invitee'
+  
+  // Define agency links with their required permissions (memoized to prevent unnecessary re-renders)
+  const allAgencyLinks = useMemo(() => [
+    {
+      id: 1,
+      name: 'Dashboard',
+      href: '/agency/dashboard',
+      selected: '/agencyNavbarIcons/selectdDashboardIcon.png',
+      uneselected: '/agencyNavbarIcons/unSelectedDashboardIcon.png',
+      permissionKey: 'agency.dashboard.view',
+    },
+    {
+      id: 2,
+      name: 'Integrations',
+      href: '/agency/dashboard/integration',
+      selected: '/agencyNavbarIcons/integrationFocus.png',
+      uneselected: '/agencyNavbarIcons/integrationsUnFocus.png',
+      permissionKey: 'agency.integrations.manage',
+    },
+    {
+      id: 3,
+      name: 'Plans',
+      href: '/agency/dashboard/plans',
+      selected: '/agencyNavbarIcons/selectedPlansIcon.png',
+      uneselected: '/agencyNavbarIcons/unSelectedPlansIcon.png',
+      permissionKey: 'agency.plans.manage',
+    },
+    {
+      id: 4,
+      name: 'Sub Account',
+      href: '/agency/dashboard/subAccounts',
+      selected: '/agencyNavbarIcons/selectedSubAccountIcon.png',
+      uneselected: '/agencyNavbarIcons/unSelectedSubAccountIcon.png',
+      permissionKey: 'agency.subaccounts.manage',
+    },
+    {
+      id: 5,
+      name: 'Activity',
+      href: '/agency/dashboard/callLogs',
+      selected: '/otherAssets/selectedActivityLog.png',
+      uneselected: '/otherAssets/activityLog.png',
+      permissionKey: 'agency.activity.view',
+    },
+    {
+      id: 6,
+      name: 'Teams',
+      href: '/agency/dashboard/teams',
+      selected: '/agencyNavbarIcons/selectedTeam.png',
+      uneselected: '/agencyNavbarIcons/unSelectedTeamIcon.png',
+      permissionKey: 'agency.teams.manage',
+    },
+    {
+      id: 7,
+      name: 'Whitelabel',
+      href: '/agency/dashboard/whitelabel',
+      selected: '/agencyNavbarIcons/selectedWhitelabelling.png',
+      uneselected: '/agencyNavbarIcons/unSelectedWhitelabelling.png',
+      permissionKey: 'agency.whitelabel.manage',
+    },
+  ], [])
+
+  // Pre-check all permissions for Invitee users to prevent flicker
+  useEffect(() => {
+    if (!isInvitee || !permissionContext) {
+      // Non-Invitee users have all permissions, or no permission context
+      setPermissionsLoaded(true)
+      return
+    }
+    
+    const checkAllPermissions = async () => {
+      const permissions = {}
+      const permissionChecks = allAgencyLinks.map(async (item) => {
+        const hasAccess = await permissionContext.hasPermission(item.permissionKey)
+        permissions[item.id] = hasAccess
+      })
+      
+      await Promise.all(permissionChecks)
+      setMenuPermissions(permissions)
+      setPermissionsLoaded(true)
+    }
+    
+    checkAllPermissions()
+  }, [isInvitee, permissionContext, allAgencyLinks])
 
   // Track current pathname in state to force re-renders when it changes
   // This ensures the UI updates immediately when navigation occurs
@@ -606,65 +690,6 @@ const AgencyNavBarContent = () => {
     }
   }
 
-  // Define agency links with their required permissions
-  const allAgencyLinks = [
-    {
-      id: 1,
-      name: 'Dashboard',
-      href: '/agency/dashboard',
-      selected: '/agencyNavbarIcons/selectdDashboardIcon.png',
-      uneselected: '/agencyNavbarIcons/unSelectedDashboardIcon.png',
-      permissionKey: 'agency.dashboard.view', // Required permission
-    },
-    {
-      id: 2,
-      name: 'Integrations',
-      href: '/agency/dashboard/integration',
-      selected: '/agencyNavbarIcons/integrationFocus.png',
-      uneselected: '/agencyNavbarIcons/integrationsUnFocus.png',
-      permissionKey: 'agency.integrations.manage', // Required permission
-    },
-    {
-      id: 3,
-      name: 'Plans',
-      href: '/agency/dashboard/plans',
-      selected: '/agencyNavbarIcons/selectedPlansIcon.png',
-      uneselected: '/agencyNavbarIcons/unSelectedPlansIcon.png',
-      permissionKey: 'agency.plans.manage', // Required permission
-    },
-    {
-      id: 4,
-      name: 'Sub Account',
-      href: '/agency/dashboard/subAccounts',
-      selected: '/agencyNavbarIcons/selectedSubAccountIcon.png',
-      uneselected: '/agencyNavbarIcons/unSelectedSubAccountIcon.png',
-      permissionKey: 'agency.subaccounts.manage', // Required permission
-    },
-    {
-      id: 5,
-      name: 'Activity',
-      href: '/agency/dashboard/callLogs',
-      selected: '/otherAssets/selectedActivityLog.png',
-      uneselected: '/otherAssets/activityLog.png',
-      permissionKey: 'agency.activity.view', // Required permission
-    },
-    {
-      id: 6,
-      name: 'Teams',
-      href: '/agency/dashboard/teams',
-      selected: '/agencyNavbarIcons/selectedTeam.png',
-      uneselected: '/agencyNavbarIcons/unSelectedTeamIcon.png',
-      permissionKey: 'agency.teams.manage', // Required permission
-    },
-    {
-      id: 7,
-      name: 'Whitelabel',
-      href: '/agency/dashboard/whitelabel',
-      selected: '/agencyNavbarIcons/selectedWhitelabelling.png',
-      uneselected: '/agencyNavbarIcons/unSelectedWhitelabelling.png',
-      permissionKey: 'agency.whitelabel.manage', // Required permission
-    },
-  ]
 
   const styles = {
     modalsStyle: {
@@ -862,23 +887,31 @@ const AgencyNavBarContent = () => {
               msOverflowStyle: 'none',
             }}
           >
-            {allAgencyLinks.map((item) => {
-              // For non-Invitee users, show all links
-              if (!isInvitee) {
+            {!permissionsLoaded && isInvitee ? (
+              // Show loading state while checking permissions
+              <div className="w-full flex flex-col items-center justify-center py-8">
+                <CircularProgress size={24} />
+              </div>
+            ) : (
+              allAgencyLinks.map((item) => {
+                // For non-Invitee users, show all links
+                if (!isInvitee) {
+                  return (
+                    <NavLinkItem key={item.id} item={item} isActive={isActive} />
+                  )
+                }
+                
+                // For Invitee users, use pre-checked permissions
                 return (
-                  <NavLinkItem key={item.id} item={item} isActive={isActive} />
+                  <PermissionNavLink
+                    key={item.id}
+                    item={item}
+                    isActive={isActive}
+                    hasAccess={menuPermissions[item.id] || false}
+                  />
                 )
-              }
-              
-              // For Invitee users, check permission
-              return (
-                <PermissionNavLink
-                  key={item.id}
-                  item={item}
-                  isActive={isActive}
-                />
-              )
-            })}
+              })
+            )}
           </div>
 
           {/* <div>

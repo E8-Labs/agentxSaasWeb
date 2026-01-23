@@ -9,6 +9,7 @@ import Apis from '@/components/apis/Apis'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 
 const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null }) => {
+  const modalRef = useRef(null)
   const [newSheetName, setNewSheetName] = useState('')
   const [isInbound, setIsInbound] = useState(false)
   const [inputs, setInputs] = useState([
@@ -134,8 +135,8 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
       onClose={onClose}
       closeAfterTransition
       disablePortal={false}
-      disableEnforceFocus={true}
-      disableAutoFocus={true}
+      disableEnforceFocus={false}
+      disableAutoFocus={false}
       disableRestoreFocus={true}
       hideBackdrop={false}
       sx={{
@@ -173,6 +174,7 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
       }}
     >
       <Box
+        ref={modalRef}
         className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto rounded-3xl h-[70vh]"
         data-modal-content="create-smartlist"
         sx={{
@@ -190,13 +192,7 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
           maxHeight: '70vh',
           pointerEvents: 'auto',
           isolation: 'isolate', // Create new stacking context
-          '& *': {
-            pointerEvents: 'auto',
-          },
           '& input': {
-            pointerEvents: 'auto !important',
-            zIndex: 10001,
-            position: 'relative',
             cursor: 'text',
             WebkitUserSelect: 'text',
             userSelect: 'text',
@@ -231,11 +227,7 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
               </button>
             </div>
 
-            <div 
-              className="px-4 w-full"
-              style={{ pointerEvents: 'auto' }}
-              onClick={(e) => e.stopPropagation()}
-            >
+            <div className="px-4 w-full">
               <div className="flex flex-row items-end justify-between mt-6 gap-2">
                 <span style={styles.paragraph}>List Name</span>
 
@@ -270,12 +262,17 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
                   onChange={(e) => {
                     setNewSheetName(e.target.value)
                   }}
+                  onFocus={(e) => {
+                    // Ensure input can receive focus
+                    e.target.focus()
+                  }}
                   placeholder="Enter list name"
                   className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px] px-3"
                   style={{
                     ...styles.paragraph,
                     border: '1px solid #00000020',
                   }}
+                  autoFocus={false}
                 />
               </div>
               <div className="mt-8" style={styles.paragraph}>
@@ -285,16 +282,12 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
                 className="max-h-[30vh] overflow-auto mt-2"
                 style={{ 
                   scrollbarWidth: 'none',
-                  pointerEvents: 'auto',
                 }}
-                onClick={(e) => e.stopPropagation()}
               >
                 {inputs.map((input, index) => (
                   <div
                     key={input.id}
                     className="w-full flex flex-row items-center gap-4 mt-4"
-                    style={{ pointerEvents: 'auto' }}
-                    onClick={(e) => e.stopPropagation()}
                   >
                     <input
                       type="text"
@@ -312,6 +305,12 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
                       onChange={(e) => {
                         if (index > 2) {
                           handleInputChange(input.id, e.target.value)
+                        }
+                      }}
+                      onFocus={(e) => {
+                        // Ensure input can receive focus
+                        if (index > 2) {
+                          e.target.focus()
                         }
                       }}
                     />
