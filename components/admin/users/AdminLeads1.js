@@ -895,6 +895,38 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
     setSheetName(e)
   }
 
+  const processEnrichmentPayment = async (leadCount) => {
+    const localData = localStorage.getItem('User')
+    let AuthToken = null
+    if (localData) {
+      const UserDetails = JSON.parse(localData)
+      AuthToken = UserDetails.token
+    }
+
+    const requestBody = {
+      totalLeadsCount: leadCount,
+    }
+
+    // If selectedUser exists (agency/admin adding leads for subaccount), pass userId
+    // This is required for Agency, Admin, or Invitee users
+    if (selectedUser?.id) {
+      requestBody.userId = selectedUser.id
+    }
+
+    const response = await axios.post(
+      Apis.processPayment,
+      requestBody,
+      {
+        headers: {
+          Authorization: 'Bearer ' + AuthToken,
+        },
+      },
+    )
+    if (response.data) {
+      return response.data
+    }
+  }
+
   //code to call api
   const handleAddLead = async (validatedData = null) => {
     // Use validated data if provided, otherwise fall back to processedData
@@ -927,6 +959,22 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
     // return;
     try {
       setLoader(true)
+
+      // Process enrichment payment if enrichment is enabled
+      if (isEnrichToggle) {
+        // Use the validated data count if available, otherwise use processedData
+        const leadCount = pd.length > 0 ? pd.length : processedData.length
+        
+        let enrichmentPayment = await processEnrichmentPayment(leadCount)
+
+        if (enrichmentPayment.status === false) {
+          setErrSnack(enrichmentPayment.message)
+          setErrSnackTitle('Enrichment Payment Failed')
+          setShowErrSnack(true)
+          setLoader(false)
+          return
+        }
+      }
 
       const localData = localStorage.getItem('User')
       let AuthToken = null
