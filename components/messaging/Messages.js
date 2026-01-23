@@ -2572,7 +2572,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   }
 
   return (
-    <div className = {`w-full flex flex-col h-full ${selectedUser && agencyUser ? "mt-[18vh]" : ""}`}>
+    <div className = {`w-full flex flex-col h-full bg-white  ${selectedUser && agencyUser ? "mt-[18vh]" : ""}`}>
       <AgentSelectSnackMessage
         isVisible={snackbar.isVisible}
         title={snackbar.title}

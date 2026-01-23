@@ -126,14 +126,14 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
     if (!normalizedRecords || normalizedRecords.length === 0) {
       return currentVerificationStatus || 'pending'
     }
-    
+
     // Check if all DNS records are verified
     const allRecordsVerified = normalizedRecords.every(record => {
       const valid = record.valid === 'valid' || record.valid === true
       const verified = record.verified === true
       return valid || verified
     })
-    
+
     return allRecordsVerified ? 'verified' : 'pending'
   }, [normalizedRecords, currentVerificationStatus])
 
@@ -309,9 +309,21 @@ const ViewDnsRecordsModal = ({ open, onClose, domain, dnsRecords: initialDnsReco
                               </span>
                             </td>
                             <td className="py-4 px-4">
-                              <span className="text-sm font-medium text-gray-900">
-                                {displayName}
-                              </span>
+                              <div className="flex items-center gap-2 max-w-md">
+                                <span className="text-sm font-medium text-gray-900">
+                                  {displayName}
+                                </span>
+
+                                {recordValue && (
+                                  <button
+                                    onClick={() => copyToClipboard(recordValue)}
+                                    className="flex-shrink-0 text-gray-400 hover:text-gray-600 hover:bg-gray-100 p-1.5 rounded transition-colors"
+                                    title="Copy value"
+                                  >
+                                    <Copy size={16} />
+                                  </button>
+                                )}
+                              </div>
                             </td>
                             <td className="py-4 px-4">
                               <span className="text-sm text-gray-700 font-medium">
