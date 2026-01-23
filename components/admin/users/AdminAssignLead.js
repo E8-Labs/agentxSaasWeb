@@ -580,6 +580,14 @@ const AdminAssignLead = ({
             setShowDncConfirmationPopup(false)
           }}
           leadsCount={selectedAll ? totalLeads - leadIs.length : leadIs.length}
+          targetUserId={
+            selectedUser?.userRole === 'AgencySubAccount' ? selectedUser?.id : 
+            userProfile?.userRole === 'AgencySubAccount' ? userProfile?.id : undefined
+          }
+          targetUserDetails={
+            selectedUser?.userRole === 'AgencySubAccount' ? selectedUser : 
+            userProfile?.userRole === 'AgencySubAccount' ? userProfile : undefined
+          }
         />
       )}
       {/* Snackbar for invalid time */}

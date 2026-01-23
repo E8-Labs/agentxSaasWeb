@@ -355,6 +355,10 @@ const LastStep = ({
             leadsCount={
               selectedAll ? totalLeads - leadIs.length : leadIs.length
             }
+            targetUserId={
+              userProfile?.userRole === 'AgencySubAccount' ? userProfile?.id : undefined
+            }
+            targetUserDetails={userProfile?.userRole === 'AgencySubAccount' ? userProfile : undefined}
             // creditCost={creditCost}
           />
         )}

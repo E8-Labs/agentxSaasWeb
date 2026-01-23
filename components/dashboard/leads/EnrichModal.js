@@ -5,6 +5,10 @@ import { getStripe } from '@/lib/stripe'
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
+import axios from 'axios'
+
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
+import Apis from '@/components/apis/Apis'
 import { getUserLocalData } from '@/components/constants/constants'
 import AddCardDetails from '@/components/createagent/addpayment/AddCardDetails'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
@@ -30,13 +34,60 @@ export default function EnrichModal({
   const [isMinimumEnforced, setIsMinimumEnforced] = useState(false)
   const [minimumCost, setMinimumCost] = useState(null)
   const [originalLeadCount, setOriginalLeadCount] = useState(0)
+  const [agencyOwnerSettings, setAgencyOwnerSettings] = useState(null)
 
   useEffect(() => {
     let data = getUserLocalData()
     if (data) {
       setUserData(data)
+      
+      // For Invitee users, fetch agency owner's settings
+      const userRole = data?.user?.userRole || data?.userRole
+      if (userRole === 'Invitee') {
+        fetchAgencyOwnerSettings()
+      }
     }
   }, [])
+  
+  // Fetch agency owner's userSettings for Invitee users
+  const fetchAgencyOwnerSettings = async () => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+      
+      const u = JSON.parse(localData)
+      const userRole = u?.user?.userRole || u?.userRole
+      
+      if (userRole === 'Invitee') {
+        // Get agency owner from team relationship
+        const teamResponse = await axios.get(Apis.getTeam, {
+          headers: {
+            Authorization: `Bearer ${u.token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+        
+        if (teamResponse?.data?.status && teamResponse.data.admin) {
+          const admin = teamResponse.data.admin
+          if (admin?.id && admin?.userRole === 'Agency') {
+            // Fetch agency owner's userSettings
+            const settingsResponse = await axios.get(`${Apis.userSettings}?userId=${admin.id}`, {
+              headers: {
+                Authorization: `Bearer ${u.token}`,
+                'Content-Type': 'application/json',
+              },
+            })
+            
+            if (settingsResponse?.data?.status) {
+              setAgencyOwnerSettings(settingsResponse.data.data)
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('⚠️ [EnrichModal] Could not fetch agency owner settings:', error)
+    }
+  }
 
   useEffect(() => {
     const getCreditCost = async () => {
@@ -209,7 +260,17 @@ export default function EnrichModal({
                       }
                     }
                     
-                    // Priority 2: Use logged-in user's enrichment price if available
+                    // Priority 2: For Invitee users, use agency owner's enrichment price
+                    const userRole = userData?.user?.userRole || userData?.userRole
+                    if (userRole === 'Invitee' && agencyOwnerSettings) {
+                      const enrichmentPrice = agencyOwnerSettings.enrichmentPrice
+                      const isUpselling = agencyOwnerSettings.upsellEnrichment
+                      if (isUpselling && enrichmentPrice != null) {
+                        return enrichmentPrice
+                      }
+                    }
+                    
+                    // Priority 3: Use logged-in user's enrichment price if available
                     if (userData?.user?.userSettings) {
                       const enrichmentPrice = userData.user.userSettings.enrichmentPrice
                       const isUpselling = userData.user.userSettings.upsellEnrichment
@@ -218,7 +279,7 @@ export default function EnrichModal({
                       }
                     }
                     
-                    // Priority 3: Use the calculated price from API response
+                    // Priority 4: Use the calculated price from API response
                     if (minimumCost?.pricePerLead) {
                       return minimumCost.pricePerLead
                     }
@@ -270,7 +331,17 @@ export default function EnrichModal({
                         }
                       }
                       
-                      // Priority 2: Use logged-in user's enrichment price if available
+                      // Priority 2: For Invitee users, use agency owner's enrichment price
+                      const userRole = userData?.user?.userRole || userData?.userRole
+                      if (userRole === 'Invitee' && agencyOwnerSettings) {
+                        const enrichmentPrice = agencyOwnerSettings.enrichmentPrice
+                        const isUpselling = agencyOwnerSettings.upsellEnrichment
+                        if (isUpselling && enrichmentPrice != null) {
+                          return enrichmentPrice.toFixed(2)
+                        }
+                      }
+                      
+                      // Priority 3: Use logged-in user's enrichment price if available
                       if (userData?.user?.userSettings) {
                         const enrichmentPrice = userData.user.userSettings.enrichmentPrice
                         const isUpselling = userData.user.userSettings.upsellEnrichment
@@ -279,7 +350,7 @@ export default function EnrichModal({
                         }
                       }
                       
-                      // Priority 3: Use the calculated price from API response
+                      // Priority 4: Use the calculated price from API response
                       if (isMinimumEnforced && minimumCost) {
                         return minimumCost?.pricePerLead?.toFixed(2) ||
                           minimumCost?.pricing?.agencyPrice?.toFixed(2) ||

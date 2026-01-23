@@ -14,6 +14,10 @@ import {
 import Image from 'next/image'
 import { useEffect, useState } from 'react'
 
+import axios from 'axios'
+
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
+import Apis from '@/components/apis/Apis'
 import { getUserLocalData } from '@/components/constants/constants'
 import { calculateCreditCost } from '@/services/LeadsServices/LeadsServices'
 
@@ -30,13 +34,60 @@ export default function EnrichConfirmModal({
   const [userData, setUserData] = useState(null)
   const [minimumCost, setMinimumCost] = useState(null)
   const [isMinimumEnforced, setIsMinimumEnforced] = useState(false)
+  const [agencyOwnerSettings, setAgencyOwnerSettings] = useState(null)
 
   useEffect(() => {
     let data = getUserLocalData()
     if (data) {
       setUserData(data)
+      
+      // For Invitee users, fetch agency owner's settings
+      const userRole = data?.user?.userRole || data?.userRole
+      if (userRole === 'Invitee') {
+        fetchAgencyOwnerSettings()
+      }
     }
   }, [])
+  
+  // Fetch agency owner's userSettings for Invitee users
+  const fetchAgencyOwnerSettings = async () => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+      
+      const u = JSON.parse(localData)
+      const userRole = u?.user?.userRole || u?.userRole
+      
+      if (userRole === 'Invitee') {
+        // Get agency owner from team relationship
+        const teamResponse = await axios.get(Apis.getTeam, {
+          headers: {
+            Authorization: `Bearer ${u.token}`,
+            'Content-Type': 'application/json',
+          },
+        })
+        
+        if (teamResponse?.data?.status && teamResponse.data.admin) {
+          const admin = teamResponse.data.admin
+          if (admin?.id && admin?.userRole === 'Agency') {
+            // Fetch agency owner's userSettings
+            const settingsResponse = await axios.get(`${Apis.userSettings}?userId=${admin.id}`, {
+              headers: {
+                Authorization: `Bearer ${u.token}`,
+                'Content-Type': 'application/json',
+              },
+            })
+            
+            if (settingsResponse?.data?.status) {
+              setAgencyOwnerSettings(settingsResponse.data.data)
+            }
+          }
+        }
+      }
+    } catch (error) {
+      console.warn('⚠️ [EnrichConfirmModal] Could not fetch agency owner settings:', error)
+    }
+  }
 
   useEffect(() => {
     const checkMinimumRequirement = async () => {
@@ -44,36 +95,48 @@ export default function EnrichConfirmModal({
 
       const leadCount = processedData.length
       
-      // Determine which user's role to check:
-      // - If targetUserId is provided (agency/admin adding for subaccount), check target user's role
-      // - Otherwise, check logged-in user's role
-      const userToCheck = targetUserId && targetUserDetails 
-        ? targetUserDetails 
-        : userData?.user
-      const isAgencySubAccount = userToCheck?.userRole === 'AgencySubAccount'
-
-      // Check if we need to enforce minimum for agency subaccount
-      if (isAgencySubAccount && leadCount < 100) {
-        // Calculate cost for 100 leads (minimum requirement)
-        let minimumData = {
-          leadCount: 100,
-          type: 'enrichment',
+      // Check if creditCost prop indicates minimum enforcement (from API response)
+      if (creditCost && typeof creditCost === 'object' && !creditCost.message) {
+        if (creditCost.isMinimumEnforced && creditCost.minimumRequired === 100) {
+          // API enforced minimum - set minimum cost
+          setMinimumCost(creditCost)
+          setIsMinimumEnforced(true)
+        } else {
+          setIsMinimumEnforced(false)
+          setMinimumCost(null)
         }
-        // Include userId if targetUserId is provided (for admin/agency adding leads for subaccount/user)
-        if (targetUserId) {
-          minimumData.userId = targetUserId
-        }
-        const minimumCostData = await calculateCreditCost(minimumData)
-        setMinimumCost(minimumCostData)
-        setIsMinimumEnforced(true)
       } else {
-        setIsMinimumEnforced(false)
-        setMinimumCost(null)
+        // Fallback: Check if we need to enforce minimum for agency subaccount
+        // Determine which user's role to check:
+        // - If targetUserId is provided (agency/admin adding for subaccount), check target user's role
+        // - Otherwise, check logged-in user's role
+        const userToCheck = targetUserId && targetUserDetails 
+          ? targetUserDetails 
+          : userData?.user
+        const isAgencySubAccount = userToCheck?.userRole === 'AgencySubAccount'
+
+        if (isAgencySubAccount && leadCount < 100) {
+          // Calculate cost for 100 leads (minimum requirement)
+          let minimumData = {
+            leadCount: 100,
+            type: 'enrichment',
+          }
+          // Include userId if targetUserId is provided (for admin/agency adding leads for subaccount/user)
+          if (targetUserId) {
+            minimumData.userId = targetUserId
+          }
+          const minimumCostData = await calculateCreditCost(minimumData)
+          setMinimumCost(minimumCostData)
+          setIsMinimumEnforced(true)
+        } else {
+          setIsMinimumEnforced(false)
+          setMinimumCost(null)
+        }
       }
     }
 
     checkMinimumRequirement()
-  }, [showenrichConfirmModal, userData, processedData, targetUserId, targetUserDetails])
+  }, [showenrichConfirmModal, userData, processedData, targetUserId, targetUserDetails, creditCost])
 
   // Helper function to get enrichment price
   const getEnrichmentPrice = () => {
@@ -86,7 +149,17 @@ export default function EnrichConfirmModal({
       }
     }
     
-    // Priority 2: Use logged-in user's enrichment price if available
+    // Priority 2: For Invitee users, use agency owner's enrichment price
+    const userRole = userData?.user?.userRole || userData?.userRole
+    if (userRole === 'Invitee' && agencyOwnerSettings) {
+      const enrichmentPrice = agencyOwnerSettings.enrichmentPrice
+      const isUpselling = agencyOwnerSettings.upsellEnrichment
+      if (isUpselling && enrichmentPrice != null) {
+        return enrichmentPrice
+      }
+    }
+    
+    // Priority 3: Use logged-in user's enrichment price if available
     if (userData?.user?.userSettings) {
       const enrichmentPrice = userData.user.userSettings.enrichmentPrice
       const isUpselling = userData.user.userSettings.upsellEnrichment
@@ -95,7 +168,7 @@ export default function EnrichConfirmModal({
       }
     }
     
-    // Priority 3: Use the calculated price from API response
+    // Priority 4: Use the calculated price from API response
     if (isMinimumEnforced && minimumCost) {
       return minimumCost?.pricePerLead || minimumCost?.pricing?.agencyPrice || 0.05
     }
