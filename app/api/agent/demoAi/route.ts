@@ -7,11 +7,13 @@ const BASE_API_URL =
     : 'https://apimyagentx.com/agentxtest/')
 
 /**
- * PUT /api/leads/update
- * Update a lead
+ * POST /api/agent/demoAI
+ * Initiate a demo AI voice call using the default demo agent
  * Supports both JWT (Bearer token) and API Key (x-api-key header) authentication
+ * 
+ * @param req - Next.js request object
  */
-export async function PUT(req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
     // Check for JWT token in Authorization header
     const authHeader = req.headers.get('Authorization')
@@ -29,8 +31,11 @@ export async function PUT(req: NextRequest) {
       )
     }
 
+    // Get request body
     const body = await req.json()
-    const targetUrl = `${BASE_API_URL}api/leads/updateLead`
+
+    // Build target URL without agentId (uses default demo agent)
+    const targetUrl = `${BASE_API_URL}api/agent/demoAi`
 
     // Build headers with authentication
     const headers: HeadersInit = {
@@ -47,8 +52,9 @@ export async function PUT(req: NextRequest) {
       headers['x-api-key'] = apiKey
     }
 
+    // Forward the request to backend
     const response = await fetch(targetUrl, {
-      method: 'PUT',
+      method: 'POST',
       headers,
       body: JSON.stringify(body),
       cache: 'no-store',
@@ -58,7 +64,7 @@ export async function PUT(req: NextRequest) {
 
     return NextResponse.json(data, { status: response.status })
   } catch (error: any) {
-    console.error('Error in PUT /api/leads/update:', error)
+    console.error('Error in POST /api/agent/demoAI:', error)
     return NextResponse.json(
       {
         status: false,
