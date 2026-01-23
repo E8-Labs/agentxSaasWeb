@@ -45,7 +45,7 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess, targetUserId }) => {
       const token = userData?.token
 
       const requestBody = { domain, mailgunApiKey: apiKey }
-      
+
       // Add userId if provided (for Agency/Admin creating domain for subaccount)
       if (targetUserId) {
         requestBody.userId = targetUserId
@@ -106,7 +106,7 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess, targetUserId }) => {
         // Update verification status from API response
         const status = response.data.data.verificationStatus || (response.data.data.verified ? 'verified' : 'pending')
         setVerificationStatus(status)
-        
+
         if (response.data.data.verified) {
           setStep(3)
           toast.success('Domain verified successfully!')
@@ -151,15 +151,16 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess, targetUserId }) => {
       }}
     >
       <div
-        className="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+        className={`bg-white rounded-lg shadow-xl ${step && step == 2 ? "w-9/12" : "w-6/12"} mx-4 max-h-[90vh] overflow-y-auto`}
         onClick={(e) => e.stopPropagation()}
         onMouseDown={(e) => e.stopPropagation()}
         onPointerDown={(e) => e.stopPropagation()}
-        style={{ 
-          pointerEvents: 'auto', 
-          position: 'relative', 
+        style={{
+          pointerEvents: 'auto',
+          position: 'relative',
           zIndex: 10000000,
-          isolation: 'isolate'
+          isolation: 'isolate',
+          scrollbarWidth: 'none'
         }}
       >
         <div className="flex items-center justify-between p-6 border-b">
@@ -207,7 +208,7 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess, targetUserId }) => {
                     e.stopPropagation()
                   }}
                   onMouseDown={(e) => e.stopPropagation()}
-                  // autoFocus
+                // autoFocus
                 />
                 <p className="text-sm text-gray-500 mt-1">
                   Enter your email subdomain (e.g., mail.yourdomain.com)
@@ -313,11 +314,11 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess, targetUserId }) => {
                         const priority = record.priority || record.priorityValue || null
                         const ttl = record.ttl || record.TTL || 'Auto'
                         const displayName = recordName === '@' ? 'Root Domain' : recordName
-                        
+
                         // Show verification status for TXT records
                         const showVerificationStatus = recordType === 'TXT' && (verificationStatus === 'verified' || verificationStatus === 'pending')
                         const recordVerified = verificationStatus === 'verified' && recordType === 'TXT'
-                        
+
                         return (
                           <tr
                             key={index}
@@ -329,7 +330,20 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess, targetUserId }) => {
                               </span>
                             </td>
                             <td className="py-3 px-4 text-sm text-gray-900 font-mono">
-                              {displayName}
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm font-mono text-gray-900 whitespace-nowrap">
+                                  {displayName}
+                                </span>
+                                {displayName && (
+                                  <button
+                                    onClick={() => copyToClipboard(displayName)}
+                                    className="text-gray-400 hover:text-gray-600 p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                                    title="Copy to clipboard"
+                                  >
+                                    <Copy size={14} />
+                                  </button>
+                                )}
+                              </div>
                             </td>
                             <td className="py-3 px-4 text-sm text-gray-700">
                               {priority !== null && priority !== undefined ? priority : '-'}
@@ -387,11 +401,10 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess, targetUserId }) => {
               )}
 
               {verificationStatus && (
-                <div className={`mt-4 p-3 rounded-lg border ${
-                  verificationStatus === 'verified'
-                    ? 'bg-green-50 border-green-200' 
-                    : 'bg-amber-50 border-amber-200'
-                }`}>
+                <div className={`mt-4 p-3 rounded-lg border ${verificationStatus === 'verified'
+                  ? 'bg-green-50 border-green-200'
+                  : 'bg-amber-50 border-amber-200'
+                  }`}>
                   <div className="flex items-center gap-2">
                     {verificationStatus === 'verified' ? (
                       <>

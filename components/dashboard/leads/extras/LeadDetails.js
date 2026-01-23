@@ -65,7 +65,7 @@ import {
 } from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
-import React, { useEffect, useState, useCallback, useMemo } from 'react'
+import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react'
 
 import Apis from '@/components/apis/Apis'
 import getProfileDetails from '@/components/apis/GetProfile'
@@ -132,6 +132,8 @@ const LeadDetails = ({
 }) => {
   // //console.log;
   // //console.log;
+
+  const emailInputRef = useRef(null)
 
   const [columnsLength, setcolumnsLength] = useState([])
 
@@ -236,9 +238,9 @@ const LeadDetails = ({
   const [sendEmailLoader, setSendEmailLoader] = useState(false)
   const [sendSMSLoader, setSendSMSLoader] = useState(false)
 
-  // Email editing state
-  const [isEditingEmail, setIsEditingEmail] = useState(false)
+  // Email editing state// Add this with your other useState declarations
   const [editedEmail, setEditedEmail] = useState('')
+  const [isEditingEmail, setIsEditingEmail] = useState(false)
   const [updateEmailLoader, setUpdateEmailLoader] = useState(false)
 
   const [googleAccounts, setGoogleAccounts] = useState([])
@@ -248,7 +250,7 @@ const LeadDetails = ({
     isVisible: false,
   })
 
-  useEffect(() => {}, [showSnackMsg])
+  useEffect(() => { }, [showSnackMsg])
 
   // Helper function to show snackbar messages
   const showSnackbar = (message, type = SnackbarTypes.Success) => {
@@ -690,14 +692,14 @@ const LeadDetails = ({
 
   // Function to update lead email
   const updateLeadEmail = async () => {
-    if (!editedEmail || !editedEmail.trim()) {
+    if (!editedEmail || !editedEmail?.trim()) {
       showSnackbar('Please enter a valid email address', SnackbarTypes.Error)
       return
     }
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(editedEmail.trim())) {
+    if (!emailRegex.test(editedEmail?.trim())) {
       showSnackbar('Please enter a valid email address', SnackbarTypes.Error)
       return
     }
@@ -728,7 +730,7 @@ const LeadDetails = ({
         body: JSON.stringify({
           smartListId: selectedLeadsDetails.sheetId,
           phoneNumber: selectedLeadsDetails.phone,
-          email: editedEmail.trim(),
+          email: editedEmail?.trim(),
           leadId: selectedLeadsDetails.id,
         }),
       })
@@ -739,7 +741,7 @@ const LeadDetails = ({
         // Update the local state
         setSelectedLeadsDetails((prev) => ({
           ...prev,
-          email: editedEmail.trim(),
+          email: editedEmail?.trim(),
         }))
         setIsEditingEmail(false)
         showSnackbar('Email updated successfully', SnackbarTypes.Success)
@@ -758,12 +760,14 @@ const LeadDetails = ({
   const handleEditEmailClick = () => {
     setEditedEmail(selectedLeadsDetails?.email || '')
     setIsEditingEmail(true)
+    emailInputRef.current.focus()
   }
 
   // Function to handle cancel edit
   const handleCancelEditEmail = () => {
     setIsEditingEmail(false)
     setEditedEmail('')
+    emailInputRef.current.blur()
   }
 
   //function to update stage
@@ -929,10 +933,10 @@ const LeadDetails = ({
   // Handler to update tags after tag deletion (optimistic update only)
   const handleLeadDetailsUpdated = async (deletedTagName) => {
     if (!selectedLead || !deletedTagName) return
-    
+
     // Mark this tag as recently deleted to prevent it from being added back
     setRecentlyDeletedTags((prev) => new Set([...prev, deletedTagName]))
-    
+
     // Optimistically remove the tag from local state immediately
     // The backend deletion is already complete, so we just update the UI
     if (selectedLeadsDetails?.tags) {
@@ -941,7 +945,7 @@ const LeadDetails = ({
         tags: (prevDetails.tags || []).filter((tag) => tag !== deletedTagName),
       }))
     }
-    
+
     // Clear the recently deleted tag after 5 seconds to allow normal updates
     setTimeout(() => {
       setRecentlyDeletedTags((prev) => {
@@ -983,7 +987,7 @@ const LeadDetails = ({
         if (response.data.status === true) {
           // console.log("stages list are", response.data.data.stages);
           setStagesList(response.data.data.stages)
-        } else {}
+        } else { }
       }
     } catch (error) {
       console.error('Error occured in stage list api is', error)
@@ -1518,7 +1522,7 @@ const LeadDetails = ({
           }
         }
       }
-    } catch (e) {} finally {
+    } catch (e) { } finally {
       setdelCallLoader(false)
     }
   }
@@ -1596,7 +1600,7 @@ const LeadDetails = ({
       formData.append('leadId', selectedLeadsDetails?.id || '')
 
       //print form data
-      formData.forEach((value, key) => {})
+      formData.forEach((value, key) => { })
       const response = await axios.post(Apis.sendSMSToLead, formData, {
         headers: {
           Authorization: `Bearer ${userData.token}`,
@@ -2049,7 +2053,7 @@ const LeadDetails = ({
 
 
                         {/* Email with edit functionality - Updated Version */}
-                        {!isEditingEmail ? (
+                        {/* {!isEditingEmail ? (
                           (selectedLeadsDetails?.email || selectedLeadsDetails?.emails?.length > 0) && (
                             <div className="flex flex-row items-center gap-2">
                               <MailIcon className="h-4 w-4 text-muted-foreground" />
@@ -2067,62 +2071,68 @@ const LeadDetails = ({
                                     </Tooltip>
                                   </div>
                                 ) : selectedLeadsDetails?.emails?.length > 0 ? (
-                                  <div className="flex items-center gap-2">
-                                    <span>{selectedLeadsDetails.emails[0]?.email}</span>
-                                    <Tooltip title="Edit email">
-                                      <button
-                                        onClick={handleEditEmailClick}
-                                        className="text-muted-foreground hover:text-foreground transition-colors"
-                                      >
-                                        <Pencil className="h-3 w-3" />
-                                      </button>
-                                    </Tooltip>
-                                  </div>
+                                  ""
                                 ) : null}
                               </div>
                             </div>
                           )
-                        ) : (
-                          <div className="flex flex-col gap-2">
-                            <div className="flex flex-row items-center gap-2">
-                              <MailIcon className="h-4 w-4 text-muted-foreground" />
-                              <div className="flex flex-row items-center gap-2 flex-1">
-                                <Input
-                                  type="email"
-                                  value={editedEmail}
-                                  onChange={(e) => setEditedEmail(e.target.value)}
-                                  placeholder="Enter email address"
-                                  className="flex-1 text-sm h-8 border border-gray-300 rounded-md p-2 focus:border-black focus:ring-0"
-                                  disabled={updateEmailLoader}
-                                  onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                      updateLeadEmail()
-                                    } else if (e.key === 'Escape') {
-                                      handleCancelEditEmail()
-                                    }
-                                  }}
-                                />
-                                <div className="flex items-center gap-1">
-                                  {updateEmailLoader ? (
-                                    <CircularProgress size={16} />
-                                  ) : (
-                                    <>
-                                      <Tooltip title="Save">
+                        ) : (  */}
+
+                        <div className="flex flex-col gap-2">
+                          <div className="flex flex-row items-center gap-2">
+                            <MailIcon className="h-4 w-4 text-muted-foreground" />
+                            <div className="flex flex-row items-center gap-2 flex-1">
+                              <Input
+                                ref={emailInputRef}
+                                type="email"
+                                value={editedEmail || selectedLeadsDetails?.email}
+                                onChange={(e) => setEditedEmail(e.target.value)}
+                                placeholder="Enter email address"
+                                className="flex-1 text-sm h-8 border border-gray-300 rounded-md p-2 focus:border-black focus:ring-0"
+                                disabled={updateEmailLoader}
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    updateLeadEmail()
+                                  } else if (e.key === 'Escape') {
+                                    handleCancelEditEmail()
+                                  }
+                                }}
+                              />
+                              <div className="flex items-center gap-1">
+                                {updateEmailLoader ? (
+                                  <CircularProgress size={16} />
+                                ) : (
+                                  <>
+                                    {!isEditingEmail ? (
+                                      <div className="flex items-center gap-2">
+                                        <span>{selectedLeadsDetails?.emails[0]?.email}</span>
+                                        <Tooltip title="Edit email">
+                                          <button
+                                            onClick={handleEditEmailClick}
+                                            className="text-muted-foreground hover:text-foreground transition-colors"
+                                          >
+                                            <Pencil className="h-3 w-3" />
+                                          </button>
+                                        </Tooltip>
+                                      </div>
+                                    ) : (
+                                      < Tooltip title="Save">
                                         <button
                                           onClick={updateLeadEmail}
-                                          disabled={!editedEmail.trim()}
+                                          disabled={!editedEmail?.trim()}
                                           className="p-1 text-brand-primary disabled:opacity-50 disabled:cursor-not-allowed"
                                         >
                                           <span className="text-sm font-semibold">Save</span>
                                         </button>
                                       </Tooltip>
-                                    </>
-                                  )}
-                                </div>
+                                    )}
+                                  </>
+                                )}
                               </div>
                             </div>
                           </div>
-                        )}
+                        </div>
+                        {/*)} */}
 
 
                         <div>
@@ -2226,7 +2236,7 @@ const LeadDetails = ({
                             ) : (
 
                               <TeamAssignDropdownCn
-                              withoutBorder = {true}
+                                withoutBorder={true}
                                 label="Assign"
                                 teamOptions={teamOptions}
                                 onToggle={(teamId, team, shouldAssign) => {
@@ -2948,7 +2958,7 @@ const LeadDetails = ({
       <Elements stripe={stripePromise}>
         <UpgradePlan
           selectedPlan={selectedPlan}
-          setSelectedPlan={() => {}}
+          setSelectedPlan={() => { }}
           open={showUpgradeModal}
           // setShowSnackMsg={setShowSnackMsg}
           handleClose={async (upgradeResult) => {

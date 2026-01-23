@@ -1059,7 +1059,17 @@ const NewMessageModal = ({
 
         if (response?.data?.status === true) {
           const createdTemplate = response?.data?.data
-          toast.success(response?.data?.message || 'Template saved successfully')
+          let message = ''
+          if (!saveAsTemplate) {
+            if(isUpdating){
+              message = `${selectedMode[0].toUpperCase() + selectedMode.slice(1)} updated successfully`
+            } else {
+              message = `${selectedMode[0].toUpperCase() + selectedMode.slice(1)} created successfully`
+            }
+          } else {
+            message = response?.data?.message || 'Template saved successfully'
+          }
+          toast.success(message|| response?.data?.message)
 
           // Call onSaveTemplate with template data for pipeline
           if (onSaveTemplate) {
