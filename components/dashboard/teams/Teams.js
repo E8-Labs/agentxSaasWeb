@@ -147,6 +147,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
   const [existingSubaccountsListLoading, setExistingSubaccountsListLoading] = useState(false)
   const [existingSubaccountSearchTerm, setExistingSubaccountSearchTerm] = useState('')
   const [existingSelectedSubaccountIds, setExistingSelectedSubaccountIds] = useState([])
+  const [existingSelectAllSubaccounts, setExistingSelectAllSubaccounts] = useState(false)
   const [existingSubaccountsListOffset, setExistingSubaccountsListOffset] = useState(0)
   const [hasMoreExistingSubaccountsList, setHasMoreExistingSubaccountsList] = useState(true)
   const [savingPermissions, setSavingPermissions] = useState(false)
@@ -155,6 +156,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
   const [showInvitationPermissionManager, setShowInvitationPermissionManager] = useState(false)
   const [selectedInvitationPermissions, setSelectedInvitationPermissions] = useState(null)
   const [selectedSubaccountIds, setSelectedSubaccountIds] = useState([])
+  const [selectAllSubaccounts, setSelectAllSubaccounts] = useState(false)
 
   // Modal step state: 'initial', 'agency', 'subaccount'
   const [inviteModalStep, setInviteModalStep] = useState('initial')
@@ -303,6 +305,11 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
           ? response.data.data.map(s => s.subaccountId || s.id || s)
           : []
         setExistingSelectedSubaccountIds(allowedSubaccountIds)
+
+        // Read selectAllSubaccounts from response
+        if (response?.data?.selectAllSubaccounts !== undefined) {
+          setExistingSelectAllSubaccounts(response.data.selectAllSubaccounts)
+        }
 
         // Also load the full subaccounts list for display
         await loadExistingSubaccountsList(0, '')
@@ -696,7 +703,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
       if (response?.data?.status) {
         // Update subaccount access if agency context
         const isAgency = agencyData?.userRole === 'Agency' || userLocalData?.userRole === 'Agency'
-        if (isAgency && existingSelectedSubaccountIds.length >= 0) {
+        if (isAgency && (existingSelectAllSubaccounts || existingSelectedSubaccountIds.length >= 0)) {
           // Update allowed subaccounts
           try {
             const userData = JSON.parse(localStorage.getItem('User'))
@@ -706,7 +713,8 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
               '/api/permissions/team/subaccounts',
               {
                 teamMemberId: selectedTeamMemberForPermissions.invitedUserId,
-                subaccountIds: existingSelectedSubaccountIds,
+                selectAllSubaccounts: existingSelectAllSubaccounts,
+                subaccountIds: !existingSelectAllSubaccounts ? existingSelectedSubaccountIds : [],
               },
               {
                 headers: {
@@ -1067,7 +1075,8 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
           email: item.email,
           phone: item.phone,
           permissions: permissionsToSend && permissionsToSend.length > 0 ? permissionsToSend : null, // Include permissions if set
-          allowedSubaccountIds: subaccountIdsToSend && subaccountIdsToSend.length > 0 ? subaccountIdsToSend : undefined, // Include subaccount IDs if set
+          selectAllSubaccounts: selectAllSubaccounts, // If true, grants access to all subaccounts
+          allowedSubaccountIds: !selectAllSubaccounts && subaccountIdsToSend && subaccountIdsToSend.length > 0 ? subaccountIdsToSend : undefined, // Include subaccount IDs if not selecting all
         }
         if (selectedAgency) {
           apidata = {
@@ -1091,6 +1100,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
             // //console.log;
             setSelectedInvitationPermissions(null) // Reset permissions after successful invitation
             setSelectedSubaccountIds([]) // Reset subaccount IDs after successful invitation
+            setSelectAllSubaccounts(false) // Reset select all after successful invitation
             setMyTeam((prev) => {
               // //console.log;
               // //console.log;
@@ -2400,52 +2410,64 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                     Manage what this user can access at subaccount level.
                   </div>
 
-                  {/* Permission Capsules */}
-                  <div className="space-y-2">
-                    <div className="text-sm font-medium text-gray-700">
-                      Features this user can access at subaccount level
-                    </div>
+                  {/* Permission Toggles */}
+                  <div className="space-y-3">
                     {loadingSubaccountPermissions ? (
-                      <div className="flex justify-center items-center py-4">
-                        <CircularProgress size={20} />
+                      <div className="flex justify-center items-center py-8">
+                        <CircularProgress size={24} />
                       </div>
                     ) : subaccountPermissions.length === 0 ? (
-                      <div className="text-sm text-gray-500 py-4 text-center">
+                      <div className="text-sm text-gray-500 py-8 text-center">
                         No subaccount permissions found. Please check your permissions configuration.
                       </div>
                     ) : (
-                      <div className="flex flex-wrap gap-2">
-                        {subaccountPermissions.map((perm) => {
-                          const permKey = perm.key || perm.permissionKey
-                          const permName = perm.name || perm.permissionDefinition?.name || permKey
-                          const isSelected = subaccountPermissionStates[permKey] || false
+                      subaccountPermissions.map((perm, index) => {
+                        const permKey = perm.key || perm.permissionKey
+                        const permName = perm.name || perm.permissionDefinition?.name || permKey
+                        const isChecked = subaccountPermissionStates[permKey] || false
 
-                          return (
-                            <button
-                              key={permKey}
-                              type="button"
-                              onClick={() => handleSubaccountPermissionToggle(permKey)}
-                              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${isSelected
-                                ? 'bg-brand-primary text-white'
-                                : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                                }`}
-                              style={isSelected ? {
-                                backgroundColor: 'hsl(var(--brand-primary))',
-                                color: 'white',
-                              } : {}}
-                            >
-                              {permName}
-                            </button>
-                          )
-                        })}
-                      </div>
+                        return (
+                          <div key={permKey}>
+                            <div className="flex items-center justify-between p-3">
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium text-gray-900">{permName}</span>
+                                {perm.description && (
+                                  <span className="text-xs text-gray-500 mt-1">{perm.description}</span>
+                                )}
+                              </div>
+                              <Switch
+                                checked={isChecked}
+                                onCheckedChange={() => handleSubaccountPermissionToggle(permKey)}
+                                className="data-[state=checked]:bg-brand-primary"
+                              />
+                            </div>
+                            {index < subaccountPermissions.length - 1 && (
+                              <div className="border-t border-gray-200"></div>
+                            )}
+                          </div>
+                        )
+                      })
                     )}
                   </div>
 
                   {/* Subaccount Selection */}
                   <div className="space-y-2">
-                    <div className="text-sm font-medium text-gray-700">
-                      Manage subaccount this user can have access to
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm font-medium text-gray-700">
+                      Select subaccounts this user can access
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500">Select All</span>
+                        <Checkbox
+                          checked={selectAllSubaccounts}
+                          onCheckedChange={(checked) => {
+                            setSelectAllSubaccounts(checked)
+                            if (checked) {
+                              setSelectedSubaccountIds([]) // Clear individual selections when selecting all
+                            }
+                          }}
+                        />
+                      </div>
                     </div>
                     <Input
                       placeholder="Search"
@@ -2459,8 +2481,12 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                       }}
                       className="w-full"
                     />
-                    <div className="max-h-[200px] overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-1">
-                      {subaccountsListLoading && subaccountsList.length === 0 ? (
+                    <div className={`max-h-[200px] overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-1 ${selectAllSubaccounts ? 'opacity-50' : ''}`}>
+                      {selectAllSubaccounts ? (
+                        <div className="text-sm text-gray-500 py-4 text-center">
+                          All subaccounts will be accessible to this user
+                        </div>
+                      ) : subaccountsListLoading && subaccountsList.length === 0 ? (
                         <div className="flex justify-center items-center py-4">
                           <CircularProgress size={20} />
                         </div>
@@ -2481,6 +2507,9 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                                 <Checkbox
                                   checked={isSelected}
                                   onCheckedChange={() => handleSubaccountSelectionToggle(subaccount.id)}
+                                  onClick={(e) => {
+                                    handleSubaccountSelectionToggle(subaccount.id)
+                                  }}
                                 />
                                 <span className="text-sm text-gray-900">
                                   {subaccount.name || subaccount.email || `Subaccount ${subaccount.id}`}
@@ -2521,21 +2550,29 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                   style={{
                     marginTop: 20,
                     backgroundColor:
-                      !name ||
+                      inviteModalStep === 'initial' && (
+                        !name ||
                         !email ||
                         !phone ||
                         emailCheckResponse?.status !== true ||
                         checkPhoneResponse?.status !== true
+                      )
                         ? '#00000020'
                         : '',
                   }}
                   className="w-full flex bg-brand-primary p-3 rounded-lg items-center justify-center"
                   onClick={() => {
+                    // If on permission views (agency or subaccount), go back to initial
+                    if (inviteModalStep === 'agency' || inviteModalStep === 'subaccount') {
+                      setInviteModalStep('initial')
+                      return
+                    }
+
                     // Collect permissions from all steps
                     const allPermissions = collectAllPermissions()
                     const permissionsToSend = allPermissions.length > 0 ? allPermissions : null
                     setSelectedInvitationPermissions(permissionsToSend)
-                    
+
                     let data = {
                       name: name,
                       email: email,
@@ -2570,9 +2607,11 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                           : '#ffffff',
                     }}
                   >
-                    {agencyData?.sellSeats || userLocalData?.sellSeats
-                      ? `Add Team $${userLocalData.costPerSeat}/mo`
-                      : 'Send Invite'}
+                    {inviteModalStep === 'agency' || inviteModalStep === 'subaccount'
+                      ? 'Apply Changes'
+                      : agencyData?.sellSeats || userLocalData?.sellSeats
+                        ? `Add Team $${userLocalData.costPerSeat}/mo`
+                        : 'Send Invite'}
                   </div>
                 </button>
               )}
@@ -2669,6 +2708,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
           setShowPermissionModal(false)
           setSelectedTeamMemberForPermissions(null)
           setManagePermissionModalStep('initial')
+          setExistingSelectAllSubaccounts(false)
         }}
         closeAfterTransition={false}
         disableEscapeKeyDown={false}
@@ -2719,6 +2759,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                     setShowPermissionModal(false)
                     setSelectedTeamMemberForPermissions(null)
                     setManagePermissionModalStep('initial')
+                    setExistingSelectAllSubaccounts(false)
                   }}
                 />
               </div>
@@ -2855,75 +2896,64 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                     Manage what this user can access at subaccount level.
                   </div>
 
-                  {/* Permission Capsules */}
-                  <div className="space-y-2">
-                    <div className="text-sm font-medium text-gray-700">
-                      Features this user can access at subaccount level
-                    </div>
+                  {/* Permission Toggles */}
+                  <div className="space-y-3">
                     {loadingExistingSubaccountPermissions ? (
-                      <div className="flex justify-center items-center py-4">
-                        <CircularProgress size={20} />
+                      <div className="flex justify-center items-center py-8">
+                        <CircularProgress size={24} />
                       </div>
                     ) : existingSubaccountPermissions.length === 0 ? (
-                      <div className="text-sm text-gray-500 py-4 text-center">
+                      <div className="text-sm text-gray-500 py-8 text-center">
                         No subaccount permissions found.
                       </div>
                     ) : (
-                      <div className="flex flex-wrap gap-2">
-                        {existingSubaccountPermissions.map((perm) => {
-                          const permKey = perm.key || perm.permissionKey
-                          const permName = perm.name || perm.permissionDefinition?.name || permKey
-                          const isSelected = existingSubaccountPermissionStates[permKey] || false
+                      existingSubaccountPermissions.map((perm, index) => {
+                        const permKey = perm.key || perm.permissionKey
+                        const permName = perm.name || perm.permissionDefinition?.name || permKey
+                        const isChecked = existingSubaccountPermissionStates[permKey] || false
 
-                          return (
-                            <button
-                              key={permKey}
-                              type="button"
-                              onClick={() => handleExistingSubaccountPermissionToggle(permKey)}
-                              className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${isSelected
-                                ? 'bg-brand-primary text-white'
-                                : 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50'
-                                }`}
-                              style={isSelected ? {
-                                backgroundColor: 'hsl(var(--brand-primary))',
-                                color: 'white',
-                              } : {}}
-                            >
-                              {permName}
-                            </button>
-                          )
-                        })}
-                      </div>
+                        return (
+                          <div key={permKey}>
+                            <div className="flex items-center justify-between p-3">
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium text-gray-900">{permName}</span>
+                                {perm.description && (
+                                  <span className="text-xs text-gray-500 mt-1">{perm.description}</span>
+                                )}
+                              </div>
+                              <Switch
+                                checked={isChecked}
+                                onCheckedChange={() => handleExistingSubaccountPermissionToggle(permKey)}
+                                className="data-[state=checked]:bg-brand-primary"
+                              />
+                            </div>
+                            {index < existingSubaccountPermissions.length - 1 && (
+                              <div className="border-t border-gray-200"></div>
+                            )}
+                          </div>
+                        )
+                      })
                     )}
                   </div>
 
                   {/* Subaccount Selection */}
                   {(agencyData?.userRole === 'Agency' || userLocalData?.userRole === 'Agency') && (
                     <div className="space-y-2">
-                      <div className="flex flex-row items-center justify-between">
+                      <div className="flex items-center justify-between">
                         <div className="text-sm font-medium text-gray-700">
                           Select subaccounts this user can access
                         </div>
-                        <div className="flex flex-row items-center gap-2">
-
-                          <button
-                            className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
-                            onClick={() => {
-                              setSelectedSubaccountIds([])
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-500">Select All</span>
+                          <Checkbox
+                            checked={existingSelectAllSubaccounts}
+                            onCheckedChange={(checked) => {
+                              setExistingSelectAllSubaccounts(checked)
+                              if (checked) {
+                                setExistingSelectedSubaccountIds([]) // Clear individual selections when selecting all
+                              }
                             }}
-                          >
-                            <Image
-                              src={'/assets/whiteTick.png'}
-                              height={10}
-                              width={10}
-                              alt="*"
-                            />
-
-                          </button>
-
-                          <TypographyCaption>
-                            Select All
-                          </TypographyCaption>
+                          />
                         </div>
                       </div>
                       <Input
@@ -2939,8 +2969,12 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                 className="border w-[99%] pl-1 rounded  outline-none focus:outline-none focus:ring-0 focus:border-black transition-colors"
 
                       />
-                      <div className="max-h-[200px] overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-1">
-                        {existingSubaccountsListLoading && existingSubaccountsList.length === 0 ? (
+                      <div className={`max-h-[200px] overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-1 ${existingSelectAllSubaccounts ? 'opacity-50' : ''}`}>
+                        {existingSelectAllSubaccounts ? (
+                          <div className="text-sm text-gray-500 py-4 text-center">
+                            All subaccounts will be accessible to this user
+                          </div>
+                        ) : existingSubaccountsListLoading && existingSubaccountsList.length === 0 ? (
                           <div className="flex justify-center items-center py-4">
                             <CircularProgress size={20} />
                           </div>
@@ -2960,7 +2994,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                                 >
                                   <Checkbox
                                     checked={isSelected}
-                                    
+                                    onCheckedChange={() => handleExistingSubaccountSelectionToggle(subaccount.id)}
                                   />
                                   <span className="text-sm text-gray-900">
                                     {subaccount.name || subaccount.email || `Subaccount ${subaccount.id}`}
