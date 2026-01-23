@@ -11,6 +11,7 @@ import AgentSelectSnackMessage, {
 import AgencyLinkWarning from '@/components/globalExtras/AgencyLinkWarning'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
 import { useUser } from '@/hooks/redux-hooks'
+import { useHasPermission } from '@/contexts/PermissionContext'
 
 import UPSell from '../integrations/UPSell'
 import BrandConfig from './BrandConfig'
@@ -43,6 +44,28 @@ const WhiteLabel = ({ selectedAgency }) => {
     message: '',
     isVisible: false,
   })
+
+  // Get user role to check if they're an Invitee
+  const [userRole, setUserRole] = useState(null)
+  
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        try {
+          const userData = JSON.parse(localData)
+          setUserRole(userData.user?.userRole || userData.userRole)
+        } catch (error) {
+          console.error('Error parsing user data:', error)
+        }
+      }
+    }
+  }, [])
+  
+  const isInvitee = userRole === 'Invitee'
+  
+  // Check permissions for menu items
+  const [hasTermsPermission] = useHasPermission('agency.terms.manage')
 
   // Fetch local data for Copy Agency Link
   useEffect(() => {
@@ -152,10 +175,27 @@ let targetUser = null;
     if (tabParam) {
       const tabNumber = parseInt(tabParam, 10)
       if (tabNumber >= 1 && tabNumber <= 10) {
+        // Check if the requested tab is allowed
+        if (isInvitee && tabNumber >= 8 && tabNumber <= 10) {
+          // Tabs 8, 9, 10 require agency.terms.manage permission
+          if (!hasTermsPermission) {
+            // Redirect to first available tab (Brand)
+            const firstAvailableTab = 1
+            setSelectedWhiteLabelTabs(firstAvailableTab)
+            const newSearchParams = new URLSearchParams(searchParams)
+            newSearchParams.set('tab', firstAvailableTab.toString())
+            if (selectedAgency) {
+              router.replace(`${pathname}?${newSearchParams.toString()}`, { scroll: false })
+            } else {
+              router.push(`/agency/dashboard/whitelabel?${newSearchParams.toString()}`, { scroll: false })
+            }
+            return
+          }
+        }
         setSelectedWhiteLabelTabs(tabNumber)
       }
     }
-  }, [searchParams])
+  }, [searchParams, isInvitee, hasTermsPermission, pathname, router, selectedAgency])
 
   // Handle tab change and update URL
   const handleTabChange = (item) => {
@@ -190,7 +230,7 @@ let targetUser = null;
     }
   }
 
-  const WhiteLabelTabs = [
+  const allWhiteLabelTabs = [
     { id: 1, title: 'Brand', comingSoon: false }, //process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === "Production" ? true : false },
     {
       id: 2,
@@ -203,10 +243,26 @@ let targetUser = null;
     { id: 5, title: 'Tutorial Videos', comingSoon: false },
     { id: 6, title: 'Support widget', comingSoon: false },
     { id: 7, title: 'Upsell', comingSoon: false },
-    { id: 8, title: 'Privacy Policy', comingSoon: false },
-    { id: 9, title: 'Terms & Conditions', comingSoon: false },
-    { id: 10, title: 'Cancellation & Refund', comingSoon: false },
+    { id: 8, title: 'Privacy Policy', comingSoon: false, permissionKey: 'agency.terms.manage' },
+    { id: 9, title: 'Terms & Conditions', comingSoon: false, permissionKey: 'agency.terms.manage' },
+    { id: 10, title: 'Cancellation & Refund', comingSoon: false, permissionKey: 'agency.terms.manage' },
   ]
+
+  // Filter tabs based on permissions for Invitee users
+  const WhiteLabelTabs = allWhiteLabelTabs.filter((item) => {
+    // Always show items without permission requirements
+    if (!item.permissionKey) return true
+    
+    // For non-Invitee users, show all items
+    if (!isInvitee) return true
+    
+    // For Invitee users, check permissions
+    if (item.permissionKey === 'agency.terms.manage') {
+      return hasTermsPermission
+    }
+    
+    return true
+  })
 
   return (
     <div className="w-full h-[100svh]">
@@ -295,17 +351,38 @@ let targetUser = null;
           )}
           {selectedWhiteLabelTabs === 8 && (
             <div className="w-full h-full">
-              <PrivacyConfig selectedAgency={selectedAgency} />
+              {isInvitee && !hasTermsPermission ? (
+                <div style={{ padding: '2rem', textAlign: 'center' }}>
+                  <h2>Access Denied</h2>
+                  <p>You do not have permission to access this section.</p>
+                </div>
+              ) : (
+                <PrivacyConfig selectedAgency={selectedAgency} />
+              )}
             </div>
           )}
           {selectedWhiteLabelTabs === 9 && (
             <div className="w-full h-full">
-              <TermsConfig selectedAgency={selectedAgency} />
+              {isInvitee && !hasTermsPermission ? (
+                <div style={{ padding: '2rem', textAlign: 'center' }}>
+                  <h2>Access Denied</h2>
+                  <p>You do not have permission to access this section.</p>
+                </div>
+              ) : (
+                <TermsConfig selectedAgency={selectedAgency} />
+              )}
             </div>
           )}
           {selectedWhiteLabelTabs === 10 && (
             <div className="w-full h-full">
-              <CancellationRefundConfig selectedAgency={selectedAgency} />
+              {isInvitee && !hasTermsPermission ? (
+                <div style={{ padding: '2rem', textAlign: 'center' }}>
+                  <h2>Access Denied</h2>
+                  <p>You do not have permission to access this section.</p>
+                </div>
+              ) : (
+                <CancellationRefundConfig selectedAgency={selectedAgency} />
+              )}
             </div>
           )}
         </div>

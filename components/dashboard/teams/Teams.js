@@ -2836,6 +2836,11 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
         }}
         closeAfterTransition={false}
         disableEscapeKeyDown={false}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
         BackdropProps={{
           timeout: 500,
           sx: {
@@ -2845,7 +2850,13 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
       >
         <Box
           className="lg:w-[31.25%] sm:w-full w-6/12r"
-          sx={styles.modalsStyle}
+          sx={{
+            ...styles.modalsStyle,
+            my: 0,
+            transform: 'none',
+            maxHeight: '90vh',
+            overflow: 'auto',
+          }}
           component="div"
         >
           <div className="flex flex-row justify-center w-full">

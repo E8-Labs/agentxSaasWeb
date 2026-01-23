@@ -56,6 +56,7 @@ import { GetFormattedDateString } from '@/utilities/utility'
 
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import AdminAssignLead from './AdminAssignLead'
+import CreateSmartlistModal from '@/components/messaging/CreateSmartlistModal'
 
 const AdminLeads = ({
   handleShowAddLeadModal,
@@ -66,8 +67,6 @@ const AdminLeads = ({
   selectedUser,
   agencyUser = false,
 }) => {
-  const bottomRef = useRef(null)
-
   //Sheet Caching related
   let sheetIndexSelected = useRef(0)
   let searchParams = useSearchParams()
@@ -132,18 +131,6 @@ const AdminLeads = ({
   //code for passing columns
   const [Columns, setColumns] = useState(null)
 
-  //code for array input fields
-  const [inputs, setInputs] = useState([
-    { id: 1, value: 'First Name' },
-    { id: 2, value: 'Last Name' },
-    { id: 3, value: 'Phone Number' },
-    { id: 4, value: '' },
-    { id: 5, value: '' },
-    { id: 6, value: '' },
-  ])
-  //
-  const [showaddCreateListLoader, setShowaddCreateListLoader] = useState(false)
-  const [newSheetName, setNewSheetName] = useState('')
 
   //err msg when no leaad in list
   const [showNoLeadErr, setShowNoLeadErr] = useState(null)
@@ -265,14 +252,6 @@ const AdminLeads = ({
     //////console.log;
     //////console.log;
   }, [LeadsList, FilterLeads])
-
-  //code to scroll to the bottom
-  useEffect(() => {
-    // Scroll to the bottom when inputs change
-    if (bottomRef.current) {
-      bottomRef.current.scrollIntoView({ behavior: 'smooth' })
-    }
-  }, [inputs])
 
   useEffect(() => {
     // Scroll to the bottom when inputs change
@@ -1473,19 +1452,6 @@ const AdminLeads = ({
     setFilterLeads(filtered)
   }
 
-  //code for array input fields changes
-  // Handle change in input field
-  const handleInputChange = (id, value) => {
-    setInputs(
-      inputs.map((input) => (input.id === id ? { ...input, value } : input)),
-    )
-  }
-
-  // Handle deletion of input field
-  const handleDelete = (id) => {
-    setInputs(inputs.filter((input) => input.id !== id))
-  }
-
   function HandleUpdateStage(stage) {
     // setShowDetailsModal(false);
 
@@ -1523,66 +1489,6 @@ const AdminLeads = ({
     // setFilterLeads(filtered);
   }
 
-  // Handle adding a new input field
-  const handleAddInput = () => {
-    const newId = inputs.length ? inputs[inputs.length - 1].id + 1 : 1
-    setInputs([...inputs, { id: newId, value: '' }])
-  }
-
-  //code to add new sheet list
-  const handleAddSheetNewList = async () => {
-    try {
-      setShowaddCreateListLoader(true)
-
-      const localData = localStorage.getItem('User')
-      let AuthToken = null
-      if (localData) {
-        const UserDetails = JSON.parse(localData)
-        AuthToken = UserDetails.token
-      }
-
-      //////console.log;
-
-      const ApiData = {
-        sheetName: newSheetName,
-        columns: inputs.map((columns) => columns.value),
-        userId: selectedUser.id,
-        inbound: isInbound,
-      }
-      //////console.log;
-
-      const ApiPath = Apis.addSmartList
-      //////console.log;
-
-      const response = await axios.post(ApiPath, ApiData, {
-        headers: {
-          Authorization: 'Bearer ' + AuthToken,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (response) {
-        //////console.log;
-        if (response.data.status === true) {
-          setSheetsList([...SheetsList, response.data.data])
-          setShowAddNewSheetModal(false)
-          setInputs([
-            { id: 1, value: 'First Name' },
-            { id: 2, value: 'Last Name' },
-            { id: 3, value: 'Phone Number' },
-            { id: 4, value: '' },
-            { id: 5, value: '' },
-            { id: 6, value: '' },
-          ])
-          setNewSheetName('')
-        }
-      }
-    } catch (error) {
-      // console.error("Error occured in adding new list api is:", error);
-    } finally {
-      setShowaddCreateListLoader(false)
-    }
-  }
 
   const styles = {
     heading: {
@@ -2630,177 +2536,14 @@ const AdminLeads = ({
             </Modal>
             {/* </div> */}
 
-            <div>
-              <Modal
-                open={showAddNewSheetModal}
-                closeAfterTransition
-                BackdropProps={{
-                  sx: {
-                    backgroundColor: '#00000020',
-                    // //backdropFilter: "blur(5px)",
-                  },
-                }}
-              >
-                <Box
-                  className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto rounded-3xl h-[70vh]"
-                  sx={{
-                    ...styles.modalsStyle,
-                    scrollbarWidth: 'none',
-                    backgroundColor: 'white',
-                  }}
-                >
-                  <div
-                    className="w-full flex flex-col items-center h-full justify-between"
-                    style={{ backgroundColor: 'white' }}
-                  >
-                    <div className="w-full">
-                      <div className="flex flex-row items-center justify-between w-full mt-4 px-2">
-                        <div style={{ fontWeight: '500', fontSize: 15 }}>
-                          New SmartList
-                        </div>
-                        <CloseBtn
-                          onClick={() => {
-                            setShowAddNewSheetModal(false)
-                            setNewSheetName('')
-                            setInputs([
-                              { id: 1, value: 'First Name' },
-                              { id: 2, value: 'Last Name' },
-                              { id: 3, value: 'Phone Number' },
-                              { id: 4, value: '' },
-                              { id: 5, value: '' },
-                              { id: 6, value: '' },
-                            ])
-                          }}
-                        />
-                      </div>
-
-                      <div className="px-4 w-full">
-                        <div className="flex flex-row items-center justify-start mt-6 gap-2">
-                          <span style={styles.paragraph}>List Name</span>
-                          <div className="">
-                            <span>Inbound?</span>
-                            <Switch
-                              checked={isInbound}
-                              // color="hsl(var(--brand-primary))"
-                              // exclusive
-                              onChange={(event) => {
-                                //console.log;
-                                setIsInbound(event.target.checked)
-                              }}
-                              sx={{
-                                '& .MuiSwitch-switchBase.Mui-checked': {
-                                  color: 'hsl(var(--brand-primary))',
-                                },
-                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
-                                  {
-                                    backgroundColor: 'hsl(var(--brand-primary))',
-                                  },
-                              }}
-                            />
-                          </div>
-                        </div>
-                        <div className="mt-4">
-                          <input
-                            value={newSheetName}
-                            onChange={(e) => {
-                              setNewSheetName(e.target.value)
-                            }}
-                            placeholder="Enter list name"
-                            className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px]"
-                            style={{
-                              ...styles.paragraph,
-                              border: '1px solid #00000020',
-                            }}
-                          />
-                        </div>
-                        <div className="mt-8" style={styles.paragraph}>
-                          Create Columns
-                        </div>
-                        <div
-                          className="max-h-[30vh] overflow-auto mt-2" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
-                          style={{ scrollbarWidth: 'none' }}
-                        >
-                          {inputs.map((input, index) => (
-                            <div
-                              key={input.id}
-                              className="w-full flex flex-row items-center gap-4 mt-4"
-                            >
-                              <input
-                                className="border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]"
-                                style={{
-                                  ...styles.paragraph,
-                                  width: '95%',
-                                  borderColor: '#00000020',
-                                }}
-                                placeholder={`Column Name`}
-                                value={input.value}
-                                onChange={(e) => {
-                                  if (index > 2) {
-                                    handleInputChange(input.id, e.target.value)
-                                  }
-                                }}
-                              />
-                              <div style={{ width: '5%' }}>
-                                {index > 2 && (
-                                  <button
-                                    className="outline-none border-none"
-                                    onClick={() => handleDelete(input.id)}
-                                  >
-                                    <CloseBtn
-                                      onClick={() => handleDelete(input.id)}
-                                    />
-                                  </button>
-                                )}
-                              </div>
-                            </div>
-                          ))}
-                          {/* Dummy element for scrolling */}
-                          <div ref={bottomRef}></div>
-                        </div>
-                        <div style={{ height: '50px' }}>
-                          {/*
-                                                        inputs.length < 3 && (
-                                                            <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-brand-primary rounded-lg underline' style={{
-                                                                fontSize: 15,
-                                                                fontWeight: "700"
-                                                            }}>
-                                                                Add New
-                                                            </button>
-                                                        )
-                                                    */}
-                          <button
-                            onClick={handleAddInput}
-                            className="mt-4 p-2 outline-none border-none text-brand-primary rounded-lg underline"
-                            style={styles.paragraph}
-                          >
-                            New Column
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="w-full pb-8">
-                      {showaddCreateListLoader ? (
-                        <div className="flex flex-row items-center justify-center w-full h-[50px]">
-                          <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                        </div>
-                      ) : (
-                        <button
-                          className="bg-purple h-[50px] rounded-xl text-white w-full"
-                          style={{
-                            fontWeight: '600',
-                            fontSize: 16.8,
-                          }}
-                          onClick={handleAddSheetNewList}
-                        >
-                          Create List
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </Box>
-              </Modal>
-            </div>
+            <CreateSmartlistModal
+              open={showAddNewSheetModal}
+              onClose={() => setShowAddNewSheetModal(false)}
+              onSuccess={(newSmartlist) => {
+                setSheetsList([...SheetsList, newSmartlist])
+              }}
+              selectedUser={selectedUser}
+            />
           </div>
         )}
       </div>

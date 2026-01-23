@@ -91,21 +91,21 @@ function AgencyMyAccount({ selectedAgency }) {
       heading: 'Terms & Conditions',
       subHeading: '',
       icon: '/svgIcons/info.svg',
-      permissionKey: null, // Always available
+      // permissionKey: 'agency.terms.manage', // Always available
     },
     {
       id: 6,
       heading: 'Privacy Policy',
       subHeading: '',
       icon: '/svgIcons/info.svg',
-      permissionKey: null, // Always available
+      // permissionKey: 'agency.terms.manage', // Always available
     },
     {
       id: 7,
       heading: 'Cancellation & Refund',
       subHeading: '',
       icon: '/svgIcons/info.svg',
-      permissionKey: null, // Always available
+      // permissionKey: 'agency.terms.manage', // Always available
     },
   ]
   

@@ -30,6 +30,7 @@ import { cn } from '@/lib/utils'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 import MultiSelectDropdownCn from '@/components/dashboard/leads/extras/MultiSelectDropdownCn'
 import CloseBtn from '../globalExtras/CloseBtn'
+import CreateSmartlistModal from './CreateSmartlistModal'
 
 const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => {
   // Form state
@@ -66,6 +67,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
   const [loadingTeamMembers, setLoadingTeamMembers] = useState(false)
   const [loadingCustomFields, setLoadingCustomFields] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [showCreateSmartlistModal, setShowCreateSmartlistModal] = useState(false)
 
   // Validation errors
   const [errors, setErrors] = useState({})
@@ -641,12 +643,52 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
     }))
   }
 
+  // Handle open change - only close when explicitly requested (click outside or escape)
+  const handleOpenChange = (newOpen) => {
+    // Only close if the new state is explicitly false
+    // This prevents accidental closes from input interactions
+    if (newOpen === false) {
+      onClose()
+    }
+  }
+
   return (
-    <Sheet open={open} onOpenChange={onClose}>
+    <Sheet open={open} onOpenChange={handleOpenChange} modal={true}>
       <SheetContent
         side="right"
-        className="!w-[1000px] !max-w-[500px] sm:!max-w-[500px] p-0 flex flex-col [&>button]:hidden !z-[1400]"
-        overlayClassName="!z-[1399]"
+        className={cn(
+          "!w-[1000px] !max-w-[500px] sm:!max-w-[500px] p-0 flex flex-col [&>button]:hidden !z-[1400]",
+          showCreateSmartlistModal && "[&+*]:pointer-events-none"
+        )}
+        overlayClassName={cn(
+          "!z-[1399]",
+          showCreateSmartlistModal && "pointer-events-none"
+        )}
+        onEscapeKeyDown={(event) => {
+          // Allow escape key to close (but not if CreateSmartlistModal is open)
+          if (!showCreateSmartlistModal) {
+            onClose()
+          } else {
+            // If CreateSmartlistModal is open, prevent closing the drawer
+            event.preventDefault()
+          }
+        }}
+        onPointerDownOutside={(event) => {
+          // Only prevent closing when clicking inside CreateSmartlistModal
+          if (showCreateSmartlistModal) {
+            const target = event.target
+            // Check if click is on MUI Modal backdrop or content
+            const muiBackdrop = target.closest('[role="presentation"]')
+            const muiModal = document.querySelector('[class*="MuiModal-root"]')
+            if (muiBackdrop || (muiModal && muiModal.contains(target))) {
+              event.preventDefault()
+              return
+            }
+          }
+          
+          // Allow normal closing behavior for other outside clicks
+          // Don't prevent closing for form elements - they're handled by the Sheet's default behavior
+        }}
         style={{
           marginTop: '12px',
           marginBottom: '12px',
@@ -670,7 +712,19 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
         <div className="flex-1 overflow-y-auto px-3 py-3">
           {/* Smartlist Dropdown */}
           <div className="flex flex-col gap-1 px-0 py-2">
-            <Label className="text-sm text-gray-600">Smartlist</Label>
+            <div className="flex items-center justify-between">
+              <Label className="text-sm text-gray-600">Smartlist</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowCreateSmartlistModal(true)}
+                className="h-7 px-2 text-xs border border-gray-300 hover:bg-gray-50"
+              >
+                <Plus className="h-3 w-3 mr-1" />
+                New Smartlist
+              </Button>
+            </div>
             <Select
               value={selectedSmartlist?.id?.toString() || ''}
               onValueChange={handleSmartlistSelect}
@@ -740,6 +794,12 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
                 <Input
                   value={formData.lastName}
                   onChange={(e) => handleInputChange('lastName', e.target.value)}
+                  onFocus={(e) => {
+                    e.stopPropagation()
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation()
+                  }}
                   placeholder="Type here"
                   className="h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
                 />
@@ -1068,6 +1128,35 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
           </Button>
         </SheetFooter>
       </SheetContent>
+
+      {/* Create Smartlist Modal - Rendered outside Sheet to avoid z-index issues */}
+      <CreateSmartlistModal
+        open={showCreateSmartlistModal}
+        onClose={() => setShowCreateSmartlistModal(false)}
+        onSuccess={async (newSmartlist) => {
+          // Refresh smartlists
+          await fetchSmartlists()
+          // Select the newly created smartlist
+          if (newSmartlist?.id) {
+            // Use the newSmartlist object directly and trigger the selection logic
+            setSelectedSmartlist(newSmartlist)
+            setErrors((prev) => ({ ...prev, smartlist: null }))
+            
+            // Extract custom fields from smartlist if available
+            if (newSmartlist.columns && Array.isArray(newSmartlist.columns) && newSmartlist.columns.length > 0) {
+              extractCustomFields(newSmartlist.columns)
+            } else {
+              fetchCustomFields(newSmartlist.id)
+            }
+            
+            // Show fields after a short delay
+            setTimeout(() => {
+              setShowFields(true)
+            }, 100)
+          }
+        }}
+        selectedUser={selectedUser}
+      />
     </Sheet>
   )
 }
