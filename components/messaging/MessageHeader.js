@@ -26,39 +26,37 @@ function MessageHeader({ selectedThread = null, selectedUser = null }) {
                 <TypographyH3>Messages</TypographyH3>
                 {!selectedUser && (
                     <div className='flex flex-row items-center justify-end gap-2'>
-                        {process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Production' && (
-                            <button
-                                ref={taskButtonRef}
-                                onClick={() => setTaskBoardOpen(true)}
-                                className="mb-1 hover:opacity-70 transition-opacity relative"
-                            >
-                                <Image 
-                                    src='/messaging/checkList.svg' 
-                                    alt='Tasks' 
-                                    width={22} 
-                                    height={22} 
-                                />
-                                {/* Status indicator dots */}
-                                {(hasActiveTasks || hasPastDueTasks) && (
-                                    <div className="absolute -top-1 -right-1 flex items-center gap-0.5">
-                                        {/* Red dot for past due (highest priority) */}
-                                        {hasPastDueTasks && (
-                                            <div 
-                                                className="w-2.5 h-2.5 rounded-full border-2 border-white"
-                                                style={{ backgroundColor: '#EF4444' }}
-                                            />
-                                        )}
-                                        {/* Purple dot for active tasks (todo/in-progress) */}
-                                        {hasActiveTasks && !hasPastDueTasks && (
-                                            <div 
-                                                className="w-2.5 h-2.5 rounded-full border-2 border-white"
-                                                style={{ backgroundColor: '#7804DF' }}
-                                            />
-                                        )}
-                                    </div>
+                        <button
+                        ref={taskButtonRef}
+                        onClick={() => setTaskBoardOpen(true)}
+                        className="mb-1 hover:opacity-70 transition-opacity relative"
+                    >
+                        <Image
+                            src='/messaging/checkList.svg'
+                            alt='Tasks'
+                            width={22}
+                            height={22}
+                        />
+                        {/* Status indicator dots */}
+                        {(hasActiveTasks || hasPastDueTasks) && (
+                            <div className="absolute -top-1 -right-1 flex items-center gap-0.5">
+                                {/* Red dot for past due (highest priority) */}
+                                {hasPastDueTasks && (
+                                    <div
+                                        className="w-2.5 h-2.5 rounded-full border-2 border-white"
+                                        style={{ backgroundColor: '#EF4444' }}
+                                    />
                                 )}
-                            </button>
+                                {/* Purple dot for active tasks (todo/in-progress) */}
+                                {hasActiveTasks && !hasPastDueTasks && (
+                                    <div
+                                        className="w-2.5 h-2.5 rounded-full border-2 border-white"
+                                        style={{ backgroundColor: '#7804DF' }}
+                                    />
+                                )}
+                            </div>
                         )}
+                    </button>
 
                         <NotficationsDrawer/>
                     </div>

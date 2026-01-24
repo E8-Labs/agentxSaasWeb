@@ -25,6 +25,7 @@ import AgentSelectSnackMessage, {
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import BackgroundVideo from '@/components/general/BackgroundVideo'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
+import StandardHeader from '@/components/common/StandardHeader'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import { Constants, PersistanceKeys } from '@/constants/Constants'
 import { convertSecondsToMinDuration } from '@/utilities/utility'
@@ -322,16 +323,9 @@ const Page = () => {
             }}
           >
           </div>
-          {/* Notification icon positioned at the right edge of the screen */}
-          <div
-            style={{
-              position: 'fixed',
-              top: 25,
-              right: 20,
-              zIndex: 20,
-            }}
-          >
-            <NotficationsDrawer />
+          {/* Standard Header */}
+          <div className="absolute top-0 left-0 right-0 z-20">
+            <StandardHeader title="Dashboard" showTasks={true} showSeparator={false} variant="dark" />
           </div>
           <div className="w-9/12 flex flex-col items-center h-[100%] relative z-10">
             {/* <div className='w-11/12 h-[5%] mb-4' style={{ fontWeight: "700", fontSize: 29, paddingBottom: 10 }}>

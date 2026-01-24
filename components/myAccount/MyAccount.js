@@ -15,6 +15,7 @@ import { getPolicyUrls } from '@/utils/getPolicyUrls'
 
 import { getUserLocalData } from '../constants/constants'
 import NotficationsDrawer from '../notofications/NotficationsDrawer'
+import StandardHeader from '../common/StandardHeader'
 import BarServices from './BarServices'
 import BasicInfo from './BasicInfo'
 import Billing from './Billing'
@@ -291,16 +292,7 @@ function MyAccount() {
       className="w-full flex flex-col items-center"
       style={{ overflow: 'hidden', height: '100vh' }}
     >
-      <div
-        className=" w-full flex flex-row justify-between items-center py-4 px-10"
-        style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
-      >
-        <div style={{ fontSize: 24, fontWeight: '600' }}>My Account</div>
-
-        <div className="flex flex-col">
-          <NotficationsDrawer />
-        </div>
-      </div>
+      <StandardHeader title="My Account" showTasks={true} />
       <div className="w-full flex flex-row item-center pl-4 h-[100%]">
         <div className="w-3/12 items-center flex flex-col pt-4 pr-2 overflow-y-auto h-[90%] pb-22">
           {manuBar.map((item, index) => (
