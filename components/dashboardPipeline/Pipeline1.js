@@ -1225,7 +1225,7 @@ const Pipeline1 = () => {
               if (SelectedPipeline.id === pipeline.id) {
                 return {
                   ...pipeline,
-                  stages: pipeline.stages.filter(
+                  stages: pipeline?.stages?.filter(
                     (stage) => stage.id !== selectedStage.id,
                   ),
                 }
@@ -1448,9 +1448,9 @@ const Pipeline1 = () => {
         if (response.data.status === true) {
           let updatedPipelines = []
           setPipeLines(
-            PipeLines.filter((pipeline) => pipeline.id !== SelectedPipeline.id),
+            PipeLines?.filter((pipeline) => pipeline.id !== SelectedPipeline.id),
           )
-          updatedPipelines = PipeLines.filter(
+          updatedPipelines = PipeLines?.filter(
             (pipeline) => pipeline.id !== SelectedPipeline.id,
           )
 
@@ -2476,12 +2476,12 @@ const Pipeline1 = () => {
                               }
                               scrollableTarget={`scrollableDiv-${stage.id}`}
                               dataLength={
-                                LeadsList.filter(
+                                LeadsList?.filter(
                                   (lead) => lead.lead.stage === stage.id,
                                 ).length
                               }
                               next={() => {
-                                let leadsInStage = LeadsList.filter(
+                                let leadsInStage = LeadsList?.filter(
                                   (lead) => lead.lead.stage === stage.id,
                                 )
 
@@ -2727,7 +2727,7 @@ const Pipeline1 = () => {
                                                           lead,
                                                         )
                                                         let updatedTags =
-                                                          lead.lead.tags.filter(
+                                                          lead?.lead?.tags?.filter(
                                                             (tag) =>
                                                               tag != tagVal,
                                                           ) || []
@@ -3595,7 +3595,7 @@ const Pipeline1 = () => {
                 {(() => {
                   // Check actual lead count instead of relying on cached hasLeads
                   // This handles the case where a lead was deleted but hasLeads wasn't updated
-                  const actualLeadCount = LeadsList.filter(
+                  const actualLeadCount = LeadsList?.filter(
                     (lead) => lead.lead?.stage === selectedStage?.id
                   ).length
                   // Prioritize actual count - if we have LeadsList data, use actual count only
