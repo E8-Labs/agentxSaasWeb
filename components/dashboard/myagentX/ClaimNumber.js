@@ -243,15 +243,34 @@ const ClaimNumber = ({
       <Modal
         open={showClaimPopup}
         closeAfterTransition
+        disablePortal={false}
+        slotProps={{
+          root: {
+            style: {
+              zIndex: 1500,
+            },
+          },
+        }}
+        sx={{
+          zIndex: 1500, // Higher than LeadDetails drawer (1400) to appear on top
+        }}
         BackdropProps={{
           timeout: 1000,
           sx: {
             backgroundColor: '#00000020',
+            zIndex: 1500, // Match Modal z-index
             // //backdropFilter: "blur(20px)",
           },
         }}
       >
-        <Box className="lg:w-8/12 sm:w-full w-8/12" sx={styles.claimPopup}>
+        <Box
+          className="lg:w-8/12 sm:w-full w-8/12"
+          sx={{
+            ...styles.claimPopup,
+            zIndex: 1501, // Higher than backdrop (1500) to appear on top
+            position: 'relative',
+          }}
+        >
           <div className="flex flex-row justify-center w-full">
             <div
               className="sm:w-8/12 w-full min-h-[50vh] max-h-[84vh] flex flex-col justify-between"
@@ -456,15 +475,34 @@ const ClaimNumber = ({
         open={openPurchaseSuccessModal}
         // onClose={() => setAddKYCQuestion(false)}
         closeAfterTransition
+        disablePortal={false}
+        slotProps={{
+          root: {
+            style: {
+              zIndex: 1600,
+            },
+          },
+        }}
+        sx={{
+          zIndex: 1600, // Higher than claim modal (1500) to appear on top
+        }}
         BackdropProps={{
           timeout: 1000,
           sx: {
             backgroundColor: '#00000020',
+            zIndex: 1600, // Match Modal z-index
             // //backdropFilter: "blur(20px)",
           },
         }}
       >
-        <Box className="lg:w-6/12 sm:w-full w-6/12" sx={styles.claimPopup}>
+        <Box
+          className="lg:w-6/12 sm:w-full w-6/12"
+          sx={{
+            ...styles.claimPopup,
+            zIndex: 1601, // Higher than backdrop (1600) to appear on top
+            position: 'relative',
+          }}
+        >
           <div className="flex flex-row justify-center w-full">
             <div
               className="sm:w-8/12 w-full min-h-[50vh] max-h-[80vh] flex flex-col justify-between"
@@ -500,15 +538,34 @@ const ClaimNumber = ({
         open={showAddCard} //addPaymentPopUp
         // open={true}
         closeAfterTransition
+        disablePortal={false}
+        slotProps={{
+          root: {
+            style: {
+              zIndex: 1700,
+            },
+          },
+        }}
+        sx={{
+          zIndex: 1700, // Higher than purchase success modal (1600) to appear on top
+        }}
         BackdropProps={{
           timeout: 100,
           sx: {
             backgroundColor: '#00000020',
+            zIndex: 1700, // Match Modal z-index
             // //backdropFilter: "blur(20px)",
           },
         }}
       >
-        <Box className="lg:w-8/12 sm:w-full w-full" sx={styles.paymentModal}>
+        <Box
+          className="lg:w-8/12 sm:w-full w-full"
+          sx={{
+            ...styles.paymentModal,
+            zIndex: 1701, // Higher than backdrop (1700) to appear on top
+            position: 'relative',
+          }}
+        >
           <div className="flex flex-row justify-center w-full">
             <div
               className="sm:w-7/12 w-full"
