@@ -8,7 +8,7 @@ export function LayoutTracker() {
   useEffect(() => {
     if (typeof window !== 'undefined' && !hasLoggedMount.current) {
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'providers/layout-tracker.js:10', message: 'LayoutTracker mounted (first time only)', data: { pathname: window.location.pathname, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run3', hypothesisId: 'I' }) }).catch(() => { });
+      //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'providers/layout-tracker.js:10', message: 'LayoutTracker mounted (first time only)', data: { pathname: window.location.pathname, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run3', hypothesisId: 'I' }) }).catch(() => { });
       // #endregion
       hasLoggedMount.current = true
     }
@@ -21,7 +21,7 @@ export function LayoutTracker() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'providers/layout-tracker.js:22', message: 'LayoutTracker render/effect', data: { pathname: window.location.pathname, renderCount: renderCount.current, hasLoggedMount: hasLoggedMount.current, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run3', hypothesisId: 'I' }) }).catch(() => { });
+      //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'providers/layout-tracker.js:22', message: 'LayoutTracker render/effect', data: { pathname: window.location.pathname, renderCount: renderCount.current, hasLoggedMount: hasLoggedMount.current, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run3', hypothesisId: 'I' }) }).catch(() => { });
       // #endregion
     }
   })
@@ -36,7 +36,7 @@ export function LayoutTracker() {
         const currentPathname = window.location.pathname
         if (currentPathname !== lastPathname) {
           // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'providers/layout-tracker.js:25', message: 'Navigation detected - pathname changed', data: { from: lastPathname, to: currentPathname, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run3', hypothesisId: 'I' }) }).catch(() => { });
+          //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'providers/layout-tracker.js:25', message: 'Navigation detected - pathname changed', data: { from: lastPathname, to: currentPathname, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run3', hypothesisId: 'I' }) }).catch(() => { });
           // #endregion
           lastPathname = currentPathname
         }

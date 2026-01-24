@@ -264,19 +264,19 @@ function AdminAllCalls({ selectedUser }) {
   // Track state changes for debugging
   useEffect(() => {
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:285',message:'STATE CHANGE - loading',data:{loading,hasMore,filteredLength:filteredCallDetails.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+    //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:285',message:'STATE CHANGE - loading',data:{loading,hasMore,filteredLength:filteredCallDetails.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
     // #endregion
   }, [loading])
 
   useEffect(() => {
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:291',message:'STATE CHANGE - hasMore',data:{hasMore,filteredLength:filteredCallDetails.length,loading},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C,E'})}).catch(()=>{});
+    //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:291',message:'STATE CHANGE - hasMore',data:{hasMore,filteredLength:filteredCallDetails.length,loading},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C,E'})}).catch(()=>{});
     // #endregion
   }, [hasMore])
 
   useEffect(() => {
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:297',message:'STATE CHANGE - filteredCallDetails.length',data:{filteredLength:filteredCallDetails.length,hasMore,loading},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D,E'})}).catch(()=>{});
+    //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:297',message:'STATE CHANGE - filteredCallDetails.length',data:{filteredLength:filteredCallDetails.length,hasMore,loading},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D,E'})}).catch(()=>{});
     // #endregion
   }, [filteredCallDetails.length])
 
@@ -294,7 +294,7 @@ function AdminAllCalls({ selectedUser }) {
       const scrollableDiv = document.getElementById('scrollableDiv1')
       if (!scrollableDiv) {
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:294',message:'scrollableDiv1 NOT FOUND',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:294',message:'scrollableDiv1 NOT FOUND',data:{},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
         // #endregion
         return
       }
@@ -307,13 +307,13 @@ function AdminAllCalls({ selectedUser }) {
       // #region agent log
       // Check if div is actually scrollable
       const isScrollable = scrollableDiv.scrollHeight > scrollableDiv.clientHeight
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:303',message:'scrollableDiv1 FOUND - checking scrollability',data:{scrollHeight:scrollableDiv.scrollHeight,clientHeight:scrollableDiv.clientHeight,isScrollable,filteredLength:filteredCallDetails.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:303',message:'scrollableDiv1 FOUND - checking scrollability',data:{scrollHeight:scrollableDiv.scrollHeight,clientHeight:scrollableDiv.clientHeight,isScrollable,filteredLength:filteredCallDetails.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
       // #endregion
 
       const handleScroll = (e) => {
         // #region agent log
         // Log immediately when scroll event fires (before throttling)
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:315',message:'SCROLL EVENT FIRED (immediate)',data:{target:e.target.id,currentTarget:e.currentTarget?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:315',message:'SCROLL EVENT FIRED (immediate)',data:{target:e.target.id,currentTarget:e.currentTarget?.id},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
         // #endregion
         
         // Throttle scroll events
@@ -329,7 +329,7 @@ function AdminAllCalls({ selectedUser }) {
           
           // #region agent log
           // Log all scroll events to debug
-          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:325',message:'SCROLL EVENT PROCESSED',data:{scrollTop,scrollHeight,clientHeight,distanceFromBottom,threshold,hasMore,loading,initialLoader,isLoadingMoreRef:isLoadingMoreRef.current,currentOffset:currentOffsetRef.current,listLength:filteredCallDetails.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+          //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:325',message:'SCROLL EVENT PROCESSED',data:{scrollTop,scrollHeight,clientHeight,distanceFromBottom,threshold,hasMore,loading,initialLoader,isLoadingMoreRef:isLoadingMoreRef.current,currentOffset:currentOffsetRef.current,listLength:filteredCallDetails.length},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
           // #endregion
           
           if (
@@ -340,7 +340,7 @@ function AdminAllCalls({ selectedUser }) {
             !isLoadingMoreRef.current
           ) {
             // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:337',message:'Conditions met, loading more',data:{offsetToUse:currentOffsetRef.current,hasMore,loading,isLoadingMoreRef:isLoadingMoreRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+            //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:337',message:'Conditions met, loading more',data:{offsetToUse:currentOffsetRef.current,hasMore,loading,isLoadingMoreRef:isLoadingMoreRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
             // #endregion
             
             // Use ref to get current offset synchronously
@@ -353,13 +353,13 @@ function AdminAllCalls({ selectedUser }) {
       scrollHandlerRef.current = handleScroll
       scrollableDiv.addEventListener('scroll', handleScroll, { passive: true, capture: false })
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:352',message:'Scroll listener ATTACHED to scrollableDiv1',data:{filteredLength:filteredCallDetails.length,hasMore,loading,initialLoader,scrollHeight:scrollableDiv.scrollHeight,clientHeight:scrollableDiv.clientHeight,scrollTop:scrollableDiv.scrollTop},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+      //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:352',message:'Scroll listener ATTACHED to scrollableDiv1',data:{filteredLength:filteredCallDetails.length,hasMore,loading,initialLoader,scrollHeight:scrollableDiv.scrollHeight,clientHeight:scrollableDiv.clientHeight,scrollTop:scrollableDiv.scrollTop},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
       // #endregion
       
       // Also try attaching to window scroll as fallback
       const handleWindowScroll = () => {
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:357',message:'WINDOW SCROLL EVENT FIRED',data:{scrollY:window.scrollY,innerHeight:window.innerHeight},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:357',message:'WINDOW SCROLL EVENT FIRED',data:{scrollY:window.scrollY,innerHeight:window.innerHeight},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
         // #endregion
       }
       window.addEventListener('scroll', handleWindowScroll, { passive: true })
@@ -369,13 +369,13 @@ function AdminAllCalls({ selectedUser }) {
         const { scrollTop, scrollHeight, clientHeight } = scrollableDiv
         const distanceFromBottom = scrollHeight - scrollTop - clientHeight
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:365',message:'Testing scroll listener - checking div state',data:{scrollTop,scrollHeight,clientHeight,isScrollable:scrollHeight > clientHeight,distanceFromBottom},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+        //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:365',message:'Testing scroll listener - checking div state',data:{scrollTop,scrollHeight,clientHeight,isScrollable:scrollHeight > clientHeight,distanceFromBottom},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
         // #endregion
         
         // If already at bottom and hasMore, try loading immediately
         if (distanceFromBottom < 100 && hasMore && !loading && !initialLoader && !isLoadingMoreRef.current) {
           // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:370',message:'Already at bottom - triggering load immediately',data:{offsetToUse:currentOffsetRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
+          //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:370',message:'Already at bottom - triggering load immediately',data:{offsetToUse:currentOffsetRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A'})}).catch(()=>{});
           // #endregion
           getCallLogs(currentOffsetRef.current)
         }
@@ -471,13 +471,13 @@ function AdminAllCalls({ selectedUser }) {
   const getCallLogs = async (offset = null) => {
     const currentRequestVersion = ++requestVersion.current
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:325',message:'getCallLogs ENTRY',data:{offset,currentLength:filteredCallDetails.length,loading,hasMore,requestVersion:currentRequestVersion,isLoadingMoreRef:isLoadingMoreRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,D'})}).catch(()=>{});
+    //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:325',message:'getCallLogs ENTRY',data:{offset,currentLength:filteredCallDetails.length,loading,hasMore,requestVersion:currentRequestVersion,isLoadingMoreRef:isLoadingMoreRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B,D'})}).catch(()=>{});
     // #endregion
     
     // Prevent duplicate requests (like AgencySubacount)
     if (isLoadingMoreRef.current && offset !== null && offset !== 0) {
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:330',message:'SKIPPING - already loading',data:{offset,isLoadingMoreRef:isLoadingMoreRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:330',message:'SKIPPING - already loading',data:{offset,isLoadingMoreRef:isLoadingMoreRef.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
       // #endregion
       return
     }
@@ -491,7 +491,7 @@ function AdminAllCalls({ selectedUser }) {
     try {
       setLoading(true)
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:342',message:'setLoading(true) called',data:{offset,requestVersion:currentRequestVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:342',message:'setLoading(true) called',data:{offset,requestVersion:currentRequestVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
       // #endregion
       // Only set initial loader on first load (offset 0 or null)
       if (offset === null || offset === 0) {
@@ -562,7 +562,7 @@ function AdminAllCalls({ selectedUser }) {
       ApiPath = ApiPath + '&userId=' + selectedUser.id
 
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:398',message:'BEFORE API CALL',data:{apiPath:ApiPath,offset,currentLength:filteredCallDetails.length,requestVersion:currentRequestVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
+      //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:398',message:'BEFORE API CALL',data:{apiPath:ApiPath,offset,currentLength:filteredCallDetails.length,requestVersion:currentRequestVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'})}).catch(()=>{});
       // #endregion
       //console.log;
 
@@ -579,7 +579,7 @@ function AdminAllCalls({ selectedUser }) {
         if (response) {
           const data = response.data.data
           // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:415',message:'AFTER API SUCCESS',data:{dataLength:data.length,limitPerPage:LimitPerPage,offset,currentLength:filteredCallDetails.length,willSetHasMore:data.length < LimitPerPage ? false : true,requestVersion:currentRequestVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C,D'})}).catch(()=>{});
+          //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:415',message:'AFTER API SUCCESS',data:{dataLength:data.length,limitPerPage:LimitPerPage,offset,currentLength:filteredCallDetails.length,willSetHasMore:data.length < LimitPerPage ? false : true,requestVersion:currentRequestVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C,D'})}).catch(()=>{});
           // #endregion
           localStorage.setItem(
             'callDetails',
@@ -591,12 +591,12 @@ function AdminAllCalls({ selectedUser }) {
           if (data.length < LimitPerPage) {
             setHasMore(false)
             // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:426',message:'setHasMore(false)',data:{dataLength:data.length,limitPerPage:LimitPerPage,requestVersion:currentRequestVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:426',message:'setHasMore(false)',data:{dataLength:data.length,limitPerPage:LimitPerPage,requestVersion:currentRequestVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
             // #endregion
           } else {
             setHasMore(true)
             // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:428',message:'setHasMore(true)',data:{dataLength:data.length,limitPerPage:LimitPerPage,requestVersion:currentRequestVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+            //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:428',message:'setHasMore(true)',data:{dataLength:data.length,limitPerPage:LimitPerPage,requestVersion:currentRequestVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
             // #endregion
           }
           // setOffset((prevOffset) => prevOffset + 5);
@@ -605,14 +605,14 @@ function AdminAllCalls({ selectedUser }) {
     } catch (error) {
       console.error('Error occured in gtting calls log api is:', error)
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:433',message:'API ERROR',data:{error:error.message,offset,requestVersion:currentRequestVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:433',message:'API ERROR',data:{error:error.message,offset,requestVersion:currentRequestVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
       // #endregion
       setHasMore(false) // Stop trying to load more on error
     } finally {
       setLoading(false) // Always reset loading state
       isLoadingMoreRef.current = false // Reset loading flag (like AgencySubacount)
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:437',message:'setLoading(false) in finally',data:{offset,requestVersion:currentRequestVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+      //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'AdminAllCalls.js:437',message:'setLoading(false) in finally',data:{offset,requestVersion:currentRequestVersion},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
       // #endregion
       setInitialLoader(false)
     }

@@ -111,7 +111,7 @@ const dialerSlice = createSlice({
     updateCallStatus: (state, action) => {
       // #region agent log
       if (typeof window !== 'undefined') {
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'dialerSlice.js:115', message: 'Redux: updateCallStatus action', data: { newStatus: action.payload, previousStatus: state.callStatus, preventClose: ['in-call', 'ringing', 'connecting'].includes(action.payload) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+        //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'dialerSlice.js:115', message: 'Redux: updateCallStatus action', data: { newStatus: action.payload, previousStatus: state.callStatus, preventClose: ['in-call', 'ringing', 'connecting'].includes(action.payload) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
       }
       // #endregion
       state.callStatus = action.payload
@@ -200,7 +200,7 @@ const dialerSlice = createSlice({
       else if (key === 'emailAccounts') state.emailAccountsLoading = value
       else if (key === 'initializing') {
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'dialerSlice.js:190', message: 'Redux: setLoadingState initializing', data: { oldValue: state.initializing, newValue: value }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
+        //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'dialerSlice.js:190', message: 'Redux: setLoadingState initializing', data: { oldValue: state.initializing, newValue: value }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
         // #endregion
         state.initializing = value
       }
@@ -215,7 +215,7 @@ const dialerSlice = createSlice({
       if (checkingDialerNumber !== undefined) state.checkingDialerNumber = checkingDialerNumber
       if (initializing !== undefined) {
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'dialerSlice.js:200', message: 'Redux: updateDeviceState initializing', data: { oldValue: state.initializing, newValue: initializing, deviceRegistered: action.payload.deviceRegistered }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
+        //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'dialerSlice.js:200', message: 'Redux: updateDeviceState initializing', data: { oldValue: state.initializing, newValue: initializing, deviceRegistered: action.payload.deviceRegistered }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run2', hypothesisId: 'F' }) }).catch(() => { });
         // #endregion
         state.initializing = initializing
       }

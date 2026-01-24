@@ -146,31 +146,6 @@ function Page() {
     const isPopup = window.opener !== null && window.opener !== window
     const hasOpener = typeof window.opener !== 'undefined' && window.opener !== null
 
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sessionId: 'debug-session',
-        runId: 'pre-fix',
-        hypothesisId: 'H1',
-        location: 'app/dashboard/myAgentX/page.js:ghl-params',
-        message: 'MyAgentX loaded with GHL params',
-        data: {
-          pathname: window.location.pathname,
-          href: window.location.href.slice(0, 200),
-          searchKeys: Array.from(params.keys()).slice(0, 20),
-          ghlOauthSuccess: ghlOauthSuccess || null,
-          hasLocationId: Boolean(locationId),
-          hasCode: Boolean(code),
-          hasError: Boolean(error),
-          isPopup: Boolean(isPopup),
-          hasOpener: Boolean(hasOpener),
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {})
-    // #endregion agent log
 
     // If in popup and GHL OAuth success, close immediately
     if (ghlOauthSuccess === 'success' && (isPopup || hasOpener)) {
@@ -240,26 +215,6 @@ function Page() {
 
     const hasOpener = typeof window.opener !== 'undefined' && window.opener !== null && window.opener !== window
 
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sessionId: 'debug-session',
-        runId: 'pre-fix',
-        hypothesisId: 'H2',
-        location: 'app/dashboard/myAgentX/page.js:ghl-code-handoff',
-        message: 'MyAgentX handling GHL code/error callback',
-        data: {
-          hasCode: Boolean(code),
-          hasError: Boolean(error),
-          hasState: Boolean(state),
-          hasOpener,
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {})
-    // #endregion agent log
 
     if (hasOpener) {
       try {
@@ -274,34 +229,6 @@ function Page() {
     }
   }, [])
 
-  // Listen for any postMessage events globally (debugging OAuth popup handoff)
-  useEffect(() => {
-    function onAnyMessage(e) {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId: 'debug-session',
-          runId: 'pre-fix',
-          hypothesisId: 'H2',
-          location: 'app/dashboard/myAgentX/page.js:window-message',
-          message: 'MyAgentX received window message event',
-          data: {
-            origin: e.origin,
-            dataType: typeof e.data,
-            messageType: e?.data?.type || null,
-            hasLocationId: Boolean(e?.data?.locationId),
-            keys: e?.data && typeof e.data === 'object' ? Object.keys(e.data).slice(0, 20) : null,
-          },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {})
-      // #endregion agent log
-    }
-    window.addEventListener('message', onAnyMessage)
-    return () => window.removeEventListener('message', onAnyMessage)
-  }, [])
 
   // Redux hooks for plan management
   const { user: reduxUser, isAuthenticated, setUser: setReduxUser } = useUser()
