@@ -30,6 +30,8 @@ const TaskForm = ({
   leadName = null,
   initialDescription = null,
   hideBorder = false,
+  isValidForm = false,
+  setIsValidForm = () => {},
 }) => {
   const titleInputRef = useRef(null)
   const titleContainerRef = useRef(null)
@@ -370,6 +372,7 @@ const TaskForm = ({
             className="border-0 p-0 min-h-[60px] resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
             style={{ fontSize: '14px' }}
             rows={3}
+            required={isValidForm}
           />
         </div>
 

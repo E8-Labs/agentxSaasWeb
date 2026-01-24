@@ -25,7 +25,7 @@ const CreateTaskFromNextStepsModal = ({
 }) => {
   const [teamMembers, setTeamMembers] = useState([])
   const [isSubmitting, setIsSubmitting] = useState(false)
-
+  const [isValidForm, setIsValidForm] = useState(false)
   // Fetch team members
   const fetchTeamMembers = useCallback(async () => {
     try {
@@ -72,6 +72,12 @@ const CreateTaskFromNextStepsModal = ({
 
   // Handle task creation
   const handleCreateTask = async (taskData) => {
+
+    if (!taskData.title.trim() || !taskData.description.trim()) {
+      setIsValidForm(false)
+      return false
+    }
+
     try {
       setIsSubmitting(true)
       const response = await createTask(taskData, selectedUser?.id)
@@ -121,7 +127,9 @@ const CreateTaskFromNextStepsModal = ({
             leadName={leadName}
             initialDescription={formattedDescription}
             hideBorder={true}
-          />
+            isValidForm={isValidForm}
+            setIsValidForm={setIsValidForm}
+            />
         </div>
 
         {/* Action Buttons - Fixed at bottom */}
@@ -137,12 +145,13 @@ const CreateTaskFromNextStepsModal = ({
           <button
             type="submit"
             form="task-form"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !isValidForm}
             className="px-4 py-2 rounded-lg bg-brand-primary text-white hover:bg-brand-primary/90 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {isSubmitting ? (
               <>
                 <span className="animate-spin">⏳</span>
+                
                 Creating...
               </>
             ) : (

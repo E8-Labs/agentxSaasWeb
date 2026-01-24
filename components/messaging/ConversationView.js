@@ -597,8 +597,10 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
             sx: {
               backgroundColor: '#00000020',
             },
+            //timeout: 100,
           }}
         >
+
           <Box
             className="lg:w-3/12 sm:w-5/12 w-8/12"
             sx={{

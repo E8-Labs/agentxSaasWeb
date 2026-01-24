@@ -94,59 +94,59 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
 
   // Disable pointer events on Sheet overlay and content when modal is open
   useEffect(() => {
-    if (showCreateSmartlistModal) {
-      // Find and disable pointer events on Sheet overlay and content
-      const sheetOverlay = document.querySelector('[data-radix-dialog-overlay]')
-      const sheetContent = document.querySelector('[data-radix-dialog-content]')
+    // if (showCreateSmartlistModal) {
+    //   // Find and disable pointer events on Sheet overlay and content
+    //   const sheetOverlay = document.querySelector('[data-radix-dialog-overlay]')
+    //   const sheetContent = document.querySelector('[data-radix-dialog-content]')
       
-      // Also find all MUI Modal elements and ensure they're above everything
-      const muiModal = document.querySelector('[class*="MuiModal-root"]')
-      const muiBackdrop = document.querySelector('[class*="MuiBackdrop-root"]')
+    //   // Also find all MUI Modal elements and ensure they're above everything
+    //   const muiModal = document.querySelector('[class*="MuiModal-root"]')
+    //   const muiBackdrop = document.querySelector('[class*="MuiBackdrop-root"]')
       
-      if (sheetOverlay) {
-        sheetOverlay.style.pointerEvents = 'none'
-        sheetOverlay.style.zIndex = '1400'
-      }
-      if (sheetContent) {
-        sheetContent.style.pointerEvents = 'none'
-      }
+    //   if (sheetOverlay) {
+    //     sheetOverlay.style.pointerEvents = 'none'
+    //     sheetOverlay.style.zIndex = '1400'
+    //   }
+    //   if (sheetContent) {
+    //     sheetContent.style.pointerEvents = 'none'
+    //   }
       
-      // Ensure MUI Modal is on top
-      if (muiModal) {
-        muiModal.style.zIndex = '9999'
-        muiModal.style.pointerEvents = 'auto'
-      }
-      if (muiBackdrop) {
-        muiBackdrop.style.zIndex = '9999'
-        muiBackdrop.style.pointerEvents = 'auto'
-      }
+    //   // Ensure MUI Modal is on top
+    //   if (muiModal) {
+    //     muiModal.style.zIndex = '9999'
+    //     muiModal.style.pointerEvents = 'auto'
+    //   }
+    //   if (muiBackdrop) {
+    //     muiBackdrop.style.zIndex = '9999'
+    //     muiBackdrop.style.pointerEvents = 'auto'
+    //   }
       
-      // Add a global click handler to ensure inputs work
-      const handleGlobalClick = (e) => {
-        const target = e.target
-        // If clicking inside the modal, ensure it's not blocked
-        if (muiModal && muiModal.contains(target)) {
-          // Allow the event to proceed normally
-          return
-        }
-      }
+    //   // Add a global click handler to ensure inputs work
+    //   const handleGlobalClick = (e) => {
+    //     const target = e.target
+    //     // If clicking inside the modal, ensure it's not blocked
+    //     if (muiModal && muiModal.contains(target)) {
+    //       // Allow the event to proceed normally
+    //       return
+    //     }
+    //   }
       
-      document.addEventListener('click', handleGlobalClick, true)
-      document.addEventListener('mousedown', handleGlobalClick, true)
-      document.addEventListener('pointerdown', handleGlobalClick, true)
+    //   document.addEventListener('click', handleGlobalClick, true)
+    //   document.addEventListener('mousedown', handleGlobalClick, true)
+    //   document.addEventListener('pointerdown', handleGlobalClick, true)
       
-      return () => {
-        if (sheetOverlay) {
-          sheetOverlay.style.pointerEvents = 'auto'
-        }
-        if (sheetContent) {
-          sheetContent.style.pointerEvents = 'auto'
-        }
-        document.removeEventListener('click', handleGlobalClick, true)
-        document.removeEventListener('mousedown', handleGlobalClick, true)
-        document.removeEventListener('pointerdown', handleGlobalClick, true)
-      }
-    }
+    //   return () => {
+    //     if (sheetOverlay) {
+    //       sheetOverlay.style.pointerEvents = 'auto'
+    //     }
+    //     if (sheetContent) {
+    //       sheetContent.style.pointerEvents = 'auto'
+    //     }
+    //     document.removeEventListener('click', handleGlobalClick, true)
+    //     document.removeEventListener('mousedown', handleGlobalClick, true)
+    //     document.removeEventListener('pointerdown', handleGlobalClick, true)
+    //   }
+    // }
   }, [showCreateSmartlistModal])
 
   // Fetch smartlists
@@ -721,12 +721,12 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
       <SheetContent
         side="right"
         className={cn(
-          "!w-[1000px] !max-w-[500px] sm:!max-w-[500px] p-0 flex flex-col [&>button]:hidden !z-[1400]",
-          showCreateSmartlistModal && "pointer-events-none"
+          "!w-[1000px] !max-w-[500px] sm:!max-w-[500px] p-0 flex flex-col [&>button]:hidden !z-[1600]",
+          // showCreateSmartlistModal && "pointer-events-none"
         )}
         overlayClassName={cn(
-          "!z-[1399]",
-          showCreateSmartlistModal && "pointer-events-none"
+          "!z-[1600]",
+          // showCreateSmartlistModal && "pointer-events-none"
         )}
         onEscapeKeyDown={(event) => {
           // Allow escape key to close (but not if CreateSmartlistModal is open)
@@ -762,8 +762,8 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
           borderRadius: '12px',
           width: '600px',
           maxWidth: '600px',
-          zIndex: 1400,
-          ...(showCreateSmartlistModal && { pointerEvents: 'none' }),
+          zIndex: 1600,
+          // ...(showCreateSmartlistModal && { pointerEvents: 'none' }),
         }}
       >
         <SheetHeader className="px-3 py-3 border-b border-gray-200">

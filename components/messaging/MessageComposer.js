@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
-import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText } from 'lucide-react'
+import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2 } from 'lucide-react'
 import { CircularProgress, FormControl, MenuItem, Select } from '@mui/material'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
@@ -13,11 +13,14 @@ import axios from 'axios'
 import Apis from '@/components/apis/Apis'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
-import { getTempletes, getTempleteDetails } from '@/components/pipeline/TempleteServices'
+import { getTempletes, getTempleteDetails, deleteTemplete } from '@/components/pipeline/TempleteServices'
 import Image from 'next/image'
 import MessageComposerTabCN from './MessageComposerTabCN'
 import SplitButtonCN from '../ui/SplitButtonCN'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
+
+
+
 
 // Helper function to get brand primary color as hex
 const getBrandPrimaryHex = () => {
@@ -116,6 +119,9 @@ const getCharCountFromHTML = (html) => {
   return stripHTML(html).length
 }
 
+
+
+
 const MessageComposer = ({
   selectedUser,
   composerMode,
@@ -202,6 +208,10 @@ const MessageComposer = ({
   const { planCapabilities } = usePlanCapabilities()
   const canSendSMS = planCapabilities?.allowTextMessages === true
   const shouldShowUpgradeView = composerMode === 'sms' && !canSendSMS
+
+
+const [delTempLoader, setDelTempLoader] = useState(null)
+
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -977,6 +987,33 @@ const MessageComposer = ({
     )
   }
 
+
+    // Handle template deletion
+    const handleDeleteTemplate = async (template, e) => {
+      e.stopPropagation() // Prevent template selection when clicking delete
+  
+  
+      try {
+        setDelTempLoader(template)
+        await deleteTemplete(template)
+        // Remove from templates list - check both id and templateId fields
+        toast.success('Template deleted successfully')
+        setTemplates((prev) => prev.filter((t) => {
+          const templateId = template.id || template.templateId
+          const tId = t.id || t.templateId
+          return tId !== templateId
+        }))
+        setDelTempLoader(null)
+        // If the deleted template was selected, clear selection
+       
+  
+      } catch (error) {
+        console.error('Error deleting template:', error)
+        toast.error('Failed to delete template')
+        setDelTempLoader(null)
+      }
+    }
+
   return (
     <div className="mx-4 mb-0 rounded-lg bg-white">
       <div className="px-4 py-2">
@@ -1421,44 +1458,44 @@ const MessageComposer = ({
                           <div className="flex items-start gap-2 flex-1 w-full">
                             <div className="flex border-[0.5px] px-3 border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary  items-center gap-2 flex-1">
                               <label className="text-sm font-medium whitespace-nowrap text-[#737373]">Cc:</label>
-                            <div className="relative flex-1 min-w-0">
-                              {/* Tag Input Container */}
-                              <div
-                                className="flex flex-wrap items-center gap-2 px-3 py-2 "
-                              >
-                                {/* CC Email Tags */}
-                                {ccEmails.map((email, index) => (
-                                  <div
-                                    key={`cc-${index}-${email}`}
-                                    className="flex items-center gap-1 px-2 py-[1px] bg-gray-100 rounded-full text-sm"
-                                  >
-                                    <span className="text-gray-700">{email}</span>
-                                    <button
-                                      type="button"
-                                      onClick={() => removeCcEmail(email)}
-                                      className="text-gray-500 hover:text-gray-700 ml-1"
+                              <div className="relative flex-1 min-w-0">
+                                {/* Tag Input Container */}
+                                <div
+                                  className="flex flex-wrap items-center gap-2 px-3 py-2 "
+                                >
+                                  {/* CC Email Tags */}
+                                  {ccEmails.map((email, index) => (
+                                    <div
+                                      key={`cc-${index}-${email}`}
+                                      className="flex items-center gap-1 px-2 py-[1px] bg-gray-100 rounded-full text-sm"
                                     >
-                                      <X size={14} weight="bold" />
-                                    </button>
-                                  </div>
-                                ))}
-                                {/* CC Input */}
-                                <input
-                                  type="text"
-                                  value={ccInput}
-                                  onChange={handleCcInputChange}
-                                  onKeyDown={handleCcInputKeyDown}
-                                  onPaste={handleCcInputPaste}
-                                  onBlur={handleCcInputBlur}
-                                  placeholder={ccEmails.length === 0 ? 'Add CC recipients' : ''}
-                                  className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
-                                  style={{
-                                    height: '100%',
-                                    minHeight: '24px',
-                                    padding: 0,
-                                  }}
-                                />
-                              </div>
+                                      <span className="text-gray-700">{email}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => removeCcEmail(email)}
+                                        className="text-gray-500 hover:text-gray-700 ml-1"
+                                      >
+                                        <X size={14} weight="bold" />
+                                      </button>
+                                    </div>
+                                  ))}
+                                  {/* CC Input */}
+                                  <input
+                                    type="text"
+                                    value={ccInput}
+                                    onChange={handleCcInputChange}
+                                    onKeyDown={handleCcInputKeyDown}
+                                    onPaste={handleCcInputPaste}
+                                    onBlur={handleCcInputBlur}
+                                    placeholder={ccEmails.length === 0 ? 'Add CC recipients' : ''}
+                                    className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none"
+                                    style={{
+                                      height: '100%',
+                                      minHeight: '24px',
+                                      padding: 0,
+                                    }}
+                                  />
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -1655,8 +1692,8 @@ const MessageComposer = ({
                               }}
                               className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
                             >
-                              {renderBrandedIcon("/messaging/templateIcon.svg", 18,18)}
-                              <span>My Templates</span>
+                              {renderBrandedIcon("/messaging/templateIcon.svg", 18, 18)}
+                              <span>Templates</span>
                               <CaretDown size={16} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
                             </button>
 
@@ -1696,10 +1733,7 @@ const MessageComposer = ({
                                   : `${composerData.smsBody.length}/${SMS_CHAR_LIMIT} char`
                                 }
                               </span>
-                              <span className="text-gray-300">|</span>
-                              <span>
-                                {Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left
-                              </span>
+
                             </div>
 
                             {/* Send Button */}
@@ -1757,8 +1791,8 @@ const MessageComposer = ({
                             }}
                             className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
                           >
-                            {renderBrandedIcon("/messaging/templateIcon.svg", 18,18)}
-                            <span>My Templates</span>
+                            {renderBrandedIcon("/messaging/templateIcon.svg", 18, 18)}
+                            <span>Templates</span>
                             <CaretDown size={16} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
                           </button>
 
@@ -1778,11 +1812,23 @@ const MessageComposer = ({
                                   <button
                                     key={template.id || template.templateId}
                                     onClick={() => handleTemplateSelect(template)}
-                                    className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0"
+                                    className="flex items-center justify-between gap-2  w-full px-4 py-2 text-left text-sm hover:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0"
                                   >
                                     <div className="font-medium text-gray-900 truncate">
                                       {template.templateName || 'Untitled Template'}
                                     </div>
+                                    {delTempLoader && ((delTempLoader.id || delTempLoader.templateId) === (template.id || template.templateId)) ? (
+                                      <CircularProgress size={16} />
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        onClick={(e) => handleDeleteTemplate(template, e)}
+                                        className="flex-shrink-0 p-1 rounded transition-colors"
+                                        title="Delete template"
+                                      >
+                                        <Trash2 size={16} className="text-brand-primary" />
+                                      </button>
+                                    )}
                                   </button>
                                 ))
                               )}
@@ -1794,10 +1840,6 @@ const MessageComposer = ({
                           <div className="flex items-center gap-2 text-sm text-gray-500 flex-1 justify-center">
                             <span>
                               {composerData.smsBody.length}/{SMS_CHAR_LIMIT} char
-                            </span>
-                            <span className="text-gray-300">|</span>
-                            <span>
-                              {Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left
                             </span>
                           </div>
 

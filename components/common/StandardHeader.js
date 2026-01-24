@@ -53,6 +53,8 @@ function StandardHeader({
     null
   )
 
+  //get the current user
+
   // Determine text/icon color based on variant
   const isBright = variant === 'bright'
   const textColorClass = isBright ? 'text-white' : ''

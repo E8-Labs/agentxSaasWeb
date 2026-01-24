@@ -1773,6 +1773,8 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
             attachments: [],
           }))
 
+          // Dispatch custom event for task updates
+
           // If a draft was selected, mark it as sent and clear drafts
           if (selectedDraft) {
             try {

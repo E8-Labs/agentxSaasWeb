@@ -62,6 +62,7 @@ export default function Page() {
             enablePermissionChecks={enablePermissionChecks}
             hideViewDetails={true}
             from="subaccount"
+            agencyUser={true}
           />
         ) : (
           <p>Loading...</p>
