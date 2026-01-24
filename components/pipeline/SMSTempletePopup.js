@@ -98,7 +98,7 @@ function SMSTempletePopup({
   // Auto-fill form when editing
   useEffect(() => {
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:81', message: 'Auto-fill useEffect triggered', data: { isEditing, hasEditingRow: !!editingRow, editingRowId: editingRow?.id, editingRowTemplateId: editingRow?.templateId, open, phoneNumbersLength: phoneNumbers.length }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+    //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:81', message: 'Auto-fill useEffect triggered', data: { isEditing, hasEditingRow: !!editingRow, editingRowId: editingRow?.id, editingRowTemplateId: editingRow?.templateId, open, phoneNumbersLength: phoneNumbers.length }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
     // #endregion
     if (isEditing && editingRow && open) {
       // Set phone from editingRow.smsPhoneNumberId if available
@@ -114,12 +114,12 @@ function SMSTempletePopup({
       // Load template details if templateId or id exists
       if (editingRow.templateId || editingRow.id) {
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:95', message: 'Calling loadTemplateDetails', data: { templateId: editingRow.templateId, id: editingRow.id, templateObject: { id: editingRow.id, templateId: editingRow.templateId } }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+        //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:95', message: 'Calling loadTemplateDetails', data: { templateId: editingRow.templateId, id: editingRow.id, templateObject: { id: editingRow.id, templateId: editingRow.templateId } }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
         // #endregion
         loadTemplateDetails(editingRow)
       } else {
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:99', message: 'No templateId or id found in editingRow', data: { editingRowKeys: Object.keys(editingRow || {}) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+        //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:99', message: 'No templateId or id found in editingRow', data: { editingRowKeys: Object.keys(editingRow || {}) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
         // #endregion
       }
     } else if (!isEditing) {
@@ -149,7 +149,7 @@ function SMSTempletePopup({
 
   const loadTemplateDetails = async (template) => {
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:104', message: 'loadTemplateDetails called', data: { templateId: template?.templateId, id: template?.id, templateObject: { id: template?.id, templateId: template?.templateId }, selectedUserId: selectedUser?.id }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+    //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:104', message: 'loadTemplateDetails called', data: { templateId: template?.templateId, id: template?.id, templateObject: { id: template?.id, templateId: template?.templateId }, selectedUserId: selectedUser?.id }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
     // #endregion
     try {
       // First, try to get phone from editingRow.smsPhoneNumberId (cadence row data)
@@ -173,25 +173,25 @@ function SMSTempletePopup({
         templateId: template.templateId || template.id,
       }
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:125', message: 'Calling getTempleteDetails with normalized template', data: { normalizedTemplateId: normalizedTemplate.id, normalizedTemplateTemplateId: normalizedTemplate.templateId, selectedUserId: selectedUser?.id }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+      //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:125', message: 'Calling getTempleteDetails with normalized template', data: { normalizedTemplateId: normalizedTemplate.id, normalizedTemplateTemplateId: normalizedTemplate.templateId, selectedUserId: selectedUser?.id }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
       // #endregion
       const details = await getTempleteDetails(normalizedTemplate, selectedUser?.id)
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:128', message: 'getTempleteDetails response', data: { hasDetails: !!details, hasContent: !!details?.content, contentLength: details?.content?.length || 0, detailsKeys: Object.keys(details || {}) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+      //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:128', message: 'getTempleteDetails response', data: { hasDetails: !!details, hasContent: !!details?.content, contentLength: details?.content?.length || 0, detailsKeys: Object.keys(details || {}) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
       if (details) {
         setBody(details.content || '')
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:132', message: 'Setting body from details', data: { bodyLength: (details.content || '').length, bodyPreview: (details.content || '').substring(0, 50) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+        //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:132', message: 'Setting body from details', data: { bodyLength: (details.content || '').length, bodyPreview: (details.content || '').substring(0, 50) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
         // #endregion
         // Don't set phone from details - it doesn't exist there
       } else {
         // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:136', message: 'No details returned from getTempleteDetails', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+        //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:136', message: 'No details returned from getTempleteDetails', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
         // #endregion
       }
     } catch (error) {
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:139', message: 'Error loading template details', data: { errorMessage: error?.message, errorStack: error?.stack }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+      //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:139', message: 'Error loading template details', data: { errorMessage: error?.message, errorStack: error?.stack }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
       // #endregion
       console.error('Error loading template details:', error)
     } finally {
@@ -553,7 +553,7 @@ function SMSTempletePopup({
         open={open}
         onClose={(event, reason) => {
           // #region agent log
-          fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:303', message: 'Modal onClose called', data: { reason, eventType: event?.type, targetTag: event?.target?.tagName }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+          //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:303', message: 'Modal onClose called', data: { reason, eventType: event?.type, targetTag: event?.target?.tagName }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
           // #endregion
           // Only close if reason is 'backdropClick' and user explicitly clicked backdrop
           // Don't close for other reasons like clicking inside content
@@ -578,7 +578,7 @@ function SMSTempletePopup({
           },
           onClick: (e) => {
             // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:318', message: 'Backdrop onClick fired', data: { targetTag: e.target?.tagName, targetClass: e.target?.className, currentTargetTag: e.currentTarget?.tagName, targetIsBackdrop: e.target === e.currentTarget, hasMuiBackdropClass: e.target?.classList?.contains('MuiBackdrop-root'), clientX: e.clientX, clientY: e.clientY }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+            //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:318', message: 'Backdrop onClick fired', data: { targetTag: e.target?.tagName, targetClass: e.target?.className, currentTargetTag: e.currentTarget?.tagName, targetIsBackdrop: e.target === e.currentTarget, hasMuiBackdropClass: e.target?.classList?.contains('MuiBackdrop-root'), clientX: e.clientX, clientY: e.clientY }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
             // #endregion
             // Only close if clicking directly on the backdrop element itself
             // Check if the click target is the backdrop root element
@@ -596,18 +596,18 @@ function SMSTempletePopup({
             const isClickOutsideContent = modalContent && !modalContent.contains(clickTarget)
 
             // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:335', message: 'Backdrop click analysis', data: { isDirectBackdropClick, isClickOutsideContent, hasModalContent: !!modalContent }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+            //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:335', message: 'Backdrop click analysis', data: { isDirectBackdropClick, isClickOutsideContent, hasModalContent: !!modalContent }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
             // #endregion
 
             // Only close if clicking directly on backdrop AND outside content
             if (isDirectBackdropClick && isClickOutsideContent) {
               // #region agent log
-              fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:343', message: 'Closing modal from backdrop click', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+              //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:343', message: 'Closing modal from backdrop click', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
               // #endregion
               onClose()
             } else {
               // #region agent log
-              fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:347', message: 'Backdrop click ignored - not valid backdrop click', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+              //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:347', message: 'Backdrop click ignored - not valid backdrop click', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
               // #endregion
               // Prevent the click from propagating
               e.stopPropagation()
@@ -632,7 +632,7 @@ function SMSTempletePopup({
           }}
           onClick={(e) => {
             // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:355', message: 'Box onClick fired', data: { targetTag: e.target?.tagName, targetClass: e.target?.className, isBox: e.target === e.currentTarget }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+            //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:355', message: 'Box onClick fired', data: { targetTag: e.target?.tagName, targetClass: e.target?.className, isBox: e.target === e.currentTarget }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
             // #endregion
             // Only close if clicking directly on the Box (outside content)
             if (e.target === e.currentTarget) {
@@ -650,14 +650,14 @@ function SMSTempletePopup({
             style={{ pointerEvents: 'auto' }}
             onClick={(e) => {
               // #region agent log
-              fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:370', message: 'Content div onClick fired', data: { targetTag: e.target?.tagName, targetClass: e.target?.className }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+              //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:370', message: 'Content div onClick fired', data: { targetTag: e.target?.tagName, targetClass: e.target?.className }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
               // #endregion
               // Prevent clicks inside modal content from closing the modal
               e.stopPropagation()
             }}
             onMouseDown={(e) => {
               // #region agent log
-              fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:377', message: 'Content div onMouseDown fired', data: { targetTag: e.target?.tagName, targetClass: e.target?.className }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+              //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:377', message: 'Content div onMouseDown fired', data: { targetTag: e.target?.tagName, targetClass: e.target?.className }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
               // #endregion
               // Prevent mousedown events from bubbling to backdrop
               e.stopPropagation()
@@ -924,13 +924,13 @@ function SMSTempletePopup({
                 className="w-full mb-4"
                 onClick={(e) => {
                   // #region agent log
-                  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:527', message: 'Message field div onClick', data: { targetTag: e.target?.tagName, targetClass: e.target?.className }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+                  //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:527', message: 'Message field div onClick', data: { targetTag: e.target?.tagName, targetClass: e.target?.className }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
                   // #endregion
                   e.stopPropagation()
                 }}
                 onMouseDown={(e) => {
                   // #region agent log
-                  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:534', message: 'Message field div onMouseDown', data: { targetTag: e.target?.tagName, targetClass: e.target?.className }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
+                  //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:534', message: 'Message field div onMouseDown', data: { targetTag: e.target?.tagName, targetClass: e.target?.className }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
                   // #endregion
                   e.stopPropagation()
                 }}

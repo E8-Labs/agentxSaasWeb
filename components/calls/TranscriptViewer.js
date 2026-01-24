@@ -159,7 +159,7 @@ export function TranscriptViewer({ callId, onPopoverStateChange }) {
     const currentMessage = messages[index]
     
     // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TranscriptViewer.js:151',message:'handleCommentClick called',data:{index,msgId,hasButtonRef:!!buttonRef,isLike,buttonRefCurrent:!!buttonRef?.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+    //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TranscriptViewer.js:151',message:'handleCommentClick called',data:{index,msgId,hasButtonRef:!!buttonRef,isLike,buttonRefCurrent:!!buttonRef?.current},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
     // #endregion
     
     // If buttonRef is provided and has current, show popover next to the button
@@ -180,7 +180,7 @@ export function TranscriptViewer({ callId, onPopoverStateChange }) {
       setComment(currentMessage?.comment || '')
       
       // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TranscriptViewer.js:182',message:'Opening comment modal',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+      //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TranscriptViewer.js:182',message:'Opening comment modal',data:{timestamp:Date.now()},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
       // #endregion
       // Open modal immediately - Dialog focus trap is always disabled
       setShowCommentModal(true)
@@ -477,7 +477,7 @@ export function TranscriptViewer({ callId, onPopoverStateChange }) {
                   if (el) {
                     // #region agent log
                     const computedStyle = window.getComputedStyle(el)
-                    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TranscriptViewer.js:469',message:'Textarea ref callback',data:{pointerEvents:computedStyle.pointerEvents,cursor:computedStyle.cursor,display:computedStyle.display,visibility:computedStyle.visibility,zIndex:computedStyle.zIndex,disabled:el.disabled,readOnly:el.readOnly},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+                    //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TranscriptViewer.js:469',message:'Textarea ref callback',data:{pointerEvents:computedStyle.pointerEvents,cursor:computedStyle.cursor,display:computedStyle.display,visibility:computedStyle.visibility,zIndex:computedStyle.zIndex,disabled:el.disabled,readOnly:el.readOnly},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
                     // #endregion
                   }
                 }}
@@ -499,20 +499,20 @@ export function TranscriptViewer({ callId, onPopoverStateChange }) {
                 onChange={(e) => setComment(e.target.value)}
                 onClick={(e) => {
                   // #region agent log
-                  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TranscriptViewer.js:492',message:'Textarea onClick',data:{activeElement:document.activeElement?.tagName,isFocused:document.activeElement===e.target},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+                  //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TranscriptViewer.js:492',message:'Textarea onClick',data:{activeElement:document.activeElement?.tagName,isFocused:document.activeElement===e.target},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
                   // #endregion
                   e.stopPropagation()
                 }}
                 onMouseDown={(e) => {
                   // #region agent log
-                  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TranscriptViewer.js:499',message:'Textarea onMouseDown',data:{activeElement:document.activeElement?.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+                  //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TranscriptViewer.js:499',message:'Textarea onMouseDown',data:{activeElement:document.activeElement?.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
                   // #endregion
                   e.stopPropagation()
                   // Don't prevent default - let browser handle focus naturally
                 }}
                 onFocus={(e) => {
                   // #region agent log
-                  fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TranscriptViewer.js:505',message:'Textarea onFocus',data:{activeElement:document.activeElement?.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
+                  //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'TranscriptViewer.js:505',message:'Textarea onFocus',data:{activeElement:document.activeElement?.tagName},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'G'})}).catch(()=>{});
                   // #endregion
                   e.stopPropagation()
                 }}

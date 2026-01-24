@@ -85,29 +85,6 @@ function CalendarModal(props) {
     const ghlOauthSuccess = qs.get('ghl_oauth')
     const locationId = qs.get('locationId')
 
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sessionId: 'debug-session',
-        runId: 'pre-fix',
-        hypothesisId: 'H2',
-        location: 'components/dashboard/myagentX/CalenderModal.js:popup-detect',
-        message: 'CalendarModal popup detection ran',
-        data: {
-          searchKeys: Array.from(qs.keys()).slice(0, 20),
-          hasCode: Boolean(code),
-          hasError: Boolean(error),
-          ghlOauthSuccess: ghlOauthSuccess || null,
-          hasLocationId: Boolean(locationId),
-          hasOpener: Boolean(window.opener),
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {})
-    // #endregion agent log
-
     // If this window was opened by another window (popup case)
     if (window.opener) {
       // Case 1: Direct OAuth callback with code/error (normal flow)
@@ -147,22 +124,7 @@ function CalendarModal(props) {
     setStatus('Connected! Loading calendars...')
 
     try {
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId: 'debug-session',
-          runId: 'pre-fix',
-          hypothesisId: 'H3',
-          location: 'components/dashboard/myagentX/CalenderModal.js:handleGHLSuccess',
-          message: 'handleGHLSuccess invoked',
-          data: { hasLocationId: Boolean(locationId), viewWillOpen: true },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {})
-      // #endregion agent log
-
+      
       const calRes = await fetch(`/api/ghl/calendars/`)
       if (!calRes.ok) {
         setStatus(`Failed to load calendars (${calRes.status})`)
@@ -201,27 +163,6 @@ function CalendarModal(props) {
         return
       }
 
-      // #region agent log
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sessionId: 'debug-session',
-          runId: 'pre-fix',
-          hypothesisId: 'H2',
-          location: 'components/dashboard/myagentX/CalenderModal.js:onMessage',
-          message: 'CalendarModal received postMessage',
-          data: {
-            origin: e.origin,
-            type,
-            hasCode: Boolean(code),
-            hasError: Boolean(error),
-            hasLocationId: Boolean(locationId),
-          },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {})
-      // #endregion agent log
       
       // Handle direct OAuth code from popup (normal flow)
       if (type === 'GHL_OAUTH_CODE') {
@@ -384,27 +325,7 @@ function CalendarModal(props) {
       'https://marketplace.gohighlevel.com/oauth/chooselocation?' +
       params.toString()
 
-    // #region agent log
-    fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        sessionId: 'debug-session',
-        runId: 'pre-fix',
-        hypothesisId: 'H4',
-        location: 'components/dashboard/myagentX/CalenderModal.js:startGHLAuthPopup',
-        message: 'Starting GHL OAuth popup',
-        data: {
-          currentPath,
-          GHL_REDIRECT_URI,
-          authUrlPrefix: authUrl.slice(0, 180), // avoid huge logs
-          hasState: Boolean(stateParam),
-          scopeLen: scope?.length || 0,
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {})
-    // #endregion agent log
+  
     // Open a centered popup
     const w = 520
     const h = 650

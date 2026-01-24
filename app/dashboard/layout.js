@@ -38,13 +38,13 @@ export default function DashboardLayout({ children }) {
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'dashboard/layout.js:30', message: 'DashboardLayout mounted', data: { pathname: typeof window !== 'undefined' ? window.location.pathname : 'server', mountTime: mountTime.current, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'J' }) }).catch(() => { });
+      //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'dashboard/layout.js:30', message: 'DashboardLayout mounted', data: { pathname: typeof window !== 'undefined' ? window.location.pathname : 'server', mountTime: mountTime.current, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'J' }) }).catch(() => { });
     }
   }, [])
   
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'dashboard/layout.js:38', message: 'DashboardLayout render', data: { renderCount: renderCount.current, isDialerOpen, callStatus, preventClose, leadId: leadData?.leadId, leadName: leadData?.leadName, phoneNumber: leadData?.phoneNumber, pathname: typeof window !== 'undefined' ? window.location.pathname : 'server', timeSinceMount: Date.now() - mountTime.current, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'J' }) }).catch(() => { });
+      //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'dashboard/layout.js:38', message: 'DashboardLayout render', data: { renderCount: renderCount.current, isDialerOpen, callStatus, preventClose, leadId: leadData?.leadId, leadName: leadData?.leadName, phoneNumber: leadData?.phoneNumber, pathname: typeof window !== 'undefined' ? window.location.pathname : 'server', timeSinceMount: Date.now() - mountTime.current, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'J' }) }).catch(() => { });
     }
   })
   // #endregion
@@ -76,7 +76,7 @@ export default function DashboardLayout({ children }) {
   // #region agent log
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'dashboard/layout.js:74', message: 'DashboardLayout render (not remount)', data: { pathname: window.location.pathname, renderCount: renderCount.current, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'K' }) }).catch(() => { });
+      //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'dashboard/layout.js:74', message: 'DashboardLayout render (not remount)', data: { pathname: window.location.pathname, renderCount: renderCount.current, timestamp: Date.now() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run4', hypothesisId: 'K' }) }).catch(() => { });
     }
   })
   // #endregion
