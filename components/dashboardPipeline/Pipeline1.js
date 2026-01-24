@@ -16,6 +16,7 @@ import {
   Select,
   Snackbar,
   TextareaAutosize,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import {
@@ -1225,7 +1226,7 @@ const Pipeline1 = () => {
               if (SelectedPipeline.id === pipeline.id) {
                 return {
                   ...pipeline,
-                  stages: pipeline.stages.filter(
+                  stages: pipeline?.stages?.filter(
                     (stage) => stage.id !== selectedStage.id,
                   ),
                 }
@@ -1448,9 +1449,9 @@ const Pipeline1 = () => {
         if (response.data.status === true) {
           let updatedPipelines = []
           setPipeLines(
-            PipeLines.filter((pipeline) => pipeline.id !== SelectedPipeline.id),
+            PipeLines?.filter((pipeline) => pipeline.id !== SelectedPipeline.id),
           )
-          updatedPipelines = PipeLines.filter(
+          updatedPipelines = PipeLines?.filter(
             (pipeline) => pipeline.id !== SelectedPipeline.id,
           )
 
@@ -2476,12 +2477,12 @@ const Pipeline1 = () => {
                               }
                               scrollableTarget={`scrollableDiv-${stage.id}`}
                               dataLength={
-                                LeadsList.filter(
+                                LeadsList?.filter(
                                   (lead) => lead.lead.stage === stage.id,
                                 ).length
                               }
                               next={() => {
-                                let leadsInStage = LeadsList.filter(
+                                let leadsInStage = LeadsList?.filter(
                                   (lead) => lead.lead.stage === stage.id,
                                 )
 
@@ -2559,15 +2560,36 @@ const Pipeline1 = () => {
                                     </div>
                                     <div className="flex flex-row items-center justify-between w-full mt-1">
                                       <div className="flex flex-col gap-1">
-                                        <div
-                                          className="text-[#00000060]"
-                                          style={styles.agentName}
-                                        >
-                                          {(lead?.lead?.email
-                                            ? lead?.lead?.email?.slice(0, 10) +
-                                              '...'
-                                            : '') || ''}
-                                        </div>
+                                        {lead?.lead?.email && (
+                                          <Tooltip
+                                            title={lead?.lead?.email}
+                                            arrow
+                                            componentsProps={{
+                                              tooltip: {
+                                                sx: {
+                                                  backgroundColor: '#ffffff',
+                                                  color: '#333',
+                                                  fontSize: '14px',
+                                                  padding: '10px 15px',
+                                                  borderRadius: '8px',
+                                                  boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                                },
+                                              },
+                                              arrow: {
+                                                sx: {
+                                                  color: '#ffffff',
+                                                },
+                                              },
+                                            }}
+                                          >
+                                            <div
+                                              className="text-[#00000060]"
+                                              style={styles.agentName}
+                                            >
+                                              {lead?.lead?.email?.slice(0, 10) + '...'}
+                                            </div>
+                                          </Tooltip>
+                                        )}
                                         {/* Display plan price for agency_use pipeline leads */}
                                         {(() => {
                                           const isAgencyUse = SelectedPipeline?.pipelineType === 'agency_use'
@@ -2587,27 +2609,55 @@ const Pipeline1 = () => {
                                         })()}
                                       </div>
                                       {
-                                        lead.agent && (
-                                      <div className="flex flex-row items-center gap-2">
-                                        {getAgentsListImage(
-                                          lead.agent?.agents[0]?.agentType ===
-                                            'outbound'
-                                            ? lead.agent?.agents[0]
-                                            : lead.agent?.agents[1]? lead.agent?.agents[1] : lead.agent?.agents[0],
-                                          24,
-                                          24,
-                                        )}
-                                        <div
-                                          className="text-brand-primary underline"
-                                          style={styles.agentName}
-                                        >
-                                          {lead.agent?.agents[0]?.agentType ===
-                                          'outbound'
+                                        lead.agent && (() => {
+                                          const agentName = lead.agent?.agents[0]?.agentType === 'outbound'
                                             ? lead.agent?.agents[0]?.name
-                                            : lead.agent?.agents[1]? lead.agent?.agents[1]?.name : lead.agent?.agents[0]?.name}
-                                        </div>
-                                      </div>
-                                      )}
+                                            : lead.agent?.agents[1]? lead.agent?.agents[1]?.name : lead.agent?.agents[0]?.name
+                                          
+                                          return (
+                                            <div className="flex flex-row items-center gap-2">
+                                              {getAgentsListImage(
+                                                lead.agent?.agents[0]?.agentType ===
+                                                  'outbound'
+                                                  ? lead.agent?.agents[0]
+                                                  : lead.agent?.agents[1]? lead.agent?.agents[1] : lead.agent?.agents[0],
+                                                24,
+                                                24,
+                                              )}
+                                              {agentName && (
+                                                <Tooltip
+                                                  title={agentName}
+                                                  arrow
+                                                  componentsProps={{
+                                                    tooltip: {
+                                                      sx: {
+                                                        backgroundColor: '#ffffff',
+                                                        color: '#333',
+                                                        fontSize: '14px',
+                                                        padding: '10px 15px',
+                                                        borderRadius: '8px',
+                                                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)',
+                                                      },
+                                                    },
+                                                    arrow: {
+                                                      sx: {
+                                                        color: '#ffffff',
+                                                      },
+                                                    },
+                                                  }}
+                                                >
+                                                  <div
+                                                    className="text-brand-primary underline"
+                                                    style={styles.agentName}
+                                                  >
+                                                    {agentName?.slice(0, 10) + '...'}
+                                                  </div>
+                                                </Tooltip>
+                                              )}
+                                            </div>
+                                          )
+                                        })()
+                                      }
                                     </div>
 
                                     {lead?.lead?.booking?.date && (
@@ -2727,7 +2777,7 @@ const Pipeline1 = () => {
                                                           lead,
                                                         )
                                                         let updatedTags =
-                                                          lead.lead.tags.filter(
+                                                          lead?.lead?.tags?.filter(
                                                             (tag) =>
                                                               tag != tagVal,
                                                           ) || []
@@ -3595,7 +3645,7 @@ const Pipeline1 = () => {
                 {(() => {
                   // Check actual lead count instead of relying on cached hasLeads
                   // This handles the case where a lead was deleted but hasLeads wasn't updated
-                  const actualLeadCount = LeadsList.filter(
+                  const actualLeadCount = LeadsList?.filter(
                     (lead) => lead.lead?.stage === selectedStage?.id
                   ).length
                   // Prioritize actual count - if we have LeadsList data, use actual count only

@@ -711,12 +711,15 @@ function DialerModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, hasDialerNumber, device, initializing, checkingDialerNumber, dispatch])
 
-  // Fetch phone numbers when hasDialerNumber becomes true (only if not already fetched)
+  // Fetch phone numbers when modal opens (only if not already fetched or cache is stale)
   useEffect(() => {
-    if (open && hasDialerNumber && phoneNumbers.length === 0 && hasInitializedRef.current) {
+    if (open) {
+      // Fetch phone numbers immediately when modal opens, regardless of hasDialerNumber or initialization status
+      // The fetchPhoneNumbersWithAgents function will check if we should refetch based on cache
       fetchPhoneNumbersWithAgents()
     }
-  }, [open, hasDialerNumber, phoneNumbers.length, shouldRefetchPhoneNumbers])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, shouldRefetchPhoneNumbers])
 
   // Get user data for template popups
   useEffect(() => {

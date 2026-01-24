@@ -480,6 +480,9 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
 
     // Get caller name from senderUser or agent
     const getCallerName = () => {
+      if (message.callerAgent?.name) {//returns the calling agent
+        return message.callerAgent?.name
+      }
       if (message.caller?.name) {
         return message.caller?.name
       }

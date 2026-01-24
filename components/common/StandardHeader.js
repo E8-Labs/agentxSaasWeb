@@ -9,7 +9,7 @@ import { useTaskStatus } from '@/hooks/use-task-status'
 
 /**
  * StandardHeader - Universal reusable header component matching MessageHeader.js pattern
- * 
+ *
  * @param {string|ReactNode} title - The header title text or ReactNode
  * @param {ReactNode} titleContent - Fully custom title area (overrides title if provided)
  * @param {boolean} showTasks - Whether to show the tasks icon (default: true for all pages)
@@ -23,11 +23,13 @@ import { useTaskStatus } from '@/hooks/use-task-status'
  * @param {number} filterBadge - Badge count to display on filter icon (optional)
  * @param {string} className - Additional classes for container
  * @param {string} containerClassName - Override container classes
+ * @param {boolean} showSeparator - Whether to show the bottom border separator (default: true)
+ * @param {'dark'|'bright'} variant - Color variant for text/icons: 'dark' (default) or 'bright' for light backgrounds
  */
-function StandardHeader({ 
-  title, 
+function StandardHeader({
+  title,
   titleContent = null,
-  showTasks = true, 
+  showTasks = true,
   showFilters = false,
   onFilterClick,
   rightContent = null,
@@ -37,7 +39,9 @@ function StandardHeader({
   filterIcon = null,
   filterBadge = null,
   className = '',
-  containerClassName = ''
+  containerClassName = '',
+  showSeparator = true,
+  variant = 'dark'
 }) {
   const [taskBoardOpen, setTaskBoardOpen] = useState(false)
   const taskButtonRef = useRef(null)
@@ -49,8 +53,12 @@ function StandardHeader({
     null
   )
 
-  // Use containerClassName if provided, otherwise use exact MessageHeader classes
-  const containerClasses = containerClassName || 'w-full p-4 border-b flex flex-row items-center justify-between h-14'
+  // Determine text/icon color based on variant
+  const isBright = variant === 'bright'
+  const textColorClass = isBright ? 'text-white' : ''
+
+  // Use containerClassName if provided, otherwise build classes dynamically
+  const containerClasses = containerClassName || `w-full p-4 ${showSeparator ? 'border-b' : ''} flex flex-row items-center justify-between h-14 ${textColorClass}`
 
   const handleTaskButtonClick = () => {
     setTaskBoardOpen(true)
@@ -64,10 +72,10 @@ function StandardHeader({
     <>
       <div className={containerClasses}>
         {/* Left: Title Section - matches MessageHeader exactly */}
-        {titleContent || (typeof title === 'string' ? <TypographyH3>{title}</TypographyH3> : title)}
-        
+        {titleContent || (typeof title === 'string' ? <TypographyH3 className={textColorClass}>{title}</TypographyH3> : title)}
+
         {/* Right: Icons and Actions - matches MessageHeader structure exactly */}
-        <div className='flex flex-row items-center justify-end gap-2'>
+        <div className={`flex flex-row items-center justify-end gap-2 ${textColorClass}`}>
           {rightContent}
           {showFilters && onFilterClick && (
             <button
