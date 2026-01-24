@@ -521,6 +521,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
           if (response.data?.status && response.data?.data) {
             const allMessages = response.data.data
+            console.log('allMessages', allMessages)
             // Take the last 30 messages (most recent)
             const fetchedMessages = allMessages.slice(-MESSAGES_PER_PAGE)
             // Calculate the offset of the oldest message we're showing

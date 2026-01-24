@@ -97,6 +97,7 @@ export const getTemperatureIconForActivity = (temperature) => {
  */
 export const formatNextStepsForTooltip = (nextSteps) => {
   if (!nextSteps) return 'No next steps'
+  if(nextSteps === '[]') return 'No next steps'
   try {
     const steps = typeof nextSteps === 'string' ? JSON.parse(nextSteps) : nextSteps
     if (Array.isArray(steps) && steps.length > 0) {
