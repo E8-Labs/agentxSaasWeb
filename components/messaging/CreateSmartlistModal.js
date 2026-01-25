@@ -8,7 +8,7 @@ import { toast } from '@/utils/toast'
 import Apis from '@/components/apis/Apis'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 
-const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null }) => {
+const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, showInbound = true }) => {
   const modalRef = useRef(null)
   const [newSheetName, setNewSheetName] = useState('')
   const [isInbound, setIsInbound] = useState(false)
@@ -204,7 +204,7 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
       >
         <div
           className="w-full flex flex-col items-center h-full justify-between"
-          style={{ 
+          style={{
             backgroundColor: 'white',
           }}
         >
@@ -232,27 +232,32 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
                 <span style={styles.paragraph}>List Name</span>
 
                 <div className="flex flex-col items-end ">
-                  <div className="">
-                    <span>Inbound?</span>
-                    <Switch
-                      checked={isInbound}
-                      onChange={(event) => {
-                        setIsInbound(event.target.checked)
-                      }}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                      }}
-                      sx={{
-                        pointerEvents: 'auto',
-                        '& .MuiSwitch-switchBase.Mui-checked': {
-                          color: 'hsl(var(--brand-primary))',
-                        },
-                        '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                          backgroundColor: 'hsl(var(--brand-primary))',
-                        },
-                      }}
-                    />
-                  </div>
+                  {
+                    showInbound && (
+
+                      <div className="">
+                        <span>Inbound?</span>
+                        <Switch
+                          checked={isInbound}
+                          onChange={(event) => {
+                            setIsInbound(event.target.checked)
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                          }}
+                          sx={{
+                            pointerEvents: 'auto',
+                            '& .MuiSwitch-switchBase.Mui-checked': {
+                              color: 'hsl(var(--brand-primary))',
+                            },
+                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                              backgroundColor: 'hsl(var(--brand-primary))',
+                            },
+                          }}
+                        />
+                      </div>
+                    )
+                  }
                 </div>
               </div>
               <div className="mt-4">
@@ -280,7 +285,7 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
               </div>
               <div
                 className="max-h-[30vh] overflow-auto mt-2"
-                style={{ 
+                style={{
                   scrollbarWidth: 'none',
                 }}
               >
@@ -363,11 +368,10 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null })
               </div>
             ) : (
               <button
-                className={`h-[50px] rounded-xl w-full ${
-                  newSheetName && newSheetName.length > 0
+                className={`h-[50px] rounded-xl w-full ${newSheetName && newSheetName.length > 0
                     ? 'bg-brand-primary text-white'
                     : 'bg-btngray text-gray-600 cursor-not-allowed'
-                }`}
+                  }`}
                 style={{
                   fontWeight: '600',
                   fontSize: 16.8,

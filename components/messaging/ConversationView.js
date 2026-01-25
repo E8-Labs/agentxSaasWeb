@@ -14,6 +14,7 @@ import {
 import CallTranscriptCN from '@/components/dashboard/leads/extras/CallTranscriptCN'
 import { TranscriptViewer } from '@/components/calls/TranscriptViewer'
 import CallTranscriptModal from '@/components/dashboard/leads/extras/CallTranscriptModal'
+import Image from 'next/image'
 
 const AttachmentList = ({ message, isOutbound, onAttachmentClick }) => {
   if (!message.metadata?.attachments || message.metadata.attachments.length === 0) return null
@@ -633,21 +634,12 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                     }
                   }}
                 >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      d="M18 16V8M14 12H22M6 4H10C12.2091 4 14 5.79086 14 8V16C14 18.2091 12.2091 20 10 20H6C3.79086 20 2 18.2091 2 16V8C2 5.79086 3.79086 4 6 4Z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <Image
+                    src={'/otherAssets/share.png'}
+                    height={20}
+                    width={20}
+                    alt="*"
+                  />
                 </button>
 
                 <audio

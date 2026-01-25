@@ -373,6 +373,7 @@ const TaskForm = ({
             style={{ fontSize: '14px' }}
             rows={3}
             required={isValidForm}
+            style={{ lineHeight: '2' }}
           />
         </div>
 

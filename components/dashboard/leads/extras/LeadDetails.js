@@ -129,6 +129,7 @@ const LeadDetails = ({
   leadAssignedTeam,
   renderInline = false,
   selectedUser = null, // Optional prop for admin/agency view
+  onTagDeleted,
 }) => {
   // //console.log;
   // //console.log;
@@ -1277,6 +1278,7 @@ const LeadDetails = ({
 
       if (response) {
         if (response.data.status === true) {
+          console.log('response.data.data in del tag', response.data)
           const updatedTags = selectedLeadsDetails.tags.filter(
             (item) => item !== tag,
           )
@@ -1284,6 +1286,9 @@ const LeadDetails = ({
             ...prevDetails,
             tags: updatedTags,
           }))
+        }
+        if (onTagDeleted) {
+          onTagDeleted(tag)
         }
       }
     } catch (error) {
@@ -2086,7 +2091,11 @@ const LeadDetails = ({
                                 ref={emailInputRef}
                                 type="email"
                                 value={editedEmail || selectedLeadsDetails?.email}
-                                onChange={(e) => setEditedEmail(e.target.value)}
+                                onChange={(e) => {
+                                  setEditedEmail(e.target.value)
+                                  setIsEditingEmail(true)
+
+                                }}
                                 placeholder="Enter email address"
                                 className="flex-1 text-sm h-8 border border-gray-300 rounded-md p-2 focus:border-black focus:ring-0"
                                 disabled={updateEmailLoader}
@@ -2103,20 +2112,9 @@ const LeadDetails = ({
                                   <CircularProgress size={16} />
                                 ) : (
                                   <>
-                                    {!isEditingEmail ? (
-                                      <div className="flex items-center gap-2">
-                                        <span>{selectedLeadsDetails?.emails[0]?.email}</span>
-                                        <Tooltip title="Edit email">
-                                          <button
-                                            onClick={handleEditEmailClick}
-                                            className="text-muted-foreground hover:text-foreground transition-colors"
-                                          >
-                                            <Pencil className="h-3 w-3" />
-                                          </button>
-                                        </Tooltip>
-                                      </div>
-                                    ) : (
-                                      < Tooltip title="Save">
+                                    {isEditingEmail && (
+                                    
+                                      <Tooltip title="Save">
                                         <button
                                           onClick={updateLeadEmail}
                                           disabled={!editedEmail?.trim()}

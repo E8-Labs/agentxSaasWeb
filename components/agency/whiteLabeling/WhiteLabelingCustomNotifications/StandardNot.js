@@ -155,7 +155,7 @@ const StandardNot = ({
             item.metadata?.defaultEmailCTA ||
             '',
           isActive: item.isActive,
-          isCustomized: hasContentCustomizations, // Only true if content is actually customized
+          isCustomized: item.isCustomized, // Only true if content is actually customized
           isNotificationEnabled: item.isNotificationEnabled ?? true, // Default to true
           availableVariables: item.metadata?.availableVariables || [],
           supportsCTA: item.metadata?.supportsCTA || false,
@@ -296,14 +296,7 @@ const StandardNot = ({
   }
 
   const handleDelete = async (notification) => {
-    if (
-      !confirm(
-        'Are you sure you want to revert this notification to defaults? This action cannot be undone.',
-      )
-    ) {
-      return
-    }
-
+    
     try {
       setDeleting(notification.notificationType)
 

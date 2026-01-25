@@ -1221,6 +1221,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
             }, 100)
           }
         }}
+        showInbound={false}
         selectedUser={selectedUser}
       />
     </Sheet>

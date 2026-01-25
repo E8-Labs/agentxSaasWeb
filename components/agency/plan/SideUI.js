@@ -40,15 +40,10 @@ const SideUI = ({
     <div
       className="w-full h-full rounded-tr-xl rounded-br-xl"
       style={
-        isAgency
-          ? {
+       {
               background: `linear-gradient(to bottom right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) 100%)`,
             }
-          : {
-              backgroundImage: "url('/otherAssets/monthlyplansbg.png')",
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }
+          
       }
     >
       <div className="p-4 flex flex-col items-center h-[100%]">

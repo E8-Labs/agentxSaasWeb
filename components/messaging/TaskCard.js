@@ -197,8 +197,8 @@ const TaskCard = ({
 
       {/* Description */}
       {task.description && (
-        <div className="mb-3 mt-2">
-          <TypographyBody className="text-muted-foreground">
+        <div style={{ maxWidth: '200px' }} className="mb-3 mt-2 ">
+          <TypographyBody className="text-muted-foreground line-height-2">
             {task.description}
           </TypographyBody>
         </div>

@@ -201,7 +201,7 @@ function Page() {
     }
 
     // Also handle initial OAuth callback in popup (code parameter)
-    if ((code || error) && (isPopup || hasOpener)) {}
+    if ((code || error) && (isPopup || hasOpener)) { }
   }
 
   // If this page is opened as the GHL OAuth redirect (contains ?code=...),
@@ -223,10 +223,10 @@ function Page() {
           { type: 'GHL_OAUTH_CODE', code, error, state },
           '*',
         )
-      } catch {}
+      } catch { }
       try {
         window.close()
-      } catch {}
+      } catch { }
     }
   }, [])
 
@@ -800,11 +800,11 @@ function Page() {
     if (!mainAgentsList || mainAgentsList.length === 0) {
       return null
     }
-    
+
     // Convert agentId to number if it's a numeric string for strict comparison
     const agentIdNum = typeof agentId === 'string' && !isNaN(agentId) ? Number(agentId) : agentId
     const agentIdStr = String(agentId)
-    
+
     for (const mainAgent of mainAgentsList) {
       if (mainAgent.agents && mainAgent.agents.length > 0) {
         const foundAgent = mainAgent.agents.find((subAgent) => {
@@ -817,13 +817,13 @@ function Page() {
             (subAgent.agentUuid && subAgent.agentUuid === agentIdStr)
           )
         })
-        
+
         if (foundAgent) {
           return foundAgent
         }
       }
     }
-    
+
     console.warn('🔍 GET-AGENT-FROM-MAIN-LIST - Agent not found:', {
       agentId,
       agentIdNum,
@@ -845,15 +845,15 @@ function Page() {
       const updatedSubAgents = mainAgent.agents.map((subAgent) => {
         // Strict matching: check numeric id first, then UUIDs
         let matches = false
-        
+
         // For numeric IDs, do strict numeric comparison
         if (typeof agentIdNum === 'number' && !isNaN(agentIdNum)) {
           matches = subAgent.id === agentIdNum
         }
-        
+
         // If not matched by numeric ID, try UUIDs (exact string match)
         if (!matches) {
-          matches = 
+          matches =
             (subAgent.modelIdVapi && subAgent.modelIdVapi === agentIdStr) ||
             (subAgent.agentUuid && subAgent.agentUuid === agentIdStr)
         }
@@ -881,7 +881,7 @@ function Page() {
         agentIdNum,
         agentIdStr,
         mainAgentsListCount: mainAgentsList.length,
-        availableAgentIds: mainAgentsList.flatMap(ma => 
+        availableAgentIds: mainAgentsList.flatMap(ma =>
           ma.agents?.map(a => ({ id: a.id, name: a.name, modelIdVapi: a.modelIdVapi })) || []
         ),
       })
@@ -921,7 +921,7 @@ function Page() {
       setFetureType('webhook')
     } else if (agentType === 'web') {
       setFetureType('webagent')
-    } else {}
+    } else { }
 
     // Determine which fields to update based on agentType
     const updates = {
@@ -1011,8 +1011,8 @@ function Page() {
       if (selectedAgentForEmbed && selectedAgentForEmbed.id !== agent.id) {
         setSelectedAgentForEmbed(null)
       }
-      
-      if (agentFromMainList) {} else {}
+
+      if (agentFromMainList) { } else { }
     }
 
     if (reduxUser?.agencyCapabilities?.allowEmbedAndWebAgents === false) {
@@ -1041,7 +1041,7 @@ function Page() {
             smartListIdForEmbed: agentToUse.smartListIdForEmbed,
           })
         }
-        
+
         setSelectedAgentForEmbed(agentToUse)
         setShowEmbedModal(true)
       }
@@ -1488,9 +1488,9 @@ function Page() {
 
             const iconFilter = calculateIconFilter(primaryColor)
             document.documentElement.style.setProperty('--icon-filter', iconFilter)
-          } catch (error) {}
+          } catch (error) { }
         }
-      } catch (error) {}
+      } catch (error) { }
     }
 
     // Listen for branding updates
@@ -1505,7 +1505,7 @@ function Page() {
             document.documentElement.style.setProperty('--brand-primary', primaryHsl)
             const iconFilter = calculateIconFilter(primaryColor)
             document.documentElement.style.setProperty('--icon-filter', iconFilter)
-          } catch (error) {}
+          } catch (error) { }
         }
       }
     }
@@ -1647,7 +1647,7 @@ function Page() {
     const planCapabilities = reduxUser?.planCapabilities || {}
     const shouldShowUpgrade = planCapabilities.shouldShowAllowLiveTransferUpgrade === true
     const shouldShowRequestFeature = planCapabilities.shouldShowLiveTransferRequestFeature === true
-    
+
     if (shouldShowUpgrade || shouldShowRequestFeature) {
       return (
         <UpgradeTagWithModal
@@ -3115,17 +3115,17 @@ function Page() {
       }
     } catch (error) {
       console.error('Error occured in test api is', error)
-      
+
       // Extract error message from API response
       const errorMessage =
-        error?.response?.data?.message || 
-        error?.message || 
+        error?.response?.data?.message ||
+        error?.message ||
         'An error occurred while testing the AI agent'
-      
+
       // Display error message to user
       setShowErrorSnack(errorMessage)
       setIsVisibleSnack2(true)
-      
+
       // Only close modal if it's a non-critical error (optional)
       // setOpenTestAiModal(false)
     } finally {
@@ -5111,8 +5111,8 @@ function Page() {
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`${activeTab === tab
-                      ? 'text-brand-primary border-b-2 border-brand-primary'
-                      : 'text-black-500'
+                    ? 'text-brand-primary border-b-2 border-brand-primary'
+                    : 'text-black-500'
                     }`}
                   style={{
                     fontSize: 15,
@@ -5135,6 +5135,18 @@ function Page() {
                     >
                       Voice Options
                     </div>
+
+                    <button
+                      onClick={() => {
+                        setShowAdvancedSettingsModal(true)
+                      }}
+                    >
+                      <div
+                        style={{ fontSize: 15, fontWeight: '500', color: 'hsl(var(--brand-primary))' }}
+                      >
+                        Advanced Settings
+                      </div>
+                    </button>
                   </div>
                   {/* Language */}
                   <div className="flex w-full justify-between items-center ">
@@ -5406,7 +5418,7 @@ function Page() {
                                     flexDirection: 'row',
                                     alignItems: 'center',
                                     justifyContent: 'space-between',
-                                    
+
                                   }}
                                   value={item.name}
                                   key={index}
@@ -5795,26 +5807,7 @@ function Page() {
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-col gap-1 mt-4">
-                  <div
-                    style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
-                  >
-                    Advanced Settings
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <div
-                      style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
-                    >
-                      Configure call duration, timeout, and silence response
-                    </div>
-                    <button
-                      onClick={() => setShowAdvancedSettingsModal(true)}
-                      className="text-brand-primary hover:text-brand-primary/80 text-sm font-medium"
-                    >
-                      Configure
-                    </button>
-                  </div>
-                </div>
+          
                 <div className="flex flex-col gap-1 mt-4">
                   <div
                     style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
@@ -7046,7 +7039,7 @@ function Page() {
         onAgentUpdate={(updatedAgent) => {
           // Update the agent state when smartlist is attached/detached
           setSelectedAgentForWebAgent(updatedAgent)
-          
+
           // Also update in mainAgentsList and localStorage
           // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
           const agentIdToUpdate = updatedAgent?.id
@@ -7102,7 +7095,7 @@ function Page() {
         onAgentUpdate={(updatedAgent) => {
           // Update the agent state when smartlist is attached
           setSelectedAgentForEmbed(updatedAgent)
-          
+
           // Also update in mainAgentsList and localStorage
           // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
           const agentIdToUpdate = updatedAgent?.id

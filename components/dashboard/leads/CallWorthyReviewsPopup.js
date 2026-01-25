@@ -40,6 +40,7 @@ import { callStatusColors } from '@/constants/Constants'
 import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
 import { getAgentsListImage } from '@/utilities/agentUtilities'
 import LeadDetails from './extras/LeadDetails'
+import CloseBtn from '@/components/globalExtras/CloseBtn'
 
 function CallWorthyReviewsPopup({ open, close }) {
   const [importantCalls, setImportantCalls] = useState([])
@@ -255,6 +256,31 @@ function CallWorthyReviewsPopup({ open, close }) {
     setIsExpanded(item)
   }
 
+  const handleTagDeleted = (deletedTag, leadId) => {
+    // Update the selected call's tags
+    setSelectedCall((prev) => {
+      if (!prev) return prev
+      return {
+        ...prev,
+        tags: prev.tags ? prev.tags.filter(tag => tag !== deletedTag) : []
+      }
+    })
+
+    // Also update in the importantCalls list
+    setImportantCalls((prevCalls) =>
+      prevCalls.map((call) => {
+        if (call.id === (leadId || selectedCall?.id)) {
+          return {
+            ...call,
+            tags: call.tags ? call.tags.filter(tag => tag !== deletedTag) : []
+          }
+        }
+        return call
+      })
+    )
+  }
+
+
   return (
     <div className="w-full">
       <Modal
@@ -286,13 +312,7 @@ function CallWorthyReviewsPopup({ open, close }) {
                   Recommend Calls
                 </div>
 
-                <button onClick={close} className="flex flex-row gap-2">
-                  <div style={{ fontSize: 15, fontWeight: '500' }}>Close</div>
-                  <img
-                    src="/svgIcons/cross.svg"
-                    style={{ height: 24, width: 24 }}
-                  />
-                </button>
+                <CloseBtn onClick={close} />
               </div>
 
               <div
@@ -395,95 +415,96 @@ function CallWorthyReviewsPopup({ open, close }) {
 
                                 <div className="w-full flex flex-row justify-between items-center">
                                   <div className="flex flex-row items-center gap-2">
-                                  {
-                                    !item.teamsAssigned && (
-                                      <Image
-                                        src={'/assets/manIcon.png'}
-                                        height={23}
-                                        width={23}
-                                        alt="*"
-                                      />
-                                    )
-                                  }
+                                    {
+                                      !item.teamsAssigned && (
+                                        <Image
+                                          src={'/assets/manIcon.png'}
+                                          height={23}
+                                          width={23}
+                                          alt="*"
+                                        />
+                                      )
+                                    }
                                     {/* Team assignments display */}
                                     {item.teamsAssigned && item.teamsAssigned.length > 0 && (
                                       <div className="flex flex-row items-center gap-1">
                                         {item.teamsAssigned.slice(0, 2).map((teamMember, idx) => {
                                           const memberName = teamMember?.name || teamMember?.invitedUser?.name || ''
-                                              return (
-                                                <div
+                                          return (
+                                            <div
                                               key={teamMember.id || teamMember.invitedUserId || idx}
                                               className="h-6 w-6 rounded-full bg-brand-primary flex items-center justify-center text-white text-xs font-semibold"
                                               title={memberName}
                                             >
                                               {memberName.charAt(0).toUpperCase()}
-                                                </div>
-                                              )
+                                            </div>
+                                          )
                                         })}
                                         {item.teamsAssigned.length > 2 && (
                                           <div className="h-6 w-6 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 text-xs font-semibold">
                                             +{item.teamsAssigned.length - 2}
-                                        </div>
+                                          </div>
+                                        )}
+                                      </div>
                                     )}
                                   </div>
-                          )}
-                        </div>
 
                                   <div className="flex flex-row gap-2">
                                     {item.tags?.length > 0 ? (
-                                          <div
-                                            className="text-end flex flex-row items-center gap-4"
-                                            style={styles.paragraph}
-                                          >
-                                            {
-                                              // selectedLeadsDetails?.tags?.map.slice(0, 1)
+                                      <div
+                                        className="text-end flex flex-row items-center gap-4"
+                                        style={styles.paragraph}
+                                      >
+                                        {
+                                          // selectedLeadsDetails?.tags?.map.slice(0, 1)
                                           item?.tags
-                                                .slice(0, 2)
-                                                .map((tag, index) => {
-                                                  return (
-                                                    <div
-                                                      key={index}
-                                                      className="flex flex-row items-center gap-4"
-                                                    >
-                                                      <div
-                                                        className="px-2 py-1 rounded-lg"
-                                                        style={{
+                                            .slice(0, 2)
+                                            .map((tag, index) => {
+                                              return (
+                                                <div
+                                                  key={index}
+                                                  className="flex flex-row items-center gap-4"
+                                                >
+                                                  <div
+                                                    className="px-2 py-1 rounded-lg"
+                                                    style={{
                                                       backgroundColor: `hsl(var(--brand-primary, 270 75% 50%) / 0.05)`,
-                                                        }}
-                                                      >
-                                                        <div
-                                                          className="text-[13px]"
-                                                          style={{
-                                                            color: `hsl(var(--brand-primary, 270 75% 50%))`,
-                                                          }}
-                                                        >
-                                                          {tag}
-                                                        </div>
-                                                      </div>
+                                                    }}
+                                                  >
+                                                    <div
+                                                      className="text-[13px]"
+                                                      style={{
+                                                        color: `hsl(var(--brand-primary, 270 75% 50%))`,
+                                                      }}
+                                                    >
+                                                      {tag}
                                                     </div>
-                                                  )
-                                                })
-                                            }
-                                            <div>
+                                                  </div>
+                                                </div>
+                                              )
+                                            })
+                                        }
+                                        <div>
                                           {item?.tags.length > 2 && (
                                             <div>+{item?.tags.length - 2}</div>
-                                                )}
-                                            </div>
-                                          </div>
-                                        ) : (
-                                          '-'
-                                        )}
+                                          )}
                                         </div>
                                       </div>
-                                    </button>
+                                    ) : (
+                                      '-'
+                                    )}
+                                  </div>
+                                </div>
+                              </button>
                             ),
                           )}
-                                            </div>
+                        </div>
 
                         <div className="w-8/12 flex flex-col">
                           {selectedCall ? (
                             <div className="w-full h-[80vh] overflow-hidden" style={{ scrollbarWidth: 'none' }}>
                               <LeadDetails
+                                onTagDeleted={(deletedTag, leadId) => handleTagDeleted(deletedTag, leadId)}
                                 showDetailsModal={true}
                                 selectedLead={selectedCall.id}
                                 setShowDetailsModal={() => {
@@ -525,13 +546,13 @@ function CallWorthyReviewsPopup({ open, close }) {
                                 leadAssignedTeam={(teamMember, lead) => {
                                   // lead is the updated selectedLeadsDetails object with teamsAssigned
                                   if (!lead) return
-                                  
+
                                   // Update team assignment in selected call
                                   setSelectedCall((prev) => ({
                                     ...prev,
                                     teamsAssigned: lead.teamsAssigned || [],
                                   }))
-                                  
+
                                   // Update in the list to reflect team assignments in left section
                                   const leadIdToUpdate = lead.id || selectedCall?.id
                                   setImportantCalls((prevCalls) =>
@@ -547,20 +568,20 @@ function CallWorthyReviewsPopup({ open, close }) {
                                   )
                                 }}
                               />
-                                                                </div>
-                                                              ) : (
+                            </div>
+                          ) : (
                             <div className="w-full h-[80vh] flex items-center justify-center">
-                                                                <div
-                                                                  style={{
+                              <div
+                                style={{
                                   fontsize: 24,
-                                            fontWeight: '600',
+                                  fontWeight: '600',
                                   textAlign: 'center',
                                 }}
                               >
                                 Select a call to view details
-                                      </div>
                               </div>
-                            )}
+                            </div>
+                          )}
                         </div>
                       </div>
                     ) : (
