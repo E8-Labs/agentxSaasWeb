@@ -47,94 +47,154 @@ function SelectedUserDetails({
   agencyUser = false,
 }) {
 
-  // Component to check permission for a menu item
-  function MenuItemWithPermission({ item, children, contextUserId, enablePermissionChecks }) {
-    // If permission checks are disabled, show all items
-    if (!enablePermissionChecks) {
-      console.log('MenuItemWithPermission: permission checks disabled')
-      return <>{children}</>
-    }
+  const [manuLoading, setManuLoading] = useState(true)
+  const [accessibleMenuItems, setAccessibleMenuItems] = useState([])
+  const [isInvitee, setIsInvitee] = useState(false)
+  const [selectedManu, setSelectedManu] = useState(null)
+  const [permissionContextAvailable, setPermissionContextAvailable] = useState(false)
 
-    // Check if logged-in user is an Invitee
-    const [isInvitee, setIsInvitee] = useState(false)
-    const [isCheckingRole, setIsCheckingRole] = useState(true)
-    useEffect(() => {
+  // Get permission context
+  const permissionContext = usePermission()
+
+  // Check user role and permissions on mount
+  useEffect(() => {
+    const initializeMenu = async () => {
       try {
+        // Reset loading
+        setManuLoading(true)
+        
+        // Check user role from localStorage
         const localData = localStorage.getItem('User')
+        let userIsInvitee = false
+        
         if (localData) {
           const userData = JSON.parse(localData)
           const userRole = userData.user?.userRole || userData.userRole
-          setIsInvitee(userRole === 'Invitee')
-          console.log('MenuItemWithPermission: User role check', { userRole, isInvitee: userRole === 'Invitee' })
+          userIsInvitee = userRole === 'Invitee'
+          setIsInvitee(userIsInvitee)
+        }
+
+        // Check if permission context is available
+        const hasPermissionContext = permissionContext?.hasPermission !== undefined
+        setPermissionContextAvailable(hasPermissionContext)
+
+        // If permission checks disabled or user is not Invitee, show all items immediately
+        if (!enablePermissionChecks || !userIsInvitee) {
+          setAccessibleMenuItems(allMenuItems)
+          setSelectedManu(allMenuItems[0])
+          setManuLoading(false)
+          return
+        }
+
+        // For Invitee with permission checks enabled
+        if (enablePermissionChecks && userIsInvitee && selectedUser?.id) {
+          // Check permissions for each menu item
+          const accessibleItems = []
+          
+          for (const menuItem of allMenuItems) {
+            // Items without permission key are always accessible
+            if (!menuItem.permissionKey) {
+              accessibleItems.push(menuItem)
+              continue
+            }
+            
+            // Check permission for this menu item
+            try {
+              let hasAccess = true
+              
+              if (hasPermissionContext) {
+                // Use permission context if available
+                hasAccess = await permissionContext.hasPermission(
+                  menuItem.permissionKey, 
+                  selectedUser.id
+                )
+              } else {
+                // Fallback: use useHasPermission hook
+                const [hookHasAccess] = useHasPermission(
+                  menuItem.permissionKey,
+                  selectedUser.id
+                )
+                // Note: This hook returns synchronously on subsequent calls
+                // We'll trust the hook's return value
+                hasAccess = hookHasAccess
+              }
+              
+              if (hasAccess) {
+                accessibleItems.push(menuItem)
+              }
+            } catch (error) {
+              console.error(`Error checking permission for ${menuItem.name}:`, error)
+              // On error, don't include to be safe
+            }
+          }
+          
+          setAccessibleMenuItems(accessibleItems)
+          
+          // Set selected menu to first accessible item or null if none
+          if (accessibleItems.length > 0) {
+            setSelectedManu(accessibleItems[0])
+          } else {
+            setSelectedManu(null)
+          }
+        } else {
+          // Fallback for non-invitee or no permission checks
+          setAccessibleMenuItems(allMenuItems)
+          setSelectedManu(allMenuItems.length > 0 ? allMenuItems[0] : null)
         }
       } catch (error) {
-        console.error('Error checking user role:', error)
+        console.error('Error initializing menu:', error)
+        // Fallback: show all items
+        setAccessibleMenuItems(allMenuItems)
+        setSelectedManu(allMenuItems.length > 0 ? allMenuItems[0] : null)
       } finally {
-        setIsCheckingRole(false)
+        setManuLoading(false)
       }
-    }, [])
-
-    // Only check permissions for Invitee users; Agency users have full access
-    const [hasAccess, isLoading] = useHasPermission(
-      isInvitee && item.permissionKey ? item.permissionKey : '',
-      isInvitee && contextUserId ? contextUserId : null
-    )
-
-    // Agency users (non-Invitee) have full access
-    const effectiveHasAccess = isInvitee ? hasAccess : true
-    const effectiveIsLoading = isInvitee ? (isLoading || isCheckingRole) : false
-
-    // Debug logging
-    useEffect(() => {
-      if (enablePermissionChecks && item.permissionKey) {
-        console.log('MenuItemWithPermission: Permission check', {
-          menuItem: item.name,
-          permissionKey: item.permissionKey,
-          contextUserId,
-          isInvitee,
-          isCheckingRole,
-          isLoading,
-          hasAccess,
-          effectiveHasAccess,
-          effectiveIsLoading,
-        })
-      }
-    }, [item.name, item.permissionKey, contextUserId, isInvitee, isCheckingRole, isLoading, hasAccess, effectiveHasAccess, effectiveIsLoading, enablePermissionChecks])
-
-    // Don't render if no permission (only for Invitee users)
-    // But show while loading to avoid hiding all items during initial load
-    if (effectiveIsLoading && isInvitee) {
-      // Show items while loading instead of hiding them
-      // This prevents all menu items from disappearing during initial permission checks
-      console.log('MenuItemWithPermission: Loading permission check for', item.name, '- showing while loading')
-      return <>{children}</> // Show while loading instead of hiding
     }
 
-    // Only hide if we're done checking AND user doesn't have access
-    if (!effectiveHasAccess && isInvitee && !effectiveIsLoading) {
-      console.log('MenuItemWithPermission: no access - hiding', item.name, {
-        permissionKey: item.permissionKey,
-        contextUserId,
-        hasAccess,
-        isInvitee,
-        effectiveHasAccess,
-      })
-      return null // Hide if no permission (only applies to Invitee)
-    }
+    initializeMenu()
+  }, [enablePermissionChecks, selectedUser?.id, permissionContext])
 
-    // Show item if:
-    // 1. Not an Invitee (Agency users have full access)
-    // 2. Is Invitee and has access
-    // 3. Is Invitee and still loading (already handled above, but this is a fallback)
-    console.log('MenuItemWithPermission: showing', item.name, {
-      isInvitee,
-      hasAccess,
-      effectiveHasAccess,
-      effectiveIsLoading,
-      permissionKey: item.permissionKey,
-    })
-    return <>{children}</>
-  }
+  // Update when isInvitee or selectedUser changes
+  useEffect(() => {
+    if (enablePermissionChecks && isInvitee && selectedUser?.id && permissionContextAvailable) {
+      const updatePermissions = async () => {
+        try {
+          const accessibleItems = []
+          
+          for (const menuItem of allMenuItems) {
+            if (!menuItem.permissionKey) {
+              accessibleItems.push(menuItem)
+              continue
+            }
+            
+            try {
+              const hasAccess = await permissionContext.hasPermission(
+                menuItem.permissionKey, 
+                selectedUser.id
+              )
+              
+              if (hasAccess) {
+                accessibleItems.push(menuItem)
+              }
+            } catch (error) {
+              console.error(`Error checking permission for ${menuItem.name}:`, error)
+            }
+          }
+          
+          setAccessibleMenuItems(accessibleItems)
+          
+          // Update selected menu if current one is no longer accessible
+          if (selectedManu && !accessibleItems.some(item => item.id === selectedManu.id)) {
+            setSelectedManu(accessibleItems.length > 0 ? accessibleItems[0] : null)
+          }
+        } catch (error) {
+          console.error('Error updating permissions:', error)
+        }
+      }
+      
+      updatePermissions()
+    }
+  }, [isInvitee, selectedUser?.id, permissionContextAvailable])
 
   const allMenuItems = [
     {
@@ -142,60 +202,60 @@ function SelectedUserDetails({
       name: 'Dashboard',
       selectedImage: '/svgIcons/selectdDashboardIcon.svg',
       unSelectedImage: '/svgIcons/unSelectedDashboardIcon.svg',
-      permissionKey: 'subaccount.dashboard.view', // Subaccount permission
+      permissionKey: 'subaccount.dashboard.view',
     },
     {
       id: 2,
       name: 'Agents',
       selectedImage: '/svgIcons/selectedAgentXIcon.svg',
       unSelectedImage: '/svgIcons/agentXIcon.svg',
-      permissionKey: 'subaccount.agents.view', // Subaccount permission
+      permissionKey: 'subaccount.agents.view',
     },
     {
       id: 3,
       name: 'Leads',
       selectedImage: '/svgIcons/selectedLeadsIcon.svg',
       unSelectedImage: '/svgIcons/unSelectedLeadsIcon.svg',
-      permissionKey: 'subaccount.leads.manage', // Subaccount permission
+      permissionKey: 'subaccount.leads.manage',
     },
     {
       id: 5,
       name: 'Pipeline',
       selectedImage: '/svgIcons/selectedPiplineIcon.svg',
       unSelectedImage: '/svgIcons/unSelectedPipelineIcon.svg',
-      permissionKey: 'subaccount.pipelines.manage', // Subaccount permission
+      permissionKey: 'subaccount.pipelines.manage',
     },
     {
       id: 9,
       name: 'Messages (Beta)',
       selectedImage: '/messaging/icons_chat_menu.svg',
       unSelectedImage: '/messaging/icons_chat_menu.svg',
-      permissionKey: 'subaccount.messages.manage', // Subaccount permission
+      permissionKey: 'subaccount.messages.manage',
     },
     {
       id: 4,
       name: 'Activity',
       selectedImage: '/otherAssets/selectedActivityLog.png',
       unSelectedImage: '/otherAssets/activityLog.png',
-      permissionKey: 'subaccount.activity.view', // Subaccount permission
+      permissionKey: 'subaccount.activity.view',
     },
     {
       id: 6,
       name: 'Integration',
       selectedImage: '/svgIcons/selectedIntegration.svg',
       unSelectedImage: '/svgIcons/unSelectedIntegrationIcon.svg',
-      permissionKey: 'subaccount.integrations.manage', // Subaccount permission
+      permissionKey: 'subaccount.integrations.manage',
     },
     {
       id: 7,
       name: 'Team',
       selectedImage: '/svgIcons/selectedTeam.svg',
       unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg',
-      permissionKey: 'subaccount.teams.manage', // Subaccount permission
+      permissionKey: 'subaccount.teams.manage',
     },
   ]
 
-  // Account menu item (not included in allMenuItems as it's conditional)
+  // Account menu item
   const accountMenu = {
     id: 8,
     name: 'Account',
@@ -203,54 +263,12 @@ function SelectedUserDetails({
     unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
   }
 
-  // Filter menu items based on permissions when viewing from agency
-  const manuBar = React.useMemo(() => {
-    // If permission checks disabled or no selected user, show all items
-    if (!enablePermissionChecks || !selectedUser?.id) {
-      const menuItems = [...allMenuItems]
-      // Add account menu if permission checks disabled
-      if (!enablePermissionChecks) {
-        menuItems.push(accountMenu)
-      }
-      return menuItems
-    }
-
-    // For permission-enabled context, we'll filter in the render using MenuItemWithPermission
-    // This allows async permission checks
-    return allMenuItems
-  }, [enablePermissionChecks, selectedUser?.id])
-
   console.log('Permission checks enabled:', enablePermissionChecks)
 
-  // Initialize selectedManu - ensure it's a valid menu item
-  const [selectedManu, setSelectedManu] = useState(() => {
-    // If permission checks enabled and we have a stored tab, try to restore it
-    if (enablePermissionChecks && selectedUser?.id) {
-      try {
-        const storedState = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
-        if (storedState) {
-          const stateObject = JSON.parse(storedState)
-          const storedTabName = stateObject?.tabName
-          if (storedTabName) {
-            const storedItem = allMenuItems.find(item => item.name === storedTabName)
-            if (storedItem) {
-              return storedItem
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Error restoring tab state:', error)
-      }
-    }
-    return allMenuItems[0] // Default to Dashboard
-  })
-
-  // Get the current menu item's permission key for content protection
-  const currentMenuItem = allMenuItems.find(item => item.name === selectedManu?.name)
+  // Current menu item's permission key for content protection
+  const currentMenuItem = accessibleMenuItems.find(item => item?.name === selectedManu?.name)
   const currentPermissionKey = currentMenuItem?.permissionKey
 
-  // Check if logged-in user is an Invitee (team member)
-  const [isInvitee, setIsInvitee] = useState(false)
   // Check if logged-in user is Admin
   const [isAdmin, setIsAdmin] = useState(false)
   useEffect(() => {
@@ -258,7 +276,6 @@ function SelectedUserDetails({
       const localData = localStorage.getItem('User')
       if (localData) {
         const userData = JSON.parse(localData)
-        setIsInvitee(userData.user?.userRole === 'Invitee')
         setIsAdmin(userData.user?.userRole === 'Admin')
       }
     } catch (error) {
@@ -266,79 +283,33 @@ function SelectedUserDetails({
     }
   }, [])
 
-  // Safe permission check - only use permission hook when PermissionProvider is available
-  // For admin users viewing normal AgentX users (not agency context), skip permission checks
+  // Safe permission check for content area
   const [hasCurrentPermission, isCheckingCurrentPermission] = useHasPermission(
-    // Only check permissions if: viewing from agency context AND user is Invitee AND permission key exists
     enablePermissionChecks && isInvitee && currentPermissionKey ? currentPermissionKey : '',
     enablePermissionChecks && isInvitee ? selectedUser?.id : null
   )
 
   // Agency users (non-Invitee) and non-agency contexts have full access
-  // If PermissionProvider is not available, default to true (allow access)
   const effectiveHasPermission = (enablePermissionChecks && isInvitee) ? hasCurrentPermission : true
   const effectiveIsChecking = (enablePermissionChecks && isInvitee) ? isCheckingCurrentPermission : false
 
-  // Get permission context for async permission checks
-  const permissionContext = usePermission()
-
   // Auto-switch to first accessible menu if current menu is not accessible
   useEffect(() => {
-    // Only auto-switch if: permission checks enabled, user is Invitee, permission check is complete, and current menu is not accessible
-    if (enablePermissionChecks && isInvitee && !effectiveIsChecking && currentPermissionKey && !effectiveHasPermission && selectedUser?.id && permissionContext?.hasPermission) {
-      console.log('Current menu not accessible, finding first accessible menu...', {
-        currentMenu: selectedManu?.name,
-        currentPermission: currentPermissionKey,
-      })
-
-      // Find first accessible menu item by checking permissions asynchronously
-      const findFirstAccessibleMenu = async () => {
-        for (const menuItem of allMenuItems) {
-          // Skip the current menu item
-          if (menuItem.name === selectedManu?.name) {
-            continue
-          }
-
-          // If menu item has no permission key, it's accessible
-          if (!menuItem.permissionKey) {
-            console.log('Switching to menu without permission key:', menuItem.name)
-            setSelectedManu(menuItem)
-            return
-          }
-
-          // Check if user has permission for this menu item
-          try {
-            const hasAccess = await permissionContext.hasPermission(menuItem.permissionKey, selectedUser.id)
-            if (hasAccess) {
-              console.log('Switching to accessible menu:', menuItem.name)
-              setSelectedManu(menuItem)
-              return
-            }
-          } catch (error) {
-            console.error('Error checking permission for menu item:', menuItem.name, error)
-            // Continue to next menu item
-          }
-        }
-
-        // If no accessible menu found, switch to first non-Dashboard menu as fallback
-        const nonDashboardMenu = allMenuItems.find(item => item.name !== 'Dashboard')
-        if (nonDashboardMenu && nonDashboardMenu.name !== selectedManu?.name) {
-          console.log('No accessible menu found, switching to first non-Dashboard menu:', nonDashboardMenu.name)
-          setSelectedManu(nonDashboardMenu)
-        }
+    if (enablePermissionChecks && isInvitee && !effectiveIsChecking && currentPermissionKey && 
+        !effectiveHasPermission && selectedUser?.id && permissionContextAvailable && 
+        selectedManu && accessibleMenuItems.length > 0) {
+      
+      // Check if current menu is in accessible items
+      const isCurrentMenuAccessible = accessibleMenuItems.some(item => item.id === selectedManu.id)
+      
+      if (!isCurrentMenuAccessible && accessibleMenuItems.length > 0) {
+        setSelectedManu(accessibleMenuItems[0])
       }
-
-      findFirstAccessibleMenu()
     }
-  }, [enablePermissionChecks, isInvitee, effectiveIsChecking, currentPermissionKey, effectiveHasPermission, selectedUser?.id, selectedManu?.name, permissionContext])
+  }, [enablePermissionChecks, isInvitee, effectiveIsChecking, currentPermissionKey, 
+      effectiveHasPermission, selectedUser?.id, permissionContextAvailable, 
+      selectedManu, accessibleMenuItems])
 
-  // #region agent log
-  useEffect(() => {
-    if (enablePermissionChecks && selectedUser?.id) {
-      fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SelectedUserDetails.js:207', message: 'Permission check for subaccount content', data: { enablePermissionChecks, selectedUserId: selectedUser?.id, currentMenuItemName: selectedManu?.name, currentPermissionKey, isInvitee, hasCurrentPermission, isCheckingCurrentPermission, effectiveHasPermission, effectiveIsChecking, willBlockAccess: enablePermissionChecks && isInvitee && currentPermissionKey && !effectiveIsChecking && !effectiveHasPermission }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'I' }) }).catch(() => { });
-    }
-  }, [enablePermissionChecks, selectedUser?.id, currentPermissionKey, hasCurrentPermission, isCheckingCurrentPermission, selectedManu?.name, isInvitee, effectiveHasPermission, effectiveIsChecking])
-  // #endregion
   const [showAddMinutesModal, setShowAddMinutesModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [error, setError] = useState('')
@@ -346,21 +317,13 @@ function SelectedUserDetails({
   const [showSnackMessage, setShowSnackMessage] = useState(null)
   const [loading, setloading] = useState(false)
   const [delLoader, setDelLoader] = useState(false)
-  //del user
-  const [showDelConfirmationPopup, setShowDelConfirmationPopup] =
-    useState(false)
+  const [showDelConfirmationPopup, setShowDelConfirmationPopup] = useState(false)
   const [pauseLoader, setpauseLoader] = useState(false)
   const [resetTrailLoader, setResetTrailLoader] = useState(false)
-  //pause confirmations
-  const [showPauseConfirmationPopup, setShowPauseConfirmationPopup] =
-    useState(false)
+  const [showPauseConfirmationPopup, setShowPauseConfirmationPopup] = useState(false)
   const [user, setUser] = useState(null)
-  //reset trial
   const [showResetTrialPopup, setShowResetTrialPopup] = useState(false)
-
-  //pauseToggleBtn
   const [pauseToggleBtn, setPauseToggleBtn] = useState(false)
-
   const [selectedDate, setSelectedDate] = useState(null)
   const [showActivityLogs, setShowActivityLogs] = useState(false)
 
@@ -379,8 +342,6 @@ function SelectedUserDetails({
       if (d) {
         setUser(d)
       }
-
-      // console.log('selectedUser after api', selectedUser)
     }
 
     getData()
@@ -394,8 +355,6 @@ function SelectedUserDetails({
           const refreshedData = await AdminGetProfileDetails(selectedUser.id)
           if (refreshedData) {
             setUser(refreshedData)
-            // Update selectedUser to trigger re-render of child components
-            // This will update the usage count in AdminAgentX
           }
         } catch (error) {
           console.error('Error refreshing user profile:', error)
@@ -409,27 +368,6 @@ function SelectedUserDetails({
       window.removeEventListener('refreshSelectedUser', handleRefreshUser)
     }
   }, [selectedUser])
-
-  // Restore tab state when component mounts (only for admin/agency users)
-  useEffect(() => {
-    if (!isAdminOrAgency()) return
-
-    try {
-      const storedData = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
-      if (storedData) {
-        const stateObject = JSON.parse(storedData)
-        if (stateObject?.restoreState?.selectedTabName) {
-          const tabName = stateObject.restoreState.selectedTabName
-          const foundTab = manuBar.find((tab) => tab.name === tabName)
-          if (foundTab) {
-            setSelectedManu(foundTab)
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error restoring tab state:', error)
-    }
-  }, []) // Run once on mount
 
   // Helper function to check if user is admin or agency
   const isAdminOrAgency = () => {
@@ -479,18 +417,17 @@ function SelectedUserDetails({
       const menuItem = allMenuItems.find(m => m.id === item.id)
       // Account menu doesn't have permissionKey, so allow it
       if (menuItem?.permissionKey || item.name === 'Account') {
-        // Permission check will be done by MenuItemWithPermission component
-        // If user doesn't have permission, the menu item won't be rendered
-        // But we should still check here as a safety measure
-        setSelectedManu(item)
-        storeTabState(item.name)
+        // Only allow if item is in accessibleMenuItems
+        if (accessibleMenuItems.some(accessibleItem => accessibleItem.id === item.id)) {
+          setSelectedManu(item)
+          storeTabState(item.name)
+        }
       } else {
         setSelectedManu(item)
         storeTabState(item.name)
       }
     } else {
       setSelectedManu(item)
-      // Store tab state for restoration (only for admin/agency users)
       storeTabState(item.name)
     }
   }
@@ -518,17 +455,15 @@ function SelectedUserDetails({
 
         if (response.data) {
           if (response.data.status === true) {
-            //console.log
             setShowSnackMessage(response.data.messag)
             setShowAddMinutesModal(false)
           } else {
-            //console.log
             setShowSnackMessage(response.data.message)
           }
         }
       }
     } catch (e) {
-      //console.log
+      console.error('Error adding minutes:', e)
     } finally {
       setloading(false)
     }
@@ -547,7 +482,6 @@ function SelectedUserDetails({
         let apidata = {
           userId: selectedUser.id,
         }
-        //console.log
 
         const response = await axios.post(path, apidata, {
           headers: {
@@ -559,39 +493,32 @@ function SelectedUserDetails({
           if (response.data.status === true) {
             setShowDeleteModal(false)
             setDelLoader(false)
-            // Set snack message first
             const successMessage = response.data.message || 'Profile deleted successfully'
-            console.log('Setting snack message:', successMessage)
             setShowSnackMessage(successMessage)
 
-            // Delay closing modal and removing from list to allow snack message to show
             setTimeout(() => {
-              // Close modal and remove user from list
               if (handleDel) {
                 handleDel()
               }
-              // Also close the modal if handleClose is provided
               if (handleClose) {
                 handleClose()
               }
-            }, 3000) // 3 second delay to show snack message
+            }, 3000)
           } else {
             const errorMessage = response.data.message || 'Failed to delete profile'
-            console.log('Setting error snack message:', errorMessage)
             setShowSnackMessage(errorMessage)
             setDelLoader(false)
           }
         }
       }
     } catch (e) {
-      //console.log
+      console.error('Error deleting user:', e)
     } finally {
       setDelLoader(false)
     }
   }
 
   const handlePause = async () => {
-    //profile_status
     setpauseLoader(true)
     try {
       const data = localStorage.getItem('User')
@@ -627,7 +554,6 @@ function SelectedUserDetails({
     if (!selectedDate) {
       return
     }
-    //profile_status
     setResetTrailLoader(true)
     try {
       const data = localStorage.getItem('User')
@@ -658,12 +584,9 @@ function SelectedUserDetails({
     }
   }
 
-
   const logoBranding = () => {
-  
     return (
       <div className="w-full flex flex-col gap-2 pt-4">
-        {/* Show company name if no logo for subaccount users */}
         {user && (user?.userRole === "AgencySubAccount" || user?.userRole === "Invitee") && user?.agencyBranding && !user.agencyBranding.logoUrl && user.agencyBranding.companyName ? (
           <div className="w-full text-left pl-6" style={{ marginLeft: "-8px" }}>
             <div className="text-lg font-bold text-black truncate">
@@ -671,7 +594,6 @@ function SelectedUserDetails({
             </div>
           </div>
         ) : (
-          /* AppLogo handles logo display based on hostname */
           <div className="flex justify-start ">
             <Image
               src={user?.agencyBranding?.logoUrl}
@@ -683,6 +605,27 @@ function SelectedUserDetails({
             />
           </div>
         )}
+      </div>
+    )
+  }
+
+  // Show loading until menu is ready
+  if (manuLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center w-full h-full">
+        <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
+      </div>
+    )
+  }
+
+  // Don't render if no accessible menu items
+  if (accessibleMenuItems.length === 0 && enablePermissionChecks) {
+    return (
+      <div className="flex flex-col items-center justify-center w-full h-full">
+        <div className="text-lg font-semibold text-foreground mb-2">No Access</div>
+        <p className="text-sm text-muted-foreground">
+          You do not have permission to access any menu items.
+        </p>
       </div>
     )
   }
@@ -703,90 +646,79 @@ function SelectedUserDetails({
           style={{ alignSelf: 'center' }}
           className={`w-full overflow-hidden h-full items-center justify-center`}
         >
-          {/*
-                        <div className='flex flex-row items-center justify-between w-full px-4 pt-2'>
-                        </div>
-                    */}
-
-          {/* Action buttons with 3-dot menu */}
           {!enablePermissionChecks && (
             <div className="flex flex-row items-center justify-end w-full px-4 pt-2 relative" style={{ zIndex: 10 }}>
               <div className="flex flex-row items-center gap-4">
-                {/* 3-dot menu for actions */}
-                {
-                  !enablePermissionChecks && from !== 'subaccount' && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          className="outline-none hover:opacity-80 transition-opacity p-2"
-                          aria-label="More options"
-                        >
-                          {pauseLoader ? (
-                            <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                          ) : (
-                            <Image
-                              src="/svgIcons/threeDotsIcon.svg"
-                              alt="More options"
-                              width={24}
-                              height={24}
-                            />
-                          )}
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="z-[1500]" style={{ zIndex: 1500 }}>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setShowPauseConfirmationPopup(true)
-                          }}
-                          className="cursor-pointer"
-                        >
-                          {user?.profile_status === 'paused' ? 'Reinstate' : 'Pause'}
-                        </DropdownMenuItem>
-
-                        {/* Show Add Minutes and Reset Trial only for Admin users */}
-                        {isAdmin && (
-                          <>
-                            <DropdownMenuItem
-                              onClick={() => {
-                                setShowAddMinutesModal(true)
-                              }}
-                              className="cursor-pointer"
-                            >
-                              Add Minutes
-                            </DropdownMenuItem>
-
-                            {selectedUser.isTrial && (
-                              <>
-                                <DropdownMenuSeparator />
-                                <DropdownMenuItem
-                                  onClick={() => {
-                                    setShowResetTrialPopup(true)
-                                  }}
-                                  className="cursor-pointer"
-                                >
-                                  Reset Trial
-                                </DropdownMenuItem>
-                              </>
-                            )}
-                          </>
+                {!enablePermissionChecks && from !== 'subaccount' && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        className="outline-none hover:opacity-80 transition-opacity p-2"
+                        aria-label="More options"
+                      >
+                        {pauseLoader ? (
+                          <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                        ) : (
+                          <Image
+                            src="/svgIcons/threeDotsIcon.svg"
+                            alt="More options"
+                            width={24}
+                            height={24}
+                          />
                         )}
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="z-[1500]" style={{ zIndex: 1500 }}>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setShowPauseConfirmationPopup(true)
+                        }}
+                        className="cursor-pointer"
+                      >
+                        {user?.profile_status === 'paused' ? 'Reinstate' : 'Pause'}
+                      </DropdownMenuItem>
 
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                          onClick={() => {
-                            setShowDeleteModal(true)
-                          }}
-                          className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
-                        >
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-                {/* Close button - always visible */}
+                      {isAdmin && (
+                        <>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setShowAddMinutesModal(true)
+                            }}
+                            className="cursor-pointer"
+                          >
+                            Add Minutes
+                          </DropdownMenuItem>
+
+                          {selectedUser.isTrial && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setShowResetTrialPopup(true)
+                                }}
+                                className="cursor-pointer"
+                              >
+                                Reset Trial
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </>
+                      )}
+
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setShowDeleteModal(true)
+                        }}
+                        className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                      >
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
                 <CloseBtn onClick={handleClose} />
 
-                {/* Modals */}
                 {showResetTrialPopup && (
                   <ResetTrial
                     showConfirmationPopup={showResetTrialPopup}
@@ -814,15 +746,11 @@ function SelectedUserDetails({
           )}
           <div className="flex flex-row items-start w-full  ">
             <div className={`flex border-r border-[#00000015] ${!enablePermissionChecks && '-mt-10'} flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} ${enablePermissionChecks ? 'h-auto max-h-[85vh] overflow-y-auto' : 'h-auto'}`}>
-              
-              {
-                agencyUser ? (
+
+              {agencyUser ? (
                 logoBranding()
-                ):(
-
+              ) : (
                 <div className={`flex flex-row gap-2 items-center justify-start w-full pt-3 ${enablePermissionChecks ? 'pt-3' : ''}`}>
-
-
                   <div className="flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white">
                     {selectedUser.name[0]}
                   </div>
@@ -832,22 +760,17 @@ function SelectedUserDetails({
                     <button
                       style={{
                         pointerEvents: 'auto',
-
                         zIndex: 10,
                       }}
                       onClick={() => {
                         console.log('selectedUser.id', selectedUser.id)
                         if (selectedUser?.id) {
-                          // Open a new tab with user ID as query param
                           let url = ''
                           if (from === 'admin') {
                             url = `/admin/users?userId=${selectedUser.id}&enablePermissionChecks=true`
                           } else if (from === 'subaccount') {
-                            // url = `/agency/users?userId=${selectedUser.id}`
                             url = `/agency/users?userId=${selectedUser.id}&enablePermissionChecks=true`
                           }
-                          // url = `admin/users?userId=${selectedUser.id}`
-                          //console.log
                           window.open(url, '_blank')
                         }
                       }}
@@ -861,61 +784,53 @@ function SelectedUserDetails({
                     </button>
                   )}
                 </div>
-                )
-              }
-              <div className='flex flex-col items-start justify-center gap-3 w-full pt-10 ${(from === "admin" || from === "subaccount") ? "":"h-full"}'>
-                {manuBar.map((item) => (
-                  <MenuItemWithPermission
+              )}
+              
+              {/* Menu Items - Only show accessible items */}
+              <div className='flex flex-col items-start justify-center gap-3 w-full pt-10'>
+                {accessibleMenuItems.map((item) => (
+                  <button
                     key={item.id}
-                    item={item}
-                    contextUserId={enablePermissionChecks ? selectedUser?.id : null}
-                    enablePermissionChecks={enablePermissionChecks}
+                    onClick={() => handleManuClick(item)}
+                    className={`flex flex-row items-center gap-3 p-2 items-center 
+                      ${selectedManu?.id == item.id && 'border-b-[2px] border-brand-primary'}`}
                   >
-                    <button
-                      onClick={() => {
-                        handleManuClick(item)
-                      }}
-                      className={`flex flex-row items-center gap-3 p-2 items-center 
-                                          ${selectedManu.id == item.id && 'border-b-[2px] border-brand-primary'}`}
-                    >
-                      {selectedManu.id == item.id ? (
-                        <div
-                          style={{
-                            width: 24,
-                            height: 24,
-                            backgroundColor: 'hsl(var(--brand-primary))',
-                            maskImage: `url(${item.selectedImage})`,
-                            maskSize: 'contain',
-                            maskRepeat: 'no-repeat',
-                            maskPosition: 'center',
-                            WebkitMaskImage: `url(${item.selectedImage})`,
-                            WebkitMaskSize: 'contain',
-                            WebkitMaskRepeat: 'no-repeat',
-                            WebkitMaskPosition: 'center',
-                          }}
-                        />
-                      ) : (
-                        <Image
-                          src={item.unSelectedImage}
-                          height={24}
-                          width={24}
-                          alt="*"
-                        />
-                      )}
-
+                    {selectedManu?.id == item.id ? (
                       <div
                         style={{
-                          fontSize: 16,
-                          fontWeight: 500,
-                          color: selectedManu.id == item.id ? 'hsl(var(--brand-primary))' : '#000',
-                          whiteSpace: 'nowrap',
-
+                          width: 24,
+                          height: 24,
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          maskImage: `url(${item.selectedImage})`,
+                          maskSize: 'contain',
+                          maskRepeat: 'no-repeat',
+                          maskPosition: 'center',
+                          WebkitMaskImage: `url(${item.selectedImage})`,
+                          WebkitMaskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
                         }}
-                      >
-                        {item.name}
-                      </div>
-                    </button>
-                  </MenuItemWithPermission>
+                      />
+                    ) : (
+                      <Image
+                        src={item.unSelectedImage}
+                        height={24}
+                        width={24}
+                        alt="*"
+                      />
+                    )}
+
+                    <div
+                      style={{
+                        fontSize: 16,
+                        fontWeight: 500,
+                        color: selectedManu?.id == item.id ? 'hsl(var(--brand-primary))' : '#000',
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {item.name}
+                    </div>
+                  </button>
                 ))}
               </div>
 
@@ -924,16 +839,13 @@ function SelectedUserDetails({
                   onClick={() => {
                     console.log('clicked')
                     handleManuClick(accountMenu)
-                    //set account info to the right side of the screen
-                    // setAccountInfo(true)
                   }}
-                  className="w-full flex flex-row items-start gap-3 py-2 truncate outline-none text-start  no-underline hover:no-underline cursor-pointer" //border border-[#00000015] rounded-[10px]
+                  className="w-full flex flex-row items-start gap-3 py-2 truncate outline-none text-start  no-underline hover:no-underline cursor-pointer"
                   style={{
                     textOverflow: "ellipsis",
                     textDecoration: "none",
                     position: "absolute",
                     bottom: 8,
-
                   }}>
                   {user?.thumb_profile_image ? (
                     <img
@@ -959,18 +871,14 @@ function SelectedUserDetails({
                         style={{
                           fontSize: 15,
                           fontWeight: "500",
-                          color: "",
-                          // width: "100px",
                           color: "black",
                         }}
                       >
-                        {/*user?.name?.split(" ")[0]*/}
                         {(() => {
                           const name = user?.name?.split(" ")[0] || "";
                           return name.length > 10 ? `${name.slice(0, 7)}...` : name;
                         })()}
                       </div>
-
                     </div>
                     <div
                       className="truncate w-[120px]"
@@ -984,9 +892,6 @@ function SelectedUserDetails({
                       {user?.email}
                     </div>
                   </div>
-
-                  {/* Socket Connection Status Indicator */}
-
                 </div>
               )}
             </div>
@@ -994,22 +899,26 @@ function SelectedUserDetails({
             <div
               className={`flex flex-col items-center justify-start pt-2 px-4 h-[95vh] overflow-auto w-10/12`}
             >
-
               <div
-                className={`flex flex-col h-full ${selectedManu.name == 'Leads' ? 'items-stretch' : 'items-center justify-center'} ${enablePermissionChecks ? 'max-h-[85vh]' : 'h-[76vh]'} ${selectedManu.name == 'Leads' ? 'overflow-hidden' : 'overflow-auto'} w-full`}
-                id={selectedManu.name == 'Leads' ? 'adminLeadsParentContainer' : undefined}
-                style={selectedManu.name == 'Leads' ? { overflow: 'hidden', maxHeight: enablePermissionChecks ? '85vh' : '76vh' } : {}}
+                className={`flex flex-col h-full ${selectedManu?.name == 'Leads' ? 'items-stretch' : 'items-center justify-center'} ${enablePermissionChecks ? 'max-h-[85vh]' : 'h-[76vh]'} ${selectedManu?.name == 'Leads' ? 'overflow-hidden' : 'overflow-auto'} w-full`}
+                id={selectedManu?.name == 'Leads' ? 'adminLeadsParentContainer' : undefined}
+                style={selectedManu?.name == 'Leads' ? { overflow: 'hidden', maxHeight: enablePermissionChecks ? '85vh' : '76vh' } : {}}
               >
                 {/* Check permission before rendering content when permission checks enabled */}
-                {/* Only block if we're done checking AND permission is denied (for Invitee users only) */}
                 {enablePermissionChecks && isInvitee && currentPermissionKey && !effectiveIsChecking && !effectiveHasPermission ? (
                   <div className="flex flex-col items-center justify-center h-full">
                     <h3 className="text-lg font-semibold text-foreground mb-2">Access Denied</h3>
                     <p className="text-sm text-muted-foreground">
-                      You do not have permission to access {selectedManu.name}.
+                      You do not have permission to access {selectedManu?.name}.
                     </p>
                     <p className="text-xs text-muted-foreground mt-2">
                       Required permission: {currentPermissionKey}
+                    </p>
+                  </div>
+                ) : !selectedManu ? (
+                  <div className="flex flex-col items-center justify-center h-full">
+                    <p className="text-sm text-muted-foreground">
+                      Select a menu item to get started
                     </p>
                   </div>
                 ) : selectedManu.name == 'Leads' ? (
@@ -1020,7 +929,6 @@ function SelectedUserDetails({
                 ) : selectedManu.name == 'Pipeline' ? (
                   <AdminPipeline1 selectedUser={selectedUser} />
                 ) : selectedManu.name == 'Agents' ? (
-                  
                   <AdminAgentX
                     selectedUser={user && user}
                     from={from}
@@ -1032,7 +940,7 @@ function SelectedUserDetails({
                 ) : selectedManu.name == 'Dashboard' ? (
                   <AdminDashboard selectedUser={selectedUser} agencyUser={enablePermissionChecks} />
                 ) : selectedManu.name == 'Integration' ? (
-                  <AdminIntegration selectedUser={selectedUser} agencyUser={enablePermissionChecks}/>
+                  <AdminIntegration selectedUser={selectedUser} agencyUser={enablePermissionChecks} />
                 ) : selectedManu.name == 'Team' ? (
                   <AdminTeam selectedUser={selectedUser} agencyUser={enablePermissionChecks} />
                 ) : selectedManu.name == 'Account' ? (
@@ -1048,9 +956,7 @@ function SelectedUserDetails({
                   <Messages selectedUser={selectedUser} agencyUser={enablePermissionChecks} />
                 ) : (
                   'Coming soon...'
-                )
-                  //""
-                }
+                )}
               </div>
             </div>
           </div>
@@ -1086,7 +992,6 @@ function SelectedUserDetails({
           timeout: 200,
           sx: {
             backgroundColor: '#00000020',
-            // //backdropFilter: "blur(20px)",
           },
         }}
       >
@@ -1108,7 +1013,6 @@ function SelectedUserDetails({
                   alignItems: 'center',
                 }}
               >
-                {/* <div style={{ width: "20%" }} /> */}
                 <div style={{ fontWeight: '500', fontSize: 17 }}>
                   Delete User
                 </div>
@@ -1175,7 +1079,6 @@ function SelectedUserDetails({
           timeout: 100,
           sx: {
             backgroundColor: '#00000020',
-            // //backdropFilter: "blur(20px)",
           },
         }}
       >
