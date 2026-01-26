@@ -1,13 +1,14 @@
 'use client'
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { Filter, X, ChevronUp } from 'lucide-react'
+import { X } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import ToggleGroupCN from '@/components/ui/ToggleGroupCN'
 import TaskCard from './TaskCard'
 import TaskForm from './TaskForm'
 import TaskEmptyState from './TaskEmptyState'
+import TaskBoardFilterPopover from './TaskBoardFilterPopover'
 import { getTasks, createTask, updateTask, deleteTask } from '@/components/onboarding/services/apisServices/TaskService'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 import { toast } from '@/utils/toast'
@@ -30,6 +31,11 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
   const taskBoardRef = useRef(null)
 
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false)
+
+  // Filter state: null = no filter / "All"
+  const [filterMember, setFilterMember] = useState(null)
+  const [filterDueStatus, setFilterDueStatus] = useState(null)
+  const [filterPriority, setFilterPriority] = useState(null)
 
   // Priority options for dropdowns
   const priorityOptions = [
@@ -100,6 +106,9 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
       if (threadId) params.threadId = threadId
       if (callId) params.callId = callId
       if (selectedUser?.id) params.userId = selectedUser.id
+      if (filterMember != null && filterMember !== '') params.assignedTo = filterMember
+      if (filterDueStatus) params.dueDateFilter = filterDueStatus
+      if (filterPriority) params.priority = filterPriority
 
       const response = await getTasks(params)
       if (response.status) {
@@ -116,7 +125,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
     } finally {
       setLoading(false)
     }
-  }, [open, selectedStatus, leadId, threadId, callId])
+  }, [open, selectedStatus, leadId, threadId, callId, filterMember, filterDueStatus, filterPriority, selectedUser?.id])
 
   // Fetch team members
   const fetchTeamMembers = useCallback(async () => {
@@ -163,12 +172,10 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
     }
   }, [open, fetchTasks, fetchTeamMembers])
 
-  // Refetch when status changes
+  // Refetch when status or filters change
   useEffect(() => {
-    if (open) {
-      fetchTasks()
-    }
-  }, [selectedStatus, fetchTasks])
+    if (open) fetchTasks()
+  }, [open, selectedStatus, fetchTasks])
 
   // Handle task creation
   const handleCreateTask = async (taskData) => {
@@ -315,6 +322,9 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
       setSelectedTask(null)
       setIsCreating(false)
       setSelectedStatus('todo')
+      setFilterMember(null)
+      setFilterDueStatus(null)
+      setFilterPriority(null)
       setTasks([])
     }
   }, [open])
@@ -416,14 +426,25 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
           </div>
         </div>
 
-        {/* Status Tabs */}
-        <div className="px-4 py-3 border-b border-gray-200 flex">
-          <ToggleGroupCN
-            options={statusTabs}
-            value={selectedStatus}
-            onChange={setSelectedStatus}
-            height="p-1.5"
-            roundedness="rounded-lg"
+        {/* Status Tabs + Filter */}
+        <div className="px-4 py-3 border-b border-gray-200 flex items-center justify-between w-full gap-2">
+          <div className="flex min-w-0 ">
+            <ToggleGroupCN
+              options={statusTabs}
+              value={selectedStatus}
+              onChange={setSelectedStatus}
+              height="p-1.5"
+              roundedness="rounded-lg"
+            />
+          </div>
+          <TaskBoardFilterPopover
+            filterMember={filterMember}
+            setFilterMember={setFilterMember}
+            filterDueStatus={filterDueStatus}
+            setFilterDueStatus={setFilterDueStatus}
+            filterPriority={filterPriority}
+            setFilterPriority={setFilterPriority}
+            teamMembers={teamMembers}
           />
         </div>
 

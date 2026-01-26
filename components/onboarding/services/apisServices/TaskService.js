@@ -20,7 +20,7 @@ const getAuthToken = () => {
 
 /**
  * Get tasks with optional filters
- * @param {Object} params - Query parameters (userId, leadId, threadId, callId, status)
+ * @param {Object} params - Query parameters (userId, leadId, threadId, callId, status, assignedTo, dueDateFilter, priority)
  * @returns {Promise<Object>} Response with tasks and counts
  */
 export const getTasks = async (params = {}) => {
@@ -36,6 +36,9 @@ export const getTasks = async (params = {}) => {
     if (params.threadId) queryParams.append('threadId', params.threadId)
     if (params.callId) queryParams.append('callId', params.callId)
     if (params.status) queryParams.append('status', params.status)
+    if (params.assignedTo != null && params.assignedTo !== '') queryParams.append('assignedTo', params.assignedTo)
+    if (params.dueDateFilter) queryParams.append('dueDateFilter', params.dueDateFilter)
+    if (params.priority) queryParams.append('priority', params.priority)
 
     const url = `${Apis.getTasks}${queryParams.toString() ? '?' + queryParams.toString() : ''}`
 
