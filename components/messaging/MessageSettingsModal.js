@@ -327,7 +327,13 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                             <Info size={16} />
                           </button>
                         </TooltipTrigger>
-                        <TooltipContent className="max-w-xs bg-black text-white">
+                        <TooltipContent 
+                          side="top" 
+                          align="start"
+                          sideOffset={8}
+                          className="max-w-xs bg-black text-white z-[1500]"
+                          collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}
+                        >
                           <p className="text-xs">
                             This allows your AI to reply back to emails and text after a certain time. By default, this is set to 30 seconds.
                           </p>
@@ -366,7 +372,13 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           <Info size={16} />
                         </button>
                       </TooltipTrigger>
-                      <TooltipContent className="max-w-xs bg-black text-white">
+                      <TooltipContent 
+                        side="top" 
+                        align="start"
+                        sideOffset={8}
+                        className="max-w-xs bg-black text-white z-[1500]"
+                        collisionPadding={{ top: 16, right: 16, bottom: 16, left: 16 }}
+                      >
                         <p className="text-xs">
                           Have your AI draft the response for you to review before sending.
                         </p>
