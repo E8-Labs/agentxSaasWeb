@@ -8,6 +8,7 @@ import { headers } from 'next/headers'
 import { Toaster } from '../components/ui/sonner'
 
 import { ReduxProvider } from '../components/providers/redux-provider'
+import { AgentationProvider } from '../components/providers/agentation-provider'
 import { BrandingProvider } from '../components/providers/branding-provider'
 import { LayoutTracker } from '../components/providers/layout-tracker'
 import DynamicTitle from '../components/common/DynamicTitle'
@@ -114,8 +115,9 @@ export default function RootLayout({ children }) {
   return (
     <html
       lang="en"
-      style={{ backgroundColor: '#ffffff', background: '#ffffff' }}
       data-branding-applied="client"
+      className="bg-white"
+      suppressHydrationWarning
     >
       <head>
         {/* Brand colors will be injected client-side by BrandingProvider */}
@@ -508,12 +510,7 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        style={{ 
-          fontFamily: 'Inter',
-          backgroundColor: '#ffffff',
-          background: '#ffffff',
-        }}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white`}
       >
         <ReduxProvider>
           <BrandingProvider>
@@ -523,6 +520,7 @@ export default function RootLayout({ children }) {
           </BrandingProvider>
         </ReduxProvider>
         <Toaster />
+        <AgentationProvider />
 
         {/* Step 2 – Signup tracking helper */}
         <Script id="agentx-signup-helper" strategy="afterInteractive">
