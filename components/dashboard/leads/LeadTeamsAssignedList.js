@@ -6,10 +6,17 @@ import { Popover } from '@mui/material'
 const LeadTeamsAssignedList = ({ users, onAssignClick, onRemoveClick, compactMode = false }) => {
   const [anchorEl, setAnchorEl] = useState(null)
 
-  // Filter duplicates based on user ID
-  const uniqueUsers = users.filter((user, index, self) =>
-    index === self.findIndex((u) => u.id === user.id)
-  )
+  // Filter duplicates based on user ID and filter out null/undefined users
+  const uniqueUsers = users
+    .filter((user) => user != null) // Filter out null/undefined users first
+    .filter((user, index, self) => {
+      const userId = user.id || user.invitedUserId
+      return index === self.findIndex((u) => {
+        if (!u) return false
+        const uId = u.id || u.invitedUserId
+        return uId === userId
+      })
+    })
 
   const handleOpenMembersList = (event) => {
     setAnchorEl(event.currentTarget)
