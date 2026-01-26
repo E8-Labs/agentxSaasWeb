@@ -33,7 +33,7 @@ export function AgentationProvider() {
     setMounted(true)
   }, [])
 
-  if (!mounted || process.env.NODE_ENV !== 'development') {
+  if (!mounted || process.env.NODE_ENV !== 'development' || process.env.NEXT_PUBLIC_DESIGN_FRIENDLY_DEBUG !== 'true') {
     return null
   }
 

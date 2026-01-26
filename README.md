@@ -34,3 +34,33 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Agentation (Design Feedback Tool)
+
+Agentation is a visual feedback toolbar that allows designers and developers to annotate UI elements directly in the browser during development. Annotations are saved to `AGENTATION_NOTES.md` and can be processed by an LLM to make the requested changes.
+
+### Enabling Agentation
+
+Agentation only works in development mode and requires an environment variable to be set:
+
+1. Set `NEXT_PUBLIC_DESIGN_FRIENDLY_DEBUG=true` in your `.env.local` file
+2. Run the development server: `npm run dev`
+3. Look for the Agentation toolbar (floating button in the bottom-right corner)
+
+### Using Agentation with Claude Code
+
+Two skills are available for working with Agentation:
+
+#### `/agentation` - Setup Skill
+Use this skill to set up Agentation in a new Next.js project. It will:
+- Check if the package is installed
+- Detect your framework (App Router or Pages Router)
+- Add the component to your layout
+
+#### `/process-agentation` - Process Feedback Skill
+Use this skill to process UI feedback from annotations. The workflow:
+1. Make annotations in the browser using the Agentation toolbar
+2. Run `/process-agentation` in Claude Code
+3. Claude will read the annotations from `AGENTATION_NOTES.md`
+4. Review and approve the suggested changes
+5. Annotations are cleared after processing
