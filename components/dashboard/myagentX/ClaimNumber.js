@@ -264,9 +264,7 @@ const ClaimNumber = ({
             // //backdropFilter: "blur(20px)",
           },
         }}
-        sx={{
-          zIndex:1500
-        }}
+       
       >
         <Box
           className="lg:w-8/12 sm:w-full w-8/12"
@@ -498,10 +496,6 @@ const ClaimNumber = ({
             zIndex: 1600, // Match Modal z-index
             // //backdropFilter: "blur(20px)",
           },
-        }}
-
-        sx={{
-          zIndex:1510
         }}
       >
         <Box
