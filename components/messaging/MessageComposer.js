@@ -203,6 +203,7 @@ const MessageComposer = ({
   const [templatesLoading, setTemplatesLoading] = useState(false)
   const [showTemplatesDropdown, setShowTemplatesDropdown] = useState(false)
   const templatesDropdownRef = useRef(null)
+  const [templatesFetched, setTemplatesFetched] = useState(false) // Track if templates have been fetched for current mode
 
   // Plan capabilities
   const { planCapabilities } = usePlanCapabilities()
@@ -421,9 +422,11 @@ const [delTempLoader, setDelTempLoader] = useState(null)
       } else {
         setTemplates([])
       }
+      setTemplatesFetched(true) // Mark as fetched after successful or failed attempt
     } catch (error) {
       console.error('Error fetching templates:', error)
       setTemplates([])
+      setTemplatesFetched(true) // Mark as fetched even on error to prevent infinite retries
     } finally {
       setTemplatesLoading(false)
     }
@@ -436,12 +439,18 @@ const [delTempLoader, setDelTempLoader] = useState(null)
     }
   }, [composerMode])
 
-  // Fetch templates when dropdown is opened
+  // Reset templates fetched flag when composer mode changes
   useEffect(() => {
-    if (showTemplatesDropdown && templates.length === 0 && !templatesLoading) {
+    setTemplatesFetched(false)
+    setTemplates([]) // Clear templates when mode changes
+  }, [composerMode])
+
+  // Fetch templates when dropdown is opened (only if not already fetched for current mode)
+  useEffect(() => {
+    if (showTemplatesDropdown && !templatesFetched && !templatesLoading) {
       fetchTemplates()
     }
-  }, [showTemplatesDropdown, composerMode, templates.length, templatesLoading, fetchTemplates])
+  }, [showTemplatesDropdown, templatesFetched, templatesLoading, fetchTemplates])
 
   // Handle template selection
   const handleTemplateSelect = async (template) => {
@@ -1685,7 +1694,7 @@ const [delTempLoader, setDelTempLoader] = useState(null)
                           <div className="relative" ref={templatesDropdownRef}>
                             <button
                               onClick={() => {
-                                if (!showTemplatesDropdown) {
+                                if (!showTemplatesDropdown && !templatesFetched && !templatesLoading) {
                                   fetchTemplates()
                                 }
                                 setShowTemplatesDropdown(!showTemplatesDropdown)
