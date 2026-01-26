@@ -895,7 +895,8 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
     setSheetName(e)
   }
 
-  const processEnrichmentPayment = async (leadCount) => {
+  // Process enrichment payment before adding leads
+  const processEnrichmentPayment = async () => {
     const localData = localStorage.getItem('User')
     let AuthToken = null
     if (localData) {
@@ -904,26 +905,29 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
     }
 
     const requestBody = {
-      totalLeadsCount: leadCount,
+      totalLeadsCount: processedData.length,
     }
 
-    // If selectedUser exists (agency/admin adding leads for subaccount), pass userId
-    // This is required for Agency, Admin, or Invitee users
+    // For admin/agency adding leads for another user, include userId
     if (selectedUser?.id) {
       requestBody.userId = selectedUser.id
     }
 
-    const response = await axios.post(
-      Apis.processPayment,
-      requestBody,
-      {
+    try {
+      const response = await axios.post(Apis.processPayment, requestBody, {
         headers: {
           Authorization: 'Bearer ' + AuthToken,
         },
-      },
-    )
-    if (response.data) {
-      return response.data
+      })
+      if (response.data) {
+        return response.data
+      }
+    } catch (error) {
+      console.error('Error processing enrichment payment:', error)
+      return {
+        status: false,
+        message: error.response?.data?.message || 'Failed to process enrichment payment',
+      }
     }
   }
 
@@ -1866,12 +1870,17 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
           showenrichConfirmModal={showenrichConfirmModal}
           setShowenrichConfirmModal={setShowenrichConfirmModal}
           handleAddLead={(value) => {
+            // EnrichConfirmModal calls handleAddLead(true) when "Confirm & Pay" is clicked
+            // Close modals and call the actual handleAddLead function to add leads
+            // Note: enrichment payment is already processed in handleAddLead when isEnrichToggle is true
             if (value === true) {
               setIsEnrich(value)
               setShowenrichModal(false)
               setShowenrichConfirmModal(false)
+              // Call the actual handleAddLead function to add leads
+              // Pass null as validatedData since we're using processedData from state
+              handleAddLead(null)
             }
-            // handleAddLead(value);
           }}
           processedData={processedData}
           Loader={Loader}
