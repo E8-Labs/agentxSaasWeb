@@ -264,9 +264,7 @@ const ClaimNumber = ({
             // //backdropFilter: "blur(20px)",
           },
         }}
-        sx={{
-          zIndex:1500
-        }}
+       
       >
         <Box
           className="lg:w-8/12 sm:w-full w-8/12"
