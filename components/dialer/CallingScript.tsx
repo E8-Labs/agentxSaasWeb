@@ -241,7 +241,7 @@ export default function CallingScript({
       await fetchScripts() // Refresh scripts
       setSelectedScript(null) // Go back to list view
       setShowDeleteConfirm(false)
-      setScriptToDelete(null)
+      setScriptToDelete(0)
     } catch (error: any) {
       console.error('Error deleting script:', error)
       toast.error('Failed to delete script')
