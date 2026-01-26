@@ -119,6 +119,7 @@ import { Input } from '@/components/ui/input'
 const LeadDetails = ({
   showDetailsModal,
   selectedLead,
+  initialLeadData = null, // Optional initial lead data to preserve teamsAssigned
   setShowDetailsModal,
   pipelineId,
   handleDelLead,
@@ -140,7 +141,7 @@ const LeadDetails = ({
 
   const [initialLoader, setInitialLoader] = useState(false)
 
-  const [selectedLeadsDetails, setSelectedLeadsDetails] = useState(null)
+  const [selectedLeadsDetails, setSelectedLeadsDetails] = useState(initialLeadData)
   const [leadColumns, setLeadColumns] = useState([])
   const [recentlyDeletedTags, setRecentlyDeletedTags] = useState(new Set())
 
@@ -420,8 +421,33 @@ const LeadDetails = ({
     }
   }
 
+  // Sync selectedLeadsDetails when initialLeadData changes (e.g., when modal opens with latest data)
+  useEffect(() => {
+    if (initialLeadData && initialLeadData.id === selectedLead) {
+      // Update selectedLeadsDetails with initialLeadData to preserve teamsAssigned
+      setSelectedLeadsDetails((prev) => {
+        // Only update if it's a different lead or if teamsAssigned has changed
+        if (!prev || prev.id !== initialLeadData.id) {
+          return initialLeadData
+        }
+        // Merge teamsAssigned from initialLeadData if it has more recent data
+        const currentTeamsCount = (prev.teamsAssigned || []).length
+        const initialTeamsCount = (initialLeadData.teamsAssigned || []).length
+        if (initialTeamsCount > currentTeamsCount) {
+          return {
+            ...prev,
+            teamsAssigned: initialLeadData.teamsAssigned,
+          }
+        }
+        return prev
+      })
+    }
+  }, [initialLeadData, selectedLead])
+
   useEffect(() => {
     if (!selectedLead) return
+    
+    // Always fetch from API to get latest data, but getLeadDetails will preserve teamsAssigned
     getLeadDetails(selectedLead)
 
     // Remove or comment out the console.log to avoid build errors
@@ -460,16 +486,21 @@ const LeadDetails = ({
           setGetTeamLoader(false)
 
           if (response.data.status === true) {
-            setMyTeam(response.data.data)
-            setMyTeamAdmin(response.data.admin)
+            setMyTeam(response.data.data || []) // Ensure it's always an array
+            setMyTeamAdmin(response.data.admin || null)
           } else {
             // //console.log;
+            // Ensure myTeam is always an array even on error
+            setMyTeam([])
+            setMyTeamAdmin(null)
           }
         }
       }
     } catch (e) {
       setGetTeamLoader(false)
-
+      // Ensure myTeam is always an array even on error
+      setMyTeam([])
+      setMyTeamAdmin(null)
       // //console.log;
     }
   }
@@ -871,11 +902,39 @@ const LeadDetails = ({
         ]
         // setLeadColumns(response.data.columns);
         // Filter out recently deleted tags to prevent them from being added back
+        // Preserve teamsAssigned from current state if it exists and has more recent data
+        // This ensures UI updates are not lost when API is called
+        const currentTeamsAssigned = selectedLeadsDetails?.teamsAssigned || []
+        const apiTeamsAssigned = response.data.data?.teamsAssigned || []
+        
+        // Use current teamsAssigned if it has more items (indicating recent assignment)
+        // Otherwise use API data, but merge to ensure we don't lose any assignments
+        let finalTeamsAssigned = apiTeamsAssigned
+        if (currentTeamsAssigned.length > apiTeamsAssigned.length) {
+          // Current state has more teams, use it (more recent)
+          finalTeamsAssigned = currentTeamsAssigned
+        } else if (currentTeamsAssigned.length > 0 && apiTeamsAssigned.length > 0) {
+          // Both have data, merge them and remove duplicates
+          const merged = [...currentTeamsAssigned]
+          apiTeamsAssigned.forEach((apiTeam) => {
+            const apiTeamId = apiTeam.id || apiTeam.invitedUserId || apiTeam.invitedUser?.id
+            const exists = merged.some((currentTeam) => {
+              const currentTeamId = currentTeam.id || currentTeam.invitedUserId || currentTeam.invitedUser?.id
+              return String(currentTeamId) === String(apiTeamId)
+            })
+            if (!exists) {
+              merged.push(apiTeam)
+            }
+          })
+          finalTeamsAssigned = merged
+        }
+        
         const updatedLeadData = {
           ...response.data.data,
           tags: (response.data.data.tags || []).filter(
             (tag) => !recentlyDeletedTags.has(tag)
           ),
+          teamsAssigned: finalTeamsAssigned, // Use merged/preserved teamsAssigned
         }
         setSelectedLeadsDetails(updatedLeadData)
         console.log('🔍 [LeadDetails] Lead details response:', updatedLeadData)
@@ -2377,7 +2436,7 @@ const LeadDetails = ({
                           }}
                         >
                           <div>
-                            {selectedLeadsDetails?.emails.map(
+                            {selectedLeadsDetails?.emails?.map(
                               (email, emailIndex) => {
                                 return (
                                   <div key={emailIndex}>
@@ -2474,7 +2533,7 @@ const LeadDetails = ({
                         </div>
                       </div>
                     </button>
-                    {myTeam.length > 0 ? (
+                    {Array.isArray(myTeam) && myTeam.length > 0 ? (
                       <div>
                         {myTeam.map((item, index) => {
                           return (

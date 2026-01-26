@@ -1585,26 +1585,63 @@ const AdminPipeline1 = ({ selectedUser }) => {
   }
 
   function HandleLeadAssignedTeam(team, lead) {
-    //code to add team members to the lead data
-    // //console.log;
-    // //console.log;
-    // //console.log;
+    // Handle both assignment (team is object) and unassignment (team is null)
+    if (!lead || !lead.id) return
 
-    const updatedLeadsList = LeadsList.map((item) =>
-      item.leadId === lead.id
-        ? {
-            ...item,
-            lead: {
-              ...item.lead,
-              teamsAssigned: [...item.lead.teamsAssigned, team],
-            },
+    let updatedLeadForModal = null
+
+    const updatedLeadsList = LeadsList.map((item) => {
+      // Match by lead.id (not leadId)
+      if (item.lead?.id === lead.id) {
+        if (team === null) {
+          // Unassignment: use the teamsAssigned from the updated lead
+          const updatedLead = {
+            ...item.lead,
+            teamsAssigned: lead.teamsAssigned || [],
           }
-        : item,
-    )
+          updatedLeadForModal = updatedLead
+          return {
+            ...item,
+            lead: updatedLead,
+          }
+        } else {
+          // Assignment: add team member if not already present
+          const existingTeams = item.lead.teamsAssigned || []
+          const teamId = team.id || team.invitedUserId
+          const isAlreadyAssigned = existingTeams.some((t) => {
+            const tId = t.id || t.invitedUserId
+            return String(tId) === String(teamId)
+          })
 
-    // //console.log;
+          let updatedLead
+          if (!isAlreadyAssigned) {
+            updatedLead = {
+              ...item.lead,
+              teamsAssigned: [...existingTeams, team],
+            }
+          } else {
+            // If already assigned, use the updated lead's teamsAssigned
+            updatedLead = {
+              ...item.lead,
+              teamsAssigned: lead.teamsAssigned || existingTeams,
+            }
+          }
+          updatedLeadForModal = updatedLead
+          return {
+            ...item,
+            lead: updatedLead,
+          }
+        }
+      }
+      return item
+    })
 
     setLeadsList(updatedLeadsList)
+
+    // Also update selectedLeadsDetails if the modal is open for this lead
+    if (selectedLeadsDetails && selectedLeadsDetails.id === lead.id && updatedLeadForModal) {
+      setSelectedLeadsDetails(updatedLeadForModal)
+    }
   }
   //function to delete leads
   const handleDelLead = async () => {
@@ -2357,14 +2394,15 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                   <button
                                     className="flex flex-row items-center gap-3"
                                     onClick={() => {
-                                      // console.log(
-                                      //   "Selected lead details are:",
-                                      //   lead
-                                      // );
+                                      // Get the latest lead data from LeadsList to ensure we have the most up-to-date teamsAssigned
+                                      const latestLead = LeadsList.find(
+                                        (item) => item.lead?.id === lead.lead?.id
+                                      )
+                                      const leadToUse = latestLead?.lead || lead.lead
                                       setShowDetailsModal(true)
-                                      setSelectedLeadsDetails(lead.lead)
-                                      setPipelineId(lead.lead.pipeline.id)
-                                      setNoteDetails(lead.lead.notes)
+                                      setSelectedLeadsDetails(leadToUse)
+                                      setPipelineId(leadToUse.pipeline?.id || lead.lead.pipeline?.id)
+                                      setNoteDetails(leadToUse.notes || lead.lead.notes || [])
                                     }}
                                   >
                                     {/* Lead profile picture with initials fallback */}
@@ -3867,6 +3905,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
       {showDetailsModal && (
         <LeadDetails
           selectedLead={selectedLeadsDetails?.id}
+          initialLeadData={selectedLeadsDetails} // Pass initial lead data to preserve teamsAssigned
           pipelineId={pipelineId && pipelineId}
           showDetailsModal={showDetailsModal}
           setShowDetailsModal={setShowDetailsModal}

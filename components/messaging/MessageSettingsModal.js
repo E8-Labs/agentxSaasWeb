@@ -368,7 +368,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                       </TooltipTrigger>
                       <TooltipContent className="max-w-xs bg-black text-white">
                         <p className="text-xs">
-                          When enabled, AI-generated replies will be saved as drafts for your review before sending.
+                          Have your AI draft the response for you to review before sending.
                         </p>
                       </TooltipContent>
                     </Tooltip>
