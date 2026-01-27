@@ -804,7 +804,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
               >
                 <SelectValue placeholder="Select Smartlist" />
               </SelectTrigger>
-              <SelectContent className="max-h-[200px] !z-[1500]">
+              <SelectContent className="max-h-[200px] !z-[1600]">
                 {loadingSmartlists ? (
                   <div className="px-2 py-1.5 text-sm text-gray-500">
                     Loading...
@@ -1034,7 +1034,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
                     <SelectTrigger className="h-8 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary">
                       <SelectValue placeholder="Select Pipeline" />
                     </SelectTrigger>
-                    <SelectContent className="!z-[1500]">
+                    <SelectContent className="!z-[1600]">
                       {loadingPipelines ? (
                         <div className="px-2 py-1.5 text-sm text-gray-500">
                           Loading...
@@ -1070,7 +1070,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
                     <SelectTrigger className="h-8 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary">
                       <SelectValue placeholder="Select Stage" />
                     </SelectTrigger>
-                    <SelectContent className="!z-[1500]">
+                    <SelectContent className="!z-[1601]">
                       {stages.length === 0 ? (
                         <div className="px-2 py-1.5 text-sm text-gray-500">
                           {selectedPipeline
