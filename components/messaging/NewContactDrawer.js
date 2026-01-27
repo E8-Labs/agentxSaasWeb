@@ -68,10 +68,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
   const [loadingCustomFields, setLoadingCustomFields] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [showCreateSmartlistModal, setShowCreateSmartlistModal] = useState(false)
-<<<<<<< HEAD
-=======
 
->>>>>>> fix/arslan-main-jan27
 
   // Validation errors
   const [errors, setErrors] = useState({})
@@ -711,96 +708,6 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
     }))
   }
 
-<<<<<<< HEAD
-  // Handle open change - only close when explicitly requested (click outside or escape)
-  const handleOpenChange = (newOpen) => {
-    // Only close if the new state is explicitly false
-    // This prevents accidental closes from input interactions
-    if (newOpen === false) {
-      onClose()
-    }
-  }
-
-  return (
-    <Sheet open={open} onOpenChange={handleOpenChange} modal={!showCreateSmartlistModal}>
-      <SheetContent
-        side="right"
-        className={cn(
-          "!w-[1000px] !max-w-[500px] sm:!max-w-[500px] p-0 flex flex-col [&>button]:hidden !z-[1600]",
-          // showCreateSmartlistModal && "pointer-events-none"
-        )}
-        overlayClassName={cn(
-          "!z-[1600]",
-          // showCreateSmartlistModal && "pointer-events-none"
-        )}
-        onEscapeKeyDown={(event) => {
-          // Allow escape key to close (but not if CreateSmartlistModal is open)
-          if (!showCreateSmartlistModal) {
-            onClose()
-          } else {
-            // If CreateSmartlistModal is open, prevent closing the drawer
-            event.preventDefault()
-          }
-        }}
-        onPointerDownOutside={(event) => {
-          // If CreateSmartlistModal is open, ALWAYS prevent closing the drawer
-          // This ensures inputs can be clicked without closing the drawer
-          if (showCreateSmartlistModal) {
-            event.preventDefault()
-            return
-          }
-          
-          // Allow normal closing behavior for other outside clicks
-        }}
-        onInteractOutside={(event) => {
-          // If CreateSmartlistModal is open, ALWAYS prevent closing the drawer
-          if (showCreateSmartlistModal) {
-            event.preventDefault()
-            return
-          }
-        }}
-        style={{
-          marginTop: '12px',
-          marginBottom: '12px',
-          marginRight: '12px',
-          height: 'calc(100vh - 24px)',
-          borderRadius: '12px',
-          width: '600px',
-          maxWidth: '600px',
-          zIndex: 1600,
-          // ...(showCreateSmartlistModal && { pointerEvents: 'none' }),
-        }}
-      >
-        <SheetHeader className="px-3 py-3 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <SheetTitle className="text-lg font-semibold text-black">
-              New Contact
-            </SheetTitle>
-            <CloseBtn onClick={onClose} />
-          </div>
-        </SheetHeader>
-
-        <div className="flex-1 overflow-y-auto px-3 py-3">
-          {/* Smartlist Dropdown */}
-          <div className="flex flex-col gap-1 px-0 py-2">
-            <div className="flex items-center justify-between">
-              <Label className="text-sm text-gray-600">Smartlist</Label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setShowCreateSmartlistModal(true)}
-                className="h-7 px-2 text-xs border border-gray-300 hover:bg-gray-50"
-              >
-                <Plus className="h-3 w-3 mr-1" />
-                New Smartlist
-              </Button>
-            </div>
-            <Select
-              value={selectedSmartlist?.id?.toString() || ''}
-              onValueChange={handleSmartlistSelect}
-              disabled={loadingSmartlists}
-=======
     // Handle open change - only close when explicitly requested (click outside or escape)
     const handleOpenChange = (newOpen) => {
       // Only close if the new state is explicitly false
@@ -880,7 +787,6 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
               size="sm"
               onClick={() => setShowCreateSmartlistModal(true)}
               className="h-7 px-2 text-xs border border-gray-300 hover:bg-gray-50"
->>>>>>> fix/arslan-main-jan27
             >
               <Plus className="h-3 w-3 mr-1" />
               New Smartlist
@@ -995,74 +901,6 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
                   errors.phone && 'border-red-500 focus-within:border-red-500 focus-within:ring-red-500'
                 )}
               >
-<<<<<<< HEAD
-                <SelectValue placeholder="Select Smartlist" />
-              </SelectTrigger>
-              <SelectContent className="max-h-[200px] !z-[1600]">
-                {loadingSmartlists ? (
-                  <div className="px-2 py-1.5 text-sm text-gray-500">
-                    Loading...
-                  </div>
-                ) : smartlists.length === 0 ? (
-                  <div className="px-2 py-1.5 text-sm text-gray-500">
-                    No smartlists available
-                  </div>
-                ) : (
-                  smartlists.map((smartlist) => (
-                    <SelectItem
-                      key={smartlist.id}
-                      value={smartlist.id.toString()}
-                    >
-                      {smartlist.sheetName}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
-            {errors.smartlist && (
-              <p className="text-xs text-red-500 mt-0.5">{errors.smartlist}</p>
-            )}
-          </div>
-
-          <Separator className="my-4" />
-
-          {/* Progressive Fields - Animated */}
-          {showFields && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-              {/* First Name */}
-              <div className="flex flex-col gap-1">
-                <Label className="text-sm text-gray-600">
-                  First Name<span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  value={formData.firstName}
-                  onChange={(e) => handleInputChange('firstName', e.target.value)}
-                  placeholder="Type here"
-                  className={cn(
-                    'h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary',
-                    errors.firstName && 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                  )}
-                />
-                {errors.firstName && (
-                  <p className="text-xs text-red-500 mt-0.5">{errors.firstName}</p>
-                )}
-              </div>
-
-              {/* Last Name */}
-              <div className="flex flex-col gap-1">
-                <Label className="text-sm text-gray-600">Last Name</Label>
-                <Input
-                  value={formData.lastName}
-                  onChange={(e) => handleInputChange('lastName', e.target.value)}
-                  onFocus={(e) => {
-                    e.stopPropagation()
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation()
-                  }}
-                  placeholder="Type here"
-                  className="h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
-=======
                 <PhoneInput
                   country={'us'}
                   onlyCountries={['us', 'ca', 'mx']}
@@ -1102,7 +940,6 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
                     maxHeight: '150px',
                     overflowY: 'auto',
                   }}
->>>>>>> fix/arslan-main-jan27
                 />
               </div>
               {errors.phone && (
@@ -1221,40 +1058,40 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
                 </Select>
               </div>
 
-              <div className="flex-1 flex flex-col gap-1">
-                <Label className="text-sm text-gray-600">Stage</Label>
-                <Select
-                  value={selectedStage?.id?.toString() || ''}
-                  onValueChange={(value) => {
-                    const stage = stages.find((s) => s.id.toString() === value)
-                    setSelectedStage(stage)
-                  }}
-                  disabled={!selectedPipeline || stages.length === 0}
-                >
-                  <SelectTrigger className="h-8 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary">
-                    <SelectValue placeholder="Select Stage" />
-                  </SelectTrigger>
-                  <SelectContent className="!z-[1601]">
-                    {stages.length === 0 ? (
-                      <div className="px-2 py-1.5 text-sm text-gray-500">
-                        {selectedPipeline
-                          ? 'No stages available'
-                          : 'Select pipeline first'}
-                      </div>
-                    ) : (
-                      stages.map((stage) => (
-                        <SelectItem
-                          key={stage.id}
-                          value={stage.id.toString()}
-                        >
-                          {stage.stageTitle}
-                        </SelectItem>
-                      ))
-                    )}
-                  </SelectContent>
-                </Select>
+                <div className="flex-1 flex flex-col gap-1">
+                  <Label className="text-sm text-gray-600">Stage</Label>
+                  <Select
+                    value={selectedStage?.id?.toString() || ''}
+                    onValueChange={(value) => {
+                      const stage = stages.find((s) => s.id.toString() === value)
+                      setSelectedStage(stage)
+                    }}
+                    disabled={!selectedPipeline || stages.length === 0}
+                  >
+                    <SelectTrigger className="h-8 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary">
+                      <SelectValue placeholder="Select Stage" />
+                    </SelectTrigger>
+                    <SelectContent className="!z-[1600]">
+                      {stages.length === 0 ? (
+                        <div className="px-2 py-1.5 text-sm text-gray-500">
+                          {selectedPipeline
+                            ? 'No stages available'
+                            : 'Select pipeline first'}
+                        </div>
+                      ) : (
+                        stages.map((stage) => (
+                          <SelectItem
+                            key={stage.id}
+                            value={stage.id.toString()}
+                          >
+                            {stage.stageTitle}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-            </div>
 
             {/* Assign to (Agents and Team Members) - Multi-select - Only show when pipeline is selected */}
             {selectedPipeline && (
@@ -1307,110 +1144,10 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
                         }
                       }
                     }}
-<<<<<<< HEAD
-                    disabled={loadingPipelines}
-                  >
-                    <SelectTrigger className="h-8 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary">
-                      <SelectValue placeholder="Select Pipeline" />
-                    </SelectTrigger>
-                    <SelectContent className="!z-[1600]">
-                      {loadingPipelines ? (
-                        <div className="px-2 py-1.5 text-sm text-gray-500">
-                          Loading...
-                        </div>
-                      ) : pipelines.length === 0 ? (
-                        <div className="px-2 py-1.5 text-sm text-gray-500">
-                          No pipelines available
-                        </div>
-                      ) : (
-                        pipelines.map((pipeline) => (
-                          <SelectItem
-                            key={pipeline.id}
-                            value={pipeline.id.toString()}
-                          >
-                            {pipeline.title}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex-1 flex flex-col gap-1">
-                  <Label className="text-sm text-gray-600">Stage</Label>
-                  <Select
-                    value={selectedStage?.id?.toString() || ''}
-                    onValueChange={(value) => {
-                      const stage = stages.find((s) => s.id.toString() === value)
-                      setSelectedStage(stage)
-                    }}
-                    disabled={!selectedPipeline || stages.length === 0}
-                  >
-                    <SelectTrigger className="h-8 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary">
-                      <SelectValue placeholder="Select Stage" />
-                    </SelectTrigger>
-                    <SelectContent className="!z-[1601]">
-                      {stages.length === 0 ? (
-                        <div className="px-2 py-1.5 text-sm text-gray-500">
-                          {selectedPipeline
-                            ? 'No stages available'
-                            : 'Select pipeline first'}
-                        </div>
-                      ) : (
-                        stages.map((stage) => (
-                          <SelectItem
-                            key={stage.id}
-                            value={stage.id.toString()}
-                          >
-                            {stage.stageTitle}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-=======
                   />
                 )}
->>>>>>> fix/arslan-main-jan27
               </div>
             )}
-<<<<<<< HEAD
-          </Button>
-        </SheetFooter>
-      </SheetContent>
-
-      {/* Create Smartlist Modal - Rendered outside Sheet to avoid z-index issues */}
-      <CreateSmartlistModal
-        open={showCreateSmartlistModal}
-        onClose={() => setShowCreateSmartlistModal(false)}
-        onSuccess={async (newSmartlist) => {
-          // Refresh smartlists
-          await fetchSmartlists()
-          // Select the newly created smartlist
-          if (newSmartlist?.id) {
-            // Use the newSmartlist object directly and trigger the selection logic
-            setSelectedSmartlist(newSmartlist)
-            setErrors((prev) => ({ ...prev, smartlist: null }))
-            
-            // Extract custom fields from smartlist if available
-            if (newSmartlist.columns && Array.isArray(newSmartlist.columns) && newSmartlist.columns.length > 0) {
-              extractCustomFields(newSmartlist.columns)
-            } else {
-              fetchCustomFields(newSmartlist.id)
-            }
-            
-            // Show fields after a short delay
-            setTimeout(() => {
-              setShowFields(true)
-            }, 100)
-          }
-        }}
-        showInbound={false}
-        selectedUser={selectedUser}
-      />
-    </Sheet>
-=======
 
             <Separator className="my-4" />
 
@@ -1433,63 +1170,32 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
         )}
       </div>
 
-      <SheetFooter className="px-3 py-3 border-t border-gray-200 gap-2">
-        <Button
-          variant="outline"
-          onClick={onClose}
-          className="border border-gray-300"
-          disabled={submitting}
-        >
-          Cancel
-        </Button>
-        <Button
-          onClick={handleSubmit}
-          disabled={submitting || !isFormValid()}
-          className="bg-brand-primary hover:bg-brand-primary/90 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {submitting ? (
-            'Creating...'
-          ) : (
-            <>
-              <Plus className="h-4 w-4 mr-2" />
-              Create
-            </>
-          )}
-        </Button>
-      </SheetFooter>
-    </SheetContent>
-
-    {/* Create Smartlist Modal - Rendered outside Sheet to avoid z-index issues */}
-    <CreateSmartlistModal
-      open={showCreateSmartlistModal}
-      onClose={() => setShowCreateSmartlistModal(false)}
-      onSuccess={async (newSmartlist) => {
-        // Refresh smartlists
-        await fetchSmartlists()
-        // Select the newly created smartlist
-        if (newSmartlist?.id) {
-          // Use the newSmartlist object directly and trigger the selection logic
-          setSelectedSmartlist(newSmartlist)
-          setErrors((prev) => ({ ...prev, smartlist: null }))
-          
-          // Extract custom fields from smartlist if available
-          if (newSmartlist.columns && Array.isArray(newSmartlist.columns) && newSmartlist.columns.length > 0) {
-            extractCustomFields(newSmartlist.columns)
-          } else {
-            fetchCustomFields(newSmartlist.id)
-          }
-          
-          // Show fields after a short delay
-          setTimeout(() => {
-            setShowFields(true)
-          }, 100)
-        }
-      }}
-      showInbound={false}
-      selectedUser={selectedUser}
-    />
-  </Sheet>
->>>>>>> fix/arslan-main-jan27
+        <SheetFooter className="px-3 py-3 border-t border-gray-200 gap-2">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="border border-gray-300"
+            disabled={submitting}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            disabled={submitting || !isFormValid()}
+            className="bg-brand-primary hover:bg-brand-primary/90 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {submitting ? (
+              'Creating...'
+            ) : (
+              <>
+                <Plus className="h-4 w-4 mr-2" />
+                Create
+              </>
+            )}
+          </Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   )
 }
 

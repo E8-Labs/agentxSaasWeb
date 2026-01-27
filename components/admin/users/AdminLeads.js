@@ -56,13 +56,10 @@ import { GetFormattedDateString } from '@/utilities/utility'
 
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import AdminAssignLead from './AdminAssignLead'
-<<<<<<< HEAD
+
 import CreateSmartlistModal from '@/components/messaging/CreateSmartlistModal'
 import { TypographyH3 } from '@/lib/typography'
-=======
-import { TypographyH3 } from '@/lib/typography'
-import { Checkbox } from '@/components/ui/checkbox'
->>>>>>> fix/arslan-main-jan27
+
 
 const AdminLeads = ({
   handleShowAddLeadModal,
@@ -1151,7 +1148,6 @@ const AdminLeads = ({
           <div>
             <div className="w-full flex flex-row items-center gap-2 truncate">
               {toggleClick.includes(item.id) ? (
-<<<<<<< HEAD
                 <button
                   className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
                   onClick={() => handleToggleClick(item.id)}
@@ -1163,17 +1159,11 @@ const AdminLeads = ({
                     alt="*"
                   />
                 </button>
-=======
-                <Checkbox
-                  checked={true}
-                  className="h-4 w-4 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
-                />
->>>>>>> fix/arslan-main-jan27
               ) : (
-                <Checkbox
-                  className="h-4 w-4 flex-shrink-0 border-2 border-muted"
+                <button
+                  className="h-[20px] w-[20px] border-2 rounded outline-none"
                   onClick={() => handleToggleClick(item.id)}
-                />
+                ></button>
               )}
               <div
                 className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
@@ -2476,7 +2466,6 @@ const AdminLeads = ({
                                 onClick={() => {
                                   handleSelectStage(item)
                                 }}
-<<<<<<< HEAD
                                 className={`p-2 border border-[#00000020] ${
                                   found >= 0 ? `bg-brand-primary` : 'bg-transparent'
                                 } px-6
@@ -2485,14 +2474,6 @@ const AdminLeads = ({
                                                                         ? `text-white`
                                                                         : 'text-black'
                                                                     } rounded-2xl`}
-=======
-                                className={`p-2 border border-[#00000020] ${found >= 0 ? `bg-purple` : 'bg-transparent'
-                                  } px-6
-                                                                    ${found >= 0
-                                    ? `text-white`
-                                    : 'text-black'
-                                  } rounded-2xl`}
->>>>>>> fix/arslan-main-jan27
                               >
                                 {item.stageTitle}
                               </button>
@@ -2556,7 +2537,6 @@ const AdminLeads = ({
             </Modal>
             {/* </div> */}
 
-<<<<<<< HEAD
             <CreateSmartlistModal
               open={showAddNewSheetModal}
               onClose={() => setShowAddNewSheetModal(false)}
@@ -2565,7 +2545,7 @@ const AdminLeads = ({
               }}
               selectedUser={selectedUser}
             />
-=======
+
             <div>
               <Modal
                 open={showAddNewSheetModal}
@@ -2737,7 +2717,7 @@ const AdminLeads = ({
                 </Box>
               </Modal>
             </div>
->>>>>>> fix/arslan-main-jan27
+
           </div>
         )}
       </div>

@@ -18,19 +18,10 @@ const XBarSideUI = ({
     <div
       className={`${from === 'dashboard' ? 'w-full' : 'w-5/12'} h-full ${from === 'dashboard' ? 'rounded-xl' : 'rounded-tr-xl rounded-br-xl'} shadow-lg`}
       style={
-<<<<<<< HEAD
          {
               background: `linear-gradient(to bottom right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) 100%)`,
             }
-         
       }
-=======
-        {
-               background: `linear-gradient(to bottom right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) 100%)`,
-             }
-           
-       }
->>>>>>> fix/arslan-main-jan27
     >
       <div className="p-4 flex flex-col items-center h-[100%]">
         <div className="flex justify-end w-full items-center h-[5%]">
