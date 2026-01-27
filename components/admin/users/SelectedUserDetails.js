@@ -646,10 +646,10 @@ function SelectedUserDetails({
           style={{ alignSelf: 'center' }}
           className={`w-full overflow-hidden h-full items-center justify-center`}
         >
-          {!enablePermissionChecks && (
+          { (
             <div className="flex flex-row items-center justify-end w-full px-4 pt-2 relative" style={{ zIndex: 10 }}>
               <div className="flex flex-row items-center gap-4">
-                {!enablePermissionChecks && from !== 'subaccount' && (
+                {from !== 'subaccount' && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button

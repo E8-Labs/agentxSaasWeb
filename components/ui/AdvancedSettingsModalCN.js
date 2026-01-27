@@ -108,11 +108,21 @@ const AdvancedSettingsModalCN = ({
     setIdleTimeoutSeconds(initialValues.idleTimeoutSeconds ?? 10)
     setIdleMessage(initialValues.idleMessage ?? IDLE_MESSAGES[0])
     onOpenChange(false)
+
+
   }
 
+
+  // Safely build className string
+  const dialogClassName = cn(
+    'max-w-2xl z-[1600] p-4',
+    className || '' // Ensure className is always a string
+  
+  )
+
   return (
-    <Dialog className="z-[1500]" open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={cn('max-w-2xl z-[1600]', className)}>
+    <Dialog className="z-[1500]" open={open} onOpenChange={onOpenChange}  >
+      <DialogContent className={dialogClassName}>
         <DialogHeader>
           <DialogTitle>Advanced Settings</DialogTitle>
           <DialogDescription>
@@ -130,7 +140,7 @@ const AdvancedSettingsModalCN = ({
           </p>
 
           <Input type="number"
-            className="border-2 border-[#00000020] rounded p-3 outline-none focus:outline-none focus:ring-0 focus:border-brand-primary focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-brand-primary"
+            className="border-2 border-[#00000020] rounded p-3 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black"
             value={maxDurationSeconds}
             onChange={(e) => setMaxDurationSeconds(e.target.value)}
             min={10}
@@ -141,20 +151,14 @@ const AdvancedSettingsModalCN = ({
       
 
           {/* Silence Timeout Slider */}
-          <SliderCN
+         
+          <Input type="number"
+            className="border-2 border-[#00000020] rounded p-3 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black"
             value={idleTimeoutSeconds}
-            onValueChange={(values) => setIdleTimeoutSeconds(values[0])}
-            onInputChange={(val) => {
-              const numVal = parseInt(val) || 0
-              setIdleTimeoutSeconds(numVal)
-            }}
+            onChange={(e) => setIdleTimeoutSeconds(e.target.value)}
             min={10}
             max={3600}
-            step={1}
-            label="Silence Timeout"
-            description="How long should the AI wait before ending the call due to no response?"
-            icon={<Phone className="h-6 w-6" />}
-            unit="sec"
+            placeholder="Silence Timeout"
           />
 
           {/* Silence Response Select */}
