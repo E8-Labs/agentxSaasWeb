@@ -2350,320 +2350,80 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                     }}
                   />
 
-                  <div className="pt-5 flex flex-row items-center justify-between w-full">
-                    <div style={styles.headingStyle}>Phone Number</div>
-                    <div>
-                      <div>
-                        {errorMessage && (
-                          <div
-                            className={`text-red`}
-                            style={{
-                              ...styles.errmsg,
-                              color:
-                                checkPhoneResponse?.status === true
-                                  ? 'green'
-                                  : 'red',
-                            }}
-                          >
-                            {errorMessage}
-                          </div>
-                        )}
+              <div className="pt-5 flex flex-row items-center justify-between w-full">
+                <div style={styles.headingStyle}>Phone Number</div>
+                {/* Code for error messages */}
+                <div>
+                  <div>
+                    {errorMessage && (
+                      <div
+                        className={`text-red`}
+                        style={{
+                          ...styles.errmsg,
+                          color:
+                            checkPhoneResponse?.status === true
+                              ? 'green'
+                              : 'red',
+                        }}
+                      >
+                        {errorMessage}
                       </div>
-                      <div>
-                        {checkPhoneLoader && (
-                          <div className={`text-red`} style={{ ...styles.errmsg }}>
-                            {checkPhoneLoader}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-row items-center justify-center gap-2 w-full mt-3">
-                    <div className="flex flex-row items-center gap-2 border rounded-lg w-full justify-between pe-4">
-                      <div className="w-full">
-                        <PhoneInput
-                          className="outline-none bg-transparent focus:ring-0"
-                          country="us"
-                          onlyCountries={['us', 'ca', 'mx']}
-                          value={phone}
-                          onChange={handlePhoneNumberChange}
-                          placeholder={'Type here'}
-                          style={{
-                            borderRadius: '7px',
-                            outline: 'none',
-                            boxShadow: 'none',
-                          }}
-                          inputStyle={{
-                            width: '100%',
-                            borderWidth: '0px',
-                            backgroundColor: 'transparent',
-                            paddingLeft: '60px',
-                            paddingTop: '12px',
-                            paddingBottom: '12px',
-                            fontSize: 15,
-                            fontWeight: '500',
-                            height: '50px',
-                            outline: 'none',
-                            boxShadow: 'none',
-                          }}
-                          buttonStyle={{
-                            border: 'none',
-                            backgroundColor: 'transparent',
-                            outline: 'none',
-                          }}
-                          dropdownStyle={{
-                            maxHeight: '150px',
-                            overflowY: 'auto',
-                          }}
-                          countryCodeEditable={true}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Permissions Section */}
-                  {(agencyData?.userRole === 'Agency' || userLocalData?.userRole === 'Agency') && (
-                    <div className="mt-6 space-y-2">
-                      <div className="text-sm font-medium text-gray-700">Permissions</div>
-                      <div className="space-y-1">
-                        <div
-                          className="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            setInviteModalStep('agency')
-                            loadAgencyPermissions()
-                          }}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-gray-900">Agency</span>
-                            {agencyPermissionsCount > 0 && (
-                              <span
-                                className="text-xs font-medium px-2 py-0.5 rounded-full"
-                                style={{
-                                  backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
-                                  color: 'hsl(var(--brand-primary))',
-                                }}
-                              >
-                                {agencyPermissionsCount}
-                              </span>
-                            )}
-                          </div>
-                          <ChevronRight className="w-5 h-5 text-gray-400" />
-                        </div>
-                        <div
-                          className="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            setInviteModalStep('subaccount')
-                            loadSubaccountPermissions()
-                          }}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-gray-900">Subaccount</span>
-                            {subaccountPermissionsCount > 0 && (
-                              <span
-                                className="text-xs font-medium px-2 py-0.5 rounded-full"
-                                style={{
-                                  backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
-                                  color: 'hsl(var(--brand-primary))',
-                                }}
-                              >
-                                {subaccountPermissionsCount}
-                              </span>
-                            )}
-                          </div>
-                          <ChevronRight className="w-5 h-5 text-gray-400" />
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* Agency Permissions View */}
-              {inviteModalStep === 'agency' && (
-                <div className="mt-4 space-y-3 max-h-[60vh] overflow-y-auto">
-                  <div className="text-sm text-gray-600 mb-4">
-                    Manage what this user can access in agency panel.
-                  </div>
-                  {loadingAgencyPermissions ? (
-                    <div className="flex justify-center items-center py-8">
-                      <CircularProgress size={24} />
-                    </div>
-                  ) : agencyPermissions.length === 0 ? (
-                    <div className="text-sm text-gray-500 py-8 text-center">
-                      No agency permissions found. Please check your permissions configuration.
-                    </div>
-                  ) : (
-                    agencyPermissions.map((perm, index) => {
-                      const permKey = perm.key || perm.permissionKey
-                      const permName = perm.name || perm.permissionDefinition?.name || permKey
-                      const isChecked = agencyPermissionStates[permKey] || false
-
-                      return (
-                        <div key={permKey}>
-                          <div className="flex items-center justify-between p-3">
-                            <div className="flex flex-col">
-                              <span className="text-sm font-medium text-gray-900">{permName}</span>
-                              {perm.description && (
-                                <span className="text-xs text-gray-500 mt-1">{perm.description}</span>
-                              )}
-                            </div>
-                            <Switch
-                              checked={isChecked}
-                              onCheckedChange={() => handleAgencyPermissionToggle(permKey)}
-                              className="data-[state=checked]:bg-brand-primary"
-                            />
-                          </div>
-                          {index < agencyPermissions.length - 1 && (
-                            <div className="border-t border-gray-200"></div>
-                          )}
-                        </div>
-                      )
-                    })
-                  )}
-                </div>
-              )}
-
-              {/* Subaccount Permissions View */}
-              {inviteModalStep === 'subaccount' && (
-                <div className="mt-4 space-y-4 max-h-[60vh] overflow-y-auto">
-                  <div className="text-sm text-gray-600 mb-4">
-                    Manage what this user can access at subaccount level.
-                  </div>
-
-                  {/* Permission Toggles */}
-                  <div className="space-y-3">
-                    {loadingSubaccountPermissions ? (
-                      <div className="flex justify-center items-center py-8">
-                        <CircularProgress size={24} />
-                      </div>
-                    ) : subaccountPermissions.length === 0 ? (
-                      <div className="text-sm text-gray-500 py-8 text-center">
-                        No subaccount permissions found. Please check your permissions configuration.
-                      </div>
-                    ) : (
-                      subaccountPermissions.map((perm, index) => {
-                        const permKey = perm.key || perm.permissionKey
-                        const permName = perm.name || perm.permissionDefinition?.name || permKey
-                        const isChecked = subaccountPermissionStates[permKey] || false
-
-                        return (
-                          <div key={permKey}>
-                            <div className="flex items-center justify-between p-3">
-                              <div className="flex flex-col">
-                                <span className="text-sm font-medium text-gray-900">{permName}</span>
-                                {perm.description && (
-                                  <span className="text-xs text-gray-500 mt-1">{perm.description}</span>
-                                )}
-                              </div>
-                              <Switch
-                                checked={isChecked}
-                                onCheckedChange={() => handleSubaccountPermissionToggle(permKey)}
-                                className="data-[state=checked]:bg-brand-primary"
-                              />
-                            </div>
-                            {index < subaccountPermissions.length - 1 && (
-                              <div className="border-t border-gray-200"></div>
-                            )}
-                          </div>
-                        )
-                      })
                     )}
                   </div>
-
-                  {/* Subaccount Selection */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="text-sm font-medium text-gray-700">
-                      Select subaccounts this user can access
+                  <div>
+                    {checkPhoneLoader && (
+                      <div className={`text-red`} style={{ ...styles.errmsg }}>
+                        {checkPhoneLoader}
                       </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500">Select All</span>
-                        <Checkbox
-                          checked={selectAllSubaccounts}
-                          onCheckedChange={(checked) => {
-                            setSelectAllSubaccounts(checked)
-                            if (checked) {
-                              setSelectedSubaccountIds([]) // Clear individual selections when selecting all
-                            }
-                          }}
-                        />
-                      </div>
-                    </div>
-                    <Input
-                      placeholder="Search"
-                      value={subaccountSearchTerm}
-                      onChange={(e) => {
-                        const value = e.target.value
-                        setSubaccountSearchTerm(value)
-                        setSubaccountsListOffset(0)
-                        setHasMoreSubaccountsList(true)
-                        loadSubaccountsList(0, value)
-                      }}
-                      className="border-2 border-[#00000020] rounded p-3 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black w-full"
-                    />
-                    <div className={`max-h-[200px] overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-1 ${selectAllSubaccounts ? 'opacity-50' : ''}`}>
-                      {selectAllSubaccounts ? (
-                        <div className="text-sm text-gray-500 py-4 text-center">
-                          All subaccounts will be accessible to this user
-                        </div>
-                      ) : subaccountsListLoading && subaccountsList.length === 0 ? (
-                        <div className="flex justify-center items-center py-4">
-                          <CircularProgress size={20} />
-                        </div>
-                      ) : subaccountsList.length === 0 ? (
-                        <div className="text-sm text-gray-500 py-4 text-center">
-                          {subaccountSearchTerm ? 'No subaccounts found matching your search' : 'No subaccounts found'}
-                        </div>
-                      ) : (
-                        <>
-                          {subaccountsList.map((subaccount) => {
-                            const isSelected = selectedSubaccountIds.includes(subaccount.id)
-                            return (
-                              <div
-                                key={subaccount.id}
-                                className="flex items-center gap-2 p-2 rounded hover:bg-gray-50 cursor-pointer"
-                                onClick={() => handleSubaccountSelectionToggle(subaccount.id)}
-                              >
-                                <Checkbox
-                                  checked={isSelected}
-                                  onCheckedChange={() => handleSubaccountSelectionToggle(subaccount.id)}
-                                  onClick={(e) => {
-                                    handleSubaccountSelectionToggle(subaccount.id)
-                                  }}
-                                />
-                                <span className="text-sm text-gray-900">
-                                  {subaccount.name || subaccount.email || `Subaccount ${subaccount.id}`}
-                                </span>
-                              </div>
-                            )
-                          })}
-                          {hasMoreSubaccountsList && (
-                            <div className="flex justify-center pt-2">
-                              <Button
-                                variant="outlined"
-                                size="small"
-                                onClick={() => loadSubaccountsList(subaccountsListOffset, subaccountSearchTerm)}
-                                disabled={subaccountsListLoading}
-                                sx={{
-                                  textTransform: 'none',
-                                  borderColor: 'hsl(var(--brand-primary))',
-                                  color: 'hsl(var(--brand-primary))',
-                                }}
-                              >
-                                {subaccountsListLoading ? 'Loading...' : 'Load More'}
-                              </Button>
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
+                    )}
                   </div>
                 </div>
-              )}
+              </div>
+              <div className="flex flex-row items-center justify-center gap-2 w-full mt-3">
+                <div className="flex flex-row items-center gap-2 border rounded-lg w-full justify-between pe-4">
+                  <div className="w-full">
+                    <PhoneInput
+                      className="outline-none bg-transparent focus:ring-0"
+                      country="us" // Default country
+                      onlyCountries={['us', 'ca', 'mx', 'au', 'gb']} // Allow US, Canada, Mexico, Australia, and UK
+                      value={phone}
+                      onChange={handlePhoneNumberChange}
+                      // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
+                      placeholder={'Type here'}
+                      // disabled={loading}
+                      style={{
+                        borderRadius: '7px',
+                        outline: 'none', // Ensure no outline on wrapper
+                        boxShadow: 'none', // Remove any shadow
+                      }}
+                      inputStyle={{
+                        width: '100%',
+                        borderWidth: '0px',
+                        backgroundColor: 'transparent',
+                        paddingLeft: '60px',
+                        paddingTop: '12px',
+                        paddingBottom: '12px',
+                        fontSize: 15,
+                        fontWeight: '500',
+                        height: '50px',
+                        outline: 'none', // Remove outline on input
+                        boxShadow: 'none', // Remove shadow as well
+                      }}
+                      buttonStyle={{
+                        border: 'none',
+                        backgroundColor: 'transparent',
+                        outline: 'none', // Ensure no outline on button
+                      }}
+                      dropdownStyle={{
+                        maxHeight: '150px',
+                        overflowY: 'auto',
+                      }}
+                      countryCodeEditable={true}
+                    // defaultMask={locationLoader ? "Loading..." : undefined}
+                    />
+                  </div>
+                </div>
+              </div>
 
               {inviteTeamLoader ? (
                 <div className="flex flex-col items-center p-5">
