@@ -353,6 +353,8 @@ const StandardNot = ({
     }
   }
 
+  console.log('transformedNotifications', transformedNotifications)
+
   return (
     <>
       {saving && (
@@ -421,7 +423,7 @@ const StandardNot = ({
                 </div>
 
                 {/* Delete Button - Only show if notification is enabled and customized */}
-                {item.isCustomized && item.isNotificationEnabled && (
+                {item.isCustomized && (
                   <button
                     onClick={() => handleDelete(item)}
                     disabled={deleting === item.notificationType}

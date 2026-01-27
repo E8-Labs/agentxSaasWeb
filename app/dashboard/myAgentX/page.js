@@ -7004,6 +7004,7 @@ function Page() {
           AssignNumber={AssignNumber}
         />
       )}
+      {showAdvancedSettingsModal && (
       <AdvancedSettingsModalCN
         open={showAdvancedSettingsModal}
         onOpenChange={setShowAdvancedSettingsModal}
@@ -7015,6 +7016,7 @@ function Page() {
         }}
         loading={advancedSettingsLoader}
       />
+      )}
       {/* Web Agent Modals */}
       <WebAgentModal
         open={showWebAgentModal}
