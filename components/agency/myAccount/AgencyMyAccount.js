@@ -150,6 +150,25 @@ function AgencyMyAccount({ selectedAgency }) {
     console.log('Value of tab is', tab)
     let number = Number(tab) || 1 // Default to Basic Information (id: 1) instead of Plans & Payment
     
+    // Handle items 5-7 (Terms, Privacy, Cancellation) - these open URLs instead of rendering components
+    if (number === 5 || number === 6 || number === 7) {
+      const handlePolicyUrls = async () => {
+        const { termsUrl, privacyUrl, cancellationUrl } = await getPolicyUrls()
+        if (number === 5) {
+          window.open(termsUrl, '_blank')
+        } else if (number === 6) {
+          window.open(privacyUrl, '_blank')
+        } else if (number === 7) {
+          window.open(cancellationUrl, '_blank')
+        }
+        // Reset to Basic Information after opening URL
+        setTabSelected(1)
+        setParamsInSearchBar(1)
+      }
+      handlePolicyUrls()
+      return // Don't proceed with setting tabSelected for these items
+    }
+    
     // Check if the requested tab is allowed
     if (isInvitee && number !== 1) {
       const requestedMenuItem = allMenuItems.find((item) => item.id === number)
@@ -175,7 +194,7 @@ function AgencyMyAccount({ selectedAgency }) {
     if (!tab) {
       setParamsInSearchBar(1) // Default to Basic Information
     }
-  }, [isInvitee, hasPaymentPermission, hasBillingPermission, hasPhoneNumbersPermission])
+  }, [isInvitee, hasPaymentPermission, hasBillingPermission, hasPhoneNumbersPermission, searchParams])
 
   const renderComponent = () => {
     // Check if the selected tab is allowed for Invitee users
@@ -211,15 +230,17 @@ function AgencyMyAccount({ selectedAgency }) {
         return <BillingHistory selectedUser={selectedAgency} />
       case 4:
         return <AgencyPhoneNumbers selectedAgency={selectedAgency} />
+      case 5:
+      case 6:
+      case 7:
+        // These items open URLs in new tabs, should not render components
+        // If we reach here, it means the URL handling didn't work, so return null
+        return null
 
       // case 3:
       //   return <AgencySupport />;
       // case 4:
       //   return <AgencySendFeedback />;
-      // case 5:
-      //   return <AgencyInviteAgentX />;
-      // case 6:
-      //   return <AgencyBarServices />;
       default:
         return <div>Please select an option.</div>
     }
@@ -274,7 +295,7 @@ function AgencyMyAccount({ selectedAgency }) {
                   className="p-4 rounded-lg flex flex-row gap-2 items-start mt-4 w-full"
                   style={{
                     backgroundColor:
-                      index === tabSelected - 1 ? 'hsl(var(--brand-primary) / 0.1)' : 'transparent',
+                      item.id === tabSelected ? 'hsl(var(--brand-primary) / 0.1)' : 'transparent',
                   }}
                 >
                   <Image src={item.icon} height={24} width={24} alt="icon" />
