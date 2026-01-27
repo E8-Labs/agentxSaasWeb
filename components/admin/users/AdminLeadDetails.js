@@ -921,6 +921,13 @@ const AdminLeadDetails = ({
   }
 
   const handleEnrichLead = async () => {
+    // Check if lead is already in queue for enrichment
+    if (selectedLeadsDetails?.enrich === true) {
+      setShowErrorSnack('Lead is already in queue for enrichment')
+      setShowErrorSnack2(true)
+      return
+    }
+
     try {
       setLoading(true)
       const data = localStorage.getItem('User')
