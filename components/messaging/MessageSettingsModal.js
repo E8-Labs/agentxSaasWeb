@@ -24,14 +24,51 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
   const [apiKeyError, setApiKeyError] = useState('')
   const [aiIntegrations, setAiIntegrations] = useState([])
   const [existingIntegrationId, setExistingIntegrationId] = useState(null)
+  const [existingApiKey, setExistingApiKey] = useState('') // Store the actual API key for masking
+  const [isEditingApiKey, setIsEditingApiKey] = useState(false) // Track if user is editing
+
+  // Helper function to mask API key (show last 6 chars, rest as stars)
+  const maskApiKey = (key) => {
+    if (!key || key.length === 0) return ''
+    if (key.length <= 6) return '*'.repeat(key.length)
+    const last6 = key.slice(-6)
+    const stars = '*'.repeat(key.length - 6)
+    return stars + last6
+  }
 
   // Fetch current settings when modal opens
   useEffect(() => {
     if (open) {
       fetchSettings()
       fetchAiIntegrations()
+      setIsEditingApiKey(false) // Reset editing state when modal opens
     }
   }, [open, selectedUser])
+
+  // Sync API key display when both settings and integrations are loaded
+  useEffect(() => {
+    if (!open || isEditingApiKey || loading) return
+    
+    // If we have an integration ID and integrations list, but no API key displayed
+    if (settings.aiIntegrationId && aiIntegrations.length > 0 && !existingApiKey && apiKey === '') {
+      const existingIntegration = aiIntegrations.find(
+        (int) => int.id === settings.aiIntegrationId
+      )
+      
+      if (existingIntegration) {
+        setExistingIntegrationId(existingIntegration.id)
+        // Check if API key is in the integration object
+        const apiKeyValue = existingIntegration.apiKey || ''
+        if (apiKeyValue) {
+          setExistingApiKey(apiKeyValue)
+          setApiKey(maskApiKey(apiKeyValue))
+        } else {
+          // No API key returned (for security) - show placeholder
+          setApiKey('••••••••••••••••••••••••••••••••')
+        }
+      }
+    }
+  }, [settings.aiIntegrationId, aiIntegrations, existingApiKey, apiKey, isEditingApiKey, loading, open])
 
   const fetchSettings = async () => {
     try {
@@ -67,12 +104,27 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
           saveAsDraftEnabled: data.saveAsDraftEnabled || false,
         })
 
-        // If there's an existing integration, show placeholder
+        // If there's an existing integration, store the API key for masking
         if (data.aiIntegration?.id) {
           setExistingIntegrationId(data.aiIntegration.id)
-          setApiKey('') // Don't show the actual key, just leave empty for new input
+          // API key might not be returned for security - check if it exists
+          const apiKeyValue = data.aiIntegration.apiKey || ''
+          setExistingApiKey(apiKeyValue)
+          // Show masked version in input if not editing
+          if (!isEditingApiKey) {
+            if (apiKeyValue) {
+              // If we have the actual key, mask it
+              setApiKey(maskApiKey(apiKeyValue))
+            } else {
+              // If no key returned (for security), show placeholder indicating key exists
+              setApiKey('••••••••••••••••••••••••••••••••')
+            }
+          } else {
+            setApiKey('')
+          }
         } else {
           setExistingIntegrationId(null)
+          setExistingApiKey('')
           setApiKey('')
         }
       }
@@ -104,15 +156,38 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
         },
       })
 
+      console.log("response integrations", response);
+
       if (response.data?.status && Array.isArray(response.data?.data)) {
         setAiIntegrations(response.data.data)
-        // If there's an existing integration, pre-populate the API key field with placeholder
-        if (response.data.data.length > 0 && settings.aiIntegrationId) {
+        
+        // Check if there's an existing integration
+        if (response.data.data.length > 0) {
+          // Use the integration ID from settings if available, otherwise use the first one
+          const targetIntegrationId = settings.aiIntegrationId || response.data.data[0]?.id
           const existingIntegration = response.data.data.find(
-            (int) => int.id === settings.aiIntegrationId
+            (int) => int.id === targetIntegrationId
           )
+          
           if (existingIntegration) {
             setExistingIntegrationId(existingIntegration.id)
+            // Store the API key if available (might not be returned for security)
+            const apiKeyValue = existingIntegration.apiKey || ''
+            
+            if (apiKeyValue) {
+              // If we have the actual key, store and mask it
+              if (!existingApiKey) {
+                setExistingApiKey(apiKeyValue)
+              }
+              // Show masked version if not editing
+              if (!isEditingApiKey && apiKey === '') {
+                setApiKey(maskApiKey(apiKeyValue))
+              }
+            } else if (!isEditingApiKey && apiKey === '' && !existingApiKey) {
+              // If no API key in response but integration exists, show placeholder
+              // This indicates an API key is set but not returned for security
+              setApiKey('••••••••••••••••••••••••••••••••')
+            }
           }
         }
       }
@@ -143,8 +218,12 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
       let integrationId = settings.aiIntegrationId
 
-      // If API key is provided, create or update the integration
-      if (apiKey && apiKey.trim()) {
+      // If API key is provided and it's not the masked version or placeholder, create or update the integration
+      const trimmedApiKey = apiKey.trim()
+      const isMaskedKey = existingApiKey && trimmedApiKey === maskApiKey(existingApiKey)
+      const isPlaceholder = trimmedApiKey === '••••••••••••••••••••••••••••••••'
+      
+      if (trimmedApiKey && !isMaskedKey && !isPlaceholder) {
         try {
           if (existingIntegrationId) {
             // Update existing integration
@@ -153,7 +232,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
               updateUrl,
               {
                 provider: 'openai', // Default to openai for now
-                apiKey: apiKey.trim(),
+                apiKey: trimmedApiKey,
               },
               {
                 headers: {
@@ -165,6 +244,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
             if (updateResponse.data?.status) {
               integrationId = existingIntegrationId
+              // Update the existing API key with the new one (for masking display)
+              setExistingApiKey(trimmedApiKey)
+              setIsEditingApiKey(false)
+              // Show masked version of new key
+              setApiKey(maskApiKey(trimmedApiKey))
               toast.success('API key updated successfully')
             } else {
               throw new Error(updateResponse.data?.message || 'Failed to update API key')
@@ -176,7 +260,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
               createUrl,
               {
                 provider: 'openai', // Default to openai for now
-                apiKey: apiKey.trim(),
+                apiKey: trimmedApiKey,
               },
               {
                 headers: {
@@ -189,6 +273,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
             if (createResponse.data?.status && createResponse.data?.data) {
               integrationId = createResponse.data.data.id
               setExistingIntegrationId(integrationId)
+              // Store the new API key for masking
+              setExistingApiKey(trimmedApiKey)
+              setIsEditingApiKey(false)
+              // Show masked version of new key
+              setApiKey(maskApiKey(trimmedApiKey))
               // Update settings state to include the new integration ID
               setSettings(prev => ({ ...prev, aiIntegrationId: integrationId }))
             } else {
@@ -300,12 +389,42 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                 Bring in your own ChatGPT API keys to enable AI text and emails.
               </p>
               <Input
-                type="password"
+                type={isEditingApiKey ? "password" : "text"}
                 placeholder={existingIntegrationId ? "Enter new API key to update" : "Enter your ChatGPT API key"}
                 value={apiKey}
                 onChange={(e) => {
-                  setApiKey(e.target.value)
+                  const newValue = e.target.value
+                  // If user starts typing and we're showing masked key or placeholder, switch to edit mode
+                  const isPlaceholder = apiKey === '••••••••••••••••••••••••••••••••'
+                  const isMaskedKey = existingApiKey && apiKey === maskApiKey(existingApiKey)
+                  
+                  if (!isEditingApiKey && (isPlaceholder || (isMaskedKey && newValue !== maskApiKey(existingApiKey)))) {
+                    setIsEditingApiKey(true)
+                    setApiKey(newValue)
+                  } else {
+                    setApiKey(newValue)
+                  }
                   setApiKeyError('')
+                }}
+                onFocus={() => {
+                  // When user focuses, if showing masked key or placeholder, switch to edit mode
+                  const isPlaceholder = apiKey === '••••••••••••••••••••••••••••••••'
+                  if ((existingApiKey || isPlaceholder) && !isEditingApiKey) {
+                    setIsEditingApiKey(true)
+                    setApiKey('') // Clear the masked/placeholder value so user can type
+                  }
+                }}
+                onBlur={() => {
+                  // If user didn't enter anything, restore masked key or placeholder
+                  if (!apiKey.trim()) {
+                    setIsEditingApiKey(false)
+                    if (existingApiKey) {
+                      setApiKey(maskApiKey(existingApiKey))
+                    } else if (existingIntegrationId) {
+                      // Show placeholder if integration exists but no key available
+                      setApiKey('••••••••••••••••••••••••••••••••')
+                    }
+                  }
                 }}
                 className="border-2 border-[#00000020] rounded p-3 outline-none focus:outline-none focus:ring-0 focus:border-brand-primary focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-brand-primary"
               />
@@ -315,7 +434,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
             </div>
 
             {/* Set Reply Delay Section */}
-            {!settings.saveAsDraftEnabled && (
+            { (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
