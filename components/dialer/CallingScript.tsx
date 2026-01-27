@@ -130,12 +130,39 @@ export default function CallingScript({
 
   const fetchUniqueColumns = async () => {
     try {
+      // Default columns that should always be available
+      const defaultColumns = [
+        '{First Name}',
+        '{Last Name}',
+        '{Email}',
+        '{Phone}',
+        '{Address}',
+      ]
+
       const columns = await getUniquesColumn()
+      
+      // Merge default columns with API response, removing duplicates
       if (columns && Array.isArray(columns)) {
-        setUniqueColumns(columns)
+        const mergedColumns = [
+          ...defaultColumns,
+          ...columns.filter((col) => !defaultColumns.includes(col)),
+        ]
+        setUniqueColumns(mergedColumns)
+      } else {
+        // If API fails or returns null, use default columns
+        setUniqueColumns(defaultColumns)
       }
     } catch (error) {
       console.error('Error fetching unique columns:', error)
+      // Fallback to default columns on error
+      setUniqueColumns([
+        '{First Name}',
+        '{Last Name}',
+        '{Email}',
+        '{Phone}',
+        '{Phone Number}',
+        '{Address}',
+      ])
     }
   }
 

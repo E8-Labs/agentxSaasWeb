@@ -937,9 +937,24 @@ const Leads1 = () => {
     enrich = false,
     startIndex = 0,
     resumeData = null,
+    validatedData = null, // Accept validated data directly
   ) => {
-    let pd = processedData
+    console.log('🟢 [HANDLE_ADD_LEAD] Function called with:', {
+      enrich,
+      startIndex,
+      hasResumeData: !!resumeData,
+      hasValidatedData: !!validatedData,
+      validatedDataLength: validatedData?.length,
+      processedDataLength: processedData?.length,
+      NewColumnsObtainedLength: NewColumnsObtained?.length,
+    })
+
+    // Use validatedData if provided (from validation), otherwise use processedData from state
+    // This fixes the issue where processedData state hasn't updated yet due to async state updates
+    let pd = validatedData || processedData
     let data = []
+
+    console.log('🟢 [HANDLE_ADD_LEAD] Building data array from:', validatedData ? 'validatedData' : 'processedData')
 
     // Build full data array
     pd.forEach((item) => {
@@ -952,6 +967,11 @@ const Leads1 = () => {
         }
       })
       data.push(row)
+    })
+
+    console.log('🟢 [HANDLE_ADD_LEAD] Data array built:', {
+      dataLength: data.length,
+      firstRowSample: data[0],
     })
 
     setLoader(true)
@@ -989,7 +1009,21 @@ const Leads1 = () => {
       new CustomEvent('leadUploadStart', { detail: { update: true } }),
     )
 
-    let uploadData = {
+    // let uploadData = {
+    //   uploading: true,
+    //   currentBatch: startIndex,
+    //   totalBatches: totalBatches,
+    //   sheetName: resumeData?.sheetName || sheetName,
+    //   columnMappings: resumeData?.columnMappings || NewColumnsObtained,
+    //   tagsValue: resumeData?.tags || tagsValue,
+    //   enrich: resumeData?.enrich ?? isEnrichToggle,
+    //   data: data.resumeData ? resumeData.data : data,
+    // }
+
+    // return
+    
+
+    const uploadData = {
       uploading: true,
       currentBatch: startIndex,
       totalBatches: totalBatches,
@@ -997,10 +1031,14 @@ const Leads1 = () => {
       columnMappings: resumeData?.columnMappings || NewColumnsObtained,
       tagsValue: resumeData?.tags || tagsValue,
       enrich: resumeData?.enrich ?? isEnrichToggle,
-      data: data.resumeData ? resumeData.data : data,
+      data: resumeData ? resumeData.data : data, // Fixed: was data.resumeData, should be resumeData
+      startIndex,
+      AuthToken,
+      setUploading,
+      setUploadProgress,
+      setCurrentBatch,
+      setUserLeads,
     }
-
-    // return
     localStorage.setItem(
       PersistanceKeys.leadUploadState,
       JSON.stringify(uploadData),
@@ -1011,19 +1049,21 @@ const Leads1 = () => {
       setAddNewLeadModal(false)
     }, 2000)
 
+    console.log('🟢 [HANDLE_ADD_LEAD] Calling uploadBatchSequence with:', {
+      dataLength: uploadData.data?.length,
+      sheetName: uploadData.sheetName,
+      columnMappingsLength: uploadData.columnMappings?.length,
+      tagsValue: uploadData.tagsValue,
+      enrich: uploadData.enrich,
+      startIndex: uploadData.startIndex,
+      hasAuthToken: !!uploadData.AuthToken,
+    })
+
     await uploadBatchSequence({
-      data: resumeData ? resumeData.data : data,
-      sheetName: resumeData?.sheetName || sheetName,
-      columnMappings: resumeData?.columnMappings || NewColumnsObtained,
-      tagsValue: resumeData?.tags || tagsValue,
-      enrich: resumeData?.enrich ?? isEnrichToggle,
-      startIndex,
-      AuthToken,
-      setUploading,
-      setUploadProgress,
-      setCurrentBatch,
-      setUserLeads,
+      ...uploadData,
       onComplete: () => {
+        console.log('🟢 [HANDLE_ADD_LEAD] onComplete callback called!')
+        console.log('🟢 [HANDLE_ADD_LEAD] Setting success snack...')
         localStorage.removeItem(PersistanceKeys.leadUploadState)
         setShowUploadLeadModal(false)
         setSelectedFile(null)
@@ -1035,14 +1075,17 @@ const Leads1 = () => {
         setSuccessSnack('Leads uploaded successfully')
         setShowSuccessSnack(true)
         setLoader(false)
+        console.log('🟢 [HANDLE_ADD_LEAD] Success snack set, calling refreshUserData...')
         refreshUserData()
 
         // Send custom event to show dashboard slider
         window.dispatchEvent(
           new CustomEvent('leadUploadComplete', { detail: { update: true } }),
         )
+        console.log('🟢 [HANDLE_ADD_LEAD] onComplete callback finished')
       },
       onError: (errorInfo) => {
+        console.error('🟢 [HANDLE_ADD_LEAD] onError callback called!', errorInfo)
         setLoader(false)
         setErrSnack(errorInfo.message)
         setErrSnackTitle(errorInfo.title)
@@ -1054,6 +1097,8 @@ const Leads1 = () => {
         )
       },
     })
+
+    console.log('🟢 [HANDLE_ADD_LEAD] uploadBatchSequence call completed (await finished)')
 
     window.dispatchEvent(
       new CustomEvent('UpdateCheckList', { detail: { update: true } }),
@@ -1801,13 +1846,25 @@ const Leads1 = () => {
                       <button
                         className="bg-brand-primary text-white rounded-lg h-[50px] w-4/12"
                         onClick={() => {
+                          console.log('🟡 [CONTINUE_BUTTON] Continue button clicked')
+                          console.log('🟡 [CONTINUE_BUTTON] Calling validateColumns...')
                           // validateColumns();
                           let validated = validateColumns()
+
+                          console.log('🟡 [CONTINUE_BUTTON] Validation result:', {
+                            isValid: !!validated,
+                            isArray: Array.isArray(validated),
+                            length: validated?.length,
+                          })
 
                           // return;
                           // validated will be the validated data array if successful, or false if validation failed
                           if (validated && Array.isArray(validated) && validated.length > 0) {
-                            handleAddLead()
+                            console.log('🟡 [CONTINUE_BUTTON] Validation passed, calling handleAddLead with validated data...')
+                            // Pass validated data directly to handleAddLead to avoid async state update issues
+                            handleAddLead(false, 0, null, validated)
+                          } else {
+                            console.warn('⚠️ [CONTINUE_BUTTON] Validation failed, not calling handleAddLead')
                           }
                         }}
                       >
