@@ -24,9 +24,9 @@ const DraftCards = ({
   // Get the icon based on message type
   const getMessageIcon = (messageType) => {
     if (messageType === 'email') {
-      return <Mail size={16} className="text-blue-500" />
+      return <Mail size={16} className="text-brand-primary" />
     }
-    return <MessageSquare size={16} className="text-green-500" />
+    return <MessageSquare size={16} className="text-brand-primary" />
   }
 
   // Get the label based on message type and variant number
@@ -69,7 +69,7 @@ const DraftCards = ({
       {/* Loading state */}
       {loading && (
         <div className="flex items-center justify-center py-4">
-          <Loader2 className="w-5 h-5 animate-spin text-blue-500 mr-2" />
+          <Loader2 className="w-5 h-5 animate-spin text-brand-primary mr-2" />
           <span className="text-sm text-gray-600">Generating responses...</span>
         </div>
       )}
@@ -88,11 +88,11 @@ const DraftCards = ({
                 key={draft.id}
                 onClick={() => handleCardClick(draft)}
                 className={`
-                  flex-shrink-0 max-w-[60%] rounded-lg p-3 cursor-pointer transition-all duration-200
+                  flex-shrink-0 max-w-[49%] rounded-lg p-3 cursor-pointer transition-all duration-200
                   border-2
                   ${isSelected
-                    ? 'border-blue-500 bg-blue-50/50 shadow-md'
-                    : 'border-gray-200 bg-white hover:border-blue-300 hover:shadow-sm'
+                    ? 'border-brand-primary bg-brand-primary/10 shadow-md'
+                    : 'border-gray-200 bg-white hover:border-brand-primary/70 hover:shadow-sm'
                   }
                 `}
               >
@@ -100,9 +100,7 @@ const DraftCards = ({
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     {getMessageIcon(draft.messageType)}
-                    <span className={`text-sm font-semibold ${
-                      draft.messageType === 'email' ? 'text-blue-600' : 'text-green-600'
-                    }`}>
+                    <span className="text-sm font-semibold text-brand-primary">
                       {getDraftLabel(draft)}
                     </span>
                   </div>
@@ -128,7 +126,7 @@ const DraftCards = ({
                   {needsReadMore && (
                     <button
                       onClick={(e) => handleReadMore(e, draft.id)}
-                      className="ml-1 text-blue-600 font-medium hover:underline"
+                      className="ml-1 text-brand-primary font-medium hover:underline"
                     >
                       {isExpanded ? 'Show Less' : 'Read More'}
                     </button>

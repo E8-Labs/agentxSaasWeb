@@ -1074,7 +1074,10 @@ const [delTempLoader, setDelTempLoader] = useState(null)
                 }
                 setComposerMode('email')
                 setIsExpanded(true)
-                fetchEmailAccounts()
+                // Only fetch if accounts are empty, otherwise the effect in Messages.js will restore selection
+                if (emailAccounts.length === 0) {
+                  fetchEmailAccounts()
+                }
               }}
             />
             <MessageComposerTabCN

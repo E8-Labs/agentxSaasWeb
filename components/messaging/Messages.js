@@ -63,12 +63,14 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const messagesTopRef = useRef(null)
   const richTextEditorRef = useRef(null)
   const latestMessageIdRef = useRef(null)
+  const isSelectingDraftRef = useRef(false)
   const [showNewMessageModal, setShowNewMessageModal] = useState(false)
   const [newMessageMode, setNewMessageMode] = useState('sms')
   const [phoneNumbers, setPhoneNumbers] = useState([])
   const [emailAccounts, setEmailAccounts] = useState([])
   const [selectedPhoneNumber, setSelectedPhoneNumber] = useState(null)
   const [selectedEmailAccount, setSelectedEmailAccount] = useState(null)
+  const lastSelectedEmailAccountRef = useRef(null) // Store last selected email account when switching tabs
   const [userData, setUserData] = useState(null)
   const [sendingMessage, setSendingMessage] = useState(false)
   const [imageModalOpen, setImageModalOpen] = useState(false)
@@ -763,6 +765,9 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const handleSelectDraft = useCallback((draft) => {
     if (!draft) return
 
+    // Set flag to prevent auto-selecting email account
+    isSelectingDraftRef.current = true
+    
     setSelectedDraft(draft)
 
     // Set composer mode based on draft type
@@ -781,6 +786,11 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
         smsBody: draft.content || '',
       }))
     }
+
+    // Reset flag after a short delay to allow other operations
+    setTimeout(() => {
+      isSelectingDraftRef.current = false
+    }, 100)
   }, [])
 
   // Discard a draft
@@ -1944,6 +1954,11 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
         )
 
         if (response.data?.status) {
+          // Store the email account used for sending as the last used
+          if (selectedEmailAccount) {
+            lastSelectedEmailAccountRef.current = selectedEmailAccount
+          }
+          
           toast.success('Email sent successfully', {
             style: {
               width: 'fit-content',
@@ -2045,8 +2060,24 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
     }
   }, [selectedUser])
 
+  // Get the last email account used in the thread
+  const getLastEmailAccountFromThread = useCallback(() => {
+    if (!messages || messages.length === 0) return null
+    
+    // Find the most recent outbound email message
+    const outboundEmails = messages
+      .filter(msg => msg.messageType === 'email' && msg.direction === 'outbound' && msg.emailAccountId)
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+    
+    if (outboundEmails.length > 0) {
+      return outboundEmails[0].emailAccountId.toString()
+    }
+    
+    return null
+  }, [messages])
+
   // Fetch email accounts
-  const fetchEmailAccounts = useCallback(async () => {
+  const fetchEmailAccounts = useCallback(async (preserveSelection = false, restoreLastUsed = false) => {
     try {
       const localData = localStorage.getItem('User')
       if (!localData) return
@@ -2069,14 +2100,49 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
       if (response.data?.status && response.data?.data) {
         setEmailAccounts(response.data.data)
+        
         if (response.data.data.length > 0) {
-          setSelectedEmailAccount(response.data.data[0].id)
+          // Priority order:
+          // 1. If preserving selection and we have a last selected account, restore it
+          // 2. If restoreLastUsed is true, try to get from thread's last sent email
+          // 3. If selecting a draft, don't auto-select
+          // 4. Otherwise, select first account
+          
+          if (preserveSelection && lastSelectedEmailAccountRef.current) {
+            // Check if the last selected account still exists in the list
+            const accountExists = response.data.data.some(
+              acc => acc.id.toString() === lastSelectedEmailAccountRef.current
+            )
+            if (accountExists) {
+              setSelectedEmailAccount(lastSelectedEmailAccountRef.current)
+              return
+            }
+          }
+          
+          if (restoreLastUsed) {
+            const lastUsedAccountId = getLastEmailAccountFromThread()
+            if (lastUsedAccountId) {
+              // Check if the last used account exists in the list
+              const accountExists = response.data.data.some(
+                acc => acc.id.toString() === lastUsedAccountId
+              )
+              if (accountExists) {
+                setSelectedEmailAccount(lastUsedAccountId)
+                return
+              }
+            }
+          }
+          
+          // Only auto-select first account if not preserving selection and not selecting a draft
+          if (!preserveSelection && !isSelectingDraftRef.current) {
+            setSelectedEmailAccount(response.data.data[0].id)
+          }
         }
       }
     } catch (error) {
       console.error('Error fetching email accounts:', error)
     }
-  }, [selectedUser])
+  }, [selectedUser, getLastEmailAccountFromThread])
 
   // Get user data from localStorage
   useEffect(() => {
@@ -2337,6 +2403,60 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       fetchEmailTimeline(emailTimelineLeadId, emailTimelineSubject)
     }
   }, [showEmailTimeline, emailTimelineLeadId, emailTimelineSubject, fetchEmailTimeline])
+
+  // Track composerMode changes to preserve/restore email account selection
+  const prevComposerModeRef = useRef(composerMode)
+  useEffect(() => {
+    const prevMode = prevComposerModeRef.current
+    
+    // When switching away from email, store the current selected email account
+    if (prevMode === 'email' && composerMode !== 'email' && selectedEmailAccount) {
+      lastSelectedEmailAccountRef.current = selectedEmailAccount
+    }
+    
+    // When switching to email, restore the last selected account or use last used from thread
+    if (prevMode !== 'email' && composerMode === 'email') {
+      // Fetch accounts and restore selection
+      // Only fetch if accounts are empty, otherwise just restore selection
+      if (emailAccounts.length === 0) {
+        fetchEmailAccounts(true, true) // preserveSelection=true, restoreLastUsed=true
+      } else {
+        // Accounts already loaded, just restore selection
+        if (lastSelectedEmailAccountRef.current) {
+          const accountExists = emailAccounts.some(
+            acc => acc.id.toString() === lastSelectedEmailAccountRef.current
+          )
+          if (accountExists) {
+            setSelectedEmailAccount(lastSelectedEmailAccountRef.current)
+          } else {
+            // Try to restore from thread's last used email
+            const lastUsedAccountId = getLastEmailAccountFromThread()
+            if (lastUsedAccountId) {
+              const accountExists = emailAccounts.some(
+                acc => acc.id.toString() === lastUsedAccountId
+              )
+              if (accountExists) {
+                setSelectedEmailAccount(lastUsedAccountId)
+              }
+            }
+          }
+        } else {
+          // No last selected, try to restore from thread's last used email
+          const lastUsedAccountId = getLastEmailAccountFromThread()
+          if (lastUsedAccountId) {
+            const accountExists = emailAccounts.some(
+              acc => acc.id.toString() === lastUsedAccountId
+            )
+            if (accountExists) {
+              setSelectedEmailAccount(lastUsedAccountId)
+            }
+          }
+        }
+      }
+    }
+    
+    prevComposerModeRef.current = composerMode
+  }, [composerMode, selectedEmailAccount, emailAccounts, fetchEmailAccounts, getLastEmailAccountFromThread])
 
   // Initial load for phone numbers and email accounts
   useEffect(() => {
