@@ -30,6 +30,7 @@ import { cn } from '@/lib/utils'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 import MultiSelectDropdownCn from '@/components/dashboard/leads/extras/MultiSelectDropdownCn'
 import CloseBtn from '../globalExtras/CloseBtn'
+import CreateSmartlistModal from './CreateSmartlistModal'
 
 const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => {
   // Form state
@@ -66,6 +67,8 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
   const [loadingTeamMembers, setLoadingTeamMembers] = useState(false)
   const [loadingCustomFields, setLoadingCustomFields] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [showCreateSmartlistModal, setShowCreateSmartlistModal] = useState(false)
+
 
   // Validation errors
   const [errors, setErrors] = useState({})
@@ -125,7 +128,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
     const smartlist = smartlists.find((s) => s.id.toString() === value)
     setSelectedSmartlist(smartlist)
     setErrors((prev) => ({ ...prev, smartlist: null }))
-    
+
     // Extract custom fields from smartlist if available, otherwise fetch them
     if (smartlist?.id) {
       try {
@@ -146,7 +149,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
       setCustomFields([])
       setCustomFieldValues({})
     }
-    
+
     // Always show default fields (first name, last name, email, phone) after a short delay
     setTimeout(() => {
       setShowFields(true)
@@ -168,7 +171,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
       const userId = selectedUser?.id || selectedUser?.userId || selectedUser?.user?.id
       if (userId) {
         queryString += `&userId=${userId}`
-      } else {}
+      } else { }
 
       const apiPath = `/api/smartlists?${queryString}`
       const response = await axios.get(apiPath, {
@@ -235,7 +238,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
     try {
       setLoadingTeamMembers(true)
       const response = await getTeamsList()
-      
+
       if (response) {
         const members = []
         // Add admin if exists
@@ -311,11 +314,11 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
                 subAgent.phoneNumber &&
                 subAgent.phoneNumber.trim() !== '' &&
                 subAgent.phoneStatus !== 'inactive'
-              
+
               if (subAgent.agentType === 'outbound' && hasValidPhoneNumber) {
                 // Store main agent ID (from agent.id or subAgent.mainAgentId) for pipeline assignment
                 const mainAgentId = agent.id || subAgent.mainAgentId
-                
+
                 // Only add if we haven't seen this mainAgentId before (deduplicate)
                 if (!outboundAgentsMap.has(mainAgentId)) {
                   outboundAgentsMap.set(mainAgentId, {
@@ -372,7 +375,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
             columnName = col.columnName.toLowerCase()
           }
         }
-        
+
         // Skip if columnName couldn't be extracted or is in excluded list
         if (!columnName || excludedColumns.includes(columnName)) {
           return false
@@ -471,23 +474,23 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
     if (!formData.firstName.trim()) {
       return false
     }
-    
+
     // Phone is required and must be valid
     if (!formData.phone.trim() || !isValidPhone(formData.phone)) {
       return false
     }
-    
+
     // If email is provided, it must be valid
     if (formData.email.trim() && !isValidEmail(formData.email)) {
       return false
     }
-    
+
     return true
   }
 
   const validateForm = () => {
     const newErrors = {}
-    
+
     if (!selectedSmartlist) {
       newErrors.smartlist = 'Smartlist is required'
     }
@@ -499,7 +502,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
     } else if (!isValidPhone(formData.phone)) {
       newErrors.phone = 'Please enter a valid phone number'
     }
-    
+
     // Validate email if provided (email is optional)
     if (formData.email.trim() && !isValidEmail(formData.email)) {
       newErrors.email = 'Please enter a valid email address'
@@ -554,7 +557,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
       // Add optional fields if selected
       if (selectedPipeline?.id) {
         payload.pipelineId = selectedPipeline.id.toString()
-        
+
         // Add stageId if a stage is selected
         if (selectedStage?.id) {
           payload.stageId = selectedStage.id.toString()
@@ -671,6 +674,19 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
           {/* Smartlist Dropdown */}
           <div className="flex flex-col gap-1 px-0 py-2">
             <Label className="text-sm text-gray-600">Smartlist</Label>
+            <div className="flex items-center justify-between">
+              <Label className="text-sm text-gray-600">Smartlist</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowCreateSmartlistModal(true)}
+                className="h-7 px-2 text-xs border border-gray-300 hover:bg-gray-50"
+              >
+                <Plus className="h-3 w-3 mr-1" />
+                New Smartlist
+              </Button>
+            </div>
             <Select
               value={selectedSmartlist?.id?.toString() || ''}
               onValueChange={handleSmartlistSelect}
@@ -827,7 +843,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
                 </div>
               ) : customFields.length > 0 ? (
                 <>
-                
+
                   <div className="space-y-4">
                     {customFields.map((field) => (
                       <div key={field.id || field.columnName} className="flex flex-col gap-1">
@@ -1068,6 +1084,36 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
           </Button>
         </SheetFooter>
       </SheetContent>
+
+      {/* Create Smartlist Modal - Rendered outside Sheet to avoid z-index issues */}
+      <CreateSmartlistModal
+        open={showCreateSmartlistModal}
+        onClose={() => setShowCreateSmartlistModal(false)}
+        onSuccess={async (newSmartlist) => {
+          // Refresh smartlists
+          await fetchSmartlists()
+          // Select the newly created smartlist
+          if (newSmartlist?.id) {
+            // Use the newSmartlist object directly and trigger the selection logic
+            setSelectedSmartlist(newSmartlist)
+            setErrors((prev) => ({ ...prev, smartlist: null }))
+
+            // Extract custom fields from smartlist if available
+            if (newSmartlist.columns && Array.isArray(newSmartlist.columns) && newSmartlist.columns.length > 0) {
+              extractCustomFields(newSmartlist.columns)
+            } else {
+              fetchCustomFields(newSmartlist.id)
+            }
+
+            // Show fields after a short delay
+            setTimeout(() => {
+              setShowFields(true)
+            }, 100)
+          }
+        }}
+        showInbound={false}
+        selectedUser={selectedUser}
+      />
     </Sheet>
   )
 }
