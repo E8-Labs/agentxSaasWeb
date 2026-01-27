@@ -224,23 +224,24 @@ function AdminActiveCalls({ selectedUser }) {
     fetchLeadsInBatch(item)
   }
 
+  // Function to get call status with scheduled date if applicable
   function getCallStatusWithSchedule(item) {
-    // First check the actual status from the item
-    if (item.status) {
-      // Capitalize first letter and return the status
-      return (
-        item.status.charAt(0).toUpperCase() + item.status.slice(1).toLowerCase()
-      )
-    }
-
-    // Fallback: Check if the call is scheduled in the future
     const currentTime = moment()
     const startTime = moment(item.startTime)
-    if (item.startTime && startTime.isAfter(currentTime)) {
+
+    // // Check if the call is scheduled in the future
+    if (
+      item.startTime &&
+      startTime.isAfter(currentTime) &&
+      item.status === 'Active'
+    ) {
+      // Format the date as "Scheduled - Sep 05" or similar
+      const formattedDate = startTime.format('MMM DD')
       return `Scheduled`
     }
 
-    return 'Active' // Default fallback
+    // Return the regular readable status for past or current calls
+    return getReadableStatus(item.status)
   }
   //code to filter slected agent leads
   const handleLeadsSearchChange = (value) => {
@@ -841,7 +842,7 @@ function AdminActiveCalls({ selectedUser }) {
           </div>
         ) : (
           <div
-            className={`h-[80vh] overflow-auto bg-red`}
+            className={`h-[80vh] overflow-auto`}
             style={{ scrollbarWidth: 'none' }}
             id="scrollableDiv1"
           >

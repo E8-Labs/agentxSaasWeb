@@ -248,7 +248,7 @@ const AddEditTutorials = ({
                   style={{
                     fontSize: 13,
                     fontFamily: 'inter',
-                    border: '1px dashed #7902DF',
+                    border: '1px dashed hsl(var(--brand-primary))',
                     borderRadius: '10px',
                     boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
                     backgroundColor: '#FBFCFF',
@@ -284,7 +284,7 @@ const AddEditTutorials = ({
                     <button
                       type="button"
                       onClick={handleButtonClick}
-                      className="text-purple hover:text-purple-700 text-sm font-medium"
+                      className="text-brand-primary hover:text-brand-primary/90 text-sm font-medium"
                     >
                       Change
                     </button>
@@ -295,7 +295,7 @@ const AddEditTutorials = ({
                   className="flex flex-row w-full justify-center rounded items-center"
                   style={{
                     height: '100px',
-                    border: '1px dashed #7902DF',
+                    border: '1px dashed hsl(var(--brand-primary))',
                     borderRadius: '10px',
                     boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
                     backgroundColor: '#FBFCFF',
@@ -315,7 +315,7 @@ const AddEditTutorials = ({
                     }}
                   >
                     Drop file or <br />{' '}
-                    <span className="text-purple"> Browse</span>
+                    <span className="text-brand-primary"> Browse</span>
                   </button>
                 </div>
               )}
@@ -338,7 +338,7 @@ const AddEditTutorials = ({
               </div>
             ) : (
               <button
-                className={`${isDisabled ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-purple text-white hover:bg-purple-700'} px-6 py-2 rounded-lg outline-none border-none transition-colors disabled:opacity-50`}
+                className={`${isDisabled ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-primary/90'} px-6 py-2 rounded-lg outline-none border-none transition-colors disabled:opacity-50`}
                 onClick={handleSaveClick}
                 disabled={isDisabled || isLoading}
               >
