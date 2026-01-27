@@ -31,6 +31,7 @@ import UpgradeModal from '@/constants/UpgradeModal'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import { Elements } from '@stripe/react-stripe-js'
 import { getStripe } from '@/lib/stripe'
+import { TypographyH3 } from '@/lib/typography'
 
 function AdminTeam({ selectedUser, agencyUser }) {
   const timerRef = useRef(null)
@@ -545,7 +546,7 @@ function AdminTeam({ selectedUser, agencyUser }) {
       // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div className="flex flex-row items-center gap-3">
-          <div style={{ fontSize: 24, fontWeight: '600' }}>Teams</div>
+            <TypographyH3>Teams</TypographyH3>
           {selectedUserDetails?.planCapabilities?.allowTeamCollaboration &&
             selectedUserDetails?.plan?.planId != null &&
             selectedUserDetails?.planCapabilities?.maxTeamMembers < 1000 && (

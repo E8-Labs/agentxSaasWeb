@@ -829,13 +829,13 @@ function AdminAllCalls({ selectedUser }) {
       </div>
       {initialLoader && filteredCallDetails.length == 0 ? (
         <div
-          className={`flex flex-row items-center justify-center mt-12 h-[55vh] overflow-auto`}
+          className={`flex flex-row items-center justify-center mt-12 h-[70vh] overflow-auto`}
         >
           <CircularProgress size={35} thickness={2} />
         </div>
       ) : (
         (<div
-          className={`h-[55vh] overflow-auto`}
+          className={`h-[70vh] overflow-auto`}
           id="scrollableDiv1"
           style={{ scrollbarWidth: 'none' }}
         >
