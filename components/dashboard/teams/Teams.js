@@ -1281,7 +1281,7 @@ function Teams({ agencyData, selectedAgency, from }) {
                     <PhoneInput
                       className="outline-none bg-transparent focus:ring-0"
                       country="us" // Default country
-                      onlyCountries={['us', 'ca', 'mx', 'au']} // Allow US, Canada, Mexico, and Australia
+                      onlyCountries={['us', 'ca', 'mx', 'au', 'gb']} // Allow US, Canada, Mexico, Australia, and UK
                       value={phone}
                       onChange={handlePhoneNumberChange}
                       // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}

@@ -602,6 +602,9 @@ const LoginComponent = ({ length = 6, onComplete }) => {
     // Try to parse as AU
     const parsedAu = parsePhoneNumberFromString(`+${phoneNumber}`, 'AU')
 
+    // Try to parse as GB
+    const parsedGb = parsePhoneNumberFromString(`+${phoneNumber}`, 'GB')
+
     // Try to parse without country code (auto-detect)
     const parsedAuto = parsePhoneNumberFromString(`+${phoneNumber}`)
 
@@ -611,31 +614,43 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         (parsedUs.country === 'US' ||
           parsedUs.country === 'CA' ||
           parsedUs.country === 'MX' ||
-          parsedUs.country === 'AU')) ||
+          parsedUs.country === 'AU' ||
+          parsedUs.country === 'GB')) ||
       (parsedCa &&
         parsedCa.isValid() &&
         (parsedCa.country === 'US' ||
           parsedCa.country === 'CA' ||
           parsedCa.country === 'MX' ||
-          parsedCa.country === 'AU')) ||
+          parsedCa.country === 'AU' ||
+          parsedCa.country === 'GB')) ||
       (parsedMx &&
         parsedMx.isValid() &&
         (parsedMx.country === 'US' ||
           parsedMx.country === 'CA' ||
           parsedMx.country === 'MX' ||
-          parsedMx.country === 'AU')) ||
+          parsedMx.country === 'AU' ||
+          parsedMx.country === 'GB')) ||
       (parsedAu &&
         parsedAu.isValid() &&
         (parsedAu.country === 'US' ||
           parsedAu.country === 'CA' ||
           parsedAu.country === 'MX' ||
-          parsedAu.country === 'AU')) ||
+          parsedAu.country === 'AU' ||
+          parsedAu.country === 'GB')) ||
+      (parsedGb &&
+        parsedGb.isValid() &&
+        (parsedGb.country === 'US' ||
+          parsedGb.country === 'CA' ||
+          parsedGb.country === 'MX' ||
+          parsedGb.country === 'AU' ||
+          parsedGb.country === 'GB')) ||
       (parsedAuto &&
         parsedAuto.isValid() &&
         (parsedAuto.country === 'US' ||
           parsedAuto.country === 'CA' ||
           parsedAuto.country === 'MX' ||
-          parsedAuto.country === 'AU'))
+          parsedAuto.country === 'AU' ||
+          parsedAuto.country === 'GB'))
 
     if (!isValid) {
       setErrorMessage('Invalid')
@@ -1207,8 +1222,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                   <PhoneInput
                     className="outline-none bg-transparent focus:ring-0"
                     country={'us'} // Default country
-                    onlyCountries={['us', 'ca', 'mx', 'au']} // Allow US, Canada, Mexico, and Australia
-                    disableDropdown={false} // Enable dropdown to switch between US/CA/MX/AU
+                    onlyCountries={['us', 'ca', 'mx', 'au', 'gb']} // Allow US, Canada, Mexico, Australia, and UK
+                    disableDropdown={false} // Enable dropdown to switch between US/CA/MX/AU/GB
                     countryCodeEditable={false}
                     disableCou ntryCode={false}
                     value={userPhoneNumber}
@@ -1250,7 +1265,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                       maxHeight: '150px',
                       overflowY: 'auto',
                     }}
-                    preferredCountries={['us', 'ca', 'mx', 'au']}
+                    preferredCountries={['us', 'ca', 'mx', 'au', 'gb']}
                     defaultMask={locationLoader ? 'Loading...' : undefined}
                   />
                 </div>
