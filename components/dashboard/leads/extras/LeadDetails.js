@@ -1418,6 +1418,12 @@ const LeadDetails = ({
   }
 
   const handleEnrichLead = async () => {
+    // Check if lead is already in queue for enrichment
+    if (selectedLeadsDetails?.enrich === true) {
+      showSnackbar('Lead is already in queue for enrichment', SnackbarTypes.Error)
+      return
+    }
+
     try {
       setLoading(true)
       const data = localStorage.getItem('User')
