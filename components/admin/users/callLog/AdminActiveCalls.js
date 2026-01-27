@@ -224,6 +224,7 @@ function AdminActiveCalls({ selectedUser }) {
     fetchLeadsInBatch(item)
   }
 
+  // Function to get call status with scheduled date if applicable
   function getCallStatusWithSchedule(item) {
     const currentTime = moment()
     const startTime = moment(item.startTime)
@@ -761,7 +762,7 @@ function AdminActiveCalls({ selectedUser }) {
   }
 
   return (
-    <div className="w-full items-start overflow-hidden">
+    <div className="w-full h-full items-start overflow-hidden">
       <Popover
         id={id}
         open={open}
@@ -841,12 +842,12 @@ function AdminActiveCalls({ selectedUser }) {
           </div>
         ) : (
           <div
-            className={`h-[65vh] overflow-auto`}
+            className={`h-[80vh] overflow-auto`}
             style={{ scrollbarWidth: 'none' }}
             id="scrollableDiv1"
           >
             {filteredAgentsList?.length > 0 ? (
-                <div className="min-w-[70vw] overflow-x-auto scrollbar-none">
+                <div className="min-w-[50vw] overflow-x-auto scrollbar-none">
                   {/* Table Header */}
                   <div className="w-full flex flex-row items-center mt-2 px-10 gap-4">
                     <div className="min-w-[150px] flex-shrink-0">
@@ -1001,12 +1002,12 @@ function AdminActiveCalls({ selectedUser }) {
       </div>
       <div>
         {initialLoader ? (
-          <div className="flex flex-row items-center h-[50vh] justify-center mt-12">
+          <div className="flex flex-row items-center h-[65vh] justify-center mt-12">
             <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />
           </div>
         ) : (
           <div
-            className={`h-[50vh] overflow-auto`}
+            className={`h-[49vh] overflow-auto`}
             style={{ scrollbarWidth: 'none' }}
           >
             {filteredAgentsList.length > 0 ? (
@@ -1097,7 +1098,7 @@ function AdminActiveCalls({ selectedUser }) {
                   marginTop: 20,
                 }}
               >
-                No Call Activity Found
+
               </div>
             )}
           </div>

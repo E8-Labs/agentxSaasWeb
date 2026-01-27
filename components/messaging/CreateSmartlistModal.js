@@ -175,7 +175,7 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, s
     >
       <Box
         ref={modalRef}
-        className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto rounded-3xl h-[70vh]"
+        className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-auto overflow-hidden rounded-3xl"
         data-modal-content="create-smartlist"
         sx={{
           position: 'absolute',
@@ -189,7 +189,7 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, s
           outline: 'none',
           scrollbarWidth: 'none',
           zIndex: 10000, // Higher than backdrop (9999) to appear on top
-          maxHeight: '70vh',
+          maxHeight: '90vh',
           pointerEvents: 'auto',
           isolation: 'isolate', // Create new stacking context
           '& input': {
@@ -284,7 +284,7 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, s
                 Create Columns
               </div>
               <div
-                className="max-h-[30vh] overflow-auto mt-2"
+                className="max-h-[29vh] overflow-auto mt-2"
                 style={{
                   scrollbarWidth: 'none',
                 }}

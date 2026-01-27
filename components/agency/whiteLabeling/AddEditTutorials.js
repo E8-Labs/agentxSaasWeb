@@ -249,6 +249,7 @@ const AddEditTutorials = ({
                     fontSize: 13,
                     fontFamily: 'inter',
                     border: '1px dashed hsl(var(--brand-primary))',
+                    border: '1px dashed hsl(var(--brand-primary))',
                     borderRadius: '10px',
                     boxShadow: 'hsl(var(--brand-primary)/0.05)',
                     backgroundColor: '#FBFCFF',
@@ -338,7 +339,7 @@ const AddEditTutorials = ({
               </div>
             ) : (
               <button
-                className={`${isDisabled ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-brand-primary text-white hover:bg-brand-primary-700'} px-6 py-2 rounded-lg outline-none border-none transition-colors disabled:opacity-50`}
+                className={`${isDisabled ? 'bg-gray-300 text-gray-500 cursor-not-allowed' : 'bg-purple text-white hover:bg-purple-700'} px-6 py-2 rounded-lg outline-none border-none transition-colors disabled:opacity-50`}
                 onClick={handleSaveClick}
                 disabled={isDisabled || isLoading}
               >

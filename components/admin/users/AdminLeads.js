@@ -56,8 +56,13 @@ import { GetFormattedDateString } from '@/utilities/utility'
 
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import AdminAssignLead from './AdminAssignLead'
+<<<<<<< HEAD
 import CreateSmartlistModal from '@/components/messaging/CreateSmartlistModal'
 import { TypographyH3 } from '@/lib/typography'
+=======
+import { TypographyH3 } from '@/lib/typography'
+import { Checkbox } from '@/components/ui/checkbox'
+>>>>>>> fix/arslan-main-jan27
 
 const AdminLeads = ({
   handleShowAddLeadModal,
@@ -118,7 +123,7 @@ const AdminLeads = ({
   const [moreLeadsLoader, setMoreLeadsLoader] = useState(false)
   const [nextCursorValue, setNextCursorValue] = useState(0)
   const nextCursorRef = useRef(0) // Track cursor synchronously for scroll handler
-  
+
   // Refs to prevent duplicate requests (like subaccounts)
   const isLoadingMoreRef = useRef(false)
 
@@ -706,7 +711,7 @@ const AdminLeads = ({
   const handleFilterLeads = async (filterText = null, append = false) => {
     // Use ref value for API call to ensure we always use the latest cursor
     const currentCursor = nextCursorRef.current
-    
+
     // If appending (lazy load), check if already loading to prevent duplicates (like subaccounts)
     if (append) {
       if (isLoadingMoreRef.current) {
@@ -722,7 +727,7 @@ const AdminLeads = ({
       setHasMore(true)
       isLoadingMoreRef.current = false
     }
-    
+
     const currentRequestVersion = ++requestVersion.current
     const currentSheetId = SelectedSheetId // Capture the sheet ID at request start
     try {
@@ -797,14 +802,14 @@ const AdminLeads = ({
             if (data && data.length > 0) {
               sheetId = data[0].sheetId
             }
-            
+
             // Only process response if it matches the currently selected sheet
             // This prevents race conditions when switching sheets quickly
             // For empty responses, we process them if it's the first page
             // because empty responses don't have a sheetId but should still be shown for the current sheet
-            const shouldProcess = (sheetId == SelectedSheetId) || 
+            const shouldProcess = (sheetId == SelectedSheetId) ||
               (data.length === 0 && wasFirstLoad)
-            
+
             if (shouldProcess) {
               if (wasFirstLoad) {
                 // First page load
@@ -857,7 +862,7 @@ const AdminLeads = ({
                   setLeadColumns([])
                 }
               }
-            } else {}
+            } else { }
 
             setHasMore(apiHasMore)
           } else {
@@ -1146,6 +1151,7 @@ const AdminLeads = ({
           <div>
             <div className="w-full flex flex-row items-center gap-2 truncate">
               {toggleClick.includes(item.id) ? (
+<<<<<<< HEAD
                 <button
                   className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
                   onClick={() => handleToggleClick(item.id)}
@@ -1157,11 +1163,17 @@ const AdminLeads = ({
                     alt="*"
                   />
                 </button>
+=======
+                <Checkbox
+                  checked={true}
+                  className="h-4 w-4 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                />
+>>>>>>> fix/arslan-main-jan27
               ) : (
-                <button
-                  className="h-[20px] w-[20px] border-2 rounded outline-none"
+                <Checkbox
+                  className="h-4 w-4 flex-shrink-0 border-2 border-muted"
                   onClick={() => handleToggleClick(item.id)}
-                ></button>
+                />
               )}
               <div
                 className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
@@ -1605,8 +1617,8 @@ const AdminLeads = ({
       />
       <div
         className="flex flex-row items-center justify-between w-full px-4"
-        style={{ }}
-        // style={{ borderBottom: "1px solid #15151510" }}
+        style={{}}
+      // style={{ borderBottom: "1px solid #15151510" }}
       >
         <div className="flex fex-row items-center gap-2">
           <TypographyH3>Leads</TypographyH3>
@@ -1720,7 +1732,7 @@ const AdminLeads = ({
                 </Modal>
               </div>
             </div>
-           
+
             <div className="flex flex-row items-center justify-between w-full mt-4 w-full">
               <div className="flex flex-row items-center gap-4 overflow-none flex-shrink-0 w-[90%]">
                 <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border  rounded-full pe-2">
@@ -1819,7 +1831,7 @@ const AdminLeads = ({
                               setFiltersSelected(filters)
                             }}
                           >
-                            <CloseBtn onClick={() => {}} />
+                            <CloseBtn onClick={() => { }} />
                           </button>
                         </div>
                       </div>
@@ -1894,8 +1906,8 @@ const AdminLeads = ({
             <div
               className="flex flex-row items-center mt-8 gap-2"
               style={styles.paragraph}
-              // className="flex flex-row items-center mt-8 gap-2"
-              // style={{ ...styles.paragraph, overflowY: "hidden" }}
+            // className="flex flex-row items-center mt-8 gap-2"
+            // style={{ ...styles.paragraph, overflowY: "hidden" }}
             >
               <div
                 className="flex flex-row items-center gap-2 w-full"
@@ -1926,8 +1938,8 @@ const AdminLeads = ({
                         color: SelectedSheetId === item.id ? 'hsl(var(--brand-primary))' : '',
                         whiteSpace: 'nowrap', // Prevent text wrapping
                       }}
-                      // className='flex flex-row items-center gap-1 px-3'
-                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid hsl(var(--brand-primary))" : "", color: SelectedSheetId === item.id ? "hsl(var(--brand-primary))" : "" }}
+                    // className='flex flex-row items-center gap-1 px-3'
+                    // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid hsl(var(--brand-primary))" : "", color: SelectedSheetId === item.id ? "hsl(var(--brand-primary))" : "" }}
                     >
                       <button
                         style={styles.paragraph}
@@ -2097,11 +2109,10 @@ const AdminLeads = ({
                                 return (
                                   <th
                                     key={index}
-                                    className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${
-                                      isMoreColumn
+                                    className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn
                                         ? 'sticky right-0 bg-white'
                                         : ''
-                                    }`}
+                                      }`}
                                     style={{
                                       whiteSpace: 'nowrap',
                                       overflow: 'hidden',
@@ -2125,11 +2136,10 @@ const AdminLeads = ({
                                   {leadColumns.map((column, colIndex) => (
                                     <td
                                       key={colIndex}
-                                      className={`border-none px-4 py-2 ${
-                                        column.title === 'More'
+                                      className={`border-none px-4 py-2 ${column.title === 'More'
                                           ? 'sticky right-0 bg-white'
                                           : ''
-                                      }`}
+                                        }`}
                                       style={{
                                         whiteSpace: 'nowrap',
                                         zIndex:
@@ -2466,6 +2476,7 @@ const AdminLeads = ({
                                 onClick={() => {
                                   handleSelectStage(item)
                                 }}
+<<<<<<< HEAD
                                 className={`p-2 border border-[#00000020] ${
                                   found >= 0 ? `bg-brand-primary` : 'bg-transparent'
                                 } px-6
@@ -2474,6 +2485,14 @@ const AdminLeads = ({
                                                                         ? `text-white`
                                                                         : 'text-black'
                                                                     } rounded-2xl`}
+=======
+                                className={`p-2 border border-[#00000020] ${found >= 0 ? `bg-purple` : 'bg-transparent'
+                                  } px-6
+                                                                    ${found >= 0
+                                    ? `text-white`
+                                    : 'text-black'
+                                  } rounded-2xl`}
+>>>>>>> fix/arslan-main-jan27
                               >
                                 {item.stageTitle}
                               </button>
@@ -2537,6 +2556,7 @@ const AdminLeads = ({
             </Modal>
             {/* </div> */}
 
+<<<<<<< HEAD
             <CreateSmartlistModal
               open={showAddNewSheetModal}
               onClose={() => setShowAddNewSheetModal(false)}
@@ -2545,6 +2565,179 @@ const AdminLeads = ({
               }}
               selectedUser={selectedUser}
             />
+=======
+            <div>
+              <Modal
+                open={showAddNewSheetModal}
+                closeAfterTransition
+                BackdropProps={{
+                  sx: {
+                    backgroundColor: '#00000020',
+                    // //backdropFilter: "blur(5px)",
+                  },
+                }}
+              >
+                <Box
+                  className="lg:w-4/12 sm:w-7/12 w-8/12 bg-white py-2 px-6 h-[60vh] overflow-auto rounded-3xl h-[70vh]"
+                  sx={{
+                    ...styles.modalsStyle,
+                    scrollbarWidth: 'none',
+                    backgroundColor: 'white',
+                  }}
+                >
+                  <div
+                    className="w-full flex flex-col items-center h-full justify-between"
+                    style={{ backgroundColor: 'white' }}
+                  >
+                    <div className="w-full">
+                      <div className="flex flex-row items-center justify-between w-full mt-4 px-2">
+                        <div style={{ fontWeight: '500', fontSize: 15 }}>
+                          New SmartList
+                        </div>
+                        <CloseBtn
+                          onClick={() => {
+                            setShowAddNewSheetModal(false)
+                            setNewSheetName('')
+                            setInputs([
+                              { id: 1, value: 'First Name' },
+                              { id: 2, value: 'Last Name' },
+                              { id: 3, value: 'Phone Number' },
+                              { id: 4, value: '' },
+                              { id: 5, value: '' },
+                              { id: 6, value: '' },
+                            ])
+                          }}
+                        />
+                      </div>
+
+                      <div className="px-4 w-full">
+                        <div className="flex flex-row items-center justify-start mt-6 gap-2">
+                          <span style={styles.paragraph}>List Name</span>
+                          <div className="">
+                            <span>Inbound?</span>
+                            <Switch
+                              checked={isInbound}
+                              // color="hsl(var(--brand-primary))"
+                              // exclusive
+                              onChange={(event) => {
+                                //console.log;
+                                setIsInbound(event.target.checked)
+                              }}
+                              sx={{
+                                '& .MuiSwitch-switchBase.Mui-checked': {
+                                  color: 'hsl(var(--brand-primary))',
+                                },
+                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
+                                {
+                                  backgroundColor: 'hsl(var(--brand-primary))',
+                                },
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <div className="mt-4">
+                          <input
+                            value={newSheetName}
+                            onChange={(e) => {
+                              setNewSheetName(e.target.value)
+                            }}
+                            placeholder="Enter list name"
+                            className="outline-none focus:outline-none focus:ring-0 border w-full rounded-xl h-[53px]"
+                            style={{
+                              ...styles.paragraph,
+                              border: '1px solid #00000020',
+                            }}
+                          />
+                        </div>
+                        <div className="mt-8" style={styles.paragraph}>
+                          Create Columns
+                        </div>
+                        <div
+                          className="max-h-[30vh] overflow-auto mt-2" //scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
+                          style={{ scrollbarWidth: 'none' }}
+                        >
+                          {inputs.map((input, index) => (
+                            <div
+                              key={input.id}
+                              className="w-full flex flex-row items-center gap-4 mt-4"
+                            >
+                              <input
+                                className="border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]"
+                                style={{
+                                  ...styles.paragraph,
+                                  width: '95%',
+                                  borderColor: '#00000020',
+                                }}
+                                placeholder={`Column Name`}
+                                value={input.value}
+                                onChange={(e) => {
+                                  if (index > 2) {
+                                    handleInputChange(input.id, e.target.value)
+                                  }
+                                }}
+                              />
+                              <div style={{ width: '5%' }}>
+                                {index > 2 && (
+                                  <button
+                                    className="outline-none border-none"
+                                    onClick={() => handleDelete(input.id)}
+                                  >
+                                    <CloseBtn
+                                      onClick={() => handleDelete(input.id)}
+                                    />
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                          {/* Dummy element for scrolling */}
+                          <div ref={bottomRef}></div>
+                        </div>
+                        <div style={{ height: '50px' }}>
+                          {/*
+                                                        inputs.length < 3 && (
+                                                            <button onClick={handleAddInput} className='mt-4 p-2 outline-none border-none text-brand-primary rounded-lg underline' style={{
+                                                                fontSize: 15,
+                                                                fontWeight: "700"
+                                                            }}>
+                                                                Add New
+                                                            </button>
+                                                        )
+                                                    */}
+                          <button
+                            onClick={handleAddInput}
+                            className="mt-4 p-2 outline-none border-none text-brand-primary rounded-lg underline"
+                            style={styles.paragraph}
+                          >
+                            New Column
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="w-full pb-8">
+                      {showaddCreateListLoader ? (
+                        <div className="flex flex-row items-center justify-center w-full h-[50px]">
+                          <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                        </div>
+                      ) : (
+                        <button
+                          className="bg-purple h-[50px] rounded-xl text-white w-full"
+                          style={{
+                            fontWeight: '600',
+                            fontSize: 16.8,
+                          }}
+                          onClick={handleAddSheetNewList}
+                        >
+                          Create List
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </Box>
+              </Modal>
+            </div>
+>>>>>>> fix/arslan-main-jan27
           </div>
         )}
       </div>
@@ -2571,7 +2764,7 @@ const AdminLeads = ({
             leadStageUpdated={HandleUpdateStage}
           />
         </div>
-      )} 
+      )}
 
       {/* Modal to add notes */}
 

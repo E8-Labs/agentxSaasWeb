@@ -1840,7 +1840,8 @@ const LeadDetails = ({
     }
   }
 
-  const teamOptions = useMemo(() => {
+
+  const teamOptions = React.useMemo(() => {
     const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeam || [])];
 
     return allTeams.map((tm) => {
@@ -1864,6 +1865,7 @@ const LeadDetails = ({
       };
     });
   }, [myTeamAdmin, myTeam, selectedLeadsDetails?.teamsAssigned])
+
 
   const mainContent = (
     <>
@@ -2298,44 +2300,44 @@ const LeadDetails = ({
                               <CircularProgress size={20} />
                             ) : (
 
-                              <TeamAssignDropdownCn
-                                withoutBorder={true}
-                                label="Assign"
-                                teamOptions={teamOptions}
-                                onToggle={(teamId, team, shouldAssign) => {
-                                  console.log('🎯 [TeamAssignDropdownCn] Toggle:', {
-                                    teamId,
-                                    team,
-                                    shouldAssign,
-                                    teamLabel: team?.label,
-                                    teamRaw: team?.raw
-                                  });
+                          <TeamAssignDropdownCn
+                          withoutBorder={true}
+                          label="Assign"
+                          teamOptions={teamOptions}
+                          onToggle={(teamId, team, shouldAssign) => {
+                            console.log('🎯 [TeamAssignDropdownCn] Toggle:', {
+                              teamId,
+                              team,
+                              shouldAssign,
+                              teamLabel: team?.label,
+                              teamRaw: team?.raw
+                            });
 
-                                  if (shouldAssign) {
-                                    // If team.raw is available, use it directly
-                                    if (team?.raw) {
-                                      handleAssignLeadToTeammember(team.raw);
-                                    } else {
-                                      // Otherwise find the team in our list
-                                      const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeam || [])];
-                                      const teamToAssign = allTeams.find(t => {
-                                        const tId = t.invitedUserId || t.invitedUser?.id || t.id;
-                                        return String(tId) === String(teamId);
-                                      });
+                            if (shouldAssign) {
+                              // If team.raw is available, use it directly
+                              if (team?.raw) {
+                                handleAssignLeadToTeammember(team.raw);
+                              } else {
+                                // Otherwise find the team in our list
+                                const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeam || [])];
+                                const teamToAssign = allTeams.find(t => {
+                                  const tId = t.invitedUserId || t.invitedUser?.id || t.id;
+                                  return String(tId) === String(teamId);
+                                });
 
-                                      if (teamToAssign) {
-                                        handleAssignLeadToTeammember(teamToAssign);
-                                      } else {
-                                        console.error('❌ Could not find team member with ID:', teamId);
-                                      }
-                                    }
-                                  } else {
-                                    handleUnassignLeadFromTeammember(teamId);
-                                  }
-                                }}
+                                if (teamToAssign) {
+                                  handleAssignLeadToTeammember(teamToAssign);
+                                } else {
+                                  console.error('❌ Could not find team member with ID:', teamId);
+                                }
+                              }
+                            } else {
+                              handleUnassignLeadFromTeammember(teamId);
+                            }
+                          }}
 
-                              />
-                            )}
+                        />
+                        )}
                         </div>
                       </div>
 

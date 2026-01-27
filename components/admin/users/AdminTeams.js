@@ -32,6 +32,7 @@ import UpgradeModal from '@/constants/UpgradeModal'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import { Elements } from '@stripe/react-stripe-js'
 import { getStripe } from '@/lib/stripe'
+import { TypographyH3 } from '@/lib/typography'
 
 function AdminTeam({ selectedUser, agencyUser }) {
   const timerRef = useRef(null)
