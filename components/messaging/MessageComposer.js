@@ -1665,7 +1665,7 @@ const MessageComposer = ({
                               className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
                             >
                               {renderBrandedIcon("/messaging/templateIcon.svg", 18,18)}
-                              <span>My Templates</span>
+                              <span>Templates</span>
                               <CaretDown size={16} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
                             </button>
 
@@ -1763,7 +1763,7 @@ const MessageComposer = ({
                             className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-brand-primary hover:bg-brand-primary/10 rounded-lg transition-colors"
                           >
                             {renderBrandedIcon("/messaging/templateIcon.svg", 18,18)}
-                            <span>My Templates</span>
+                            <span>Templates</span>
                             <CaretDown size={16} className={`transition-transform ${showTemplatesDropdown ? 'rotate-180' : ''}`} />
                           </button>
 
