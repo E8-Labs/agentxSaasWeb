@@ -1800,10 +1800,7 @@ const MessageComposer = ({
                             <span>
                               {composerData.smsBody.length}/{SMS_CHAR_LIMIT} char
                             </span>
-                            <span className="text-gray-300">|</span>
-                            <span>
-                              {Math.floor((userData?.user?.totalSecondsAvailable || 0) / 60)} credits left
-                            </span>
+
                           </div>
 
                           {/* Send Button */}
