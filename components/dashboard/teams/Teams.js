@@ -2499,6 +2499,8 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                   </div>
                 </button>
               )}
+                </>
+              )}
 
               {/* PermissionManager is rendered outside the Modal to avoid conflicts */}
               {/* <PermissionManager
