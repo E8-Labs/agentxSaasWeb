@@ -17,6 +17,7 @@ import { CaretDown, CaretUp, Minus, PencilSimple } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useState, useCallback } from 'react'
+import { flushSync } from 'react-dom'
 
 import CloseBtn, { CloseBtn2 } from '@/components/globalExtras/CloseBtn'
 import { PersistanceKeys } from '@/constants/Constants'
@@ -300,8 +301,12 @@ const PipelineStages = ({
 
   const openAddMenu = useCallback((stageIndex, e) => {
     if (e && e.currentTarget) {
-      // Use flushSync to ensure immediate state update
-      setAddMenuAnchor((prev) => ({ ...prev, [stageIndex]: e.currentTarget }))
+      // Capture the target immediately to avoid React's synthetic event pooling
+      const target = e.currentTarget
+      // Use flushSync to ensure immediate state update so menu appears right away
+      flushSync(() => {
+        setAddMenuAnchor((prev) => ({ ...prev, [stageIndex]: target }))
+      })
     }
   }, [])
 
@@ -360,6 +365,9 @@ const PipelineStages = ({
   }
 
   const handleEditRow = useCallback((stageIndex, row, e) => {
+    // Capture event target immediately to avoid React's synthetic event pooling
+    const eventTarget = e?.currentTarget || null
+    
     // Check if this is a default cadence
     const isDefaultCadence = !row.communicationType
 
@@ -368,12 +376,28 @@ const PipelineStages = ({
         PersistanceKeys.isDefaultCadenceEditing,
         JSON.stringify({ isdefault: true }),
       )
-      if (e && e.currentTarget) {
-        openAddMenu(stageIndex, e)
+      if (eventTarget) {
+        // Create a synthetic event-like object with the captured target
+        const syntheticEvent = { currentTarget: eventTarget }
+        openAddMenu(stageIndex, syntheticEvent)
       }
       return // Don't proceed with editing for default cadence
     }
 
+    // For 'call' type, open menu first before other state updates to ensure it appears immediately
+    if (row.communicationType === 'call' && eventTarget) {
+      const syntheticEvent = { currentTarget: eventTarget }
+      openAddMenu(stageIndex, syntheticEvent)
+      // Then set editing state
+      setIsEditing(true)
+      setEditingRow(row)
+      setEditingStageIndex(stageIndex)
+      setSelectedType(row.action ? row.action : 'call')
+      setSelectedIndex(stageIndex)
+      return
+    }
+
+    // For email and SMS, set state first then show modal
     setIsEditing(true)
     setEditingRow(row)
     setEditingStageIndex(stageIndex)
@@ -386,10 +410,6 @@ const PipelineStages = ({
     } else if (row.communicationType === 'sms') {
       setMessageModalMode('sms')
       setShowMessageModal(true)
-    } else if (row.communicationType === 'call') {
-      if (e && e.currentTarget) {
-        openAddMenu(stageIndex, e)
-      }
     }
   }, [openAddMenu])
 
@@ -1240,6 +1260,7 @@ const PipelineStages = ({
 
                                                 <button
                                                   onClick={(e) => {
+                                                    console.log('row clicked', row)
                                                     e.stopPropagation()
                                                     handleEditRow(index, row, e)
                                                   }}
@@ -1290,6 +1311,10 @@ const PipelineStages = ({
                                     localStorage.removeItem(
                                       PersistanceKeys.isDefaultCadenceEditing,
                                     )
+                                  }}
+                                  disableAutoFocusItem={false}
+                                  MenuListProps={{
+                                    'aria-labelledby': 'action-menu',
                                   }}
                                   PaperProps={{
                                     style: {
