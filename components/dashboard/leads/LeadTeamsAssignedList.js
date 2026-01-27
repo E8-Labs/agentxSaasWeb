@@ -33,18 +33,18 @@ const LeadTeamsAssignedList = ({ users, onAssignClick, onRemoveClick, compactMod
     <div className="flex flex-row items-center gap-3 w-full">
 
       {/* Horizontal scrollable list of assigned members */}
-      <div className="flex flex-row items-center gap-2 overflow-x-auto flex-1 min-w-0" style={{ scrollbarWidth: 'thin' }}>
+      <div className="flex flex-row items-center  overflow-x-auto flex-1 min-w-0" style={{ scrollbarWidth: 'thin' }}>
         {
           uniqueUsers.length > 0 ? (
             uniqueUsers.map((user) => (
               <div
                 key={user.id || user.invitedUserId}
-                className="flex items-center gap-2 flex-shrink-0"
+                className="flex items-center gap-2 flex-shrink-0 -mr-3"
                 onClick={onAssignClick}
               >
                 {user?.thumb_profile_image ? (
                   <Image
-                    className="rounded-full w-8 h-8 object-cover"
+                    className="rounded-full w-6 h-6 object-cover"
                     src={user.thumb_profile_image}
                     height={50}
                     width={50}
@@ -54,14 +54,10 @@ const LeadTeamsAssignedList = ({ users, onAssignClick, onRemoveClick, compactMod
                     }}
                   />
                 ) : (
-                  <div className="w-8 h-8 bg-brand-primary rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                  <div className="w-6 h-6 bg-brand-primary rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                     {user?.name?.charAt(0) || 'U'}
                   </div>
                 )}
-                <span className="text-gray-700 text-sm whitespace-nowrap">
-                  {user?.name || 'Unknown'}
-                </span>
-
                 {onRemoveClick && (
                   <button
                     className="outline-none flex flex-row items-center gap-2 flex-shrink-0"
