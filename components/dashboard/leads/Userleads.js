@@ -1221,7 +1221,7 @@ const Userleads = ({
         leadId: selectedLeadsDetails.id,
       }
 
-      //////console.log;
+      
 
       const ApiPath = Apis.addLeadNote
       // return

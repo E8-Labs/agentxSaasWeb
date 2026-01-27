@@ -18,16 +18,61 @@ export const uploadBatchSequence = async ({
   onComplete,
   onError,
 }) => {
+  console.log('🔵 [UPLOAD_BATCH] uploadBatchSequence called with:', {
+    dataLength: data?.length,
+    sheetName,
+    columnMappingsCount: columnMappings?.length,
+    tagsValue,
+    enrich,
+    startIndex,
+    hasAuthToken: !!AuthToken,
+    hasOnComplete: !!onComplete,
+    hasOnError: !!onError,
+  })
+
   const ApiPath = Apis.createLead
   const BATCH_SIZE = 250
   const totalBatches = Math.ceil(data.length / BATCH_SIZE)
 
+  console.log('🔵 [UPLOAD_BATCH] Calculated values:', {
+    ApiPath,
+    BATCH_SIZE,
+    totalBatches,
+    dataLength: data.length,
+    startIndex,
+  })
+
+  if (totalBatches === 0) {
+    console.warn('⚠️ [UPLOAD_BATCH] No batches to process! data.length =', data.length)
+  }
+
+  console.log('🔵 [UPLOAD_BATCH] Starting loop from batchIndex', startIndex, 'to', totalBatches - 1)
+
   for (let batchIndex = startIndex; batchIndex < totalBatches; batchIndex++) {
+    console.log(`🔵 [UPLOAD_BATCH] Processing batch ${batchIndex + 1}/${totalBatches}`)
     const start = batchIndex * BATCH_SIZE
     const end = start + BATCH_SIZE
     const batchLeads = data.slice(start, end)
 
+    console.log(`🔵 [UPLOAD_BATCH] Batch ${batchIndex + 1} details:`, {
+      start,
+      end,
+      batchLeadsCount: batchLeads.length,
+      sheetName,
+      enrich,
+      tagsValueCount: tagsValue?.length || 0,
+    })
+
     try {
+      console.log(`🔵 [UPLOAD_BATCH] Making API call for batch ${batchIndex + 1} to:`, ApiPath)
+      console.log(`🔵 [UPLOAD_BATCH] Request payload:`, {
+        sheetName,
+        leadsCount: batchLeads.length,
+        columnMappingsCount: columnMappings?.length,
+        tagsValue,
+        enrich,
+      })
+
       const response = await axios.post(
         ApiPath,
         {
@@ -45,7 +90,14 @@ export const uploadBatchSequence = async ({
         },
       )
 
+      console.log(`🔵 [UPLOAD_BATCH] API response for batch ${batchIndex + 1}:`, {
+        status: response?.status,
+        dataStatus: response?.data?.status,
+        hasData: !!response?.data,
+      })
+
       if (response?.data?.status === true) {
+        console.log(`✅ [UPLOAD_BATCH] Batch ${batchIndex + 1} succeeded`)
         const nextIndex = batchIndex + 1
         setCurrentBatch(nextIndex)
         window.dispatchEvent(
@@ -69,11 +121,13 @@ export const uploadBatchSequence = async ({
         if (setUserLeads) {
           localStorage.setItem('userLeads', JSON.stringify(response.data.data))
           setUserLeads(response.data.data)
+          console.log(`🔵 [UPLOAD_BATCH] Updated userLeads state`)
         }
       } else {
         // Handle API error response - use message from response.data.message
         const errorMessage = response.data?.message || `Error in batch ${batchIndex + 1}`
-        console.error(`Error in batch ${batchIndex + 1}:`, errorMessage)
+        console.error(`❌ [UPLOAD_BATCH] Error in batch ${batchIndex + 1}:`, errorMessage)
+        console.error(`❌ [UPLOAD_BATCH] Response data:`, response.data)
         
         // Done
         localStorage.removeItem(PersistanceKeys.leadUploadState)
@@ -90,7 +144,13 @@ export const uploadBatchSequence = async ({
         return
       }
     } catch (err) {
-      console.error(`Upload failed on batch ${batchIndex + 1}`, err)
+      console.error(`❌ [UPLOAD_BATCH] Upload failed on batch ${batchIndex + 1}`, err)
+      console.error(`❌ [UPLOAD_BATCH] Error details:`, {
+        message: err.message,
+        response: err.response?.data,
+        status: err.response?.status,
+        hasRequest: !!err.request,
+      })
       
       // Extract error message from response if available - prioritize response.data.message
       let errorMessage = `Failed to upload batch ${batchIndex + 1}. Please try again.`
@@ -151,7 +211,14 @@ export const uploadBatchSequence = async ({
   }
 
   // Done
+  console.log('✅ [UPLOAD_BATCH] All batches completed successfully!')
+  console.log('🔵 [UPLOAD_BATCH] Cleaning up and calling onComplete')
   localStorage.removeItem(PersistanceKeys.leadUploadState)
   setUploading(false)
-  if (onComplete) onComplete()
+  if (onComplete) {
+    console.log('🔵 [UPLOAD_BATCH] Calling onComplete callback')
+    onComplete()
+  } else {
+    console.warn('⚠️ [UPLOAD_BATCH] No onComplete callback provided!')
+  }
 }
