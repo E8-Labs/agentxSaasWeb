@@ -2343,7 +2343,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   }
 
   return (
-    <div className = {`w-full flex flex-col ${selectedUser && !agencyUser ? 'h-[80vh]' : 'h-[93vh]'}`}>
+    <div className = {`w-full flex flex-col bg-white ${selectedUser && !agencyUser ? 'h-[80vh]' : 'h-[93vh]'}`}>
       <AgentSelectSnackMessage
         isVisible={snackbar.isVisible}
         title={snackbar.title}
