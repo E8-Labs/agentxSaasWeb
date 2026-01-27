@@ -105,16 +105,14 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   // Redux hooks for upgrade modal functionality
   const { user: reduxUser, setUser: setReduxUser } = useUser()
 
-  let baseUrl =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-      ? 'https://app.assignx.ai/'
-      : 'https://dev.assignx.ai/'
-
-  let demoBaseUrl =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-      ? 'https://app.assignx.ai/agentx/'
-      : 'https://apimyagentx.com/agentxtest/'
-
+      let baseUrl =
+      process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+        ? 'https://app.assignx.ai/'
+        : 'https://dev.assignx.ai/'
+  
+    let demoBaseUrl =
+      reduxUser?.agencyBranding?.customDomain ? `https://${reduxUser?.agencyBranding?.customDomain}/` : baseUrl
+  
   const voiceExpressivenessList = [
     {
       id: 1,

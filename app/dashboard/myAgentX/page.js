@@ -405,9 +405,7 @@ function Page() {
       : 'https://dev.assignx.ai/'
 
   let demoBaseUrl =
-    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-      ? 'https://apimyagentx.com/agentx/'
-      : 'https://apimyagentx.com/agentxtest/'
+    reduxUser?.agencyBranding?.customDomain ? `https://${reduxUser?.agencyBranding?.customDomain}/` : baseUrl
 
   const timerRef = useRef()
   const fileInputRef = useRef([])
