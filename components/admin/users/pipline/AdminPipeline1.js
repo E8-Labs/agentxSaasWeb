@@ -61,6 +61,7 @@ import {
 } from '@/utilities/utility'
 
 import PipelineLoading from '@/components/dashboardPipeline/PipelineLoading'
+import { TypographyH3 } from '@/lib/typography'
 
 const AdminPipeline1 = ({ selectedUser }) => {
   const bottomRef = useRef()
@@ -1837,9 +1838,9 @@ const AdminPipeline1 = ({ selectedUser }) => {
         <div className="w-full">
           <div className="flex flex-row items-center justify-between px-4 mb-4">
             <div className="flex flex-row items-center gap-2">
-              <span style={{ fontWeight: '700', fontSize: 25 }}>
+              <TypographyH3>
                 {SelectedPipeline?.title}
-              </span>
+              </TypographyH3>
               <div>
                 {PipeLines.length > 1 && (
                   <button

@@ -98,6 +98,7 @@ import {
 import { GetFormattedDateString } from '@/utilities/utility'
 import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
+import { TypographyH3 } from '@/lib/typography'
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
   // Redux hooks for upgrade modal functionality
@@ -3178,12 +3179,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
         <div className="flex flex-row items-center gap-3">
-          <div
-            style={{ fontSize: 24, fontWeight: '600' }}
-            onClick={() => {}}
-          >
-            Agents
-          </div>
+          <TypographyH3>Agents</TypographyH3>
           {selectedUser?.plan?.planId != null &&
             selectedUser?.planCapabilities?.maxAgents < 10000000 && (
               <div
