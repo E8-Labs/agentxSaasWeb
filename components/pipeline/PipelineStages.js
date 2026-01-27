@@ -298,11 +298,14 @@ const PipelineStages = ({
   // one menu anchor per stage row-set
   const [addMenuAnchor, setAddMenuAnchor] = useState({}) // { [stageIndex]: HTMLElement|null }
 
-  const openAddMenu = (stageIndex, e) => {
-    setAddMenuAnchor((prev) => ({ ...prev, [stageIndex]: e.currentTarget }))
-  }
+  const openAddMenu = useCallback((stageIndex, e) => {
+    if (e && e.currentTarget) {
+      // Use flushSync to ensure immediate state update
+      setAddMenuAnchor((prev) => ({ ...prev, [stageIndex]: e.currentTarget }))
+    }
+  }, [])
 
-  const closeAddMenu = (stageIndex) => {
+  const closeAddMenu = useCallback((stageIndex) => {
     localStorage.removeItem(PersistanceKeys.isDefaultCadenceEditing)
     setAddMenuAnchor((prev) => ({ ...prev, [stageIndex]: null }))
     setIsEditing(false)
@@ -310,7 +313,7 @@ const PipelineStages = ({
     setEditingStageIndex(null)
     setSelectedType(null)
     setSelectedIndex(null)
-  }
+  }, [])
 
   const handleSelectAdd = async (stageIndex, value) => {
     if (value === 'email') {
@@ -356,7 +359,7 @@ const PipelineStages = ({
     // closeAddMenu(stageIndex);
   }
 
-  const handleEditRow = async (stageIndex, row, e) => {
+  const handleEditRow = useCallback((stageIndex, row, e) => {
     // Check if this is a default cadence
     const isDefaultCadence = !row.communicationType
 
@@ -365,7 +368,9 @@ const PipelineStages = ({
         PersistanceKeys.isDefaultCadenceEditing,
         JSON.stringify({ isdefault: true }),
       )
-      openAddMenu(stageIndex, e)
+      if (e && e.currentTarget) {
+        openAddMenu(stageIndex, e)
+      }
       return // Don't proceed with editing for default cadence
     }
 
@@ -381,10 +386,12 @@ const PipelineStages = ({
     } else if (row.communicationType === 'sms') {
       setMessageModalMode('sms')
       setShowMessageModal(true)
-    }else if (row.communicationType === 'call') {
-      openAddMenu(stageIndex, e)
+    } else if (row.communicationType === 'call') {
+      if (e && e.currentTarget) {
+        openAddMenu(stageIndex, e)
+      }
     }
-  }
+  }, [openAddMenu])
 
   const handleUpdateRow = (rowId, updatedData) => {
     // Update the specific row in the pipeline using the updateRow prop
@@ -1232,9 +1239,13 @@ const PipelineStages = ({
                                                 </div>
 
                                                 <button
-                                                  onClick={(e) =>
+                                                  onClick={(e) => {
+                                                    e.stopPropagation()
                                                     handleEditRow(index, row, e)
-                                                  }
+                                                  }}
+                                                  type="button"
+                                                  className="cursor-pointer"
+                                                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
                                                 >
                                                   <PencilSimple
                                                     size={16}
@@ -1260,9 +1271,14 @@ const PipelineStages = ({
                                   ),
                                 )}
                                 <button
-                                  onClick={(e) => openAddMenu(index, e)}
+                                  onClick={(e) => {
+                                    e.stopPropagation()
+                                    e.preventDefault()
+                                    openAddMenu(index, e)
+                                  }}
                                   style={styles.inputStyle}
-                                  className="text-brand-primary mt-4"
+                                  className="text-brand-primary mt-4 cursor-pointer"
+                                  type="button"
                                 >
                                   + Add (If no answer)
                                 </button>
