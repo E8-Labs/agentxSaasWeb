@@ -65,7 +65,7 @@ import {
 } from 'lucide-react'
 import moment from 'moment'
 import Image from 'next/image'
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 
 import Apis from '@/components/apis/Apis'
 import getProfileDetails from '@/components/apis/GetProfile'
@@ -113,6 +113,7 @@ import ActivityTabCN from './ActivityTabCN'
 import InsightsTabCN from './InsightsTabCN'
 import CustomFieldsCN from './CustomFieldsCN'
 import TabsCN from './TabsCN'
+import { Input } from '@/components/ui/input'
 
 const LeadDetails = ({
   showDetailsModal,
@@ -131,6 +132,9 @@ const LeadDetails = ({
 }) => {
   // //console.log;
   // //console.log;
+
+  const emailInputRef = useRef(null)
+
 
   const [columnsLength, setcolumnsLength] = useState([])
 
@@ -2109,53 +2113,228 @@ const LeadDetails = ({
                       </div>
                       <div className="space-y-2 text-sm mt-2">
                         {/* Email with edit functionality */}
-                        <div className="flex items-center gap-2">
-                          <MailIcon className="h-4 w-4 text-muted-foreground" />
-                          {isEditingEmail ? (
-                            <div className="flex items-center gap-2 flex-1">
-                              <input
+                        <div className="space-y-2 text-sm mt-2">
+                        {/* Email with edit functionality */}
+
+
+                        {/* Email with edit functionality - Updated Version */}
+                        {/* {!isEditingEmail ? (
+                          (selectedLeadsDetails?.email || selectedLeadsDetails?.emails?.length > 0) && (
+                            <div className="flex flex-row items-center gap-2">
+                              <MailIcon className="h-4 w-4 text-muted-foreground" />
+                              <div className="text-sm font-medium text-foreground">
+                                {selectedLeadsDetails?.email ? (
+                                  <div className="flex items-center gap-2">
+                                    <span>{selectedLeadsDetails.email}</span>
+                                    <Tooltip title="Edit email">
+                                      <button
+                                        onClick={handleEditEmailClick}
+                                        className="text-muted-foreground hover:text-foreground transition-colors"
+                                      >
+                                        <Pencil className="h-3 w-3" />
+                                      </button>
+                                    </Tooltip>
+                                  </div>
+                                ) : selectedLeadsDetails?.emails?.length > 0 ? (
+                                  ""
+                                ) : null}
+                              </div>
+                            </div>
+                          )
+                        ) : (  */}
+
+                        <div className="flex flex-col gap-2">
+                          <div className="flex flex-row items-center gap-2">
+                            <MailIcon className="h-4 w-4 text-muted-foreground" />
+                            <div className="flex flex-row items-center gap-2 flex-1">
+                              <Input
+                                ref={emailInputRef}
                                 type="email"
-                                value={editedEmail}
-                                onChange={(e) => setEditedEmail(e.target.value)}
-                                className="flex-1 px-2 py-1 border border-gray-300 rounded text-sm outline-none focus:border-brand-primary"
-                                placeholder="Enter email"
+                                value={editedEmail || selectedLeadsDetails?.email}
+                                onChange={(e) => {
+                                  setEditedEmail(e.target.value)
+                                  setIsEditingEmail(true)
+
+                                }}
+                                placeholder="Enter email address"
+                                className="flex-1 text-sm h-8 border border-gray-300 rounded-md p-2 focus:border-black focus:ring-0"
                                 disabled={updateEmailLoader}
-                                autoFocus
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    updateLeadEmail()
+                                  } else if (e.key === 'Escape') {
+                                    handleCancelEditEmail()
+                                  }
+                                }}
                               />
-                              <button
-                                onClick={updateLeadEmail}
-                                disabled={updateEmailLoader}
-                                className="p-1 text-green-600 hover:text-green-700 disabled:opacity-50"
-                                title="Save"
-                              >
+                              <div className="flex items-center gap-1">
                                 {updateEmailLoader ? (
                                   <CircularProgress size={16} />
                                 ) : (
-                                  <Check className="h-4 w-4" />
+                                  <>
+                                    {isEditingEmail && (
+                                    
+                                      <Tooltip title="Save">
+                                        <button
+                                          onClick={updateLeadEmail}
+                                          disabled={!editedEmail?.trim()}
+                                          className="p-1 text-brand-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                                        >
+                                          <span className="text-sm font-semibold">Save</span>
+                                        </button>
+                                      </Tooltip>
+                                    )}
+                                  </>
                                 )}
-                              </button>
-                              <button
-                                onClick={handleCancelEditEmail}
-                                disabled={updateEmailLoader}
-                                className="p-1 text-red-600 hover:text-red-700 disabled:opacity-50"
-                                title="Cancel"
-                              >
-                                <XIcon className="h-4 w-4" />
-                              </button>
+                              </div>
                             </div>
-                          ) : (
-                            <div className="flex items-center gap-2 flex-1">
-                              <span className="text-sm">{selectedLeadsDetails?.email || 'No email'}</span>
-                              <button
-                                onClick={handleEditEmailClick}
-                                className="p-1 text-muted-foreground hover:text-brand-primary"
-                                title={selectedLeadsDetails?.email ? "Edit email" : "Add email"}
-                              >
-                                <Pencil className="h-3 w-3" />
-                              </button>
+                          </div>
+                        </div>
+                        {/*)} */}
+
+
+                        <div>
+                          {selectedLeadsDetails?.email && (
+                            <div className="flex flex-row w-full justify-start">
+                              {selectedLeadsDetails?.emails
+                                ?.slice(0, 1)
+                                .map((email, emailIndex) => {
+                                  return (
+                                    <div
+                                      key={emailIndex}
+                                      className="flex flex-row items-center gap-2"
+                                    >
+                                      <div
+                                        className="flex flex-row items-center gap-2 px-1 mt-1 mb-1 rounded-lg border border-[#00000020]"
+                                        style={styles.paragraph}
+                                      >
+                                        <Image
+                                          src={'/assets/power.png'}
+                                          height={9}
+                                          width={7}
+                                          alt="*"
+                                        />
+                                        <div className="text-[12px] font-[400]">
+                                          <span className="text-brand-primary text-[15px] font-[400]">
+                                            New
+                                          </span>{' '}
+                                          {truncateEmail(email.email)}
+                                        </div>
+                                      </div>
+                                      <button
+                                        className="text-brand-primary underline"
+                                        onClick={() => {
+                                          setShowAllEmails(true)
+                                        }}
+                                      >
+                                        {selectedLeadsDetails?.emails
+                                          ?.length > 1
+                                          ? `+${selectedLeadsDetails?.emails
+                                            ?.length - 1
+                                          }`
+                                          : ''}
+                                      </button>
+                                    </div>
+                                  )
+                                })}
                             </div>
                           )}
                         </div>
+
+
+                        {selectedLeadsDetails?.phone && <InfoRow icon={<PhoneIcon className="h-4 w-4" />}>{selectedLeadsDetails?.phone}</InfoRow>}
+                        {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>{selectedLeadsDetails?.address}</InfoRow>}
+                        <InfoRow icon={<WorkflowIcon className="h-4 w-4" />}>
+                          {selectedLeadsDetails?.pipeline?.title ||
+                            selectedLeadsDetails?.pipeline?.name ||
+                            selectedLeadsDetails?.pipeline ||
+                            '-'}
+                        </InfoRow>
+                        {selectedLeadsDetails?.booking && <div className="flex flex-row items-center gap-2">
+                          <InfoRow icon={<CalendarIcon className="h-4 w-4" />}>{GetFormattedDateString(selectedLeadsDetails?.booking?.datetime, true)}</InfoRow>
+                          {
+                            selectedLeadsDetails?.booking?.duration && (
+                              <TagPill label={`${selectedLeadsDetails?.booking?.duration} min`} />
+                            )
+                          }
+                        </div>}
+                        <div className="flex items-center gap-2">
+                          <TagIcon className="h-4 w-4 text-muted-foreground" />
+                          <TagManagerCn
+                            tags={selectedLeadsDetails?.tags || []}
+                            tagInputRef={tagInputRef}
+                            tagInputValue={tagInputValue}
+                            onInputChange={handleTagInputChange}
+                            onInputKeyDown={handleTagInputKeyDown}
+                            showSuggestions={showTagSuggestions}
+                            setShowSuggestions={setShowTagSuggestions}
+                            tagSuggestions={tagSuggestions}
+                            onSuggestionClick={handleTagSuggestionClick}
+                            addTagLoader={addTagLoader}
+                            onRemoveTag={handleDelTag}
+                            delTagLoader={DelTagLoader}
+                            onRefreshSuggestions={getUniqueTags}
+                            selectedUser={selectedUser}
+                            showSnackbar={showSnackbar}
+                            onLeadDetailsUpdated={handleLeadDetailsUpdated}
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {/* <Avatar className="h-8 w-8">
+                              {selectedLeadsDetails?.assignee?.avatar ? (
+                                <AvatarImage src={selectedLeadsDetails?.assignee.avatar} alt={selectedLeadsDetails?.assignee.name} />
+                              ) : (
+                                <AvatarFallback>{selectedLeadsDetails?.assignee?.name?.[0] || 'A'}</AvatarFallback>
+                            )}
+                          </Avatar> */}
+                          {
+
+                            globalLoader ? (
+                              <CircularProgress size={20} />
+                            ) : (
+
+                          <TeamAssignDropdownCn
+                          withoutBorder={true}
+                          label="Assign"
+                          teamOptions={teamOptions}
+                          onToggle={(teamId, team, shouldAssign) => {
+                            console.log('🎯 [TeamAssignDropdownCn] Toggle:', {
+                              teamId,
+                              team,
+                              shouldAssign,
+                              teamLabel: team?.label,
+                              teamRaw: team?.raw
+                            });
+
+                            if (shouldAssign) {
+                              // If team.raw is available, use it directly
+                              if (team?.raw) {
+                                handleAssignLeadToTeammember(team.raw);
+                              } else {
+                                // Otherwise find the team in our list
+                                const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeam || [])];
+                                const teamToAssign = allTeams.find(t => {
+                                  const tId = t.invitedUserId || t.invitedUser?.id || t.id;
+                                  return String(tId) === String(teamId);
+                                });
+
+                                if (teamToAssign) {
+                                  handleAssignLeadToTeammember(teamToAssign);
+                                } else {
+                                  console.error('❌ Could not find team member with ID:', teamId);
+                                }
+                              }
+                            } else {
+                              handleUnassignLeadFromTeammember(teamId);
+                            }
+                          }}
+
+                        />
+                        )}
+                        </div>
+                      </div>
+
+
                         {selectedLeadsDetails?.phone && <InfoRow icon={<PhoneIcon className="h-4 w-4" />}>{selectedLeadsDetails?.phone}</InfoRow>}
                         {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>{selectedLeadsDetails?.address}</InfoRow>}
                         <InfoRow icon={<WorkflowIcon className="h-4 w-4" />}>
