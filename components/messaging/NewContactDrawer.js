@@ -644,477 +644,524 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
     }))
   }
 
-  return (
-    <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent
-        side="right"
-        className="!w-[1000px] !max-w-[500px] sm:!max-w-[500px] p-0 flex flex-col [&>button]:hidden !z-[1400]"
-        overlayClassName="!z-[1399]"
-        style={{
-          marginTop: '12px',
-          marginBottom: '12px',
-          marginRight: '12px',
-          height: 'calc(100vh - 24px)',
-          borderRadius: '12px',
-          width: '600px',
-          maxWidth: '600px',
-          zIndex: 1400,
-        }}
-      >
-        <SheetHeader className="px-3 py-3 border-b border-gray-200">
-          <div className="flex items-center justify-between">
-            <SheetTitle className="text-lg font-semibold text-black">
-              New Contact
-            </SheetTitle>
-            <CloseBtn onClick={onClose} />
-          </div>
-        </SheetHeader>
+    // Handle open change - only close when explicitly requested (click outside or escape)
+    const handleOpenChange = (newOpen) => {
+      // Only close if the new state is explicitly false
+      // This prevents accidental closes from input interactions
+      if (newOpen === false) {
+        onClose()
+      }
+    }
 
-        <div className="flex-1 overflow-y-auto px-3 py-3">
-          {/* Smartlist Dropdown */}
-          <div className="flex flex-col gap-1 px-0 py-2">
+  return (
+    <Sheet open={open} onOpenChange={handleOpenChange} modal={!showCreateSmartlistModal}>
+    <SheetContent
+      side="right"
+      className={cn(
+        "!w-[1000px] !max-w-[500px] sm:!max-w-[500px] p-0 flex flex-col [&>button]:hidden !z-[1600]",
+        // showCreateSmartlistModal && "pointer-events-none"
+      )}
+      overlayClassName={cn(
+        "!z-[1600]",
+        // showCreateSmartlistModal && "pointer-events-none"
+      )}
+      onEscapeKeyDown={(event) => {
+        // Allow escape key to close (but not if CreateSmartlistModal is open)
+        if (!showCreateSmartlistModal) {
+          onClose()
+        } else {
+          // If CreateSmartlistModal is open, prevent closing the drawer
+          event.preventDefault()
+        }
+      }}
+      onPointerDownOutside={(event) => {
+        // If CreateSmartlistModal is open, ALWAYS prevent closing the drawer
+        // This ensures inputs can be clicked without closing the drawer
+        if (showCreateSmartlistModal) {
+          event.preventDefault()
+          return
+        }
+        
+        // Allow normal closing behavior for other outside clicks
+      }}
+      onInteractOutside={(event) => {
+        // If CreateSmartlistModal is open, ALWAYS prevent closing the drawer
+        if (showCreateSmartlistModal) {
+          event.preventDefault()
+          return
+        }
+      }}
+      style={{
+        marginTop: '12px',
+        marginBottom: '12px',
+        marginRight: '12px',
+        height: 'calc(100vh - 24px)',
+        borderRadius: '12px',
+        width: '600px',
+        maxWidth: '600px',
+        zIndex: 1600,
+        // ...(showCreateSmartlistModal && { pointerEvents: 'none' }),
+      }}
+    >
+      <SheetHeader className="px-3 py-3 border-b border-gray-200">
+        <div className="flex items-center justify-between">
+          <SheetTitle className="text-lg font-semibold text-black">
+            New Contact
+          </SheetTitle>
+          <CloseBtn onClick={onClose} />
+        </div>
+      </SheetHeader>
+
+      <div className="flex-1 overflow-y-auto px-3 py-3">
+        {/* Smartlist Dropdown */}
+        <div className="flex flex-col gap-1 px-0 py-2">
+          <div className="flex items-center justify-between">
             <Label className="text-sm text-gray-600">Smartlist</Label>
-            <div className="flex items-center justify-between">
-              <Label className="text-sm text-gray-600">Smartlist</Label>
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setShowCreateSmartlistModal(true)}
-                className="h-7 px-2 text-xs border border-gray-300 hover:bg-gray-50"
-              >
-                <Plus className="h-3 w-3 mr-1" />
-                New Smartlist
-              </Button>
-            </div>
-            <Select
-              value={selectedSmartlist?.id?.toString() || ''}
-              onValueChange={handleSmartlistSelect}
-              disabled={loadingSmartlists}
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setShowCreateSmartlistModal(true)}
+              className="h-7 px-2 text-xs border border-gray-300 hover:bg-gray-50"
             >
-              <SelectTrigger
+              <Plus className="h-3 w-3 mr-1" />
+              New Smartlist
+            </Button>
+          </div>
+          <Select
+            value={selectedSmartlist?.id?.toString() || ''}
+            onValueChange={handleSmartlistSelect}
+            disabled={loadingSmartlists}
+          >
+            <SelectTrigger
+              className={cn(
+                'h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary',
+                errors.smartlist && 'border-red-500 focus:border-red-500 focus:ring-red-500'
+              )}
+            >
+              <SelectValue placeholder="Select Smartlist" />
+            </SelectTrigger>
+            <SelectContent className="max-h-[200px] !z-[1600]">
+              {loadingSmartlists ? (
+                <div className="px-2 py-1.5 text-sm text-gray-500">
+                  Loading...
+                </div>
+              ) : smartlists.length === 0 ? (
+                <div className="px-2 py-1.5 text-sm text-gray-500">
+                  No smartlists available
+                </div>
+              ) : (
+                smartlists.map((smartlist) => (
+                  <SelectItem
+                    key={smartlist.id}
+                    value={smartlist.id.toString()}
+                  >
+                    {smartlist.sheetName}
+                  </SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
+          {errors.smartlist && (
+            <p className="text-xs text-red-500 mt-0.5">{errors.smartlist}</p>
+          )}
+        </div>
+
+        <Separator className="my-4" />
+
+        {/* Progressive Fields - Animated */}
+        {showFields && (
+          <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+            {/* First Name */}
+            <div className="flex flex-col gap-1">
+              <Label className="text-sm text-gray-600">
+                First Name<span className="text-red-500">*</span>
+              </Label>
+              <Input
+                value={formData.firstName}
+                onChange={(e) => handleInputChange('firstName', e.target.value)}
+                placeholder="Type here"
                 className={cn(
                   'h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary',
-                  errors.smartlist && 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                  errors.firstName && 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                )}
+              />
+              {errors.firstName && (
+                <p className="text-xs text-red-500 mt-0.5">{errors.firstName}</p>
+              )}
+            </div>
+
+            {/* Last Name */}
+            <div className="flex flex-col gap-1">
+              <Label className="text-sm text-gray-600">Last Name</Label>
+              <Input
+                value={formData.lastName}
+                onChange={(e) => handleInputChange('lastName', e.target.value)}
+                onFocus={(e) => {
+                  e.stopPropagation()
+                }}
+                onClick={(e) => {
+                  e.stopPropagation()
+                }}
+                placeholder="Type here"
+                className="h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+              />
+            </div>
+
+            {/* Email Address */}
+            <div className="flex flex-col gap-1">
+              <Label className="text-sm text-gray-600">Email Address</Label>
+              <Input
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange('email', e.target.value)}
+                placeholder="Type here"
+                className={cn(
+                  'h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary',
+                  errors.email && 'border-red-500 focus:border-red-500 focus:ring-red-500'
+                )}
+              />
+              {errors.email && (
+                <p className="text-xs text-red-500 mt-0.5">{errors.email}</p>
+              )}
+            </div>
+
+            {/* Phone Number */}
+            <div className="flex flex-col gap-1">
+              <Label className="text-sm text-gray-600">
+                Phone Number<span className="text-red-500">*</span>
+              </Label>
+              <div
+                className={cn(
+                  'rounded-lg border border-gray-200 shadow-sm bg-white focus-within:border-brand-primary focus-within:ring-1 focus-within:ring-brand-primary',
+                  errors.phone && 'border-red-500 focus-within:border-red-500 focus-within:ring-red-500'
                 )}
               >
-                <SelectValue placeholder="Select Smartlist" />
-              </SelectTrigger>
-              <SelectContent className="max-h-[200px] !z-[1600]">
-                {loadingSmartlists ? (
-                  <div className="px-2 py-1.5 text-sm text-gray-500">
-                    Loading...
-                  </div>
-                ) : smartlists.length === 0 ? (
-                  <div className="px-2 py-1.5 text-sm text-gray-500">
-                    No smartlists available
-                  </div>
-                ) : (
-                  smartlists.map((smartlist) => (
-                    <SelectItem
-                      key={smartlist.id}
-                      value={smartlist.id.toString()}
-                    >
-                      {smartlist.sheetName}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
-            {errors.smartlist && (
-              <p className="text-xs text-red-500 mt-0.5">{errors.smartlist}</p>
-            )}
-          </div>
-
-          <Separator className="my-4" />
-
-          {/* Progressive Fields - Animated */}
-          {showFields && (
-            <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
-              {/* First Name */}
-              <div className="flex flex-col gap-1">
-                <Label className="text-sm text-gray-600">
-                  First Name<span className="text-red-500">*</span>
-                </Label>
-                <Input
-                  value={formData.firstName}
-                  onChange={(e) => handleInputChange('firstName', e.target.value)}
-                  placeholder="Type here"
-                  className={cn(
-                    'h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary',
-                    errors.firstName && 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                  )}
-                />
-                {errors.firstName && (
-                  <p className="text-xs text-red-500 mt-0.5">{errors.firstName}</p>
-                )}
-              </div>
-
-              {/* Last Name */}
-              <div className="flex flex-col gap-1">
-                <Label className="text-sm text-gray-600">Last Name</Label>
-                <Input
-                  value={formData.lastName}
-                  onChange={(e) => handleInputChange('lastName', e.target.value)}
-                  placeholder="Type here"
-                  className="h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+                <PhoneInput
+                  country={'us'}
+                  onlyCountries={['us', 'ca', 'mx']}
+                  disableDropdown={false}
+                  countryCodeEditable={false}
+                  disableCountryCode={false}
+                  value={formData.phone}
+                  onChange={(value) => handleInputChange('phone', value)}
+                  placeholder="Enter Phone Number"
+                  containerClass="phone-input-container"
+                  className="outline-none bg-transparent focus:ring-0"
+                  style={{
+                    borderRadius: '8px',
+                    border: 'none',
+                    outline: 'none',
+                    boxShadow: 'none',
+                    width: '100%',
+                  }}
+                  inputStyle={{
+                    width: '100%',
+                    borderWidth: '0px',
+                    backgroundColor: 'transparent',
+                    paddingLeft: '60px',
+                    paddingTop: '8px',
+                    paddingBottom: '8px',
+                    height: '36px',
+                    outline: 'none',
+                    boxShadow: 'none',
+                    fontSize: '14px',
+                  }}
+                  buttonStyle={{
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    outline: 'none',
+                  }}
+                  dropdownStyle={{
+                    maxHeight: '150px',
+                    overflowY: 'auto',
+                  }}
                 />
               </div>
+              {errors.phone && (
+                <p className="text-xs text-red-500 mt-0.5">{errors.phone}</p>
+              )}
+            </div>
 
-              {/* Email Address */}
-              <div className="flex flex-col gap-1">
-                <Label className="text-sm text-gray-600">Email Address</Label>
-                <Input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  placeholder="Type here"
-                  className={cn(
-                    'h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary',
-                    errors.email && 'border-red-500 focus:border-red-500 focus:ring-red-500'
-                  )}
-                />
-                {errors.email && (
-                  <p className="text-xs text-red-500 mt-0.5">{errors.email}</p>
-                )}
+            {/* Custom Fields */}
+            {loadingCustomFields ? (
+              <div className="px-2 py-1.5 text-sm text-gray-500">
+                Loading custom fields...
               </div>
-
-              {/* Phone Number */}
-              <div className="flex flex-col gap-1">
-                <Label className="text-sm text-gray-600">
-                  Phone Number<span className="text-red-500">*</span>
-                </Label>
-                <div
-                  className={cn(
-                    'rounded-lg border border-gray-200 shadow-sm bg-white focus-within:border-brand-primary focus-within:ring-1 focus-within:ring-brand-primary',
-                    errors.phone && 'border-red-500 focus-within:border-red-500 focus-within:ring-red-500'
-                  )}
-                >
-                  <PhoneInput
-                    country={'us'}
-                    onlyCountries={['us', 'ca', 'mx']}
-                    disableDropdown={false}
-                    countryCodeEditable={false}
-                    disableCountryCode={false}
-                    value={formData.phone}
-                    onChange={(value) => handleInputChange('phone', value)}
-                    placeholder="Enter Phone Number"
-                    containerClass="phone-input-container"
-                    className="outline-none bg-transparent focus:ring-0"
-                    style={{
-                      borderRadius: '8px',
-                      border: 'none',
-                      outline: 'none',
-                      boxShadow: 'none',
-                      width: '100%',
-                    }}
-                    inputStyle={{
-                      width: '100%',
-                      borderWidth: '0px',
-                      backgroundColor: 'transparent',
-                      paddingLeft: '60px',
-                      paddingTop: '8px',
-                      paddingBottom: '8px',
-                      height: '36px',
-                      outline: 'none',
-                      boxShadow: 'none',
-                      fontSize: '14px',
-                    }}
-                    buttonStyle={{
-                      border: 'none',
-                      backgroundColor: 'transparent',
-                      outline: 'none',
-                    }}
-                    dropdownStyle={{
-                      maxHeight: '150px',
-                      overflowY: 'auto',
-                    }}
-                  />
-                </div>
-                {errors.phone && (
-                  <p className="text-xs text-red-500 mt-0.5">{errors.phone}</p>
-                )}
-              </div>
-
-              {/* Custom Fields */}
-              {loadingCustomFields ? (
-                <div className="px-2 py-1.5 text-sm text-gray-500">
-                  Loading custom fields...
-                </div>
-              ) : customFields.length > 0 ? (
-                <>
-
-                  <div className="space-y-4">
-                    {customFields.map((field) => (
-                      <div key={field.id || field.columnName} className="flex flex-col gap-1">
-                        <Label className="text-sm text-gray-600">
-                          {field.columnName}
-                        </Label>
-                        <Input
-                          value={customFieldValues[field.columnName] || ''}
-                          onChange={(e) =>
-                            handleCustomFieldChange(field.columnName, e.target.value)
-                          }
-                          placeholder="Type here"
-                          className="h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </>
-              ) : null}
-
-              <Separator className="my-4" />
-
-              {/* Pipeline and Stage - Side by Side */}
-              <div className="flex gap-3">
-                <div className="flex-1 flex flex-col gap-1">
-                  <Label className="text-sm text-gray-600">Pipeline</Label>
-                  <Select
-                    value={selectedPipeline?.id?.toString() || ''}
-                    onOpenChange={(open) => {
-                      if (open) {
-                        // Store the current value when dropdown opens
-                        previousPipelineValueRef.current = selectedPipeline?.id?.toString() || ''
-                        valueChangedRef.current = false
-                        setIsPipelineSelectOpen(true)
-                      } else {
-                        // When dropdown closes, check if value didn't change (same item clicked)
-                        const currentValue = selectedPipeline?.id?.toString() || ''
-                        if (isPipelineSelectOpen && !valueChangedRef.current && previousPipelineValueRef.current === currentValue && currentValue !== '') {
-                          // Same item was clicked and value didn't change, toggle it off
-                          setTimeout(() => {
-                            setSelectedPipeline(null)
-                            setSelectedStage(null)
-                            setStages([])
-                            setAgents([])
-                            setSelectedAgents([])
-                          }, 0)
+            ) : customFields.length > 0 ? (
+              <>
+              
+                <div className="space-y-4">
+                  {customFields.map((field) => (
+                    <div key={field.id || field.columnName} className="flex flex-col gap-1">
+                      <Label className="text-sm text-gray-600">
+                        {field.columnName}
+                      </Label>
+                      <Input
+                        value={customFieldValues[field.columnName] || ''}
+                        onChange={(e) =>
+                          handleCustomFieldChange(field.columnName, e.target.value)
                         }
-                        setIsPipelineSelectOpen(false)
+                        placeholder="Type here"
+                        className="h-9 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </>
+            ) : null}
+
+            <Separator className="my-4" />
+
+            {/* Pipeline and Stage - Side by Side */}
+            <div className="flex gap-3">
+              <div className="flex-1 flex flex-col gap-1">
+                <Label className="text-sm text-gray-600">Pipeline</Label>
+                <Select
+                  value={selectedPipeline?.id?.toString() || ''}
+                  onOpenChange={(open) => {
+                    if (open) {
+                      // Store the current value when dropdown opens
+                      previousPipelineValueRef.current = selectedPipeline?.id?.toString() || ''
+                      valueChangedRef.current = false
+                      setIsPipelineSelectOpen(true)
+                    } else {
+                      // When dropdown closes, check if value didn't change (same item clicked)
+                      const currentValue = selectedPipeline?.id?.toString() || ''
+                      if (isPipelineSelectOpen && !valueChangedRef.current && previousPipelineValueRef.current === currentValue && currentValue !== '') {
+                        // Same item was clicked and value didn't change, toggle it off
+                        setTimeout(() => {
+                          setSelectedPipeline(null)
+                          setSelectedStage(null)
+                          setStages([])
+                          setAgents([])
+                          setSelectedAgents([])
+                        }, 0)
                       }
-                    }}
-                    onValueChange={(value) => {
-                      valueChangedRef.current = true
-                      if (!value) {
-                        // Clear pipeline selection
+                      setIsPipelineSelectOpen(false)
+                    }
+                  }}
+                  onValueChange={(value) => {
+                    valueChangedRef.current = true
+                    if (!value) {
+                      // Clear pipeline selection
+                      setSelectedPipeline(null)
+                      setSelectedStage(null)
+                      setStages([])
+                      setAgents([])
+                      setSelectedAgents([])
+                    } else {
+                      const pipeline = pipelines.find(
+                        (p) => p.id.toString() === value
+                      )
+                      // If selecting the same pipeline that's already selected, unselect it
+                      if (selectedPipeline?.id?.toString() === value) {
                         setSelectedPipeline(null)
                         setSelectedStage(null)
                         setStages([])
                         setAgents([])
                         setSelectedAgents([])
                       } else {
-                        const pipeline = pipelines.find(
-                          (p) => p.id.toString() === value
-                        )
-                        // If selecting the same pipeline that's already selected, unselect it
-                        if (selectedPipeline?.id?.toString() === value) {
-                          setSelectedPipeline(null)
-                          setSelectedStage(null)
-                          setStages([])
-                          setAgents([])
-                          setSelectedAgents([])
+                        setSelectedPipeline(pipeline)
+                      }
+                    }
+                  }}
+                  disabled={loadingPipelines}
+                >
+                  <SelectTrigger className="h-8 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary">
+                    <SelectValue placeholder="Select Pipeline" />
+                  </SelectTrigger>
+                  <SelectContent className="!z-[1600]">
+                    {loadingPipelines ? (
+                      <div className="px-2 py-1.5 text-sm text-gray-500">
+                        Loading...
+                      </div>
+                    ) : pipelines.length === 0 ? (
+                      <div className="px-2 py-1.5 text-sm text-gray-500">
+                        No pipelines available
+                      </div>
+                    ) : (
+                      pipelines.map((pipeline) => (
+                        <SelectItem
+                          key={pipeline.id}
+                          value={pipeline.id.toString()}
+                        >
+                          {pipeline.title}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex-1 flex flex-col gap-1">
+                <Label className="text-sm text-gray-600">Stage</Label>
+                <Select
+                  value={selectedStage?.id?.toString() || ''}
+                  onValueChange={(value) => {
+                    const stage = stages.find((s) => s.id.toString() === value)
+                    setSelectedStage(stage)
+                  }}
+                  disabled={!selectedPipeline || stages.length === 0}
+                >
+                  <SelectTrigger className="h-8 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary">
+                    <SelectValue placeholder="Select Stage" />
+                  </SelectTrigger>
+                  <SelectContent className="!z-[1601]">
+                    {stages.length === 0 ? (
+                      <div className="px-2 py-1.5 text-sm text-gray-500">
+                        {selectedPipeline
+                          ? 'No stages available'
+                          : 'Select pipeline first'}
+                      </div>
+                    ) : (
+                      stages.map((stage) => (
+                        <SelectItem
+                          key={stage.id}
+                          value={stage.id.toString()}
+                        >
+                          {stage.stageTitle}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Assign to (Agents and Team Members) - Multi-select - Only show when pipeline is selected */}
+            {selectedPipeline && (
+              <div className="flex flex-col gap-1">
+                <Label className="text-sm text-gray-600">Assign to</Label>
+                {loadingAgents ? (
+                  <div className="px-2 py-1.5 text-sm text-gray-500">
+                    Loading...
+                  </div>
+                ) : agents.length === 0 ? (
+                  <div className="px-2 py-1.5 text-sm text-gray-500">
+                    No agents available
+                  </div>
+                ) : (
+                  <MultiSelectDropdownCn
+                    label="Select"
+                    options={agents.map((agent) => {
+                      const id = `agent_${agent.id}`
+                      // Check if this agent is selected by comparing mainAgentId
+                      const isSelected = selectedAgents.some(
+                        (selectedAgent) => selectedAgent.mainAgentId === agent.mainAgentId
+                      )
+                      return {
+                        id,
+                        label: agent.name,
+                        avatar: agent.thumb_profile_image,
+                        selected: isSelected,
+                        raw: { ...agent, type: 'agent' },
+                      }
+                    })}
+                    onToggle={(opt, checked) => {
+                      const raw = opt.raw
+                      if (raw.type === 'agent') {
+                        // Handle agent selection - store complete agent object
+                        if (checked) {
+                          setSelectedAgents((prev) => {
+                            // Avoid duplicates by checking mainAgentId
+                            const exists = prev.some(
+                              (agent) => agent.mainAgentId === raw.mainAgentId
+                            )
+                            if (!exists) {
+                              return [...prev, raw]
+                            }
+                            return prev
+                          })
                         } else {
-                          setSelectedPipeline(pipeline)
+                          setSelectedAgents((prev) =>
+                            prev.filter((agent) => agent.mainAgentId !== raw.mainAgentId)
+                          )
                         }
                       }
                     }}
-                    disabled={loadingPipelines}
-                  >
-                    <SelectTrigger className="h-8 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary">
-                      <SelectValue placeholder="Select Pipeline" />
-                    </SelectTrigger>
-                    <SelectContent className="!z-[1600]">
-                      {loadingPipelines ? (
-                        <div className="px-2 py-1.5 text-sm text-gray-500">
-                          Loading...
-                        </div>
-                      ) : pipelines.length === 0 ? (
-                        <div className="px-2 py-1.5 text-sm text-gray-500">
-                          No pipelines available
-                        </div>
-                      ) : (
-                        pipelines.map((pipeline) => (
-                          <SelectItem
-                            key={pipeline.id}
-                            value={pipeline.id.toString()}
-                          >
-                            {pipeline.title}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="flex-1 flex flex-col gap-1">
-                  <Label className="text-sm text-gray-600">Stage</Label>
-                  <Select
-                    value={selectedStage?.id?.toString() || ''}
-                    onValueChange={(value) => {
-                      const stage = stages.find((s) => s.id.toString() === value)
-                      setSelectedStage(stage)
-                    }}
-                    disabled={!selectedPipeline || stages.length === 0}
-                  >
-                    <SelectTrigger className="h-8 bg-white border border-gray-200 rounded-lg shadow-sm focus:border-brand-primary focus:ring-1 focus:ring-brand-primary">
-                      <SelectValue placeholder="Select Stage" />
-                    </SelectTrigger>
-                    <SelectContent className="!z-[1600]">
-                      {stages.length === 0 ? (
-                        <div className="px-2 py-1.5 text-sm text-gray-500">
-                          {selectedPipeline
-                            ? 'No stages available'
-                            : 'Select pipeline first'}
-                        </div>
-                      ) : (
-                        stages.map((stage) => (
-                          <SelectItem
-                            key={stage.id}
-                            value={stage.id.toString()}
-                          >
-                            {stage.stageTitle}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
+                  />
+                )}
               </div>
-
-              {/* Assign to (Agents and Team Members) - Multi-select - Only show when pipeline is selected */}
-              {selectedPipeline && (
-                <div className="flex flex-col gap-1">
-                  <Label className="text-sm text-gray-600">Assign to</Label>
-                  {loadingAgents ? (
-                    <div className="px-2 py-1.5 text-sm text-gray-500">
-                      Loading...
-                    </div>
-                  ) : agents.length === 0 ? (
-                    <div className="px-2 py-1.5 text-sm text-gray-500">
-                      No agents available
-                    </div>
-                  ) : (
-                    <MultiSelectDropdownCn
-                      label="Select"
-                      options={agents.map((agent) => {
-                        const id = `agent_${agent.id}`
-                        // Check if this agent is selected by comparing mainAgentId
-                        const isSelected = selectedAgents.some(
-                          (selectedAgent) => selectedAgent.mainAgentId === agent.mainAgentId
-                        )
-                        return {
-                          id,
-                          label: agent.name,
-                          avatar: agent.thumb_profile_image,
-                          selected: isSelected,
-                          raw: { ...agent, type: 'agent' },
-                        }
-                      })}
-                      onToggle={(opt, checked) => {
-                        const raw = opt.raw
-                        if (raw.type === 'agent') {
-                          // Handle agent selection - store complete agent object
-                          if (checked) {
-                            setSelectedAgents((prev) => {
-                              // Avoid duplicates by checking mainAgentId
-                              const exists = prev.some(
-                                (agent) => agent.mainAgentId === raw.mainAgentId
-                              )
-                              if (!exists) {
-                                return [...prev, raw]
-                              }
-                              return prev
-                            })
-                          } else {
-                            setSelectedAgents((prev) =>
-                              prev.filter((agent) => agent.mainAgentId !== raw.mainAgentId)
-                            )
-                          }
-                        }
-                      }}
-                    />
-                  )}
-                </div>
-              )}
-
-              <Separator className="my-4" />
-
-              {/* Create Message Thread Checkbox */}
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id="createMessageThread"
-                  checked={createMessageThread}
-                  onCheckedChange={(checked) => setCreateMessageThread(checked === true)}
-                />
-                <Label
-                  htmlFor="createMessageThread"
-                  className="text-sm text-gray-600 cursor-pointer"
-                >
-                  Create message thread
-                </Label>
-              </div>
-
-            </div>
-          )}
-        </div>
-
-        <SheetFooter className="px-3 py-3 border-t border-gray-200 gap-2">
-          <Button
-            variant="outline"
-            onClick={onClose}
-            className="border border-gray-300"
-            disabled={submitting}
-          >
-            Cancel
-          </Button>
-          <Button
-            onClick={handleSubmit}
-            disabled={submitting || !isFormValid()}
-            className="bg-brand-primary hover:bg-brand-primary/90 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {submitting ? (
-              'Creating...'
-            ) : (
-              <>
-                <Plus className="h-4 w-4 mr-2" />
-                Create
-              </>
             )}
-          </Button>
-        </SheetFooter>
-      </SheetContent>
 
-      {/* Create Smartlist Modal - Rendered outside Sheet to avoid z-index issues */}
-      <CreateSmartlistModal
-        open={showCreateSmartlistModal}
-        onClose={() => setShowCreateSmartlistModal(false)}
-        onSuccess={async (newSmartlist) => {
-          // Refresh smartlists
-          await fetchSmartlists()
-          // Select the newly created smartlist
-          if (newSmartlist?.id) {
-            // Use the newSmartlist object directly and trigger the selection logic
-            setSelectedSmartlist(newSmartlist)
-            setErrors((prev) => ({ ...prev, smartlist: null }))
+            <Separator className="my-4" />
 
-            // Extract custom fields from smartlist if available
-            if (newSmartlist.columns && Array.isArray(newSmartlist.columns) && newSmartlist.columns.length > 0) {
-              extractCustomFields(newSmartlist.columns)
-            } else {
-              fetchCustomFields(newSmartlist.id)
-            }
+            {/* Create Message Thread Checkbox */}
+            <div className="flex items-center gap-2">
+              <Checkbox
+                id="createMessageThread"
+                checked={createMessageThread}
+                onCheckedChange={(checked) => setCreateMessageThread(checked === true)}
+              />
+              <Label
+                htmlFor="createMessageThread"
+                className="text-sm text-gray-600 cursor-pointer"
+              >
+                Create message thread
+              </Label>
+            </div>
 
-            // Show fields after a short delay
-            setTimeout(() => {
-              setShowFields(true)
-            }, 100)
+          </div>
+        )}
+      </div>
+
+      <SheetFooter className="px-3 py-3 border-t border-gray-200 gap-2">
+        <Button
+          variant="outline"
+          onClick={onClose}
+          className="border border-gray-300"
+          disabled={submitting}
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={handleSubmit}
+          disabled={submitting || !isFormValid()}
+          className="bg-brand-primary hover:bg-brand-primary/90 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {submitting ? (
+            'Creating...'
+          ) : (
+            <>
+              <Plus className="h-4 w-4 mr-2" />
+              Create
+            </>
+          )}
+        </Button>
+      </SheetFooter>
+    </SheetContent>
+
+    {/* Create Smartlist Modal - Rendered outside Sheet to avoid z-index issues */}
+    <CreateSmartlistModal
+      open={showCreateSmartlistModal}
+      onClose={() => setShowCreateSmartlistModal(false)}
+      onSuccess={async (newSmartlist) => {
+        // Refresh smartlists
+        await fetchSmartlists()
+        // Select the newly created smartlist
+        if (newSmartlist?.id) {
+          // Use the newSmartlist object directly and trigger the selection logic
+          setSelectedSmartlist(newSmartlist)
+          setErrors((prev) => ({ ...prev, smartlist: null }))
+          
+          // Extract custom fields from smartlist if available
+          if (newSmartlist.columns && Array.isArray(newSmartlist.columns) && newSmartlist.columns.length > 0) {
+            extractCustomFields(newSmartlist.columns)
+          } else {
+            fetchCustomFields(newSmartlist.id)
           }
-        }}
-        showInbound={false}
-        selectedUser={selectedUser}
-      />
-    </Sheet>
+          
+          // Show fields after a short delay
+          setTimeout(() => {
+            setShowFields(true)
+          }, 100)
+        }
+      }}
+      showInbound={false}
+      selectedUser={selectedUser}
+    />
+  </Sheet>
   )
 }
 
