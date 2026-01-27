@@ -54,8 +54,8 @@ const TeamAssignDropdownCn = ({
                 .map((team, index) => (
                   <div
                     key={team.id || index}
-                    className="relative"
-                    style={{ zIndex: selectedTeams.length - index }}
+                    className={`relative ${index > 0 ? 'mr-2' : ''}`}
+                    style={{ zIndex: selectedTeams.length - index, marginRight:index > 0 ? '0px' : '0px' }}
                   >
                     {team.avatar ? (
                       <img
