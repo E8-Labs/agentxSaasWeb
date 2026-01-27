@@ -502,113 +502,173 @@ const LeadDetails = ({
 
   //function to assign lead to the team
   const handleAssignLeadToTeammember = async (item) => {
+    setGlobalLoader(true);
     try {
-      //console.log;
-      handleClosePopup()
-      setGlobalLoader(true)
-      let ApiData = null
-      if (item.invitedUserId) {
-        ApiData = {
-          leadId: selectedLeadsDetails.id,
-          teamMemberUserId: item.invitedUserId,
-        }
-      } else {
-        ApiData = {
-          leadId: selectedLeadsDetails.id,
-          teamMemberUserId: item.id,
-        }
-      }
-      // selectedLeadsDetails.id,
-      //   item.invitingUserId
-      // return;
-      let response = await AssignTeamMember(ApiData)
+      handleClosePopup();
+      setGlobalLoader(true);
+
+      console.log('🎯 [handleAssignLeadToTeammember] Starting assignment for:', {
+        item,
+        itemId: item.id,
+        invitedUserId: item.invitedUserId,
+        invitedUser_id: item.invitedUser?.id,
+        name: item.name
+      });
+
+      // Determine the user ID to send to API
+      const teamMemberUserId = item.invitedUserId || item.id;
+
+      const ApiData = {
+        leadId: selectedLeadsDetails.id,
+        teamMemberUserId: teamMemberUserId,
+      };
+
+      console.log('🎯 [handleAssignLeadToTeammember] API data:', ApiData);
+
+      let response = await AssignTeamMember(ApiData);
+      console.log('🎯 [handleAssignLeadToTeammember] API response:', response?.data);
+
       if (response && response.data && response.data.status === true) {
-        let updatedLead = null
-        setSelectedLeadsDetails((prevData) => {
-          // Filter duplicates before adding - use same comparison logic as HandleLeadAssignedTeam
-          const itemId = item.id || item.invitedUserId
-          const isAlreadyAssigned = (prevData.teamsAssigned || []).some((t) => {
-            const tId = t.id || t.invitedUserId || t.invitedUser?.id
-            return String(tId) === String(itemId)
-          })
-
-          // Only add if not already assigned
-          if (!isAlreadyAssigned) {
-            updatedLead = {
-              ...prevData,
-              teamsAssigned: [...(prevData.teamsAssigned || []), item],
-            }
-            return updatedLead
+        // Create a proper team member object for state
+        const newTeamMember = {
+          id: item.id,
+          invitedUserId: item.invitedUserId,
+          invitingUserId: item.invitingUserId,
+          name: item.name || item.invitedUser?.name,
+          thumb_profile_image: item.thumb_profile_image || item.invitedUser?.thumb_profile_image,
+          invitedUser: item.invitedUser || {
+            id: item.invitedUserId || item.id,
+            name: item.name,
+            thumb_profile_image: item.thumb_profile_image
           }
-          updatedLead = prevData
-          return prevData
-        })
-        // Call callback with updated lead data
-        if (updatedLead && leadAssignedTeam) {
-          leadAssignedTeam(item, updatedLead)
-        }
-      } else if (response && response.data && response.data.status === false) {
-        // Show error message if assignment failed (e.g., duplicate)
-        showSnackbar(response.data.message || 'Failed to assign team member', SnackbarTypes.Error)
-      }
-      //console.log;
-    } catch (error) {
-      // console.error("Error occured is", error);
-    } finally {
-      setGlobalLoader(false)
-      handleClosePopup()
-    }
-  }
+        };
 
+        console.log('🎯 [handleAssignLeadToTeammember] New team member object:', newTeamMember);
+
+        // Update state IMMEDIATELY
+        setSelectedLeadsDetails(prevData => {
+          if (!prevData) return prevData;
+
+          const currentTeams = prevData.teamsAssigned || [];
+
+          // Check if already exists
+          const exists = currentTeams.some(t => {
+            const tId = t.id || t.invitedUserId || t.invitedUser?.id;
+            const newId = newTeamMember.id || newTeamMember.invitedUserId || newTeamMember.invitedUser?.id;
+            return String(tId) === String(newId);
+          });
+
+          if (exists) {
+            console.log('🎯 [handleAssignLeadToTeammember] Team member already exists, not adding again');
+            return prevData;
+          }
+
+          const updatedLead = {
+            ...prevData,
+            teamsAssigned: [...currentTeams, newTeamMember]
+          };
+
+          console.log('🎯 [handleAssignLeadToTeammember] Updated lead state:', {
+            oldTeams: currentTeams.map(t => ({ id: t.id, name: t.name })),
+            newTeams: updatedLead.teamsAssigned.map(t => ({ id: t.id, name: t.name })),
+            updatedLead
+          });
+
+          return updatedLead;
+        });
+
+        // Call callback with the new team member
+        if (leadAssignedTeam) {
+          // Get the updated state by simulating what it should be
+          const updatedTeams = [...(selectedLeadsDetails.teamsAssigned || []), newTeamMember];
+          const simulatedUpdatedLead = {
+            ...selectedLeadsDetails,
+            teamsAssigned: updatedTeams
+          };
+          leadAssignedTeam(newTeamMember, simulatedUpdatedLead);
+        }
+
+        showSnackbar(response.data.message || 'Team member assigned successfully', SnackbarTypes.Success);
+      } else {
+        showSnackbar(response?.data?.message || 'Failed to assign team member', SnackbarTypes.Error);
+      }
+    } catch (error) {
+      console.error('❌ [handleAssignLeadToTeammember] Error:', error);
+      showSnackbar('Failed to assign team member. Please try again.', SnackbarTypes.Error);
+    } finally {
+      setGlobalLoader(false);
+      handleClosePopup();
+    }
+  };
   //function to unassign lead from team member
+
   const handleUnassignLeadFromTeammember = async (userId) => {
     try {
-      setGlobalLoader(true)
+      setGlobalLoader(true);
+      console.log('🎯 [handleUnassignLeadFromTeammember] Unassigning user with ID:', userId);
 
-      let ApiData = {
+      // Find the team member being unassigned to get their details
+      const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeam || [])];
+      const teamToUnassign = allTeams.find(t => {
+        const tId = t.invitedUserId || t.invitedUser?.id || t.id;
+        return String(tId) === String(userId);
+      });
+
+      console.log('🎯 [handleUnassignLeadFromTeammember] Team member to unassign:', teamToUnassign);
+
+      const ApiData = {
         leadId: selectedLeadsDetails.id,
         teamMemberUserId: userId,
-      }
+      };
 
-      let response = await UnassignTeamMember(ApiData)
+      console.log('🎯 [handleUnassignLeadFromTeammember] API data:', ApiData);
+
+      let response = await UnassignTeamMember(ApiData);
+      console.log('🎯 [handleUnassignLeadFromTeammember] API response:', response?.data);
 
       if (response && response.data && response.data.status === true) {
-        // Remove the user from the assigned list
-        let updatedLead = null
-        setSelectedLeadsDetails((prevData) => {
+        // Update state IMMEDIATELY
+        setSelectedLeadsDetails(prevData => {
+          if (!prevData) return prevData;
+
           const filteredTeams = (prevData.teamsAssigned || []).filter((user) => {
             // Check all possible ID fields to match the userId
-            const userIdentifier = user.id || user.invitedUserId || user.invitedUser?.id
-            // Convert both to strings for comparison to handle type mismatches
-            return String(userIdentifier) !== String(userId)
-          })
+            const userIdentifier = user.invitedUserId || user.invitedUser?.id || user.id;
+            // Convert both to strings for comparison
+            return String(userIdentifier) !== String(userId);
+          });
 
-          updatedLead = {
+          const updatedLead = {
             ...prevData,
             teamsAssigned: filteredTeams,
+          };
+
+          console.log('🎯 [handleUnassignLeadFromTeammember] Updated lead state:', {
+            oldTeamsCount: prevData.teamsAssigned?.length || 0,
+            newTeamsCount: filteredTeams.length,
+            updatedLead
+          });
+
+          // Call callback with updated lead data
+          if (leadAssignedTeam) {
+            leadAssignedTeam(null, updatedLead);
           }
 
-          return updatedLead
-        })
+          return updatedLead;
+        });
 
-        // Call callback with updated lead data to sync with parent component
-        // Use the updatedLead value we just created
-        if (updatedLead && leadAssignedTeam) {
-          leadAssignedTeam(null, updatedLead)
-        }
-
-        showSnackbar(response.data.message || 'Team member unassigned successfully', SnackbarTypes.Success)
+        showSnackbar(response.data.message || 'Team member unassigned successfully', SnackbarTypes.Success);
       } else if (response && response.data && response.data.status === false) {
         // Show error message if unassignment failed
-        showSnackbar(response.data.message || 'Failed to unassign team member', SnackbarTypes.Error)
+        showSnackbar(response.data.message || 'Failed to unassign team member', SnackbarTypes.Error);
       }
     } catch (error) {
-      console.error('Error occurred in unassign lead from team member:', error)
-      showSnackbar('Failed to unassign team member. Please try again.', SnackbarTypes.Error)
+      console.error('❌ [handleUnassignLeadFromTeammember] Error:', error);
+      showSnackbar('Failed to unassign team member. Please try again.', SnackbarTypes.Error);
     } finally {
-      setGlobalLoader(false)
+      setGlobalLoader(false);
     }
-  }
+  };
 
   const getNumbers = async () => {
     // Use selectedUser prop if provided (admin view), otherwise fall back to localStorage (existing behavior)
@@ -1767,6 +1827,33 @@ const LeadDetails = ({
     }
   }
 
+
+  const teamOptions = React.useMemo(() => {
+    const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeam || [])];
+
+    return allTeams.map((tm) => {
+      // Get the team member ID - use invitedUserId first, then id
+      const id = tm.invitedUserId || tm.invitedUser?.id || tm.id;
+
+      // Check if this team member is already assigned
+      const isSelected = (selectedLeadsDetails?.teamsAssigned || []).some(
+        (assigned) => {
+          const assignedId = assigned.invitedUserId || assigned.invitedUser?.id || assigned.id;
+          return String(assignedId) === String(id);
+        }
+      );
+
+      return {
+        id,
+        label: tm.name || tm.invitedUser?.name || 'Unknown',
+        avatar: tm.thumb_profile_image || tm.invitedUser?.thumb_profile_image,
+        selected: isSelected,
+        raw: tm,
+      };
+    });
+  }, [myTeamAdmin, myTeam, selectedLeadsDetails?.teamsAssigned])
+
+
   const mainContent = (
     <>
       <AgentSelectSnackMessage
@@ -2114,52 +2201,50 @@ const LeadDetails = ({
                                 <AvatarFallback>{selectedLeadsDetails?.assignee?.name?.[0] || 'A'}</AvatarFallback>
                             )}
                           </Avatar> */}
+                          {
+
+                            globalLoader ? (
+                              <CircularProgress size={20} />
+                            ) : (
+
                           <TeamAssignDropdownCn
-                            label="Assign"
-                            teamOptions={[
-                              ...(myTeamAdmin ? [myTeamAdmin] : []),
-                              ...(Array.isArray(myTeam) ? myTeam : []),
-                            ].map((tm) => {
-                              // Get the team member ID - check all possible fields
-                              // For myTeam items from TeamResource:
-                              // - tm.id is the TeamModel id (NOT the user id)
-                              // - tm.invitedUserId is the actual user ID
-                              // - tm.invitedUser.id is also the actual user ID
-                              // We need to use invitedUserId or invitedUser.id, NOT tm.id
-                              const id = tm.invitedUserId || tm.invitedUser?.id || tm.id
+                          withoutBorder={true}
+                          label="Assign"
+                          teamOptions={teamOptions}
+                          onToggle={(teamId, team, shouldAssign) => {
+                            console.log('🎯 [TeamAssignDropdownCn] Toggle:', {
+                              teamId,
+                              team,
+                              shouldAssign,
+                              teamLabel: team?.label,
+                              teamRaw: team?.raw
+                            });
 
-                              const isSelected = (selectedLeadsDetails?.teamsAssigned || []).some(
-                                (assigned) => {
-                                  // Check all possible ID fields in the assigned team member
-                                  const assignedId = assigned.id || assigned.invitedUserId || assigned.invitedUser?.id
-                                  const matches = String(assignedId) === String(id)
-
-                                  if (matches) {}
-
-                                  return matches
-                                }
-                              )
-
-                              // Log for debugging
-                              if (selectedLeadsDetails?.teamsAssigned && selectedLeadsDetails.teamsAssigned.length > 0) {}
-
-                              return {
-                                id,
-                                label: tm.name || tm.invitedUser?.name || 'Unknown',
-                                avatar: tm.thumb_profile_image || tm.invitedUser?.thumb_profile_image,
-                                selected: isSelected,
-                                raw: tm,
-                              }
-                            })}
-                            onToggle={(teamId, team, shouldAssign) => {
-                              if (shouldAssign) {
-                                handleAssignLeadToTeammember?.(team.raw || team)
+                            if (shouldAssign) {
+                              // If team.raw is available, use it directly
+                              if (team?.raw) {
+                                handleAssignLeadToTeammember(team.raw);
                               } else {
-                                handleUnassignLeadFromTeammember?.(teamId)
+                                // Otherwise find the team in our list
+                                const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeam || [])];
+                                const teamToAssign = allTeams.find(t => {
+                                  const tId = t.invitedUserId || t.invitedUser?.id || t.id;
+                                  return String(tId) === String(teamId);
+                                });
+
+                                if (teamToAssign) {
+                                  handleAssignLeadToTeammember(teamToAssign);
+                                } else {
+                                  console.error('❌ Could not find team member with ID:', teamId);
+                                }
                               }
-                            }}
-                            withoutBorder={true}
-                          />
+                            } else {
+                              handleUnassignLeadFromTeammember(teamId);
+                            }
+                          }}
+
+                        />
+                        )}
                         </div>
                       </div>
 
