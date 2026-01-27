@@ -2467,7 +2467,7 @@ const AdminLeads = ({
                                   handleSelectStage(item)
                                 }}
                                 className={`p-2 border border-[#00000020] ${
-                                  found >= 0 ? `bg-purple` : 'bg-transparent'
+                                  found >= 0 ? `bg-brand-primary` : 'bg-transparent'
                                 } px-6
                                                                     ${
                                                                       found >= 0
@@ -2503,7 +2503,7 @@ const AdminLeads = ({
                       <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
                     ) : (
                       <button
-                        className="bg-purple h-[45px] w-[140px] bg-purple text-white rounded-xl outline-none"
+                        className="bg-brand-primary h-[45px] w-[140px] bg-brand-primary text-white rounded-xl outline-none"
                         style={{
                           fontSize: 16.8,
                           fontWeight: '600',
@@ -2636,7 +2636,7 @@ const AdminLeads = ({
                   <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
                 ) : (
                   <button
-                    className="bg-purple h-[50px] rounded-xl text-white rounded-xl w-6/12"
+                    className="bg-brand-primary h-[50px] rounded-xl text-white rounded-xl w-6/12"
                     style={{
                       fontWeight: '600',
                       fontsize: 16,
