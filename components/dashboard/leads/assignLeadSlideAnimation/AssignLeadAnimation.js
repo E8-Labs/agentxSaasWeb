@@ -147,6 +147,30 @@ export default function AssignLeadAnimation({
       setLoader(true)
       const startTime = Date.now()
 
+      // Validate SelectedAgents before proceeding
+      if (!SelectedAgents || SelectedAgents.length === 0) {
+        handleClose({
+          status: true,
+          showSnack: 'Please select an agent before assigning leads',
+          disSelectLeads: false,
+        })
+        resetValues()
+        setLoader(false)
+        return
+      }
+
+      const firstAgent = SelectedAgents[0]
+      if (!firstAgent || !firstAgent.pipeline || !firstAgent.pipeline.id) {
+        handleClose({
+          status: true,
+          showSnack: 'Selected agent must be assigned to a pipeline',
+          disSelectLeads: false,
+        })
+        resetValues()
+        setLoader(false)
+        return
+      }
+
       let timer = null
       let batchSize = null
 
@@ -171,7 +195,7 @@ export default function AssignLeadAnimation({
       }
 
       let Apidata = {
-        pipelineId: SelectedAgents[0].pipeline.id,
+        pipelineId: firstAgent.pipeline.id,
         mainAgentIds: SelectedAgents.map((item) => item.id),
         leadIds: leadIs,
         startTimeDifFromNow: timer,
@@ -183,7 +207,7 @@ export default function AssignLeadAnimation({
       // return;
       if (filters && selectedAll) {
         Apidata = {
-          pipelineId: SelectedAgents[0].pipeline.id,
+          pipelineId: firstAgent.pipeline.id,
           mainAgentIds: SelectedAgents.map((item) => item.id),
           leadIds: leadIs,
           startTimeDifFromNow: timer,

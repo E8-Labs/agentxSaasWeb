@@ -458,6 +458,28 @@ const AssignLead = ({
     try {
       setLoader(true)
 
+      // Validate SelectedAgents before proceeding
+      if (!SelectedAgents || SelectedAgents.length === 0) {
+        handleCloseAssignLeadModal({
+          status: true,
+          showSnack: 'Please select an agent before assigning leads',
+          disSelectLeads: false,
+        })
+        setLoader(false)
+        return
+      }
+
+      const firstAgent = SelectedAgents[0]
+      if (!firstAgent || !firstAgent.pipeline || !firstAgent.pipeline.id) {
+        handleCloseAssignLeadModal({
+          status: true,
+          showSnack: 'Selected agent must be assigned to a pipeline',
+          disSelectLeads: false,
+        })
+        setLoader(false)
+        return
+      }
+
       let timer = null
       let batchSize = null
 
@@ -482,7 +504,7 @@ const AssignLead = ({
       }
 
       let Apidata = {
-        pipelineId: SelectedAgents[0].pipeline.id,
+        pipelineId: firstAgent.pipeline.id,
         mainAgentIds: SelectedAgents.map((item) => item.id),
         leadIds: leadIs,
         startTimeDifFromNow: timer,
@@ -495,7 +517,7 @@ const AssignLead = ({
       // return;
       if (filters && selectedAll) {
         Apidata = {
-          pipelineId: SelectedAgents[0].pipeline.id,
+          pipelineId: firstAgent.pipeline.id,
           mainAgentIds: SelectedAgents.map((item) => item.id),
           leadIds: leadIs,
           startTimeDifFromNow: timer,
