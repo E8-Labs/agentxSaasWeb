@@ -25,7 +25,7 @@ import { useUser } from '@/hooks/redux-hooks'
 import ToggleGroupCN from '@/components/ui/ToggleGroupCN'
 import SplitButtonCN from '@/components/ui/SplitButtonCN'
 import { TypographyCaption } from '@/lib/typography'
-import { getTempletes, getTempleteDetails, createTemplete, updateTemplete, deleteTemplete } from '@/components/pipeline/TempleteServices'
+import { getTempletes, getTempleteDetails, createTemplete, updateTemplete, deleteTemplete, deleteAccount } from '@/components/pipeline/TempleteServices'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import UpgradePlanView from '../callPausedPoupup/UpgradePlanView'
 
@@ -153,6 +153,7 @@ const NewMessageModal = ({
   const smsTextareaRef = useRef(null)
   const [templates, setTemplates] = useState([])
   const [templatesLoading, setTemplatesLoading] = useState(false)
+  const [deletingEmailAccountId, setDeletingEmailAccountId] = useState(null)
   const [showTemplatesDropdown, setShowTemplatesDropdown] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState(null)
   const richTextEditorRef = useRef(null)
@@ -475,6 +476,44 @@ const NewMessageModal = ({
       }
     } catch (error) {
       console.error('Error fetching email accounts:', error)
+    }
+  }
+
+  // Handle email account deletion
+  const handleDeleteEmailAccount = async (account, e) => {
+    e.stopPropagation() // Prevent dropdown from closing
+    
+    if (!window.confirm(`Are you sure you want to delete ${account.email || account.name || account.displayName}?`)) {
+      return
+    }
+
+    setDeletingEmailAccountId(account.id)
+    try {
+      const response = await deleteAccount(account)
+      
+      if (response || response === undefined) {
+        // Remove from local state
+        const updatedAccounts = emailAccounts.filter((a) => a.id !== account.id)
+        setEmailAccounts(updatedAccounts)
+        
+        // If deleted account was selected, select first available account or clear selection
+        if (selectedEmailAccount === account.id.toString()) {
+          if (updatedAccounts.length > 0) {
+            setSelectedEmailAccount(updatedAccounts[0].id.toString())
+            setSelectedEmailAccountObj(updatedAccounts[0])
+          } else {
+            setSelectedEmailAccount(null)
+            setSelectedEmailAccountObj(null)
+          }
+        }
+        
+        toast.success('Email account deleted successfully')
+      }
+    } catch (error) {
+      console.error('Error deleting email account:', error)
+      toast.error(error?.response?.data?.message || 'Failed to delete email account')
+    } finally {
+      setDeletingEmailAccountId(null)
     }
   }
 
@@ -1655,27 +1694,47 @@ const NewMessageModal = ({
                                 {/* Scrollable email accounts list */}
                                 <div className="overflow-y-auto flex-1">
                                   {emailAccounts.map((account) => (
-                                    <button
+                                    <div
                                       key={account.id}
-                                      type="button"
-                                      onClick={() => {
-                                        const accountObj = emailAccounts.find((a) => a.id === account.id)
-                                        setSelectedEmailAccount(account.id.toString())
-                                        setSelectedEmailAccountObj(accountObj)
-                                        setEmailDropdownOpen(false)
-                                      }}
-                                      className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                                        }`}
+                                      className="group relative w-full"
                                     >
-                                      <div className="flex items-center justify-between">
-                                        <span>{account.email || account.name || account.displayName}</span>
-                                        {account.provider && (
-                                          <span className="text-xs text-gray-500 ml-2">
-                                            {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
-                                          </span>
-                                        )}
-                                      </div>
-                                    </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const accountObj = emailAccounts.find((a) => a.id === account.id)
+                                          setSelectedEmailAccount(account.id.toString())
+                                          setSelectedEmailAccountObj(accountObj)
+                                          setEmailDropdownOpen(false)
+                                        }}
+                                        className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                                          }`}
+                                      >
+                                        <div className="flex items-center justify-between">
+                                          <span>{account.email || account.name || account.displayName}</span>
+                                          <div className="flex items-center gap-2">
+                                            {account.provider && (
+                                              <span className="text-xs text-gray-500">
+                                                {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
+                                              </span>
+                                            )}
+                                            {/* Delete icon - visible on hover */}
+                                            <button
+                                              type="button"
+                                              onClick={(e) => handleDeleteEmailAccount(account, e)}
+                                              disabled={deletingEmailAccountId === account.id}
+                                              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded text-red-600 hover:text-red-700 flex-shrink-0"
+                                              title="Delete email account"
+                                            >
+                                              {deletingEmailAccountId === account.id ? (
+                                                <CircularProgress size={14} />
+                                              ) : (
+                                                <Trash2 size={14} />
+                                              )}
+                                            </button>
+                                          </div>
+                                        </div>
+                                      </button>
+                                    </div>
                                   ))}
                                 </div>
                                 {/* Fixed bottom button */}

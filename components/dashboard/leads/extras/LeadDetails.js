@@ -1911,25 +1911,7 @@ const LeadDetails = ({
                     <div className="flex flex-col items-start  w-full">
                       <div className="flex flex-row items-between justify-between w-full">
                         <div className="flex flex-row items-center gap-3">
-                          {/* {selectedLeadsDetails?.agent ? (
-                            <div className="h-[32px] w-[32px]">
-                              {getAgentsListImage(
-                                selectedLeadsDetails?.agent?.agents?.[0]?.agentType === 'outbound'
-                                  ? selectedLeadsDetails?.agent?.agents?.[0]
-                                  : selectedLeadsDetails?.agent?.agents?.[1],
-                                32,
-                                32,
-                              )}
-                            </div>
-                          ) : (
-                            <div
-                              className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                            // onClick={() => handleToggleClick(item.id)}
-                            >
-                              {selectedLeadsDetails?.firstName?.slice(0, 1) ||
-                                '-'}
-                            </div>
-                          )} */}
+                          
                           <Avatar className="h-8 w-8 bg-red">
                             {selectedLeadsDetails?.avatar ? (
                               <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
@@ -2143,6 +2125,7 @@ const LeadDetails = ({
                           )
                         ) : (  */}
 
+                          {/* Email with edit functionality */}
                         <div className="flex flex-col gap-2">
                           <div className="flex flex-row items-center gap-2">
                             <MailIcon className="h-4 w-4 text-muted-foreground" />
@@ -2192,7 +2175,7 @@ const LeadDetails = ({
                         </div>
                         {/*)} */}
 
-
+                        {/* All Emails From The Lead*/}
                         <div>
                           {selectedLeadsDetails?.email && (
                             <div className="flex flex-row w-full justify-start">
@@ -2280,13 +2263,7 @@ const LeadDetails = ({
                           />
                         </div>
                         <div className="flex items-center gap-2">
-                          {/* <Avatar className="h-8 w-8">
-                              {selectedLeadsDetails?.assignee?.avatar ? (
-                                <AvatarImage src={selectedLeadsDetails?.assignee.avatar} alt={selectedLeadsDetails?.assignee.name} />
-                              ) : (
-                                <AvatarFallback>{selectedLeadsDetails?.assignee?.name?.[0] || 'A'}</AvatarFallback>
-                            )}
-                          </Avatar> */}
+                          
                           {
 
                             globalLoader ? (
@@ -2335,96 +2312,7 @@ const LeadDetails = ({
                       </div>
 
 
-                        {selectedLeadsDetails?.phone && <InfoRow icon={<PhoneIcon className="h-4 w-4" />}>{selectedLeadsDetails?.phone}</InfoRow>}
-                        {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>{selectedLeadsDetails?.address}</InfoRow>}
-                        <InfoRow icon={<WorkflowIcon className="h-4 w-4" />}>
-                          {selectedLeadsDetails?.pipeline?.title ||
-                            selectedLeadsDetails?.pipeline?.name ||
-                            selectedLeadsDetails?.pipeline ||
-                            '-'}
-                        </InfoRow>
-                        {selectedLeadsDetails?.booking && <div className="flex flex-row items-center gap-2">
-                          <InfoRow icon={<CalendarIcon className="h-4 w-4" />}>{GetFormattedDateString(selectedLeadsDetails?.booking?.datetime, true)}</InfoRow>
-                          {
-                            selectedLeadsDetails?.booking?.duration && (
-                              <TagPill label={`${selectedLeadsDetails?.booking?.duration} min`} />
-                            )
-                          }
-                        </div>}
-                        <div className="flex items-center gap-2">
-                          <TagIcon className="h-4 w-4 text-muted-foreground" />
-                          <TagManagerCn
-                            tags={selectedLeadsDetails?.tags || []}
-                            tagInputRef={tagInputRef}
-                            tagInputValue={tagInputValue}
-                            onInputChange={handleTagInputChange}
-                            onInputKeyDown={handleTagInputKeyDown}
-                            showSuggestions={showTagSuggestions}
-                            setShowSuggestions={setShowTagSuggestions}
-                            tagSuggestions={tagSuggestions}
-                            onSuggestionClick={handleTagSuggestionClick}
-                            addTagLoader={addTagLoader}
-                            onRemoveTag={handleDelTag}
-                            delTagLoader={DelTagLoader}
-                            onRefreshSuggestions={getUniqueTags}
-                            selectedUser={selectedUser}
-                            showSnackbar={showSnackbar}
-                            onLeadDetailsUpdated={handleLeadDetailsUpdated}
-                          />
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {/* <Avatar className="h-8 w-8">
-                              {selectedLeadsDetails?.assignee?.avatar ? (
-                                <AvatarImage src={selectedLeadsDetails?.assignee.avatar} alt={selectedLeadsDetails?.assignee.name} />
-                              ) : (
-                                <AvatarFallback>{selectedLeadsDetails?.assignee?.name?.[0] || 'A'}</AvatarFallback>
-                            )}
-                          </Avatar> */}
-                          {
-
-                            globalLoader ? (
-                              <CircularProgress size={20} />
-                            ) : (
-
-                          <TeamAssignDropdownCn
-                          withoutBorder={true}
-                          label="Assign"
-                          teamOptions={teamOptions}
-                          onToggle={(teamId, team, shouldAssign) => {
-                            console.log('🎯 [TeamAssignDropdownCn] Toggle:', {
-                              teamId,
-                              team,
-                              shouldAssign,
-                              teamLabel: team?.label,
-                              teamRaw: team?.raw
-                            });
-
-                            if (shouldAssign) {
-                              // If team.raw is available, use it directly
-                              if (team?.raw) {
-                                handleAssignLeadToTeammember(team.raw);
-                              } else {
-                                // Otherwise find the team in our list
-                                const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeam || [])];
-                                const teamToAssign = allTeams.find(t => {
-                                  const tId = t.invitedUserId || t.invitedUser?.id || t.id;
-                                  return String(tId) === String(teamId);
-                                });
-
-                                if (teamToAssign) {
-                                  handleAssignLeadToTeammember(teamToAssign);
-                                } else {
-                                  console.error('❌ Could not find team member with ID:', teamId);
-                                }
-                              }
-                            } else {
-                              handleUnassignLeadFromTeammember(teamId);
-                            }
-                          }}
-
-                        />
-                        )}
-                        </div>
+                        
                       </div>
 
 

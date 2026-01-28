@@ -7,13 +7,14 @@ import { Input } from '@/components/ui/input'
 import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
 import UpgardView from '@/constants/UpgardView'
 import { getUserLocalData } from '@/components/constants/constants'
+import { toast } from '@/utils/toast'
 import { useRouter } from 'next/navigation'
 import { UserRole } from '@/constants/UserRole'
 import axios from 'axios'
 import Apis from '@/components/apis/Apis'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
-import { getTempletes, getTempleteDetails, deleteTemplete } from '@/components/pipeline/TempleteServices'
+import { getTempletes, getTempleteDetails, deleteTemplete, deleteAccount } from '@/components/pipeline/TempleteServices'
 import Image from 'next/image'
 import MessageComposerTabCN from './MessageComposerTabCN'
 import SplitButtonCN from '../ui/SplitButtonCN'
@@ -190,6 +191,7 @@ const MessageComposer = ({
   const [filteredTeamMembers, setFilteredTeamMembers] = useState([])
   const [selectedMentionIndex, setSelectedMentionIndex] = useState(0)
   const mentionDropdownRef = useRef(null)
+  const [deletingEmailAccountId, setDeletingEmailAccountId] = useState(null)
 
   // Variables state
   const [uniqueColumns, setUniqueColumns] = useState([])
@@ -1023,6 +1025,39 @@ const [delTempLoader, setDelTempLoader] = useState(null)
       }
     }
 
+    // Handle email account deletion
+    const handleDeleteEmailAccount = async (account, e) => {
+      e.stopPropagation() // Prevent dropdown from closing
+      
+      if (!window.confirm(`Are you sure you want to delete ${account.email || account.name || account.displayName}?`)) {
+        return
+      }
+
+      setDeletingEmailAccountId(account.id)
+      try {
+        const response = await deleteAccount(account)
+        
+        if (response || response === undefined) {
+          // Refresh email accounts list
+          if (fetchEmailAccounts) {
+            await fetchEmailAccounts()
+          }
+          
+          // If deleted account was selected, clear selection (fetchEmailAccounts will set a new default)
+          if (selectedEmailAccount === account.id.toString()) {
+            setSelectedEmailAccount(null)
+          }
+          
+          toast.success('Email account deleted successfully')
+        }
+      } catch (error) {
+        console.error('Error deleting email account:', error)
+        toast.error(error?.response?.data?.message || 'Failed to delete email account')
+      } finally {
+        setDeletingEmailAccountId(null)
+      }
+    }
+
   return (
     <div className="mx-4 mb-0 rounded-lg bg-white">
       <div className="px-4 py-2">
@@ -1416,25 +1451,45 @@ const [delTempLoader, setDelTempLoader] = useState(null)
                             {emailDropdownOpen && (
                               <div className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
                                 {emailAccounts.map((account) => (
-                                  <button
+                                  <div
                                     key={account.id}
-                                    type="button"
-                                    onClick={() => {
-                                      setSelectedEmailAccount(account.id.toString())
-                                      setEmailDropdownOpen(false)
-                                    }}
-                                    className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                                      }`}
+                                    className="group relative w-full"
                                   >
-                                    <div className="flex items-center justify-between">
-                                      <span>{account.email || account.name || account.displayName}</span>
-                                      {account.provider && (
-                                        <span className="text-xs text-gray-500 ml-2">
-                                          {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
-                                        </span>
-                                      )}
-                                    </div>
-                                  </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedEmailAccount(account.id.toString())
+                                        setEmailDropdownOpen(false)
+                                      }}
+                                      className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                                        }`}
+                                    >
+                                      <div className="flex items-center justify-between">
+                                        <span>{account.email || account.name || account.displayName}</span>
+                                        <div className="flex items-center gap-2">
+                                          {account.provider && (
+                                            <span className="text-xs text-gray-500">
+                                              {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
+                                            </span>
+                                          )}
+                                          {/* Delete icon - visible on hover */}
+                                          <button
+                                            type="button"
+                                            onClick={(e) => handleDeleteEmailAccount(account, e)}
+                                            disabled={deletingEmailAccountId === account.id}
+                                            className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded text-red-600 hover:text-red-700 flex-shrink-0"
+                                            title="Delete email account"
+                                          >
+                                            {deletingEmailAccountId === account.id ? (
+                                              <CircularProgress size={14} />
+                                            ) : (
+                                              <Trash2 size={14} />
+                                            )}
+                                          </button>
+                                        </div>
+                                      </div>
+                                    </button>
+                                  </div>
                                 ))}
                                 <div className="border-t border-gray-200 p-2">
                                   <button
