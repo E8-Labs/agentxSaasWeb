@@ -8,6 +8,8 @@ import getProfileDetails from '@/components/apis/GetProfile'
 import Leads1 from '@/components/dashboard/leads/Leads1'
 import SimpleUpgradeView from '@/components/common/SimpleUpgradeView'
 import { useUser } from '@/hooks/redux-hooks'
+import ProtectedRoute from '@/components/permissions/ProtectedRoute'
+import { PermissionProvider } from '@/contexts/PermissionContext'
 
 const Page = ({ params }) => {
   const [index, setIndex] = useState(0)
@@ -89,24 +91,43 @@ const Page = ({ params }) => {
   const shouldShowUpgrade = userRole === 'AgentX' && maxLeads === 0
 
   return (
-    <Suspense>
-      <div
-        style={backgroundImage}
-        className="overflow-y-none flex flex-row justify-center items-center bg-white"
-      >
-        {shouldShowUpgrade ? (
-          <div className="w-full h-full">
-          <SimpleUpgradeView
-            title="Unlock Leads Feature"
-            subTitle="Upgrade your plan to add and manage leads in your CRM"
-            onUpgradeSuccess={refreshUserData}
-          />
+    <PermissionProvider>
+      <ProtectedRoute
+        permissionKey="agentx.leads.manage"
+        hideIfNoPermission={false}
+        fallback={
+          <div className="w-full flex flex-col items-center justify-center h-screen">
+            <div style={{ padding: '2rem', textAlign: 'center' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '1rem' }}>
+                Access Denied
+              </h2>
+              <p style={{ fontSize: '16px', color: '#666' }}>
+                You do not have permission to view leads.
+              </p>
+            </div>
           </div>
-        ) : (
-          <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
-        )}
-      </div>
-    </Suspense>
+        }
+      >
+        <Suspense>
+          <div
+            style={backgroundImage}
+            className="overflow-y-none flex flex-row justify-center items-center bg-white"
+          >
+            {shouldShowUpgrade ? (
+              <div className="w-full h-full">
+              <SimpleUpgradeView
+                title="Unlock Leads Feature"
+                subTitle="Upgrade your plan to add and manage leads in your CRM"
+                onUpgradeSuccess={refreshUserData}
+              />
+              </div>
+            ) : (
+              <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
+            )}
+          </div>
+        </Suspense>
+      </ProtectedRoute>
+    </PermissionProvider>
   )
 }
 

@@ -729,18 +729,40 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
 
   // Handle existing agency permission toggle
   const handleExistingAgencyPermissionToggle = (permissionKey) => {
-    setExistingAgencyPermissionStates(prev => ({
-      ...prev,
-      [permissionKey]: !prev[permissionKey],
-    }))
+    setExistingAgencyPermissionStates(prev => {
+      // Handle undefined as false (permission not granted)
+      const currentValue = prev[permissionKey] === true
+      const newValue = !currentValue
+      console.log('🔄 Toggled agency permission:', {
+        permissionKey,
+        previousValue: prev[permissionKey],
+        currentValue,
+        newValue,
+      })
+      return {
+        ...prev,
+        [permissionKey]: newValue,
+      }
+    })
   }
 
   // Handle existing subaccount permission toggle
   const handleExistingSubaccountPermissionToggle = (permissionKey) => {
-    setExistingSubaccountPermissionStates(prev => ({
-      ...prev,
-      [permissionKey]: !prev[permissionKey],
-    }))
+    setExistingSubaccountPermissionStates(prev => {
+      // Handle undefined as false (permission not granted)
+      const currentValue = prev[permissionKey] === true
+      const newValue = !currentValue
+      console.log('🔄 Toggled subaccount permission:', {
+        permissionKey,
+        previousValue: prev[permissionKey],
+        currentValue,
+        newValue,
+      })
+      return {
+        ...prev,
+        [permissionKey]: newValue,
+      }
+    })
   }
 
   // Handle existing subaccount selection toggle

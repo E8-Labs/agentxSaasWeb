@@ -7,6 +7,8 @@ import Apis from '@/components/apis/Apis'
 // import Leads1 from "@/components/dashboard/leads/Leads1";
 import Pipeline1 from '@/components/dashboardPipeline/Pipeline1'
 import PipelineLoading from '@/components/dashboardPipeline/PipelineLoading'
+import ProtectedRoute from '@/components/permissions/ProtectedRoute'
+import { PermissionProvider } from '@/contexts/PermissionContext'
 
 // const Pipeline1 = dynamic(() =>
 //   import("../../../components/dashboardPipeline/Pipeline1.js")
@@ -41,14 +43,33 @@ const Page = ({ params }) => {
   }
 
   return (
-    <Suspense>
-      <div
-        style={backgroundImage}
-        className="overflow-y-none flex flex-row justify-center items-center"
+    <PermissionProvider>
+      <ProtectedRoute
+        permissionKey="agentx.pipelines.manage"
+        hideIfNoPermission={false}
+        fallback={
+          <div className="w-full flex flex-col items-center justify-center h-screen">
+            <div style={{ padding: '2rem', textAlign: 'center' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '1rem' }}>
+                Access Denied
+              </h2>
+              <p style={{ fontSize: '16px', color: '#666' }}>
+                You do not have permission to view pipelines.
+              </p>
+            </div>
+          </div>
+        }
       >
-        <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
-      </div>
-    </Suspense>
+        <Suspense>
+          <div
+            style={backgroundImage}
+            className="overflow-y-none flex flex-row justify-center items-center"
+          >
+            <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
+          </div>
+        </Suspense>
+      </ProtectedRoute>
+    </PermissionProvider>
   )
 }
 

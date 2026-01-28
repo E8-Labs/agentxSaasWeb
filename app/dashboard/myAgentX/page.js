@@ -121,6 +121,8 @@ import { hexToHsl, calculateIconFilter } from '@/utilities/colorUtils'
 
 import VoiceMailTab from '../../../components/dashboard/myagentX/VoiceMailTab'
 import AdvancedSettingsModalCN from '@/components/ui/AdvancedSettingsModalCN'
+import ProtectedRoute from '@/components/permissions/ProtectedRoute'
+import { PermissionProvider } from '@/contexts/PermissionContext'
 
 // import EmbedVapi from "@/app/embed/vapi/page";
 // import EmbedWidget from "@/app/test-embed/page";
@@ -3910,7 +3912,24 @@ function Page() {
   }
 
   return (
-    <div className="w-full flex flex-col items-center bg-white" style={{ backgroundColor: '#ffffff', minHeight: '100vh', width: '100%' }}>
+    <PermissionProvider>
+      <ProtectedRoute
+        permissionKey="agentx.agents.view"
+        hideIfNoPermission={false}
+        fallback={
+          <div className="w-full flex flex-col items-center justify-center h-screen">
+            <div style={{ padding: '2rem', textAlign: 'center' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '1rem' }}>
+                Access Denied
+              </h2>
+              <p style={{ fontSize: '16px', color: '#666' }}>
+                You do not have permission to view agents.
+              </p>
+            </div>
+          </div>
+        }
+      >
+        <div className="w-full flex flex-col items-center bg-white" style={{ backgroundColor: '#ffffff', minHeight: '100vh', width: '100%' }}>
       {/* Success snack bar */}
       <div>
         <AgentSelectSnackMessage
@@ -7140,7 +7159,9 @@ function Page() {
       // fetureType={fetureType}
       // onCopyUrl={handleWebhookClick}
       />
-    </div>
+        </div>
+      </ProtectedRoute>
+    </PermissionProvider>
   );
 }
 

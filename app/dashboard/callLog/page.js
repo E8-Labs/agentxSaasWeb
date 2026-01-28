@@ -16,6 +16,8 @@ import LeadLoading from '@/components/dashboard/leads/LeadLoading'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
 import StandardHeader from '@/components/common/StandardHeader'
 import { PersistanceKeys } from '@/constants/Constants'
+import ProtectedRoute from '@/components/permissions/ProtectedRoute'
+import { PermissionProvider } from '@/contexts/PermissionContext'
 
 function Page() {
   // //console.log;
@@ -35,11 +37,28 @@ function Page() {
   }, [])
 
   return (
-    <div className="w-full flex flex-col items-center overflow-hidden">
-      <StandardHeader
-        title="Activity"
-        showTasks={true}
-      />
+    <PermissionProvider>
+      <ProtectedRoute
+        permissionKey="agentx.activity.view"
+        hideIfNoPermission={false}
+        fallback={
+          <div className="w-full flex flex-col items-center justify-center h-screen">
+            <div style={{ padding: '2rem', textAlign: 'center' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '1rem' }}>
+                Access Denied
+              </h2>
+              <p style={{ fontSize: '16px', color: '#666' }}>
+                You do not have permission to view activity.
+              </p>
+            </div>
+          </div>
+        }
+      >
+        <div className="w-full flex flex-col items-center overflow-hidden">
+          <StandardHeader
+            title="Activity"
+            showTasks={true}
+          />
       <div className=" w-full flex mt-6  gap-8 pb-2 mb-4 pl-10">
         {['All Activities', 'Campaign Activity'].map(
           (
@@ -71,7 +90,9 @@ function Page() {
           (<CallActivities user={user} />)
         )}
       </div>
-    </div>
+        </div>
+      </ProtectedRoute>
+    </PermissionProvider>
   );
 }
 

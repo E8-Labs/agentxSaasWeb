@@ -37,6 +37,8 @@ import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import { getStripe } from '@/lib/stripe'
 import { TypographyH3 } from '@/lib/typography'
 import StandardHeader from '@/components/common/StandardHeader'
+import ProtectedRoute from '@/components/permissions/ProtectedRoute'
+import { PermissionProvider } from '@/contexts/PermissionContext'
 
 function Page() {
   const [showKeysBox, setshowKeysBox] = useState(false)
@@ -332,7 +334,24 @@ function Page() {
   }
 
   return (
-    <div className="w-full h-screen flex flex-col overflow-hidden">
+    <PermissionProvider>
+      <ProtectedRoute
+        permissionKey="agentx.integrations.manage"
+        hideIfNoPermission={false}
+        fallback={
+          <div className="w-full flex flex-col items-center justify-center h-screen">
+            <div style={{ padding: '2rem', textAlign: 'center' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '1rem' }}>
+                Access Denied
+              </h2>
+              <p style={{ fontSize: '16px', color: '#666' }}>
+                You do not have permission to view integrations.
+              </p>
+            </div>
+          </div>
+        }
+      >
+        <div className="w-full h-screen flex flex-col overflow-hidden">
       <AgentSelectSnackMessage
         isVisible={showCopySnak}
         hide={() => setShowCopySnak(null)}
@@ -695,7 +714,9 @@ function Page() {
           setSelectedPlan={() => {}}
         />
       </Elements>
-    </div>
+        </div>
+      </ProtectedRoute>
+    </PermissionProvider>
   )
 }
 

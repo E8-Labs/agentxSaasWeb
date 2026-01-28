@@ -29,6 +29,8 @@ import StandardHeader from '@/components/common/StandardHeader'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import { Constants, PersistanceKeys } from '@/constants/Constants'
 import { convertSecondsToMinDuration } from '@/utilities/utility'
+import ProtectedRoute from '@/components/permissions/ProtectedRoute'
+import { PermissionProvider } from '@/contexts/PermissionContext'
 
 const Page = () => {
   const router = useRouter()
@@ -286,15 +288,32 @@ const Page = () => {
   }
 
   return (
-    <div className="w-full flex flex-col items-start justify-screen h-screen overflow-auto">
-      <AgentSelectSnackMessage
-        message={showSnackMsg.message}
-        type={showSnackMsg.type}
-        isVisible={showSnackMsg.isVisible}
-        hide={() =>
-          setShowSnackMsg({ type: null, message: '', isVisible: false })
+    <PermissionProvider>
+      <ProtectedRoute
+        permissionKey="agentx.dashboard.view"
+        hideIfNoPermission={false}
+        fallback={
+          <div className="w-full flex flex-col items-center justify-center h-screen">
+            <div style={{ padding: '2rem', textAlign: 'center' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '1rem' }}>
+                Access Denied
+              </h2>
+              <p style={{ fontSize: '16px', color: '#666' }}>
+                You do not have permission to view the dashboard.
+              </p>
+            </div>
+          </div>
         }
-      />
+      >
+        <div className="w-full flex flex-col items-start justify-screen h-screen overflow-auto">
+          <AgentSelectSnackMessage
+            message={showSnackMsg.message}
+            type={showSnackMsg.type}
+            isVisible={showSnackMsg.isVisible}
+            hide={() =>
+              setShowSnackMsg({ type: null, message: '', isVisible: false })
+            }
+          />
       {/* Slider code<div
         style={{
           position: "absolute",
@@ -788,7 +807,9 @@ const Page = () => {
           </Elements>
         </div>
       )}
-    </div>
+        </div>
+      </ProtectedRoute>
+    </PermissionProvider>
   );
 }
 
