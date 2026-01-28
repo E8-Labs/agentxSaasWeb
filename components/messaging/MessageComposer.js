@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
 import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2 } from 'lucide-react'
-import { CircularProgress, FormControl, MenuItem, Select } from '@mui/material'
+import { Box, CircularProgress, FormControl, MenuItem, Modal, Select } from '@mui/material'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
 import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
@@ -192,6 +192,8 @@ const MessageComposer = ({
   const [selectedMentionIndex, setSelectedMentionIndex] = useState(0)
   const mentionDropdownRef = useRef(null)
   const [deletingEmailAccountId, setDeletingEmailAccountId] = useState(null)
+  const [showDeleteEmailModal, setShowDeleteEmailModal] = useState(false)
+  const [accountToDelete, setAccountToDelete] = useState(null)
 
   // Variables state
   const [uniqueColumns, setUniqueColumns] = useState([])
@@ -1025,17 +1027,20 @@ const [delTempLoader, setDelTempLoader] = useState(null)
       }
     }
 
-    // Handle email account deletion
-    const handleDeleteEmailAccount = async (account, e) => {
+    // Handle email account deletion - opens confirmation modal
+    const handleDeleteEmailAccount = (account, e) => {
       e.stopPropagation() // Prevent dropdown from closing
-      
-      if (!window.confirm(`Are you sure you want to delete ${account.email || account.name || account.displayName}?`)) {
-        return
-      }
+      setAccountToDelete(account)
+      setShowDeleteEmailModal(true)
+    }
 
-      setDeletingEmailAccountId(account.id)
+    // Actually perform the deletion
+    const confirmDeleteEmailAccount = async () => {
+      if (!accountToDelete) return
+
+      setDeletingEmailAccountId(accountToDelete.id)
       try {
-        const response = await deleteAccount(account)
+        const response = await deleteAccount(accountToDelete)
         
         if (response || response === undefined) {
           // Refresh email accounts list
@@ -1044,11 +1049,13 @@ const [delTempLoader, setDelTempLoader] = useState(null)
           }
           
           // If deleted account was selected, clear selection (fetchEmailAccounts will set a new default)
-          if (selectedEmailAccount === account.id.toString()) {
+          if (selectedEmailAccount === accountToDelete.id.toString()) {
             setSelectedEmailAccount(null)
           }
           
           toast.success('Email account deleted successfully')
+          setShowDeleteEmailModal(false)
+          setAccountToDelete(null)
         }
       } catch (error) {
         console.error('Error deleting email account:', error)
@@ -1942,6 +1949,89 @@ const [delTempLoader, setDelTempLoader] = useState(null)
           </div>
         )}
       </div>
+
+      {/* Delete Email Account Confirmation Modal */}
+      <Modal
+        open={showDeleteEmailModal}
+        onClose={() => {
+          setShowDeleteEmailModal(false)
+          setAccountToDelete(null)
+        }}
+        closeAfterTransition
+        disablePortal={false}
+        slotProps={{
+          root: {
+            style: {
+              zIndex: 1500,
+            },
+          },
+        }}
+        sx={{
+          zIndex: 1500,
+        }}
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: '#00000020',
+            zIndex: 1500,
+          },
+        }}
+      >
+        <Box
+          className="lg:w-4/12 sm:w-4/12 w-6/12"
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            borderRadius: '13px',
+            zIndex: 1501,
+          }}
+        >
+          <div className="flex flex-row justify-center w-full">
+            <div
+              className="w-full"
+              style={{
+                backgroundColor: '#ffffff',
+                padding: 20,
+                borderRadius: '13px',
+              }}
+            >
+              <div className="font-bold text-lg mt-6">
+                Delete Email
+              </div>
+              <div className="font-regular text-sm mt-3">
+                Are you sure you want to delete {accountToDelete?.email || accountToDelete?.name || accountToDelete?.displayName || 'this email account'}?
+              </div>
+              <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
+                <button
+                  className="w-1/2 font-bold text-lg text-[#6b7280] h-[50px]"
+                  onClick={() => {
+                    setShowDeleteEmailModal(false)
+                    setAccountToDelete(null)
+                  }}
+                >
+                  Cancel
+                </button>
+                {deletingEmailAccountId === accountToDelete?.id ? (
+                  <div className="w-1/2 flex items-center justify-center h-[50px]">
+                    <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                  </div>
+                ) : (
+                  <button
+                    className="w-1/2 text-red font-bold text-lg border border-[#00000020] rounded-xl h-[50px]"
+                    onClick={confirmDeleteEmailAccount}
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </Box>
+      </Modal>
     </div>
   );
 }
