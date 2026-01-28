@@ -582,7 +582,9 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                         getLeadDetails()
                     }
                 } else {
-                    showSnackbar(response.data?.message || 'Failed to assign agent', SnackbarTypes.Error)
+                    // Extract error message from response
+                    const errorMessage = response.data?.message || response.data?.error || 'Failed to assign agent'
+                    showSnackbar(errorMessage, SnackbarTypes.Error)
                 }
             } else if (type === 'team') {
                 // Assign team member - use raw property which contains the original team member object
@@ -596,7 +598,16 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             }
         } catch (error) {
             console.error('❌ [Assign] Error assigning:', error)
-            showSnackbar('Failed to assign. Please try again.', SnackbarTypes.Error)
+            // Extract error message from axios error response
+            let errorMessage = 'Failed to assign. Please try again.'
+            if (error.response?.data?.message) {
+                errorMessage = error.response.data.message
+            } else if (error.response?.data?.error) {
+                errorMessage = error.response.data.error
+            } else if (error.message) {
+                errorMessage = error.message
+            }
+            showSnackbar(errorMessage, SnackbarTypes.Error)
         } finally {
             setGlobalLoader(false)
         }

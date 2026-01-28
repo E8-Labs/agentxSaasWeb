@@ -54,11 +54,21 @@ const TeamAssignDropdownCn = ({
 
   // Initialize settings from props or fetch if leadId provided
   useEffect(() => {
-    if (leadSettings) {
-      setAutoReplyDisabled(leadSettings.autoReplyDisabled || false)
-      setCadenceDisabled(leadSettings.cadenceDisabled || false)
-      setPendingCallsCount(leadSettings.pendingCallsCount || 0)
-    } else if (leadId) {
+    if (!leadId) {
+      // Reset if no leadId
+      setAutoReplyDisabled(false)
+      setCadenceDisabled(false)
+      setPendingCallsCount(0)
+      return
+    }
+
+    if (leadSettings !== null && leadSettings !== undefined) {
+      // Always sync with prop when provided
+      setAutoReplyDisabled(leadSettings.autoReplyDisabled === true)
+      setCadenceDisabled(leadSettings.cadenceDisabled === true)
+      setPendingCallsCount(Number(leadSettings.pendingCallsCount) || 0)
+    } else {
+      // Fetch if no prop provided
       fetchLeadSettings()
     }
   }, [leadId, leadSettings])
@@ -85,9 +95,9 @@ const TeamAssignDropdownCn = ({
 
       if (response.data?.status && response.data?.data) {
         const data = response.data.data
-        setAutoReplyDisabled(data.autoReplyDisabled || false)
-        setCadenceDisabled(data.cadenceDisabled || false)
-        setPendingCallsCount(data.pendingCallsCount || 0)
+        setAutoReplyDisabled(data.autoReplyDisabled === true)
+        setCadenceDisabled(data.cadenceDisabled === true)
+        setPendingCallsCount(Number(data.pendingCallsCount) || 0)
       }
     } catch (error) {
       console.error('Error fetching lead settings:', error)
@@ -123,9 +133,12 @@ const TeamAssignDropdownCn = ({
       )
 
       if (response.data?.status) {
-        setAutoReplyDisabled(checked)
+        const updatedData = response.data.data
+        setAutoReplyDisabled(updatedData.autoReplyDisabled === true)
+        setCadenceDisabled(updatedData.cadenceDisabled === true)
+        setPendingCallsCount(Number(updatedData.pendingCallsCount) || 0)
         toast.success('Auto-reply settings updated')
-        onSettingsUpdate?.(response.data.data)
+        onSettingsUpdate?.(updatedData)
       } else {
         toast.error(response.data?.message || 'Failed to update settings')
       }
@@ -166,14 +179,16 @@ const TeamAssignDropdownCn = ({
       )
 
       if (response.data?.status) {
-        setCadenceDisabled(checked)
-        setPendingCallsCount(response.data.data?.pendingCallsCount || 0)
+        const updatedData = response.data.data
+        setAutoReplyDisabled(updatedData.autoReplyDisabled === true)
+        setCadenceDisabled(updatedData.cadenceDisabled === true)
+        setPendingCallsCount(Number(updatedData.pendingCallsCount) || 0)
         toast.success(
           checked
             ? 'Cadence disabled - pending calls have been skipped'
             : 'Cadence enabled'
         )
-        onSettingsUpdate?.(response.data.data)
+        onSettingsUpdate?.(updatedData)
       } else {
         toast.error(response.data?.message || 'Failed to update settings')
       }
@@ -311,7 +326,7 @@ const TeamAssignDropdownCn = ({
             </div>
 
             {/* Disable Cadence Toggle - Only show if there are pending calls */}
-            {pendingCallsCount > 0 && (
+            {Number(pendingCallsCount) > 0 && (
               <div className="px-2 py-1.5">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex flex-col">
@@ -319,7 +334,7 @@ const TeamAssignDropdownCn = ({
                       Disable cadence
                     </TypographyBody>
                     <TypographyCaption className="text-xs text-muted-foreground">
-                      {pendingCallsCount} pending call{pendingCallsCount !== 1 ? 's' : ''}
+                      {pendingCallsCount} pending call{Number(pendingCallsCount) !== 1 ? 's' : ''}
                     </TypographyCaption>
                   </div>
                   <Switch

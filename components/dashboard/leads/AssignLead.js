@@ -529,15 +529,32 @@ const AssignLead = ({
           setLastStepModal(false)
           // window.location.reload();
         } else if (response.data.status === false) {
+          // Extract error message from response if available
+          const errorMessage = response.data.message || response.data.error || 'Error assigning lead'
           handleCloseAssignLeadModal({
             status: true,
-            showSnack: 'Error assigning lead',
+            showSnack: errorMessage,
             disSelectLeads: false,
           })
         }
       }
     } catch (error) {
-      // console.error("Error occured in api is", error);
+      console.error("Error occurred in assign lead API:", error)
+      // Extract error message from axios error response
+      let errorMessage = 'Error assigning lead'
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      
+      handleCloseAssignLeadModal({
+        status: true,
+        showSnack: errorMessage,
+        disSelectLeads: false,
+      })
       setSmartRefillLoader(false)
       setSmartRefillLoaderLater(false)
     } finally {
