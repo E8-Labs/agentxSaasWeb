@@ -115,10 +115,10 @@ export const createTemplete = async (data) => {
       // Ensure it's a proper JSON array string
       formdata.append('bccEmails', JSON.stringify(data.bccEmails))
     }
-    // Add templateType if provided
-    if (data.templateType) {
-      formdata.append('templateType', data.templateType)
-    }
+    // Always add templateType (should be 'user' or 'auto')
+    // Default to 'auto' if not provided to match backend behavior
+    const templateTypeToSend = data.templateType || 'auto'
+    formdata.append('templateType', templateTypeToSend)
     for (let pair of formdata.entries()) {}
 
     let path = Apis.templets
@@ -180,10 +180,10 @@ export const updateTemplete = async (data, tempId) => {
       // Ensure it's a proper JSON array string
       formdata.append('bccEmails', JSON.stringify(data.bccEmails))
     }
-    // Add templateType if provided
-    if (data.templateType) {
-      formdata.append('templateType', data.templateType)
-    }
+    // Always add templateType (should be 'user' or 'auto')
+    // Default to 'auto' if not provided to match backend behavior
+    const templateTypeToSend = data.templateType || 'auto'
+    formdata.append('templateType', templateTypeToSend)
     for (let pair of formdata.entries()) {}
 
     let path = `${Apis.templets}/${tempId || ''}`
