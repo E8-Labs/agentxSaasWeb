@@ -1,7 +1,8 @@
 'use client'
 
 import { ChevronDown, Users, Circle } from 'lucide-react'
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
+import axios from 'axios'
 
 import {
   DropdownMenu,
@@ -9,13 +10,20 @@ import {
   DropdownMenuLabel,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
+import { Switch } from '@/components/ui/switch'
 import { TypographyBody, TypographyCaption } from './TypographyCN'
+import Apis from '@/components/apis/Apis'
+import { toast } from '@/utils/toast'
 
 /**
  * Team-only assign dropdown with radio buttons
  * teamOptions: [{ id, label, avatar, selected }]
  * onToggle: (teamId, team, isSelected) => void - called when a team is toggled
+ * leadId: Lead ID for settings toggles (optional)
+ * leadSettings: { autoReplyDisabled, cadenceDisabled, pendingCallsCount } (optional)
+ * onSettingsUpdate: Callback when settings are updated (optional)
  */
 const TeamAssignDropdownCn = ({
   label = 'Assign',
@@ -23,6 +31,9 @@ const TeamAssignDropdownCn = ({
   selectedUser = null,
   onToggle,
   withoutBorder = false,
+  leadId = null,
+  leadSettings = null,
+  onSettingsUpdate = null,
 }) => {
   // Create a stable key from teamOptions to ensure useMemo recalculates
   const teamOptionsKey = useMemo(
@@ -34,6 +45,145 @@ const TeamAssignDropdownCn = ({
     () => teamOptions.filter((opt) => opt.selected),
     [teamOptionsKey, teamOptions],
   )
+
+  // Lead settings state
+  const [autoReplyDisabled, setAutoReplyDisabled] = useState(false)
+  const [cadenceDisabled, setCadenceDisabled] = useState(false)
+  const [pendingCallsCount, setPendingCallsCount] = useState(0)
+  const [loadingSettings, setLoadingSettings] = useState(false)
+
+  // Initialize settings from props or fetch if leadId provided
+  useEffect(() => {
+    if (leadSettings) {
+      setAutoReplyDisabled(leadSettings.autoReplyDisabled || false)
+      setCadenceDisabled(leadSettings.cadenceDisabled || false)
+      setPendingCallsCount(leadSettings.pendingCallsCount || 0)
+    } else if (leadId) {
+      fetchLeadSettings()
+    }
+  }, [leadId, leadSettings])
+
+  const fetchLeadSettings = async () => {
+    if (!leadId) return
+
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+
+      const userData = JSON.parse(localData)
+      const token = userData.token
+
+      const response = await axios.get(
+        `${Apis.getLeadSettings}/${leadId}/settings`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
+      if (response.data?.status && response.data?.data) {
+        const data = response.data.data
+        setAutoReplyDisabled(data.autoReplyDisabled || false)
+        setCadenceDisabled(data.cadenceDisabled || false)
+        setPendingCallsCount(data.pendingCallsCount || 0)
+      }
+    } catch (error) {
+      console.error('Error fetching lead settings:', error)
+    }
+  }
+
+  const handleAutoReplyToggle = async (checked) => {
+    if (!leadId) return
+
+    setLoadingSettings(true)
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) {
+        toast.error('Please log in to update settings')
+        return
+      }
+
+      const userData = JSON.parse(localData)
+      const token = userData.token
+
+      const response = await axios.put(
+        `${Apis.updateLeadSettings}/${leadId}/settings`,
+        {
+          autoReplyDisabled: checked,
+          cadenceDisabled: cadenceDisabled,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
+      if (response.data?.status) {
+        setAutoReplyDisabled(checked)
+        toast.success('Auto-reply settings updated')
+        onSettingsUpdate?.(response.data.data)
+      } else {
+        toast.error(response.data?.message || 'Failed to update settings')
+      }
+    } catch (error) {
+      console.error('Error updating auto-reply settings:', error)
+      toast.error('Failed to update auto-reply settings')
+    } finally {
+      setLoadingSettings(false)
+    }
+  }
+
+  const handleCadenceToggle = async (checked) => {
+    if (!leadId) return
+
+    setLoadingSettings(true)
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) {
+        toast.error('Please log in to update settings')
+        return
+      }
+
+      const userData = JSON.parse(localData)
+      const token = userData.token
+
+      const response = await axios.put(
+        `${Apis.updateLeadSettings}/${leadId}/settings`,
+        {
+          autoReplyDisabled: autoReplyDisabled,
+          cadenceDisabled: checked,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
+
+      if (response.data?.status) {
+        setCadenceDisabled(checked)
+        setPendingCallsCount(response.data.data?.pendingCallsCount || 0)
+        toast.success(
+          checked
+            ? 'Cadence disabled - pending calls have been skipped'
+            : 'Cadence enabled'
+        )
+        onSettingsUpdate?.(response.data.data)
+      } else {
+        toast.error(response.data?.message || 'Failed to update settings')
+      }
+    } catch (error) {
+      console.error('Error updating cadence settings:', error)
+      toast.error('Failed to update cadence settings')
+    } finally {
+      setLoadingSettings(false)
+    }
+  }
 
   const handleTeamClick = (team) => {
     const teamId = String(team.id)
@@ -139,6 +289,48 @@ const TeamAssignDropdownCn = ({
           })
         ) : (
           <div className="px-2 py-1.5 text-sm text-muted-foreground">No team members</div>
+        )}
+
+        {/* Lead Settings Toggles */}
+        {leadId && (
+          <>
+            <DropdownMenuSeparator className="my-1" />
+            
+            {/* Disable Auto Replies Toggle */}
+            <div className="px-2 py-1.5">
+              <div className="flex items-center justify-between gap-2">
+                <TypographyBody className="text-sm text-foreground">
+                  Disable auto replies
+                </TypographyBody>
+                <Switch
+                  checked={autoReplyDisabled}
+                  onCheckedChange={handleAutoReplyToggle}
+                  disabled={loadingSettings}
+                />
+              </div>
+            </div>
+
+            {/* Disable Cadence Toggle - Only show if there are pending calls */}
+            {pendingCallsCount > 0 && (
+              <div className="px-2 py-1.5">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex flex-col">
+                    <TypographyBody className="text-sm text-foreground">
+                      Disable cadence
+                    </TypographyBody>
+                    <TypographyCaption className="text-xs text-muted-foreground">
+                      {pendingCallsCount} pending call{pendingCallsCount !== 1 ? 's' : ''}
+                    </TypographyCaption>
+                  </div>
+                  <Switch
+                    checked={cadenceDisabled}
+                    onCheckedChange={handleCadenceToggle}
+                    disabled={loadingSettings}
+                  />
+                </div>
+              </div>
+            )}
+          </>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

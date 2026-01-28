@@ -49,6 +49,10 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
     // Lead details modal state
     const [showLeadDetailsModal, setShowLeadDetailsModal] = useState(false)
 
+    // Lead settings state
+    const [leadSettings, setLeadSettings] = useState(null)
+    const [loadingLeadSettings, setLoadingLeadSettings] = useState(false)
+
     // Helper function to show snackbar messages
     const showSnackbar = (message, type = SnackbarTypes.Success) => {
         setShowSnackMsg({
@@ -104,6 +108,42 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
         return null
     }
 
+    // Fetch lead settings when thread is selected
+    const fetchLeadSettings = async (leadId) => {
+        if (!leadId) {
+            setLeadSettings(null)
+            return
+        }
+
+        try {
+            setLoadingLeadSettings(true)
+            const localData = localStorage.getItem('User')
+            if (!localData) return
+
+            const userData = JSON.parse(localData)
+            const token = userData.token
+
+            const response = await axios.get(
+                `${Apis.getLeadSettings}/${leadId}/settings`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }
+            )
+
+            if (response.data?.status && response.data?.data) {
+                setLeadSettings(response.data.data)
+            }
+        } catch (error) {
+            console.error('Error fetching lead settings:', error)
+            setLeadSettings(null)
+        } finally {
+            setLoadingLeadSettings(false)
+        }
+    }
+
     // Fetch lead details when thread is selected (same pattern as LeadDetails.js)
     useEffect(() => {
         if (!selectedThread?.leadId) {
@@ -111,10 +151,12 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             setSelectedStage('')
             setPipelineId(null)
             setPipelineTitle(null)
+            setLeadSettings(null)
             return
         }
 
         getLeadDetails(selectedThread.leadId)
+        fetchLeadSettings(selectedThread.leadId)
 
         // Get stages list if pipelineId is available (will be set after lead details are fetched)
         // This will be handled in a separate useEffect that depends on pipelineId
@@ -695,6 +737,11 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                                     key={`assign-${selectedThread.leadId}-${assignmentRefreshKey}-${teamsAssignedKey}`}
                                     label="Assign"
                                     teamOptions={teamMemberOptions}
+                                    leadId={selectedThread.leadId}
+                                    leadSettings={leadSettings}
+                                    onSettingsUpdate={(updatedSettings) => {
+                                        setLeadSettings(updatedSettings)
+                                    }}
                                     onToggle={async (teamId, team, shouldAssign) => {
                                         if (shouldAssign) {
                                             await handleAssignLeadToTeammember(team.raw || team, selectedUser)
