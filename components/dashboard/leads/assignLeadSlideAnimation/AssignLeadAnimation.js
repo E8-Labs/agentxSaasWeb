@@ -239,17 +239,8 @@ export default function AssignLeadAnimation({
           },
         }),
       )
-      setTimeout(() => {
-        handleClose({
-          status: false,
-          showSnack: 'Lead assigned',
-          disSelectLeads: true,
-        })
-        resetValues()
-      }, 3000)
 
-      //   return
-
+      // Make the API call and wait for the actual response
       const response = await axios.post(ApiPath, Apidata, {
         headers: {
           Authorization: 'Bearer ' + AuthToken,
@@ -258,10 +249,18 @@ export default function AssignLeadAnimation({
         timeout: 120000, //  Set timeout to 2 minutes (in milliseconds)
       })
 
-      const endTime = Date.now() // record end time
-      const duration = endTime - startTime // in milliseconds
+      // Only process response if we got a valid response
+      setCurrentIndex(0)
+      
+      if (response.data.status === true) {
+        window.dispatchEvent(
+          new CustomEvent(PersistanceKeys.LeadsAssigned, {
+            detail: {
+              uploading: true,
+            },
+          }),
+        )
 
-      if (duration > 30000) {
         handleClose({
           status: false,
           showSnack: 'Lead assigned',
@@ -277,56 +276,22 @@ export default function AssignLeadAnimation({
         window.dispatchEvent(
           new CustomEvent('UpdateCheckList', { detail: { update: true } }),
         )
-      } else {}
-
-      if (response) {
-        // //console.log;
-        setCurrentIndex(0)
-        if (response.data.status === true) {
-          window.dispatchEvent(
-            new CustomEvent(PersistanceKeys.LeadsAssigned, {
-              detail: {
-                uploading: true,
-              },
-            }),
-          )
-
-          handleClose({
-            status: false,
-            showSnack: 'Lead assigned',
-            disSelectLeads: true,
-          })
-          resetValues()
-          const localData = localStorage.getItem('User')
-          if (localData) {
-            let D = JSON.parse(localData)
-            D.user.checkList.checkList.callsCreated = true
-            localStorage.setItem('User', JSON.stringify(D))
-          }
-          window.dispatchEvent(
-            new CustomEvent('UpdateCheckList', { detail: { update: true } }),
-          )
-          // setLastStepModal(false);
-          // window.location.reload();
-        } else if (response.data.status === false) {
-          // Extract error message from response if available
-          const errorMessage = response.data.message || response.data.error || 'Error assigning lead'
-          handleClose({
-            status: true,
-            showSnack: errorMessage,
-            disSelectLeads: false,
-          })
-          resetValues()
-        }
+      } else {
+        // Extract error message from response - backend returns error in 'message' field
+        const errorMessage = response.data.message || 'Error assigning lead'
+        handleClose({
+          status: true,
+          showSnack: errorMessage,
+          disSelectLeads: false,
+        })
+        resetValues()
       }
     } catch (error) {
       console.error("Error occurred in assign lead API:", error)
-      // Extract error message from axios error response
+      // Extract error message from axios error response - backend returns error in 'message' field
       let errorMessage = 'Error assigning lead'
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message
-      } else if (error.response?.data?.error) {
-        errorMessage = error.response.data.error
       } else if (error.message) {
         errorMessage = error.message
       }

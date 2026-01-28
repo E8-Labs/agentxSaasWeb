@@ -561,8 +561,8 @@ const AssignLead = ({
           setLastStepModal(false)
           // window.location.reload();
         } else if (response.data.status === false) {
-          // Extract error message from response if available
-          const errorMessage = response.data.message || response.data.error || 'Error assigning lead'
+          // Extract error message from response - backend returns error in 'message' field
+          const errorMessage = response.data.message || 'Error assigning lead'
           handleCloseAssignLeadModal({
             status: true,
             showSnack: errorMessage,
@@ -572,12 +572,10 @@ const AssignLead = ({
       }
     } catch (error) {
       console.error("Error occurred in assign lead API:", error)
-      // Extract error message from axios error response
+      // Extract error message from axios error response - backend returns error in 'message' field
       let errorMessage = 'Error assigning lead'
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message
-      } else if (error.response?.data?.error) {
-        errorMessage = error.response.data.error
       } else if (error.message) {
         errorMessage = error.message
       }

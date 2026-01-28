@@ -582,8 +582,8 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                         getLeadDetails()
                     }
                 } else {
-                    // Extract error message from response
-                    const errorMessage = response.data?.message || response.data?.error || 'Failed to assign agent'
+                    // Extract error message from response - backend returns error in 'message' field
+                    const errorMessage = response.data?.message || 'Failed to assign agent'
                     showSnackbar(errorMessage, SnackbarTypes.Error)
                 }
             } else if (type === 'team') {
@@ -598,12 +598,10 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
             }
         } catch (error) {
             console.error('❌ [Assign] Error assigning:', error)
-            // Extract error message from axios error response
+            // Extract error message from axios error response - backend returns error in 'message' field
             let errorMessage = 'Failed to assign. Please try again.'
             if (error.response?.data?.message) {
                 errorMessage = error.response.data.message
-            } else if (error.response?.data?.error) {
-                errorMessage = error.response.data.error
             } else if (error.message) {
                 errorMessage = error.message
             }
