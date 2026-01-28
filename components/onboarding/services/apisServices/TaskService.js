@@ -39,6 +39,7 @@ export const getTasks = async (params = {}) => {
     if (params.assignedTo != null && params.assignedTo !== '') queryParams.append('assignedTo', params.assignedTo)
     if (params.dueDateFilter) queryParams.append('dueDateFilter', params.dueDateFilter)
     if (params.priority) queryParams.append('priority', params.priority)
+    if (params.type) queryParams.append('type', params.type)
 
     const url = `${Apis.getTasks}${queryParams.toString() ? '?' + queryParams.toString() : ''}`
 

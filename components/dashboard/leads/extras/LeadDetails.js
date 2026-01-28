@@ -1915,30 +1915,12 @@ const LeadDetails = ({
                       </button>
                     </div>
                   )}
-                  {/* <div> */}
+                  <div>
                   <div className="flex flex-row items-start justify-between mt-4  w-full">
                     <div className="flex flex-col items-start  w-full">
                       <div className="flex flex-row items-between justify-between w-full">
                         <div className="flex flex-row items-center gap-3">
-                          {/* {selectedLeadsDetails?.agent ? (
-                            <div className="h-[32px] w-[32px]">
-                              {getAgentsListImage(
-                                selectedLeadsDetails?.agent?.agents?.[0]?.agentType === 'outbound'
-                                  ? selectedLeadsDetails?.agent?.agents?.[0]
-                                  : selectedLeadsDetails?.agent?.agents?.[1],
-                                32,
-                                32,
-                              )}
-                            </div>
-                          ) : (
-                            <div
-                              className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                            // onClick={() => handleToggleClick(item.id)}
-                            >
-                              {selectedLeadsDetails?.firstName?.slice(0, 1) ||
-                                '-'}
-                            </div>
-                          )} */}
+                          
                           <Avatar className="h-8 w-8 bg-red">
                             {selectedLeadsDetails?.avatar ? (
                               <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
@@ -2287,13 +2269,7 @@ const LeadDetails = ({
                           />
                         </div>
                         <div className="flex items-center gap-2">
-                          {/* <Avatar className="h-8 w-8">
-                              {selectedLeadsDetails?.assignee?.avatar ? (
-                                <AvatarImage src={selectedLeadsDetails?.assignee.avatar} alt={selectedLeadsDetails?.assignee.name} />
-                              ) : (
-                                <AvatarFallback>{selectedLeadsDetails?.assignee?.name?.[0] || 'A'}</AvatarFallback>
-                            )}
-                          </Avatar> */}
+                          
                           {
 
                             globalLoader ? (
@@ -2339,6 +2315,10 @@ const LeadDetails = ({
                         />
                         )}
                         </div>
+                      </div>
+
+
+                        
                       </div>
 
 

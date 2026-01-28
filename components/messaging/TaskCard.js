@@ -167,6 +167,12 @@ const TaskCard = ({
           <TypographyBodySemibold className="text-foreground">
             {task.title}
           </TypographyBodySemibold>
+          {/* AI Badge for tasks created from call summaries */}
+          {task.type === 'ai_summary' && (
+            <span className="px-2 py-0.5 text-xs font-semibold rounded-md bg-purple-100 text-purple-700 border border-purple-200">
+              AI
+            </span>
+          )}
         </div>
         {/* Priority and More Options - Top Right */}
         <div className="ml-2 flex items-center gap-2">

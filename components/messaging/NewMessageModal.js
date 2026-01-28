@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, CircularProgress, Modal, Tooltip } from '@mui/material'
+import { Box, CircularProgress, Modal, Popover, Tooltip } from '@mui/material'
 import { Check, PaperPlaneTilt, X, CaretDown, Plus } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
@@ -25,7 +25,7 @@ import { useUser } from '@/hooks/redux-hooks'
 import ToggleGroupCN from '@/components/ui/ToggleGroupCN'
 import SplitButtonCN from '@/components/ui/SplitButtonCN'
 import { TypographyCaption } from '@/lib/typography'
-import { getTempletes, getTempleteDetails, createTemplete, updateTemplete, deleteTemplete } from '@/components/pipeline/TempleteServices'
+import { getTempletes, getTempleteDetails, createTemplete, updateTemplete, deleteTemplete, deleteAccount } from '@/components/pipeline/TempleteServices'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import UpgradePlanView from '../callPausedPoupup/UpgradePlanView'
 
@@ -153,6 +153,11 @@ const NewMessageModal = ({
   const smsTextareaRef = useRef(null)
   const [templates, setTemplates] = useState([])
   const [templatesLoading, setTemplatesLoading] = useState(false)
+  const [deletingEmailAccountId, setDeletingEmailAccountId] = useState(null)
+  const [showDeleteEmailModal, setShowDeleteEmailModal] = useState(false)
+  const [accountToDelete, setAccountToDelete] = useState(null)
+  const [emailListPopoverAnchor, setEmailListPopoverAnchor] = useState(null)
+  const [emailListPopoverType, setEmailListPopoverType] = useState(null) // 'cc' or 'bcc'
   const [showTemplatesDropdown, setShowTemplatesDropdown] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState(null)
   const richTextEditorRef = useRef(null)
@@ -498,6 +503,49 @@ const NewMessageModal = ({
       }
     } catch (error) {
       console.error('Error fetching email accounts:', error)
+    }
+  }
+
+  // Handle email account deletion - opens confirmation modal
+  const handleDeleteEmailAccount = (account, e) => {
+    e.stopPropagation() // Prevent dropdown from closing
+    setAccountToDelete(account)
+    setShowDeleteEmailModal(true)
+  }
+
+  // Actually perform the deletion
+  const confirmDeleteEmailAccount = async () => {
+    if (!accountToDelete) return
+
+    setDeletingEmailAccountId(accountToDelete.id)
+    try {
+      const response = await deleteAccount(accountToDelete)
+      
+      if (response || response === undefined) {
+        // Remove from local state
+        const updatedAccounts = emailAccounts.filter((a) => a.id !== accountToDelete.id)
+        setEmailAccounts(updatedAccounts)
+        
+        // If deleted account was selected, select first available account or clear selection
+        if (selectedEmailAccount === accountToDelete.id.toString()) {
+          if (updatedAccounts.length > 0) {
+            setSelectedEmailAccount(updatedAccounts[0].id.toString())
+            setSelectedEmailAccountObj(updatedAccounts[0])
+          } else {
+            setSelectedEmailAccount(null)
+            setSelectedEmailAccountObj(null)
+          }
+        }
+        
+        toast.success('Email account deleted successfully')
+        setShowDeleteEmailModal(false)
+        setAccountToDelete(null)
+      }
+    } catch (error) {
+      console.error('Error deleting email account:', error)
+      toast.error(error?.response?.data?.message || 'Failed to delete email account')
+    } finally {
+      setDeletingEmailAccountId(null)
     }
   }
 
@@ -920,6 +968,14 @@ const NewMessageModal = ({
   }
 
   // Reset when modal closes
+  // Reset saveAsTemplate when modal opens
+  useEffect(() => {
+    if (open) {
+      // Always reset to false when modal opens
+      setSaveAsTemplate(false)
+    }
+  }, [open])
+
   useEffect(() => {
     if (!open) {
       // Clear attachment dropdown timeout
@@ -1038,6 +1094,7 @@ const NewMessageModal = ({
         const user = getUserLocalData()
         const userId = selectedUser?.id || getUserIdFromUrl() || user?.user?.id
 
+       
         // Generate template name from subject or use first 15 chars of body for SMS
         const actualMessageBody = selectedMode === 'sms' ? smsMessageBody : emailMessageBody
         const templateName = selectedMode === 'email'
@@ -1059,6 +1116,8 @@ const NewMessageModal = ({
         let templateData = {
           communicationType: selectedMode,
           templateName: templateName,
+          content: actualMessageBody || messageBody,
+          templateType: templateTypeValue, // Use checkbox value, not hardcoded 'user'
           content: actualMessageBody || messageBody,
           templateType: templateTypeValue, // Use checkbox value, not hardcoded 'user'
         }
@@ -1437,6 +1496,7 @@ const NewMessageModal = ({
           const userId = user?.user?.id
           console.log('✅ [Normal Send Mode] Got user data, userId:', userId)
 
+          // Generate template name from subject or use first 15 chars of body for SMS
           // Get the actual message body - use state directly to ensure we have the value
           const actualMessageBody = selectedMode === 'sms' ? smsMessageBody : emailMessageBody
 
@@ -1469,6 +1529,8 @@ const NewMessageModal = ({
           let templateData = {
             communicationType: selectedMode,
             templateName: templateName,
+            content: actualMessageBody || messageBody, // Use actualMessageBody first, fallback to messageBody
+            templateType: templateTypeValue, // Explicitly set to 'auto' unless checkbox is checked
             content: actualMessageBody || messageBody, // Use actualMessageBody first, fallback to messageBody
             templateType: templateTypeValue, // Explicitly set to 'auto' unless checkbox is checked
           }
@@ -1795,27 +1857,47 @@ const NewMessageModal = ({
                                 {/* Scrollable email accounts list */}
                                 <div className="overflow-y-auto flex-1">
                                   {emailAccounts.map((account) => (
-                                    <button
+                                    <div
                                       key={account.id}
-                                      type="button"
-                                      onClick={() => {
-                                        const accountObj = emailAccounts.find((a) => a.id === account.id)
-                                        setSelectedEmailAccount(account.id.toString())
-                                        setSelectedEmailAccountObj(accountObj)
-                                        setEmailDropdownOpen(false)
-                                      }}
-                                      className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
-                                        }`}
+                                      className="group relative w-full"
                                     >
-                                      <div className="flex items-center justify-between">
-                                        <span>{account.email || account.name || account.displayName}</span>
-                                        {account.provider && (
-                                          <span className="text-xs text-gray-500 ml-2">
-                                            {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
-                                          </span>
-                                        )}
-                                      </div>
-                                    </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const accountObj = emailAccounts.find((a) => a.id === account.id)
+                                          setSelectedEmailAccount(account.id.toString())
+                                          setSelectedEmailAccountObj(accountObj)
+                                          setEmailDropdownOpen(false)
+                                        }}
+                                        className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors ${selectedEmailAccount === account.id.toString() ? 'bg-brand-primary/10 text-brand-primary' : 'text-gray-700'
+                                          }`}
+                                      >
+                                        <div className="flex items-center justify-between">
+                                          <span>{account.email || account.name || account.displayName}</span>
+                                          <div className="flex items-center gap-2">
+                                            {account.provider && (
+                                              <span className="text-xs text-gray-500">
+                                                {account.provider === 'mailgun' ? 'Mailgun' : account.provider === 'gmail' ? 'Gmail' : account.provider}
+                                              </span>
+                                            )}
+                                            {/* Delete icon - visible on hover */}
+                                            <button
+                                              type="button"
+                                              onClick={(e) => handleDeleteEmailAccount(account, e)}
+                                              disabled={deletingEmailAccountId === account.id}
+                                              className="opacity-0 group-hover:opacity-100 transition-opacity p-1 hover:bg-red-100 rounded text-red-600 hover:text-red-700 flex-shrink-0"
+                                              title="Delete email account"
+                                            >
+                                              {deletingEmailAccountId === account.id ? (
+                                                <CircularProgress size={14} />
+                                              ) : (
+                                                <Trash2 size={14} />
+                                              )}
+                                            </button>
+                                          </div>
+                                        </div>
+                                      </button>
+                                    </div>
                                   ))}
                                 </div>
                                 {/* Fixed bottom button */}
@@ -2032,7 +2114,14 @@ const NewMessageModal = ({
                                   {ccEmails[0]}
                                 </span>
                                 {ccEmails.length > 1 && (
-                                  <span className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0">
+                                  <span 
+                                    className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0 cursor-pointer hover:bg-opacity-90 transition-colors"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setEmailListPopoverAnchor(e.currentTarget)
+                                      setEmailListPopoverType('cc')
+                                    }}
+                                  >
                                     +{ccEmails.length - 1}
                                   </span>
                                 )}
@@ -2105,7 +2194,14 @@ const NewMessageModal = ({
                                   {bccEmails[0]}
                                 </span>
                                 {bccEmails.length > 1 && (
-                                  <span className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0">
+                                  <span 
+                                    className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0 cursor-pointer hover:bg-opacity-90 transition-colors"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setEmailListPopoverAnchor(e.currentTarget)
+                                      setEmailListPopoverType('bcc')
+                                    }}
+                                  >
                                     +{bccEmails.length - 1}
                                   </span>
                                 )}
@@ -2684,6 +2780,168 @@ const NewMessageModal = ({
         }}
       // selectedUser={getSelectedUser()}
       />
+
+      {/* Delete Email Account Confirmation Modal */}
+      <Modal
+        open={showDeleteEmailModal}
+        onClose={() => {
+          setShowDeleteEmailModal(false)
+          setAccountToDelete(null)
+        }}
+        closeAfterTransition
+        disablePortal={false}
+        slotProps={{
+          root: {
+            style: {
+              zIndex: 1500,
+            },
+          },
+        }}
+        sx={{
+          zIndex: 1500,
+        }}
+        BackdropProps={{
+          timeout: 1000,
+          sx: {
+            backgroundColor: '#00000020',
+            zIndex: 1500,
+          },
+        }}
+      >
+        <Box
+          className="lg:w-4/12 sm:w-4/12 w-6/12"
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            borderRadius: '13px',
+            zIndex: 1501,
+          }}
+        >
+          <div className="flex flex-row justify-center w-full">
+            <div
+              className="w-full"
+              style={{
+                backgroundColor: '#ffffff',
+                padding: 20,
+                borderRadius: '13px',
+              }}
+            >
+              <div className="font-bold text-xl mt-6">
+                Are you sure you want to delete {accountToDelete?.email || accountToDelete?.name || accountToDelete?.displayName || 'this email account'}?
+              </div>
+              <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
+                <button
+                  className="w-1/2 font-bold text-xl text-[#6b7280] h-[50px]"
+                  onClick={() => {
+                    setShowDeleteEmailModal(false)
+                    setAccountToDelete(null)
+                  }}
+                >
+                  Cancel
+                </button>
+                {deletingEmailAccountId === accountToDelete?.id ? (
+                  <div className="w-1/2 flex items-center justify-center h-[50px]">
+                    <CircularProgress size={20} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                  </div>
+                ) : (
+                  <button
+                    className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                    onClick={confirmDeleteEmailAccount}
+                  >
+                    Delete
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </Box>
+      </Modal>
+
+      {/* Email List Popover for CC/BCC */}
+      <Popover
+        open={Boolean(emailListPopoverAnchor)}
+        anchorEl={emailListPopoverAnchor}
+        onClose={() => {
+          setEmailListPopoverAnchor(null)
+          setEmailListPopoverType(null)
+        }}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        disablePortal={false}
+        container={typeof document !== 'undefined' ? document.body : null}
+        slotProps={{
+          root: {
+            style: {
+              zIndex: 1800,
+            },
+          },
+        }}
+        sx={{
+          zIndex: 1800, // Higher than NewMessageModal (1501) to appear on top
+        }}
+        PaperProps={{
+          style: {
+            padding: '8px',
+            minWidth: '250px',
+            maxWidth: '350px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            zIndex: 1800, // Higher than NewMessageModal (1501) to appear on top
+            position: 'fixed', // Ensure it's positioned correctly when portaled
+          },
+        }}
+      >
+        <div className="py-1">
+          <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase border-b border-gray-200">
+            {emailListPopoverType === 'cc' ? 'CC Recipients' : 'BCC Recipients'}
+          </div>
+          <div className="max-h-60 overflow-y-auto">
+            {(emailListPopoverType === 'cc' ? ccEmails : bccEmails).map((email, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between px-3 py-2 hover:bg-gray-50 transition-colors"
+              >
+                <span className="text-sm text-gray-700 flex-1 truncate">{email}</span>
+                <button
+                  onClick={() => {
+                    // Calculate remaining emails before removal
+                    const remainingEmails = emailListPopoverType === 'cc' 
+                      ? ccEmails.filter(e => e !== email)
+                      : bccEmails.filter(e => e !== email)
+                    
+                    // Remove the email
+                    if (emailListPopoverType === 'cc') {
+                      removeCcEmail(email)
+                    } else {
+                      removeBccEmail(email)
+                    }
+                    
+                    // Close popover if 1 or fewer emails remain (badge disappears when length <= 1)
+                    if (remainingEmails.length <= 1) {
+                      setEmailListPopoverAnchor(null)
+                      setEmailListPopoverType(null)
+                    }
+                  }}
+                  className="ml-2 p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                  title="Remove email"
+                >
+                  <Trash2 size={16} className="text-brand-primary" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Popover>
     </>
   )
 }
