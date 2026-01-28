@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback, useRef } from 'react'
-import { X } from 'lucide-react'
+import { X, Sparkles } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Button } from '@/components/ui/button'
 import ToggleGroupCN from '@/components/ui/ToggleGroupCN'
@@ -92,8 +92,13 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
 
     setLoading(true)
     try {
-      const params = {
-        status: selectedStatus,
+      const params = {}
+      // For regular status tabs, filter by status
+      if (selectedStatus !== 'ai') {
+        params.status = selectedStatus
+      } else {
+        // For AI tab, filter by task type created from call summaries
+        params.type = 'ai_summary'
       }
       if (leadId) params.leadId = leadId
       if (threadId) params.threadId = threadId
@@ -285,6 +290,15 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
   // Status tabs configuration for ToggleGroupCN
   const statusTabs = [
     {
+      label: (
+        <div className="flex items-center gap-1">
+          <Sparkles className="h-3 w-3 text-brand-primary" />
+          <span>AI</span>
+        </div>
+      ),
+      value: 'ai',
+    },
+    {
       label: 'To Dos',
       value: 'todo',
       count: counts.todo || 0,
@@ -302,7 +316,10 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
   ]
 
   // Filter tasks by selected status
-  const filteredTasks = tasks.filter((task) => task.status === selectedStatus)
+  const filteredTasks =
+    selectedStatus === 'ai'
+      ? tasks
+      : tasks.filter((task) => task.status === selectedStatus)
 
   // Reset state when closing
   useEffect(() => {

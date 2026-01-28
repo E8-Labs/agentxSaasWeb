@@ -1,6 +1,6 @@
 'use client'
 
-import { Box, CircularProgress, Modal, Tooltip } from '@mui/material'
+import { Box, CircularProgress, Modal, Popover, Tooltip } from '@mui/material'
 import { Check, PaperPlaneTilt, X, CaretDown, Plus } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
@@ -156,6 +156,8 @@ const NewMessageModal = ({
   const [deletingEmailAccountId, setDeletingEmailAccountId] = useState(null)
   const [showDeleteEmailModal, setShowDeleteEmailModal] = useState(false)
   const [accountToDelete, setAccountToDelete] = useState(null)
+  const [emailListPopoverAnchor, setEmailListPopoverAnchor] = useState(null)
+  const [emailListPopoverType, setEmailListPopoverType] = useState(null) // 'cc' or 'bcc'
   const [showTemplatesDropdown, setShowTemplatesDropdown] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState(null)
   const richTextEditorRef = useRef(null)
@@ -1958,7 +1960,14 @@ const NewMessageModal = ({
                                   {ccEmails[0]}
                                 </span>
                                 {ccEmails.length > 1 && (
-                                  <span className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0">
+                                  <span 
+                                    className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0 cursor-pointer hover:bg-opacity-90 transition-colors"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setEmailListPopoverAnchor(e.currentTarget)
+                                      setEmailListPopoverType('cc')
+                                    }}
+                                  >
                                     +{ccEmails.length - 1}
                                   </span>
                                 )}
@@ -2031,7 +2040,14 @@ const NewMessageModal = ({
                                   {bccEmails[0]}
                                 </span>
                                 {bccEmails.length > 1 && (
-                                  <span className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0">
+                                  <span 
+                                    className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0 cursor-pointer hover:bg-opacity-90 transition-colors"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setEmailListPopoverAnchor(e.currentTarget)
+                                      setEmailListPopoverType('bcc')
+                                    }}
+                                  >
                                     +{bccEmails.length - 1}
                                   </span>
                                 )}
@@ -2689,6 +2705,88 @@ const NewMessageModal = ({
           </div>
         </Box>
       </Modal>
+
+      {/* Email List Popover for CC/BCC */}
+      <Popover
+        open={Boolean(emailListPopoverAnchor)}
+        anchorEl={emailListPopoverAnchor}
+        onClose={() => {
+          setEmailListPopoverAnchor(null)
+          setEmailListPopoverType(null)
+        }}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        disablePortal={false}
+        container={typeof document !== 'undefined' ? document.body : null}
+        slotProps={{
+          root: {
+            style: {
+              zIndex: 1800,
+            },
+          },
+        }}
+        sx={{
+          zIndex: 1800, // Higher than NewMessageModal (1501) to appear on top
+        }}
+        PaperProps={{
+          style: {
+            padding: '8px',
+            minWidth: '250px',
+            maxWidth: '350px',
+            borderRadius: '8px',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+            zIndex: 1800, // Higher than NewMessageModal (1501) to appear on top
+            position: 'fixed', // Ensure it's positioned correctly when portaled
+          },
+        }}
+      >
+        <div className="py-1">
+          <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase border-b border-gray-200">
+            {emailListPopoverType === 'cc' ? 'CC Recipients' : 'BCC Recipients'}
+          </div>
+          <div className="max-h-60 overflow-y-auto">
+            {(emailListPopoverType === 'cc' ? ccEmails : bccEmails).map((email, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between px-3 py-2 hover:bg-gray-50 transition-colors"
+              >
+                <span className="text-sm text-gray-700 flex-1 truncate">{email}</span>
+                <button
+                  onClick={() => {
+                    // Calculate remaining emails before removal
+                    const remainingEmails = emailListPopoverType === 'cc' 
+                      ? ccEmails.filter(e => e !== email)
+                      : bccEmails.filter(e => e !== email)
+                    
+                    // Remove the email
+                    if (emailListPopoverType === 'cc') {
+                      removeCcEmail(email)
+                    } else {
+                      removeBccEmail(email)
+                    }
+                    
+                    // Close popover if 1 or fewer emails remain (badge disappears when length <= 1)
+                    if (remainingEmails.length <= 1) {
+                      setEmailListPopoverAnchor(null)
+                      setEmailListPopoverType(null)
+                    }
+                  }}
+                  className="ml-2 p-1 hover:bg-gray-100 rounded transition-colors flex-shrink-0"
+                  title="Remove email"
+                >
+                  <Trash2 size={16} className="text-brand-primary" />
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      </Popover>
     </>
   )
 }
