@@ -5,6 +5,7 @@ import React, { Suspense, useEffect, useState } from 'react'
 
 import SubAccountMyAccount from '@/components/dashboard/subaccount/myAccount/SubAccountMyAccount'
 import MyAccount from '@/components/myAccount/MyAccount'
+import { PermissionProvider } from '@/contexts/PermissionContext'
 
 function Page() {
   const [role, setRole] = useState('')
@@ -31,13 +32,15 @@ function Page() {
           <CircularProgress size={45} />
         </div>
       ) : (
-        <div>
-          {role && role === 'AgencySubAccount' ? (
-            <SubAccountMyAccount />
-          ) : (
-            <MyAccount />
-          )}
-        </div>
+        <PermissionProvider>
+          <div>
+            {role && role === 'AgencySubAccount' ? (
+              <SubAccountMyAccount />
+            ) : (
+              <MyAccount />
+            )}
+          </div>
+        </PermissionProvider>
       )}
     </Suspense>
   )

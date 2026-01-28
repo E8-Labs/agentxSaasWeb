@@ -1,12 +1,13 @@
 'use client'
 
-import { Button, Drawer } from '@mui/material'
+import { Button, Drawer, CircularProgress } from '@mui/material'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
-import React, { Suspense, useEffect, useState } from 'react'
+import React, { Suspense, useEffect, useState, useMemo } from 'react'
 
 import Apis from '@/components/apis/Apis'
+import { usePermission } from '@/contexts/PermissionContext'
 
 import SubAccountPlansAndPayments from '@/components/dashboard/subaccount/myAccount/SubAccountPlansAndPayments'
 import MyPhoneNumber from '@/components/myAccount/MyPhoneNumber'
@@ -32,6 +33,30 @@ function MyAccount() {
 
   const [tabSelected, setTabSelected] = useState(6)
   const [xbarTitle, setXbarTitle] = useState('Bar Services') // Default title
+
+  // Permission checking state for Invitee users
+  const permissionContext = usePermission()
+  const [permissionsLoaded, setPermissionsLoaded] = useState(false)
+  const [menuPermissions, setMenuPermissions] = useState({})
+  const [userRole, setUserRole] = useState(null)
+  const [isInvitee, setIsInvitee] = useState(false)
+
+  // Get user role to check if they're an Invitee
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        try {
+          const userData = JSON.parse(localData)
+          const role = userData.user?.userRole || userData.userRole
+          setUserRole(role)
+          setIsInvitee(role === 'Invitee')
+        } catch (error) {
+          console.error('Error parsing user data:', error)
+        }
+      }
+    }
+  }, [])
 
   // Get Xbar title from branding
   useEffect(() => {
@@ -131,84 +156,143 @@ function MyAccount() {
   }, [])
 
   // Create menu bar dynamically with current xbar title
-  const manuBar = [
+  // Memoize to prevent unnecessary re-renders
+  const manuBar = useMemo(() => [
     {
       id: 1,
       heading: 'Basic Information',
       subHeading: 'Manage personal information ',
       icon: '/otherAssets/profileCircle.png',
+      permissionKey: null, // Always available
     },
     {
       id: 2,
       heading: 'Plans & Payment',
       subHeading: 'Manage your plans and payment method ',
       icon: '/otherAssets/walletIcon.png',
+      permissionKey: 'agentx.payment.manage',
     },
     {
       id: 3,
       heading: 'Billing',
       subHeading: 'Manage your billing transactions',
       icon: '/otherAssets/billingIcon.png',
+      permissionKey: 'agentx.billing.view',
     },
     {
       id: 4,
       heading: xbarTitle,
       subHeading: 'Our version of the genius bar',
       icon: '/svgIcons/agentXIcon.svg',
+      permissionKey: null, // Always available
     },
     {
       id: 5,
       heading: 'My Phone Numbers',
       subHeading: 'All agent phone numbers',
       icon: '/assets/unSelectedCallIcon.png',
+      permissionKey: 'agentx.phone_numbers.manage',
     },
     {
       id: 6,
       heading: 'Invite Agents',
       subHeading: 'Get 60 credits ',
       icon: '/otherAssets/inviteAgentIcon.png',
+      permissionKey: 'agentx.teams.manage',
     },
-    // {
-    //   id: 6,
-    //   heading: "Support",
-    //   subHeading: "Get in touch with our team and get help",
-    //   icon: "/otherAssets/headPhoneIcon.png",
-    // },
-    // {
-    //   id: 7,
-    //   heading: "Send Feedback",
-    //   subHeading: "Report bugs, new features and more",
-    //   icon: "/otherAssets/feedbackIcon.png",
-    // },
     {
       id: 7,
       heading: 'Twilio Trust Hub',
       subHeading: 'Caller ID & compliance for trusted calls',
       icon: '/svgIcons/twilioHub.svg',
+      permissionKey: 'agentx.phone_numbers.manage', // Same as phone numbers
     },
     {
       id: 8,
       heading: 'Terms & Conditions',
       subHeading: '',
       icon: '/svgIcons/info.svg',
+      permissionKey: null, // Always available (terms/privacy are public)
     },
     {
       id: 9,
       heading: 'Privacy Policy',
       subHeading: '',
       icon: '/svgIcons/info.svg',
+      permissionKey: null, // Always available
     },
     {
       id: 10,
       heading: 'Cancellation & Refund',
       subHeading: '',
       icon: '/svgIcons/info.svg',
+      permissionKey: null, // Always available
     },
-  ]
+  ], [xbarTitle])
+
+  // Pre-check all permissions for Invitee users to prevent flicker
+  useEffect(() => {
+    if (!isInvitee || !permissionContext) {
+      // Non-Invitee users have all permissions, or no permission context
+      setPermissionsLoaded(true)
+      return
+    }
+    
+    const checkAllPermissions = async () => {
+      const permissions = {}
+      const permissionChecks = manuBar.map(async (item) => {
+        try {
+          if (item.permissionKey) {
+            const hasAccess = await permissionContext.hasPermission(item.permissionKey)
+            permissions[item.id] = hasAccess
+          } else {
+            // Items without permission keys are always accessible
+            permissions[item.id] = true
+          }
+        } catch (error) {
+          console.error('[MyAccount][Permissions] Error checking item', {
+            id: item.id,
+            name: item.heading,
+            permissionKey: item.permissionKey,
+            error: error?.message,
+          })
+          permissions[item.id] = false
+        }
+      })
+      
+      await Promise.all(permissionChecks)
+      setMenuPermissions(permissions)
+      setPermissionsLoaded(true)
+    }
+    
+    checkAllPermissions().catch((error) => {
+      console.error('[MyAccount][Permissions] Error in checkAllPermissions', error)
+      setPermissionsLoaded(true)
+    })
+  }, [isInvitee, permissionContext, manuBar])
+
+  // Filter menu items based on permissions for Invitee users
+  const accessibleMenuItems = useMemo(() => {
+    if (!isInvitee || !permissionsLoaded) {
+      // For non-Invitee users or while loading, show all items
+      return manuBar
+    }
+    
+    // Filter items based on pre-checked permissions
+    return manuBar.filter((item) => {
+      // Items without permission keys are always accessible
+      if (!item.permissionKey) {
+        return true
+      }
+      // Check if user has permission for this item
+      return menuPermissions[item.id] === true
+    })
+  }, [isInvitee, permissionsLoaded, manuBar, menuPermissions])
 
   const [selectedManu, setSelectedManu] = useState(null)
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false)
   const [userLocalData, setUserLocalData] = useState(null)
+  
   //select the invite teams by default
   useEffect(() => {
     const data = getUserLocalData()
@@ -217,17 +301,21 @@ function MyAccount() {
     const tab = searchParams.get('tab')
     const number = Number(tab)
 
-    const exists = manuBar.find((item) => item.id === number)
+    // Use accessibleMenuItems instead of manuBar to check if tab exists
+    const exists = accessibleMenuItems.find((item) => item.id === number)
     if (exists) {
       setTabSelected(number)
       setSelectedManu(exists)
     } else {
-      setTabSelected(6) // Default to Invite Agents
-      setParamsInSearchBar(6)
-      setSelectedManu(manuBar.find(item => item.id === 6))
-      // console.log("Setting the tab value");
+      // Find first accessible menu item, or default to Basic Information (id: 1)
+      const firstAccessible = accessibleMenuItems.find(item => item.id === 1) || accessibleMenuItems[0]
+      if (firstAccessible) {
+        setTabSelected(firstAccessible.id)
+        setParamsInSearchBar(firstAccessible.id)
+        setSelectedManu(firstAccessible)
+      }
     }
-  }, [xbarTitle])
+  }, [xbarTitle, accessibleMenuItems])
 
   const setParamsInSearchBar = (index = 1) => {
     // Create a new URLSearchParams object to modify
@@ -295,61 +383,72 @@ function MyAccount() {
       <StandardHeader title="My Account" showTasks={true} />
       <div className="w-full flex flex-row item-center pl-4 h-[100%]">
         <div className="w-3/12 items-center flex flex-col pt-4 pr-2 overflow-y-auto h-[90%] pb-22">
-          {manuBar.map((item, index) => (
-            <div key={item.id} className="w-full">
-              <button
-                className="w-full outline-none"
-                style={{
-                  textTransform: 'none', // Prevents uppercase transformation
-                  fontWeight: 'normal', // Optional: Adjust the font weight
-                }}
-                onClick={async () => {
-                  //   setSelectedManu(index + 1);
-                  await handleTabSelect(item, index)
-                }}
-              >
-                <div
-                  className="p-4 rounded-lg flex flex-row gap-2 items-start mt-4 w-full"
-                  style={{
-                    backgroundColor:
-                      index === tabSelected - 1 ? 'hsl(var(--brand-primary) / 0.1)' : 'transparent',
-                  }}
-                >
-                  <Image src={item.icon} height={24} width={24} alt="icon" />
-                  <div
-                    className="flex flex-col gap-1 items-start text-start"
-                    // style={{
-                    //   whiteSpace: "nowrap",
-                    //   overflow: "hidden",
-                    //   textOverflow: "ellipsis",
-                    // }}
+          {!permissionsLoaded && isInvitee ? (
+            // Show loading state while checking permissions
+            <div className="w-full flex flex-col items-center justify-center py-8">
+              <CircularProgress size={24} />
+            </div>
+          ) : (
+            accessibleMenuItems.map((item, index) => {
+              // Find the index in accessibleMenuItems for highlighting
+              const isSelected = item.id === tabSelected
+              
+              return (
+                <div key={item.id} className="w-full">
+                  <button
+                    className="w-full outline-none"
+                    style={{
+                      textTransform: 'none', // Prevents uppercase transformation
+                      fontWeight: 'normal', // Optional: Adjust the font weight
+                    }}
+                    onClick={async () => {
+                      await handleTabSelect(item, index)
+                    }}
                   >
                     <div
+                      className="p-4 rounded-lg flex flex-row gap-2 items-start mt-4 w-full"
                       style={{
-                        fontSize: 16,
-                        fontWeight: '700',
-                        color: '#000',
-                        textAlign: 'left',
+                        backgroundColor:
+                          isSelected ? 'hsl(var(--brand-primary) / 0.1)' : 'transparent',
                       }}
                     >
-                      {item.heading}
-                    </div>
+                      <Image src={item.icon} height={24} width={24} alt="icon" />
+                      <div
+                        className="flex flex-col gap-1 items-start text-start"
+                        // style={{
+                        //   whiteSpace: "nowrap",
+                        //   overflow: "hidden",
+                        //   textOverflow: "ellipsis",
+                        // }}
+                      >
+                        <div
+                          style={{
+                            fontSize: 16,
+                            fontWeight: '700',
+                            color: '#000',
+                            textAlign: 'left',
+                          }}
+                        >
+                          {item.heading}
+                        </div>
 
-                    <div
-                      style={{
-                        fontSize: 13,
-                        fontWeight: '500',
-                        color: '#000',
-                        textAlign: 'left',
-                      }}
-                    >
-                      {item.subHeading}
+                        <div
+                          style={{
+                            fontSize: 13,
+                            fontWeight: '500',
+                            color: '#000',
+                            textAlign: 'left',
+                          }}
+                        >
+                          {item.subHeading}
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  </button>
                 </div>
-              </button>
-            </div>
-          ))}
+              )
+            })
+          )}
         </div>
 
         <div

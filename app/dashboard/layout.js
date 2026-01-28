@@ -13,6 +13,7 @@ import NavigationLoader from '@/components/common/NavigationLoader'
 import IncomingCallBanner from '@/components/dialer/IncomingCallBanner'
 import { selectIsDialerOpen, selectCallStatus, selectPreventClose, selectLeadData } from '@/store/slices/dialerSlice'
 import { closeDialer, forceCloseDialer } from '@/store/slices/dialerSlice'
+import { PermissionProvider } from '@/contexts/PermissionContext'
 
 const shouldShowServiceBanner =
   process.env.NEXT_PUBLIC_REACT_APP_DOWN_TIME === 'Yes'
@@ -116,7 +117,9 @@ export default function DashboardLayout({ children }) {
               backgroundColor: 'white',
             }}
           >
-            <ProfileNav />
+            <PermissionProvider>
+              <ProfileNav />
+            </PermissionProvider>
           </div>
 
           {/* Main Content */}

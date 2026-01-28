@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -15,7 +15,7 @@ import Link from "next/link";
 import getProfileDetails from "@/components/apis/GetProfile";
 import Apis from "@/components/apis/Apis";
 import axios from "axios";
-import { useHasPermission } from "@/contexts/PermissionContext";
+import { useHasPermission, usePermission } from "@/contexts/PermissionContext";
 // const FacebookPixel = dynamic(() => import("../utils/facebookPixel.js"), {
 //   ssr: false,
 // });
@@ -142,6 +142,11 @@ const ProfileNav = () => {
   const [agencyBranding, setAgencyBranding] = useState(null);
 
   const [hideDashboardSlider, setHideDashboardSlider] = useState(false);
+
+  // Permission checking state for Invitee users
+  const permissionContext = usePermission()
+  const [permissionsLoaded, setPermissionsLoaded] = useState(false)
+  const [menuPermissions, setMenuPermissions] = useState({})
 
   // Custom domain detection and branding application
   useEffect(() => {
@@ -724,18 +729,28 @@ const ProfileNav = () => {
   };
 
   // Determine permission prefix based on user role
-  const getPermissionPrefix = () => {
-    // Both AgencySubAccount and AgentX users use 'agentx' permission prefix
-    if (reduxUser?.userRole === 'AgencySubAccount' || reduxUser?.userRole === 'AgentX') {
-      return 'agentx'
-    }
-    return null // No permission checks for other roles (Admin, etc.)
-  }
-
-  const permissionPrefix = getPermissionPrefix()
+  // Permission handling:
+  // - We ONLY gate menus for Invitee (team member) users
+  // - Their permissions are stored on the admin account using the `agentx.*` keys
+  // - Owners (AgentX, AgencySubAccount, Agency, Admin) should always see full menu
   const isInvitee = reduxUser?.userRole === 'Invitee'
+  const permissionPrefix = isInvitee ? 'agentx' : null
 
-  const links = [
+  // Debug: log basic role / prefix info
+  useEffect(() => {
+    try {
+      console.log('[ProfileNav][Permissions] init', {
+        reduxUserRole: reduxUser?.userRole,
+        isInvitee,
+        permissionPrefix,
+      })
+    } catch (e) {
+      // ignore
+    }
+  }, [reduxUser?.userRole, isInvitee, permissionPrefix])
+
+  // Memoize links to prevent unnecessary re-renders
+  const links = useMemo(() => [
     {
       id: 1,
       name: "Dashboard",
@@ -808,7 +823,99 @@ const ProfileNav = () => {
     //   selected: '/assets/selectedTeamIcon.png',
     //   uneselected: '/assets/unSelectedTeamIcon.png'
     // },
-  ];
+  ], [permissionPrefix])
+
+  // Pre-check all permissions for Invitee users to prevent flicker
+  useEffect(() => {
+    console.log('[ProfileNav][Permissions] useEffect triggered', {
+      isInvitee,
+      hasPermissionContext: !!permissionContext,
+      permissionContextType: typeof permissionContext,
+      linksLength: links?.length,
+    })
+
+    if (!isInvitee || !permissionContext) {
+      // Non-Invitee users have all permissions, or no permission context
+      setPermissionsLoaded(true)
+      try {
+        console.log('[ProfileNav][Permissions] Skipping checks (non-invitee or no context)', {
+          isInvitee,
+          hasPermissionContext: !!permissionContext,
+          permissionContext,
+        })
+      } catch (e) {
+        console.error('[ProfileNav][Permissions] Error in skip log', e)
+      }
+      return
+    }
+    
+    const checkAllPermissions = async () => {
+      const permissions = {}
+      try {
+        console.log('[ProfileNav][Permissions] Starting permission checks', {
+          linkCount: links.length,
+          linkKeys: links.map(l => ({ id: l.id, name: l.name, permissionKey: l.permissionKey })),
+        })
+      } catch (e) {
+        // ignore
+      }
+
+      const permissionChecks = links.map(async (item) => {
+        try {
+          if (item.permissionKey) {
+            const hasAccess = await permissionContext.hasPermission(item.permissionKey)
+            permissions[item.id] = hasAccess
+            console.log('[ProfileNav][Permissions] Checked item', {
+              id: item.id,
+              name: item.name,
+              permissionKey: item.permissionKey,
+              hasAccess,
+            })
+          } else {
+            // Items without permission keys are always accessible
+            permissions[item.id] = true
+            console.log('[ProfileNav][Permissions] No permission key, default allow', {
+              id: item.id,
+              name: item.name,
+            })
+          }
+        } catch (e) {
+          console.error('[ProfileNav][Permissions] Error checking item', {
+            id: item.id,
+            name: item.name,
+            permissionKey: item.permissionKey,
+            error: e?.message,
+          })
+          permissions[item.id] = false
+        }
+      })
+      
+      await Promise.all(permissionChecks)
+      
+      console.log('[ProfileNav][Permissions] All checks completed, setting state', {
+        permissions,
+        permissionsKeys: Object.keys(permissions),
+        permissionsValues: Object.values(permissions),
+      })
+      
+      setMenuPermissions(permissions)
+      setPermissionsLoaded(true)
+
+      try {
+        console.log('[ProfileNav][Permissions] Completed permission checks', {
+          permissions,
+          permissionsCount: Object.keys(permissions).length,
+        })
+      } catch (e) {
+        console.error('[ProfileNav][Permissions] Error in completion log', e)
+      }
+    }
+    
+    checkAllPermissions().catch((error) => {
+      console.error('[ProfileNav][Permissions] Error in checkAllPermissions', error)
+      setPermissionsLoaded(true)
+    })
+  }, [isInvitee, permissionContext, links])
 
   const adminLinks = [
     {
@@ -1173,6 +1280,19 @@ const ProfileNav = () => {
   };
 
   const showLinks = () => {
+    const base = (userType && userType == "admin") ? adminLinks : links
+    try {
+      console.log('[ProfileNav][Permissions] showLinks called', {
+        userType,
+        isInvitee,
+        permissionsLoaded,
+        baseIds: base.map(b => b.id),
+        menuPermissions,
+      })
+    } catch (e) {
+      // ignore
+    }
+
     if (userType && userType == "admin") {
       return adminLinks;
     } else {
@@ -1390,93 +1510,106 @@ const ProfileNav = () => {
           </div>
 
           <div className="w-full mt-8 flex flex-col items-center gap-3">
-            {showLinks().map((item) => {
-              // Component to check permission for nav link
-              function PermissionNavLink({ item }) {
-                // If not an Invitee or no permission key, show the link
-                if (!isInvitee || !item.permissionKey) {
+            {!permissionsLoaded && isInvitee ? (
+              // Show loading state while checking permissions
+              <div className="w-full flex flex-col items-center justify-center py-8">
+                <CircularProgress size={24} />
+              </div>
+            ) : (
+              showLinks().map((item) => {
+                // Component to check permission for nav link
+                // hasAccess is passed from parent to avoid individual loading states
+                function PermissionNavLink({ item, hasAccess }) {
+                  // If not an Invitee or no permission key, show the link
+                  if (!isInvitee || !item.permissionKey) {
+                    return <NavLinkItem item={item} />
+                  }
+                  
+                  // Don't render if no permission (hide the link)
+                  if (!hasAccess) {
+                    return null
+                  }
+                  
                   return <NavLinkItem item={item} />
                 }
 
-                // Check permission for Invitee users
-                const [hasAccess, isLoading] = useHasPermission(item.permissionKey)
-                
-                // Don't render if no permission (hide the link)
-                if (isLoading) {
-                  return null // Hide while loading
-                }
-                
-                if (!hasAccess) {
-                  return null // Hide if no permission
-                }
-                
-                return <NavLinkItem item={item} />
-              }
-
-              // Component to render a nav link
-              function NavLinkItem({ item }) {
-                return (
-                  <div className="w-full flex flex-col gap-3 pl-6">
-                    <Link
-                      href={item.href}
-                      className="cursor-pointer no-underline hover:no-underline"
-                    >
-                      <div
-                        className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
-                        style={{}}
+                // Component to render a nav link
+                function NavLinkItem({ item }) {
+                  return (
+                    <div className="w-full flex flex-col gap-3 pl-6">
+                      <Link
+                        href={item.href}
+                        className="cursor-pointer no-underline hover:no-underline"
                       >
                         <div
-                          className={
-                            pathname === item.href
-                              ? "icon-brand-primary"
-                              : "icon-black"
-                          }
-                          style={
-                            pathname === item.href
-                              ? {
-                                '--icon-mask-image': `url(${pathname === item.href
-                                    ? item.selected
-                                    : item.uneselected
-                                  })`,
-                              }
-                              : {}
-                          }
+                          className="w-full flex flex-row gap-2 items-center py-2 rounded-full"
+                          style={{}}
                         >
-                          <Image
-                            src={
+                          <div
+                            className={
                               pathname === item.href
-                                ? item.selected
-                                : item.uneselected
+                                ? "icon-brand-primary"
+                                : "icon-black"
                             }
-                            height={24}
-                            width={24}
-                            alt="icon"
                             style={
-                              pathname !== item.href && isCustomDomain && agencyBranding
-                                ? { filter: 'var(--icon-filter, none)' }
+                              pathname === item.href
+                                ? {
+                                  '--icon-mask-image': `url(${pathname === item.href
+                                      ? item.selected
+                                      : item.uneselected
+                                    })`,
+                                }
                                 : {}
                             }
-                          />
+                          >
+                            <Image
+                              src={
+                                pathname === item.href
+                                  ? item.selected
+                                  : item.uneselected
+                              }
+                              height={24}
+                              width={24}
+                              alt="icon"
+                              style={
+                                pathname !== item.href && isCustomDomain && agencyBranding
+                                  ? { filter: 'var(--icon-filter, none)' }
+                                  : {}
+                              }
+                            />
+                          </div>
+                          <div
+                            className={
+                              pathname === item.href ? "text-brand-primary" : "text-black"
+                            }
+                            style={{
+                              fontSize: 15,
+                              fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
+                            }}
+                          >
+                            {item.name} {item.isBeta && <span className="text-xs text-black">(Beta)</span>}
+                          </div>
                         </div>
-                        <div
-                          className={
-                            pathname === item.href ? "text-brand-primary" : "text-black"
-                          }
-                          style={{
-                            fontSize: 15,
-                            fontWeight: 500, //color: pathname === item.href ? "#402FFF" : 'black'
-                          }}
-                        >
-                          {item.name} {item.isBeta && <span className="text-xs text-black">(Beta)</span>}
-                        </div>
-                      </div>
-                    </Link>
-                  </div>
-                )
-              }
+                      </Link>
+                    </div>
+                  )
+                }
 
-              return <PermissionNavLink key={item.id} item={item} />
-            })}
+                // For non-Invitee users, show all links
+                if (!isInvitee) {
+                  return <NavLinkItem key={item.id} item={item} />
+                }
+                
+                // For Invitee users, use pre-checked permissions
+                return (
+                  <PermissionNavLink
+                    key={item.id}
+                    item={item}
+                    hasAccess={menuPermissions[item.id] || false}
+                  />
+                )
+              })
+            )}
           </div>
 
           {/* <div>
