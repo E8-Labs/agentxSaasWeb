@@ -69,13 +69,18 @@ const AdvancedSettingsModalCN = ({
   )
 
   // Update local state when initialValues change
+  // Destructure values to avoid object reference comparison issues
+  const initMaxDuration = initialValues.maxDurationSeconds ?? 600
+  const initIdleTimeout = initialValues.idleTimeoutSeconds ?? 10
+  const initIdleMessage = initialValues.idleMessage ?? IDLE_MESSAGES[0]
+
   useEffect(() => {
     if (open) {
-      setMaxDurationSeconds(initialValues.maxDurationSeconds ?? 600)
-      setIdleTimeoutSeconds(initialValues.idleTimeoutSeconds ?? 10)
-      setIdleMessage(initialValues.idleMessage ?? IDLE_MESSAGES[0])
+      setMaxDurationSeconds(initMaxDuration)
+      setIdleTimeoutSeconds(initIdleTimeout)
+      setIdleMessage(initIdleMessage)
     }
-  }, [open, initialValues])
+  }, [open, initMaxDuration, initIdleTimeout, initIdleMessage])
 
   // Validation: Check if values are within valid range
   const isValid = () => {
@@ -121,8 +126,13 @@ const AdvancedSettingsModalCN = ({
   )
 
   return (
-    <Dialog className="z-[1500]" open={open} onOpenChange={onOpenChange}  >
-      <DialogContent className={dialogClassName}>
+    <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
+      <DialogContent
+        className={dialogClassName}
+        onOpenAutoFocus={(e) => e.preventDefault()}
+        onFocusOutside={(e) => e.preventDefault()}
+        trapFocus={false}
+      >
         <DialogHeader>
           <DialogTitle>Advanced Settings</DialogTitle>
           <DialogDescription>
@@ -176,7 +186,7 @@ const AdvancedSettingsModalCN = ({
               <SelectTrigger id="idleMessage" className="w-full">
                 <SelectValue placeholder="Select a message" />
               </SelectTrigger>
-              <SelectContent className="z-[1500]">
+              <SelectContent className="z-[1600]">
                 {IDLE_MESSAGES.map((message, index) => (
                   <SelectItem key={index} value={message}>
                     {message}
