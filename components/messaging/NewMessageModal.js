@@ -255,6 +255,29 @@ const NewMessageModal = ({
     }
   }, [isPipelineMode, open])
 
+  // Reset saveAsTemplate when modal opens
+  useEffect(() => {
+    if (open) {
+      // Always reset to false when modal opens
+      console.log('🔵 [NewMessageModal] Modal opened - Resetting saveAsTemplate to false')
+      setSaveAsTemplate(false)
+    } else {
+      console.log('🔵 [NewMessageModal] Modal closed')
+    }
+  }, [open])
+
+  // Track saveAsTemplate state changes
+  useEffect(() => {
+    console.log('🔄 [saveAsTemplate State Changed]:', {
+      saveAsTemplate,
+      type: typeof saveAsTemplate,
+      value: saveAsTemplate,
+      isTrue: saveAsTemplate === true,
+      isFalse: saveAsTemplate === false,
+      truthy: !!saveAsTemplate
+    })
+  }, [saveAsTemplate])
+
   // Fetch data when modal opens or mode changes
   useEffect(() => {
     if (open) {
@@ -979,9 +1002,20 @@ const NewMessageModal = ({
   const handleSend = async () => {
     // Get the appropriate message body based on mode
     const messageBody = selectedMode === 'sms' ? smsMessageBody : emailMessageBody
+    
+    console.log('🚀 [handleSend] Starting send process:', {
+      selectedMode,
+      saveAsTemplate,
+      saveAsTemplateType: typeof saveAsTemplate,
+      saveAsTemplateValue: saveAsTemplate,
+      messageBodyLength: messageBody?.length || 0,
+      isPipelineMode,
+      isLeadMode
+    })
 
     // Pipeline mode: create/update template instead of sending
     if (isPipelineMode) {
+      console.log('🔧 [Pipeline Mode] Creating template in pipeline mode')
       if (!messageBody.trim()) {
         toast.error('Please enter a message')
         return
@@ -1004,16 +1038,29 @@ const NewMessageModal = ({
         const user = getUserLocalData()
         const userId = selectedUser?.id || getUserIdFromUrl() || user?.user?.id
 
-        // Generate template name from subject or use default
+        // Generate template name from subject or use first 15 chars of body for SMS
+        const actualMessageBody = selectedMode === 'sms' ? smsMessageBody : emailMessageBody
         const templateName = selectedMode === 'email'
           ? (emailSubject?.trim() || 'Email Template')
-          : 'SMS Template'
+          : (actualMessageBody?.trim() ? actualMessageBody.trim().substring(0, 15) : 'SMS Template')
+
+        // Determine templateType based on saveAsTemplate checkbox
+        const isUserTemplate = saveAsTemplate === true
+        const templateTypeValue = isUserTemplate ? 'user' : 'auto'
+        
+        console.log('🔧 [Pipeline Mode] Template creation:', {
+          saveAsTemplate,
+          isUserTemplate,
+          templateTypeValue,
+          templateName,
+          actualMessageBody: actualMessageBody?.substring(0, 20)
+        })
 
         let templateData = {
           communicationType: selectedMode,
           templateName: templateName,
-          content: messageBody,
-          templateType: 'user', // Pipeline templates are always user templates
+          content: actualMessageBody || messageBody,
+          templateType: templateTypeValue, // Use checkbox value, not hardcoded 'user'
         }
 
         // Add email-specific fields
@@ -1042,19 +1089,38 @@ const NewMessageModal = ({
         if (selectedTemplate && selectedTemplate.id) {
           // User selected a template - update it
           isUpdating = true
+          console.log('🔧 [Pipeline Mode] Updating selected template:', {
+            templateId: selectedTemplate.id,
+            templateData: JSON.stringify(templateData, null, 2),
+            templateType: templateData.templateType
+          })
           response = await updateTemplete(templateData, selectedTemplate.id)
         }
         // Priority 2: If editing existing row and not default cadence, update the template
         else if (isEditing && editingRow?.templateId && !IsdefaultCadence) {
           // Update existing template (not default cadence)
           isUpdating = true
+          console.log('🔧 [Pipeline Mode] Updating existing template:', {
+            templateId: editingRow.templateId,
+            templateData: JSON.stringify(templateData, null, 2),
+            templateType: templateData.templateType
+          })
           response = await updateTemplete(templateData, editingRow.templateId)
         }
         // Priority 3: Otherwise, create new template
         else {
           // Create new template (either new or default cadence)
           isUpdating = false
+          console.log('🔧 [Pipeline Mode] About to call createTemplete with:', {
+            templateData: JSON.stringify(templateData, null, 2),
+            templateType: templateData.templateType,
+            saveAsTemplate
+          })
           response = await createTemplete(templateData)
+          console.log('🔧 [Pipeline Mode] createTemplete response:', {
+            status: response?.data?.status,
+            templateType: response?.data?.data?.templateType
+          })
         }
 
         if (response?.data?.status === true) {
@@ -1103,6 +1169,13 @@ const NewMessageModal = ({
       return
 
     } else if (isLeadMode) {
+      console.log('👤 [Lead Mode] Starting lead mode send:', {
+        saveAsTemplate,
+        saveAsTemplateType: typeof saveAsTemplate,
+        selectedMode,
+        messageBodyLength: messageBody?.length || 0
+      })
+      
       // Validation
       if (!messageBody.trim()) {
         toast.error('Please enter a message')
@@ -1151,51 +1224,89 @@ const NewMessageModal = ({
           await onSend(data)
         }
 
-        // Create template if "Save as template" is enabled
-        if (saveAsTemplate) {
-          try {
-            const user = getUserLocalData()
-            const userId = user?.user?.id
+        // Always create template - type depends on "Save as template" checkbox
+        console.log('✅ [Lead Mode] Reached template creation section')
+        try {
+          const user = getUserLocalData()
+          const userId = user?.user?.id
+          console.log('✅ [Lead Mode] Got user data, userId:', userId)
 
-            // Generate template name from subject or use default
-            const templateName = selectedMode === 'email'
-              ? (emailSubject?.trim() || 'Email Template')
-              : 'SMS Template'
+          // Get the actual message body - use state directly to ensure we have the value
+          const actualMessageBody = selectedMode === 'sms' ? smsMessageBody : emailMessageBody
+          
+          // Generate template name from subject or use first 15 chars of body for SMS
+          const templateName = selectedMode === 'email'
+            ? (emailSubject?.trim() || 'Email Template')
+            : (actualMessageBody?.trim() ? actualMessageBody.trim().substring(0, 15) : 'SMS Template')
 
-            let templateData = {
-              communicationType: selectedMode,
-              templateName: templateName,
-              content: messageBody,
-              templateType: saveAsTemplate ? 'user' : 'auto', // Set templateType based on checkbox
-            }
-
-            // Add email-specific fields
-            if (selectedMode === 'email') {
-              templateData.subject = emailSubject
-              templateData.ccEmails = ccEmails
-              templateData.bccEmails = bccEmails
-              templateData.attachments = attachments
-              templateData.emailAccountId = selectedEmailAccount
-            }
-
-            // Add SMS-specific fields
-            if (selectedMode === 'sms') {
-              templateData.smsPhoneNumberId = selectedPhoneNumber
-            }
-
-            // Add userId if provided
-            if (userId) {
-              templateData.userId = userId
-            }
-
-            const response = await createTemplete(templateData)
-            if (response?.data?.status === true) {
-              toast.success('Template created successfully')
-            }
-          } catch (error) {
-            console.error('Error creating template:', error)
-            // Don't show error toast as message was already sent
+          // Ensure saveAsTemplate is explicitly a boolean
+          // Only set to 'user' if checkbox is explicitly checked (true)
+          // Default to 'auto' if checkbox is false, undefined, null, or any other value
+          const isUserTemplate = saveAsTemplate === true
+          const templateTypeValue = isUserTemplate ? 'user' : 'auto'
+          
+          console.log('📝 [Lead Mode] Creating template - Debug:', {
+            saveAsTemplate,
+            saveAsTemplateType: typeof saveAsTemplate,
+            saveAsTemplateValue: saveAsTemplate,
+            isUserTemplate,
+            templateTypeValue,
+            communicationType: selectedMode,
+            messageBody: messageBody,
+            actualMessageBody: actualMessageBody,
+            smsMessageBody: smsMessageBody,
+            emailMessageBody: emailMessageBody,
+            templateName: templateName,
+            templateNameLength: templateName?.length
+          })
+          
+          let templateData = {
+            communicationType: selectedMode,
+            templateName: templateName,
+            content: actualMessageBody || messageBody, // Use actualMessageBody first, fallback to messageBody
+            templateType: templateTypeValue, // Explicitly set to 'auto' unless checkbox is checked
           }
+
+          // Add email-specific fields
+          if (selectedMode === 'email') {
+            templateData.subject = emailSubject
+            templateData.ccEmails = ccEmails
+            templateData.bccEmails = bccEmails
+            templateData.attachments = attachments
+            templateData.emailAccountId = selectedEmailAccount
+          }
+
+          // Add SMS-specific fields
+          if (selectedMode === 'sms') {
+            templateData.smsPhoneNumberId = selectedPhoneNumber
+          }
+
+          // Add userId if provided
+          if (userId) {
+            templateData.userId = userId
+          }
+
+          console.log('📤 [Lead Mode] About to call createTemplete API with:', {
+            templateData: JSON.stringify(templateData, null, 2),
+            saveAsTemplate,
+            templateType: templateData.templateType
+          })
+
+          const response = await createTemplete(templateData)
+          
+          console.log('📥 [Lead Mode] createTemplete API response:', {
+            status: response?.data?.status,
+            message: response?.data?.message,
+            templateId: response?.data?.data?.id,
+            templateType: response?.data?.data?.templateType
+          })
+          
+          if (response?.data?.status === true && saveAsTemplate) {
+            toast.success('Template created successfully')
+          }
+        } catch (error) {
+          console.error('Error creating template:', error)
+          // Don't show error toast as message was already sent
         }
 
         // Note: Modal closing is handled by sendEmailToLead/sendSMSToLead functions
@@ -1311,22 +1422,55 @@ const NewMessageModal = ({
         })
       }
 
-      // Create template if "Save as template" is enabled
-      if (saveAsTemplate && successCount > 0) {
+      // Always create template - type depends on "Save as template" checkbox
+      if (successCount > 0) {
+        console.log('✅ [Normal Send Mode] Reached template creation section')
+        console.log('📋 [Normal Send Mode] About to create template:', {
+          successCount,
+          saveAsTemplate,
+          saveAsTemplateType: typeof saveAsTemplate,
+          selectedMode
+        })
+        
         try {
           const user = getUserLocalData()
           const userId = user?.user?.id
+          console.log('✅ [Normal Send Mode] Got user data, userId:', userId)
 
-          // Generate template name from subject or use default
+          // Get the actual message body - use state directly to ensure we have the value
+          const actualMessageBody = selectedMode === 'sms' ? smsMessageBody : emailMessageBody
+
+          // Generate template name from subject or use first 15 chars of body for SMS
           const templateName = selectedMode === 'email'
             ? (emailSubject?.trim() || 'Email Template')
-            : 'SMS Template'
+            : (actualMessageBody?.trim() ? actualMessageBody.trim().substring(0, 15) : 'SMS Template')
 
+          // Ensure saveAsTemplate is explicitly a boolean
+          // Only set to 'user' if checkbox is explicitly checked (true)
+          // Default to 'auto' if checkbox is false, undefined, null, or any other value
+          const isUserTemplate = saveAsTemplate === true
+          const templateTypeValue = isUserTemplate ? 'user' : 'auto'
+          
+          console.log('📝 [Normal Send Mode] Creating template - Debug:', {
+            saveAsTemplate,
+            saveAsTemplateType: typeof saveAsTemplate,
+            saveAsTemplateValue: saveAsTemplate,
+            isUserTemplate,
+            templateTypeValue,
+            communicationType: selectedMode,
+            messageBody: messageBody,
+            actualMessageBody: actualMessageBody,
+            smsMessageBody: smsMessageBody,
+            emailMessageBody: emailMessageBody,
+            templateName: templateName,
+            templateNameLength: templateName?.length
+          })
+          
           let templateData = {
             communicationType: selectedMode,
             templateName: templateName,
-            content: messageBody,
-            templateType: saveAsTemplate ? 'user' : 'auto', // Set templateType based on checkbox
+            content: actualMessageBody || messageBody, // Use actualMessageBody first, fallback to messageBody
+            templateType: templateTypeValue, // Explicitly set to 'auto' unless checkbox is checked
           }
 
           // Add email-specific fields
@@ -1348,12 +1492,27 @@ const NewMessageModal = ({
             templateData.userId = userId
           }
 
+          console.log('📤 [Normal Send Mode] About to call createTemplete API with:', {
+            templateData: JSON.stringify(templateData, null, 2),
+            saveAsTemplate,
+            templateType: templateData.templateType
+          })
+
           const response = await createTemplete(templateData)
-          if (response?.data?.status === true) {
+          
+          console.log('📥 [Normal Send Mode] createTemplete API response:', {
+            status: response?.data?.status,
+            message: response?.data?.message,
+            templateId: response?.data?.data?.id,
+            templateType: response?.data?.data?.templateType,
+            fullResponse: response?.data
+          })
+          
+          if (response?.data?.status === true && saveAsTemplate) {
             // toast.success('Template created successfully')
           }
         } catch (error) {
-          console.error('Error creating template:', error)
+          console.error('❌ [Normal Send Mode] Error creating template:', error)
           // Don't show error toast as message was already sent
         }
       }
@@ -2445,8 +2604,14 @@ const NewMessageModal = ({
                 {(
                   <div className="flex items-center gap-2">
                     <Checkbox
-                      checked={saveAsTemplate}
-                      onCheckedChange={setSaveAsTemplate}
+                      checked={saveAsTemplate === true}
+                      onCheckedChange={(checked) => {
+                        // Radix UI can return true, false, or "indeterminate"
+                        // Explicitly convert to boolean: only true if checked is exactly true
+                        const isChecked = checked === true
+                        console.log('🔘 Checkbox changed:', { checked, type: typeof checked, isChecked })
+                        setSaveAsTemplate(isChecked)
+                      }}
                       className="h-5 w-5"
                     />
                     <label className="text-sm text-gray-700 cursor-pointer select-none">
