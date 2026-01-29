@@ -5,7 +5,7 @@ import React, { useState } from 'react'
 import { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import { claimGift, getDiscount } from '@/components/userPlans/UserPlanServices'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
-import { renderBrandedIcon } from '@/utilities/iconMasking'
+
 
 function ClaimGift({ handleContinue, setShowSnak, selectedUser = null }) {
   const [claimLoader, setClaimLoader] = useState(false)

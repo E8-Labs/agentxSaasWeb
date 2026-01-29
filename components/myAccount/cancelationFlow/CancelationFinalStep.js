@@ -12,7 +12,6 @@ import {
   pauseSubscription,
 } from '@/components/userPlans/UserPlanServices'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
-import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 function CancelationFinalStep({
   handleContinue,
