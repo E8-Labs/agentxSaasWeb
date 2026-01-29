@@ -27,7 +27,6 @@ import AdminPipeline1 from './pipline/AdminPipeline1'
 import { PersistanceKeys } from '@/constants/Constants'
 import Messages from '@/components/messaging/Messages'
 import AppLogo from '@/components/common/AppLogo'
-
 import { useHasPermission, usePermission } from '@/contexts/PermissionContext'
 import {
   DropdownMenu,
@@ -254,25 +253,14 @@ function SelectedUserDetails({
       unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg',
       permissionKey: 'subaccount.teams.manage',
     },
-
   ]
 
   // Account menu item
-
-
-  let accountMenu =
-  {
+  const accountMenu = {
     id: 8,
     name: 'Account',
     selectedImage: '/svgIcons/selectedProfileCircle.svg',
     unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
-  }
-
-
-  if (!agencyUser) {
-    //push account menu to the end of the menu bar
-    manuBar.push(accountMenu)
-
   }
 
   console.log('Permission checks enabled:', enablePermissionChecks)
@@ -282,6 +270,7 @@ function SelectedUserDetails({
   const currentPermissionKey = currentMenuItem?.permissionKey
 
   // Check if logged-in user is Admin
+  const [isAdmin, setIsAdmin] = useState(false)
   useEffect(() => {
     try {
       const localData = localStorage.getItem('User')
@@ -337,20 +326,6 @@ function SelectedUserDetails({
   const [pauseToggleBtn, setPauseToggleBtn] = useState(false)
   const [selectedDate, setSelectedDate] = useState(null)
   const [showActivityLogs, setShowActivityLogs] = useState(false)
-
-    // Check if logged-in user is Admin
-    const [isAdmin, setIsAdmin] = useState(false)
-    useEffect(() => {
-      try {
-        const localData = localStorage.getItem('User')
-        if (localData) {
-          const userData = JSON.parse(localData)
-          setIsAdmin(userData.user?.userRole === 'Admin')
-        }
-      } catch (error) {
-        console.error('Error checking user role:', error)
-      }
-    }, [])
 
   useEffect(() => {
     if (selectedUser?.profile_status === 'paused') {
@@ -671,10 +646,10 @@ function SelectedUserDetails({
           style={{ alignSelf: 'center' }}
           className={`w-full overflow-hidden h-full items-center justify-center`}
         >
-          { (
+          {!enablePermissionChecks && (
             <div className="flex flex-row items-center justify-end w-full px-4 pt-2 relative" style={{ zIndex: 10 }}>
               <div className="flex flex-row items-center gap-4">
-                {from !== 'subaccount' && (
+                {!enablePermissionChecks && from !== 'subaccount' && (
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <button
