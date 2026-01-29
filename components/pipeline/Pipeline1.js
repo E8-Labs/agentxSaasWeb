@@ -164,7 +164,13 @@ const Pipeline1 = ({ handleContinue }) => {
 
           if (stageIndex !== -1) {
             restoredAssignedLeads[stageIndex] = true
-            restoredRowsByIndex[stageIndex] = cadence.calls || []
+            // Restore calls with referencePoint defaults if missing
+            const currentStage = selectedPipeline.stages[stageIndex]
+            const isBookingStage = currentStage?.identifier === 'booked'
+            restoredRowsByIndex[stageIndex] = (cadence.calls || []).map((call) => ({
+              ...call,
+              referencePoint: call.referencePoint || (isBookingStage ? 'before_meeting' : 'regular_calls'),
+            }))
             if (cadence.moveToStage) {
               const nextStage = selectedPipeline.stages.find(
                 (stage) => stage.id === cadence.moveToStage,
@@ -368,7 +374,12 @@ const Pipeline1 = ({ handleContinue }) => {
     setRowsByIndex((prev) => ({
       ...prev,
       [leadIndex]: (prev[leadIndex] ?? []).map((row) =>
-        row.id === rowId ? { ...row, [field]: Number(value) || 0 } : row,
+        row.id === rowId 
+          ? { 
+              ...row, 
+              [field]: field === 'referencePoint' ? value : (Number(value) || 0) 
+            } 
+          : row,
       ),
     }))
   }
@@ -378,6 +389,10 @@ const Pipeline1 = ({ handleContinue }) => {
       const list = prev[index] ?? []
       const nextId = list.length ? list[list.length - 1].id + 1 : 1
 
+      // Check if this is a booking stage
+      const currentStage = selectedPipelineStages[index]
+      const isBookingStage = currentStage?.identifier === 'booked'
+
       const newRow = {
         id: nextId,
         waitTimeDays: 0,
@@ -385,6 +400,7 @@ const Pipeline1 = ({ handleContinue }) => {
         waitTimeMinutes: 0,
         action, // "call" | "sms" | "email"
         communicationType: action, // Set communicationType to match action
+        referencePoint: isBookingStage ? 'before_meeting' : 'regular_calls', // Set default referencePoint
       }
 
       // Add template information for email and SMS actions

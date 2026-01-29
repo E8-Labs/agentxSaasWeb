@@ -27,6 +27,7 @@ import AdminPipeline1 from './pipline/AdminPipeline1'
 import { PersistanceKeys } from '@/constants/Constants'
 import Messages from '@/components/messaging/Messages'
 import AppLogo from '@/components/common/AppLogo'
+
 import { useHasPermission, usePermission } from '@/contexts/PermissionContext'
 import {
   DropdownMenu,
@@ -253,14 +254,25 @@ function SelectedUserDetails({
       unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg',
       permissionKey: 'subaccount.teams.manage',
     },
+
   ]
 
   // Account menu item
-  const accountMenu = {
+
+
+  let accountMenu =
+  {
     id: 8,
     name: 'Account',
     selectedImage: '/svgIcons/selectedProfileCircle.svg',
     unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
+  }
+
+
+  if (!agencyUser) {
+    //push account menu to the end of the menu bar
+    manuBar.push(accountMenu)
+
   }
 
   console.log('Permission checks enabled:', enablePermissionChecks)

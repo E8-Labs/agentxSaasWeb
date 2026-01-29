@@ -6,7 +6,6 @@ import { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMess
 import { claimGift, getDiscount } from '@/components/userPlans/UserPlanServices'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 
-
 function ClaimGift({ handleContinue, setShowSnak, selectedUser = null }) {
   const [claimLoader, setClaimLoader] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -61,13 +60,12 @@ function ClaimGift({ handleContinue, setShowSnak, selectedUser = null }) {
 
       <div className="flex flex-col items-center px-4 w-full">
         <div
-          style={{
-            backgroundColor:'hsl(var(--brand-primary)/0.1)',
-            border:'1px solid hsl(var(--brand-primary)/0.2)',
-          }}
           className={`flex flex-row items-center gap-2 text-brand-primary text-base font-semibold mt-4 py-2 px-4 rounded-full`}
+          style={{
+            backgroundColor:'hsl(var(--brand-primary)/0.2)'
+          }}
         >
-         {renderBrandedIcon('/svgIcons/gift.svg',24,24)}
+        {renderBrandedIcon('/svgIcons/gift.svg',24,24)}
           Enjoy your next calls on us
         </div>
         <div className="w-full flex flex-row justify-center items-end">
@@ -113,7 +111,7 @@ function ClaimGift({ handleContinue, setShowSnak, selectedUser = null }) {
           </div>
         ) : (
           <button
-            className="rounded-lg w-full text-white bg-brand-prim outline-none"
+            className="rounded-lg w-full text-white bg-brand-primary outline-none"
             style={{
               fontWeight: '400',
               fontSize: '16',
