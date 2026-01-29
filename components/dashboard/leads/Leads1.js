@@ -586,6 +586,16 @@ const Leads1 = () => {
       (col) => col.matchedColumn?.dbName === 'phone',
     )?.ColumnNameInSheet
 
+    // Helper function to clean phone number (removes .0 suffix from Excel numeric values)
+    const cleanPhoneNumber = (phone) => {
+      if (phone === null || phone === undefined) return ''
+      // Convert to string and remove trailing .0 if present (Excel numeric conversion issue)
+      let cleaned = String(phone).trim()
+      // Remove trailing .0 pattern (e.g., "3109775412.0" -> "3109775412")
+      cleaned = cleaned.replace(/\.0+$/, '')
+      return cleaned
+    }
+
     // Helper function to validate phone number (same as in handleFileUpload)
     const isValidPhone = (phone) => {
       if (!phone || typeof phone !== 'string') return false
@@ -633,7 +643,7 @@ const Leads1 = () => {
     let bothInvalidCount = 0
     
     const validData = dataToValidate.filter((row) => {
-      const phone = phoneColumn ? String(row[phoneColumn] || '').trim() : ''
+      const phone = phoneColumn ? cleanPhoneNumber(row[phoneColumn]) : ''
       const hasPhone = isValidPhone(phone)
       const hasName = hasValidName(row)
 
@@ -819,6 +829,16 @@ const Leads1 = () => {
             (col) => col.matchedColumn?.dbName === 'phone',
           )?.ColumnNameInSheet
 
+          // Helper function to clean phone number (removes .0 suffix from Excel numeric values)
+          const cleanPhoneNumber = (phone) => {
+            if (phone === null || phone === undefined) return ''
+            // Convert to string and remove trailing .0 if present (Excel numeric conversion issue)
+            let cleaned = String(phone).trim()
+            // Remove trailing .0 pattern (e.g., "3109775412.0" -> "3109775412")
+            cleaned = cleaned.replace(/\.0+$/, '')
+            return cleaned
+          }
+
           // Helper function to validate phone number
           const isValidPhone = (phone) => {
             if (!phone || typeof phone !== 'string') return false
@@ -866,7 +886,7 @@ const Leads1 = () => {
           let bothInvalidCount = 0
 
           const validData = transformedData.filter((row) => {
-            const phone = phoneColumn ? String(row[phoneColumn] || '').trim() : ''
+            const phone = phoneColumn ? cleanPhoneNumber(row[phoneColumn]) : ''
             const hasPhone = isValidPhone(phone)
             const hasName = hasValidName(row)
 
@@ -992,12 +1012,28 @@ const Leads1 = () => {
 
     console.log('🟢 [HANDLE_ADD_LEAD] Building data array from:', validatedData ? 'validatedData' : 'processedData')
 
+    // Helper function to clean phone number (removes .0 suffix from Excel numeric values)
+    const cleanPhoneNumber = (phone) => {
+      if (phone === null || phone === undefined) return phone
+      // Convert to string and remove trailing .0 if present (Excel numeric conversion issue)
+      let cleaned = String(phone).trim()
+      // Remove trailing .0 pattern (e.g., "3109775412.0" -> "3109775412")
+      cleaned = cleaned.replace(/\.0+$/, '')
+      return cleaned
+    }
+
     // Build full data array
     pd.forEach((item) => {
       let row = { extraColumns: {} }
       NewColumnsObtained.forEach((col) => {
         if (col.matchedColumn) {
-          row[col.matchedColumn.dbName] = item[col.ColumnNameInSheet]
+          // Clean phone numbers when assigning to phone field
+          const value = item[col.ColumnNameInSheet]
+          if (col.matchedColumn.dbName === 'phone') {
+            row[col.matchedColumn.dbName] = cleanPhoneNumber(value)
+          } else {
+            row[col.matchedColumn.dbName] = value
+          }
         } else if (col.UserFacingName) {
           row.extraColumns[col.UserFacingName] = item[col.ColumnNameInSheet]
         }
