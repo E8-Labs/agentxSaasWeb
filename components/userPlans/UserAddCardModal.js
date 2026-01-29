@@ -94,7 +94,7 @@ const UserAddCard = ({
   const [disableContinue, setDisableContinue] = useState(false)
   const [currentUserPlan, setCurrentUserPlan] = useState(null)
 
-  
+
 
   // Check if user is subaccount and if agency has branding
   useEffect(() => {
@@ -118,7 +118,7 @@ const UserAddCard = ({
         if (storedBranding) {
           try {
             branding = JSON.parse(storedBranding)
-          } catch (error) {}
+          } catch (error) { }
         }
 
         // Also check user data for agencyBranding
@@ -132,12 +132,12 @@ const UserAddCard = ({
             } else if (parsedUser?.user?.agency?.agencyBranding) {
               branding = parsedUser.user.agency.agencyBranding
             }
-          } catch (error) {}
+          } catch (error) { }
         }
 
         hasLogo = !!branding?.logoUrl
         setHasAgencyLogo(hasLogo)
-      } catch (error) {}
+      } catch (error) { }
     }
   }, [])
 
@@ -454,9 +454,9 @@ const UserAddCard = ({
         error,
       )
       // Display error message to user
-      const errorMessage = error?.response?.data?.message || 
-                          error?.message || 
-                          'An error occurred while subscribing to the plan. Please try again.'
+      const errorMessage = error?.response?.data?.message ||
+        error?.message ||
+        'An error occurred while subscribing to the plan. Please try again.'
       setAddCardFailure(true)
       setAddCardErrtxt(errorMessage)
       setDisableContinue(false)
@@ -523,27 +523,27 @@ const UserAddCard = ({
 
   const calculateTotalPrice = (selectedPlan) => {
 
-     // Check if plan has trial and user is subscribing for the first time
-     const hasTrial = selectedPlan?.hasTrial === true
-     const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+    // Check if plan has trial and user is subscribing for the first time
+    const hasTrial = selectedPlan?.hasTrial === true
+    const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
 
-     // If plan has trial and user has no previous plan, show $0
-     if (hasTrial && isFirstTimeSubscription) {
-       return '$0'
-     }
+    // If plan has trial and user has no previous plan, show $0
+    if (hasTrial && isFirstTimeSubscription) {
+      return '$0'
+    }
 
-     const billingMonths = GetMonthCountFronBillingCycle(
-       selectedPlan?.billingCycle || selectedPlan?.duration,
-     )
-     const monthlyPrice =
-       selectedPlan?.discountPrice ||
-       selectedPlan?.discountedPrice ||
-       selectedPlan?.originalPrice ||
-       0
+    const billingMonths = GetMonthCountFronBillingCycle(
+      selectedPlan?.billingCycle || selectedPlan?.duration,
+    )
+    const monthlyPrice =
+      selectedPlan?.discountPrice ||
+      selectedPlan?.discountedPrice ||
+      selectedPlan?.originalPrice ||
+      0
 
-     const discountCalculation = referralCodeDetails ? calculateDiscountedPrice(referralCodeDetails?.discountValue, referralCodeDetails?.discountType, billingMonths * monthlyPrice) : null
-     const finalTotal = discountCalculation ? discountCalculation : billingMonths * monthlyPrice
-     return `$${formatFractional2(monthlyPrice * billingMonths)}`
+    const discountCalculation = referralCodeDetails ? calculateDiscountedPrice(referralCodeDetails?.discountValue, referralCodeDetails?.discountType, billingMonths * monthlyPrice) : null
+    const finalTotal = discountCalculation ? discountCalculation : billingMonths * monthlyPrice
+    return `$${formatFractional2(monthlyPrice * billingMonths)}`
   }
 
   return (
@@ -764,7 +764,26 @@ const UserAddCard = ({
                     </div>
                   </div>
                   <div style={{ fontWeight: '600', fontSize: 15 }}>
-                   {calculateTotalPrice(selectedPlan)}
+                    {(() => {
+                      // Check if plan has trial and user is subscribing for the first time
+                      // const hasTrial = selectedPlan?.hasTrial === true
+                      // const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+
+                      // If plan has trial and user has no previous plan, show $0
+                      // if (hasTrial && isFirstTimeSubscription) {
+                      //   return '$0'
+                      // }
+
+                      const billingMonths = GetMonthCountFronBillingCycle(
+                        selectedPlan?.billingCycle || selectedPlan?.duration,
+                      )
+                      const monthlyPrice =
+                        selectedPlan?.discountPrice ||
+                        selectedPlan?.discountedPrice ||
+                        selectedPlan?.originalPrice ||
+                        0
+                      return `$${formatFractional2(billingMonths * monthlyPrice)}`
+                    })()}
                   </div>
                 </div>
 
@@ -782,7 +801,7 @@ const UserAddCard = ({
                         // Check if plan has trial and user is subscribing for the first time
                         const hasTrial = selectedPlan?.hasTrial === true
                         const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-
+                        console.log("hasTrial, isFirstTimeSubscription", hasTrial, isFirstTimeSubscription)
                         // If plan has trial and user has no previous plan, show $0
                         if (hasTrial && isFirstTimeSubscription) {
                           return '$0'
@@ -1276,7 +1295,7 @@ const UserAddCard = ({
                         // Check if plan has trial and user is subscribing for the first time (no previous plan)
                         const hasTrial = selectedPlan?.hasTrial === true
                         const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-
+                        console.log("hasTrial, isFirstTimeSubscription", hasTrial, isFirstTimeSubscription)
                         // If plan has trial and user has no previous plan, show $0 (they won't be charged immediately)
                         if (hasTrial && isFirstTimeSubscription) {
                           return '$0'
