@@ -869,7 +869,7 @@ function UserPlans({
                                 flex-shrink-0
                                  `}
                   style={{
-                    width: '28vw',
+                    width: '20vw',
                   }}
                 >
                   <div className="flex flex-col items-center w-full h-full">
