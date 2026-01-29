@@ -2057,20 +2057,25 @@ function DialerModal({
         return
       }
 
-      const response = await fetch('/api/templates/send-sms', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${AuthToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          leadId: leadId,
-          templateId: selectedTemplate.id,
-          phoneNumberId: phoneNumberId,
-        }),
-      })
+      const userData = JSON.parse(localData)
+      const formData = new FormData()
 
-      const data = await response.json()
+      // Add required fields
+      formData.append('leadPhone', selectedLeadsDetails?.phone || '')
+      formData.append('content', smsData.content || '')
+      formData.append('phone', smsData.phone || '')
+      formData.append('leadId', selectedLeadsDetails?.id || '')
+
+      //print form data
+      formData.forEach((value, key) => { })
+      const response = await axios.post(Apis.sendSMSToLead, formData, {
+        headers: {
+          Authorization: `Bearer ${userData.token}`,
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+let data = response.data
+
 
       if (data?.status === true) {
         toast.success('Text sent successfully')

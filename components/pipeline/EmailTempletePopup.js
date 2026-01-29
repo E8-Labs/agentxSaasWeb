@@ -955,7 +955,7 @@ function EmailTempletePopup({
 
       // Handle template list updates based on the operation performed
       if (createdTemplate) {
-        if (selectedTemp && !hasTemplateChanges && !isEditing) {} else {
+        if (selectedTemp && !hasTemplateChanges && !isEditing) { } else {
           // Either created new template or updated existing one
           setTempletes((prev) => {
             const existingIndex = prev.findIndex(
@@ -1196,7 +1196,7 @@ function EmailTempletePopup({
                         <button
                           type="button"
                           onClick={() => setEmailDropdownOpen(!emailDropdownOpen)}
-                          className="w-full px-3 py-2 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
+                          className="w-full px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-left flex items-center justify-between"
                           style={{ height: '42px' }}
                         >
                           <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -1253,7 +1253,7 @@ function EmailTempletePopup({
                           </div>
                         )}
                         {/* CC and BCC buttons for Email mode - on top right */}
-                        <div className="flex items-center justify-between pb-4">
+                        <div className="flex items-center justify-between">
                           <div></div>
                           <SplitButtonCN
                             buttons={[
@@ -1274,36 +1274,145 @@ function EmailTempletePopup({
                     )}
                   </div>
 
-                  <div className='flex flex-row w-full gap-2 items-center'>
-                    {/* CC and BCC on same line when both are shown */}
-                  {showCC && (
-                    <>
-                      <div className="relative flex-1 min-w-0">
-                        {/* Tag Input Container */}
-                        <div
-                          className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
-                          style={{ height: '42px', minHeight: '42px', maxWidth: '100%' }}
-                          onClick={() => {
-                            // Focus the input when clicking the container
-                            const input = document.querySelector('#cc-input')
-                            if (input) input.focus()
-                          }}
-                        >
-                          <span className="text-sm text-gray-500 flex-shrink-0">Cc:</span>
-                          {/* Display CC Email Tags */}
-                          {ccEmails.length > 0 ? (
-                            <>
-                              {/* Search Input - Always visible for adding more */}
+                  {showCC || showBCC && (
+                    <div className='flex flex-row w-full gap-2 items-center'>
+                      {/* CC and BCC on same line when both are shown */}
+                      {showCC && (
+                        <>
+                          <div className="relative flex-1 min-w-0">
+                            {/* Tag Input Container */}
+                            <div
+                              className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
+                              style={{ height: '42px', minHeight: '42px', maxWidth: '100%' }}
+                              onClick={() => {
+                                // Focus the input when clicking the container
+                                const input = document.querySelector('#cc-input')
+                                if (input) input.focus()
+                              }}
+                            >
+                              <span className="text-sm text-gray-500 flex-shrink-0">Cc:</span>
+                              {/* Display CC Email Tags */}
+                              {ccEmails.length > 0 ? (
+                                <>
+                                  {/* Search Input - Always visible for adding more */}
+                                  <input
+                                    id="cc-input"
+                                    type="text"
+                                    value={ccEmailInput}
+                                    onChange={handleCcInputChange}
+                                    onKeyDown={handleCcInputKeyDown}
+                                    onPaste={handleCcInputPaste}
+                                    onBlur={handleCcInputBlur}
+                                    placeholder=""
+                                    className="flex-1 min-w-[80px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                                    style={{
+                                      height: '100%',
+                                      lineHeight: '42px',
+                                      padding: 0,
+                                      verticalAlign: 'middle',
+                                      maxWidth: '100%'
+                                    }}
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                  <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
+                                    <span className="text-sm text-gray-700 truncate max-w-[150px]">
+                                      {ccEmails[0]}
+                                    </span>
+                                    {ccEmails.length > 1 && (
+                                      <span className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0">
+                                        +{ccEmails.length - 1}
+                                      </span>
+                                    )}
+                                  </div>
+                                </>
+                              ) : (
+                                <input
+                                  id="cc-input"
+                                  type="text"
+                                  value={ccEmailInput}
+                                  onChange={handleCcInputChange}
+                                  onKeyDown={handleCcInputKeyDown}
+                                  onPaste={handleCcInputPaste}
+                                  onBlur={handleCcInputBlur}
+                                  placeholder="Add CC recipients"
+                                  className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                                  style={{
+                                    height: '100%',
+                                    lineHeight: '42px',
+                                    padding: 0,
+                                    verticalAlign: 'middle',
+                                    maxWidth: '100%'
+                                  }}
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                              )}
+                              <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-1" />
+                            </div>
+                          </div>
+                          {/* Separator between CC and BCC */}
+                          {showBCC && (
+                            <div className="w-px h-[42px] bg-gray-300 flex-shrink-0"></div>
+                          )}
+                        </>
+                      )}
+                      {showBCC && (
+                        <div className="relative flex-1 min-w-0">
+                          {/* Tag Input Container */}
+                          <div
+                            className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
+                            style={{ height: '42px', minHeight: '42px', maxWidth: '100%' }}
+                            onClick={() => {
+                              // Focus the input when clicking the container
+                              const input = document.querySelector('#bcc-input')
+                              if (input) input.focus()
+                            }}
+                          >
+                            <span className="text-sm text-gray-500 flex-shrink-0">Bcc:</span>
+                            {/* Display BCC Email Tags */}
+                            {bccEmails.length > 0 ? (
+                              <>
+                                {/* Search Input - Always visible for adding more */}
+                                <input
+                                  id="bcc-input"
+                                  type="text"
+                                  value={bccEmailInput}
+                                  onChange={handleBccInputChange}
+                                  onKeyDown={handleBccInputKeyDown}
+                                  onPaste={handleBccInputPaste}
+                                  onBlur={handleBccInputBlur}
+                                  placeholder=""
+                                  className="flex-1 min-w-[80px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                                  style={{
+                                    height: '100%',
+                                    lineHeight: '42px',
+                                    padding: 0,
+                                    verticalAlign: 'middle',
+                                    maxWidth: '100%'
+                                  }}
+                                  onClick={(e) => e.stopPropagation()}
+                                />
+                                <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
+                                  <span className="text-sm text-gray-700 truncate max-w-[150px]">
+                                    {bccEmails[0]}
+                                  </span>
+                                  {bccEmails.length > 1 && (
+                                    <span className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0">
+                                      +{bccEmails.length - 1}
+                                    </span>
+                                  )}
+                                </div>
+                              </>
+                            ) : (
                               <input
-                                id="cc-input"
+                                id="bcc-input"
                                 type="text"
-                                value={ccEmailInput}
-                                onChange={handleCcInputChange}
-                                onKeyDown={handleCcInputKeyDown}
-                                onPaste={handleCcInputPaste}
-                                onBlur={handleCcInputBlur}
-                                placeholder=""
-                                className="flex-1 min-w-[80px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
+                                value={bccEmailInput}
+                                onChange={handleBccInputChange}
+                                onKeyDown={handleBccInputKeyDown}
+                                onPaste={handleBccInputPaste}
+                                onBlur={handleBccInputBlur}
+                                placeholder="Add BCC recipients"
+                                className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
                                 style={{
                                   height: '100%',
                                   lineHeight: '42px',
@@ -1313,120 +1422,13 @@ function EmailTempletePopup({
                                 }}
                                 onClick={(e) => e.stopPropagation()}
                               />
-                              <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
-                                <span className="text-sm text-gray-700 truncate max-w-[150px]">
-                                  {ccEmails[0]}
-                                </span>
-                                {ccEmails.length > 1 && (
-                                  <span className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0">
-                                    +{ccEmails.length - 1}
-                                  </span>
-                                )}
-                              </div>
-                            </>
-                          ) : (
-                            <input
-                              id="cc-input"
-                              type="text"
-                              value={ccEmailInput}
-                              onChange={handleCcInputChange}
-                              onKeyDown={handleCcInputKeyDown}
-                              onPaste={handleCcInputPaste}
-                              onBlur={handleCcInputBlur}
-                              placeholder="Add CC recipients"
-                              className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
-                              style={{
-                                height: '100%',
-                                lineHeight: '42px',
-                                padding: 0,
-                                verticalAlign: 'middle',
-                                maxWidth: '100%'
-                              }}
-                              onClick={(e) => e.stopPropagation()}
-                            />
-                          )}
-                          <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-1" />
+                            )}
+                            <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-1" />
+                          </div>
                         </div>
-                      </div>
-                      {/* Separator between CC and BCC */}
-                      {showBCC && (
-                        <div className="w-px h-[42px] bg-gray-300 flex-shrink-0"></div>
                       )}
-                    </>
-                  )}
-                  {showBCC && (
-                    <div className="relative flex-1 min-w-0">
-                      {/* Tag Input Container */}
-                      <div
-                        className="flex items-center gap-2 px-3 h-[42px] border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary cursor-text overflow-hidden bg-white"
-                        style={{ height: '42px', minHeight: '42px', maxWidth: '100%' }}
-                        onClick={() => {
-                          // Focus the input when clicking the container
-                          const input = document.querySelector('#bcc-input')
-                          if (input) input.focus()
-                        }}
-                      >
-                        <span className="text-sm text-gray-500 flex-shrink-0">Bcc:</span>
-                        {/* Display BCC Email Tags */}
-                        {bccEmails.length > 0 ? (
-                          <>
-                            {/* Search Input - Always visible for adding more */}
-                            <input
-                              id="bcc-input"
-                              type="text"
-                              value={bccEmailInput}
-                              onChange={handleBccInputChange}
-                              onKeyDown={handleBccInputKeyDown}
-                              onPaste={handleBccInputPaste}
-                              onBlur={handleBccInputBlur}
-                              placeholder=""
-                              className="flex-1 min-w-[80px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
-                              style={{
-                                height: '100%',
-                                lineHeight: '42px',
-                                padding: 0,
-                                verticalAlign: 'middle',
-                                maxWidth: '100%'
-                              }}
-                              onClick={(e) => e.stopPropagation()}
-                            />
-                            <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
-                              <span className="text-sm text-gray-700 truncate max-w-[150px]">
-                                {bccEmails[0]}
-                              </span>
-                              {bccEmails.length > 1 && (
-                                <span className="px-2 py-0.5 bg-brand-primary text-white text-xs rounded-full flex-shrink-0">
-                                  +{bccEmails.length - 1}
-                                </span>
-                              )}
-                            </div>
-                          </>
-                        ) : (
-                          <input
-                            id="bcc-input"
-                            type="text"
-                            value={bccEmailInput}
-                            onChange={handleBccInputChange}
-                            onKeyDown={handleBccInputKeyDown}
-                            onPaste={handleBccInputPaste}
-                            onBlur={handleBccInputBlur}
-                            placeholder="Add BCC recipients"
-                            className="flex-1 min-w-[120px] outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
-                            style={{
-                              height: '100%',
-                              lineHeight: '42px',
-                              padding: 0,
-                              verticalAlign: 'middle',
-                              maxWidth: '100%'
-                            }}
-                            onClick={(e) => e.stopPropagation()}
-                          />
-                        )}
-                        <CaretDown className="w-4 h-4 text-gray-400 flex-shrink-0 ml-1" />
-                      </div>
                     </div>
                   )}
-                  </div>
                 </div>
               </React.Fragment>
 
@@ -1436,117 +1438,6 @@ function EmailTempletePopup({
                   {/* {invalidEmails.length > 1 ? 's' : ''}: {invalidEmails.join(', ')}*/}
                 </div>
               )}
-
-              {/* Template Field */}
-              <div className="flex items-center border-[0.5px] border-gray-200 rounded-lg focus-within:border-brand-primary focus-within:ring-2 focus-within:ring-brand-primary bg-white transition-colors overflow-hidden">
-                <div className="flex-1 flex items-center gap-2 px-3 h-[42px]">
-                  <span className="text-sm text-gray-500 flex-shrink-0">Template:</span>
-                  <FormControl size="small" fullWidth sx={{ minWidth: 180, height: '42px' }}>
-                    <Select
-                      value={selectedTemp || ''}
-                      onChange={(e) => {
-                        if (e.target.value === 'new-template') {
-                          setShowNewTemplateModal(true)
-                        } else {
-                          handleSelect(e.target.value)
-                        }
-                      }}
-                      displayEmpty
-                      renderValue={(selected) =>
-                        selected?.templateName || (
-                          <span style={{ color: '#9ca3af' }}>Select Template</span>
-                        )
-                      }
-                      sx={{
-                        fontSize: '0.875rem',
-                        height: '42px',
-                        border: 'none',
-                        '& .MuiOutlinedInput-notchedOutline': {
-                          border: 'none',
-                        },
-                        '&:hover .MuiOutlinedInput-notchedOutline': {
-                          border: 'none',
-                        },
-                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                          border: 'none',
-                        },
-                        '& .MuiSelect-select': {
-                          padding: '0',
-                          height: '42px',
-                          display: 'flex',
-                          alignItems: 'center',
-                        },
-                      }}
-                      MenuProps={{
-                        PaperProps: {
-                          style: {
-                            maxHeight: '30vh',
-                            overflow: 'auto',
-                            scrollbarWidth: 'none',
-                            zIndex: 1700, // Higher than modal (1500) and backdrop
-                          },
-                        },
-                        disablePortal: false,
-                        container: typeof document !== 'undefined' ? document.body : null,
-                        style: {
-                          zIndex: 1700,
-                        },
-                      }}
-                    >
-                      {templetes?.length > 0 ? (
-                        templetes?.map((item, index) =>
-                          detailsLoader?.id === item.id ? (
-                            <CircularProgress key={item.id} size={20} />
-                          ) : (
-                            <MenuItem
-                              key={index}
-                              value={item}
-                            >
-                              <div className="flex flex-row items-center gap-2 w-full">
-                                <div className="text-[15] font-[500] flex-1 truncate min-w-0">
-                                  {item.templateName}
-                                </div>
-                                {!isLeadEmail && delTempLoader?.id === item.id ? (
-                                  <CircularProgress size={20} className="flex-shrink-0" />
-                                ) : !isLeadEmail ? (
-                                  <button
-                                    onClick={(e) => {
-                                      e.preventDefault()
-                                      handleDelete(e, item)
-                                    }}
-                                    className="text-brand-primary hover:text-brand-primary/80 transition-colors flex-shrink-0 ml-2"
-                                  >
-                                    <Trash2 size={16} />
-                                  </button>
-                                ) : null}
-                              </div>
-                            </MenuItem>
-                          ),
-                        )
-                      ) : (
-                        <div className="ml-2">No template found</div>
-                      )}
-                      {!isLeadEmail && (
-                        <MenuItem
-                          value="new-template"
-                          sx={{
-                            color: 'hsl(var(--brand-primary))',
-                            fontWeight: 500,
-                            borderTop: '1px solid #e5e7eb',
-                            marginTop: '4px',
-                            paddingTop: '8px',
-                          }}
-                        >
-                          <div className="flex items-center gap-2">
-                            <Plus size={16} />
-                            New Template
-                          </div>
-                        </MenuItem>
-                      )}
-                    </Select>
-                  </FormControl>
-                </div>
-              </div>
 
               {/* Subject Field */}
               <div className="space-y-2">
@@ -1600,9 +1491,9 @@ function EmailTempletePopup({
                         <CaretDown size={16} className={`text-gray-400 transition-transform ${subjectVariablesDropdownOpen ? 'rotate-180' : ''}`} />
                       </button>
                       {subjectVariablesDropdownOpen && typeof window !== 'undefined' && createPortal(
-                        <div 
-                          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto min-w-[200px] subject-variables-dropdown" 
-                          style={{ 
+                        <div
+                          className="fixed bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto min-w-[200px] subject-variables-dropdown"
+                          style={{
                             zIndex: 1700,
                             top: `${subjectDropdownPosition.top}px`,
                             left: `${subjectDropdownPosition.left}px`,
@@ -1775,15 +1666,21 @@ function EmailTempletePopup({
             {/* Footer - Sticky at bottom */}
             <div className="flex items-center justify-between gap-4 p-4 border-t bg-gray-50 flex-shrink-0">
               <div className="flex items-center gap-2">
-                {/* Cancel button - Only show for pipeline email, positioned on left */}
                 {!isLeadEmail && (
-                  <button
-                    className="text-[#6b7280] outline-none h-[50px] px-4"
-                    onClick={onClose}
-                  >
-                    Cancel
-                  </button>
+                  <div className="flex items-center gap-2 mb-2">
+                    <input
+                      type="checkbox"
+                      id="saveAsTemplate"
+                      checked={saveAsTemplate}
+                      onChange={(e) => setSaveAsTemplate(e.target.checked)}
+                      className="h-4 w-4 text-brand-primary border-gray-300 rounded focus:ring-brand-primary"
+                    />
+                    <label htmlFor="saveAsTemplate" className="text-sm text-gray-700 cursor-pointer select-none">
+                      Save as template
+                    </label>
+                  </div>
                 )}
+
 
                 {/* Attachment button - Only show for lead email */}
                 {isLeadEmail && (
@@ -1815,22 +1712,6 @@ function EmailTempletePopup({
                   </>
                 )}
               </div>
-
-              {/* Save as template checkbox - only show when not in lead email mode */}
-              {!isLeadEmail && (
-                <div className="flex items-center gap-2 mb-2">
-                  <input
-                    type="checkbox"
-                    id="saveAsTemplate"
-                    checked={saveAsTemplate}
-                    onChange={(e) => setSaveAsTemplate(e.target.checked)}
-                    className="h-4 w-4 text-brand-primary border-gray-300 rounded focus:ring-brand-primary"
-                  />
-                  <label htmlFor="saveAsTemplate" className="text-sm text-gray-700 cursor-pointer select-none">
-                    Save as template
-                  </label>
-                </div>
-              )}
 
               <div className="flex items-center gap-4">
                 <button

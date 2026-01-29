@@ -425,8 +425,8 @@ export default function CallingScript({
             className="space-y-4 pb-6"
             style={{ position: 'relative', zIndex: 2000 }}
           >
-            <div style={{ position: 'relative', zIndex: 2001 }}>
               <label className="text-sm font-medium mb-2 block text-gray-700">Title</label>
+            <div style={{ position: 'relative', zIndex: 2001 ,backgroundColor:'red'}}>
               <Input
                 ref={titleInputRef}
                 type="text"
@@ -581,7 +581,7 @@ export default function CallingScript({
             </div>
 
             {/* Content Card */}
-            <div className="flex-1 overflow-y-auto px-6">
+            <div className="flex-1 overflow-y-auto">
               <Card className="border-2 mt-6" style={{ borderColor: 'hsl(var(--brand-primary) / 0.2)' }}>
                 <CardContent className="p-6">
                   {processingContent ? (
