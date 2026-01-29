@@ -270,7 +270,6 @@ function SelectedUserDetails({
   const currentPermissionKey = currentMenuItem?.permissionKey
 
   // Check if logged-in user is Admin
-  const [isAdmin, setIsAdmin] = useState(false)
   useEffect(() => {
     try {
       const localData = localStorage.getItem('User')
@@ -809,7 +808,6 @@ function SelectedUserDetails({
                     className={`flex flex-row items-center gap-3 p-2 items-center 
                       ${selectedManu?.id == item.id && 'border-b-[2px] border-brand-primary'}`}
                   >
-                    {selectedManu?.id == item.id ? (
                     {selectedManu?.id == item.id ? (
                       <div
                         style={{

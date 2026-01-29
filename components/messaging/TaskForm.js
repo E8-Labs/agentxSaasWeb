@@ -415,10 +415,6 @@ const TaskForm = ({
               onSelect={(option) => setPriority(option.value)}
               backgroundClassName="text-foreground"
               className="border-0 shadow-none h-[36px]"
-<<<<<<< HEAD
-              iconColor="#8A8A8A"
-=======
->>>>>>> fix/arslan-jan28-main
             />
           </div>
         </div>
@@ -430,10 +426,9 @@ const TaskForm = ({
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Description here..."
             className="border-0 p-0 min-h-[60px] resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
-            style={{ fontSize: '14px' }}
+            style={{ fontSize: '14px',lineHeight: '2' }}
             rows={3}
             required={isValidForm}
-            style={{ lineHeight: '2' }}
           />
         </div>
 

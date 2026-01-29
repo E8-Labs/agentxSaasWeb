@@ -73,7 +73,6 @@ function ClaimGift({ handleContinue, setShowSnak, selectedUser = null }) {
         <div className="w-full flex flex-row justify-center items-end">
           <div
             className="text-brand-primary -mt-6"
-            className="text-brand-primary -mt-6"
             style={{
               fontSize: 173,
               fontWeight: '400',
