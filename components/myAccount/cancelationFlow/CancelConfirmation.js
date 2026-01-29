@@ -5,8 +5,8 @@ import { getUserPlans } from '@/components/userPlans/UserPlanServices'
 import { next30Days } from '@/constants/Constants'
 import { useUser } from '@/hooks/redux-hooks'
 import { getFeaturesToLose, getFreePlan } from '@/utilities/PlanComparisonUtils'
-import { renderBrandedIcon } from '@/utilities/iconMasking'
 import { Checkbox } from '@/components/ui/checkbox'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 function CancelConfirmation({
   handleContinue,
@@ -26,9 +26,9 @@ function CancelConfirmation({
     loadCurrentPlanFeatures()
   }, [])
 
-  useEffect(() => {}, [reduxUser])
+  useEffect(() => { }, [reduxUser])
 
-  useEffect(() => {}, [selectedUser])
+  useEffect(() => { }, [selectedUser])
 
   const getUserData = () => {
     let data = localStorage.getItem('User')
@@ -164,7 +164,7 @@ function CancelConfirmation({
     <div className="grid grid-rows-[1fr_auto] h-full gap-2 lg:gap-3">
       {/* Scrollable content area */}
       <div
-        className="overflow-y-auto overflow-x-hidden"
+        className="overflow-y-auto overflow-x-hidden h-auto"
         style={{
           scrollbarWidth: 'none',
         }}
@@ -203,10 +203,10 @@ function CancelConfirmation({
                       key={index}
                       className="flex flex-row items-center gap-1.5 lg:gap-2 flex-1 basis-1/2 min-w-0"
                     >
-                    <Checkbox
-                    checked={true}
-                    className="!rounded-full h-4 w-4 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
-                  />
+                      <Checkbox
+                        checked={true}
+                        className="!rounded-full h-4 w-4 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                      />
                       <div className="text-xs lg:text-[13px] font-normal whitespace-nowrap overflow-hidden text-ellipsis">
                         {item.title}
                       </div>

@@ -56,6 +56,7 @@ import CloseBtn from '../globalExtras/CloseBtn'
 import AgentXOrb from '../common/AgentXOrb'
 import { MYAGENTX_URL } from '../askSky/constants'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
+import { useUser } from '@/hooks/redux-hooks'
 
 
 // Add style tag to override global white background for loading message
@@ -132,6 +133,8 @@ const Creator = ({ agentId, name }) => {
   const [smartListFields, setSmartListFields] = useState({})
   const [smartListData, setSmartListData] = useState(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const { user: reduxUser } = useUser()
 
   // Validation functions
   const isValidEmail = (email) => {
@@ -264,7 +267,7 @@ const Creator = ({ agentId, name }) => {
       ]
       const newLength = analysisPlan.structuredDataPlan.schema.required.length
 
-      if (originalLength !== newLength) {}
+      if (originalLength !== newLength) { }
     }
 
     // Ensure unique properties in structuredDataPlan.schema.properties
@@ -360,7 +363,7 @@ const Creator = ({ agentId, name }) => {
       const languageValue = cleaned.language
 
       // Check if it's already a valid code
-      if (validLanguageCodes.includes(languageValue)) {} else if (languageMap[languageValue]) {
+      if (validLanguageCodes.includes(languageValue)) { } else if (languageMap[languageValue]) {
         cleaned.language = languageMap[languageValue]
       } else {
         // Invalid language, remove it
@@ -725,7 +728,7 @@ const Creator = ({ agentId, name }) => {
         console.error('Error requesting microphone permission:', error)
         setLoading(false)
         setOpen(false)
-        
+
         // Handle different error types
         if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
           setSnackbarMessage('Microphone permission denied. Please allow microphone access to start the call.')
@@ -819,7 +822,7 @@ const Creator = ({ agentId, name }) => {
 
     try {
       const newMutedState = !isMuted
-      
+
       // Try using Vapi's setMuted method if available (preferred method)
       if (typeof vapi.setMuted === 'function') {
         try {
@@ -828,13 +831,13 @@ const Creator = ({ agentId, name }) => {
           return
         } catch (vapiError) {
           // If call object is not available, try fallback methods
-          if (vapiError.message?.includes('Call object is not available') || 
-              vapiError.message?.includes('not available')) {} else {
+          if (vapiError.message?.includes('Call object is not available') ||
+            vapiError.message?.includes('not available')) { } else {
             throw vapiError // Re-throw if it's a different error
           }
         }
       }
-      
+
       // Fallback: Try to find and mute/unmute active audio tracks
       // This works with the existing media stream that Vapi is using
       if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
@@ -845,7 +848,7 @@ const Creator = ({ agentId, name }) => {
             // Note: This is a fallback and may not work in all cases
             const audioElements = document.querySelectorAll('audio')
             let foundTrack = false
-            
+
             audioElements.forEach((audio) => {
               if (audio.srcObject) {
                 const stream = audio.srcObject
@@ -857,29 +860,29 @@ const Creator = ({ agentId, name }) => {
                 }
               }
             })
-            
+
             setIsMuted(newMutedState)
-            if (foundTrack) {} else {}
+            if (foundTrack) { } else { }
           })
           .catch((error) => {
-          setIsMuted(newMutedState) // Update UI state anyway
-        })
+            setIsMuted(newMutedState) // Update UI state anyway
+          })
       } else {
         // Last resort: Update UI state (actual muting may not work)
         setIsMuted(newMutedState)
       }
     } catch (error) {
       // Only show error snackbar for unexpected errors, not for "call not available"
-      const isCallNotAvailableError = 
+      const isCallNotAvailableError =
         error.message?.includes('Call object is not available') ||
         error.message?.includes('not available')
-      
+
       if (!isCallNotAvailableError) {
         console.error('Error toggling mute:', error)
         setSnackbarMessage('Error toggling mute. Please try again.')
         setSnackbarSeverity('error')
         setSnackbarOpen(true)
-      } else {}
+      } else { }
     }
   }
 
@@ -1035,7 +1038,7 @@ const Creator = ({ agentId, name }) => {
             className="mt-10"
           />
         )}
-      
+
 
         {open && (
           <div className='flex mt-5 flex-row items-center justify-center gap-2'>
@@ -1043,8 +1046,8 @@ const Creator = ({ agentId, name }) => {
               onClick={handleCloseCall}
               className="px-3 py-2 flex flex-row items-center justify-center gap-3 rounded-full bg-[#ffffff40] shadow-md"
             >
-              <Image src="/assets/cross.png" alt="end call" 
-              width={12} height={12} />
+              <Image src="/assets/cross.png" alt="end call"
+                width={12} height={12} />
               <span className='text-black text-[15px] font-normal'>
                 End Call
               </span>
@@ -1056,11 +1059,11 @@ const Creator = ({ agentId, name }) => {
               className={`shadow-lg rounded-full ${isMuted && 'shadow-red-500'}`}
 
             >
-              <Image 
-                src={isMuted ? "/svgIcons/Mute.svg" : "/svgIcons/Unmuted.svg"} 
-                alt={isMuted ? "mute" : "unmute"}   
-                width={40} 
-                height={40} 
+              <Image
+                src={isMuted ? "/svgIcons/Mute.svg" : "/svgIcons/Unmuted.svg"}
+                alt={isMuted ? "mute" : "unmute"}
+                width={40}
+                height={40}
               />
             </button>
           </div>
@@ -1130,7 +1133,7 @@ const Creator = ({ agentId, name }) => {
           </div>
         </div>
 
-      
+
 
 
         {/* Animating Image */}
@@ -1156,49 +1159,49 @@ const Creator = ({ agentId, name }) => {
 
             }}
           >
-          {
-            isSmallScreen && (
-  
-              <motion.div
-                animate={{
-                  y: [0, -30, 0],
-                }}
-                transition={{
-                  duration: 3.5,
-                  repeat: Infinity,
-                  repeatType: 'loop',
-                  ease: 'easeInOut',
-                }}
-                className="-mb-16 rounded-lg flex flex-col justify-center"
-                style={{
-                  fontSize: 14,
-                  fontWeight: '500',
-                  fontFamily: 'inter',
-                  backgroundColor: '#ffffff80',
-                  padding: '10px 20px', // Add padding to the content inside the box
-                  position: 'absolute',
-                  top: '25%',
-                  left: '40%',
-                }}
-              >
-                Tap to Talk
-                {/* Triangle at the bottom center */}
-                <div
-                  style={{
-                    position: 'absolute',
-                    bottom: '-15px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: 0,
-                    height: 0,
-                    borderLeft: '15px solid transparent',
-                    borderRight: '15px solid transparent',
-                    borderTop: '15px solid #ffffff80',
+            {
+              isSmallScreen && (
+
+                <motion.div
+                  animate={{
+                    y: [0, -30, 0],
                   }}
-                />
-              </motion.div>
-            )
-          }
+                  transition={{
+                    duration: 3.5,
+                    repeat: Infinity,
+                    repeatType: 'loop',
+                    ease: 'easeInOut',
+                  }}
+                  className="-mb-16 rounded-lg flex flex-col justify-center"
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '500',
+                    fontFamily: 'inter',
+                    backgroundColor: '#ffffff80',
+                    padding: '10px 20px', // Add padding to the content inside the box
+                    position: 'absolute',
+                    top: '25%',
+                    left: '40%',
+                  }}
+                >
+                  Tap to Talk
+                  {/* Triangle at the bottom center */}
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: '-15px',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      width: 0,
+                      height: 0,
+                      borderLeft: '15px solid transparent',
+                      borderRight: '15px solid transparent',
+                      borderTop: '15px solid #ffffff80',
+                    }}
+                  />
+                </motion.div>
+              )
+            }
             <div
               className='flex items-center justify-center'
               style={{
@@ -1229,13 +1232,21 @@ const Creator = ({ agentId, name }) => {
               className="flex flex-row items-center gap-1"
             >
               <p className="text-xs">Powered by</p>
-
-              <img
-                src="/assets/assignX.png"
-                alt="AssignX Logo"
-                className="h-3.5"
-              />
-
+              {
+                reduxUser?.agencyBranding?.logoUrl ? (
+                  <img
+                    src={reduxUser?.agencyBranding?.logoUrl}
+                    alt="Agency Logo"
+                    className="h-3.5"
+                  />
+                ) : (
+                  <img
+                    src="/assets/assignX.png"
+                    alt="AssignX Logo"
+                    className="h-3.5"
+                  />
+                )
+              }
             </div>
           </div>
           <div className='absolute bottom-20 left-1/2 -translate-x-1/2' ref={endCallButtonRef}>{showCallUI()}</div>

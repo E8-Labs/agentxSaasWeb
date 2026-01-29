@@ -5,6 +5,7 @@ import React, { useState } from 'react'
 import { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import { claimGift, getDiscount } from '@/components/userPlans/UserPlanServices'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 function ClaimGift({ handleContinue, setShowSnak, selectedUser = null }) {
   const [claimLoader, setClaimLoader] = useState(false)
@@ -71,6 +72,7 @@ function ClaimGift({ handleContinue, setShowSnak, selectedUser = null }) {
         </div>
         <div className="w-full flex flex-row justify-center items-end">
           <div
+            className="text-brand-primary -mt-6"
             className="text-brand-primary -mt-6"
             style={{
               fontSize: 173,

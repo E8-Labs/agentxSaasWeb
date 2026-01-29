@@ -23,7 +23,7 @@ import AdminBilling from './AdminProfileData/AdminBilling'
 import AdminPhoneNumber from './AdminProfileData/AdminPhoneNumber'
 import AdminXbarServices from './AdminProfileData/AdminXbarServices'
 import AdminSendFeedback from './AdminSendFeedback'
-import { useUser } from '@/hooks/redux-hooks'
+import { TypographyH1, TypographyH3 } from '@/lib/typography'
 
 function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, handlePauseUser, handleClose }) {
   let searchParams = useSearchParams()
@@ -386,7 +386,9 @@ function AdminProfileData({ selectedUser, from, agencyUser = false, handleDel, h
         className=" w-full flex flex-row justify-between items-center py-2 px-10"
         style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
       >
-        <div style={{ fontSize: 24, fontWeight: '600' }}>My Account</div>
+        <TypographyH3>
+          My Account
+        </TypographyH3>
       </div>
       <div className="w-12/12 h-full"></div>
       <div className="w-full flex flex-row item-center pl-2 h-[100%]">

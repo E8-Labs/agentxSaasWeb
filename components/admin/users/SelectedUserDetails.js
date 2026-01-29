@@ -327,6 +327,20 @@ function SelectedUserDetails({
   const [selectedDate, setSelectedDate] = useState(null)
   const [showActivityLogs, setShowActivityLogs] = useState(false)
 
+    // Check if logged-in user is Admin
+    const [isAdmin, setIsAdmin] = useState(false)
+    useEffect(() => {
+      try {
+        const localData = localStorage.getItem('User')
+        if (localData) {
+          const userData = JSON.parse(localData)
+          setIsAdmin(userData.user?.userRole === 'Admin')
+        }
+      } catch (error) {
+        console.error('Error checking user role:', error)
+      }
+    }, [])
+
   useEffect(() => {
     if (selectedUser?.profile_status === 'paused') {
       setPauseToggleBtn(true)
@@ -795,6 +809,7 @@ function SelectedUserDetails({
                     className={`flex flex-row items-center gap-3 p-2 items-center 
                       ${selectedManu?.id == item.id && 'border-b-[2px] border-brand-primary'}`}
                   >
+                    {selectedManu?.id == item.id ? (
                     {selectedManu?.id == item.id ? (
                       <div
                         style={{

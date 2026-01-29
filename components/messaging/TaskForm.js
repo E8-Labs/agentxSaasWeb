@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { format } from 'date-fns'
-import { CalendarIcon, Clock, Pin, Flag, ChevronDown, MoreVertical } from 'lucide-react'
+import { CalendarIcon, Clock, Pin, ChevronDown, MoreVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Input } from '@/components/ui/input'
@@ -104,10 +104,10 @@ const TaskForm = ({
 
   // Priority options
   const priorityOptions = [
-    { label: 'No Priority', value: 'no-priority', icon: Flag },
-    { label: 'Low', value: 'low', icon: Flag },
-    { label: 'Medium', value: 'medium', icon: Flag },
-    { label: 'High', value: 'high', icon: Flag },
+    { label: 'No Priority', value: 'no-priority' },
+    { label: 'Low', value: 'low' },
+    { label: 'Medium', value: 'medium' },
+    { label: 'High', value: 'high' },
   ]
 
   // Status options
@@ -133,6 +133,63 @@ const TaskForm = ({
 
   // Get current priority option
   const currentPriority = priorityOptions.find((p) => p.value === priority) || priorityOptions[0]
+
+  const getPriorityKey = (priorityValue, priorityLabel) => {
+    const raw = (priorityValue ?? priorityLabel ?? '').toString().trim().toLowerCase()
+    if (raw === 'low' || raw === 'l' || raw === '1') return 'low'
+    if (raw === 'medium' || raw === 'med' || raw === 'm' || raw === '2')
+      return 'medium'
+    if (raw === 'high' || raw === 'h' || raw === '3') return 'high'
+    if (raw === 'no-priority' || raw === 'none' || raw === 'no priority') return 'no-priority'
+    return 'no-priority'
+  }
+
+  const priorityFlagColors = {
+    'no-priority': '#9CA3AF', // neutral gray
+    low: '#4B5563', // dark gray fill
+    medium: '#FBBF24', // yellow fill
+    high: '#EF4444', // red fill
+  }
+
+  const PriorityFlagMask = ({ priorityKey, className }) => {
+    const color = priorityFlagColors[priorityKey] || priorityFlagColors['no-priority']
+    return (
+      <div
+        className={className}
+        style={{
+          backgroundColor: color,
+          WebkitMaskImage: `url(/svgIcons/flagFilled.svg)`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(/svgIcons/flagFilled.svg)`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          flexShrink: 0,
+        }}
+        aria-hidden="true"
+      />
+    )
+  }
+
+  const PriorityFlagIcon = ({ className }) => {
+    const priorityKey = getPriorityKey(currentPriority?.value, currentPriority?.label)
+    return <PriorityFlagMask priorityKey={priorityKey} className={className} />
+  }
+
+  const renderPriorityOptionLabel = (opt) => {
+    const priorityKey = getPriorityKey(opt?.value, opt?.label)
+    const labelText = typeof opt?.label === 'string' ? opt.label : String(opt?.value ?? '')
+    return (
+      <div className="flex items-center gap-2">
+        <PriorityFlagMask priorityKey={priorityKey} className="h-4 w-4" />
+        <span>{labelText}</span>
+      </div>
+    )
+  }
 
   // Prepare team member options
   const teamMemberOptions = teamMembers.map((member) => {
@@ -350,15 +407,18 @@ const TaskForm = ({
           <div className="ml-2 flex items-center gap-2">
             <DropdownCn
               label={<TypographyCaption>{currentPriority.label}</TypographyCaption>}
-              icon={Flag}
+              icon={PriorityFlagIcon}
               options={priorityOptions.map((opt) => ({
-                label: opt.label,
+                label: renderPriorityOptionLabel(opt),
                 value: opt.value,
               }))}
               onSelect={(option) => setPriority(option.value)}
               backgroundClassName="text-foreground"
               className="border-0 shadow-none h-[36px]"
+<<<<<<< HEAD
               iconColor="#8A8A8A"
+=======
+>>>>>>> fix/arslan-jan28-main
             />
           </div>
         </div>

@@ -296,7 +296,7 @@ export default function CancelPlanAnimation({
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0 }}
-                className="rounded-lg w-[70%] bg-white h-[90vh] lg:h-[80vh] p-3 lg:p-6 border-none outline-none flex flex-col"
+                className="rounded-lg w-[70%] bg-white h-[75vh] p-3 lg:p-6 border-none outline-none flex flex-col"
                 // style={styles.motionDiv}
               >
                 <div className="flex flex-col h-full min-h-0">

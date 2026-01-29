@@ -53,7 +53,7 @@ const AgencyLinkWarning = ({
                 >
                   {confirmChecked ? (
                     <div
-                      className="bg-purple flex flex-row items-center justify-center rounded"
+                      className="bg-brand-primary flex flex-row items-center justify-center rounded"
                       style={{ height: '17px', width: '17px' }}
                     >
                       <Image
@@ -78,14 +78,14 @@ const AgencyLinkWarning = ({
                   }}
                 >
                   I agree to{' '}
-                  <span className="text-purple underline ms-1">
+                  <span className="text-brand-primary underline ms-1">
                     Terms and Conditions
                   </span>
                   .
                 </button>
               </div>
               <button
-                className={`${confirmChecked ? 'bg-purple' : 'bg-btngray'} ${confirmChecked ? 'text-white' : 'text-black'} px-4 h-[40px] rounded-lg mt-4 w-full`}
+                className={`${confirmChecked ? 'bg-brand-primary' : 'bg-btngray'} ${confirmChecked ? 'text-white' : 'text-black'} px-4 h-[40px] rounded-lg mt-4 w-full`}
                 onClick={handleCopyLink}
                 disabled={!confirmChecked}
               >

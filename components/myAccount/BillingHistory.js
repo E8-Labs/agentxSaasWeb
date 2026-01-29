@@ -1,7 +1,7 @@
 import { CircularProgress } from '@mui/material'
 import axios from 'axios'
 import moment from 'moment'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { GetFormattedDateString } from '@/utilities/utility'
 
@@ -10,9 +10,15 @@ import Apis from '../apis/Apis'
 import TransactionDetailsModal from '../modals/TransactionDetailsModal'
 
 function BillingHistory({ selectedUser }) {
+  const PAGE_SIZE = 20
   //stoores payment history
   const [PaymentHistoryData, setPaymentHistoryData] = useState([])
   const [historyLoader, setHistoryLoader] = useState(false)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const [hasMore, setHasMore] = useState(true)
+  const [offset, setOffset] = useState(0)
+  const loadMoreRef = useRef(null)
+  const observerRef = useRef(null)
 
   //transaction details modal variables
   const [transactionDetailsModal, setTransactionDetailsModal] = useState(false)
@@ -21,14 +27,29 @@ function BillingHistory({ selectedUser }) {
     useState(false)
   const [clickedTransactionId, setClickedTransactionId] = useState(null)
 
-  useEffect(() => {
-    getPaymentHistory()
-  }, [])
+  const userIdParam = useMemo(() => {
+    return selectedUser?.id ? String(selectedUser.id) : null
+  }, [selectedUser?.id])
+
+  const buildPaymentHistoryUrl = useCallback(
+    (nextOffset) => {
+      const url = new URL(Apis.getPaymentHistory)
+      if (userIdParam) url.searchParams.set('userId', userIdParam)
+      url.searchParams.set('offset', String(nextOffset))
+      url.searchParams.set('limit', String(PAGE_SIZE))
+      return url.toString()
+    },
+    [PAGE_SIZE, userIdParam],
+  )
 
   //function to get payment history
-  const getPaymentHistory = async () => {
+  const getPaymentHistory = async ({ reset = false } = {}) => {
     try {
-      setHistoryLoader(true)
+      if (reset) {
+        setHistoryLoader(true)
+      } else {
+        setIsLoadingMore(true)
+      }
 
       let AuthToken = null
       let localDetails = null
@@ -39,10 +60,8 @@ function BillingHistory({ selectedUser }) {
         AuthToken = LocalDetails.token
       }
 
-      let ApiPath = Apis.getPaymentHistory
-      if (selectedUser) {
-        ApiPath = ApiPath + `?userId=${selectedUser.id}`
-      }
+      const nextOffset = reset ? 0 : offset
+      const ApiPath = buildPaymentHistoryUrl(nextOffset)
 
       const response = await axios.get(ApiPath, {
         headers: {
@@ -53,15 +72,60 @@ function BillingHistory({ selectedUser }) {
 
       if (response) {
         if (response.data.status === true) {
-          setPaymentHistoryData(response.data.data)
+          const nextItems = Array.isArray(response.data.data)
+            ? response.data.data
+            : []
+
+          setPaymentHistoryData((prev) =>
+            reset ? nextItems : [...prev, ...nextItems],
+          )
+
+          const reachedEnd = nextItems.length < PAGE_SIZE
+          setHasMore(!reachedEnd)
+          setOffset(nextOffset + nextItems.length)
         }
       }
     } catch (error) {
       console.error('Error occured in get history api is', error)
     } finally {
       setHistoryLoader(false)
+      setIsLoadingMore(false)
     }
   }
+
+  // Initial load / reload when selected user changes
+  useEffect(() => {
+    setPaymentHistoryData([])
+    setOffset(0)
+    setHasMore(true)
+    getPaymentHistory({ reset: true })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userIdParam])
+
+  // Infinite scroll observer
+  useEffect(() => {
+    if (!hasMore) return
+    if (historyLoader || isLoadingMore) return
+
+    const el = loadMoreRef.current
+    if (!el) return
+
+    if (observerRef.current) observerRef.current.disconnect()
+    observerRef.current = new IntersectionObserver(
+      (entries) => {
+        const first = entries[0]
+        if (first?.isIntersecting) {
+          getPaymentHistory({ reset: false })
+        }
+      },
+      { root: null, rootMargin: '200px', threshold: 0.1 },
+    )
+
+    observerRef.current.observe(el)
+    return () => {
+      if (observerRef.current) observerRef.current.disconnect()
+    }
+  }, [hasMore, historyLoader, isLoadingMore, offset])
 
   //function to get transaction details
   const getTransactionDetails = async (transactionId) => {
@@ -233,6 +297,21 @@ function BillingHistory({ selectedUser }) {
                 </div>
               </div>
             ))}
+          </div>
+        )}
+      </div>
+
+      {/* Infinite scroll sentinel + loader */}
+      <div className="w-full flex flex-row items-center justify-center py-6">
+        {hasMore ? (
+          <div ref={loadMoreRef} className="w-full flex justify-center">
+            {isLoadingMore && (
+              <CircularProgress size={22} thickness={2} />
+            )}
+          </div>
+        ) : (
+          <div className="text-sm text-muted-foreground">
+            No more transactions
           </div>
         )}
       </div>

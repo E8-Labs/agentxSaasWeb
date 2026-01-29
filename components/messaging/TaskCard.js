@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { CalendarIcon, Clock, Flag, MoreVertical, Pin, ChevronDown } from 'lucide-react'
+import { CalendarIcon, Clock, MoreVertical, Pin, ChevronDown } from 'lucide-react'
 import moment from 'moment'
 import DropdownCn from '@/components/dashboard/leads/extras/DropdownCn'
 import MultiSelectDropdownCn from '@/components/dashboard/leads/extras/MultiSelectDropdownCn'
@@ -25,6 +25,64 @@ const TaskCard = ({
   priorityOptions = [],
   statusOptions = [],
 }) => {
+  // Get current priority option (used for label + color)
+  const currentPriority =
+    priorityOptions.find((p) => p.value === task.priority) || priorityOptions[0]
+
+  const getPriorityKey = (priorityValue, priorityLabel) => {
+    const raw = (priorityValue ?? priorityLabel ?? '').toString().trim().toLowerCase()
+    if (raw === 'low' || raw === 'l' || raw === '1') return 'low'
+    if (raw === 'medium' || raw === 'med' || raw === 'm' || raw === '2') return 'medium'
+    if (raw === 'high' || raw === 'h' || raw === '3') return 'high'
+    return 'low'
+  }
+
+  const priorityFlagColors = {
+    low: '#4B5563', // dark gray fill
+    medium: '#FBBF24', // yellow fill
+    high: '#EF4444', // red fill
+  }
+
+  const PriorityFlagMask = ({ priorityKey, className }) => {
+    const color = priorityFlagColors[priorityKey] || priorityFlagColors.low
+    return (
+      <div
+        className={className}
+        style={{
+          backgroundColor: color,
+          WebkitMaskImage: `url(/svgIcons/flagFilled.svg)`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(/svgIcons/flagFilled.svg)`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          flexShrink: 0,
+        }}
+        aria-hidden="true"
+      />
+    )
+  }
+
+  const PriorityFlagIcon = ({ className }) => {
+    const priorityKey = getPriorityKey(currentPriority?.value, currentPriority?.label)
+    return <PriorityFlagMask priorityKey={priorityKey} className={className} />
+  }
+
+  const renderPriorityOptionLabel = (opt) => {
+    const priorityKey = getPriorityKey(opt?.value, opt?.label)
+    const labelText = typeof opt?.label === 'string' ? opt.label : String(opt?.value ?? '')
+    return (
+      <div className="flex items-center gap-2">
+        <PriorityFlagMask priorityKey={priorityKey} className="h-4 w-4" />
+        <span>{labelText}</span>
+      </div>
+    )
+  }
+
   // Format due date
   const formatDueDate = () => {
     if (!task.dueDate) return null
@@ -112,9 +170,6 @@ const TaskCard = ({
     done: '#01CB76',
   }
 
-  // Get current priority option
-  const currentPriority = priorityOptions.find((p) => p.value === task.priority) || priorityOptions[0]
-  
   // Status display text mapping
   const statusDisplayText = {
     'todo': 'To Do',
@@ -178,15 +233,14 @@ const TaskCard = ({
         <div className="ml-2 flex items-center gap-2">
             <DropdownCn
               label={<TypographyCaption>{currentPriority.label}</TypographyCaption>}
-              icon={Flag}
+              icon={PriorityFlagIcon}
               options={priorityOptions.map((opt) => ({
-                label: opt.label,
+                label: renderPriorityOptionLabel(opt),
                 value: opt.value,
               }))}
               onSelect={handlePriorityChange}
               backgroundClassName="text-foreground"
               className="border-0 shadow-none h-[36px]"
-              iconColor="#8A8A8A"
             />
           {/* More Options - No border, no chevron */}
           <DropdownCn
