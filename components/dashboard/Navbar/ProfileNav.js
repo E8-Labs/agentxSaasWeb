@@ -127,6 +127,7 @@ const ProfileNav = () => {
   const [showAssignBanner, setShowAssignBanner] = useState(false)
   const [bannerProgress, setBannerProgress] = useState(0);
   const [isLeadUploading, setIsLeadUploading] = useState(false);
+  const [showSlider, setShowSlider] = useState(true);
 
   const [showHelpModal, setShowHelpModal] = useState(false);
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false);
@@ -349,10 +350,21 @@ const ProfileNav = () => {
       getProfile();
     };
 
-    window.addEventListener("hidePlanBar", handleHidePlanBar);
+    const handleHideSlider = (event) => {
+      setShowSlider(false)
+    }
 
+    const handleShowSlider = (event) => {
+      setShowSlider(true)
+    }
+    window.addEventListener("hidePlanBar", handleHidePlanBar);
+    console.log('showSlider', showSlider)
+    window.addEventListener('showSlider', handleShowSlider)
+    window.addEventListener('hideSlider', handleHideSlider)
     return () => {
       window.removeEventListener("hidePlanBar", handleHidePlanBar); // Clean up
+      window.removeEventListener('showSlider', handleShowSlider)
+      window.removeEventListener('hideSlider', handleHideSlider)
     };
   }, []);
   //intro video
@@ -1498,7 +1510,7 @@ const ProfileNav = () => {
 
 
             {
-              !showAssignBanner && !isLeadUploading && (
+              !showAssignBanner && !isLeadUploading && showSlider && (
                 <div
                   style={{
                     position: "absolute",

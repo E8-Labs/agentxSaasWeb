@@ -194,7 +194,7 @@ export default function CancelPlanAnimation({
         // backgroundColor: "red"
       }}
     >
-      <Box className="rounded-xl max-w-2xl w-full shadow-lg max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
+      <Box className="rounded-xl w-7/12 shadow-lg max-h-[90vh] border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col">
         <div className="relative flex justify-center items-center w-full">
           <AnimatePresence initial={false} custom={direction}>
             {currentIndex === 0 && (
@@ -296,7 +296,7 @@ export default function CancelPlanAnimation({
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0 }}
-                className="rounded-lg w-[70%] bg-white h-[90vh] lg:h-[80vh] p-3 lg:p-6 border-none outline-none flex flex-col"
+                className="rounded-lg w-[70%] bg-white h-[75vh] p-3 lg:p-6 border-none outline-none flex flex-col"
                 // style={styles.motionDiv}
               >
                 <div className="flex flex-col h-full min-h-0">

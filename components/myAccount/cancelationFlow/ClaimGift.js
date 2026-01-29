@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 
 import { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import { claimGift, getDiscount } from '@/components/userPlans/UserPlanServices'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 function ClaimGift({ handleContinue, setShowSnak, selectedUser = null }) {
   const [claimLoader, setClaimLoader] = useState(false)
@@ -42,7 +43,7 @@ function ClaimGift({ handleContinue, setShowSnak, selectedUser = null }) {
   return (
     <div className="w-full flex flex-col items-center">
       <div
-        className="text-center text-purple "
+        className="text-center text-brand-primary "
         style={{
           fontWeight: '600',
           fontSize: 16.8,
@@ -59,14 +60,17 @@ function ClaimGift({ handleContinue, setShowSnak, selectedUser = null }) {
 
       <div className="flex flex-col items-center px-4 w-full">
         <div
-          className={`flex flex-row items-center gap-2 text-purple text-base font-semibold mt-4 bg-[#402FFF10] py-2 px-4 rounded-full`}
+          className={`flex flex-row items-center gap-2 text-brand-primary text-base font-semibold mt-4 py-2 px-4 rounded-full`}
+          style={{
+            backgroundColor:'hsl(var(--brand-primary)/0.2)'
+          }}
         >
-          <Image src={'/svgIcons/gift.svg'} height={24} width={24} alt="*" />
+        {renderBrandedIcon('/svgIcons/gift.svg',24,24)}
           Enjoy your next calls on us
         </div>
         <div className="w-full flex flex-row justify-center items-end">
           <div
-            className="text-purple -mt-6"
+            className="text-brand-primary -mt-6"
             style={{
               fontSize: 173,
               fontWeight: '400',
@@ -107,7 +111,7 @@ function ClaimGift({ handleContinue, setShowSnak, selectedUser = null }) {
           </div>
         ) : (
           <button
-            className="rounded-lg w-full text-white bg-purple outline-none"
+            className="rounded-lg w-full text-white bg-brand-primary outline-none"
             style={{
               fontWeight: '400',
               fontSize: '16',

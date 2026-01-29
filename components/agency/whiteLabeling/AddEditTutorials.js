@@ -203,10 +203,7 @@ const AddEditTutorials = ({
               >
                 {isEditMode ? 'Edit Video' : 'Getting started'}
               </div>
-              <CloseBtn
-                onClick={isLoading ? undefined : handleCancelClick}
-                disabled={isLoading}
-              />
+
             </div>
 
             {/* Title Input */}
@@ -242,7 +239,7 @@ const AddEditTutorials = ({
               />
 
               {selectedVideo ||
-              (isEditMode && videoPreview && !selectedVideo) ? (
+                (isEditMode && videoPreview && !selectedVideo) ? (
                 <div
                   className="flex items-center text-gray-700 p-4 rounded gap-3"
                   style={{
@@ -271,7 +268,7 @@ const AddEditTutorials = ({
                     />
                   )}
                   <div className="flex-1">
-                    <div className="text-sm font-medium text-gray-700">
+                    <div className="text-sm font-medium text-gray-700 max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">
                       {selectedVideo?.name || 'Current Video'}
                     </div>
                     {selectedVideo && (

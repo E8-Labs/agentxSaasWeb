@@ -16,6 +16,7 @@ import AdminBilling from './AdminProfileData/AdminBilling'
 import AdminPhoneNumber from './AdminProfileData/AdminPhoneNumber'
 import AdminXbarServices from './AdminProfileData/AdminXbarServices'
 import AdminSendFeedback from './AdminSendFeedback'
+import { TypographyH1, TypographyH3 } from '@/lib/typography'
 
 function AdminProfileData({ selectedUser, from }) {
   let searchParams = useSearchParams()
@@ -29,50 +30,50 @@ function AdminProfileData({ selectedUser, from }) {
 
   let manuBar = []
 
- manuBar = [
-  {
-    id: 1,
-    heading: 'Basic Information',
-    subHeading: 'Manage personal information ',
-    icon: '/otherAssets/profileCircle.png',
-    permissionKey: null, // Basic info is always accessible
-  },
-  {
-    id: 2,
-    heading: 'Plans & Payment',
-    subHeading: 'Manage your plans and payment method',
-    icon: '/otherAssets/walletIcon.png',
-    permissionKey: 'subaccount.payment.manage',
-  },
-  {
-    id: 3,
-    heading: 'Billing',
-    subHeading: 'Manage your billing transactions',
-    icon: '/otherAssets/billingIcon.png',
-    permissionKey: 'subaccount.billing.view',
-  },
-  {
-    id: 4,
-    heading: 'Phone Numbers',
-    subHeading: 'All agent phone numbers',
-    icon: '/assets/unSelectedCallIcon.png',
-    permissionKey: 'subaccount.phone_numbers.manage',
-  },
-  {
-    id: 5,
-    heading: 'Twilio Trust Hub',
-    subHeading: 'Caller ID & compliance for trusted calls',
-    icon: '/svgIcons/twilioHub.svg',
-    permissionKey: 'subaccount.phone_numbers.manage', // Same key as for phone numbers since they do the same thing
-  },
-  {
-    id: 6,
-    heading: xbarTitle || 'Bar Services',
-    subHeading: 'Our version of the genius bar',
-    icon: '/svgIcons/agentXIcon.svg',
-    permissionKey: null, // No specific permission for this
-  },
-]
+  manuBar = [
+    {
+      id: 1,
+      heading: 'Basic Information',
+      subHeading: 'Manage personal information ',
+      icon: '/otherAssets/profileCircle.png',
+      permissionKey: null, // Basic info is always accessible
+    },
+    {
+      id: 2,
+      heading: 'Plans & Payment',
+      subHeading: 'Manage your plans and payment method',
+      icon: '/otherAssets/walletIcon.png',
+      permissionKey: 'subaccount.payment.manage',
+    },
+    {
+      id: 3,
+      heading: 'Billing',
+      subHeading: 'Manage your billing transactions',
+      icon: '/otherAssets/billingIcon.png',
+      permissionKey: 'subaccount.billing.view',
+    },
+    {
+      id: 4,
+      heading: 'Phone Numbers',
+      subHeading: 'All agent phone numbers',
+      icon: '/assets/unSelectedCallIcon.png',
+      permissionKey: 'subaccount.phone_numbers.manage',
+    },
+    {
+      id: 5,
+      heading: 'Twilio Trust Hub',
+      subHeading: 'Caller ID & compliance for trusted calls',
+      icon: '/svgIcons/twilioHub.svg',
+      permissionKey: 'subaccount.phone_numbers.manage', // Same key as for phone numbers since they do the same thing
+    },
+    {
+      id: 6,
+      heading: xbarTitle || 'Bar Services',
+      subHeading: 'Our version of the genius bar',
+      icon: '/svgIcons/agentXIcon.svg',
+      permissionKey: null, // No specific permission for this
+    },
+  ]
 
   const [selectedManu, setSelectedManu] = useState(manuBar[tabSelected])
 
@@ -105,7 +106,7 @@ function AdminProfileData({ selectedUser, from }) {
     }
     // Default title
   }
-  
+
 
   const [showNotificationDrawer, setShowNotificationDrawer] = useState(false)
 
@@ -179,10 +180,12 @@ function AdminProfileData({ selectedUser, from }) {
                     needHelp={false} />
             </div> */}
       <div
-        className=" w-full flex flex-row justify-between items-center py-4 px-10 h-full"
+        className=" w-full flex flex-row justify-between items-center py-2"
         style={{ borderBottomWidth: 2, borderBottomColor: '#00000010' }}
       >
-        <div style={{ fontSize: 24, fontWeight: '600' }}>My Account</div>
+        <TypographyH3>
+          My Account
+        </TypographyH3>
       </div>
       <div className="w-12/12 h-full"></div>
       <div className="w-full flex flex-row item-center pl-4 h-full">

@@ -3,6 +3,7 @@ import { useRouter } from 'next/navigation'
 import React from 'react'
 
 import { logout } from '@/utilities/UserUtility'
+import { renderBrandedIcon } from '@/utilities/iconMasking'
 
 function CancelationCompleted({ handleContinue }) {
   const router = useRouter()
@@ -10,12 +11,7 @@ function CancelationCompleted({ handleContinue }) {
   return (
     <div className="flex flex-col items-center w-full -mt-5">
       <div className="flex flex-row items-center justify-center">
-        <Image
-          src={'/otherAssets/checkMark.png'}
-          height={48}
-          width={48}
-          alt="*"
-        />
+       {renderBrandedIcon('/otherAssets/checkMark.png',48,48)}
       </div>
 
       <div className="text-xl font-semibold mt-4">Cancellation Complete</div>
@@ -25,7 +21,7 @@ function CancelationCompleted({ handleContinue }) {
       </div>
 
       <button
-        className="flex flex-col items-center justify-center h-[50px] w-full bg-purple rounded-lg text-base font-normal text-white mt-5 "
+        className="flex flex-col items-center justify-center h-[50px] w-full bg-brand-primary rounded-lg text-base font-normal text-white mt-5 "
         onClick={() => {
           let nextAction = 'closeModel'
           handleContinue(nextAction)

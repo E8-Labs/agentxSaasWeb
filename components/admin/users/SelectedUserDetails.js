@@ -27,6 +27,9 @@ import AdminPipeline1 from './pipline/AdminPipeline1'
 import { PersistanceKeys } from '@/constants/Constants'
 import Messages from '@/components/messaging/Messages'
 import AppLogo from '@/components/common/AppLogo'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu'
+import { DropdownMenuItem } from '@/components/ui/dropdown-menu'
+import { DropdownMenuSeparator } from '@/components/ui/dropdown-menu'
 
 function SelectedUserDetails({
   selectedUser,
@@ -87,17 +90,17 @@ function SelectedUserDetails({
       selectedImage: '/svgIcons/selectedTeam.svg',
       unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg',
     },
-   
+
 
   ]
 
-  let accountMenu = 
-    {
-      id: 8,
-      name: 'Account',
-      selectedImage: '/svgIcons/selectedProfileCircle.svg',
-      unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
-    }
+  let accountMenu =
+  {
+    id: 8,
+    name: 'Account',
+    selectedImage: '/svgIcons/selectedProfileCircle.svg',
+    unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
+  }
 
 
   if (!agencyUser) {
@@ -130,6 +133,20 @@ function SelectedUserDetails({
 
   const [selectedDate, setSelectedDate] = useState(null)
   const [showActivityLogs, setShowActivityLogs] = useState(false)
+
+    // Check if logged-in user is Admin
+    const [isAdmin, setIsAdmin] = useState(false)
+    useEffect(() => {
+      try {
+        const localData = localStorage.getItem('User')
+        if (localData) {
+          const userData = JSON.parse(localData)
+          setIsAdmin(userData.user?.userRole === 'Admin')
+        }
+      } catch (error) {
+        console.error('Error checking user role:', error)
+      }
+    }, [])
 
   useEffect(() => {
     if (selectedUser?.profile_status === 'paused') {
@@ -404,99 +421,158 @@ function SelectedUserDetails({
       <div className="flex flex-col items-center justify-center w-full">
         <div
           style={{ alignSelf: 'center' }}
-          className={`w-full ${agencyUser ? 'h-[100svh] overflow-hidden' : 'h-[90vh]'} items-center justify-center`}
+          className={`w-full overflow-hidden ${!agencyUser ? 'h-[85vh]' : 'h-[95vh]'} items-center justify-center`}
         >
-          {/*
-                        <div className='flex flex-row items-center justify-between w-full px-4 pt-2'>
-                        </div>
-                    */}
+          {(
+            <div className="flex flex-row items-center justify-end w-full px-4 pt-2 relative" style={{ zIndex: 10 }}>
+              <div className="flex flex-row items-center gap-4">
+                {from !== 'subaccount' && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button
+                        className="outline-none hover:opacity-80 transition-opacity p-2"
+                        aria-label="More options"
+                      >
+                        {pauseLoader ? (
+                          <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                        ) : (
+                          <Image
+                            src="/svgIcons/threeDotsIcon.svg"
+                            alt="More options"
+                            width={24}
+                            height={24}
+                          />
+                        )}
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="z-[1500]" style={{ zIndex: 1500 }}>
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setShowPauseConfirmationPopup(true)
+                        }}
+                        className="cursor-pointer"
+                      >
+                        {user?.profile_status === 'paused' ? 'Reinstate' : 'Pause'}
+                      </DropdownMenuItem>
 
-          {!agencyUser && (
-            <div className="flex flex-row items-center justify-between w-full px-4 pt-2">
-              <div className="w-1/2"></div>
-              <CloseBtn onClick={handleClose} />
-            </div>
-          )}
+                      {isAdmin && (
+                        <>
+                          <DropdownMenuItem
+                            onClick={() => {
+                              setShowAddMinutesModal(true)
+                            }}
+                            className="cursor-pointer"
+                          >
+                            Add Minutes
+                          </DropdownMenuItem>
 
-          <div className="flex flex-row items-start w-full ">
-            <div className={`flex border-r border-[#00000015]  flex-col items-start justify-start w-2/12 px-6 ${(from === "admin" || from === "subaccount") ? "":"h-full" } ${agencyUser ? 'h-screen' : 'h-auto'}`}>
-            {agencyUser && (
-              <div className="w-full flex flex-col gap-2 pt-4">
-                {/* Show company name if no logo for subaccount users */}
-                {user && (user?.userRole === "AgencySubAccount" || user?.userRole === "Invitee") && user?.agencyBranding && !user.agencyBranding.logoUrl && user.agencyBranding.companyName ? (
-                  <div className="w-full text-left pl-6" style={{ marginLeft: "-8px" }}>
-                    <div className="text-lg font-bold text-black truncate">
-                      {user.agencyBranding.companyName}
-                    </div>
-                  </div>
-                ) : (
-                  /* AppLogo handles logo display based on hostname */
-                  (<div className="flex justify-start ">
-                    <Image
-                      src={user?.agencyBranding?.logoUrl}
-                      alt="logo"
-                      height={40}
-                      width={140}
-                      style={{ objectFit: 'contain', maxHeight: '40px', maxWidth: '140px' }}
-                      unoptimized={true}
-                    />
-                  </div>)
+                          {selectedUser.isTrial && (
+                            <>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setShowResetTrialPopup(true)
+                                }}
+                                className="cursor-pointer"
+                              >
+                                Reset Trial
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </>
+                      )}
+
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={() => {
+                          setShowDeleteModal(true)
+                        }}
+                        className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                      >
+                        Delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+                <CloseBtn onClick={handleClose} />
+
+                {showResetTrialPopup && (
+                  <ResetTrial
+                    showConfirmationPopup={showResetTrialPopup}
+                    handleClose={() => setShowResetTrialPopup(false)}
+                    onContinue={handleResetTrail}
+                    loader={resetTrailLoader}
+                    selectedDate={selectedDate}
+                    setSelectedData={setSelectedDate}
+                  />
+                )}
+
+                {showPauseConfirmationPopup && (
+                  <DelAdminUser
+                    showPauseModal={showPauseConfirmationPopup}
+                    handleClosePauseModal={() => {
+                      setShowPauseConfirmationPopup(false)
+                    }}
+                    handlePaueUser={handlePause}
+                    pauseLoader={pauseLoader}
+                    selectedUser={user}
+                  />
                 )}
               </div>
-              )}
-              {
-                !agencyUser && (
+            </div>
+          )}
+          <div className="flex flex-row items-start w-full  ">
+            <div className={`flex border-r border-[#00000015] flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} `}>
 
-                  <div className={`flex flex-row gap-2 items-center justify-start w-full pt-3 ${agencyUser ? 'pt-3' : ''}`}>
-
-
-                    <div className="flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white">
-                      {selectedUser.name[0]}
-                    </div>
-                    <h4>{selectedUser.name}</h4>
-
-                    {agencyUser ? (
-                      ''
-                    ) : (
-                      <button
-                        onClick={() => {
-                          if (selectedUser?.id) {
-                            // Open a new tab with user ID as query param
-                            let url = ''
-                            if (from === 'admin') {
-                              url = `/admin/users?userId=${selectedUser.id}&agencyUser=true`
-                            } else if (from === 'subaccount') {
-                              // url = `/agency/users?userId=${selectedUser.id}`
-                              url = `/agency/users?userId=${selectedUser.id}&agencyUser=true`
-                            }
-                            // url = `admin/users?userId=${selectedUser.id}`
-                            //console.log
-                            window.open(url, '_blank')
-                          }
-                        }}
-                      >
-                        <Image
-                          src={'/svgIcons/arrowboxIcon.svg'}
-                          height={20}
-                          width={20}
-                          alt="*"
-                        />
-                      </button>
-                    )}
+              {agencyUser ? (
+                logoBranding()
+              ) : (
+                <div className={`flex flex-row gap-2 items-center justify-start w-full pt-3 `}>
+                  <div className="flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white">
+                    {selectedUser.name[0]}
                   </div>
-                )
-              }
-              <div className='flex flex-col items-start justify-center gap-3 w-full pt-10 ${(from === "admin" || from === "subaccount") ? "":"h-full"}'>
+                  <h4>{selectedUser.name}</h4>
+
+                  {(
+                    <button
+                      style={{
+                        pointerEvents: 'auto',
+                        zIndex: 10,
+                      }}
+                      onClick={() => {
+                        console.log('selectedUser.id', selectedUser.id)
+                        if (selectedUser?.id) {
+                          let url = ''
+                          if (from === 'admin') {
+                            url = `/admin/users?userId=${selectedUser.id}`
+                          } else if (from === 'subaccount') {
+                            url = `/agency/users?userId=${selectedUser.id}&agencyUser=true`
+                          }
+                          window.open(url, '_blank')
+                        }
+                      }}
+                    >
+                      <Image
+                        src={'/svgIcons/arrowboxIcon.svg'}
+                        height={20}
+                        width={20}
+                        alt="*"
+                      />
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Menu Items - Only show accessible items */}
+              <div className='flex flex-col items-start justify-center gap-3 w-full pt-10'>
                 {manuBar.map((item) => (
                   <button
                     key={item.id}
-                    onClick={() => {
-                      handleManuClick(item)
-                    }}
+                    onClick={() => handleManuClick(item)}
                     className={`flex flex-row items-center gap-3 p-2 items-center 
-                                        ${selectedManu.id == item.id && 'border-b-[2px] border-brand-primary'}`}
+                    ${selectedManu?.id == item.id && 'border-b-[2px] border-brand-primary'}`}
                   >
-                    {selectedManu.id == item.id ? (
+                    {selectedManu?.id == item.id ? (
                       <div
                         style={{
                           width: 24,
@@ -525,9 +601,8 @@ function SelectedUserDetails({
                       style={{
                         fontSize: 16,
                         fontWeight: 500,
-                        color: selectedManu.id == item.id ? 'hsl(var(--brand-primary))' : '#000',
+                        color: selectedManu?.id == item.id ? 'hsl(var(--brand-primary))' : '#000',
                         whiteSpace: 'nowrap',
-
                       }}
                     >
                       {item.name}
@@ -535,182 +610,25 @@ function SelectedUserDetails({
                   </button>
                 ))}
               </div>
-
-              {agencyUser && (
-                <div onClick={() => {
-                  handleManuClick(accountMenu)
-                  //set account info to the right side of the screen
-                  // setAccountInfo(true)
-                }}className="w-full flex flex-row items-start gap-3 py-2 truncate outline-none text-start  no-underline hover:no-underline cursor-pointer" //border border-[#00000015] rounded-[10px]
-                  style={{
-                    textOverflow: "ellipsis",
-                    textDecoration: "none",
-                    position: "absolute",
-                    bottom: 8,
-
-                  }}>
-                  {user?.thumb_profile_image ? (
-                    <img
-                      src={user?.thumb_profile_image}
-                      alt="*"
-                      style={{
-                        objectFit: "fill",
-                        height: "34px",
-                        width: "34px",
-                        borderRadius: "50%",
-                      }}
-                    />
-                  ) : (
-                    <div className="h-[32px] flex-shrink-0 w-[32px] rounded-full bg-black text-white flex flex-row items-center justify-center">
-                      {user?.name.slice(0, 1).toUpperCase()}
-                    </div>
-                  )}
-
-                  <div >
-                    <div className="flex flex-row items-center gap-2">
-                      <div
-                        className="truncate"
-                        style={{
-                          fontSize: 15,
-                          fontWeight: "500",
-                          color: "",
-                          // width: "100px",
-                          color: "black",
-                        }}
-                      >
-                        {/*user?.name?.split(" ")[0]*/}
-                        {(() => {
-                          const name = user?.name?.split(" ")[0] || "";
-                          return name.length > 10 ? `${name.slice(0, 7)}...` : name;
-                        })()}
-                      </div>
-
-                    </div>
-                    <div
-                      className="truncate w-[120px]"
-                      style={{
-                        fontSize: 15,
-                        fontWeight: "500",
-                        color: "#15151560",
-                        textOverflow: "ellipsis",
-                      }}
-                    >
-                      {user?.email}
-                    </div>
-                  </div>
-
-                  {/* Socket Connection Status Indicator */}
-
-                </div>
-              )}
             </div>
 
             <div
-              className={`flex flex-col items-center justify-center pt-2 px-4 ${agencyUser ? 'h-[95vh]' : 'h-[80vh]'} overflow-auto w-10/12`}
+              className={`flex flex-col items-center justify-start pt-2 px-4  ${!agencyUser ? 'h-[75vh]' : 'h-[95vh]'} overflow-auto w-10/12`}
             >
-              <div className="w-full flex flex-row items-center justify-end">
-                <div className="flex flex-row items-center gap-4">
-                  {pauseLoader ? (
-                    <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                  ) : (
-                    <div>
-                      {!agencyUser && from !== 'subaccount' && (
-                        <button
-                          className="text-white bg-brand-primary outline-none rounded-xl px-3"
-                          style={{ height: '50px' }}
-                          onClick={() => {
-                            setShowPauseConfirmationPopup(true)
-                          }}
-                        >
-                          {user?.profile_status === 'paused'
-                            ? 'Reinstate'
-                            : 'Pause'}
-                        </button>
-                      )}
-                    </div>
-                  )}
-
-                  <div>
-                    {!agencyUser && selectedUser.isTrial && (
-                      <button
-                        className="text-white bg-brand-primary outline-none rounded-xl px-3"
-                        style={{ height: '50px' }}
-                        onClick={() => {
-                          setShowResetTrialPopup(true)
-                        }}
-                      >
-                        Reset Trial
-                      </button>
-                    )}
-                  </div>
-                  {showResetTrialPopup && (
-                    <ResetTrial
-                      showConfirmationPopup={showResetTrialPopup}
-                      handleClose={() => setShowResetTrialPopup(false)}
-                      onContinue={handleResetTrail}
-                      loader={resetTrailLoader}
-                      selectedDate={selectedDate}
-                      setSelectedData={setSelectedDate}
-                    />
-                  )}
-
-                  {showPauseConfirmationPopup && (
-                    <DelAdminUser
-                      showPauseModal={showPauseConfirmationPopup}
-                      handleClosePauseModal={() => {
-                        setShowPauseConfirmationPopup(false)
-                      }}
-                      handlePaueUser={handlePause}
-                      pauseLoader={pauseLoader}
-                      selectedUser={user}
-                    />
-                  )}
-
-                  {!agencyUser && from !== 'subaccount' && (
-                    <button
-                      className="text-white bg-brand-primary outline-none rounded-xl px-3"
-                      style={{ height: '50px' }}
-                      onClick={() => {
-                        setShowAddMinutesModal(true)
-                      }}
-                    >
-                      Add Minutes
-                    </button>
-                  )}
-
-                  {!agencyUser && from !== 'subaccount' && (
-                    <button
-                      className="text-red outline-none rounded-xl px-3"
-                      style={{ height: '50px' }}
-                      onClick={() => {
-                        setShowDeleteModal(true)
-                      }}
-                    >
-                      Delete
-                    </button>
-                  )}
-
-                  {/* <div>
-                            <button>
-                                <Image
-                                    src={"/assets/cross.png"}
-                                    alt='*'
-                                    height={20}
-                                    width={20}
-                                />
-                            </button>
-                    </div>*/}
-                </div>
-              </div>
               <div
-                className={`flex flex-col ${selectedManu.name == 'Leads' ? 'items-stretch' : 'items-center justify-center'} ${agencyUser ? 'h-[95vh]' : 'h-[76vh]'} ${selectedManu.name == 'Leads' ? 'overflow-hidden' : 'overflow-auto'} w-full`}
-                id={selectedManu.name == 'Leads' ? 'adminLeadsParentContainer' : undefined}
-                style={selectedManu.name == 'Leads' ? { overflow: 'hidden', maxHeight: agencyUser ? '95vh' : '76vh' } : {}}
+                className={`flex flex-col h-full ${selectedManu?.name == 'Leads' ? 'items-stretch' : 'items-center justify-center'} h-[76vh] ${selectedManu?.name == 'Leads' ? 'overflow-hidden' : 'overflow-auto'} w-full`}
+                id={selectedManu?.name == 'Leads' ? 'adminLeadsParentContainer' : undefined}
+                style={selectedManu?.name == 'Leads' ? { overflow: 'hidden', maxHeight: '76vh' } : {}}
               >
-                {selectedManu.name == 'Leads' ? (
+                {!selectedManu ? (
+                  <div className="flex flex-col items-center justify-center h-full">
+                    <p className="text-sm text-muted-foreground">
+                      Select a menu item to get started
+                    </p>
+                  </div>
+                ) : selectedManu.name == 'Leads' ? (
                   <AdminLeads1
                     selectedUser={selectedUser}
-                    agencyUser={agencyUser}
                   />
                 ) : selectedManu.name == 'Pipeline' ? (
                   <AdminPipeline1 selectedUser={selectedUser} />
@@ -725,18 +643,23 @@ function SelectedUserDetails({
                 ) : selectedManu.name == 'Dashboard' ? (
                   <AdminDashboard selectedUser={selectedUser} agencyUser={agencyUser} />
                 ) : selectedManu.name == 'Integration' ? (
-                  <AdminIntegration selectedUser={selectedUser} />
+                  <AdminIntegration selectedUser={selectedUser} agencyUser={agencyUser} />
                 ) : selectedManu.name == 'Team' ? (
                   <AdminTeam selectedUser={selectedUser} agencyUser={agencyUser} />
                 ) : selectedManu.name == 'Account' ? (
-                  <AdminProfileData selectedUser={selectedUser} from={from} />
+                  <AdminProfileData
+                    selectedUser={selectedUser}
+                    from={from}
+                    agencyUser={agencyUser}
+                    handleDel={handleDel}
+                    handlePauseUser={handlePauseUser}
+                    handleClose={handleClose}
+                  />
                 ) : selectedManu.name == 'Messages (Beta)' ? (
                   <Messages selectedUser={selectedUser} agencyUser={agencyUser} />
                 ) : (
                   'Coming soon...'
-                )
-                  //""
-                }
+                )}
               </div>
             </div>
           </div>

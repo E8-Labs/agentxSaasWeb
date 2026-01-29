@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { format } from 'date-fns'
-import { CalendarIcon, Clock, Pin, Flag, ChevronDown, MoreVertical } from 'lucide-react'
+import { CalendarIcon, Clock, Pin, ChevronDown, MoreVertical } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Input } from '@/components/ui/input'
@@ -26,9 +26,65 @@ const TaskForm = ({
   threadId = null,
   callId = null,
   showButtons = true,
+  shouldShowLeadMention = false,
+  leadName = null,
+  initialDescription = null,
+  hideBorder = false,
+  isValidForm = false,
+  setIsValidForm = () => {},
 }) => {
-  const [title, setTitle] = useState(task?.title || '')
-  const [description, setDescription] = useState(task?.description || '')
+  const titleInputRef = useRef(null)
+  const titleContainerRef = useRef(null)
+  const measureSpanRef = useRef(null)
+  const [inputTextWidth, setInputTextWidth] = useState(0)
+  const [isFocused, setIsFocused] = useState(false)
+  const [containerWidth, setContainerWidth] = useState(0)
+  
+  // Initialize title - start empty, lead mention will be shown separately
+  const getInitialTitle = () => {
+    if (task?.title) return task.title
+    return ''
+  }
+
+  const [title, setTitle] = useState(getInitialTitle())
+
+  // Measure container width for overlap calculation
+  useEffect(() => {
+    const updateContainerWidth = () => {
+      if (titleContainerRef.current) {
+        setContainerWidth(titleContainerRef.current.offsetWidth)
+      }
+    }
+    
+    updateContainerWidth()
+    window.addEventListener('resize', updateContainerWidth)
+    
+    // Use ResizeObserver if available for more accurate tracking
+    let resizeObserver = null
+    if (typeof ResizeObserver !== 'undefined' && titleContainerRef.current) {
+      resizeObserver = new ResizeObserver(updateContainerWidth)
+      resizeObserver.observe(titleContainerRef.current)
+    }
+    
+    return () => {
+      window.removeEventListener('resize', updateContainerWidth)
+      if (resizeObserver) {
+        resizeObserver.disconnect()
+      }
+    }
+  }, [])
+
+  // Measure input text width to position the lead mention
+  useEffect(() => {
+    if (titleInputRef.current && measureSpanRef.current) {
+      // Use a hidden span to measure the actual text width
+      measureSpanRef.current.textContent = title || ' '
+      const textWidth = measureSpanRef.current.offsetWidth
+      setInputTextWidth(textWidth)
+    }
+  }, [title])
+  
+  const [description, setDescription] = useState(task?.description || initialDescription || '')
   const [priority, setPriority] = useState(task?.priority || 'no-priority')
   const [status, setStatus] = useState(task?.status || 'todo')
   const [dueDate, setDueDate] = useState(task?.dueDate ? new Date(task.dueDate) : null)
@@ -39,12 +95,19 @@ const TaskForm = ({
   const [datePickerOpen, setDatePickerOpen] = useState(false)
   const [isSavingDate, setIsSavingDate] = useState(false)
 
+  // Handle initial description from props
+  useEffect(() => {
+    if (initialDescription && !task?.description && !description) {
+      setDescription(initialDescription)
+    }
+  }, [initialDescription, task?.description, description])
+
   // Priority options
   const priorityOptions = [
-    { label: 'No Priority', value: 'no-priority', icon: Flag },
-    { label: 'Low', value: 'low', icon: Flag },
-    { label: 'Medium', value: 'medium', icon: Flag },
-    { label: 'High', value: 'high', icon: Flag },
+    { label: 'No Priority', value: 'no-priority' },
+    { label: 'Low', value: 'low' },
+    { label: 'Medium', value: 'medium' },
+    { label: 'High', value: 'high' },
   ]
 
   // Status options
@@ -70,6 +133,63 @@ const TaskForm = ({
 
   // Get current priority option
   const currentPriority = priorityOptions.find((p) => p.value === priority) || priorityOptions[0]
+
+  const getPriorityKey = (priorityValue, priorityLabel) => {
+    const raw = (priorityValue ?? priorityLabel ?? '').toString().trim().toLowerCase()
+    if (raw === 'low' || raw === 'l' || raw === '1') return 'low'
+    if (raw === 'medium' || raw === 'med' || raw === 'm' || raw === '2')
+      return 'medium'
+    if (raw === 'high' || raw === 'h' || raw === '3') return 'high'
+    if (raw === 'no-priority' || raw === 'none' || raw === 'no priority') return 'no-priority'
+    return 'no-priority'
+  }
+
+  const priorityFlagColors = {
+    'no-priority': '#9CA3AF', // neutral gray
+    low: '#4B5563', // dark gray fill
+    medium: '#FBBF24', // yellow fill
+    high: '#EF4444', // red fill
+  }
+
+  const PriorityFlagMask = ({ priorityKey, className }) => {
+    const color = priorityFlagColors[priorityKey] || priorityFlagColors['no-priority']
+    return (
+      <div
+        className={className}
+        style={{
+          backgroundColor: color,
+          WebkitMaskImage: `url(/svgIcons/flagFilled.svg)`,
+          WebkitMaskSize: 'contain',
+          WebkitMaskRepeat: 'no-repeat',
+          WebkitMaskPosition: 'center',
+          WebkitMaskMode: 'alpha',
+          maskImage: `url(/svgIcons/flagFilled.svg)`,
+          maskSize: 'contain',
+          maskRepeat: 'no-repeat',
+          maskPosition: 'center',
+          maskMode: 'alpha',
+          flexShrink: 0,
+        }}
+        aria-hidden="true"
+      />
+    )
+  }
+
+  const PriorityFlagIcon = ({ className }) => {
+    const priorityKey = getPriorityKey(currentPriority?.value, currentPriority?.label)
+    return <PriorityFlagMask priorityKey={priorityKey} className={className} />
+  }
+
+  const renderPriorityOptionLabel = (opt) => {
+    const priorityKey = getPriorityKey(opt?.value, opt?.label)
+    const labelText = typeof opt?.label === 'string' ? opt.label : String(opt?.value ?? '')
+    return (
+      <div className="flex items-center gap-2">
+        <PriorityFlagMask priorityKey={priorityKey} className="h-4 w-4" />
+        <span>{labelText}</span>
+      </div>
+    )
+  }
 
   // Prepare team member options
   const teamMemberOptions = teamMembers.map((member) => {
@@ -152,45 +272,149 @@ const TaskForm = ({
     onSubmit(formData)
   }
 
+  // Calculate position for lead mention to avoid overlap with priority dropdown
+  // Reserve approximately 180px from right for priority dropdown + more options + padding
+  const priorityDropdownSpace = 180
+  const leadMentionApproxWidth = leadName ? leadName.length * 8 + 25 : 0 // Approximate width of "@leadName"
+  const availableSpace = Math.max(0, containerWidth - priorityDropdownSpace)
+  
+  // When focused, position mention after input text with spacing
+  // When not focused, position mention after "Task for" text (approximately 80px from input start)
+  const mentionSpacing = 8 // Gap between input text and mention
+  const taskForTextWidth = 80 // Approximate width of "Task for " text
+  
+  // Calculate the maximum position where mention can be placed (before priority dropdown)
+  const maxMentionPosition = Math.max(0, availableSpace - leadMentionApproxWidth)
+  
+  // Desired positions for mention
+  const desiredPositionWhenFocused = inputTextWidth + mentionSpacing
+  const desiredPositionWhenNotFocused = taskForTextWidth + mentionSpacing
+  
+  // Calculate where mention should be positioned (never exceed maxMentionPosition)
+  const leadMentionLeft = isFocused
+    ? Math.min(desiredPositionWhenFocused, maxMentionPosition)
+    : Math.min(desiredPositionWhenNotFocused, maxMentionPosition)
+  
+  const maxWidthForMention = Math.max(100, availableSpace - leadMentionLeft)
+  
+  // Calculate max width for input to prevent covering the lead mention
+  // Always constrain if we have a valid lead mention to ensure input never overlaps
+  const shouldConstrainInput = shouldShowLeadMention && leadName && containerWidth > 0
+  // Constrain input to ensure there's always room for the mention with padding
+  // Input should never exceed the maximum mention position minus spacing
+  const inputMaxWidth = shouldConstrainInput
+    ? Math.max(100, maxMentionPosition - mentionSpacing - 4) // Leave gap for mention spacing plus small buffer
+    : undefined
+
   return (
-    <div className="border rounded-lg p-4 bg-white shadow-sm">
-      <form onSubmit={handleSubmit} className="space-y-0" id="task-form">
+    <div className={`${hideBorder ? '' : 'border'} rounded-lg ${hideBorder ? 'p-0' : 'p-4'} bg-white ${hideBorder ? '' : 'shadow-sm'}`}>
+      <form onSubmit={handleSubmit} className={`space-y-0 ${hideBorder ? 'pt-0' : ''}`} id="task-form">
         {/* Title with Pin and Priority */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 flex-1">
+          <div 
+            ref={titleContainerRef}
+            className="flex items-center gap-2 flex-1 relative min-w-0"
+          >
             <Pin className="h-4 w-4 flex-shrink-0" style={{ color: '#8A8A8A' }} />
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Title"
-              className="border-0 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 flex-1"
-              style={{ fontSize: '14px', fontWeight: 600 }}
-              required
-            />
+            <div className="flex-1 relative min-w-0">
+              {/* Hidden span for measuring text width */}
+              <span
+                ref={measureSpanRef}
+                className="absolute invisible whitespace-pre"
+                style={{
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  padding: 0,
+                  margin: 0,
+                  visibility: 'hidden',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                }}
+              />
+              
+              {/* "Task for" text - only shows when not focused */}
+              {shouldShowLeadMention && leadName && !isFocused && (
+                <span
+                  className="absolute top-0 pointer-events-none"
+                  style={{
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    color: '#6B7280',
+                    left: `${inputTextWidth + 8}px`,
+                    transition: 'opacity 0.15s ease-out',
+                    whiteSpace: 'nowrap',
+                    zIndex: 1,
+                  }}
+                >
+                  Task for{' '}
+                </span>
+              )}
+              
+              {/* Lead mention tag (@leadName) - always visible, positioned dynamically after input text */}
+              {shouldShowLeadMention && leadName && (
+                <span
+                  className="absolute top-0 pointer-events-none text-brand-primary"
+                  style={{
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    left: `${leadMentionLeft}px`,
+                    transition: 'left 0.1s ease-out',
+                    whiteSpace: 'nowrap',
+                    zIndex: 1,
+                    maxWidth: `${maxWidthForMention}px`,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  @{leadName}
+                </span>
+              )}
+              <Input
+                ref={titleInputRef}
+                value={title}
+                onChange={(e) => {
+                  setTitle(e.target.value)
+                }}
+                onFocus={(e) => {
+                  setIsFocused(true)
+                }}
+                onBlur={(e) => {
+                  setIsFocused(false)
+                }}
+                placeholder={shouldShowLeadMention && leadName ? '' : "Title"}
+                className="border-0 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 flex-1 relative"
+                style={{ 
+                  fontSize: '14px', 
+                  fontWeight: 600,
+                  backgroundColor: 'transparent',
+                  position: 'relative',
+                  zIndex: 2,
+                  minWidth: 0,
+                  // Ensure input doesn't extend beyond lead mention position
+                  ...(inputMaxWidth && { maxWidth: `${inputMaxWidth}px` }),
+                  // Add padding-right to ensure text doesn't get cut off at the edge
+                  paddingRight: shouldShowLeadMention && leadName && shouldConstrainInput ? '16px' : '0',
+                  // Prevent text overflow into mention area
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+                required
+              />
+            </div>
           </div>
           {/* Priority and More Options - Top Right */}
           <div className="ml-2 flex items-center gap-2">
             <DropdownCn
               label={<TypographyCaption>{currentPriority.label}</TypographyCaption>}
-              icon={Flag}
+              icon={PriorityFlagIcon}
               options={priorityOptions.map((opt) => ({
-                label: opt.label,
+                label: renderPriorityOptionLabel(opt),
                 value: opt.value,
               }))}
               onSelect={(option) => setPriority(option.value)}
               backgroundClassName="text-foreground"
               className="border-0 shadow-none h-[36px]"
-              iconColor="#8A8A8A"
-            />
-            {/* More Options - No border, no chevron */}
-            <DropdownCn
-              label=""
-              icon={MoreVertical}
-              options={moreOptions}
-              backgroundClassName="text-foreground"
-              className="border-0 shadow-none h-[36px]"
-              hideChevron={true}
-              iconColor="#8A8A8A"
             />
           </div>
         </div>
@@ -204,11 +428,13 @@ const TaskForm = ({
             className="border-0 p-0 min-h-[60px] resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
             style={{ fontSize: '14px' }}
             rows={3}
+            required={isValidForm}
+            style={{ lineHeight: '2' }}
           />
         </div>
 
         {/* Action Row - Assignees, Due Date, Status (bottom right) */}
-        <div className="flex items-center gap-2 flex-wrap mt-3">
+        <div className="flex items-center gap-2 flex-wrap mt-8">
           {/* Assignees - Use MultiSelectDropdownCn with visible borders */}
           <MultiSelectDropdownCn
             label="Assign"
@@ -260,7 +486,7 @@ const TaskForm = ({
             <PopoverContent 
               className="w-auto p-0" 
               align="start"
-              style={{ zIndex: 200 }}
+              style={{ zIndex: 1500 }}
               onInteractOutside={(e) => {
                 const taskBoard = document.querySelector('[data-task-board]')
                 // Check if clicking on the popover content itself
@@ -387,9 +613,14 @@ const TaskForm = ({
           </div>
         </div>
 
+        {/* Divider before action buttons */}
+        {showButtons && (
+          <div className={`border-t border-gray-200 mt-4 mb-4 ${hideBorder ? '-mx-0' : '-mx-4'} ${hideBorder ? 'px-0' : 'px-4'}`} />
+        )}
+
         {/* Action buttons - Only show if showButtons is true */}
         {showButtons && (
-          <div className="flex justify-end gap-2 pt-4 mt-4 border-t border-gray-200">
+          <div className="flex justify-end gap-2 pt-0 mt-0">
             <Button type="button" variant="outline" onClick={onCancel}>
               Cancel
             </Button>

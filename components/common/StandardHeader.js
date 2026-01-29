@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import NotficationsDrawer from '../notofications/NotficationsDrawer'
 import { TypographyH3 } from '@/lib/typography'
@@ -45,6 +45,7 @@ function StandardHeader({
 }) {
   const [taskBoardOpen, setTaskBoardOpen] = useState(false)
   const taskButtonRef = useRef(null)
+
   
   // Get task status for indicator dots
   const { hasActiveTasks, hasPastDueTasks } = useTaskStatus(
@@ -143,7 +144,10 @@ function StandardHeader({
           {showTasks && (
             <button
               ref={taskButtonRef}
-              onClick={() => setTaskBoardOpen(true)}
+              onClick={() => {
+                setTaskBoardOpen(true)
+                window.dispatchEvent(new CustomEvent('hideSlider', { detail: { update: true } }))
+              }}
               className="mb-1 hover:opacity-70 transition-opacity flex-shrink-0 relative"
             >
               <Image 
@@ -179,7 +183,10 @@ function StandardHeader({
       {showTasks && (
         <TaskBoard 
           open={taskBoardOpen} 
-          onClose={() => setTaskBoardOpen(false)}
+          onClose={() => {
+            setTaskBoardOpen(false)
+            window.dispatchEvent(new CustomEvent('showSlider', { detail: { update: true } }))
+          }}
           leadId={selectedThread?.leadId || leadId || null}
           threadId={selectedThread?.id || threadId || null}
           buttonRef={taskButtonRef}

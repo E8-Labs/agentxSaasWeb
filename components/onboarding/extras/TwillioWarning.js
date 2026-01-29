@@ -68,11 +68,7 @@ const TwillioWarning = ({
                     justifyContent: 'end',
                   }}
                 >
-                  <CloseBtn
-                    onClick={() => {
-                      handleClose()
-                    }}
-                  />
+                
                 </div>
               </div>
 
@@ -107,7 +103,7 @@ const TwillioWarning = ({
                   </div>
                 ) : (
                   <button
-                    className="outline-none bg-purple text-white"
+                    className="outline-none bg-brand-primary text-white"
                     style={{
                       color: 'white',
                       height: '50px',

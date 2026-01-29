@@ -69,6 +69,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Checkbox } from '@/components/ui/checkbox'
 
 const Userleads = ({
   handleShowAddLeadModal,
@@ -119,7 +120,7 @@ const Userleads = ({
         column.key?.toLowerCase() === 'address',
     )
 
-    if (addressColumn) {}
+    if (addressColumn) { }
 
     // Check if any lead has address data
     const hasAddressData = leads.some(
@@ -135,7 +136,7 @@ const Userleads = ({
       )
     }
 
-    if (hasAddressData && addressColumn) {}
+    if (hasAddressData && addressColumn) { }
 
     return columns
   }
@@ -395,7 +396,7 @@ const Userleads = ({
     if (isFilteringRef.current) {
       return
     }
-    
+
     // Don't run if SelectedSheetId is not set yet
     if (!SelectedSheetId) {
       return
@@ -405,7 +406,7 @@ const Userleads = ({
     isFilteringRef.current = true
     setFilterLeads([])
     setLeadsList([])
-    
+
     let filterText = getFilterText()
 
     // Use setTimeout to defer the async call and prevent React scheduler conflicts
@@ -422,9 +423,9 @@ const Userleads = ({
           }, 100)
         })
     }, 0)
-    
+
     setShowNoLeadsLabel(false)
-    
+
     return () => {
       clearTimeout(timeoutId)
     }
@@ -521,7 +522,7 @@ const Userleads = ({
       const leadsKeys = keysToCheck.filter((item) =>
         item.key.startsWith('Leads'),
       )
-      leadsKeys.forEach((item) => {})
+      leadsKeys.forEach((item) => { })
 
       return {
         totalSize,
@@ -816,10 +817,10 @@ const Userleads = ({
   const handleDeleteSmartList = async (item = null) => {
     try {
       setDelSmartListLoader(true)
-      
+
       // Use the passed item or fall back to selectedSmartList
       const itemToDelete = item || selectedSmartList
-      
+
       if (!itemToDelete) {
         console.error('No item selected for deletion')
         setDelSmartListLoader(false)
@@ -1027,7 +1028,7 @@ const Userleads = ({
       // //console.log;
       setLeadColumns(dynamicColumns)
       // return
-    } else {}
+    } else { }
   }
 
   //function for filtering leads
@@ -1101,14 +1102,14 @@ const Userleads = ({
             if (data.length > 0) {
               sheetId = data[0].sheetId
             }
-            
+
             // Only process response if it matches the currently selected sheet
             // This prevents race conditions when switching sheets quickly
             // For empty responses, we process them if it's the first page (nextCursorValue is 0/falsy)
             // because empty responses don't have a sheetId but should still be shown for the current sheet
-            const shouldProcess = (sheetId == SelectedSheetId) || 
+            const shouldProcess = (sheetId == SelectedSheetId) ||
               (data.length === 0 && !nextCursorValue)
-            
+
             if (shouldProcess) {
               if (!nextCursorValue) {
                 // First page load
@@ -1175,7 +1176,7 @@ const Userleads = ({
                   setLeadColumns([])
                 }
               }
-            } else {}
+            } else { }
 
             setHasMore(responseData.hasMore)
 
@@ -1221,7 +1222,7 @@ const Userleads = ({
         leadId: selectedLeadsDetails.id,
       }
 
-      
+
 
       const ApiPath = Apis.addLeadNote
       // return
@@ -1346,24 +1347,15 @@ const Userleads = ({
           <div>
             <div className="w-full flex flex-row items-center gap-2 truncate">
               {canShowSelected ? (
-                <button
-                  className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
-                  onClick={() => {
-                    handleToggleClick(item.id)
-                  }}
-                >
-                  <Image
-                    src={'/assets/whiteTick.png'}
-                    height={10}
-                    width={10}
-                    alt="*"
-                  />
-                </button>
+                <Checkbox
+                  checked={true}
+                  className="h-4 w-4 flex-shrink-0 border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                />
               ) : (
-                <button
-                  className="h-[20px] w-[20px] border-2 rounded outline-none"
+                <Checkbox
+                  className="h-4 w-4 flex-shrink-0 border-2 border-muted"
                   onClick={() => handleToggleClick(item.id)}
-                ></button>
+                />
               )}
               <div
                 className="h-[32px] w-[32px] bg-black cursor-pointer rounded-full flex flex-row items-center justify-center text-white  break-words overflow-hidden text-ellipsis"
@@ -2310,8 +2302,8 @@ const Userleads = ({
               <div
                 className="flex flex-row items-center mt-8 gap-2"
                 style={styles.paragraph}
-                // className="flex flex-row items-center mt-8 gap-2"
-                // style={{ ...styles.paragraph, overflowY: "hidden" }}
+              // className="flex flex-row items-center mt-8 gap-2"
+              // style={{ ...styles.paragraph, overflowY: "hidden" }}
               >
                 <div
                   className="flex flex-row items-center gap-2 w-full"
@@ -2342,8 +2334,8 @@ const Userleads = ({
                           color: SelectedSheetId === item.id ? 'hsl(var(--brand-primary))' : '',
                           whiteSpace: 'nowrap', // Prevent text wrapping
                         }}
-                        // className='flex flex-row items-center gap-1 px-3'
-                        // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
+                      // className='flex flex-row items-center gap-1 px-3'
+                      // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid #7902DF" : "", color: SelectedSheetId === item.id ? "#7902DF" : "" }}
                       >
                         <button
                           style={styles.paragraph}
@@ -2508,9 +2500,8 @@ const Userleads = ({
                             return (
                               <th
                                 key={index}
-                                className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${
-                                  isMoreColumn ? 'sticky right-0 bg-white' : ''
-                                }`}
+                                className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn ? 'sticky right-0 bg-white' : ''
+                                  }`}
                                 style={{
                                   whiteSpace: 'nowrap',
                                   overflow: 'hidden',
@@ -2532,11 +2523,10 @@ const Userleads = ({
                             {leadColumns.map((column, colIndex) => (
                               <td
                                 key={colIndex}
-                                className={`border-none px-4 py-2 max-w-[330px] whitespace-normal break-words overflow-hidden text-ellipsis ${
-                                  column.title === 'More'
+                                className={`border-none px-4 py-2 max-w-[330px] whitespace-normal break-words overflow-hidden text-ellipsis ${column.title === 'More'
                                     ? 'sticky right-0 bg-white'
                                     : ''
-                                }`}
+                                  }`}
                                 style={{
                                   whiteSpace: 'nowrap',
                                   zIndex: column.title === 'More' ? 1 : 'auto',
@@ -2730,9 +2720,9 @@ const Userleads = ({
                                 border: 'none', // Remove the default outline
                               },
                               '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                {
-                                  border: 'none', // Remove outline on focus
-                                },
+                              {
+                                border: 'none', // Remove outline on focus
+                              },
                               '&.MuiSelect-select': {
                                 py: 0, // Optional padding adjustments
                               },
@@ -2800,12 +2790,10 @@ const Userleads = ({
                                   onClick={() => {
                                     handleSelectStage(item)
                                   }}
-                                  className={`p-2 border border-[#00000020] ${
-                                    found >= 0 ? `bg-brand-primary` : 'bg-transparent'
-                                  } px-6
-                              ${
-                                found >= 0 ? `text-white` : 'text-black'
-                              } rounded-2xl`}
+                                  className={`p-2 border border-[#00000020] ${found >= 0 ? `bg-brand-primary` : 'bg-transparent'
+                                    } px-6
+                              ${found >= 0 ? `text-white` : 'text-black'
+                                    } rounded-2xl`}
                                 >
                                   {item.stageTitle}
                                 </button>
@@ -2819,11 +2807,10 @@ const Userleads = ({
                               onClick={() => {
                                 setNoStageSelected((prev) => !prev)
                               }}
-                              className={`p-2 border border-[#00000020] ${
-                                noStageSelected
+                              className={`p-2 border border-[#00000020] ${noStageSelected
                                   ? `bg-brand-primary text-white`
                                   : 'bg-transparent text-black'
-                              } px-6 rounded-2xl`}
+                                } px-6 rounded-2xl`}
                             >
                               No Stage
                             </button>
@@ -3025,11 +3012,10 @@ const Userleads = ({
                           </div>
                         ) : (
                           <button
-                            className={` h-[50px] rounded-xl text-white w-full ${
-                              newSheetName && newSheetName.length > 0
+                            className={` h-[50px] rounded-xl text-white w-full ${newSheetName && newSheetName.length > 0
                                 ? 'bg-red'
                                 : ''
-                            }`}
+                              }`}
                             style={{
                               fontWeight: '600',
                               fontSize: 16.8,
