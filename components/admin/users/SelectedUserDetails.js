@@ -415,10 +415,10 @@ function SelectedUserDetails({
         type={SnackbarTypes.Success}
         message={showSnackMessage}
       />
-      <div className="flex flex-col items-center justify-center w-full">
+      <div className={`flex flex-col w-full ${agencyUser ? 'items-stretch justify-start min-h-screen' : 'items-center justify-center'}`}>
         <div
-          style={{ alignSelf: 'center' }}
-          className={`w-full overflow-hidden ${!agencyUser ? 'h-[85vh]' : 'h-[95vh]'} items-center justify-center ${agencyUser ? 'flex flex-col' : ''}`}
+          style={{ alignSelf: agencyUser ? 'stretch' : 'center' }}
+          className={`w-full overflow-hidden ${!agencyUser ? 'h-[85vh]' : 'h-[95vh]'} ${agencyUser ? 'flex flex-col justify-start items-stretch' : 'items-center justify-center'}`}
         >
           {(
             <div className="flex flex-row items-center justify-end w-full px-4 pt-2 relative" style={{ zIndex: 10 }}>
@@ -522,7 +522,7 @@ function SelectedUserDetails({
             <div className={`flex border-r border-[#00000015] flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} ${agencyUser ? "min-h-0 flex-1" : ""}`} style={agencyUser ? { maxHeight: '95vh' } : undefined}>
 
               {agencyUser ? (
-                <div className="flex flex-row items-center justify-start w-full pt-3 flex-shrink-0">
+                <div className="flex flex-row items-center justify-start w-full pt-0 pb-1 flex-shrink-0">
                   <AppLogo height={29} width={122} />
                 </div>
               ) : (
@@ -562,8 +562,8 @@ function SelectedUserDetails({
                 </div>
               )}
 
-              {/* Menu Items - when agencyUser, exclude Account from list (shown as pill below); no flex-1 so account sits right under menu */}
-              <div className={`flex flex-col items-start gap-3 w-full pt-10 ${agencyUser ? 'min-h-0 justify-start' : 'justify-center'}`}>
+              {/* Menu Items - when agencyUser, exclude Account from list; flex-1 so profile pill is pushed to bottom */}
+              <div className={`flex flex-col items-start gap-3 w-full ${agencyUser ? 'pt-4 flex-1 min-h-0 justify-start' : 'pt-10 justify-center'}`}>
                 {(agencyUser ? manuBar.filter((item) => item.name !== 'Account') : manuBar).map((item) => (
                   <button
                     key={item.id}
@@ -610,10 +610,10 @@ function SelectedUserDetails({
                 ))}
               </div>
 
-              {/* Account pill (agency/subaccount full view) - sits just below menu, same as ProfileNav */}
+              {/* Profile button at bottom left (agency/subaccount full view) - same as ProfileNav */}
               {agencyUser && (
                 <div
-                  className="w-full flex-shrink-0 pt-2 mt-6"
+                  className="w-full flex-shrink-0 pt-2 mt-auto"
                   style={{ borderTop: '1px solid #00000010' }}
                 >
                   <button
