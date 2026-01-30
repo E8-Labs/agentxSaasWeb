@@ -2052,7 +2052,7 @@ function DialerModal({
         AuthToken = UserDetails.token
       }
 
-      if (!AuthToken) {
+      if (!AuthToken || !localData) {
         toast.error('Authentication required')
         return
       }
