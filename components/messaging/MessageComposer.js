@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { Paperclip, X, CaretDown, CaretUp, Plus, PaperPlaneTilt } from '@phosphor-icons/react'
-import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2 } from 'lucide-react'
+import { MessageCircleMore, Mail, MessageSquare, Bold, Underline, ListBullets, ListNumbers, FileText, Trash2, MessageSquareDot } from 'lucide-react'
 import { Box, CircularProgress, FormControl, MenuItem, Modal, Select } from '@mui/material'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
@@ -1071,8 +1071,8 @@ const [delTempLoader, setDelTempLoader] = useState(null)
         <div className="flex items-center justify-between border-b mb-2">
           <div className="flex items-center gap-2 pb-1">
             <MessageComposerTabCN
-              icon={MessageCircleMore}
-              label="SMS"
+              icon={MessageSquareDot}
+              label="Text"
               isActive={composerMode === 'sms'}
               onClick={() => {
                 // When switching to SMS, preserve SMS body if it exists, otherwise convert email HTML to plain text
