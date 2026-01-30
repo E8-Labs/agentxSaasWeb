@@ -2029,6 +2029,7 @@ const PipelineStages = ({
               isEditing={isEditing}
               editingRow={editingRow}
               selectedUser={targetUser}
+              isBookingStage={selectedPipelineStages?.[editingStageIndex ?? selectedIndex]?.identifier === 'booked'}
               onClose={() => {
                 setShowMessageModal(false)
                 setIsEditing(false)
