@@ -10,6 +10,7 @@ import { toast } from '@/utils/toast'
 import Apis from '@/components/apis/Apis'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { Input } from '@/components/ui/input'
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
 
@@ -563,7 +564,14 @@ const EmailTimelineModal = ({
       }
     }
 
-    // Fallback to first letter
+    // Fallback: orb for outbound (no agent/user image), first letter for inbound
+    if (isOutbound) {
+      return (
+        <div className="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden">
+          <AgentXOrb width={40} height={40} />
+        </div>
+      )
+    }
     return (
       <div className="w-10 h-10 rounded-full bg-brand-primary flex items-center justify-center text-white font-semibold">
         {avatarLetter}
