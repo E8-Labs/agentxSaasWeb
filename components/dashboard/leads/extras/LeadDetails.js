@@ -524,7 +524,7 @@ const LeadDetails = ({
       const teamMemberUserId = item.invitedUserId || item.id;
 
       const ApiData = {
-        leadId: selectedLeadsDetails.id,
+          leadId: selectedLeadsDetails.id,
         teamMemberUserId: teamMemberUserId,
       };
 
@@ -683,15 +683,15 @@ const LeadDetails = ({
       userId = selectedUser.id
     } else {
       // Fall back to localStorage (existing behavior for backward compatibility)
-      let data = localStorage.getItem('selectedUser')
+    let data = localStorage.getItem('selectedUser')
 
-      // Fix: Check if data exists and is not "undefined" string, then safely parse
-      if (data && data !== 'undefined' && data !== 'null') {
-        try {
+    // Fix: Check if data exists and is not "undefined" string, then safely parse
+    if (data && data !== 'undefined' && data !== 'null') {
+      try {
           const parsedUser = JSON.parse(data)
           userId = parsedUser?.id
-        } catch (error) {
-          console.error('Error parsing selectedUser from localStorage:', error)
+      } catch (error) {
+        console.error('Error parsing selectedUser from localStorage:', error)
         }
       }
     }
@@ -1861,10 +1861,10 @@ const LeadDetails = ({
 
   const mainContent = (
     <>
-      <AgentSelectSnackMessage
-        message={showSnackMsg.message}
-        type={showSnackMsg.type}
-        isVisible={showSnackMsg.isVisible}
+        <AgentSelectSnackMessage
+          message={showSnackMsg.message}
+          type={showSnackMsg.type}
+          isVisible={showSnackMsg.isVisible}
         hide={() => {
           setShowSnackMsg({
             type: SnackbarTypes.Success,
@@ -1874,25 +1874,25 @@ const LeadDetails = ({
         }}
       />
       <div className="flex flex-col w-full h-full  py-2 px-1 rounded-xl">
-        <div className="w-full flex flex-col items-center h-full">
+          <div className="w-full flex flex-col items-center h-full">
 
-          <div className="w-full">
-            {initialLoader ? (
-              <div className="w-full flex flex-row items-center justify-center mt-24">
-                <CircularProgress size={45} thickness={2} />
-              </div>
-            ) : (
-              <div
-                className="h-[95vh] overflow-auto w-full"
-                style={{ scrollbarWidth: 'none' }}
-              >
+            <div className="w-full">
+              {initialLoader ? (
+                <div className="w-full flex flex-row items-center justify-center mt-24">
+                  <CircularProgress size={45} thickness={2} />
+                </div>
+              ) : (
                 <div
-                  className="flex  flex-col w-full"
-                  style={{
-                    padding: 20,
-                    paddingInline: 30,
-                  }}
+                className="h-[95vh] overflow-auto w-full"
+                  style={{ scrollbarWidth: 'none' }}
                 >
+                  <div
+                  className="flex  flex-col w-full"
+                    style={{
+                      padding: 20,
+                      paddingInline: 30,
+                    }}
+                  >
                   {!renderInline && (
                     <div className="w-full flex flex-row items-center justify-between pb-4 border-b">
                       <div style={{ fontSize: 18, fontWeight: '700' }}>
@@ -2019,50 +2019,50 @@ const LeadDetails = ({
                                 />
                               )}
                             </>
-                          </div>
+                            </div>
 
 
 
 
 
                           {/* Scoring Progress */}
-                          {selectedLeadsDetails?.scoringDetails &&
-                            selectedLeadsDetails?.scoringDetails?.questions
-                              ?.length > 0 && (
-                              <ScoringProgress
-                                value={
-                                  selectedLeadsDetails?.scoringDetails
-                                    ?.totalScore
-                                }
-                                maxValue={10}
-                                questions={
-                                  selectedLeadsDetails?.scoringDetails
-                                    ?.questions
-                                }
-                                showTooltip={true}
-                                tooltipTitle="Results"
-                              />
-                            )}
+                            {selectedLeadsDetails?.scoringDetails &&
+                              selectedLeadsDetails?.scoringDetails?.questions
+                                ?.length > 0 && (
+                                <ScoringProgress
+                                  value={
+                                    selectedLeadsDetails?.scoringDetails
+                                      ?.totalScore
+                                  }
+                                  maxValue={10}
+                                  questions={
+                                    selectedLeadsDetails?.scoringDetails
+                                      ?.questions
+                                  }
+                                  showTooltip={true}
+                                  tooltipTitle="Results"
+                                />
+                              )}
 
-                          {selectedLeadsDetails?.isOnDncList && (
-                            <div className="rounded-full bg-red justify-center items-center  color-black p-1 px-2">
-                              DNC
-                            </div>
-                          )}
-                        </div>
+                            {selectedLeadsDetails?.isOnDncList && (
+                              <div className="rounded-full bg-red justify-center items-center  color-black p-1 px-2">
+                                DNC
+                              </div>
+                            )}
+                          </div>
                         {/* Stage Select Dropdown */}
                         <div className="flex flex-col align-self-end gap-[5px] ">
-                          <div className="flex flex-row items-center gap-2">
+                            <div className="flex flex-row items-center gap-2">
                             {/* <Image
                               src={"/assets/arrow.png"}
-                              height={16}
+                                height={16}
                               width={16}
                               alt="man"
                             /> */}
                             <div
                               className="text-end flex flex-row items-center gap-1"
-                              style={styles.paragraph}
-                            >
+                                              style={styles.paragraph}
+                                            >
                               {stagesListLoader ? (
                                 <CircularProgress size={25} />
                               ) : (
@@ -2090,8 +2090,8 @@ const LeadDetails = ({
                                   )}
                                 </>
                               )}
-                            </div>
-                          </div>
+                                              </div>
+                                            </div>
                         </div>
                       </div>
                       <div className="space-y-2 text-sm mt-2">
@@ -2110,18 +2110,18 @@ const LeadDetails = ({
                                   <div className="flex items-center gap-2">
                                     <span>{selectedLeadsDetails.email}</span>
                                     <Tooltip title="Edit email">
-                                      <button
+                                            <button
                                         onClick={handleEditEmailClick}
                                         className="text-muted-foreground hover:text-foreground transition-colors"
                                       >
                                         <Pencil className="h-3 w-3" />
-                                      </button>
+                                            </button>
                                     </Tooltip>
-                                  </div>
+                                          </div>
                                 ) : selectedLeadsDetails?.emails?.length > 0 ? (
                                   ""
                                 ) : null}
-                              </div>
+                                  </div>
                             </div>
                           )
                         ) : (  */}
@@ -2177,53 +2177,53 @@ const LeadDetails = ({
                         {/*)} */}
 
                         {/* All Emails From The Lead*/}
-                        <div>
-                          {selectedLeadsDetails?.email && (
+                          <div>
+                            {selectedLeadsDetails?.email && (
                             <div className="flex flex-row w-full justify-start">
-                              {selectedLeadsDetails?.emails
-                                ?.slice(0, 1)
-                                .map((email, emailIndex) => {
-                                  return (
-                                    <div
-                                      key={emailIndex}
-                                      className="flex flex-row items-center gap-2"
-                                    >
+                                {selectedLeadsDetails?.emails
+                                  ?.slice(0, 1)
+                                  .map((email, emailIndex) => {
+                                    return (
                                       <div
-                                        className="flex flex-row items-center gap-2 px-1 mt-1 mb-1 rounded-lg border border-[#00000020]"
-                                        style={styles.paragraph}
+                                        key={emailIndex}
+                                        className="flex flex-row items-center gap-2"
                                       >
-                                        <Image
-                                          src={'/assets/power.png'}
-                                          height={9}
-                                          width={7}
-                                          alt="*"
-                                        />
-                                        <div className="text-[12px] font-[400]">
-                                          <span className="text-brand-primary text-[15px] font-[400]">
-                                            New
-                                          </span>{' '}
-                                          {truncateEmail(email.email)}
+                                        <div
+                                          className="flex flex-row items-center gap-2 px-1 mt-1 mb-1 rounded-lg border border-[#00000020]"
+                                          style={styles.paragraph}
+                                        >
+                                          <Image
+                                            src={'/assets/power.png'}
+                                            height={9}
+                                            width={7}
+                                            alt="*"
+                                          />
+                                          <div className="text-[12px] font-[400]">
+                                            <span className="text-brand-primary text-[15px] font-[400]">
+                                              New
+                                            </span>{' '}
+                                            {truncateEmail(email.email)}
+                                          </div>
                                         </div>
-                                      </div>
-                                      <button
-                                        className="text-brand-primary underline"
-                                        onClick={() => {
-                                          setShowAllEmails(true)
-                                        }}
-                                      >
-                                        {selectedLeadsDetails?.emails
-                                          ?.length > 1
+                                        <button
+                                          className="text-brand-primary underline"
+                                          onClick={() => {
+                                            setShowAllEmails(true)
+                                          }}
+                                        >
+                                          {selectedLeadsDetails?.emails
+                                            ?.length > 1
                                           ? `+${selectedLeadsDetails?.emails
-                                            ?.length - 1
-                                          }`
-                                          : ''}
-                                      </button>
-                                    </div>
-                                  )
-                                })}
-                            </div>
-                          )}
-                        </div>
+                                                  ?.length - 1
+                                              }`
+                                            : ''}
+                                        </button>
+                                      </div>
+                                    )
+                                  })}
+                              </div>
+                            )}
+                          </div>
 
 
                         {selectedLeadsDetails?.phone && <InfoRow icon={<PhoneIcon className="h-4 w-4" />}>{selectedLeadsDetails?.phone}</InfoRow>}
@@ -2265,7 +2265,7 @@ const LeadDetails = ({
                             showSnackbar={showSnackbar}
                             onLeadDetailsUpdated={handleLeadDetailsUpdated}
                           />
-                        </div>
+                              </div>
                         <div className="flex items-center gap-2">
                           
                           {
@@ -2311,35 +2311,35 @@ const LeadDetails = ({
                           }}
 
                         />
-                        )}
-                        </div>
-                      </div>
+                              )}
+                            </div>
+                          </div>
 
 
                         
+                        </div>
+
+
                       </div>
 
-
-                    </div>
-
-                  </div>
+                            </div>
 
                   {/* <div className="w-full mt-3">
                       <div className="">
                         {globalLoader ? (
-                          <CircularProgress size={25} />
-                        ) : (
+                            <CircularProgress size={25} />
+                          ) : (
                           <LeadTeamsAssignedList
                             users={selectedLeadsDetails?.teamsAssigned || []}
                             onAssignClick={(event) => {
-                              handleShowPopup(event)
-                            }}
+                                    handleShowPopup(event)
+                                  }}
                             onRemoveClick={(userId) => {
                               handleUnassignLeadFromTeammember(userId)
                             }}
                           />
                         )}
-                      </div>
+                        </div>
                     </div> */}
 
                   <CustomFieldsCN
@@ -2357,207 +2357,207 @@ const LeadDetails = ({
                     }}
                   />
 
-                  <AuthSelectionPopup
+                      <AuthSelectionPopup
                     selectedUser={selectedUser}
-                    open={showAuthSelectionPopup}
-                    onClose={() => setShowAuthSelectionPopup(false)}
-                    onSuccess={() => {
+                        open={showAuthSelectionPopup}
+                        onClose={() => setShowAuthSelectionPopup(false)}
+                        onSuccess={() => {
                       setMessageModalMode('email')
                       setShowMessageModal(true)
-                      setShowAuthSelectionPopup(false)
-                    }}
-                    setShowEmailTempPopup={(value) => {
+                          setShowAuthSelectionPopup(false)
+                        }}
+                        setShowEmailTempPopup={(value) => {
                       if (value) {
                         setMessageModalMode('email')
                         setShowMessageModal(true)
                       }
-                      setShowAuthSelectionPopup(false)
-                    }}
+                          setShowAuthSelectionPopup(false)
+                        }}
                     showEmailTempPopup={showMessageModal && messageModalMode === 'email'}
-                    selectedGoogleAccount={selectedGoogleAccount}
-                    setSelectedGoogleAccount={(account) => {
-                      setSelectedGoogleAccount(account)
-                    }}
-                  />
+                        selectedGoogleAccount={selectedGoogleAccount}
+                        setSelectedGoogleAccount={(account) => {
+                          setSelectedGoogleAccount(account)
+                        }}
+                      />
 
-                  {/* Modal for All Emails */}
-                  <Modal
-                    open={showAllEmails}
-                    onClose={() => setShowAllEmails(null)}
-                    closeAfterTransition
-                    BackdropProps={{
-                      timeout: 1000,
-                      sx: {
-                        backgroundColor: '#00000020',
+                      {/* Modal for All Emails */}
+                      <Modal
+                        open={showAllEmails}
+                        onClose={() => setShowAllEmails(null)}
+                        closeAfterTransition
+                        BackdropProps={{
+                          timeout: 1000,
+                          sx: {
+                            backgroundColor: '#00000020',
                         zIndex: 1500,
-                        // //backdropFilter: "blur(20px)",
-                      },
-                    }}
-                  >
-                    <Box
-                      className="lg:w-5/12 sm:w-full w-8/12"
+                            // //backdropFilter: "blur(20px)",
+                          },
+                        }}
+                      >
+                        <Box
+                          className="lg:w-5/12 sm:w-full w-8/12"
                       sx={{
                         ...styles.modalsStyle,
                         zIndex: 9999, // Higher than backdrop (1500) to appear on top
                         position: 'relative',
                       }}
-                    >
-                      <div className="flex flex-row justify-center w-full">
-                        <div
-                          className="sm:w-full w-full"
-                          style={{
-                            backgroundColor: '#ffffff',
-                            padding: 20,
-                            borderRadius: '13px',
+                        >
+                          <div className="flex flex-row justify-center w-full">
+                            <div
+                              className="sm:w-full w-full"
+                              style={{
+                                backgroundColor: '#ffffff',
+                                padding: 20,
+                                borderRadius: '13px',
+                              }}
+                            >
+                              <div>
+                            {selectedLeadsDetails?.emails?.map(
+                                  (email, emailIndex) => {
+                                    return (
+                                      <div key={emailIndex}>
+                                        <div
+                                          className="flex flex-row items-center gap-2 px-1 mt-2 rounded-lg py-2 border border-[#00000020]"
+                                          style={styles.paragraph}
+                                        >
+                                          <Image
+                                            src={'/assets/power.png'}
+                                            height={9}
+                                            width={7}
+                                            alt="*"
+                                          />
+                                          <div>
+                                            <span className="text-brand-primary">
+                                              New
+                                            </span>{' '}
+                                        {email?.email}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )
+                                  },
+                                )}
+                              </div>
+                              <div className="mt-4">
+                                <button
+                                  onClick={() => {
+                                    setShowAllEmails(false)
+                                  }}
+                                  className="h-[50px] rounded-xl bg-brand-primary text-white w-full"
+                                >
+                                  Close
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </Box>
+                      </Modal>
+
+
+                      <Popover
+                        id={id}
+                        open={open}
+                        anchorEl={anchorEl}
+                        onClose={handleClosePopup}
+                        anchorOrigin={{
+                          vertical: 'bottom',
+                          horizontal: 'left',
+                        }}
+                        transformOrigin={{
+                          vertical: 'top',
+                          horizontal: 'left',
+                        }}
+                        disablePortal={false}
+                        PaperProps={{
+                          elevation: 0,
+                          style: {
+                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                            borderRadius: '10px',
+                            minWidth: '120px',
+                            zIndex: 9999,
+                          },
+                        }}
+                      >
+                        <button
+                          className="hover:bg-gray-50"
+                          onClick={() => {
+                            handleAssignLeadToTeammember(myTeamAdmin)
                           }}
                         >
-                          <div>
-                            {selectedLeadsDetails?.emails?.map(
-                              (email, emailIndex) => {
-                                return (
-                                  <div key={emailIndex}>
-                                    <div
-                                      className="flex flex-row items-center gap-2 px-1 mt-2 rounded-lg py-2 border border-[#00000020]"
-                                      style={styles.paragraph}
-                                    >
-                                      <Image
-                                        src={'/assets/power.png'}
-                                        height={9}
-                                        width={7}
-                                        alt="*"
-                                      />
-                                      <div>
-                                        <span className="text-brand-primary">
-                                          New
-                                        </span>{' '}
-                                        {email?.email}
-                                      </div>
-                                    </div>
-                                  </div>
-                                )
-                              },
-                            )}
-                          </div>
-                          <div className="mt-4">
-                            <button
-                              onClick={() => {
-                                setShowAllEmails(false)
-                              }}
-                              className="h-[50px] rounded-xl bg-brand-primary text-white w-full"
-                            >
-                              Close
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </Box>
-                  </Modal>
-
-
-                  <Popover
-                    id={id}
-                    open={open}
-                    anchorEl={anchorEl}
-                    onClose={handleClosePopup}
-                    anchorOrigin={{
-                      vertical: 'bottom',
-                      horizontal: 'left',
-                    }}
-                    transformOrigin={{
-                      vertical: 'top',
-                      horizontal: 'left',
-                    }}
-                    disablePortal={false}
-                    PaperProps={{
-                      elevation: 0,
-                      style: {
-                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
-                        borderRadius: '10px',
-                        minWidth: '120px',
-                        zIndex: 9999,
-                      },
-                    }}
-                  >
-                    <button
-                      className="hover:bg-gray-50"
-                      onClick={() => {
-                        handleAssignLeadToTeammember(myTeamAdmin)
-                      }}
-                    >
-                      <div className="p-2 w-full flex flex-row items-center justify-start gap-2 ">
-                        <div className="">
-                          {myTeamAdmin?.thumb_profile_image ? (
-                            <Image
-                              className="rounded-full"
-                              src={myTeamAdmin.thumb_profile_image}
-                              height={32}
-                              width={32}
-                              alt="*"
-                              style={{
-                                borderRaduis: 50,
-                              }}
-                            />
-                          ) : (
-                            <div
-                              className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                            // onClick={() => handleToggleClick(item.id)}
-                            >
-                              {myTeamAdmin?.name?.slice(0, 1)}
+                          <div className="p-2 w-full flex flex-row items-center justify-start gap-2 ">
+                            <div className="">
+                              {myTeamAdmin?.thumb_profile_image ? (
+                                <Image
+                                  className="rounded-full"
+                                  src={myTeamAdmin.thumb_profile_image}
+                                  height={32}
+                                  width={32}
+                                  alt="*"
+                                  style={{
+                                    borderRaduis: 50,
+                                  }}
+                                />
+                              ) : (
+                                <div
+                                  className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                                  // onClick={() => handleToggleClick(item.id)}
+                                >
+                                  {myTeamAdmin?.name?.slice(0, 1)}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                        <div className="">{myTeamAdmin?.name}</div>
-                        <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
-                          Admin
-                        </div>
-                      </div>
-                    </button>
+                            <div className="">{myTeamAdmin?.name}</div>
+                            <div className="bg-brand-primary text-white text-sm px-2 rounded-full">
+                              Admin
+                            </div>
+                          </div>
+                        </button>
                     {Array.isArray(myTeam) && myTeam.length > 0 ? (
-                      <div>
-                        {myTeam.map((item, index) => {
-                          return (
-                            <div
-                              key={index}
-                              className="p-2 flex flex-col gap-2"
-                              style={{ fontWeight: '500', fontSize: 15 }}
-                            >
-                              <button
-                                className="text-start flex flex-row items-center justify-start gap-2 hover:bg-gray-50"
-                                onClick={() => {
-                                  handleAssignLeadToTeammember(item)
-                                }}
-                              >
-                                {item?.invitedUser?.thumb_profile_image ? (
-                                  <Image
-                                    className="rounded-full"
-                                    src={
-                                      item.invitedUser?.thumb_profile_image
-                                    }
-                                    height={32}
-                                    width={32}
-                                    alt="*"
-                                    style={{}}
-                                  />
-                                ) : (
-                                  <div
-                                    className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
-                                  // onClick={() =>
-                                  //   handleToggleClick(item.id)
-                                  // }
+                          <div>
+                            {myTeam.map((item, index) => {
+                              return (
+                                <div
+                                  key={index}
+                                  className="p-2 flex flex-col gap-2"
+                                  style={{ fontWeight: '500', fontSize: 15 }}
+                                >
+                                  <button
+                                    className="text-start flex flex-row items-center justify-start gap-2 hover:bg-gray-50"
+                                    onClick={() => {
+                                      handleAssignLeadToTeammember(item)
+                                    }}
                                   >
-                                    {item?.name?.slice(0, 1)}
-                                  </div>
-                                )}
-                                {item?.name}
-                              </button>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    ) : (
-                      ''
-                    )}
-                  </Popover>
+                                    {item?.invitedUser?.thumb_profile_image ? (
+                                      <Image
+                                        className="rounded-full"
+                                        src={
+                                          item.invitedUser?.thumb_profile_image
+                                        }
+                                        height={32}
+                                        width={32}
+                                        alt="*"
+                                        style={{}}
+                                      />
+                                    ) : (
+                                      <div
+                                        className="h-[32px] w-[32px] bg-black rounded-full flex flex-row items-center justify-center text-white"
+                                        // onClick={() =>
+                                        //   handleToggleClick(item.id)
+                                        // }
+                                      >
+                                        {item?.name?.slice(0, 1)}
+                                      </div>
+                                    )}
+                                    {item?.name}
+                                  </button>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        ) : (
+                          ''
+                        )}
+                      </Popover>
 
 
                   {/* </div> */}
@@ -2597,16 +2597,16 @@ const LeadDetails = ({
                       value={activeTab}
                       onValueChange={handleTabChange}
                     />
-                  </div>
+                        </div>
                   <div
                     className="w-full mb-2"
-                    style={{ height: '1px', backgroundColor: '#15151510' }}
-                  />
+                      style={{ height: '1px', backgroundColor: '#15151510' }}
+                    />
 
-                  <div style={{ paddingInline: 0 }}>
+                    <div style={{ paddingInline: 0 }}>
                     {showPerplexityDetails && (
                       <InsightsTabCN
-                        selectedLeadsDetails={selectedLeadsDetails}
+                            selectedLeadsDetails={selectedLeadsDetails}
                         showConfirmPerplexity={showConfirmPerplexity}
                         setshowConfirmPerplexity={setshowConfirmPerplexity}
                         userLocalData={userLocalData}
@@ -2616,20 +2616,20 @@ const LeadDetails = ({
                       />
                     )}
 
-                    {showKYCDetails && (
+                      {showKYCDetails && (
                       <KYCTabCN kycs={selectedLeadsDetails?.kycs || []} />
-                    )}
+                      )}
 
-                    {/* Notes go here */}
-                    {showNotesDetails && (
+                      {/* Notes go here */}
+                      {showNotesDetails && (
                       <NotesTabCN
                         noteDetails={noteDetails}
                         selectedLeadsDetails={selectedLeadsDetails}
                         onNotesUpdated={handleNotesUpdated}
                       />
-                    )}
+                      )}
 
-                    {/* Call activity goes here */}
+                      {/* Call activity goes here */}
                     {activeTab === 'activity' && (
                       <ActivityTabCN
                         callActivity={selectedLeadsDetails?.callActivity || []}
@@ -2645,58 +2645,58 @@ const LeadDetails = ({
                           }
                         }}
                       />
-                    )}
-                  </div>
-                  <div
-                    style={{
-                      position: 'absolute',
-                      bottom: 20,
-                      right: 20,
-                    }}
-                  >
-                    <div>
-                      {!hideDelete && (
-                        <button
-                          className="flex flex-row gap-2 items-center"
-                          onClick={() => {
-                            // handleDeleteLead()
+                      )}
+                    </div>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: 20,
+                        right: 20,
+                      }}
+                    >
+                      <div>
+                        {!hideDelete && (
+                          <button
+                            className="flex flex-row gap-2 items-center"
+                            onClick={() => {
+                              // handleDeleteLead()
 
-                            setShowDelModal(true)
-                          }}
-                          style={{
-                            marginTop: 20,
-                            alignSelf: 'end',
-                          }}
-                        >
-                          <Image
-                            src={'/otherAssets/redDeleteIcon.png'}
-                            height={24}
-                            width={24}
-                            alt="del"
-                            style={{
-                              filter:
-                                'brightness(0) saturate(100%) opacity(0.5)', // Convert to black and make semi-transparent
+                              setShowDelModal(true)
                             }}
-                          />
-
-                          <div
                             style={{
-                              fontSize: 15,
-                              fontWeight: '600',
-                              color: '#15151590',
-                              textDecorationLine: 'underline',
+                              marginTop: 20,
+                              alignSelf: 'end',
                             }}
                           >
-                            Delete
-                          </div>
-                        </button>
-                      )}
+                            <Image
+                              src={'/otherAssets/redDeleteIcon.png'}
+                              height={24}
+                              width={24}
+                              alt="del"
+                              style={{
+                                filter:
+                                  'brightness(0) saturate(100%) opacity(0.5)', // Convert to black and make semi-transparent
+                              }}
+                            />
+
+                            <div
+                              style={{
+                                fontSize: 15,
+                                fontWeight: '600',
+                                color: '#15151590',
+                                textDecorationLine: 'underline',
+                              }}
+                            >
+                              Delete
+                            </div>
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
           {/* Show Transcript UI Modal - Using unified CallTranscriptModal component */}
           <CallTranscriptModal
@@ -2708,12 +2708,12 @@ const LeadDetails = ({
             }}
             callId={isExpanded?.id || isExpanded?.callId || ''}
           />
-          {/* delete lead modal */}
+            {/* delete lead modal */}
 
-          <Modal
-            open={showDelModal}
-            onClose={() => setShowDelModal(false)}
-            closeAfterTransition
+            <Modal
+              open={showDelModal}
+              onClose={() => setShowDelModal(false)}
+              closeAfterTransition
             disablePortal={false}
             slotProps={{
               root: {
@@ -2725,64 +2725,64 @@ const LeadDetails = ({
             sx={{
               zIndex: 1500, // Higher than drawer modal (1400) to appear on top
             }}
-            BackdropProps={{
-              timeout: 1000,
-              sx: {
-                backgroundColor: '#00000020',
+              BackdropProps={{
+                timeout: 1000,
+                sx: {
+                  backgroundColor: '#00000020',
                 zIndex: 1500, // Match Modal z-index
-                // //backdropFilter: "blur(5px)",
-              },
-            }}
-          >
-            <Box
-              className="lg:w-4/12 sm:w-4/12 w-6/12"
+                  // //backdropFilter: "blur(5px)",
+                },
+              }}
+            >
+              <Box
+                className="lg:w-4/12 sm:w-4/12 w-6/12"
               sx={{
                 ...styles.modalsStyle,
                 zIndex: 1601, // Higher than backdrop (1500) to appear on top
                 position: 'relative',
               }}
-            >
-              <div className="flex flex-row justify-center w-full">
-                <div
-                  className="w-full"
-                  style={{
-                    backgroundColor: '#ffffff',
-                    padding: 20,
-                    borderRadius: '13px',
-                  }}
-                >
-                  <div className="font-bold text-xl mt-6">
-                    Are you sure you want to delete this lead
-                  </div>
-                  <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
-                    <button
-                      className="w-1/2 font-bold text-xl text-[#6b7280] h-[50px]"
-                      onClick={() => {
-                        setShowDelModal(false)
-                      }}
-                    >
-                      Cancel
-                    </button>
-                    {delLeadLoader ? (
-                      <CircularProgress size={20} />
-                    ) : (
+              >
+                <div className="flex flex-row justify-center w-full">
+                  <div
+                    className="w-full"
+                    style={{
+                      backgroundColor: '#ffffff',
+                      padding: 20,
+                      borderRadius: '13px',
+                    }}
+                  >
+                    <div className="font-bold text-xl mt-6">
+                      Are you sure you want to delete this lead
+                    </div>
+                    <div className="flex flex-row items-center gap-4 w-full mt-6 mb-6">
                       <button
-                        className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
-                        onClick={async () => {
-                          await handleDeleteLead(selectedLeadsDetails)
-                          //  setShowDelModal(false)
+                        className="w-1/2 font-bold text-xl text-[#6b7280] h-[50px]"
+                        onClick={() => {
+                          setShowDelModal(false)
                         }}
                       >
-                        Delete
+                        Cancel
                       </button>
-                    )}
+                      {delLeadLoader ? (
+                        <CircularProgress size={20} />
+                      ) : (
+                        <button
+                          className="w-1/2 text-red font-bold text-xl border border-[#00000020] rounded-xl h-[50px]"
+                          onClick={async () => {
+                            await handleDeleteLead(selectedLeadsDetails)
+                            //  setShowDelModal(false)
+                          }}
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Box>
-          </Modal>
+              </Box>
+            </Modal>
+          </div>
         </div>
-      </div>
     </>
   )
 
