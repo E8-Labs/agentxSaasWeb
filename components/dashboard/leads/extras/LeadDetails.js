@@ -2147,7 +2147,7 @@ const LeadDetails = ({
 
                                 }}
                                 placeholder="Enter email address"
-                                className="flex-1 text-sm h-8 border border-gray-300 rounded-md p-2 focus:border-black focus:ring-0"
+                                className="flex-1 max-w-[200px] text-sm h-8 border border-gray-300 rounded-md p-2 focus:border-black focus:ring-0"
                                 disabled={updateEmailLoader}
                                 onKeyDown={(e) => {
                                   if (e.key === 'Enter') {
