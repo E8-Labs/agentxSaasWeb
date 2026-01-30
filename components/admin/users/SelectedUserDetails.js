@@ -102,11 +102,8 @@ function SelectedUserDetails({
     unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
   }
 
-
-  if (!agencyUser) {
-    //push account menu to the end of the menu bar
-    manuBar.push(accountMenu)
-  }
+  // Always include Account (for admin it's in the menu; for agency/subaccount it's only at bottom left as pill)
+  manuBar.push(accountMenu)
 
   const [selectedManu, setSelectedManu] = useState(manuBar[0])
   const [showAddMinutesModal, setShowAddMinutesModal] = useState(false)
@@ -418,10 +415,10 @@ function SelectedUserDetails({
         type={SnackbarTypes.Success}
         message={showSnackMessage}
       />
-      <div className="flex flex-col items-center justify-center w-full">
+      <div className={`flex flex-col w-full ${agencyUser ? 'items-stretch justify-start min-h-screen' : 'items-center justify-center'}`}>
         <div
-          style={{ alignSelf: 'center' }}
-          className={`w-full overflow-hidden ${!agencyUser ? 'h-[85vh]' : 'h-[95vh]'} items-center justify-center`}
+          style={{ alignSelf: agencyUser ? 'stretch' : 'center' }}
+          className={`w-full overflow-hidden ${!agencyUser ? 'h-[85vh]' : 'h-[95vh]'} ${agencyUser ? 'flex flex-col justify-start items-stretch' : 'items-center justify-center'}`}
         >
           {(
             <div className="flex flex-row items-center justify-end w-full px-4 pt-2 relative" style={{ zIndex: 10 }}>
@@ -521,11 +518,11 @@ function SelectedUserDetails({
               </div>
             </div>
           )}
-          <div className="flex flex-row items-start w-full  ">
-            <div className={`flex border-r border-[#00000015] flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} `}>
+          <div className={`flex flex-row items-stretch w-full ${agencyUser ? 'flex-1 min-h-0' : ''}`}>
+            <div className={`flex border-r border-[#00000015] flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} ${agencyUser ? "min-h-0 flex-1" : ""}`} style={agencyUser ? { maxHeight: '95vh' } : undefined}>
 
               {agencyUser ? (
-                <div className="flex flex-row items-center justify-start w-full pt-3">
+                <div className="flex flex-row items-center justify-start w-full pt-0 pb-1 flex-shrink-0">
                   <AppLogo height={29} width={122} />
                 </div>
               ) : (
@@ -565,9 +562,9 @@ function SelectedUserDetails({
                 </div>
               )}
 
-              {/* Menu Items - Only show accessible items */}
-              <div className='flex flex-col items-start justify-center gap-3 w-full pt-10'>
-                {manuBar.map((item) => (
+              {/* Menu Items - when agencyUser, exclude Account from list; flex-1 so profile pill is pushed to bottom */}
+              <div className={`flex flex-col items-start gap-3 w-full ${agencyUser ? 'pt-4 flex-1 min-h-0 justify-start' : 'pt-10 justify-center'}`}>
+                {(agencyUser ? manuBar.filter((item) => item.name !== 'Account') : manuBar).map((item) => (
                   <button
                     key={item.id}
                     onClick={() => handleManuClick(item)}
@@ -612,6 +609,53 @@ function SelectedUserDetails({
                   </button>
                 ))}
               </div>
+
+              {/* Profile button at bottom left (agency/subaccount full view) - same as ProfileNav */}
+              {agencyUser && (
+                <div
+                  className="w-full flex-shrink-0 pt-2 mt-auto"
+                  style={{ borderTop: '1px solid #00000010' }}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setSelectedManu(accountMenu)}
+                    className="w-full flex flex-row items-start gap-3 px-0 py-2 truncate outline-none text-start text-left border-0 bg-transparent cursor-pointer"
+                    style={{ textOverflow: 'ellipsis', textDecoration: 'none' }}
+                  >
+                    {user?.user?.thumb_profile_image ? (
+                      <img
+                        src={user.user.thumb_profile_image}
+                        alt=""
+                        style={{
+                          objectFit: 'fill',
+                          height: 34,
+                          width: 34,
+                          borderRadius: '50%',
+                          flexShrink: 0,
+                        }}
+                      />
+                    ) : (
+                      <div className="h-[34px] w-[34px] flex-shrink-0 rounded-full bg-black text-white flex flex-row items-center justify-center" style={{ fontSize: 14 }}>
+                        {(user?.user?.name || selectedUser?.name || '?').slice(0, 1).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1 overflow-hidden">
+                      <div
+                        className="truncate"
+                        style={{ fontSize: 15, fontWeight: 500, color: 'black' }}
+                      >
+                        {(user?.user?.name || selectedUser?.name || '').split(' ')[0]}
+                      </div>
+                      <div
+                        className="truncate block"
+                        style={{ fontSize: 12, fontWeight: 500, color: '#15151560', textOverflow: 'ellipsis' }}
+                      >
+                        {user?.user?.email || selectedUser?.email || ''}
+                      </div>
+                    </div>
+                  </button>
+                </div>
+              )}
             </div>
 
             <div
