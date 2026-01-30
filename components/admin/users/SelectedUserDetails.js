@@ -415,10 +415,10 @@ function SelectedUserDetails({
         type={SnackbarTypes.Success}
         message={showSnackMessage}
       />
-      <div className={`flex flex-col w-full ${agencyUser ? 'items-stretch justify-start min-h-screen' : 'items-center justify-center'}`}>
+      <div className={`flex  flex-col w-full ${agencyUser ? 'items-stretch justify-start min-h-screen' : 'items-center justify-center'}`}>
         <div
           style={{ alignSelf: agencyUser ? 'stretch' : 'center' }}
-          className={`w-full overflow-hidden ${!agencyUser ? 'h-[85vh]' : 'h-[95vh]'} ${agencyUser ? 'flex flex-col justify-start items-stretch' : 'items-center justify-center'}`}
+          className={`w-full overflow-hidden  ${!agencyUser ? 'h-[85vh]' : 'h-[99vh]'} ${agencyUser ? 'flex flex-col justify-start items-stretch' : 'items-center justify-center'}`}
         >
           {(
             <div className="flex flex-row items-center justify-end w-full px-4 pt-2 relative" style={{ zIndex: 10 }}>
@@ -518,11 +518,11 @@ function SelectedUserDetails({
               </div>
             </div>
           )}
-          <div className={`flex flex-row items-stretch w-full ${agencyUser ? 'flex-1 min-h-0' : ''}`}>
-            <div className={`flex border-r border-[#00000015] flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} ${agencyUser ? "min-h-0 flex-1" : ""}`} style={agencyUser ? { maxHeight: '95vh' } : undefined}>
+          <div className={`flex flex-row h-full items-stretch w-full  ${agencyUser ? 'flex-1 min-h-0' : ''}`}>
+            <div className={` flex border-r border-[#00000015] flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} ${agencyUser ? "min-h-0 flex-1 pb-0" : ""}`} style={agencyUser ? { height: '95vh' } : undefined}>
 
               {agencyUser ? (
-                <div className="flex flex-row items-center justify-start w-full pt-0 pb-1 flex-shrink-0">
+                <div className="flex flex-row items-center justify-start w-full  pb-1 flex-shrink-0">
                   <AppLogo height={29} width={122} />
                 </div>
               ) : (
@@ -610,10 +610,10 @@ function SelectedUserDetails({
                 ))}
               </div>
 
-              {/* Profile button at bottom left (agency/subaccount full view) - same as ProfileNav */}
+              {/* Profile at bottom left (agency/subaccount full view) - minimal gap from bottom */}
               {agencyUser && (
                 <div
-                  className="w-full flex-shrink-0 pt-2 mt-auto"
+                  className="w-full flex-shrink-0 pt-2 pb-1 mt-auto "
                   style={{ borderTop: '1px solid #00000010' }}
                 >
                   <button
