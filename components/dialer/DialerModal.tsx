@@ -57,6 +57,8 @@ import {
 
 // @ts-ignore - Twilio Voice SDK types
 import { Device, Call } from '@twilio/voice-sdk'
+import axios from 'axios'
+import Apis from '../apis/Apis'
 
 // Type assertions for components from .jsx files
 const Button = ButtonBase as any
@@ -2058,23 +2060,22 @@ function DialerModal({
       }
 
       const userData = JSON.parse(localData)
+      const selectedPhone = phoneNumbers.find((pn: any) => pn.id === phoneNumberId)
       const formData = new FormData()
 
       // Add required fields
       formData.append('leadPhone', leadData?.phone || '')
-      formData.append('content', smsData.content || '')
-      formData.append('phone', smsData.phone || '')
+      formData.append('content', selectedTemplate?.content || '')
+      formData.append('phone', selectedPhone?.phone || '')
       formData.append('leadId', leadData?.id || '')
 
-      //print form data
-      formData.forEach((value, key) => { })
       const response = await axios.post(Apis.sendSMSToLead, formData, {
         headers: {
           Authorization: `Bearer ${userData.token}`,
           'Content-Type': 'multipart/form-data',
         },
       })
-let data = response.data
+      const data = response.data
 
 
       if (data?.status === true) {
