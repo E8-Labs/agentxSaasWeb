@@ -2061,10 +2061,10 @@ function DialerModal({
       const formData = new FormData()
 
       // Add required fields
-      formData.append('leadPhone', selectedLeadsDetails?.phone || '')
+      formData.append('leadPhone', leadData?.phone || '')
       formData.append('content', smsData.content || '')
       formData.append('phone', smsData.phone || '')
-      formData.append('leadId', selectedLeadsDetails?.id || '')
+      formData.append('leadId', leadData?.id || '')
 
       //print form data
       formData.forEach((value, key) => { })
