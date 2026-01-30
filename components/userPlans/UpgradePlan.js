@@ -35,6 +35,7 @@ import {
   checkReferralCode,
   getEffectiveUser,
   getNextChargeDate,
+  getSubscribeApiConfig,
   getUserLocalData,
   getUserPlans,
 } from './UserPlanServices'
@@ -1162,69 +1163,28 @@ function UpgradePlanContent({
       }
 
       const UserLocalData = getUserLocalData()
-      
-      // Determine effective user (selectedUser if provided, otherwise logged-in user)
       const effectiveUser = getEffectiveUser(selectedUser, UserLocalData)
-      const effectiveRole = effectiveUser?.userRole
-      
-      let DataToSendInApi = null
-      let ApiData = {
-        plan: planType,
-      }
-      
-      // For agency and subaccount plans, use planId instead of plan type
-      if (
-        effectiveRole === 'AgencySubAccount' ||
-        effectiveRole === 'Agency' ||
-        from === 'SubAccount' ||
-        from === 'agency' ||
-        from === 'Agency'
-      ) {
-        ApiData = {
-          planId: currentSelectedPlan?.id,
-        }
-      }
 
-      // Add payment method ID if we have one
+      const { apiPath: ApiPath, usePlanId, omitContentType } = getSubscribeApiConfig(UserLocalData, {
+        from,
+        selectedUser,
+      })
+
+      let ApiData = usePlanId
+        ? { planId: currentSelectedPlan?.id }
+        : { plan: planType }
       if (paymentMethodId) {
         ApiData.paymentMethodId = paymentMethodId
       }
-
-      // Add userId if we're subscribing for another user (admin/agency viewing subaccount)
       if (selectedUser) {
         ApiData.userId = selectedUser?.id || effectiveUser?.id
       }
-      DataToSendInApi = ApiData
+      const DataToSendInApi = ApiData
 
-      // Determine the correct API endpoint based on effective user's role
-      let ApiPath = Apis.subscribePlan // Default for regular users
-      
-      if (
-        effectiveRole === 'AgencySubAccount' ||
-        effectiveRole === 'Agency' ||
-        from === 'SubAccount' ||
-        from === 'agency' ||
-        from === 'Agency'
-      ) {
-        ApiPath = Apis.subAgencyAndSubAccountPlans
-      }
-      
-      // Log which API endpoint is being used for debugging
-      if (process.env.NODE_ENV === 'development') {
-        console.log('[UpgradePlan] Subscription API endpoint:', ApiPath)
-        console.log('[UpgradePlan] Effective user role:', effectiveRole)
-        console.log('[UpgradePlan] From prop:', from)
-        console.log('[UpgradePlan] Selected user:', selectedUser)
-      }
-
-      //headers for api
-      let headers = {
+      const headers = {
         Authorization: 'Bearer ' + AuthToken,
       }
-
-      // Only add Content-Type header for non-subaccount subscriptions
-      // Subaccount subscriptions use form-data (multipart/form-data)
-      if (effectiveRole !== 'AgencySubAccount' && from !== 'SubAccount') {
+      if (!omitContentType) {
         headers['Content-Type'] = 'application/json'
       }
 

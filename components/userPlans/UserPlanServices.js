@@ -4,6 +4,7 @@ import {
   isAgencyTeamMember,
   isSubaccountTeamMember,
   isTeamMember,
+  TeamType,
 } from '@/constants/teamTypes/TeamTypes'
 
 import { formatFractional2 } from '../agency/plan/AgencyUtilities'
@@ -236,6 +237,61 @@ const getPlanEndpoint = (effectiveUser, loggedInUser, from = null) => {
     effectiveRole,
   })
   return Apis.getPlans
+}
+
+/**
+ * Returns which subscribe API to use and request shape.
+ * Use this in any component that POSTs to subscribe (subscribePlan vs subscribeAgencyPlan).
+ *
+ * Rules:
+ * - If logged-in user is Invitee (team member): by teamFor — Subaccount/Agency → subscribeAgencyPlan; AgentX → subscribePlan.
+ * - Else: subaccount/agency/from prop → subscribeAgencyPlan; else subscribePlan.
+ *
+ * @param {Object|null} loggedInUser - User from getUserLocalData() or redux (must have userRole, teamFor).
+ * @param {{ from?: string, selectedUser?: Object }} opts - Optional from prop and selectedUser for non-Invitee path.
+ * @returns {{ apiPath: string, usePlanId: boolean, omitContentType: boolean }}
+ */
+export const getSubscribeApiConfig = (loggedInUser, opts = {}) => {
+  const { from, selectedUser } = opts
+  // Team member (Invitee): choose by teamFor
+  if (loggedInUser?.userRole === 'Invitee') {
+    if (
+      loggedInUser?.teamFor === TeamType.SUBACCOUNT ||
+      loggedInUser?.teamFor === TeamType.AGENCY
+    ) {
+      return {
+        apiPath: Apis.subAgencyAndSubAccountPlans,
+        usePlanId: true,
+        omitContentType: true,
+      }
+    }
+    return {
+      apiPath: Apis.subscribePlan,
+      usePlanId: false,
+      omitContentType: false,
+    }
+  }
+  // Non-Invitee: use effective user role and from
+  const effectiveUser = getEffectiveUser(selectedUser, loggedInUser)
+  const effectiveRole = effectiveUser?.userRole
+  if (
+    effectiveRole === 'AgencySubAccount' ||
+    effectiveRole === 'Agency' ||
+    from === 'SubAccount' ||
+    from === 'agency' ||
+    from === 'Agency'
+  ) {
+    return {
+      apiPath: Apis.subAgencyAndSubAccountPlans,
+      usePlanId: true,
+      omitContentType: true,
+    }
+  }
+  return {
+    apiPath: Apis.subscribePlan,
+    usePlanId: false,
+    omitContentType: false,
+  }
 }
 
 /**

@@ -27,7 +27,7 @@ import FeatureLine from './FeatureLine'
 import FitText from './FitText'
 import UpgradePlan from './UpgradePlan'
 import UserAddCard from './UserAddCardModal'
-import { getUserPlans } from './UserPlanServices'
+import { getSubscribeApiConfig, getUserLocalData, getUserPlans } from './UserPlanServices'
 import YearlyPlanModal from './YearlyPlanModal'
 import AppLogo from '@/components/common/AppLogo'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -303,33 +303,27 @@ function UserPlans({
         AuthToken = LocalDetails.token
       }
 
-      // //console.log;
+      const loggedInUser = getUserLocalData() || reduxUser?.user || reduxUser
+      const { apiPath: ApiPath, usePlanId, omitContentType } = getSubscribeApiConfig(loggedInUser, {
+        from: isFrom || from,
+        selectedUser,
+      })
 
-      let ApiData = {
-        plan: selectedPlan?.id,
+      let ApiData = usePlanId
+        ? { planId: selectedPlan?.id || hoverPlan?.id }
+        : { plan: selectedPlan?.id }
+      if (selectedUser && usePlanId) {
+        ApiData.userId = selectedUser.id
       }
 
-      if (isFrom === 'SubAccount' || reduxUser?.userRole === 'Agency') {
-        ApiData = {
-          planId: selectedPlan?.id || hoverPlan?.id,
-        }
-        // Add userId to body if subscribing for a subaccount
-        if (selectedUser) {
-          ApiData.userId = selectedUser.id
-        }
+      const headers = {
+        Authorization: 'Bearer ' + AuthToken,
       }
-
-      // //console.log;
-
-      let ApiPath = Apis.subscribePlan
-      if (isFrom === 'SubAccount' || reduxUser?.userRole === 'Agency') {
-        ApiPath = Apis.subAgencyAndSubAccountPlans
+      if (!omitContentType) {
+        headers['Content-Type'] = 'application/json'
       }
       const response = await axios.post(ApiPath, ApiData, {
-        headers: {
-          Authorization: 'Bearer ' + AuthToken,
-          'Content-Type': 'application/json',
-        },
+        headers,
       })
 
       if (response) {
