@@ -2831,10 +2831,19 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                                   <Checkbox
                                     checked={isSelected}
                                     onCheckedChange={() => handleSubaccountSelectionToggle(subaccount.id)}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleSubaccountPermissionToggle(subaccount.id)
+                                    }}
                                   />
-                                  <span className="text-sm text-gray-900">
-                                    {subaccount.name || subaccount.email || `Subaccount ${subaccount.id}`}
-                                  </span>
+                                  <div className="flex flex-row gap-2 items-center">
+                                    <span className="text-sm text-gray-900">
+                                      {subaccount.name}
+                                    </span>
+                                    {subaccount.email && (
+                                      <span className="text-xs text-gray-500">{subaccount.email}</span>
+                                    )}
+                                  </div>
                                 </div>
                               )
                             })}
@@ -3286,10 +3295,19 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                                   <Checkbox
                                     checked={isSelected}
                                     onCheckedChange={() => handleExistingSubaccountSelectionToggle(subaccount.id)}
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      handleExistingSubaccountPermissionToggle(subaccount.id)
+                                    }}
                                   />
-                                  <span className="text-sm text-gray-900">
-                                    {subaccount.name || subaccount.email || `Subaccount ${subaccount.id}`}
-                                  </span>
+                                  <div className="flex flex-row gap-2 items-center">
+                                    <span className="text-sm text-gray-900">
+                                      {subaccount.name}
+                                    </span>
+                                    {subaccount.email && (
+                                      <span className="text-xs text-gray-500">{subaccount.email}</span>
+                                    )}
+                                  </div>
                                 </div>
                               )
                             })}

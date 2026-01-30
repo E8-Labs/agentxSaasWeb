@@ -43,6 +43,7 @@ import {
   updateTemplete,
   getTempleteDetails,
 } from './TempleteServices'
+import { MessageSquareDot } from 'lucide-react'
 
 const PipelineStages = ({
   stages,
@@ -182,8 +183,8 @@ const PipelineStages = ({
     {
       value: 'sms',
       label: 'Text',
-      icon: '/otherAssets/smsIcon.png',
-      focusedIcon: '/otherAssets/blueSmsIcon.png',
+      icon: MessageSquareDot,
+      focusedIcon: MessageSquareDot, // same icon, hover uses brand color
     },
   ]
 
@@ -1409,24 +1410,52 @@ const PipelineStages = ({
                                           ) : (
                                             <div className="flex flex-row items-center justify-between w-full">
                                               <div className="flex flex-row items-center gap-3">
-                                                {/* default icon */}
-                                                <Image
-                                                  src={a.icon}
-                                                  height={20}
-                                                  width={20}
-                                                  alt="*"
-                                                  className="action-icon"
-                                                  style={{ display: 'block' }}
-                                                />
-                                                {/* blue (hover) icon */}
-                                                <Image
-                                                  src={a.focusedIcon}
-                                                  height={20}
-                                                  width={20}
-                                                  alt="*"
-                                                  className="action-icon-hover"
-                                                  style={{ display: 'none' }}
-                                                />
+                                                {/* default icon - Text uses MessageSquareDot from lucide-react */}
+                                                {a.value === 'sms' ? (
+                                                  <MessageSquareDot
+                                                    size={20}
+                                                    className="action-icon"
+                                                    style={{ display: 'block', flexShrink: 0 }}
+                                                  />
+                                                ) : typeof a.icon === 'function' ? (
+                                                  <a.icon
+                                                    size={20}
+                                                    className="action-icon"
+                                                    style={{ display: 'block', flexShrink: 0 }}
+                                                  />
+                                                ) : (
+                                                  <Image
+                                                    src={a.icon}
+                                                    height={20}
+                                                    width={20}
+                                                    alt="*"
+                                                    className="action-icon"
+                                                    style={{ display: 'block' }}
+                                                  />
+                                                )}
+                                                {/* hover icon */}
+                                                {a.value === 'sms' ? (
+                                                  <MessageSquareDot
+                                                    size={20}
+                                                    className="action-icon-hover"
+                                                    style={{ display: 'none', flexShrink: 0, color: 'hsl(var(--brand-primary))' }}
+                                                  />
+                                                ) : typeof a.focusedIcon === 'function' ? (
+                                                  <a.focusedIcon
+                                                    size={20}
+                                                    className="action-icon-hover"
+                                                    style={{ display: 'none', flexShrink: 0, color: 'hsl(var(--brand-primary))' }}
+                                                  />
+                                                ) : (
+                                                  <Image
+                                                    src={a.focusedIcon}
+                                                    height={20}
+                                                    width={20}
+                                                    alt="*"
+                                                    className="action-icon-hover"
+                                                    style={{ display: 'none' }}
+                                                  />
+                                                )}
 
                                                 <div
                                                   style={{

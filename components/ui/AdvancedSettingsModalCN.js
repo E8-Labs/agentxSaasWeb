@@ -120,7 +120,7 @@ const AdvancedSettingsModalCN = ({
 
   // Safely build className string
   const dialogClassName = cn(
-    'max-w-2xl z-[1600] p-4',
+    'max-w-2xl z-[1600] p-4 pointer-events-auto',
     className || '' // Ensure className is always a string
   
   )
