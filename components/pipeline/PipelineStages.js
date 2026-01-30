@@ -1121,7 +1121,17 @@ const PipelineStages = ({
                             <div className="border rounded-xl py-4 px-4 mt-4">
                               <div>
                                 {(rowsByIndex[index] || []).map(
-                                  (row, rowIndex) => (
+                                  (row, rowIndex) => {
+                                    // Ensure row has referencePoint initialized
+                                    // Check identifier from selectedPipelineStages (source of truth) or item as fallback
+                                    const stageForCheck = selectedPipelineStages?.[index] || item
+                                    const isBookingStage = stageForCheck?.identifier === 'booked'
+                                    const rowWithReferencePoint = {
+                                      ...row,
+                                      referencePoint: row.referencePoint || (isBookingStage ? 'before_meeting' : 'regular_calls'),
+                                    }
+                                    
+                                    return (
                                     <div
                                       key={row.id}
                                       className="flex flex-row items-center justify-center mb-2"
@@ -1234,11 +1244,32 @@ const PipelineStages = ({
                                             className="ms-4 mt-2 flex flex-row items-center"
                                             style={styles.inputStyle}
                                           >
-                                            <div>
-                                              {item.stageTitle === 'Booked' &&
-                                                'before the meeting'}
-                                              , then{' '}
-                                            </div>
+                                            {isBookingStage ? (
+                                              <div className="flex flex-row items-center gap-2">
+                                                <select
+                                                  value={rowWithReferencePoint.referencePoint}
+                                                  onChange={(e) =>
+                                                    handleInputChange(
+                                                      index,
+                                                      row.id,
+                                                      'referencePoint',
+                                                      e.target.value,
+                                                    )
+                                                  }
+                                                  className="outline-none border border-gray-300 rounded px-2 py-1 text-sm"
+                                                  style={{
+                                                    backgroundColor: 'white',
+                                                    minWidth: '140px',
+                                                  }}
+                                                >
+                                                  <option value="before_meeting">before the meeting</option>
+                                                  <option value="after_booking">after booking</option>
+                                                </select>
+                                                , then{' '}
+                                              </div>
+                                            ) : (
+                                              <div>, then{' '}</div>
+                                            )}
                                             <div
                                               className="ml-2"
                                               style={{ fontWeight: '600' }}
@@ -1289,8 +1320,8 @@ const PipelineStages = ({
                                         )}
                                       </div>
                                     </div>
-                                  ),
-                                )}
+                                  )
+                                })}
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation()

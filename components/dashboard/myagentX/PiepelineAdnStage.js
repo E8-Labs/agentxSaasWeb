@@ -145,22 +145,28 @@ const PipelineAndStage = ({
     if (agentCadence.length > 0 && mainAgent?.pipeline?.id) {
       const cadenceDetails = agentCadence.map((stage) => ({
         stage: stage.cadence.stage?.id,
-        calls: stage.calls.map((call) => ({
-          id: call.id,
-          waitTimeDays: call.waitTimeDays || 0,
-          waitTimeHours: call.waitTimeHours || 0,
-          waitTimeMinutes: call.waitTimeMinutes || 0,
-          communicationType: call.communicationType || 'call',
-          // Include template data if present
-          ...(call.templateId && { templateId: call.templateId }),
-          ...(call.templateName && { templateName: call.templateName }),
-          ...(call.subject && { subject: call.subject }),
-          ...(call.content && { content: call.content }),
-          // Include smsPhoneNumberId for SMS cadence calls
-          ...(call.smsPhoneNumberId && { smsPhoneNumberId: call.smsPhoneNumberId }),
-          // Include emailAccountId for email cadence calls (for consistency)
-          ...(call.emailAccountId && { emailAccountId: call.emailAccountId }),
-        })),
+        calls: stage.calls.map((call) => {
+          // Determine if this is a booking stage
+          const isBookingStage = stage.cadence.stage?.identifier === 'booked'
+          
+          return {
+            id: call.id,
+            waitTimeDays: call.waitTimeDays || 0,
+            waitTimeHours: call.waitTimeHours || 0,
+            waitTimeMinutes: call.waitTimeMinutes || 0,
+            communicationType: call.communicationType || 'call',
+            referencePoint: call.referencePoint || (isBookingStage ? 'before_meeting' : 'regular_calls'), // Include referencePoint
+            // Include template data if present
+            ...(call.templateId && { templateId: call.templateId }),
+            ...(call.templateName && { templateName: call.templateName }),
+            ...(call.subject && { subject: call.subject }),
+            ...(call.content && { content: call.content }),
+            // Include smsPhoneNumberId for SMS cadence calls
+            ...(call.smsPhoneNumberId && { smsPhoneNumberId: call.smsPhoneNumberId }),
+            // Include emailAccountId for email cadence calls (for consistency)
+            ...(call.emailAccountId && { emailAccountId: call.emailAccountId }),
+          }
+        }),
         moveToStage: stage.cadence.moveToStage?.id || null,
       }))
 
