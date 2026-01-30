@@ -117,6 +117,7 @@ const NewMessageModal = ({
   editingRow = null,
   selectedUser = null,
   isLeadMode = false,
+  isBookingStage = false,
 }) => {
   const [selectedMode, setSelectedMode] = useState(mode)
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
@@ -616,26 +617,46 @@ const NewMessageModal = ({
         '{Address}',
       ]
 
+      const bookingVariables = [
+        '{Appointment DateTime}',
+        '{Timezone}',
+        '{Duration}',
+        '{Location}',
+      ]
+
       let res = await getUniquesColumn(userId)
 
+      let columns
       if (res && Array.isArray(res)) {
-        const mergedColumns = [
+        columns = [
           ...defaultColumns,
           ...res.filter((col) => !defaultColumns.includes(col)),
         ]
-        setUniqueColumns(mergedColumns)
       } else {
-        setUniqueColumns(defaultColumns)
+        columns = [...defaultColumns]
       }
+
+      if (isBookingStage) {
+        columns = [
+          ...columns,
+          ...bookingVariables.filter((col) => !columns.includes(col)),
+        ]
+      }
+
+      setUniqueColumns(columns)
     } catch (error) {
       console.error('Error fetching unique columns:', error)
-      setUniqueColumns([
+      const fallback = [
         '{First Name}',
         '{Last Name}',
         '{Email}',
         '{Phone}',
         '{Address}',
-      ])
+      ]
+      if (isBookingStage) {
+        fallback.push('{Appointment DateTime}', '{Timezone}', '{Duration}', '{Location}')
+      }
+      setUniqueColumns(fallback)
     }
   }
 
@@ -814,7 +835,7 @@ const NewMessageModal = ({
         fetchUniqueColumns()
       }
     }
-  }, [open, selectedMode])
+  }, [open, selectedMode, isBookingStage])
 
   // Close dropdowns when clicking outside
   useEffect(() => {
