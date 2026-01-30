@@ -12,6 +12,7 @@ import Apis from '@/components/apis/Apis'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import { agentImage, getAgentImageWithMemoji } from '@/utilities/agentUtilities'
+import { AgentXOrb } from '@/components/common/AgentXOrb'
 import { Input } from '@/components/ui/input'
 import NewMessageModal from './NewMessageModal'
 import ThreadsList from './ThreadsList'
@@ -1464,28 +1465,33 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       )
     }
 
-    // Priority 2: Agent image or bitmoji
+    // Priority 2: Agent thumb, bitmoji, or initial
     if (message.agent) {
-      // Try agent image first
       if (message.agent.thumb_profile_image) {
+        const agentLetter = (message.agent.name || 'A').charAt(0).toUpperCase()
         return (
-          <Image
-            src={message.agent.thumb_profile_image}
-            alt="Agent"
-            width={26}
-            height={26}
-            className="rounded-full"
-            style={{ objectFit: 'cover' }}
-          />
+          <div className="w-[26px] h-[26px] rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
+            <img
+              src={message.agent.thumb_profile_image}
+              alt={message.agent.name || 'Agent'}
+              className="w-full h-full object-cover rounded-full"
+              onError={(e) => {
+                e.target.style.display = 'none'
+                const parent = e.target.parentElement
+                if (parent) {
+                  parent.className = 'w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0'
+                  parent.textContent = agentLetter
+                }
+              }}
+            />
+          </div>
         )
       }
-
-      // Try agent bitmoji (from voiceId)
       if (message.agent.voiceId) {
         const selectedVoice = voicesList.find(
           (voice) => voice.voice_id === message.agent.voiceId,
         )
-        if (selectedVoice && selectedVoice.img) {
+        if (selectedVoice?.img) {
           return (
             <Image
               src={selectedVoice.img}
@@ -1498,28 +1504,52 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           )
         }
       }
+      // Agent exists but no image: show agent initial
+      const agentLetter = (message.agent.name || 'A').charAt(0).toUpperCase()
+      return (
+        <div className="w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0">
+          {agentLetter}
+        </div>
+      )
     }
 
     // Priority 3: User profile image
     if (userData?.user?.thumb_profile_image) {
+      const userLetter = (userData.user.name || userData.user.firstName || 'U').charAt(0).toUpperCase()
       return (
-        <Image
-          src={userData.user.thumb_profile_image}
-          alt="User"
-          width={26}
-          height={26}
-          className="rounded-full"
-          style={{ objectFit: 'cover' }}
-        />
+        <div className="w-[26px] h-[26px] rounded-full overflow-hidden bg-white flex items-center justify-center flex-shrink-0">
+          <img
+            src={userData.user.thumb_profile_image}
+            alt={userData.user.name || 'User'}
+            className="w-full h-full object-cover rounded-full"
+            onError={(e) => {
+              e.target.style.display = 'none'
+              const parent = e.target.parentElement
+              if (parent) {
+                parent.className = 'w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0'
+                parent.textContent = userLetter
+              }
+            }}
+          />
+        </div>
       )
     }
 
-    // Priority 4: User profile letter
-    const userName = userData?.user?.name || userData?.user?.firstName || 'U'
-    const userLetter = userName.charAt(0).toUpperCase()
+    // Priority 4: User initial (no user image)
+    if (userData?.user?.name || userData?.user?.firstName) {
+      const userName = userData.user.name || userData.user.firstName || 'U'
+      const userLetter = userName.charAt(0).toUpperCase()
+      return (
+        <div className="w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary flex-shrink-0">
+          {userLetter}
+        </div>
+      )
+    }
+
+    // Priority 5: Orb fallback when no agent and no user image
     return (
-      <div className="w-[26px] h-[26px] rounded-full bg-white flex items-center justify-center text-brand-primary font-semibold text-xs border-2 border-brand-primary">
-        {userLetter}
+      <div className="w-[26px] h-[26px] rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden">
+        <AgentXOrb width={26} height={26} />
       </div>
     )
   }
