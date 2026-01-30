@@ -115,6 +115,7 @@ import CustomFieldsCN from './CustomFieldsCN'
 import TabsCN from './TabsCN'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import { Input } from '@/components/ui/input'
+import Link from 'next/link'
 
 const LeadDetails = ({
   showDetailsModal,
@@ -2247,6 +2248,9 @@ const LeadDetails = ({
                             )
                           }
                         </div>}
+                        {selectedLeadsDetails?.meetingLocation && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>
+                          <Link href={selectedLeadsDetails?.meetingLocation} target="_blank">{selectedLeadsDetails?.meetingLocation}</Link>
+                        </InfoRow>}
                         <div className="flex items-center gap-2">
                           <TagIcon className="h-4 w-4 text-muted-foreground" />
                           <TagManagerCn
