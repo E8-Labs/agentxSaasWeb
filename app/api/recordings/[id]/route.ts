@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+const BASE_API_URL =
+  process.env.NEXT_PUBLIC_BASE_API_URL ||
+  (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+    ? 'https://apimyagentx.com/agentx/'
+    : 'https://apimyagentx.com/agentxtest/')
+
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -15,7 +21,7 @@ export async function GET(
     }
 
     // Call the public endpoint that doesn't require authentication
-    const apiUrl = `${process.env.NEXT_PUBLIC_BASE_API_URL}api/leads/getCallPublic/${id}`
+    const apiUrl = `${BASE_API_URL}api/leads/getCallPublic/${id}`
     
     const response = await fetch(apiUrl, {
       method: 'GET',

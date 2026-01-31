@@ -13,6 +13,7 @@ const Page = () => {
 
   const [status, setStatus] = useState('')
   const [recordingUrl, setRecordingUrl] = useState('')
+  const [callOutcome, setCallOutcome] = useState('')
   const [recordingLoader, setRecordingLoader] = useState(true)
   const [screenWidth, setScreenWidth] = useState(null)
 
@@ -32,7 +33,8 @@ const Page = () => {
         const ResponseData = response.data
         if (ResponseData.status === true) {
           const data = ResponseData.data
-          setRecordingUrl(ResponseData.data.recordingUrl)
+          setRecordingUrl(ResponseData.data.recordingUrl || '')
+          setCallOutcome(ResponseData.data.callOutcome || '')
         }
         setRecordingLoader(false)
       }
@@ -184,7 +186,19 @@ const Page = () => {
               Something went wrong. Please try again.
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-screen w-full">
+            <div className="flex flex-col items-center justify-center h-screen w-full px-4">
+              {callOutcome && (
+                <div
+                  className="text-center mb-4"
+                  style={{
+                    fontSize: screenWidth > 640 ? '18px' : '16px',
+                    fontWeight: '500',
+                    color: '#333',
+                  }}
+                >
+                  Outcome: {callOutcome}
+                </div>
+              )}
               {recordingUrl ? (
                 <div>
                   <audio src={recordingUrl} controls />

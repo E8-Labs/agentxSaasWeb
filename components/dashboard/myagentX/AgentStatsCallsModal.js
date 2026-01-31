@@ -2,11 +2,15 @@ import { Box, Modal } from '@mui/material'
 import axios from 'axios'
 import moment from 'moment'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import Apis from '@/components/apis/Apis'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { useUser } from '@/hooks/redux-hooks'
+
+const CACHE_TTL_MS = 3 * 60 * 1000 // 3 minutes
+
+const agentCallsCache = {}
 
 const TYPE_LABELS = {
   calls: 'Calls',
@@ -43,6 +47,16 @@ function AgentStatsCallsModal({
   const [offset, setOffset] = useState(0)
   const limit = 20
   const hasMore = calls.length < total
+  const scrollContainerRef = useRef(null)
+  const loadMoreSentinelRef = useRef(null)
+  const hasMoreRef = useRef(hasMore)
+  const loadingRef = useRef(loading)
+  const loadMoreRef = useRef(() => {})
+  hasMoreRef.current = hasMore
+  loadingRef.current = loading
+  loadMoreRef.current = () => {
+    if (!loadingRef.current && hasMoreRef.current) fetchCalls(false)
+  }
 
   const fetchCalls = async (reset = false) => {
     if (!agentId || !type) return
@@ -64,6 +78,12 @@ function AgentStatsCallsModal({
         if (reset) {
           setCalls(newCalls)
           setOffset(limit)
+          const cacheKey = `${agentId}:${type}`
+          agentCallsCache[cacheKey] = {
+            calls: newCalls,
+            total: newTotal,
+            timestamp: Date.now(),
+          }
         } else {
           setCalls((prev) => [...prev, ...newCalls])
           setOffset((prev) => prev + limit)
@@ -82,17 +102,44 @@ function AgentStatsCallsModal({
   }
 
   useEffect(() => {
-    if (open && agentId && type) {
-      setCalls([])
-      setTotal(0)
-      setOffset(0)
-      fetchCalls(true)
+    if (!open || !agentId || !type) return
+
+    const cacheKey = `${agentId}:${type}`
+    const entry = agentCallsCache[cacheKey]
+    const now = Date.now()
+    const isCacheValid = entry && now - entry.timestamp < CACHE_TTL_MS
+
+    if (isCacheValid) {
+      setCalls(entry.calls)
+      setTotal(entry.total)
+      setOffset(entry.calls.length)
+      setLoading(false)
+      return
     }
+
+    if (entry) delete agentCallsCache[cacheKey]
+    setCalls([])
+    setTotal(0)
+    setOffset(0)
+    fetchCalls(true)
   }, [open, agentId, type])
 
-  const handleLoadMore = () => {
-    if (!loading && hasMore) fetchCalls(false)
-  }
+  useEffect(() => {
+    if (!open || !hasMore || calls.length === 0) return
+    const container = scrollContainerRef.current
+    const sentinel = loadMoreSentinelRef.current
+    if (!container || !sentinel) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries
+        if (entry?.isIntersecting) loadMoreRef.current?.()
+      },
+      { root: container, rootMargin: '100px', threshold: 0 }
+    )
+    observer.observe(sentinel)
+    return () => observer.disconnect()
+  }, [open, hasMore, calls.length])
 
   const openRecordingPage = (callId) => {
     if (!callId) return
@@ -134,6 +181,7 @@ function AgentStatsCallsModal({
         </div>
 
         <div
+          ref={scrollContainerRef}
           className="flex-1 overflow-auto pb-4"
           style={{ scrollbarWidth: 'thin' }}
         >
@@ -207,15 +255,13 @@ function AgentStatsCallsModal({
                 )
               })}
               {hasMore && (
-                <div className="flex justify-center pt-2">
-                  <button
-                    type="button"
-                    onClick={handleLoadMore}
-                    disabled={loading}
-                    className="px-4 py-2 text-sm font-medium text-purple-600 hover:bg-purple-50 rounded-lg disabled:opacity-50"
-                  >
-                    {loading ? 'Loading...' : 'Load more'}
-                  </button>
+                <div className="pt-2 pb-2">
+                  <div ref={loadMoreSentinelRef} className="h-4 w-full min-h-[16px]" aria-hidden />
+                  {loading && (
+                    <div className="flex justify-center py-2 text-sm text-gray-500">
+                      Loading...
+                    </div>
+                  )}
                 </div>
               )}
             </div>
