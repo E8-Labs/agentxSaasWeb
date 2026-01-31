@@ -7,9 +7,6 @@ import { useParams } from 'next/navigation'
 import React, { useState } from 'react'
 import { useEffect } from 'react'
 
-import { AuthToken } from '@/components/agency/plan/AuthDetails'
-import Apis from '@/components/apis/Apis'
-
 const Page = () => {
   const params = useParams()
   const id = params.id
@@ -20,25 +17,17 @@ const Page = () => {
   const [screenWidth, setScreenWidth] = useState(null)
 
   useEffect(() => {
-    const D = localStorage.getItem('User')
-    if (D) {
-      getRecordings()
-    } else {
-      setStatus('not-loggedin')
-      setRecordingLoader(false)
-    }
+    // Allow both authenticated and unauthenticated users
+    getRecordings()
     setScreenWidth(window.innerWidth)
   }, [id])
 
   const getRecordings = async () => {
     try {
-      const ApiPath = `${Apis.getCallRecordings}/${id}` //1735685636264x683829823473498800
-      const token = AuthToken()
-      const response = await axios.get(ApiPath, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      // Use the local Next.js API route which proxies to the backend
+      const ApiPath = `/api/recordings/${id}`
+      const response = await axios.get(ApiPath)
+      
       if (response) {
         const ResponseData = response.data
         if (ResponseData.status === true) {
@@ -49,7 +38,7 @@ const Page = () => {
       }
     } catch (error) {
       setRecordingLoader(false)
-      setStatus(error.response.status)
+      setStatus(error.response?.status || 'error')
       if (error.response?.status === 404) {
         const errMsg = error.response.data?.error || ''
         if (errMsg === 'Call not found') {
@@ -106,28 +95,7 @@ const Page = () => {
         </div>
       ) : (
         <div>
-          {status === 'not-loggedin' ? (
-            <div className="flex flex-col items-center justify-center h-screen w-full">
-              <div
-                className="text-center"
-                style={{
-                  fontSize: screenWidth > 640 ? '22px' : '18px',
-                  fontWeight: '600',
-                  color: '#000000',
-                }}
-              >
-                You are not logged in.
-              </div>
-              <button
-                className="bg-purple mt-4 text-white px-4 py-2 rounded-md"
-                onClick={() => {
-                  window.location.href = '/'
-                }}
-              >
-                Login to continue
-              </button>
-            </div>
-          ) : status === 'not_found' ? (
+          {status === 'not_found' ? (
             <div className="flex flex-col items-center justify-center h-screen w-full">
               {screenWidth > 640 ? (
                 <Image
