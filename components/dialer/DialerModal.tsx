@@ -2067,7 +2067,8 @@ function DialerModal({
       formData.append('leadPhone', leadData?.phone || '')
       formData.append('content', selectedTemplate?.content || '')
       formData.append('phone', selectedPhone?.phone || '')
-      formData.append('leadId', leadData?.id || '')
+      formData.append('leadId', leadData?.leadId || '')
+      console.log('Lead data', leadData)
 
       const response = await axios.post(Apis.sendSMSToLead, formData, {
         headers: {
