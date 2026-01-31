@@ -943,7 +943,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                         containerClass="phone-input-container"
                         className="outline-none bg-white focus:ring-0"
                         country={'us'} // restrict to US only
-                        onlyCountries={['us', 'mx']}
+                        onlyCountries={['us', 'mx','sv', 'ec']}
                         disableDropdown={true}
                         countryCodeEditable={false}
                         disableCountryCode={false}
@@ -1030,7 +1030,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                           containerClass="phone-input-container"
                           className="outline-none bg-white mt-2 focus:ring-0"
                           country={'us'} // restrict to US only
-                          onlyCountries={['us', 'mx']}
+                          onlyCountries={['us', 'mx','sv', 'ec']}
                           disableDropdown={true}
                           countryCodeEditable={false}
                           disableCountryCode={false}
