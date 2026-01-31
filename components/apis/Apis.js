@@ -48,6 +48,8 @@ const Apis = {
   CheckPhone: `${BasePath}api/user/checkPhoneNumber`,
   getCallLogs: `${BasePath}api/leads/callLogs`,
   getCallsInBatch: `${BasePath}api/pipeline/getCallsInABatch`,
+  getAgentCallsByType: `${BasePath}api/pipeline/getAgentCallsByType`,
+  getAgentCallsByTypeApi: '/api/pipeline/agentCallsByType',
   getLeadsInBatch: `${BasePath}api/pipeline/leadsInBatch`,
 
   getSheduledCallLogs: `${BasePath}api/pipeline/getScheduledCalls`,

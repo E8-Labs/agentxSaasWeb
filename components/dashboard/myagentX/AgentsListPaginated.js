@@ -14,6 +14,7 @@ import {
 } from '@/utilities/agentUtilities'
 
 import AgentInfoCard from './AgentInfoCard'
+import AgentStatsCallsModal from './AgentStatsCallsModal'
 import NoAgent from './NoAgent'
 
 // ...other necessary imports
@@ -77,6 +78,11 @@ const AgentsListPaginated = ({
   const fileInputRef = useRef([])
 
   const [ShowWarningModal, setShowWarningModal] = useState(null)
+
+  const [statsModalOpen, setStatsModalOpen] = useState(false)
+  const [statsModalAgentId, setStatsModalAgentId] = useState(null)
+  const [statsModalType, setStatsModalType] = useState(null)
+  const [statsModalAgentName, setStatsModalAgentName] = useState('')
 
   const [actionInfoEl, setActionInfoEl] = useState(null)
   const [hoveredIndexStatus, setHoveredIndexStatus] = useState(null)
@@ -528,49 +534,99 @@ const AgentsListPaginated = ({
 
                 <div className="w-9.12 bg-white p-6 rounded-2xl mb-4 mt-5">
                   <div className="w-full flex flex-row items-center justify-between">
-                    <AgentInfoCard
-                      name="Calls"
-                      value={<div>{item.calls || '-'}</div>}
-                      icon="/svgIcons/selectedCallIcon.svg"
-                      bgColor="bg-blue-100"
-                      iconColor="text-blue-500"
-                    />
-                    <AgentInfoCard
-                      name="Convos"
-                      value={<div>{item.callsGt10 || '-'}</div>}
-                      icon="/svgIcons/convosIcon2.svg"
-                      bgColor="bg-brand-primary/10"
-                      iconColor="text-brand-primary"
-                    />
-                    <AgentInfoCard
-                      name="Hot Leads"
-                      value={item.hotleads || '-'}
-                      icon="/otherAssets/hotLeadsIcon2.png"
-                      bgColor="bg-orange-100"
-                      iconColor="text-orange-500"
-                    />
-                    <AgentInfoCard
-                      name="Booked Meetings"
-                      value={item.booked || '-'}
-                      icon="/otherAssets/greenCalenderIcon.png"
-                      bgColor="green"
-                      iconColor="text-orange-500"
-                    />
-                    <AgentInfoCard
-                      name="Time"
-                      value={
-                        <div>
-                          {item?.totalDuration
-                            ? moment
-                                .utc((item?.totalDuration || 0) * 1000)
-                                .format('HH:mm:ss')
-                            : '-'}
-                        </div>
-                      }
-                      icon="/otherAssets/minsCounter.png"
-                      bgColor="green"
-                      iconColor="text-orange-500"
-                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStatsModalAgentId(item.id)
+                        setStatsModalType('calls')
+                        setStatsModalAgentName(item.name || '')
+                        setStatsModalOpen(true)
+                      }}
+                      className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                      style={{ minWidth: 0 }}
+                    >
+                      <AgentInfoCard
+                        name="Calls"
+                        value={<div>{item.calls || '-'}</div>}
+                        icon="/svgIcons/selectedCallIcon.svg"
+                        bgColor="bg-blue-100"
+                        iconColor="text-blue-500"
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStatsModalAgentId(item.id)
+                        setStatsModalType('convos')
+                        setStatsModalAgentName(item.name || '')
+                        setStatsModalOpen(true)
+                      }}
+                      className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                      style={{ minWidth: 0 }}
+                    >
+                      <AgentInfoCard
+                        name="Convos"
+                        value={<div>{item.callsGt10 || '-'}</div>}
+                        icon="/svgIcons/convosIcon2.svg"
+                        bgColor="bg-brand-primary/10"
+                        iconColor="text-brand-primary"
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStatsModalAgentId(item.id)
+                        setStatsModalType('hotleads')
+                        setStatsModalAgentName(item.name || '')
+                        setStatsModalOpen(true)
+                      }}
+                      className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                      style={{ minWidth: 0 }}
+                    >
+                      <AgentInfoCard
+                        name="Hot Leads"
+                        value={item.hotleads || '-'}
+                        icon="/otherAssets/hotLeadsIcon2.png"
+                        bgColor="bg-orange-100"
+                        iconColor="text-orange-500"
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setStatsModalAgentId(item.id)
+                        setStatsModalType('booked')
+                        setStatsModalAgentName(item.name || '')
+                        setStatsModalOpen(true)
+                      }}
+                      className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                      style={{ minWidth: 0 }}
+                    >
+                      <AgentInfoCard
+                        name="Booked Meetings"
+                        value={item.booked || '-'}
+                        icon="/otherAssets/greenCalenderIcon.png"
+                        bgColor="green"
+                        iconColor="text-orange-500"
+                      />
+                    </button>
+                    <div className="flex flex-col items-start gap-2">
+                      <AgentInfoCard
+                        name="Time"
+                        value={
+                          <div>
+                            {item?.totalDuration
+                              ? moment
+                                  .utc((item?.totalDuration || 0) * 1000)
+                                  .format('HH:mm:ss')
+                              : '-'}
+                          </div>
+                        }
+                        icon="/otherAssets/minsCounter.png"
+                        bgColor="green"
+                        iconColor="text-orange-500"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -586,6 +642,13 @@ const AgentsListPaginated = ({
           selectedUser={selectedUser}
         />)
       )}
+      <AgentStatsCallsModal
+        open={statsModalOpen}
+        onClose={() => setStatsModalOpen(false)}
+        agentId={statsModalAgentId}
+        agentName={statsModalAgentName}
+        type={statsModalType}
+      />
     </div>
   );
 }

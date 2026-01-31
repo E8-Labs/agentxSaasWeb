@@ -50,6 +50,7 @@ import AgentSelectSnackMessage, {
 } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 
 import ActionsTab from '@/components/dashboard/myagentX/ActionsTab'
+import AgentStatsCallsModal from '@/components/dashboard/myagentX/AgentStatsCallsModal'
 import AgentsListPaginated from '@/components/dashboard/myagentX/AgentsListPaginated'
 import AllSetModal from '@/components/dashboard/myagentX/AllSetModal'
 import ClaimNumber from '@/components/dashboard/myagentX/ClaimNumber'
@@ -169,6 +170,8 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   const [address, setAddress] = useState('')
   // const [budget, setBudget] = useState("");
   const [showDrawerSelectedAgent, setShowDrawerSelectedAgent] = useState(null)
+  const [adminStatsModalOpen, setAdminStatsModalOpen] = useState(false)
+  const [adminStatsModalType, setAdminStatsModalType] = useState(null)
   const [showMainAgent, setShowMainAgent] = useState(null)
   //calender details of selected agent
   const [calendarDetails, setCalendarDetails] = useState(null)
@@ -3987,62 +3990,99 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
 
               {/* Center Stats View  */}
               <div className="grid grid-cols-5 gap-6 border p-6 flex-row justify-between w-full rounded-lg mb-6 mt-2 ">
-                <Card
-                  name="Calls"
-                  value={
-                    showDrawerSelectedAgent?.calls &&
-                      showDrawerSelectedAgent?.calls > 0 ? (
-                      <div>{showDrawerSelectedAgent?.calls}</div>
-                    ) : (
-                      '-'
-                    )
-                  }
-                  icon="/svgIcons/selectedCallIcon.svg"
-                  bgColor="bg-brand-primary/10"
-                  iconColor="text-brand-primary"
-                />
-                <Card
-                  name="Convos"
-                  value={
-                    showDrawerSelectedAgent?.callsGt10 &&
-                      showDrawerSelectedAgent?.callsGt10 > 0 ? (
-                      <div>{showDrawerSelectedAgent?.callsGt10}</div>
-                    ) : (
-                      '-'
-                    )
-                  }
-                  icon="/svgIcons/convosIcon2.svg"
-                  bgColor="bg-brand-primary/10"
-                  iconColor="text-brand-primary"
-                />
-                <Card
-                  name="Hot Leads"
-                  value={
-                    <div>
-                      {showDrawerSelectedAgent?.hotleads
-                        ? showDrawerSelectedAgent?.hotleads
-                        : '-'}
-                    </div>
-                  }
-                  icon="/otherAssets/hotLeadsIcon2.png"
-                  bgColor="bg-brand-primary/10"
-                  iconColor="text-brand-primary"
-                />
-                <Card
-                  name="Booked"
-                  value={
-                    <div>
-                      {showDrawerSelectedAgent?.booked
-                        ? showDrawerSelectedAgent?.booked
-                        : '-'}
-                    </div>
-                  }
-                  icon="/otherAssets/greenCalenderIcon.png"
-                  bgColor="bg-brand-primary/10"
-                  iconColor="text-brand-primary"
-                />
-                <Card
-                  name="Time"
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAdminStatsModalType('calls')
+                    setAdminStatsModalOpen(true)
+                  }}
+                  className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                >
+                  <Card
+                    name="Calls"
+                    value={
+                      showDrawerSelectedAgent?.calls &&
+                        showDrawerSelectedAgent?.calls > 0 ? (
+                        <div>{showDrawerSelectedAgent?.calls}</div>
+                      ) : (
+                        '-'
+                      )
+                    }
+                    icon="/svgIcons/selectedCallIcon.svg"
+                    bgColor="bg-brand-primary/10"
+                    iconColor="text-brand-primary"
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAdminStatsModalType('convos')
+                    setAdminStatsModalOpen(true)
+                  }}
+                  className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                >
+                  <Card
+                    name="Convos"
+                    value={
+                      showDrawerSelectedAgent?.callsGt10 &&
+                        showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                        <div>{showDrawerSelectedAgent?.callsGt10}</div>
+                      ) : (
+                        '-'
+                      )
+                    }
+                    icon="/svgIcons/convosIcon2.svg"
+                    bgColor="bg-brand-primary/10"
+                    iconColor="text-brand-primary"
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAdminStatsModalType('hotleads')
+                    setAdminStatsModalOpen(true)
+                  }}
+                  className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                >
+                  <Card
+                    name="Hot Leads"
+                    value={
+                      <div>
+                        {showDrawerSelectedAgent?.hotleads
+                          ? showDrawerSelectedAgent?.hotleads
+                          : '-'}
+                      </div>
+                    }
+                    icon="/otherAssets/hotLeadsIcon2.png"
+                    bgColor="bg-brand-primary/10"
+                    iconColor="text-brand-primary"
+                  />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAdminStatsModalType('booked')
+                    setAdminStatsModalOpen(true)
+                  }}
+                  className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                >
+                  <Card
+                    name="Booked"
+                    value={
+                      <div>
+                        {showDrawerSelectedAgent?.booked
+                          ? showDrawerSelectedAgent?.booked
+                          : '-'}
+                      </div>
+                    }
+                    icon="/otherAssets/greenCalenderIcon.png"
+                    bgColor="bg-brand-primary/10"
+                    iconColor="text-brand-primary"
+                  />
+                </button>
+                <div>
+                  <Card
+                    name="Time"
                   value={
                     showDrawerSelectedAgent?.totalDuration &&
                       showDrawerSelectedAgent?.totalDuration > 0 ? (
@@ -4065,7 +4105,15 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   bgColor="bg-brand-primary/10"
                   iconColor="text-brand-primary"
                 />
+                </div>
               </div>
+              <AgentStatsCallsModal
+                open={adminStatsModalOpen}
+                onClose={() => setAdminStatsModalOpen(false)}
+                agentId={showDrawerSelectedAgent?.id}
+                agentName={showDrawerSelectedAgent?.name}
+                type={adminStatsModalType}
+              />
               {/* Bottom Agent Info */}
               <div className="flex flex-row items-center justify-between pb-2 mb-4">
                 {AgentMenuOptions.map((tab) => (
