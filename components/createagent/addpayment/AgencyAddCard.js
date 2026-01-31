@@ -752,6 +752,10 @@ const AgencyAddCard = ({
 
                 {/* Calculate discount if promo code is applied */}
                 {(() => {
+
+
+                  console.log("next charge date in agency add card",getNextChargeDate(selectedPlan))
+
                   const discountCalculation = promoCodeDetails
                     ? calculateDiscountedPrice(selectedPlan, promoCodeDetails)
                     : null

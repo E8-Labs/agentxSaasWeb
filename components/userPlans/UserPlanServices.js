@@ -837,8 +837,10 @@ export const getNextChargeDate = (selectedPlan, fromDate = new Date()) => {
       nextDateISO: nextDate.toISOString(),
     })
 
+    console.log("next date before returning",nextDate)
+
     // Return Date object instead of formatted string so moment() can parse it
-    return nextDate
+    return formatted
   } catch (e) {
     console.error('[getNextChargeDate] Error occurred during calculation', {
       error: e,
