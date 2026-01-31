@@ -732,11 +732,11 @@ function SelectedUserDetails({
             <div className={`flex border-r border-[#00000015] ${!enablePermissionChecks && '-mt-10'} flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} ${enablePermissionChecks ? 'h-auto max-h-[85vh] overflow-y-auto' : 'h-auto'}`}>
 
               {agencyUser ? (
-                <div className="flex flex-row items-center justify-start w-full  pb-1 flex-shrink-0">
+                <div className="flex flex-row items-center justify-start w-full  pb-1 flex-shrink-0 mt-4">
                   <AppLogo height={29} width={122} />
                 </div>
               ) : (
-                <div className={`flex flex-row gap-2 items-center justify-start w-full pt-3 ${enablePermissionChecks ? 'pt-3' : ''}`}>
+                <div className={`flex mt-4 flex-row gap-2 items-center justify-start w-full pt-3 ${enablePermissionChecks ? 'pt-3' : ''}`}>
                   <div className="flex h-[30px] w-[30px] rounded-full items-center justify-center bg-black text-white">
                     {selectedUser.name[0]}
                   </div>

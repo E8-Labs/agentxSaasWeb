@@ -11,7 +11,6 @@ import { getStripe } from '@/lib/stripe'
 import axios from 'axios'
 import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
 import Image from 'next/image'
-import moment from 'moment'
 import React, { useEffect, useRef, useState } from 'react'
 
 import { PersistanceKeys } from '@/constants/Constants'
@@ -35,7 +34,6 @@ import {
   checkReferralCode,
   getEffectiveUser,
   getNextChargeDate,
-  getSubscribeApiConfig,
   getUserLocalData,
   getUserPlans,
 } from './UserPlanServices'
@@ -797,8 +795,6 @@ function UpgradePlanContent({
   }
 
   const isPlanCurrent = (item) => {
-
-    console.log("item in is plan current is",item)
     if (!item) {
       return false
     }
@@ -817,9 +813,6 @@ function UpgradePlanContent({
     const itemPlanId = Number(item.id || item.planId)
     const currentPlanId = Number(planToCompare.id || planToCompare.planId)
 
-    console.log("itemPlanId",itemPlanId)
-    console.log("currentPlanId",currentPlanId)
-
     // Only log when there's a potential match to reduce noise
     if (
       itemPlanId === currentPlanId &&
@@ -829,11 +822,11 @@ function UpgradePlanContent({
     }
 
     // Fallback comparison by name (if both have names)
-    // const itemName = item.name || item.title
-    // const currentPlanName = planToCompare.name || planToCompare.title
-    // if (itemName && currentPlanName && itemName === currentPlanName) {
-    //   return true
-    // }
+    const itemName = item.name || item.title
+    const currentPlanName = planToCompare.name || planToCompare.title
+    if (itemName && currentPlanName && itemName === currentPlanName) {
+      return true
+    }
 
     // Not the current plan - don't log to reduce noise
     return false
@@ -1170,28 +1163,69 @@ function UpgradePlanContent({
       }
 
       const UserLocalData = getUserLocalData()
+      
+      // Determine effective user (selectedUser if provided, otherwise logged-in user)
       const effectiveUser = getEffectiveUser(selectedUser, UserLocalData)
+      const effectiveRole = effectiveUser?.userRole
+      
+      let DataToSendInApi = null
+      let ApiData = {
+        plan: planType,
+      }
+      
+      // For agency and subaccount plans, use planId instead of plan type
+      if (
+        effectiveRole === 'AgencySubAccount' ||
+        effectiveRole === 'Agency' ||
+        from === 'SubAccount' ||
+        from === 'agency' ||
+        from === 'Agency'
+      ) {
+        ApiData = {
+          planId: currentSelectedPlan?.id,
+        }
+      }
 
-      const { apiPath: ApiPath, usePlanId, omitContentType } = getSubscribeApiConfig(UserLocalData, {
-        from,
-        selectedUser,
-      })
-
-      let ApiData = usePlanId
-        ? { planId: currentSelectedPlan?.id }
-        : { plan: planType }
+      // Add payment method ID if we have one
       if (paymentMethodId) {
         ApiData.paymentMethodId = paymentMethodId
       }
+
+      // Add userId if we're subscribing for another user (admin/agency viewing subaccount)
       if (selectedUser) {
         ApiData.userId = selectedUser?.id || effectiveUser?.id
       }
-      const DataToSendInApi = ApiData
+      DataToSendInApi = ApiData
 
-      const headers = {
+      // Determine the correct API endpoint based on effective user's role
+      let ApiPath = Apis.subscribePlan // Default for regular users
+      
+      if (
+        effectiveRole === 'AgencySubAccount' ||
+        effectiveRole === 'Agency' ||
+        from === 'SubAccount' ||
+        from === 'agency' ||
+        from === 'Agency'
+      ) {
+        ApiPath = Apis.subAgencyAndSubAccountPlans
+      }
+      
+      // Log which API endpoint is being used for debugging
+      if (process.env.NODE_ENV === 'development') {
+        console.log('[UpgradePlan] Subscription API endpoint:', ApiPath)
+        console.log('[UpgradePlan] Effective user role:', effectiveRole)
+        console.log('[UpgradePlan] From prop:', from)
+        console.log('[UpgradePlan] Selected user:', selectedUser)
+      }
+
+      //headers for api
+      let headers = {
         Authorization: 'Bearer ' + AuthToken,
       }
-      if (!omitContentType) {
+
+      // Only add Content-Type header for non-subaccount subscriptions
+      // Subaccount subscriptions use form-data (multipart/form-data)
+      if (effectiveRole !== 'AgencySubAccount' && from !== 'SubAccount') {
         headers['Content-Type'] = 'application/json'
       }
 
@@ -1237,7 +1271,6 @@ function UpgradePlanContent({
     }
   }
 
-  // Function to get button text, checking for cancelled plan status first
   // Function to get button text, checking for cancelled plan status first
   const getButtonText = () => {
     if (!currentSelectedPlan) return 'Select a Plan'
@@ -1485,11 +1518,6 @@ function UpgradePlanContent({
     }
   }
 
-
-  console.log('currentSelectedPlan', currentSelectedPlan)
-
-  console.log('currentSelectedPlan && !isPlanCurrent(currentSelectedPlan) && getButtonText() !== Cancel Subscription ', currentSelectedPlan && !isPlanCurrent(currentSelectedPlan) && getButtonText() !== 'Cancel Subscription' )
-console.log('getButtonText()', getButtonText())
   return (
     <Modal
       open={open}
@@ -1843,7 +1871,7 @@ console.log('getButtonText()', getButtonText())
                                       }}
                                     >
                                       Next Charge Date{' '}
-                                      {moment(getNextChargeDate(currentSelectedPlan))?.format('MMMM DD, YYYY')}
+                                      {getNextChargeDate(currentSelectedPlan)}
                                     </div>
                                   </div>
                                   <div
@@ -1940,7 +1968,7 @@ console.log('getButtonText()', getButtonText())
                                     }}
                                   >
                                     Next Charge Date{' '}
-                                    {moment(getNextChargeDate(currentSelectedPlan))?.format('MMMM DD, YYYY')}
+                                    {getNextChargeDate(currentSelectedPlan)}
                                   </div>
                                   {discountCalculation &&
                                     discountCalculation.discountMonths > 0 && (
@@ -2095,8 +2123,6 @@ console.log('getButtonText()', getButtonText())
                         if (hasTrial && isFirstTimeSubscription) {
                           return '$0'
                         }
-
-                        console.log("hasTrial, isFirstTimeSubscription", hasTrial, isFirstTimeSubscription)
 
                         const discountCalculation = promoCodeDetails
                           ? calculateDiscountedPrice(
