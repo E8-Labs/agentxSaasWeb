@@ -4310,7 +4310,7 @@ function Page() {
                   <PhoneInput
                     className="border outline-none bg-white"
                     country={'us'}
-                    onlyCountries={['us', 'sv', 'pk', 'mx']}
+                    onlyCountries={['us', 'sv', 'pk', 'mx','sv', 'ec']}
                     disableDropdown={false}
                     countryCodeEditable={false}
                     value={phone}

@@ -839,7 +839,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
               >
                 <PhoneInput
                   country={'us'}
-                  onlyCountries={['us', 'ca', 'mx']}
+                  onlyCountries={['us', 'ca', 'mx','sv', 'ec']}
                   disableDropdown={false}
                   countryCodeEditable={false}
                   disableCountryCode={false}
