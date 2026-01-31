@@ -1282,6 +1282,10 @@ function UpgradePlanContent({
     // Use planToCompare (which is currentFullPlan when selectedUser is provided, otherwise currentUserPlan)
     const comparison = comparePlans(planToCompare, currentSelectedPlan)
 
+    if(currentSelectedPlan?.discountPrice === 0){
+      return 'Downgrade'
+    }
+
     if (comparison === 'upgrade') {
       return 'Upgrade'
     } else if (comparison === 'downgrade') {

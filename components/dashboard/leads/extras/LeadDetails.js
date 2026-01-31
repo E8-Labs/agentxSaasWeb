@@ -1722,6 +1722,7 @@ const LeadDetails = ({
       // Use phone number as-is if parsing fails
     }
 
+    console.log("opening dialer")
     // Open dialer modal with the phone number
     dispatch(openDialer({
       leadId: selectedLeadsDetails?.id,
@@ -1814,6 +1815,8 @@ const LeadDetails = ({
     startDialerFlow()
   }
   const handleSendAction = (opt) => {
+
+    console.log("!dialerCapability.hasAccess" ,!dialerCapability.hasAccess)
     if (opt.value === 'email') {
       if (!emailCapability.hasAccess) {
         // Trigger upgrade modal if user doesn't have access
