@@ -11,7 +11,7 @@ import CallingScript from './CallingScript'
 import CallNotesWindow from './CallNotesWindow'
 import SmsTemplatePanel from './SmsTemplatePanel'
 import EmailTemplatePanel from './EmailTemplatePanel'
-import { getGmailAccounts } from '../pipeline/TempleteServices'
+import { deleteTemplete, getGmailAccounts } from '../pipeline/TempleteServices'
 import ClaimNumber from '../dashboard/myagentX/ClaimNumber'
 import { ArrowUp, Pause, Mic, MicOff, FileText, StickyNote, X, ChevronDown, Check, Phone, Mail, MessageSquare, MoreVertical, Pencil, Loader2, MessageCircleMore } from 'lucide-react'
 import { Menu, MenuItem } from '@mui/material'
@@ -2097,28 +2097,7 @@ function DialerModal({
 
   const handleDeleteTemplate = async (template: any) => {
     try {
-      const localData = localStorage.getItem('User')
-      let AuthToken = null
-      if (localData) {
-        const UserDetails = JSON.parse(localData)
-        AuthToken = UserDetails.token
-      }
-
-      if (!AuthToken) {
-        toast.error('Authentication required')
-        return
-      }
-
-      const response = await fetch(`/api/templates/${template.id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${AuthToken}`,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      const data = await response.json()
-
+     let data = await deleteTemplete(template)
       if (data?.status === true) {
         toast.success('Template deleted successfully')
         // Refresh templates
@@ -2132,6 +2111,7 @@ function DialerModal({
           setSelectedTemplate(null)
         }
       } else {
+        console.log("error in delete temp",data)
         toast.error(data?.message || 'Failed to delete template')
       }
     } catch (error: any) {

@@ -106,14 +106,14 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
   // Redux hooks for upgrade modal functionality
   const { user: reduxUser, setUser: setReduxUser } = useUser()
 
-      let baseUrl =
-      process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-        ? 'https://app.assignx.ai/'
-        : 'https://dev.assignx.ai/'
-  
-    let demoBaseUrl =
-      reduxUser?.agencyBranding?.customDomain ? `https://${reduxUser?.agencyBranding?.customDomain}/` : baseUrl
-  
+  let baseUrl =
+    process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+      ? 'https://app.assignx.ai/'
+      : 'https://dev.assignx.ai/'
+
+  let demoBaseUrl =
+    reduxUser?.agencyBranding?.customDomain ? `https://${reduxUser?.agencyBranding?.customDomain}/` : baseUrl
+
   const voiceExpressivenessList = [
     {
       id: 1,
@@ -4083,28 +4083,28 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                 <div>
                   <Card
                     name="Time"
-                  value={
-                    showDrawerSelectedAgent?.totalDuration &&
-                      showDrawerSelectedAgent?.totalDuration > 0 ? (
-                      // <div>{showDrawer?.totalDuration}</div>
-                      (<div>
-                        {showDrawerSelectedAgent?.totalDuration
-                          ? moment
-                            .utc(
-                              (showDrawerSelectedAgent?.totalDuration || 0) *
-                              1000,
-                            )
-                            .format('HH:mm:ss')
-                          : '-'}
-                      </div>)
-                    ) : (
-                      '-'
-                    )
-                  }
-                  icon="/otherAssets/minsCounter.png"
-                  bgColor="bg-brand-primary/10"
-                  iconColor="text-brand-primary"
-                />
+                    value={
+                      showDrawerSelectedAgent?.totalDuration &&
+                        showDrawerSelectedAgent?.totalDuration > 0 ? (
+                        // <div>{showDrawer?.totalDuration}</div>
+                        (<div>
+                          {showDrawerSelectedAgent?.totalDuration
+                            ? moment
+                              .utc(
+                                (showDrawerSelectedAgent?.totalDuration || 0) *
+                                1000,
+                              )
+                              .format('HH:mm:ss')
+                            : '-'}
+                        </div>)
+                      ) : (
+                        '-'
+                      )
+                    }
+                    icon="/otherAssets/minsCounter.png"
+                    bgColor="bg-brand-primary/10"
+                    iconColor="text-brand-primary"
+                  />
                 </div>
               </div>
               <AgentStatsCallsModal
@@ -4137,14 +4137,22 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                   <div className="flex flex-col gap-1">
                     <div className="flex flex-row items-center justify-between">
                       <div
-                        style={{
-                          fontSize: 16,
-                          fontWeight: '600',
-                          color: '#000',
-                        }}
+                        style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
                       >
                         Voice Options
                       </div>
+
+                      <button
+                        onClick={() => {
+                          setShowAdvancedSettingsModal(true)
+                        }}
+                      >
+                        <div
+                          style={{ fontSize: 15, fontWeight: '500', color: 'hsl(var(--brand-primary))' }}
+                        >
+                          Advanced Settings
+                        </div>
+                      </button>
                     </div>
 
                     {/* Language */}
@@ -4845,26 +4853,6 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                           </FormControl>
                         )}
                       </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-1 mt-4">
-                    <div
-                      style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
-                    >
-                      Advanced Settings
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <div
-                        style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
-                      >
-                        Configure call duration, timeout, and silence response
-                      </div>
-                      <button
-                        onClick={() => setShowAdvancedSettingsModal(true)}
-                        className="text-brand-primary hover:text-brand-primary/80 text-sm font-medium"
-                      >
-                        Configure
-                      </button>
                     </div>
                   </div>
                   <div className="flex flex-col gap-1 mt-4">

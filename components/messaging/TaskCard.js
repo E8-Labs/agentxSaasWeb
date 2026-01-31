@@ -21,9 +21,11 @@ const TaskCard = ({
   task,
   onUpdate,
   onDelete,
+  onEditClick,
   teamMembers = [],
   priorityOptions = [],
   statusOptions = [],
+
 }) => {
   // Get current priority option (used for label + color)
   const currentPriority =
@@ -160,6 +162,14 @@ const TaskCard = ({
           onDelete(task.id)
         
       },
+    },
+    {
+        label: 'Edit',
+        value: 'edit',
+        onSelect: () => {
+            onEditClick(task.id)
+
+        },
     },
   ]
 

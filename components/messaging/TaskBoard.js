@@ -510,6 +510,9 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
                       teamMembers={teamMembers}
                       priorityOptions={priorityOptions}
                       statusOptions={statusOptions}
+                      onEditClick={()=>{
+                        setSelectedTask(task)
+                      }}
                     />
                   ))}
                 </div>
