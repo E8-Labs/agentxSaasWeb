@@ -34,7 +34,6 @@ import { PermissionProvider, usePermission } from '@/contexts/PermissionContext'
 import { TypographyCaption, TypographyH3 } from '@/lib/typography'
 import { ChevronRight, ArrowLeft } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
-import { Input } from '@/components/ui/input'
 import { Checkbox } from '@/components/ui/checkbox'
 import { AuthToken } from '@/components/agency/plan/AuthDetails'
 import {
@@ -50,6 +49,7 @@ import UpgradeModal from '@/constants/UpgradeModal'
 import { useUser } from '@/hooks/redux-hooks'
 import { logout } from '@/utilities/UserUtility'
 import { formatPhoneNumber } from '@/utilities/agentUtilities'
+import { Input } from '@/components/ui/input'
 
 import MoreTeamMembers from '../MoreTeamMembers'
 
@@ -84,7 +84,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
       // #region agent log
       fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'Teams.js:openInvitePopup-effect', message: 'openInvitePopup state changed to true - Modal should open', data: { value: openInvitePopup, url: window.location.href }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'G' }) }).catch(() => { });
       // #endregion
-      
+
       // Load permissions when modal opens for AgentX/AgencySubAccount users
       const userRole = agencyData?.userRole || userLocalData?.userRole
       if ((userRole === 'AgentX' || userRole === 'AgencySubAccount') && permissionContext) {
@@ -217,7 +217,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
         // For pending members, load from TeamModel.permissions
         const pendingPermissions = selectedTeamMemberForPermissions.permissions || []
         console.log('Loading permissions from pending invitation:', pendingPermissions)
-        
+
         pendingPermissions.forEach((perm) => {
           const key = perm.permissionKey || perm.key
           const granted = perm.granted !== undefined ? perm.granted : true
@@ -294,7 +294,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
         // For pending members, load from TeamModel.permissions
         const pendingPermissions = selectedTeamMemberForPermissions.permissions || []
         console.log('Loading subaccount permissions from pending invitation:', pendingPermissions)
-        
+
         pendingPermissions.forEach((perm) => {
           const key = perm.permissionKey || perm.key
           const granted = perm.granted !== undefined ? perm.granted : true
@@ -361,17 +361,17 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
 
     try {
       setExistingSubaccountsListLoading(true)
-      
+
       if (isPending) {
         // For pending members, load from TeamModel.allowedSubaccountIds and selectAllSubaccounts
         const allowedSubaccountIds = selectedTeamMemberForPermissions.allowedSubaccountIds || []
         const selectAllSubaccounts = selectedTeamMemberForPermissions.selectAllSubaccounts || false
-        
+
         console.log('Loading subaccounts from pending invitation:', {
           allowedSubaccountIds,
           selectAllSubaccounts,
         })
-        
+
         setExistingSelectedSubaccountIds(Array.isArray(allowedSubaccountIds) ? allowedSubaccountIds : [])
         setExistingSelectAllSubaccounts(selectAllSubaccounts)
 
@@ -826,7 +826,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
       if (isPending) {
         // For pending members, update via inviteTeamMember API (which handles updating existing pending invitations)
         const isAgency = agencyData?.userRole === 'Agency' || userLocalData?.userRole === 'Agency'
-        
+
         const inviteData = {
           name: selectedTeamMemberForPermissions.name,
           email: selectedTeamMemberForPermissions.email,
@@ -2270,17 +2270,35 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
             >
               <div className="flex flex-row justify-between items-center">
                 {inviteModalStep !== 'initial' ? (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      setInviteModalStep('initial')
-                    }}
-                    className="p-1 hover:bg-gray-100 rounded transition-colors"
-                  >
-                    <ArrowLeft className="w-5 h-5 text-gray-700" />
-                  </button>
+
+                  <div className='flex flex-row items-center gap-2'>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setInviteModalStep('initial')
+                      }}
+                      className="p-1 hover:bg-gray-100 rounded transition-colors"
+                    >
+                      <ArrowLeft className="w-5 h-5 text-gray-700" />
+                    </button>
+                    <div
+                      style={{
+                        fontSize: 24,
+                        fontWeight: '700',
+                        color: '#000',
+                      }}
+                    >
+                      {inviteModalStep === 'agency'
+                        ? (agencyData?.userRole === 'Agency' || userLocalData?.userRole === 'Agency'
+                          ? 'Agency Permission'
+                          : 'Permissions')
+                        : inviteModalStep === 'subaccount'
+                          ? 'Subaccount permission'
+                          : 'Invite Team'}
+                    </div>
+                  </div>
                 ) : (
                   <div className="flex flex-row gap-3">
                     <div
@@ -2308,22 +2326,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                 />
               </div>
 
-              <div
-                style={{
-                  fontSize: 24,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: 20,
-                }}
-              >
-                {inviteModalStep === 'agency' 
-                  ? (agencyData?.userRole === 'Agency' || userLocalData?.userRole === 'Agency' 
-                      ? 'Agency Permission' 
-                      : 'Permissions')
-                  : inviteModalStep === 'subaccount' 
-                    ? 'Subaccount permission' 
-                    : 'Invite Team'}
-              </div>
+
 
 
               {/* Conditional Content Based on Modal Step */}
@@ -2333,9 +2336,9 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                   <div className="pt-5" style={styles.headingStyle}>
                     Name
                   </div>
-                  <input
+                  <Input
                     placeholder="Type here"
-                    className="w-full border mt-2 rounded p-2 outline-none outline-none focus:ring-0"
+                    className="border rounded px-3 py-1 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                     style={styles.inputFieldStyle}
                     value={name}
                     onChange={(e) => {
@@ -2379,9 +2382,9 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                     </div>
                   </div>
 
-                  <input
+                  <Input
                     placeholder="Type here"
-                    className="w-full border rounded mt-2 p-2 focus:ring-0 outline-none"
+                    className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                     style={styles.inputFieldStyle}
                     value={email}
                     onChange={(e) => {
@@ -2414,249 +2417,244 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                     }}
                   />
 
-              <div className="pt-5 flex flex-row items-center justify-between w-full">
-                <div style={styles.headingStyle}>Phone Number</div>
-                {/* Code for error messages */}
-                <div>
-                  <div>
-                    {errorMessage && (
-                      <div
-                        className={`text-red`}
-                        style={{
-                          ...styles.errmsg,
-                          color:
-                            checkPhoneResponse?.status === true
-                              ? 'green'
-                              : 'red',
-                        }}
-                      >
-                        {errorMessage}
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    {checkPhoneLoader && (
-                      <div className={`text-red`} style={{ ...styles.errmsg }}>
-                        {checkPhoneLoader}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-row items-center justify-center gap-2 w-full mt-3">
-                <div className="flex flex-row items-center gap-2 border rounded-lg w-full justify-between pe-4">
-                  <div className="w-full">
-                    <PhoneInput
-                      className="outline-none bg-transparent focus:ring-0"
-                      country="us" // Default country
-                      onlyCountries={['us', 'ca', 'mx', 'au', 'gb']} // Allow US, Canada, Mexico, Australia, and UK
-                      value={phone}
-                      onChange={handlePhoneNumberChange}
-                      // placeholder={locationLoader ? "Loading location ..." : "Enter Number"}
-                      placeholder={'Type here'}
-                      // disabled={loading}
-                      style={{
-                        borderRadius: '7px',
-                        outline: 'none', // Ensure no outline on wrapper
-                        boxShadow: 'none', // Remove any shadow
-                      }}
-                      inputStyle={{
-                        width: '100%',
-                        borderWidth: '0px',
-                        backgroundColor: 'transparent',
-                        paddingLeft: '60px',
-                        paddingTop: '12px',
-                        paddingBottom: '12px',
-                        fontSize: 15,
-                        fontWeight: '500',
-                        height: '50px',
-                        outline: 'none', // Remove outline on input
-                        boxShadow: 'none', // Remove shadow as well
-                      }}
-                      buttonStyle={{
-                        border: 'none',
-                        backgroundColor: 'transparent',
-                        outline: 'none', // Ensure no outline on button
-                      }}
-                      dropdownStyle={{
-                        maxHeight: '150px',
-                        overflowY: 'auto',
-                      }}
-                      countryCodeEditable={true}
-                    // defaultMask={locationLoader ? "Loading..." : undefined}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Permission Sections - Show for Agency, AgentX, and AgencySubAccount users */}
-              {(agencyData?.userRole === 'Agency' || 
-                userLocalData?.userRole === 'Agency' ||
-                agencyData?.userRole === 'AgentX' ||
-                userLocalData?.userRole === 'AgentX' ||
-                agencyData?.userRole === 'AgencySubAccount' ||
-                userLocalData?.userRole === 'AgencySubAccount') && (
-                <div className="mt-6 space-y-2">
-                  <div className="text-sm font-medium text-gray-700">Permissions</div>
-                  <div className="space-y-1">
-                    {/* For Agency users, show both Agency and Subaccount sections */}
-                    {(agencyData?.userRole === 'Agency' || userLocalData?.userRole === 'Agency') && (
-                      <>
-                        <div
-                          className="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            setInviteModalStep('agency')
-                            // Load permissions if not already loaded
-                            if (agencyPermissions.length === 0) {
-                              loadAgencyPermissions()
-                            }
-                          }}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-gray-900">Agency</span>
-                            {agencyPermissionsCount > 0 && (
-                              <span
-                                className="text-xs font-medium px-2 py-0.5 rounded-full"
-                                style={{
-                                  backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
-                                  color: 'hsl(var(--brand-primary))',
-                                }}
-                              >
-                                {agencyPermissionsCount}
-                              </span>
-                            )}
+                  <div className="pt-5 flex flex-row items-center justify-between w-full">
+                    <div style={styles.headingStyle}>Phone Number</div>
+                    {/* Code for error messages */}
+                    <div>
+                      <div>
+                        {errorMessage && (
+                          <div
+                            className={`text-red`}
+                            style={{
+                              ...styles.errmsg,
+                              color:
+                                checkPhoneResponse?.status === true
+                                  ? 'green'
+                                  : 'red',
+                            }}
+                          >
+                            {errorMessage}
                           </div>
-                          <ChevronRight className="w-5 h-5 text-gray-400" />
-                        </div>
-                        <div
-                          className="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            e.stopPropagation()
-                            setInviteModalStep('subaccount')
-                            // Load permissions if not already loaded
-                            if (subaccountPermissions.length === 0) {
-                              loadSubaccountPermissions()
-                            }
-                          }}
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-gray-900">Subaccount</span>
-                            {subaccountPermissionsCount > 0 && (
-                              <span
-                                className="text-xs font-medium px-2 py-0.5 rounded-full"
-                                style={{
-                                  backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
-                                  color: 'hsl(var(--brand-primary))',
-                                }}
-                              >
-                                {subaccountPermissionsCount}
-                              </span>
-                            )}
+                        )}
+                      </div>
+                      <div>
+                        {checkPhoneLoader && (
+                          <div className={`text-red`} style={{ ...styles.errmsg }}>
+                            {checkPhoneLoader}
                           </div>
-                          <ChevronRight className="w-5 h-5 text-gray-400" />
-                        </div>
-                      </>
-                    )}
-                    {/* For AgentX and AgencySubAccount users, show single Permissions section */}
-                    {(agencyData?.userRole === 'AgentX' ||
-                      userLocalData?.userRole === 'AgentX' ||
-                      agencyData?.userRole === 'AgencySubAccount' ||
-                      userLocalData?.userRole === 'AgencySubAccount') && (
-                      <div
-                        className="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          setInviteModalStep('agency') // Use 'agency' step for AgentX/AgencySubAccount permissions
-                          // Load permissions if not already loaded
-                          if (agencyPermissions.length === 0) {
-                            loadAgencyPermissions()
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex flex-row items-center justify-center gap-2 w-full mt-3">
+                    <div className="flex flex-row items-center gap-2 w-full justify-between">
+                      <div className="w-full">
+                        <PhoneInput
+                          // ref={(el) => (inputsFields.current[2] = el)}
+                          containerClass="phone-input-container"
+                          className="outline-none bg-white focus:ring-0"
+                          country={'us'} // Default country
+                          onlyCountries={['us', 'ca', 'mx']} // Allow US and Canada only
+                          disableDropdown={false} // Enable dropdown to switch between US/CA
+                          countryCodeEditable={false}
+                          disableCountryCode={false}
+                          value={phone}
+                          onChange={handlePhoneNumberChange}
+                          placeholder={
+                            'Enter Phone Number'
                           }
-                        }}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-900">Permissions</span>
-                          {agencyPermissionsCount > 0 && (
-                            <span
-                              className="text-xs font-medium px-2 py-0.5 rounded-full"
-                              style={{
-                                backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
-                                color: 'hsl(var(--brand-primary))',
-                              }}
-                            >
-                              {agencyPermissionsCount}
-                            </span>
+                          // disabled={loading} // Disable input if still loading
+                          style={{
+                            borderRadius: '7px',
+                            border: '1px solid #00000020',
+                            outline: 'none',
+                            boxShadow: 'none',
+                          }}
+                          inputStyle={{
+                            width: '100%',
+                            borderWidth: '0px',
+                            backgroundColor: 'transparent',
+                            paddingLeft: '60px',
+                            paddingTop: '20px',
+                            paddingBottom: '20px',
+                            outline: 'none',
+                            boxShadow: 'none',
+                          }}
+                          buttonStyle={{
+                            border: 'none',
+                            backgroundColor: 'transparent',
+                            // display: 'flex',
+                            // alignItems: 'center',
+                            // justifyContent: 'center',
+                          }}
+                          dropdownStyle={{
+                            maxHeight: '150px',
+                            overflowY: 'auto',
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === 'Done') {
+                              // inputsFields.current[3]?.focus() // Move to the second input
+                            }
+                          }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Permission Sections - Show for Agency, AgentX, and AgencySubAccount users */}
+                  {(agencyData?.userRole === 'Agency' ||
+                    userLocalData?.userRole === 'Agency' ||
+                    agencyData?.userRole === 'AgentX' ||
+                    userLocalData?.userRole === 'AgentX' ||
+                    agencyData?.userRole === 'AgencySubAccount' ||
+                    userLocalData?.userRole === 'AgencySubAccount') && (
+                      <div className="mt-6 space-y-2">
+                        <div className="text-sm font-medium text-gray-700">Permissions</div>
+                        <div className="space-y-1">
+                          {/* For Agency users, show both Agency and Subaccount sections */}
+                          {(agencyData?.userRole === 'Agency' || userLocalData?.userRole === 'Agency') && (
+                            <>
+                              <div
+                                className="flex items-center justify-between py-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                  setInviteModalStep('agency')
+                                  // Load permissions if not already loaded
+                                  if (agencyPermissions.length === 0) {
+                                    loadAgencyPermissions()
+                                  }
+                                }}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium text-gray-900">Agency</span>
+                                  {agencyPermissionsCount > 0 && (
+                                    <span
+                                      className="text-xs font-medium px-2 py-0.5 rounded-full"
+                                      style={{
+                                        backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                        color: 'hsl(var(--brand-primary))',
+                                      }}
+                                    >
+                                      {agencyPermissionsCount}
+                                    </span>
+                                  )}
+                                </div>
+                                <ChevronRight className="w-5 h-5 text-gray-400" />
+                              </div>
+                              <div
+                                className="flex items-center justify-between py-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                  setInviteModalStep('subaccount')
+                                  // Load permissions if not already loaded
+                                  if (subaccountPermissions.length === 0) {
+                                    loadSubaccountPermissions()
+                                  }
+                                }}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium text-gray-900">Subaccount</span>
+                                  {subaccountPermissionsCount > 0 && (
+                                    <span
+                                      className="text-xs font-medium px-2 py-0.5 rounded-full"
+                                      style={{
+                                        backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                        color: 'hsl(var(--brand-primary))',
+                                      }}
+                                    >
+                                      {subaccountPermissionsCount}
+                                    </span>
+                                  )}
+                                </div>
+                                <ChevronRight className="w-5 h-5 text-gray-400" />
+                              </div>
+                            </>
                           )}
+                          {/* For AgentX and AgencySubAccount users, show single Permissions section */}
+                          {(agencyData?.userRole === 'AgentX' ||
+                            userLocalData?.userRole === 'AgentX' ||
+                            agencyData?.userRole === 'AgencySubAccount' ||
+                            userLocalData?.userRole === 'AgencySubAccount') && (
+                              <div
+                                className="flex items-center justify-between py-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  e.stopPropagation()
+                                  setInviteModalStep('agency') // Use 'agency' step for AgentX/AgencySubAccount permissions
+                                  // Load permissions if not already loaded
+                                  if (agencyPermissions.length === 0) {
+                                    loadAgencyPermissions()
+                                  }
+                                }}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-medium text-gray-900">Permissions</span>
+                                  {agencyPermissionsCount > 0 && (
+                                    <span
+                                      className="text-xs font-medium px-2 py-0.5 rounded-full"
+                                      style={{
+                                        backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                        color: 'hsl(var(--brand-primary))',
+                                      }}
+                                    >
+                                      {agencyPermissionsCount}
+                                    </span>
+                                  )}
+                                </div>
+                                <ChevronRight className="w-5 h-5 text-gray-400" />
+                              </div>
+                            )}
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-400" />
                       </div>
                     )}
-                  </div>
-                </div>
-              )}
 
-              {inviteTeamLoader ? (
-                <div className="flex flex-col items-center p-5">
-                  <CircularProgress size={30} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                </div>
-              ) : (
-                <button
-                  style={{
-                    marginTop: 20,
-                    backgroundColor:
-                      inviteModalStep === 'initial' && (
-                        !name ||
-                        !email ||
-                        !phone ||
-                        emailCheckResponse?.status !== true ||
-                        checkPhoneResponse?.status !== true
-                      )
-                        ? '#00000020'
-                        : '',
-                  }}
-                  className="w-full flex bg-brand-primary p-3 rounded-lg items-center justify-center"
-                  onClick={() => {
-                    // If on permission views (agency or subaccount), save permissions and go back to initial
-                    if (inviteModalStep === 'agency' || inviteModalStep === 'subaccount') {
-                      // Collect permissions from all steps and save them
-                      const allPermissions = collectAllPermissions()
-                      const permissionsToSend = allPermissions.length > 0 ? allPermissions : null
-                      setSelectedInvitationPermissions(permissionsToSend)
-                      setInviteModalStep('initial')
-                      return
-                    }
+                  {inviteTeamLoader ? (
+                    <div className="flex flex-col items-center p-5">
+                      <CircularProgress size={30} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                    </div>
+                  ) : (
+                    <button
+                      style={{
+                        marginTop: 20,
+                        backgroundColor:
+                          inviteModalStep === 'initial' && (
+                            !name ||
+                            !email ||
+                            !phone ||
+                            emailCheckResponse?.status !== true ||
+                            checkPhoneResponse?.status !== true
+                          )
+                            ? '#00000020'
+                            : '',
+                      }}
+                      className="w-full flex bg-brand-primary py-3 rounded-lg items-center justify-center"
+                      onClick={() => {
+                        // If on permission views (agency or subaccount), save permissions and go back to initial
+                        if (inviteModalStep === 'agency' || inviteModalStep === 'subaccount') {
+                          // Collect permissions from all steps and save them
+                          const allPermissions = collectAllPermissions()
+                          const permissionsToSend = allPermissions.length > 0 ? allPermissions : null
+                          setSelectedInvitationPermissions(permissionsToSend)
+                          setInviteModalStep('initial')
+                          return
+                        }
 
-                    // Collect permissions from all steps
-                    const allPermissions = collectAllPermissions()
-                    const permissionsToSend = allPermissions.length > 0 ? allPermissions : null
-                    setSelectedInvitationPermissions(permissionsToSend)
+                        // Collect permissions from all steps
+                        const allPermissions = collectAllPermissions()
+                        const permissionsToSend = allPermissions.length > 0 ? allPermissions : null
+                        setSelectedInvitationPermissions(permissionsToSend)
 
-                    let data = {
-                      name: name,
-                      email: email,
-                      phone: phone,
-                    }
-                    // Pass permissions and subaccount IDs directly to avoid race condition
-                    inviteTeamMember(data, permissionsToSend, selectedSubaccountIds)
-                  }}
-                  disabled={
-                    inviteModalStep === 'initial' && (
-                      !name ||
-                      !email ||
-                      !phone ||
-                      emailCheckResponse?.status !== true ||
-                      checkPhoneResponse?.status !== true
-                    )
-                  }
-                >
-                  <div
-                    style={{
-                      fontSize: 16,
-                      fontWeight: '500',
-                      color:
+                        let data = {
+                          name: name,
+                          email: email,
+                          phone: phone,
+                        }
+                        // Pass permissions and subaccount IDs directly to avoid race condition
+                        inviteTeamMember(data, permissionsToSend, selectedSubaccountIds)
+                      }}
+                      disabled={
                         inviteModalStep === 'initial' && (
                           !name ||
                           !email ||
@@ -2664,18 +2662,32 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                           emailCheckResponse?.status !== true ||
                           checkPhoneResponse?.status !== true
                         )
-                          ? '#000000'
-                          : '#ffffff',
-                    }}
-                  >
-                    {inviteModalStep === 'agency' || inviteModalStep === 'subaccount'
-                      ? 'Apply Changes'
-                      : agencyData?.sellSeats || userLocalData?.sellSeats
-                        ? `Add Team $${userLocalData.costPerSeat}/mo`
-                        : 'Send Invite'}
-                  </div>
-                </button>
-              )}
+                      }
+                    >
+                      <div
+                        style={{
+                          fontSize: 16,
+                          fontWeight: '500',
+                          color:
+                            inviteModalStep === 'initial' && (
+                              !name ||
+                              !email ||
+                              !phone ||
+                              emailCheckResponse?.status !== true ||
+                              checkPhoneResponse?.status !== true
+                            )
+                              ? '#000000'
+                              : '#ffffff',
+                        }}
+                      >
+                        {inviteModalStep === 'agency' || inviteModalStep === 'subaccount'
+                          ? 'Apply Changes'
+                          : agencyData?.sellSeats || userLocalData?.sellSeats
+                            ? `Add Team $${userLocalData.costPerSeat}/mo`
+                            : 'Send Invite'}
+                      </div>
+                    </button>
+                  )}
                 </>
               )}
 
@@ -2803,7 +2815,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                           setHasMoreSubaccountsList(true)
                           loadSubaccountsList(0, value)
                         }}
-                        className="border-2 border-[#00000020] rounded p-3 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black w-full"
+                        className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                       />
                       <div className={`max-h-[200px] overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-1 ${selectAllSubaccounts ? 'opacity-50' : ''}`}>
                         {selectAllSubaccounts ? (
@@ -3000,27 +3012,31 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
               }}
             >
               <div className="flex flex-row justify-between items-center">
-                {managePermissionModalStep !== 'initial' ? (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      setManagePermissionModalStep('initial')
-                    }}
-                    className="p-1 hover:bg-gray-100 rounded transition-colors"
-                  >
-                    <ArrowLeft className="w-5 h-5 text-gray-700" />
-                  </button>
-                ) : (
-                  <div className="flex flex-row gap-3">
-                    <div
-                      style={{ fontSize: 16, fontWeight: '500', color: '#000' }}
+                <div className='flex flex-row items-center gap-2'>
+                  {managePermissionModalStep !== 'initial' && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        setManagePermissionModalStep('initial')
+                      }}
+                      className="p-1 hover:bg-gray-100 rounded transition-colors"
                     >
-                      Manage Permissions
-                    </div>
+                      <ArrowLeft className="w-5 h-5 text-gray-700" />
+                    </button>
+                  )}
+
+                  <div
+                    style={{
+                      fontSize: 24,
+                      fontWeight: '700',
+                      color: '#000',
+                    }}
+                  >
+                    {managePermissionModalStep === 'agency' ? 'Agency Permission' : managePermissionModalStep === 'subaccount' ? 'Subaccount permission' : 'Manage Permissions'}
                   </div>
-                )}
+                </div>
                 <CloseBtn
                   onClick={() => {
                     setShowPermissionModal(false)
@@ -3031,16 +3047,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                 />
               </div>
 
-              <div
-                style={{
-                  fontSize: 24,
-                  fontWeight: '700',
-                  color: '#000',
-                  marginTop: 20,
-                }}
-              >
-                {managePermissionModalStep === 'agency' ? 'Agency Permission' : managePermissionModalStep === 'subaccount' ? 'Subaccount permission' : 'Manage Permissions'}
-              </div>
+
 
               {/* Initial View */}
               {managePermissionModalStep === 'initial' && (
@@ -3113,34 +3120,34 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                       userLocalData?.userRole === 'AgentX' ||
                       agencyData?.userRole === 'AgencySubAccount' ||
                       userLocalData?.userRole === 'AgencySubAccount') && (
-                      <div
-                        className="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          setManagePermissionModalStep('agency')
-                          if (existingAgencyPermissions.length === 0) {
-                            loadExistingAgencyPermissions()
-                          }
-                        }}
-                      >
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-gray-900">Permissions</span>
-                          {existingAgencyPermissionsCount > 0 && (
-                            <span
-                              className="text-xs font-medium px-2 py-0.5 rounded-full"
-                              style={{
-                                backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
-                                color: 'hsl(var(--brand-primary))',
-                              }}
-                            >
-                              {existingAgencyPermissionsCount}
-                            </span>
-                          )}
+                        <div
+                          className="flex items-center justify-between p-3 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                          onClick={(e) => {
+                            e.preventDefault()
+                            e.stopPropagation()
+                            setManagePermissionModalStep('agency')
+                            if (existingAgencyPermissions.length === 0) {
+                              loadExistingAgencyPermissions()
+                            }
+                          }}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-gray-900">Permissions</span>
+                            {existingAgencyPermissionsCount > 0 && (
+                              <span
+                                className="text-xs font-medium px-2 py-0.5 rounded-full"
+                                style={{
+                                  backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                  color: 'hsl(var(--brand-primary))',
+                                }}
+                              >
+                                {existingAgencyPermissionsCount}
+                              </span>
+                            )}
+                          </div>
+                          <ChevronRight className="w-5 h-5 text-gray-400" />
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-400" />
-                      </div>
-                    )}
+                      )}
                   </div>
                 </div>
               )}
@@ -3267,7 +3274,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                           setHasMoreExistingSubaccountsList(true)
                           loadExistingSubaccountsList(0, value)
                         }}
-                        className="border-2 border-[#00000020] rounded p-3 outline-none focus:outline-none focus:ring-0 focus:border-black focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-black w-full"
+                        className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
                       />
                       <div className={`max-h-[200px] overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-1 ${existingSelectAllSubaccounts ? 'opacity-50' : ''}`}>
                         {existingSelectAllSubaccounts ? (
@@ -3436,7 +3443,7 @@ const styles = {
     fontWeight: '500',
     // marginTop: 10,
     border: '1px solid #00000010',
-    height: '50px',
+    height: '42px',
   },
   errmsg: {
     fontSize: 12,

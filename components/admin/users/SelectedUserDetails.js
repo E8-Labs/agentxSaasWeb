@@ -410,26 +410,10 @@ function SelectedUserDetails({
   }
 
   const handleManuClick = (item) => {
-    console.log('item', item)
-
-    // When viewing from agency, check permission before allowing navigation
-    if (enablePermissionChecks && selectedUser?.id) {
-      const menuItem = allMenuItems.find(m => m.id === item.id)
-      // Account menu doesn't have permissionKey, so allow it
-      if (menuItem?.permissionKey || item.name === 'Account') {
-        // Only allow if item is in accessibleMenuItems
-        if (accessibleMenuItems.some(accessibleItem => accessibleItem.id === item.id)) {
-          setSelectedManu(item)
-          storeTabState(item.name)
-        }
-      } else {
-        setSelectedManu(item)
-        storeTabState(item.name)
-      }
-    } else {
+    console.log('item', item)  
       setSelectedManu(item)
       storeTabState(item.name)
-    }
+    
   }
 
   const handleAddMinutes = async () => {
