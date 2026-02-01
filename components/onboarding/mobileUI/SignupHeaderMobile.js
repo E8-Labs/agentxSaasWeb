@@ -13,28 +13,36 @@ function SignupHeaderMobile({
     useEffect(() => {
         if (typeof window === 'undefined') return
 
-        // Check localStorage for agency branding
-        try {
-          
-            const userData = localStorage.getItem('User')
-            if (userData) {
-                const parsedUser = JSON.parse(userData)
-                if (parsedUser?.user?.agencyBranding) {
+        // Resolution order: cookie (middleware) → localStorage
+        const getCookie = (name) => {
+            const value = `; ${document.cookie}`
+            const parts = value.split(`; ${name}=`)
+            if (parts.length === 2) return parts.pop().split(';').shift()
+            return null
+        }
 
-                    setHasBranding(true)
-                    setAgencyLogoUrl(parsedUser.user.agencyBranding.logoUrl)
-                }
-                else if (parsedUser?.agencyBranding) {
-                    setHasBranding(true)
-                    setAgencyLogoUrl(parsedUser.agencyBranding.logoUrl)
-                }else {
-                    setHasBranding(false)
-                    setAgencyLogoUrl(null)
+        try {
+            let brandingData = null
+            const brandingCookie = getCookie('agencyBranding')
+            if (brandingCookie) {
+                try {
+                    brandingData = JSON.parse(decodeURIComponent(brandingCookie))
+                } catch (e) {}
+            }
+            if (!brandingData) {
+                const storedBranding = localStorage.getItem('agencyBranding')
+                if (storedBranding) {
+                    try {
+                        brandingData = JSON.parse(storedBranding)
+                    } catch (e) {}
                 }
             }
-        } catch (e) {
-            // Ignore errors
-        }
+            if (brandingData && brandingData.primaryColor) {
+                setHasBranding(true)
+                setAgencyLogoUrl(brandingData.logoUrl || null)
+                return
+            }
+        } catch (e) {}
 
        
     }, [])
