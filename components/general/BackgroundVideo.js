@@ -88,16 +88,33 @@ export default function BackgroundVideo({
                                  !isProdDomain && 
                                  !isLocalhost
       
-      // Check if branding exists in localStorage
-      const branding = localStorage.getItem('agencyBranding')
-      if (branding) {
+      // Check branding from cookie first (middleware sets this), then localStorage
+      const getCookie = (name) => {
+        const value = `; ${document.cookie}`
+        const parts = value.split(`; ${name}=`)
+        if (parts.length === 2) return parts.pop().split(';').shift()
+        return null
+      }
+      
+      let brandingData = null
+      const brandingCookie = getCookie('agencyBranding')
+      if (brandingCookie) {
         try {
-          const brandingData = JSON.parse(branding)
-          // If on custom domain or subdomain and branding exists, use branding background
-          if ((isCustomDomain || isAssignxSubdomain) && brandingData?.primaryColor) {
-            return true
-          }
+          brandingData = JSON.parse(decodeURIComponent(brandingCookie))
         } catch (error) {}
+      }
+      if (!brandingData) {
+        const branding = localStorage.getItem('agencyBranding')
+        if (branding) {
+          try {
+            brandingData = JSON.parse(branding)
+          } catch (error) {}
+        }
+      }
+      
+      // If on custom domain or subdomain and branding exists, use branding background
+      if ((isCustomDomain || isAssignxSubdomain) && brandingData?.primaryColor) {
+        return true
       }
       return false
     }
@@ -195,15 +212,33 @@ export default function BackgroundVideo({
                                  !isProdDomain && 
                                  !isLocalhost
 
-      const branding = localStorage.getItem('agencyBranding')
-      let hasBranding = false
-      if (branding) {
+      // Check branding from cookie first (middleware sets this), then localStorage
+      const getCookie = (name) => {
+        const value = `; ${document.cookie}`
+        const parts = value.split(`; ${name}=`)
+        if (parts.length === 2) return parts.pop().split(';').shift()
+        return null
+      }
+      
+      let brandingData = null
+      const brandingCookie = getCookie('agencyBranding')
+      if (brandingCookie) {
         try {
-          const brandingData = JSON.parse(branding)
-          if ((isCustomDomain || isAssignxSubdomain) && brandingData?.primaryColor) {
-            hasBranding = true
-          }
+          brandingData = JSON.parse(decodeURIComponent(brandingCookie))
         } catch (error) {}
+      }
+      if (!brandingData) {
+        const branding = localStorage.getItem('agencyBranding')
+        if (branding) {
+          try {
+            brandingData = JSON.parse(branding)
+          } catch (error) {}
+        }
+      }
+      
+      let hasBranding = false
+      if ((isCustomDomain || isAssignxSubdomain) && brandingData?.primaryColor) {
+        hasBranding = true
       }
 
       // Get brand color

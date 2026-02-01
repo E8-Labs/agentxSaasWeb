@@ -20,6 +20,7 @@ const AppLogo = ({
   alt = 'logo',
 }) => {
   const [logoUrl, setLogoUrl] = useState(null)
+  const [companyName, setCompanyName] = useState(null)
   // Initialize isAssignxDomain based on current hostname (if available)
   const [isAssignxDomain, setIsAssignxDomain] = useState(() => {
     if (typeof window === 'undefined') return true
@@ -150,6 +151,7 @@ const AppLogo = ({
             if (lookupData.status && lookupData.data?.branding) {
               const freshBranding = lookupData.data.branding
               setLogoUrl(freshBranding?.logoUrl || null)
+              setCompanyName(freshBranding?.companyName || null)
               localStorage.setItem(
                 'agencyBranding',
                 JSON.stringify(freshBranding),
@@ -203,6 +205,7 @@ const AppLogo = ({
                   if (data?.status === true && data?.data?.branding) {
                     const freshBranding = data.data.branding
                     setLogoUrl(freshBranding?.logoUrl || null)
+                    setCompanyName(freshBranding?.companyName || null)
                     localStorage.setItem(
                       'agencyBranding',
                       JSON.stringify(freshBranding),
@@ -235,6 +238,7 @@ const AppLogo = ({
     if (branding) {
       // We have branding from cookie / localStorage / User – resolve immediately
       setLogoUrl(branding?.logoUrl || null)
+      setCompanyName(branding?.companyName || null)
       setBrandingResolved(true)
     } else if (isCustomDomain || isSubaccount || isAgencyCreatingForSubaccount) {
       // No sync branding – fetch from API; fetchBrandingFromAPI will setBrandingResolved(true) when done
@@ -250,6 +254,7 @@ const AppLogo = ({
       const updatedBranding = event.detail?.branding ?? event.detail
       if (updatedBranding && typeof updatedBranding === 'object') {
         setLogoUrl(updatedBranding.logoUrl || null)
+        setCompanyName(updatedBranding.companyName || null)
         setBrandingResolved(true)
       } else {
         const retryCookie = getCookie('agencyBranding')
@@ -262,6 +267,7 @@ const AppLogo = ({
           if (stored) try { b = JSON.parse(stored) } catch (e) {}
         }
         setLogoUrl(b?.logoUrl || null)
+        setCompanyName(b?.companyName || null)
         setBrandingResolved(true)
       }
     }
@@ -303,27 +309,66 @@ const AppLogo = ({
     )
   }
 
-  // Resolved: show agency logo if we have logoUrl, else AssignX
-  const logoSrc = logoUrl || '/assets/assignX.png'
-  const imageWidth = logoUrl ? (maxWidth || 200) : width
-  const logoStyle = {
-    height: `${height}px`,
-    width: logoUrl ? 'auto' : `${width}px`,
-    maxWidth: maxWidth ? `${maxWidth}px` : logoUrl ? '200px' : undefined,
-    resize: 'contain',
-    objectFit: 'contain',
-    ...style,
+  // On custom domain with branding: show agency logo if exists, else company name as text
+  if (isCustomDomain && brandingResolved) {
+    if (logoUrl) {
+      // Has logo - show logo image
+      return (
+        <Image
+          className={className}
+          src={logoUrl}
+          alt={companyName || alt}
+          height={height}
+          width={maxWidth || 200}
+          style={{
+            height: `${height}px`,
+            width: 'auto',
+            maxWidth: maxWidth ? `${maxWidth}px` : '200px',
+            objectFit: 'contain',
+            ...style,
+          }}
+          unoptimized={true}
+        />
+      )
+    } else if (companyName) {
+      // No logo but has company name - show company name as text
+      return (
+        <div
+          className={className}
+          style={{
+            height: `${height}px`,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            fontWeight: 600,
+            fontSize: `${Math.min(height * 0.7, 24)}px`,
+            color: 'var(--brand-primary, #7902DF)',
+            ...style,
+          }}
+        >
+          {companyName}
+        </div>
+      )
+    }
+    // No logo and no company name - fall back to AssignX (shouldn't normally happen on custom domain)
   }
 
+  // Default: show AssignX logo (for assignx domains or when no branding)
   return (
     <Image
       className={className}
-      src={logoSrc}
+      src="/assets/assignX.png"
       alt={alt}
       height={height}
-      width={imageWidth}
-      style={logoStyle}
-      unoptimized={logoUrl ? true : false}
+      width={width}
+      style={{
+        height: `${height}px`,
+        width: `${width}px`,
+        maxWidth: maxWidth ? `${maxWidth}px` : undefined,
+        objectFit: 'contain',
+        ...style,
+      }}
+      unoptimized={false}
     />
   )
 }
