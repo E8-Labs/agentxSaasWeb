@@ -21,6 +21,8 @@ const AppLogo = ({
 }) => {
   const [logoUrl, setLogoUrl] = useState(null)
   const [isAssignxDomain, setIsAssignxDomain] = useState(true)
+  // On custom domain: don't show AssignX until branding is resolved (cookie → localStorage → API)
+  const [brandingResolved, setBrandingResolved] = useState(false)
 
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -65,11 +67,8 @@ const AppLogo = ({
     //   return
     // }
 
-    // For custom domains OR subaccounts on assignx.ai domains, check agency branding
+    // Resolution order: cookie (middleware) → localStorage → User (subaccounts)
     const getCookie = (name) => {
-      if(name === 'agencyBranding') {
-        return null
-      }
       const value = `; ${document.cookie}`
       const parts = value.split(`; ${name}=`)
       if (parts.length === 2) return parts.pop().split(';').shift()
@@ -78,17 +77,15 @@ const AppLogo = ({
 
     let branding = null
 
-    // Try to get agency branding from cookie (set by middleware)
-    // const brandingCookie = getCookie('agencyBranding')
-    // if (brandingCookie) {
-    //   try {
-    //     branding = JSON.parse(decodeURIComponent(brandingCookie))
-    //   } catch (error) {
-    //     console.log('Error parsing agencyBranding cookie:', error)
-    //   }
-    // }
+    // 1) Cookie first (set by middleware on custom domain / subdomain)
+    const brandingCookie = getCookie('agencyBranding')
+    if (brandingCookie) {
+      try {
+        branding = JSON.parse(decodeURIComponent(brandingCookie))
+      } catch (error) {}
+    }
 
-    // Fallback to localStorage
+    // 2) localStorage
     if (!branding) {
       const storedBranding = localStorage.getItem('agencyBranding')
       if (storedBranding) {
@@ -98,33 +95,15 @@ const AppLogo = ({
       }
     }
 
-    // Additional fallback: Check user data for agencyBranding (for subaccounts)
-    if ( isSubaccount) {
+    // 3) User data for agencyBranding (subaccounts)
+    if (isSubaccount && !branding) {
       try {
         const userData = localStorage.getItem('User')
         if (userData) {
           const parsedUser = JSON.parse(userData)
-          // Check multiple possible locations for agencyBranding
-          if (parsedUser?.user?.agencyBranding) {
-            branding = parsedUser.user.agencyBranding
-          } else if (parsedUser?.agencyBranding) {
-            branding = parsedUser.agencyBranding
-          } else if (parsedUser?.user?.agency?.agencyBranding) {
-            branding = parsedUser.user.agency.agencyBranding
-          }
-        }
-      } catch (error) {}
-    }
-
-    // Additional fallback: If agency is creating agent for subaccount, fetch subaccount's agency branding
-    if (!branding && isAgencyCreatingForSubaccount && subaccountData) {
-      try {
-        // The subaccountData should have agencyId or we can fetch it
-        // For now, try to get branding from the subaccount's user data if available
-        // Or fetch it via API using the subaccount's agencyId
-        if (subaccountData.agencyId) {
-          // We'll fetch branding via API in the fetchBrandingFromAPI function
-          // This will be handled below
+          if (parsedUser?.user?.agencyBranding) branding = parsedUser.user.agencyBranding
+          else if (parsedUser?.agencyBranding) branding = parsedUser.agencyBranding
+          else if (parsedUser?.user?.agency?.agencyBranding) branding = parsedUser.user.agency.agencyBranding
         }
       } catch (error) {}
     }
@@ -165,21 +144,17 @@ const AppLogo = ({
             const lookupData = await lookupResponse.json()
             if (lookupData.status && lookupData.data?.branding) {
               const freshBranding = lookupData.data.branding
-              if (freshBranding?.logoUrl) {
-                setLogoUrl(freshBranding.logoUrl)
-                // Update localStorage and cookie with fresh data
-                localStorage.setItem(
-                  'agencyBranding',
-                  JSON.stringify(freshBranding),
-                )
-                const cookieValue = encodeURIComponent(
-                  JSON.stringify(freshBranding),
-                )
-                // document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
-                return
-              }
+              setLogoUrl(freshBranding?.logoUrl || null)
+              localStorage.setItem(
+                'agencyBranding',
+                JSON.stringify(freshBranding),
+              )
+              setBrandingResolved(true)
+              return
             }
           }
+          setBrandingResolved(true)
+          return
         } catch (fetchError) {
           clearTimeout(timeoutId)
           // Silently handle CORS errors and network failures - don't block the page
@@ -222,19 +197,13 @@ const AppLogo = ({
                   const data = await response.json()
                   if (data?.status === true && data?.data?.branding) {
                     const freshBranding = data.data.branding
-                    if (freshBranding?.logoUrl) {
-                      setLogoUrl(freshBranding.logoUrl)
-                      // Update localStorage and cookie with fresh data
-                      localStorage.setItem(
-                        'agencyBranding',
-                        JSON.stringify(freshBranding),
-                      )
-                      const cookieValue = encodeURIComponent(
-                        JSON.stringify(freshBranding),
-                      )
-                      // document.cookie = `agencyBranding=${cookieValue}; path=/; max-age=${60 * 60 * 24}`
-                      return
-                    }
+                    setLogoUrl(freshBranding?.logoUrl || null)
+                    localStorage.setItem(
+                      'agencyBranding',
+                      JSON.stringify(freshBranding),
+                    )
+                    setBrandingResolved(true)
+                    return
                   }
                 }
               } catch (fallbackError) {
@@ -249,76 +218,46 @@ const AppLogo = ({
             }
           }
         }
+        setBrandingResolved(true)
       } catch (error) {
-        // Silently handle all errors - don't block the page
         console.warn('[AppLogo] Error fetching branding from API - continuing without custom logo:', error)
+        setBrandingResolved(true)
       }
     }
 
-    // For custom domains or subaccounts or agency creating for subaccount, fetch from API if branding not found
     const isCustomDomain = !isAssignx
-    if (!branding && (isCustomDomain || isSubaccount || isAgencyCreatingForSubaccount)) {
-      // Fetch from API immediately
+
+    if (branding) {
+      // We have branding from cookie / localStorage / User – resolve immediately
+      setLogoUrl(branding?.logoUrl || null)
+      setBrandingResolved(true)
+    } else if (isCustomDomain || isSubaccount || isAgencyCreatingForSubaccount) {
+      // No sync branding – fetch from API; fetchBrandingFromAPI will setBrandingResolved(true) when done
       fetchBrandingFromAPI()
     } else {
-      // Set logo URL if branding found
-      if (branding?.logoUrl) {
-        setLogoUrl(branding.logoUrl)
-      } else {
-        // If no agency logo found, use assignx logo (null)
-        setLogoUrl(null)
-      }
+      // Assignx domain, no subaccount – show AssignX
+      setLogoUrl(null)
+      setBrandingResolved(true)
     }
 
-    // Also retry checking cookie after a short delay (in case middleware hasn't set it yet)
-    // This is especially important for custom domains on first load
-    if (!branding && isCustomDomain) {
-      const retryTimeout = setTimeout(() => {
-        const retryCookie = getCookie('agencyBranding')
-        if (retryCookie) {
-          try {
-            const retryBranding = JSON.parse(decodeURIComponent(retryCookie))
-            if (retryBranding?.logoUrl) {
-              setLogoUrl(retryBranding.logoUrl)
-            }
-          } catch (error) {}
-        }
-      }, 300) // Wait 300ms for middleware to set cookie
-
-      return () => clearTimeout(retryTimeout)
-    }
-
-    // Listen for branding updates
+    // Listen for branding updates (event.detail is the branding object)
     const handleBrandingUpdate = (event) => {
-      if (event.detail?.branding) {
-        const updatedBranding = event.detail.branding
-        if (updatedBranding?.logoUrl) {
-          setLogoUrl(updatedBranding.logoUrl)
-        } else {
-          setLogoUrl(null)
-        }
+      const updatedBranding = event.detail?.branding ?? event.detail
+      if (updatedBranding && typeof updatedBranding === 'object') {
+        setLogoUrl(updatedBranding.logoUrl || null)
+        setBrandingResolved(true)
       } else {
-        // Re-check branding sources
         const retryCookie = getCookie('agencyBranding')
-        let updatedBranding = null
+        let b = null
         if (retryCookie) {
-          try {
-            updatedBranding = JSON.parse(decodeURIComponent(retryCookie))
-          } catch (error) {}
+          try { b = JSON.parse(decodeURIComponent(retryCookie)) } catch (e) {}
         }
-        if (!updatedBranding) {
-          const storedBranding = localStorage.getItem('agencyBranding')
-          if (storedBranding) {
-            try {
-              updatedBranding = JSON.parse(storedBranding)
-            } catch (error) {}
-          }
+        if (!b) {
+          const stored = localStorage.getItem('agencyBranding')
+          if (stored) try { b = JSON.parse(stored) } catch (e) {}
         }
-        if (updatedBranding?.logoUrl) {
-          setLogoUrl(updatedBranding.logoUrl)
-        } else {
-          setLogoUrl(null)
-        }
+        setLogoUrl(b?.logoUrl || null)
+        setBrandingResolved(true)
       }
     }
 
@@ -329,10 +268,38 @@ const AppLogo = ({
     }
   }, []) // Empty deps - component will re-mount when route changes, which is sufficient
 
-  // Determine which logo to show
+  // On custom domain: show loading until branding is resolved (never show AssignX before we know)
+  const isCustomDomain = !isAssignxDomain
+  if (isCustomDomain && !brandingResolved) {
+    return (
+      <div
+        className={className}
+        style={{
+          height: `${height}px`,
+          width: `${width}px`,
+          maxWidth: maxWidth ? `${maxWidth}px` : undefined,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          ...style,
+        }}
+        aria-label="Loading logo"
+      >
+        <div
+          className="animate-pulse"
+          style={{
+            height: `${Math.max(16, height - 8)}px`,
+            width: `${Math.min(80, width - 20)}px`,
+            borderRadius: 4,
+            backgroundColor: 'var(--brand-primary, rgba(121,2,223,0.2))',
+          }}
+        />
+      </div>
+    )
+  }
+
+  // Resolved: show agency logo if we have logoUrl, else AssignX
   const logoSrc = logoUrl || '/assets/assignX.png'
-  // For agency logos, use a default width but let style override with 'auto'
-  // For assignx logo, use the provided width
   const imageWidth = logoUrl ? (maxWidth || 200) : width
   const logoStyle = {
     height: `${height}px`,

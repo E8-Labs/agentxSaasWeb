@@ -96,17 +96,31 @@ const Header = ({
         setIsSubaccount(true)
       }
 
-      // Check if agency has branding logo
+      // Check if agency has branding logo: cookie (middleware) → localStorage → user data
       let branding = null
-      const storedBranding = localStorage.getItem('agencyBranding')
-      if (storedBranding) {
+      const getCookie = (name) => {
+        const value = `; ${document.cookie}`
+        const parts = value.split(`; ${name}=`)
+        if (parts.length === 2) return parts.pop().split(';').shift()
+        return null
+      }
+      const brandingCookie = getCookie('agencyBranding')
+      if (brandingCookie) {
         try {
-          branding = JSON.parse(storedBranding)
+          branding = JSON.parse(decodeURIComponent(brandingCookie))
         } catch (error) {}
+      }
+      if (!branding) {
+        const storedBranding = localStorage.getItem('agencyBranding')
+        if (storedBranding) {
+          try {
+            branding = JSON.parse(storedBranding)
+          } catch (error) {}
+        }
       }
 
       // Also check user data for agencyBranding
-      if ( userData) {
+      if (userData && !branding) {
         
         try {
           const parsedUser = JSON.parse(userData)
