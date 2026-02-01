@@ -74,21 +74,31 @@ const AppLogo = ({
     // }
 
     // Resolution order: cookie (middleware) → localStorage → User (subaccounts)
-    const getCookie = (name) => {
-      const value = `; ${document.cookie}`
-      const parts = value.split(`; ${name}=`)
-      if (parts.length === 2) return parts.pop().split(';').shift()
-      return null
-    }
-
     let branding = null
 
     // 1) Cookie first (set by middleware on custom domain / subdomain)
-    const brandingCookie = getCookie('agencyBranding')
-    if (brandingCookie) {
-      try {
-        branding = JSON.parse(decodeURIComponent(brandingCookie))
-      } catch (error) {}
+    // Use same parsing logic as BrandingProvider to handle double-encoding
+    try {
+      const cookies = document.cookie.split(';')
+      const brandingCookie = cookies.find(c => c.trim().startsWith('agencyBranding='))
+      
+      if (brandingCookie) {
+        const value = brandingCookie.split('=')[1]
+        // Cookie may be double-encoded, try decoding twice
+        let decoded = decodeURIComponent(value)
+        try {
+          branding = JSON.parse(decoded)
+        } catch (e) {
+          // If first decode fails, try decoding again (double-encoded)
+          try {
+            branding = JSON.parse(decodeURIComponent(decoded))
+          } catch (e2) {
+            console.warn('[AppLogo] Error parsing branding cookie')
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[AppLogo] Error reading branding cookie:', e)
     }
 
     // 2) localStorage
@@ -163,6 +173,7 @@ const AppLogo = ({
           setBrandingResolved(true)
           return
         } catch (fetchError) {
+          console.warn('[AppLogo] Error fetching branding from API - continuing without custom logo:', fetchError)
           clearTimeout(timeoutId)
           // Silently handle CORS errors and network failures - don't block the page
           if (fetchError.name === 'AbortError') {
@@ -257,11 +268,22 @@ const AppLogo = ({
         setCompanyName(updatedBranding.companyName || null)
         setBrandingResolved(true)
       } else {
-        const retryCookie = getCookie('agencyBranding')
+        // Re-read from cookie with double-decode handling
         let b = null
-        if (retryCookie) {
-          try { b = JSON.parse(decodeURIComponent(retryCookie)) } catch (e) {}
-        }
+        try {
+          const cookies = document.cookie.split(';')
+          const brandingCookie = cookies.find(c => c.trim().startsWith('agencyBranding='))
+          if (brandingCookie) {
+            const value = brandingCookie.split('=')[1]
+            let decoded = decodeURIComponent(value)
+            try {
+              b = JSON.parse(decoded)
+            } catch (e) {
+              try { b = JSON.parse(decodeURIComponent(decoded)) } catch (e2) {}
+            }
+          }
+        } catch (e) {}
+        
         if (!b) {
           const stored = localStorage.getItem('agencyBranding')
           if (stored) try { b = JSON.parse(stored) } catch (e) {}

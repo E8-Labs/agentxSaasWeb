@@ -17,24 +17,31 @@ export default function BackgroundVideo({
     return isCustomDomain
   })
   // Try to get initial gradient color from cookie/localStorage
+  // Use same parsing logic as BrandingProvider to handle double-encoding
   const [gradientColor, setGradientColor] = useState(() => {
     if (typeof window === 'undefined') return 'hsl(270, 75%, 50%)'
     
-    // Try to get primaryColor from cookie
-    const getCookie = (name) => {
-      const value = `; ${document.cookie}`
-      const parts = value.split(`; ${name}=`)
-      if (parts.length === 2) return parts.pop().split(';').shift()
-      return null
-    }
-    
+    // Try to get primaryColor from cookie with double-decode handling
     let brandingData = null
-    const brandingCookie = getCookie('agencyBranding')
-    if (brandingCookie) {
-      try {
-        brandingData = JSON.parse(decodeURIComponent(brandingCookie))
-      } catch (e) {}
-    }
+    try {
+      const cookies = document.cookie.split(';')
+      const brandingCookie = cookies.find(c => c.trim().startsWith('agencyBranding='))
+      
+      if (brandingCookie) {
+        const value = brandingCookie.split('=')[1]
+        // Cookie may be double-encoded, try decoding twice
+        let decoded = decodeURIComponent(value)
+        try {
+          brandingData = JSON.parse(decoded)
+        } catch (e) {
+          // If first decode fails, try decoding again (double-encoded)
+          try {
+            brandingData = JSON.parse(decodeURIComponent(decoded))
+          } catch (e2) {}
+        }
+      }
+    } catch (e) {}
+    
     if (!brandingData) {
       const branding = localStorage.getItem('agencyBranding')
       if (branding) {
@@ -136,20 +143,27 @@ export default function BackgroundVideo({
                                  !isLocalhost
       
       // Check branding from cookie first (middleware sets this), then localStorage
-      const getCookie = (name) => {
-        const value = `; ${document.cookie}`
-        const parts = value.split(`; ${name}=`)
-        if (parts.length === 2) return parts.pop().split(';').shift()
-        return null
-      }
-      
+      // Use same parsing logic as BrandingProvider to handle double-encoding
       let brandingData = null
-      const brandingCookie = getCookie('agencyBranding')
-      if (brandingCookie) {
-        try {
-          brandingData = JSON.parse(decodeURIComponent(brandingCookie))
-        } catch (error) {}
-      }
+      try {
+        const cookies = document.cookie.split(';')
+        const brandingCookie = cookies.find(c => c.trim().startsWith('agencyBranding='))
+        
+        if (brandingCookie) {
+          const value = brandingCookie.split('=')[1]
+          // Cookie may be double-encoded, try decoding twice
+          let decoded = decodeURIComponent(value)
+          try {
+            brandingData = JSON.parse(decoded)
+          } catch (e) {
+            // If first decode fails, try decoding again (double-encoded)
+            try {
+              brandingData = JSON.parse(decodeURIComponent(decoded))
+            } catch (e2) {}
+          }
+        }
+      } catch (e) {}
+      
       if (!brandingData) {
         const branding = localStorage.getItem('agencyBranding')
         if (branding) {
@@ -260,20 +274,27 @@ export default function BackgroundVideo({
                                  !isLocalhost
 
       // Check branding from cookie first (middleware sets this), then localStorage
-      const getCookie = (name) => {
-        const value = `; ${document.cookie}`
-        const parts = value.split(`; ${name}=`)
-        if (parts.length === 2) return parts.pop().split(';').shift()
-        return null
-      }
-      
+      // Use same parsing logic as BrandingProvider to handle double-encoding
       let brandingData = null
-      const brandingCookie = getCookie('agencyBranding')
-      if (brandingCookie) {
-        try {
-          brandingData = JSON.parse(decodeURIComponent(brandingCookie))
-        } catch (error) {}
-      }
+      try {
+        const cookies = document.cookie.split(';')
+        const brandingCookie = cookies.find(c => c.trim().startsWith('agencyBranding='))
+        
+        if (brandingCookie) {
+          const value = brandingCookie.split('=')[1]
+          // Cookie may be double-encoded, try decoding twice
+          let decoded = decodeURIComponent(value)
+          try {
+            brandingData = JSON.parse(decoded)
+          } catch (e) {
+            // If first decode fails, try decoding again (double-encoded)
+            try {
+              brandingData = JSON.parse(decodeURIComponent(decoded))
+            } catch (e2) {}
+          }
+        }
+      } catch (e) {}
+      
       if (!brandingData) {
         const branding = localStorage.getItem('agencyBranding')
         if (branding) {
