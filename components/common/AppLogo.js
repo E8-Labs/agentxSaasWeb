@@ -20,7 +20,12 @@ const AppLogo = ({
   alt = 'logo',
 }) => {
   const [logoUrl, setLogoUrl] = useState(null)
-  const [isAssignxDomain, setIsAssignxDomain] = useState(true)
+  // Initialize isAssignxDomain based on current hostname (if available)
+  const [isAssignxDomain, setIsAssignxDomain] = useState(() => {
+    if (typeof window === 'undefined') return true
+    const hostname = window.location.hostname
+    return hostname === "dev.assignx.ai" || hostname === "app.assignx.ai" || hostname.includes('localhost')
+  })
   // On custom domain: don't show AssignX until branding is resolved (cookie → localStorage → API)
   const [brandingResolved, setBrandingResolved] = useState(false)
 
@@ -30,7 +35,7 @@ const AppLogo = ({
     const hostname = window.location.hostname
 
     // Check if hostname is assignx.ai domain
-    const isAssignx = hostname == "dev.assignx.ai" || hostname == "app.assignx.ai" || hostname.includes('localhost')
+    const isAssignx = hostname === "dev.assignx.ai" || hostname === "app.assignx.ai" || hostname.includes('localhost')
 
     setIsAssignxDomain(isAssignx)
 
