@@ -8,11 +8,15 @@ import { Constants } from '@/constants/Constants'
  * @param {Object} user - User object from Redux/localStorage
  * @returns {string|null} - Phone number string (e.g., "+16505403715") or null for subaccounts without agency global number
  */
-export const getGlobalPhoneNumber = (user) => {
+export const getGlobalPhoneNumber = (user,isFromAdminOrAgency) => {
+
+  console.log("isFromAdminOrAgency in getGlobalPhoneNumber",isFromAdminOrAgency);
   // Check if user is a subaccount
   if (user?.userRole === 'AgencySubAccount') {
     // Return agency global number if available, otherwise null (don't show AssignX number to subaccounts)
     return user?.agencyGlobalNumber?.phoneNumber || null
+  }else if(isFromAdminOrAgency){
+    return isFromAdminOrAgency?.subAccountData?.agencyGlobalNumber?.phoneNumber || null
   }
   // Regular users always get env-based global number
   return Constants.GlobalPhoneNumber
