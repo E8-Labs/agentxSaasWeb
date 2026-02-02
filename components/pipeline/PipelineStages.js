@@ -1340,7 +1340,7 @@ const PipelineStages = ({
                                   className="text-brand-primary mt-4 cursor-pointer"
                                   type="button"
                                 >
-                                  + Add (If no answer)
+                                  + Add
                                 </button>
                                 <Menu
                                   anchorEl={addMenuAnchor[index] || null}
