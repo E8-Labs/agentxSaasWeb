@@ -2085,6 +2085,7 @@ const PipelineStages = ({
                 setEditingStageIndex(null)
                 closeAddMenu(selectedIndex)
               }}
+                isFromAdminOrAgency={isFromAdminOrAgency}
             />
 
             {/* Code for add stage modal */}

@@ -118,6 +118,7 @@ const NewMessageModal = ({
   selectedUser = null,
   isLeadMode = false,
   isBookingStage = false,
+  isFromAdminOrAgency = null,
 }) => {
   const [selectedMode, setSelectedMode] = useState(mode)
   const [brandPrimaryColor, setBrandPrimaryColor] = useState('#7902DF')
@@ -419,7 +420,13 @@ const NewMessageModal = ({
       const userData = JSON.parse(localData)
       const token = userData.token
 
-      const response = await axios.get(Apis.a2pNumbers, {
+      let path = Apis.a2pNumbers
+      if (isFromAdminOrAgency) {
+        path = path + '?userId=' + isFromAdminOrAgency?.subAccountData?.id
+      }
+
+      console.log("path in fetchPhoneNumbers",path);
+      const response = await axios.get(path, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
