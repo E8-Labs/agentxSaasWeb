@@ -28,15 +28,18 @@ export const getTempletes = async (type, userId = null) => {
   } catch (e) {}
 }
 
-export const getA2PNumbers = async (id) => {
+export const getA2PNumbers = async (id,isFromAdminOrAgency) => {
   try {
     let token = AuthToken()
     // console.log('token', token)
     let path = Apis.a2pNumbers
     if (id) {
       path = path + '?userId=' + id
+    } else if (isFromAdminOrAgency) {
+      path = path + '?userId=' + isFromAdminOrAgency?.subAccountData?.id
     }
 
+    console.log("path in getA2PNumbers",path);
     const response = await axios.get(path, {
       headers: {
         Authorization: 'Bearer ' + token,

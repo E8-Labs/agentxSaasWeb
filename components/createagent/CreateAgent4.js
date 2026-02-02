@@ -89,11 +89,18 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
     isVisible: false,
   })
 
+  const [isFromAdminOrAgency, setIsFromAdminOrAgency] = useState(null)
+
   useEffect(() => {
     getSubUserProfile()
     // Check if user is subaccount
     if (typeof window !== 'undefined') {
       try {
+        const isFromAdmin = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+        if (isFromAdmin) {
+          const parsedIsFromAdmin = JSON.parse(isFromAdmin)
+          setIsFromAdminOrAgency(parsedIsFromAdmin)
+        }
         const userData = localStorage.getItem('User')
         if (userData) {
           const parsedUser = JSON.parse(userData)
@@ -153,7 +160,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
   // Update showGlobalBtn for subaccounts based on agency global number availability
   useEffect(() => {
     if (userData?.userRole === 'AgencySubAccount') {
-      const globalNumber = getGlobalPhoneNumber(userData)
+      const globalNumber = getGlobalPhoneNumber(userData,isFromAdminOrAgency?.subAccountData?.id)
       // Only show global button if agency has a global number
       // Don't override if it was already set to false for inbound agents
       const localAgentsData = localStorage.getItem('agentDetails')
@@ -768,14 +775,14 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                               )}
                             </MenuItem>
                           ))}
-                          {showGlobalBtn && getGlobalPhoneNumber(userData) && (
+                          {showGlobalBtn && getGlobalPhoneNumber(userData,isFromAdminOrAgency) && (
                             <MenuItem
                               style={styles.dropdownMenu}
                               value={
-                                getGlobalPhoneNumber(userData)?.replace('+', '') || ''
+                                getGlobalPhoneNumber(userData,isFromAdminOrAgency)?.replace('+', '') || ''
                               }
                             >
-                              {getGlobalPhoneNumber(userData)}
+                              {getGlobalPhoneNumber(userData,isFromAdminOrAgency)}
                               {' (available for testing calls only)'}
                             </MenuItem>
                           )}
