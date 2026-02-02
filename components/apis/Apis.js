@@ -402,6 +402,9 @@ const Apis = {
   deleteThread: `${BasePath}api/user/messaging/threads`,
   getEmailsBySubject: `${BasePath}api/user/messaging/emails-by-subject`,
 
+  // AI Chat APIs
+  aiChat: '/api/ai/chat',
+
   // Auto-Reply Draft APIs
   getDraftsForThread: `${BasePath}api/mail/drafts`,
   getDraftById: `${BasePath}api/mail/drafts`,

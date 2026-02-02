@@ -32,6 +32,7 @@ const CallTranscriptCN = ({
   leadId = null,
   leadName = null,
   selectedUser = null,
+  bottomRightContent = null,
 }) => {
   const callSummary = item.callSummary
   const summaryText = callSummary?.callSummary || null
@@ -191,7 +192,7 @@ const CallTranscriptCN = ({
         </TypographyBodyMedium>
       </div>
 
-      {/* Bottom row: Call ID, Transcript icons (left) */}
+      {/* Bottom row: Call ID, Transcript icons (left), optional right content */}
       <div className="flex flex-row items-center justify-between mt-4">
         <div className="flex flex-row items-center gap-4">
           {/* Call ID Icon */}
@@ -225,9 +226,9 @@ const CallTranscriptCN = ({
                 }
               }}
               disabled={!item.callId}
-              style={{ 
-                cursor: item.callId ? 'pointer' : 'not-allowed', 
-                display: 'flex', 
+              style={{
+                cursor: item.callId ? 'pointer' : 'not-allowed',
+                display: 'flex',
                 alignItems: 'center',
                 opacity: item.callId ? 1 : 0.5,
               }}
@@ -268,6 +269,7 @@ const CallTranscriptCN = ({
             </Tooltip>
           )}
         </div>
+        {bottomRightContent}
       </div>
 
       {/* Create Task Modal */}
