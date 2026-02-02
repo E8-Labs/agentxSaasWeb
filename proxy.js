@@ -116,8 +116,16 @@ export async function proxy(request) {
           }
         } catch (error) {
           clearTimeout(timeoutId)
-          // Silent or log once; do not block request
-          console.error('Error looking up custom domain:', error)
+          // AbortError is expected when the 3s timeout triggers; avoid noisy error logs
+          const name = error?.name || error?.code
+          if (name === 'AbortError' || name === 'ABORT_ERR') {
+            // no-op: timed out by design
+          } else {
+            console.warn(
+              'Domain lookup failed:',
+              (error && (error.message || String(error))) || 'unknown error',
+            )
+          }
         }
       } catch (error) {
         // Silent fail; continue without branding
