@@ -3196,7 +3196,7 @@ function DialerModal({
                             }}
                           >
                             <StickyNote
-                              size={14}
+                              size={20}
                               style={{
                                 color: showNotes ? 'hsl(var(--brand-primary))' : '#374151'
                               }}
