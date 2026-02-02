@@ -1,5 +1,10 @@
 import { cookies, headers } from 'next/headers'
 import { decodeBrandingHeader } from '@/lib/branding-transport'
+import {
+  getBrandingForMetadata,
+  isAssignxDomain,
+  isExcludedSubdomain,
+} from '@/lib/getServerBranding'
 import { readFile } from 'fs/promises'
 import path from 'path'
 
@@ -51,6 +56,20 @@ export default async function AppleIcon() {
     }
   }
 
+  // Determine if this is a custom domain request
+  const host = headerStore.get('host') || ''
+  const isCustomDomain = !!host && !(isAssignxDomain(host) || isExcludedSubdomain(host))
+
+  // First-visit quick fallback for custom domains
+  if (!faviconUrl && isCustomDomain) {
+    try {
+      const quickBrand = await getBrandingForMetadata(host, 500)
+      if (quickBrand?.faviconUrl) {
+        faviconUrl = quickBrand.faviconUrl
+      }
+    } catch {}
+  }
+
   // If custom favicon URL exists, fetch and return it
   if (faviconUrl && faviconUrl.trim() !== '') {
     try {
@@ -66,7 +85,7 @@ export default async function AppleIcon() {
           headers: {
             'Content-Type': contentTypeHeader,
             'Cache-Control': 'private, max-age=300, must-revalidate',
-            'Vary': 'Cookie'
+            'Vary': 'Host, Cookie'
           }
         })
       }
@@ -75,7 +94,18 @@ export default async function AppleIcon() {
     }
   }
 
-  // Return default favicon from app folder
+  // No favicon for custom domains without branding
+  if (isCustomDomain) {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        'Cache-Control': 'private, max-age=120, must-revalidate',
+        'Vary': 'Host, Cookie'
+      }
+    })
+  }
+
+  // Return default favicon from app folder for platform hosts
   try {
     const defaultFaviconPath = path.join(process.cwd(), 'app', 'default-favicon.ico')
     const defaultFavicon = await readFile(defaultFaviconPath)
@@ -84,7 +114,7 @@ export default async function AppleIcon() {
       headers: {
         'Content-Type': 'image/x-icon',
         'Cache-Control': 'private, max-age=300, must-revalidate',
-        'Vary': 'Cookie'
+        'Vary': 'Host, Cookie'
       }
     })
   } catch (e) {
