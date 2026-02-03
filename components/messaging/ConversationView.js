@@ -33,6 +33,7 @@ const ConversationView = ({
   updateComposerFromMessage,
   onOpenMessageSettings,
   onOpenAiChat,
+  onGenerateCallSummaryDrafts,
 }) => {
   // State for transcript modal
   const [showTranscriptModal, setShowTranscriptModal] = useState(null)
@@ -278,6 +279,7 @@ const ConversationView = ({
                       }}
                       onOpenMessageSettings={onOpenMessageSettings}
                       onOpenAiChat={onOpenAiChat}
+                      onGenerateCallSummaryDrafts={onGenerateCallSummaryDrafts}
                     />
                   ) : (
                     <div

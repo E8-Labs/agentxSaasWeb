@@ -29,8 +29,11 @@ const DraftCards = ({
     return <MessageSquare size={16} className="text-brand-primary" />
   }
 
-  // Get the label based on message type and variant number
+  // Get the label based on message type, variant number, and source (call-summary follow-up vs auto-reply)
   const getDraftLabel = (draft) => {
+    if (draft.source === 'call_summary_follow_up') {
+      return `Follow-Up Response ${draft.variantNumber || 1}`
+    }
     const typeLabel = draft.messageType === 'email' ? 'Email' : 'SMS'
     return `${typeLabel} Response ${draft.variantNumber || 1}`
   }

@@ -33,6 +33,13 @@ import MessageSettingsModal from './MessageSettingsModal'
 import DraftCards from './DraftCards'
 import AiChatModal from './AiChatModal'
 
+/** Convert plain text to HTML for RichTextEditor (preserves line breaks). If already HTML, returns as-is. */
+function plainTextToHtml(text) {
+  if (!text || typeof text !== 'string') return ''
+  if (/<[a-z][\s\S]*>/i.test(text)) return text
+  return text.replace(/\n/g, '<br>')
+}
+
 const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const searchParams = useSearchParams()
   const [threads, setThreads] = useState([])
@@ -98,6 +105,8 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const [draftsLoading, setDraftsLoading] = useState(false)
   const [selectedDraft, setSelectedDraft] = useState(null)
   const [lastInboundMessageId, setLastInboundMessageId] = useState(null)
+  // When set, drafts are from call-summary follow-up (don't overwrite with inbound fetch)
+  const [callSummaryDraftsMessageId, setCallSummaryDraftsMessageId] = useState(null)
 
   // Debug: Log when modal state changes
   useEffect(() => {}, [showUpgradePlanModal])
@@ -777,11 +786,11 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
     // Set composer mode based on draft type
     setComposerMode(draft.messageType || 'sms')
 
-    // Populate composer with draft content
+    // Populate composer with draft content (plain text → HTML for email so formatting is preserved)
     if (draft.messageType === 'email') {
       setComposerData(prev => ({
         ...prev,
-        emailBody: draft.content || '',
+        emailBody: plainTextToHtml(draft.content || ''),
         subject: draft.subject || prev.subject,
       }))
     } else {
@@ -823,7 +832,11 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
       if (response.data?.status) {
         // Remove the discarded draft from state
-        setDrafts(prev => prev.filter(d => d.id !== draftId))
+        setDrafts(prev => {
+          const next = prev.filter(d => d.id !== draftId)
+          if (next.length === 0) setCallSummaryDraftsMessageId(null)
+          return next
+        })
         // Clear selected draft if it was the one being discarded
         if (selectedDraft?.id === draftId) {
           setSelectedDraft(null)
@@ -838,6 +851,12 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
     }
   }, [selectedUser, selectedDraft])
 
+  // Callback when call-summary follow-up drafts are generated (from SystemMessage AI Text/Email Submit)
+  const handleGenerateCallSummaryDrafts = useCallback((drafts, parentMessageId) => {
+    setDrafts(drafts || [])
+    setCallSummaryDraftsMessageId(parentMessageId || null)
+  }, [])
+
   // Update latest message ID ref when messages change
   useEffect(() => {
     if (messages.length > 0) {
@@ -847,12 +866,19 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
     }
   }, [messages])
 
-  // Track last inbound message and fetch drafts only if last message is inbound
+  // Track last inbound message and fetch drafts only if last message is inbound (skip when showing call-summary drafts)
   useEffect(() => {
     if (!selectedThread?.id || messages.length === 0) {
       setDrafts([])
       setLastInboundMessageId(null)
       setSelectedDraft(null)
+      setCallSummaryDraftsMessageId(null)
+      return
+    }
+
+    // If we're showing call-summary follow-up drafts, fetch those (by messageId) instead of inbound
+    if (callSummaryDraftsMessageId) {
+      fetchDrafts(selectedThread.id, callSummaryDraftsMessageId)
       return
     }
 
@@ -870,7 +896,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       setLastInboundMessageId(null)
       setSelectedDraft(null)
     }
-  }, [messages, selectedThread?.id, fetchDrafts])
+  }, [messages, selectedThread?.id, fetchDrafts, callSummaryDraftsMessageId])
 
   // Poll for new messages every 5 seconds when a thread is selected
   useEffect(() => {
@@ -1818,10 +1844,10 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
           // Dispatch custom event for task updates
 
-          // If a draft was selected, mark it as sent and clear drafts
+          // If a draft was selected, mark it as sent only (message already sent from composer — avoid double send)
           if (selectedDraft) {
             try {
-              let apiPath = `${Apis.sendDraft}/${selectedDraft.id}/send`
+              let apiPath = `${Apis.markDraftAsSent}/${selectedDraft.id}/mark-sent`
               if (selectedUser?.id) {
                 apiPath = `${apiPath}?userId=${selectedUser.id}`
               }
@@ -1838,6 +1864,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           // Clear drafts after sending
           setDrafts([])
           setSelectedDraft(null)
+          setCallSummaryDraftsMessageId(null)
 
           // Refresh messages and threads
           setTimeout(() => {
@@ -2022,10 +2049,10 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           setShowCC(false)
           setShowBCC(false)
 
-          // If a draft was selected, mark it as sent and clear drafts
+          // If a draft was selected, mark it as sent only (message already sent from composer — avoid double send)
           if (selectedDraft) {
             try {
-              let apiPath = `${Apis.sendDraft}/${selectedDraft.id}/send`
+              let apiPath = `${Apis.markDraftAsSent}/${selectedDraft.id}/mark-sent`
               if (selectedUser?.id) {
                 apiPath = `${apiPath}?userId=${selectedUser.id}`
               }
@@ -2042,6 +2069,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           // Clear drafts after sending
           setDrafts([])
           setSelectedDraft(null)
+          setCallSummaryDraftsMessageId(null)
 
           // Refresh messages and threads
           setTimeout(() => {
@@ -2877,6 +2905,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                       updateComposerFromMessage={updateComposerFromMessage}
                       onOpenMessageSettings={() => setShowMessageSettingsModal(true)}
                       onOpenAiChat={setAiChatContext}
+                      onGenerateCallSummaryDrafts={handleGenerateCallSummaryDrafts}
                     />
 
                     {/* AI-Generated Draft Responses */}

@@ -409,7 +409,9 @@ const Apis = {
   getDraftsForThread: `${BasePath}api/mail/drafts`,
   getDraftById: `${BasePath}api/mail/drafts`,
   sendDraft: `${BasePath}api/mail/drafts`,
+  markDraftAsSent: `${BasePath}api/mail/drafts`,
   discardDraft: `${BasePath}api/mail/drafts`,
+  generateCallSummaryFollowUpDrafts: `${BasePath}api/mail/drafts/call-summary-follow-up`,
   deleteProfileForAgencyRegistration: `${BasePath}api/user/deleteProfileForAgencyRegistration
 `,
 }

@@ -44,11 +44,12 @@ const isDevelopment = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Product
  * SystemMessage component for displaying system activity messages
  * (stage changes, team assignments, comments, etc.)
  */
-const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscript, onOpenMessageSettings, onOpenAiChat }) => {
+const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscript, onOpenMessageSettings, onOpenAiChat, onGenerateCallSummaryDrafts }) => {
   const [showAudioPlay, setShowAudioPlay] = useState(null)
   const [aiActionType, setAiActionType] = useState(null)
   const [aiActionInput, setAiActionInput] = useState('')
   const [hasAiKey, setHasAiKey] = useState(null) // null = loading, true/false
+  const [followUpSubmitting, setFollowUpSubmitting] = useState(false)
   const aiActionRef = useRef(null)
 
   useEffect(() => {
@@ -500,10 +501,11 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                     {aiActionType && (
                       <div ref={aiActionRef} className="mt-3 border-t border-border pt-3">
                         <Textarea
-                          placeholder="Ask anything"
+                          placeholder="Send a follow up message to lead"
                           value={aiActionInput}
                           onChange={(e) => setAiActionInput(e.target.value)}
                           className="min-h-[80px] resize-none text-sm"
+                          disabled={followUpSubmitting}
                         />
                         <div className="flex items-center justify-end gap-2 mt-2">
                           <button
@@ -511,14 +513,60 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                               setAiActionType(null)
                               setAiActionInput('')
                             }}
-                            className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                            disabled={followUpSubmitting}
+                            className="px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors disabled:opacity-60"
                           >
                             Cancel
                           </button>
                           <button
-                            className="px-4 py-1.5 text-xs font-medium text-white bg-brand-primary hover:bg-brand-primary/90 rounded-md transition-colors"
+                            disabled={followUpSubmitting || !(aiActionInput || '').trim()}
+                            onClick={async () => {
+                              const userInput = (aiActionInput || '').trim()
+                              if (!userInput || !selectedThread?.id || !message?.id) return
+                              const messageType = aiActionType === 'email' ? 'email' : 'sms'
+                              setFollowUpSubmitting(true)
+                              try {
+                                const localData = localStorage.getItem('User')
+                                if (!localData) {
+                                  toast.error('Please log in again.')
+                                  return
+                                }
+                                const { token } = JSON.parse(localData)
+                                const res = await axios.post(
+                                  Apis.generateCallSummaryFollowUpDrafts,
+                                  {
+                                    threadId: selectedThread.id,
+                                    messageType,
+                                    parentMessageId: message.id,
+                                    userInputMessage: userInput,
+                                  },
+                                  {
+                                    headers: {
+                                      Authorization: `Bearer ${token}`,
+                                      'Content-Type': 'application/json',
+                                    },
+                                  },
+                                )
+                                if (res.data?.status && Array.isArray(res.data?.data) && res.data.data.length > 0) {
+                                  if (typeof onGenerateCallSummaryDrafts === 'function') {
+                                    onGenerateCallSummaryDrafts(res.data.data, message.id)
+                                  }
+                                  setAiActionType(null)
+                                  setAiActionInput('')
+                                  toast.success('Follow-up drafts generated. Select one to send.')
+                                } else {
+                                  toast.error(res.data?.message || 'Failed to generate drafts')
+                                }
+                              } catch (err) {
+                                console.error('Error generating call-summary follow-up drafts:', err)
+                                toast.error(err.response?.data?.message || 'Failed to generate drafts')
+                              } finally {
+                                setFollowUpSubmitting(false)
+                              }
+                            }}
+                            className="px-4 py-1.5 text-xs font-medium text-white bg-brand-primary hover:bg-brand-primary/90 rounded-md transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
                           >
-                            Submit
+                            {followUpSubmitting ? 'Generating...' : 'Submit'}
                           </button>
                         </div>
                       </div>
