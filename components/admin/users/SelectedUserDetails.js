@@ -283,7 +283,7 @@ function SelectedUserDetails({
     }
   }, [])
   // Check if logged-in user is Admin
-  const [isAdmin, setIsAdmin] = useState(false)
+  // const [isAdmin, setIsAdmin] = useState(false)
   useEffect(() => {
     try {
       const localData = localStorage.getItem('User')

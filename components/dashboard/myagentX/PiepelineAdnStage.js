@@ -38,6 +38,7 @@ const PipelineAndStage = ({
   const [showConfirmationPopup, setShowConfirmationPopup] = useState(false)
 
   useEffect(() => {
+    console.log("Main agent passed to Pipeline And Stages", mainAgent)
     if (selectedAgent.agentType !== 'inbound') {
       handleGetCadence()
     }
