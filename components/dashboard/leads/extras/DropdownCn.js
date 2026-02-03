@@ -138,7 +138,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
         </div>
         <DropdownMenuContent
           align={align}
-          className="z-[2000] w-auto min-w-fit max-w-[20rem] border border-muted/70 bg-white text-foreground shadow-lg"
+          className="z-[2000] w-auto min-w-fit max-w-[20rem] max-h-[min(20rem,70vh)] overflow-y-auto border border-muted/70 bg-white text-foreground shadow-lg"
           onCloseAutoFocus={(e) => {
             // Prevent focus from being stolen when dropdown closes
             e.preventDefault()

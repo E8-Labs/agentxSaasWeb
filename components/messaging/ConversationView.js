@@ -31,6 +31,7 @@ const ConversationView = ({
   onReplyClick,
   onOpenEmailTimeline,
   updateComposerFromMessage,
+  onOpenMessageSettings,
 }) => {
   // State for transcript modal
   const [showTranscriptModal, setShowTranscriptModal] = useState(null)
@@ -274,6 +275,7 @@ const ConversationView = ({
                       onReadTranscript={(item) => {
                         setShowTranscriptModal(item)
                       }}
+                      onOpenMessageSettings={onOpenMessageSettings}
                     />
                   ) : (
                     <div

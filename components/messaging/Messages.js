@@ -2872,6 +2872,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                       onReplyClick={handleReplyClick}
                       onOpenEmailTimeline={handleOpenEmailTimeline}
                       updateComposerFromMessage={updateComposerFromMessage}
+                      onOpenMessageSettings={() => setShowMessageSettingsModal(true)}
                     />
 
                     {/* AI-Generated Draft Responses */}
