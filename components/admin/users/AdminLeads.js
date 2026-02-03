@@ -40,8 +40,9 @@ import Calendar from 'react-calendar'
 import InfiniteScroll from '@/components/ui/infinite-scroll'
 
 import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
-import { userLocalData } from '@/components/agency/plan/AuthDetails'
+import { AuthToken, userLocalData } from '@/components/agency/plan/AuthDetails'
 import DashboardSlider from '@/components/animations/DashboardSlider'
+import { useHasPermission } from '@/contexts/PermissionContext'
 import Apis from '@/components/apis/Apis'
 import getProfileDetails from '@/components/apis/GetProfile'
 import AgentSelectSnackMessage, {
@@ -136,6 +137,13 @@ const AdminLeads = ({
   //err msg when no leaad in list
   const [showNoLeadErr, setShowNoLeadErr] = useState(null)
   const [showNoLeadsLabel, setShowNoLeadsLabel] = useState(false)
+
+  // Export for agency team viewing subaccount leads
+  const [exportLoading, setExportLoading] = useState(false)
+  const [hasExportPermission] = useHasPermission(
+    agencyUser && selectedUser?.id ? 'subaccount.leads.export' : null,
+    agencyUser ? selectedUser?.id : null
+  )
 
   //code for showing leads details
   const [showDetailsModal, setShowDetailsModal] = useState(false)
@@ -657,6 +665,40 @@ const AdminLeads = ({
     }
 
     return string
+  }
+
+  async function handleExportLeads() {
+    if (!SelectedSheetId) {
+      setSnackMessage('Select a sheet to export')
+      setShowsnackMessage(true)
+      setMessageType(SnackbarTypes.Error)
+      return
+    }
+    try {
+      setExportLoading(true)
+      let path = `${Apis.exportLeads}?sheetId=${SelectedSheetId}`
+      if (agencyUser && selectedUser?.id) {
+        path += `&userId=${selectedUser.id}`
+      }
+      const response = await axios.get(path, {
+        headers: {
+          Authorization: 'Bearer ' + AuthToken(),
+        },
+      })
+      if (response.data) {
+        if (response.data.status === true) {
+          window.open(response.data.downloadUrl, '_blank')
+        } else {
+          setSnackMessage(response.data.message)
+          setShowsnackMessage(true)
+          setMessageType(SnackbarTypes.Error)
+        }
+      }
+    } catch (error) {
+      console.error('Error exporting leads:', error)
+    } finally {
+      setExportLoading(false)
+    }
   }
 
   function getLocallyCachedLeads() {
@@ -1828,7 +1870,35 @@ const AdminLeads = ({
                 </div>
               </div>
 
-              <div className="flex flex-row items-center gap-2 w-[40%]">
+              <div className="flex flex-row items-center justify-end gap-2 w-[40%]">
+                {hasExportPermission && (
+                  exportLoading ? (
+                    <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                  ) : (
+                    <button
+                      className="flex flex-row items-center gap-1.5 px-3 py-2 pe-3 border-2 border-gray-200 rounded-lg transition-all duration-150 group hover:border-brand-primary hover:text-brand-primary"
+                      style={{ fontWeight: 400, fontSize: 14 }}
+                      onClick={() => handleExportLeads()}
+                      disabled={exportLoading}
+                    >
+                      <div className="transition-colors duration-150">Export</div>
+                      <Image
+                        src={'/otherAssets/exportIcon.png'}
+                        height={24}
+                        width={24}
+                        alt="Export"
+                        className="group-hover:hidden block transition-opacity duration-150"
+                      />
+                      <Image
+                        src={'/otherAssets/exportIconPurple.png'}
+                        height={24}
+                        width={24}
+                        alt="Export"
+                        className="hidden group-hover:block transition-opacity duration-150"
+                      />
+                    </button>
+                  )
+                )}
                 {toggleClick.length >= 0 && (
                   <div>
                     {toggleClick.length === FilterLeads.length ? (

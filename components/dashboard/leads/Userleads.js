@@ -52,6 +52,7 @@ import { TypographyH3, TypographyH4 } from '@/lib/typography'
 import CalendarInput from '@/components/test/DatePicker'
 import UpgradeModal from '@/constants/UpgradeModal'
 import { useUser } from '@/hooks/redux-hooks'
+import { useHasPermission } from '@/contexts/PermissionContext'
 import { GetFormattedDateString } from '@/utilities/utility'
 
 import AgentSelectSnackMessage, {
@@ -86,6 +87,9 @@ const Userleads = ({
   reduxUser,
 }) => {
   const LimitPerPage = 30
+
+  // Permission for Export: agentx.leads.export (subaccount and agentx teams)
+  const [hasExportPermission, isExportPermissionChecking] = useHasPermission('agentx.leads.export')
 
 
 
@@ -2217,35 +2221,37 @@ const Userleads = ({
                   </div>
 
                   <div className="flex flex-row items-center justify-end gap-2 w-[30%]">
-                    {exportLoading ? (
-                      <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                    ) : (
-                      <button
-                        className="flex flex-row items-center gap-1.5 px-3 py-2 pe-3 border-2 border-gray-200 rounded-lg transition-all duration-150 group hover:border-brand-primary hover:text-brand-primary"
-                        style={{ fontWeight: 400, fontSize: 14 }}
-                        onClick={() => {
-                          handleExportLeads()
-                        }}
-                        disabled={exportLoading}
-                      >
-                        <div className="transition-colors duration-150">
-                          Export
-                        </div>
-                        <Image
-                          src={'/otherAssets/exportIcon.png'}
-                          height={24}
-                          width={24}
-                          alt="Export"
-                          className="group-hover:hidden block transition-opacity duration-150"
-                        />
-                        <Image
-                          src={'/otherAssets/exportIconPurple.png'}
-                          height={24}
-                          width={24}
-                          alt="Export"
-                          className="hidden group-hover:block transition-opacity duration-150"
-                        />
-                      </button>
+                    {hasExportPermission && (
+                      exportLoading ? (
+                        <CircularProgress size={24} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                      ) : (
+                        <button
+                          className="flex flex-row items-center gap-1.5 px-3 py-2 pe-3 border-2 border-gray-200 rounded-lg transition-all duration-150 group hover:border-brand-primary hover:text-brand-primary"
+                          style={{ fontWeight: 400, fontSize: 14 }}
+                          onClick={() => {
+                            handleExportLeads()
+                          }}
+                          disabled={exportLoading}
+                        >
+                          <div className="transition-colors duration-150">
+                            Export
+                          </div>
+                          <Image
+                            src={'/otherAssets/exportIcon.png'}
+                            height={24}
+                            width={24}
+                            alt="Export"
+                            className="group-hover:hidden block transition-opacity duration-150"
+                          />
+                          <Image
+                            src={'/otherAssets/exportIconPurple.png'}
+                            height={24}
+                            width={24}
+                            alt="Export"
+                            className="hidden group-hover:block transition-opacity duration-150"
+                          />
+                        </button>
+                      )
                     )}
 
                     {selectedLeadsList.length >= 0 && (
