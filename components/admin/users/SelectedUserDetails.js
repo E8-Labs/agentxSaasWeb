@@ -282,6 +282,19 @@ function SelectedUserDetails({
       console.error('Error checking user role:', error)
     }
   }, [])
+  // Check if logged-in user is Admin
+  // const [isAdmin, setIsAdmin] = useState(false)
+  useEffect(() => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        const userData = JSON.parse(localData)
+        setIsAdmin(userData.user?.userRole === 'Admin')
+      }
+    } catch (error) {
+      console.error('Error checking user role:', error)
+    }
+  }, [])
 
   // Safe permission check for content area
   const [hasCurrentPermission, isCheckingCurrentPermission] = useHasPermission(
@@ -652,7 +665,7 @@ function SelectedUserDetails({
                         )}
                       </button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="z-[1500]" style={{ zIndex: 1500 }}>
+                    <DropdownMenuContent align="end" className="z-[1500] bg-white p-2 rounded-lg" style={{ zIndex: 1500 }}>
                       <DropdownMenuItem
                         onClick={() => {
                           setShowPauseConfirmationPopup(true)
@@ -701,7 +714,11 @@ function SelectedUserDetails({
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}
-                <CloseBtn onClick={handleClose} />
+
+                {
+                  !agencyUser && (
+                    <CloseBtn onClick={handleClose} />
+                  )}
 
                 {showResetTrialPopup && (
                   <ResetTrial

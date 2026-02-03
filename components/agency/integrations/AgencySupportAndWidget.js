@@ -37,6 +37,18 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
   const [sky, setSky] = useState('')
   const [delSkyLoader, setDelSkyLoader] = useState(false)
   const [skyTitle, setSkyTitle] = useState('')
+
+
+  //script widget
+  const [allowScriptWidget, setAllowScriptWidget] = useState(false)
+  const [addScriptWidget, setAddScriptWidget] = useState(false)
+  const [addScriptWidgetLoader, setAddScriptWidgetLoader] = useState(false)
+  const [scriptWidget, setScriptWidget] = useState('')
+  const [delScriptWidgetLoader, setDelScriptWidgetLoader] = useState(false)
+  const [isInValidUrlScriptWidget, setIsInValidUrlScriptWidget] = useState(false)
+  const [scriptWidgetTitle, setScriptWidgetTitle] = useState('')
+
+  
   //feedback
   const [allowFeedBack, setAllowFeedBack] = useState(false)
   const [addFeedBack, setAddFeedBack] = useState(false)
@@ -366,10 +378,10 @@ const handleUserSettings = async (from) => {
         setShowSnackType(SnackbarTypes.Error)
         return
       }
-      
+
       // Set loading state
       setLogoUploadLoading(true)
-      
+
       // Create preview
       const reader = new FileReader()
       reader.onloadend = async () => {
@@ -378,12 +390,12 @@ const handleUserSettings = async (from) => {
         try {
           const formData = new FormData()
           formData.append('logo', file)
-          
+
           // Add userId if selectedAgency is provided (admin view)
           if (selectedAgency?.id) {
             formData.append('userId', selectedAgency.id)
           }
-          
+
           const Auth = AuthToken()
           const response = await axios.post(
             Apis.uploadSupportWidgetLogo,
@@ -461,26 +473,26 @@ const handleUserSettings = async (from) => {
     if (!buttonLabel || buttonLabel.trim() === '') {
       return
     }
-    
+
     // Only save if the value has actually changed
     const trimmedLabel = buttonLabel.trim()
     if (trimmedLabel === originalButtonLabel) {
       return
     }
-    
+
     // Set loading state
     setButtonLabelLoading(true)
-    
+
     // Save to API
     try {
       const Auth = AuthToken()
       const updateData = { supportWidgetTitle: trimmedLabel }
-      
+
       // Add userId if selectedAgency is provided (admin view)
       if (selectedAgency?.id) {
         updateData.userId = selectedAgency.id
       }
-      
+
       const response = await axios.put(
         Apis.updateSupportWidgetTitle,
         updateData,
@@ -837,127 +849,183 @@ const handleUserSettings = async (from) => {
                 )}
               </div>
             </div>
-            {/*
-                <div className='border-b'>
-                  <div className='border rounded-lg px-4 py-2 bg-[#D9D9D917] mt-4'>
-                    <div className='flex flex-row items-center justify-between w-full'>
-                      <div className='flex flex-row items-center gap-2'>
-                      <div style={styles.subHeading}>
-                        Sky
-                      </div>
 
-                      <Tooltip
-                      title="If you want to offer support calls, add your support calendar here."
+
+            <div className="border-b">
+              <div className="border rounded-lg px-4 py-2 bg-[#D9D9D917] mb-4 mt-4">
+                <div className="flex flex-row items-center justify-between w-full">
+                  <div className="flex flex-row items-center gap-2">
+                    <div style={styles.subHeading}>
+                      {settingsData?.scriptWidgetTitle}
+                    </div>
+                    <Tooltip
+                      title="This allows you to offer script widget to your users."
                       arrow
                       componentsProps={{
                         tooltip: {
                           sx: {
-                            backgroundColor: "#ffffff", // Ensure white background
-                            color: "#333", // Dark text color
-                            fontSize: "16px",
+                            backgroundColor: '#ffffff', // Ensure white background
+                            color: '#333', // Dark text color
+                            fontSize: '16px',
                             fontWeight: '500',
-                            padding: "10px 15px",
-                            borderRadius: "8px",
-                            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.2)", // Soft shadow
+                            padding: '10px 15px',
+                            borderRadius: '8px',
+                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
                           },
                         },
                         arrow: {
                           sx: {
-                            color: "#ffffff", // Match tooltip background
+                            color: '#ffffff', // Match tooltip background
                           },
                         },
                       }}
                     >
-                      <Image src={"/otherAssets/infoLightDark.png"}
-                        height={16} width={16} alt="*"
+                      <Image
+                        src={'/otherAssets/infoLightDark.png'}
+                        height={16}
+                        width={16}
+                        alt="*"
                       />
                     </Tooltip>
-                    </div>
-
-                      <div className="flex flex-row items-center gap-2">
+                    <button
+                      onClick={() => {
+                        setEditTitleIndex(1)
+                        setShowEditModal(true)
+                        setShowEditModalTitle(scriptWidgetTitle)
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          WebkitMaskImage: 'url(/assets/editPen.png)',
+                          maskImage: 'url(/assets/editPen.png)',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
+                      />
+                    </button>
+                  </div>
+                  <div className="flex flex-row items-center gap-2">
+                    {delFeedBackLoader ? (
+                      <CircularProgress size={20} />
+                    ) : (
+                      settingsData?.giveFeedbackTitle && (
                         <Switch
-                          checked={allowSky}
+                          checked={allowScriptWidget}
                           onChange={(e) => {
-                            const checked = e.target.checked;
-                            setAllowSky(checked);
-  
-                            if (allowSky === false) {
-                              setAddSky(true);
+                            const checked = e.target.checked
+                            setAllowScriptWidget(checked)
+
+                            if (allowFeedBack === false) {
+                              setAddScriptWidget(true)
                             } else {
-                              setSky("");
-                              setAddSky(false);
+                              if (settingsData?.giveFeedbackUrl) {
+                                handleUserSettings('scriptWidgetDel')
+                              } else {
+                                setScriptWidget('')
+                                setAddScriptWidget(false)
+                              }
                             }
                           }}
                           sx={{
                             '& .MuiSwitch-switchBase.Mui-checked': {
                               color: 'white',
                             },
-                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                              backgroundColor: '#7902DF',
+                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
+                            {
+                              backgroundColor: 'hsl(var(--brand-primary))',
                             },
                           }}
                         />
-                      </div>
-                    </div>
-                    {
-                      settingsData?.skyAgentId && (
-                        <div className='flex flex-row items-center justify-between w-full mt-2'>
-                          <div style={styles.subHeading}>
-                            Agent ID: {settingsData?.skyAgentId || ""}
-                          </div>
-                          <button className="flex flex-row items-center gap-2" onClick={() => {
-                            setAddSky(true);
-                          }}>
-                            <div className="text-purple outline-none border-none rounded p-1 bg-white" style={{ fontSize: "16px", fontWeight: "400" }}>Edit</div>
-                            <Image
-                              alt="*"
-                              src={"/assets/editPen.png"}
-                              height={16}
-                              width={16}
-                            />
-                          </button>
-                        </div>
-                      )}
-                    {
-                      addSky && (
-                        <div className="flex flex-row items-center justify-center gap-2 mt-2">
-                          <div className="border border-gray-200 rounded px-2 py-0 flex flex-row items-center w-[90%]">
-                            <input
-                              style={styles.inputs}
-                              type="text"
-                              className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
-                              placeholder="Enter your Agent ID"
-                              value={sky}
-                              onChange={(e) => {
-                                const value = e.target.value;
-                                const validUrl = isValidUrl(value);
-                                setSky(value);
-                                setTimeout(() => {
-                                  if (value && !validUrl) {
-                                    setShowSnackMessage("Invalid");
-                                    setShowSnackType(SnackbarTypes.Error);
-                                  }
-                                }, 1000);
-                              }}
-                            />
-                          </div>
-                          {
-                            addSkyLoader ? (
-                              <div className="flex flex-row items-center justify-center w-[10%]">
-                                <CircularProgress size={30} />
-                              </div>
-                            ) : (
-                              <button onClick={() => { handleUserSettings("sky") }} className={`w-[10%] bg-purple text-white h-[40px] rounded-xl`} style={{ fontSize: "15px", fontWeight: "500" }}>
-                                Save
-                              </button>
-                            )
-                          }
-                        </div>
                       )
-                    }
+                    )}
                   </div>
                 </div>
-              */}
+                {settingsData?.scriptWidgetUrl && (
+                  <div className="flex flex-row items-center justify-between w-full mt-2">
+                    <div style={styles.subHeading}>
+                      URL: {settingsData?.scriptWidgetUrl || ''}
+                    </div>
+                    <button
+                      className="flex flex-row items-center gap-2"
+                      onClick={() => {
+                        setAddScriptWidget(true)
+                      }}
+                    >
+                      <div
+                        className="text-brand-primary outline-none border-none rounded p-1 bg-white"
+                        style={{ fontSize: '16px', fontWeight: '400' }}
+                      >
+                        Edit
+                      </div>
+                      <div
+                        style={{
+                          width: '16px',
+                          height: '16px',
+                          backgroundColor: 'hsl(var(--brand-primary))',
+                          WebkitMaskImage: 'url(/assets/editPen.png)',
+                          maskImage: 'url(/assets/editPen.png)',
+                          WebkitMaskSize: 'contain',
+                          maskSize: 'contain',
+                          WebkitMaskRepeat: 'no-repeat',
+                          maskRepeat: 'no-repeat',
+                          WebkitMaskPosition: 'center',
+                          maskPosition: 'center',
+                        }}
+                      />
+                    </button>
+                  </div>
+                )}
+                {addFeedBack && (
+                  <div className="flex flex-row items-center justify-center gap-2 mt-2">
+                    <div className="border border-gray-200 rounded px-2 py-0 flex flex-row items-center w-[90%]">
+                      <input
+                        style={styles.inputs}
+                        type="text"
+                        className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
+                        placeholder="Enter your URL"
+                        value={scriptWidget}
+                        onChange={(e) => {
+                          const value = e.target.value
+                          const validUrl = isValidUrl(value)
+                          setScriptWidget(value)
+                          setTimeout(() => {
+                            if (value && !validUrl) {
+                              setIsInValidUrlScriptWidget(true)
+                            } else {
+                              setIsInValidUrlScriptWidget(false)
+                            }
+                          }, 1000)
+                        }}
+                      />
+                    </div>
+                    {addScriptWidgetLoader ? (
+                      <div className="flex flex-row items-center justify-center w-[10%]">
+                        <CircularProgress size={30} />
+                      </div>
+                    ) : (
+                      <button
+                        className={`w-[10%] h-[40px] rounded-xl ${isInValidUrlScriptWidget || !scriptWidget ? 'bg-btngray text-black' : 'bg-brand-primary text-white'}`}
+                        style={{ fontSize: '15px', fontWeight: '500' }}
+                        onClick={() => {
+                          handleUserSettings('scriptWidget')
+                        }}
+                        disabled={isInValidUrlScriptWidget || !scriptWidget}
+                      >
+                        {isInValidUrlScriptWidget ? 'Invalid' : 'Save'}
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
             <div className="border-b">
               <div className="border rounded-lg px-4 py-2 bg-[#D9D9D917] mb-4 mt-4">
                 <div className="flex flex-row items-center justify-between w-full">

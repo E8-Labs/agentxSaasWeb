@@ -4,6 +4,10 @@ import {
   encodeBrandingHeader,
   encodeBrandingCookie,
 } from './lib/branding-transport'
+import {
+  isAssignxDomain,
+  isExcludedSubdomain,
+} from './lib/getServerBranding'
 
 /**
  * Creates a NextResponse.next() with branding data passed via request headers.
@@ -45,54 +49,87 @@ export async function proxy(request) {
   const { pathname } = request.nextUrl
   const hostname = request.headers.get('host') || ''
 
-  // Custom domain detection - all domains are treated as custom domains
-  // Subdomain logic has been removed - always check domains table
+  // Custom domain detection
+  // Treat only real custom domains as custom (not platform hosts)
   let agencyId = null
   let agencySubdomain = null
   let isCustomDomain = false
   let agencyBranding = null
 
-  // Check if it's a custom domain (not localhost and not 127.0.0.1)
-  // All domains including *.assignx.ai are now treated as custom domains
+  // ---- Fast pass for icon requests (avoid any network work) ----
   if (
-    hostname &&
-    !hostname.includes('localhost') &&
-    !hostname.includes('127.0.0.1')
+    pathname === '/icon' ||
+    pathname === '/apple-icon' ||
+    pathname === '/apple-touch-icon.png'
   ) {
-    isCustomDomain = true
+    // Try to read branding cookie and inject header for this request only
+    let cookieBranding = null
+    const brandingCookie = request.cookies.get('agencyBranding')
+    if (brandingCookie?.value) {
+      try {
+        cookieBranding = JSON.parse(decodeURIComponent(brandingCookie.value))
+      } catch {}
+    }
+    return createResponseWithBrandingHeaders(request, cookieBranding)
+  }
 
-    try {
-      const baseUrl =
-        process.env.NEXT_PUBLIC_BASE_API_URL ||
-        (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
-          ? 'https://apimyagentx.com/agentx/'
-          : 'https://apimyagentx.com/agentxtest/')
+  // Check if it's a real custom domain (exclude platform hosts)
+  if (hostname) {
+    const platformHost = isAssignxDomain(hostname) || isExcludedSubdomain(hostname)
+    isCustomDomain = !platformHost
 
-      // Always pass full hostname as customDomain parameter
-      // Backend will check the domains table
-      const lookupResponse = await fetch(
-        `${baseUrl}api/agency/lookup-by-domain`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ customDomain: hostname }),
-        },
-      )
+    if (isCustomDomain) {
+      try {
+        const baseUrl =
+          process.env.NEXT_PUBLIC_BASE_API_URL ||
+          (process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT === 'Production'
+            ? 'https://apimyagentx.com/agentx/'
+            : 'https://apimyagentx.com/agentxtest/')
 
-      if (lookupResponse.ok) {
-        const lookupData = await lookupResponse.json()
-        if (lookupData.status && lookupData.data) {
-          agencyId = lookupData.data.agencyId
-          // Store branding for later use
-          if (lookupData.data.branding) {
-            agencyBranding = lookupData.data.branding
+        // Always pass full hostname as customDomain parameter
+        // Backend will check the domains table
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 3000)
+        try {
+          const lookupResponse = await fetch(
+            `${baseUrl}api/agency/lookup-by-domain`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ customDomain: hostname }),
+              signal: controller.signal,
+            },
+          )
+          clearTimeout(timeoutId)
+
+          if (lookupResponse.ok) {
+            const lookupData = await lookupResponse.json()
+            if (lookupData.status && lookupData.data) {
+              agencyId = lookupData.data.agencyId
+              // Store branding for later use
+              if (lookupData.data.branding) {
+                agencyBranding = lookupData.data.branding
+              }
+            }
+          }
+        } catch (error) {
+          clearTimeout(timeoutId)
+          // AbortError is expected when the 3s timeout triggers; avoid noisy error logs
+          const name = error?.name || error?.code
+          if (name === 'AbortError' || name === 'ABORT_ERR') {
+            // no-op: timed out by design
+          } else {
+            console.warn(
+              'Domain lookup failed:',
+              (error && (error.message || String(error))) || 'unknown error',
+            )
           }
         }
+      } catch (error) {
+        // Silent fail; continue without branding
       }
-    } catch (error) {
-      console.error('Error looking up custom domain:', error)
     }
   }
 
@@ -285,9 +322,7 @@ export async function proxy(request) {
     pathname.startsWith('/agency/verify') ||
     (pathname.startsWith('/agency/') &&
       (pathname.includes('/privacy') || pathname.includes('/terms'))) || // allows /agency/[agencyUUID]/privacy and /agency/[agencyUUID]/terms
-    pathname.startsWith('/recordings/') ||
-    pathname === '/icon' || // favicon - needs branding but no auth redirect
-    pathname === '/apple-icon' // apple touch icon - needs branding but no auth redirect
+    pathname.startsWith('/recordings/')
   ) {
     // Create response with branding in request headers (for immediate access by getServerBranding)
     const publicResponse = createResponseWithBrandingHeaders(
@@ -623,7 +658,5 @@ export const config = {
     '/admin/:path*',
     '/embedCalendar/:path*',
     '/agency/dashboard/:path*', // subpaths processed normally
-    '/icon', // favicon - needs branding header
-    '/apple-icon', // apple touch icon - needs branding header
   ],
 }

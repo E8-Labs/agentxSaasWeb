@@ -1929,7 +1929,7 @@ function Page() {
       })
     }
 
-    // console.log("comparedAgent is", comparedAgent);
+    console.log("comparedAgent is", comparedAgent);
 
     setCalendarDetails(comparedAgent)
 
@@ -2638,11 +2638,15 @@ function Page() {
           //   response.data.data
           // );
           // //console.log;
-          setShowSuccessSnack(
-            `${fromatMessageName(
-              showDrawerSelectedAgent ? showDrawerSelectedAgent.name : 'Agent',
-            )} updated`,
-          )
+          if (voiceData?.maxDurationSeconds || voiceData?.idleTimeoutSeconds || voiceData?.idleMessage) {
+            setShowSuccessSnack("Advanced Settings Updated");
+          } else {
+            setShowSuccessSnack(
+              `${fromatMessageName(
+                showDrawerSelectedAgent ? showDrawerSelectedAgent.name : 'Agent',
+              )} updated`,
+            )
+          }
           if (response.data.status === true) {
             setIsVisibleSnack(true)
             let agent = response.data.data
@@ -3932,385 +3936,385 @@ function Page() {
         }
       >
         <div className="w-full flex flex-col items-center bg-white" style={{ backgroundColor: '#ffffff', minHeight: '100vh', width: '100%' }}>
-      {/* Success snack bar */}
-      <div>
-        <AgentSelectSnackMessage
-          isVisible={isVisibleSnack}
-          hide={() => {
-            setIsVisibleSnack(false)
-          }}
-          type={SnackbarTypes.Success}
-          message={showSuccessSnack}
-        />
-      </div>
-      <div>
-        <AgentSelectSnackMessage
-          isVisible={isVisibleSnack2}
-          hide={() => setIsVisibleSnack2(false)}
-          message={showErrorSnack}
-          type={SnackbarTypes.Error}
-        />
-
-        <AgentSelectSnackMessage
-          message={showSnackMsg.message}
-          type={showSnackMsg.type}
-          isVisible={showSnackMsg.isVisible}
-          hide={() =>
-            setShowSnackMsg({ type: null, message: '', isVisible: false })
-          }
-        />
-      </div>
-      <StandardHeader
-        titleContent={
-          <div className="flex flex-row items-center gap-3">
-            <TypographyH3
-              className="cursor-pointer"
-              onClick={() => {
-                router.push('/createagent')
+          {/* Success snack bar */}
+          <div>
+            <AgentSelectSnackMessage
+              isVisible={isVisibleSnack}
+              hide={() => {
+                setIsVisibleSnack(false)
               }}
-            >
-              Agents
-            </TypographyH3>
-            {reduxUser?.plan?.planId != null &&
-              reduxUser?.planCapabilities?.maxAgents < 10000000 && (
-                <div
-                  style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
-                >
-                  {`${reduxUser?.currentUsage?.maxAgents}/${reduxUser?.planCapabilities?.maxAgents || 0} used`}
-                </div>
-              )}
+              type={SnackbarTypes.Success}
+              message={showSuccessSnack}
+            />
+          </div>
+          <div>
+            <AgentSelectSnackMessage
+              isVisible={isVisibleSnack2}
+              hide={() => setIsVisibleSnack2(false)}
+              message={showErrorSnack}
+              type={SnackbarTypes.Error}
+            />
 
-            {reduxUser?.plan?.planId != null &&
-              reduxUser?.planCapabilities?.maxAgents < 10000000 && (
-                <Tooltip
-                  title={`Additional agents are $${reduxUser?.planCapabilities?.costPerAdditionalAgent || 10}/month each.`}
-                  arrow
-                  componentsProps={{
-                    tooltip: {
-                      sx: {
-                        backgroundColor: '#ffffff', // Ensure white background
-                        color: '#333', // Dark text color
-                        fontSize: '14px',
-                        padding: '10px 15px',
-                        borderRadius: '8px',
-                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                      },
-                    },
-                    arrow: {
-                      sx: {
-                        color: '#ffffff', // Match tooltip background
-                      },
-                    },
+            <AgentSelectSnackMessage
+              message={showSnackMsg.message}
+              type={showSnackMsg.type}
+              isVisible={showSnackMsg.isVisible}
+              hide={() =>
+                setShowSnackMsg({ type: null, message: '', isVisible: false })
+              }
+            />
+          </div>
+          <StandardHeader
+            titleContent={
+              <div className="flex flex-row items-center gap-3">
+                <TypographyH3
+                  className="cursor-pointer"
+                  onClick={() => {
+                    router.push('/createagent')
                   }}
+                >
+                  Agents
+                </TypographyH3>
+                {reduxUser?.plan?.planId != null &&
+                  reduxUser?.planCapabilities?.maxAgents < 10000000 && (
+                    <div
+                      style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
+                    >
+                      {`${reduxUser?.currentUsage?.maxAgents}/${reduxUser?.planCapabilities?.maxAgents || 0} used`}
+                    </div>
+                  )}
+
+                {reduxUser?.plan?.planId != null &&
+                  reduxUser?.planCapabilities?.maxAgents < 10000000 && (
+                    <Tooltip
+                      title={`Additional agents are $${reduxUser?.planCapabilities?.costPerAdditionalAgent || 10}/month each.`}
+                      arrow
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: '#ffffff', // Ensure white background
+                            color: '#333', // Dark text color
+                            fontSize: '14px',
+                            padding: '10px 15px',
+                            borderRadius: '8px',
+                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                          },
+                        },
+                        arrow: {
+                          sx: {
+                            color: '#ffffff', // Match tooltip background
+                          },
+                        },
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontSize: 12,
+                          fontWeight: '600',
+                          color: '#000000',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <Image
+                          src="/agencyIcons/InfoIcon.jpg"
+                          alt="info"
+                          width={16}
+                          height={16}
+                          className="cursor-pointer rounded-full"
+                        />
+                      </div>
+                    </Tooltip>
+                  )}
+              </div>
+            }
+            showTasks={true}
+            rightContent={
+              <div className="flex flex-row items-center gap-1 flex-shrink-0 border rounded-full px-4 h-[35px]">
+                <input
+                  className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
+                  placeholder="Search an agent"
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value)
+                    if (canGetMore === true) {
+                      setCanKeepLoading(true)
+                    } else {
+                      setCanKeepLoading(false)
+                    }
+
+                    // Clear existing timeout to prevent memory leaks
+                    if (searchTimeoutRef.current) {
+                      clearTimeout(searchTimeoutRef.current)
+                    }
+                    searchTimeoutRef.current = setTimeout(() => {
+                      let searchLoader = true
+                      getAgents(false, e.target.value, searchLoader)
+                    }, 500)
+                  }}
+                />
+                <button className="outline-none border-none">
+                  <Image
+                    src={'/assets/searchIcon.png'}
+                    height={24}
+                    width={24}
+                    alt="*"
+                  />
+                </button>
+              </div>
+            }
+          />
+          <div className="w-9/12 items-center " style={{}}>
+            {/* code for agents list */}
+            {initialLoader ? (
+              <div className="h-[70vh] flex flex-row justify-center gap-4">
+                {/*<CircularProgress size={45} />*/}
+                <MyAgentXLoader />
+              </div>
+            ) : (
+              <AgentsListPaginated
+                oldAgentsList={oldAgentsList}
+                agentsListSeparatedParam={agentsListSeparated}
+                selectedImagesParam={selectedImages}
+                handlePopoverClose={handlePopoverClose}
+                user={user}
+                getAgents={(p, s) => {
+                  // console.log("p", s);
+                  getAgents(p, s) //user
+                }}
+                search={search}
+                setObjective={setObjective}
+                setOldObjective={setOldObjective}
+                setGreetingTagInput={setGreetingTagInput}
+                setOldGreetingTagInput={setOldGreetingTagInput}
+                setScriptTagInput={setScriptTagInput}
+                setOldScriptTagInput={setOldScriptTagInput}
+                setShowScriptModal={setShowScriptModal}
+                matchingAgent={matchingAgent}
+                setShowScript={setShowScript}
+                handleShowDrawer={handleShowDrawer}
+                handleProfileImgChange={handleProfileImgChange}
+                setShowRenameAgentPopup={setShowRenameAgentPopup}
+                setSelectedRenameAgent={setSelectedRenameAgent}
+                setRenameAgent={setRenameAgent}
+                // ShowWarningModal={ShowWarningModal}
+                // setShowWarningModal={setShowWarningModal}
+                setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+                setOpenTestAiModal={setOpenTestAiModal}
+                mainAgentsList={mainAgentsList}
+                setScriptKeys={setScriptKeys}
+                setSelectedAgent={setSelectedAgent}
+                keys={keys}
+                canGetMore={canGetMore}
+                paginationLoader={paginationLoader}
+                initialLoader={initialLoader}
+              />
+            )}
+
+            {/* code to add new agent */}
+            {agentsListSeparated.length > 0 && (
+              <div
+                className="w-full py-6 flex justify-center items-center h-[70px] cursor-pointer"
+                href=""
+                prefetch={true}
+                style={{
+                  // marginTop: 40,
+                  border: '1px dashed hsl(var(--brand-primary))',
+                  borderRadius: '10px',
+                  // borderColor: '#7902DF',
+                  boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
+                  backgroundColor: '#FBFCFF',
+                }}
+                onClick={handleAddNewAgent}
+              >
+                <div
+                  className="flex flex-row items-center gap-1"
+                  style={{
+                    fontSize: 20,
+                    fontWeight: '500',
+                    color: '#000',
+                  }}
+                >
+                  <Plus weight="bold" size={22} /> Add New Agent
+                </div>
+              </div>
+            )}
+          </div>
+          {/* Modal to rename the agent */}
+          <Modal
+            open={showRenameAgentPopup}
+            onClose={() => {
+              setShowRenameAgentPopup(false)
+            }}
+            BackdropProps={{
+              timeout: 100,
+              sx: {
+                backgroundColor: '#00000020',
+                // //backdropFilter: "blur(20px)",
+              },
+            }}
+          >
+            <Box
+              className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
+              sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
+            >
+              <div style={{ width: '100%' }}>
+                <div
+                  className="max-h-[60vh] overflow-auto"
+                  style={{ scrollbarWidth: 'none' }}
                 >
                   <div
                     style={{
-                      fontSize: 12,
-                      fontWeight: '600',
-                      color: '#000000',
-                      cursor: 'pointer',
+                      width: '100%',
+                      direction: 'row',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
                     }}
                   >
-                    <Image
-                      src="/agencyIcons/InfoIcon.jpg"
-                      alt="info"
-                      width={16}
-                      height={16}
-                      className="cursor-pointer rounded-full"
-                    />
-                  </div>
-                </Tooltip>
-              )}
-          </div>
-        }
-        showTasks={true}
-        rightContent={
-          <div className="flex flex-row items-center gap-1 flex-shrink-0 border rounded-full px-4 h-[35px]">
-            <input
-              className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
-              placeholder="Search an agent"
-              value={search}
-              onChange={(e) => {
-                setSearch(e.target.value)
-                if (canGetMore === true) {
-                  setCanKeepLoading(true)
-                } else {
-                  setCanKeepLoading(false)
-                }
-
-                // Clear existing timeout to prevent memory leaks
-                if (searchTimeoutRef.current) {
-                  clearTimeout(searchTimeoutRef.current)
-                }
-                searchTimeoutRef.current = setTimeout(() => {
-                  let searchLoader = true
-                  getAgents(false, e.target.value, searchLoader)
-                }, 500)
-              }}
-            />
-            <button className="outline-none border-none">
-              <Image
-                src={'/assets/searchIcon.png'}
-                height={24}
-                width={24}
-                alt="*"
-              />
-            </button>
-          </div>
-        }
-      />
-      <div className="w-9/12 items-center " style={{}}>
-        {/* code for agents list */}
-        {initialLoader ? (
-          <div className="h-[70vh] flex flex-row justify-center gap-4">
-            {/*<CircularProgress size={45} />*/}
-            <MyAgentXLoader />
-          </div>
-        ) : (
-          <AgentsListPaginated
-            oldAgentsList={oldAgentsList}
-            agentsListSeparatedParam={agentsListSeparated}
-            selectedImagesParam={selectedImages}
-            handlePopoverClose={handlePopoverClose}
-            user={user}
-            getAgents={(p, s) => {
-              // console.log("p", s);
-              getAgents(p, s) //user
-            }}
-            search={search}
-            setObjective={setObjective}
-            setOldObjective={setOldObjective}
-            setGreetingTagInput={setGreetingTagInput}
-            setOldGreetingTagInput={setOldGreetingTagInput}
-            setScriptTagInput={setScriptTagInput}
-            setOldScriptTagInput={setOldScriptTagInput}
-            setShowScriptModal={setShowScriptModal}
-            matchingAgent={matchingAgent}
-            setShowScript={setShowScript}
-            handleShowDrawer={handleShowDrawer}
-            handleProfileImgChange={handleProfileImgChange}
-            setShowRenameAgentPopup={setShowRenameAgentPopup}
-            setSelectedRenameAgent={setSelectedRenameAgent}
-            setRenameAgent={setRenameAgent}
-            // ShowWarningModal={ShowWarningModal}
-            // setShowWarningModal={setShowWarningModal}
-            setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
-            setOpenTestAiModal={setOpenTestAiModal}
-            mainAgentsList={mainAgentsList}
-            setScriptKeys={setScriptKeys}
-            setSelectedAgent={setSelectedAgent}
-            keys={keys}
-            canGetMore={canGetMore}
-            paginationLoader={paginationLoader}
-            initialLoader={initialLoader}
-          />
-        )}
-
-        {/* code to add new agent */}
-        {agentsListSeparated.length > 0 && (
-          <div
-            className="w-full py-6 flex justify-center items-center h-[70px] cursor-pointer"
-            href=""
-            prefetch={true}
-            style={{
-              // marginTop: 40,
-              border: '1px dashed hsl(var(--brand-primary))',
-              borderRadius: '10px',
-              // borderColor: '#7902DF',
-              boxShadow: '0px 0px 10px 10px rgba(64, 47, 255, 0.05)',
-              backgroundColor: '#FBFCFF',
-            }}
-            onClick={handleAddNewAgent}
-          >
-            <div
-              className="flex flex-row items-center gap-1"
-              style={{
-                fontSize: 20,
-                fontWeight: '500',
-                color: '#000',
-              }}
-            >
-              <Plus weight="bold" size={22} /> Add New Agent
-            </div>
-          </div>
-        )}
-      </div>
-      {/* Modal to rename the agent */}
-      <Modal
-        open={showRenameAgentPopup}
-        onClose={() => {
-          setShowRenameAgentPopup(false)
-        }}
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: '#00000020',
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box
-          className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12"
-          sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
-        >
-          <div style={{ width: '100%' }}>
-            <div
-              className="max-h-[60vh] overflow-auto"
-              style={{ scrollbarWidth: 'none' }}
-            >
-              <div
-                style={{
-                  width: '100%',
-                  direction: 'row',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                {/* <div style={{ width: "20%" }} /> */}
-                <div style={{ fontWeight: '700', fontSize: 22 }}>
-                  Rename Agent
-                </div>
-                <div
-                  style={{
-                    direction: 'row',
-                    display: 'flex',
-                    justifyContent: 'end',
-                  }}
-                >
-                  <CloseBtn
-                    onClick={() => {
-                      setShowRenameAgentPopup(null)
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <div
-                  className="mt-4"
-                  style={{ fontWeight: '600', fontSize: 12, paddingBottom: 5 }}
-                >
-                  Agent Name
-                </div>
-                <input
-                  value={renameAgent || ''}
-                  // value = {showRenameAgentPopup?.name}
-                  onChange={(e) => {
-                    setRenameAgent(e.target.value)
-                  }}
-                  placeholder={
-                    'Enter agent title'
-                    // selectedRenameAgent?.name
-                    //   ? selectedRenameAgent.name
-                    //   : "Enter agent title"
-                  }
-                  className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
-                  style={{ border: '1px solid #00000020' }}
-                />
-              </div>
-            </div>
-
-            {renameAgentLoader ? (
-              <div className="flex flex-row iems-center justify-center w-full mt-4">
-                <CircularProgress size={25} />
-              </div>
-            ) : (
-              <button
-                className="mt-4 outline-none"
-                style={{
-                  backgroundColor: 'hsl(var(--brand-primary))',
-                  color: 'white',
-                  height: '50px',
-                  borderRadius: '10px',
-                  width: '100%',
-                  fontWeight: 600,
-                  fontSize: '20',
-                }}
-                onClick={handleRenameAgent}
-              >
-                Update
-              </button>
-            )}
-          </div>
-        </Box>
-      </Modal>
-      {/* Test ai modal */}
-      <Modal
-        open={openTestAiModal}
-        onClose={() => {
-          setOpenTestAiModal(false)
-          setName('')
-          setPhone('')
-          setErrorMessage('')
-        }}
-        closeAfterTransition
-        BackdropProps={{
-          timeout: 500,
-          sx: {
-            backgroundColor: '#00000020',
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box className="lg:w-4/12 sm:w-10/12 w-full" sx={styles.modalsStyle}>
-          <div className="flex flex-row justify-center w-full max-h-[80vh]">
-            <div
-              className="sm:w-full w-full px-10 py-8 h-full"
-              style={{
-                backgroundColor: '#ffffff',
-                scrollbarWidth: 'none',
-                borderRadius: '13px',
-              }}
-            >
-              <div className="h-[85%] overflow-auto">
-                <div className="flex flex-row justify-between">
-                  <div className="flex flex-row gap-3">
-                    <Image
-                      src={'/otherAssets/testAiIcon.png'}
-                      height={19}
-                      width={19}
-                      alt="icon"
-                    />
-                    <div
-                      style={{ fontSize: 16, fontWeight: '500', color: '#000' }}
-                    >
-                      Test
+                    {/* <div style={{ width: "20%" }} /> */}
+                    <div style={{ fontWeight: '700', fontSize: 22 }}>
+                      Rename Agent
                     </div>
-
-                    {!selectedAgent?.phoneNumber && (
-                      <div className="flex flex-row items-center gap-2 -mt-1">
-                        <Image
-                          src={'/assets/warningFill.png'}
-                          height={20}
-                          width={20}
-                          alt="*"
-                        />
-                        <p>
-                          <i
-                            className="text-red"
-                            style={{
-                              fontSize: 12,
-                              fontWeight: '600',
-                            }}
-                          >
-                            No phone number assigned
-                          </i>
-                        </p>
-                      </div>
-                    )}
+                    <div
+                      style={{
+                        direction: 'row',
+                        display: 'flex',
+                        justifyContent: 'end',
+                      }}
+                    >
+                      <CloseBtn
+                        onClick={() => {
+                          setShowRenameAgentPopup(null)
+                        }}
+                      />
+                    </div>
                   </div>
 
-                  <CloseBtn
-                    onClick={() => {
-                      // setShowRenameAgentPopup(null);
-                      setOpenTestAiModal(false)
-                      setName('')
-                      setPhone('')
-                      setErrorMessage('')
+                  <div>
+                    <div
+                      className="mt-4"
+                      style={{ fontWeight: '600', fontSize: 12, paddingBottom: 5 }}
+                    >
+                      Agent Name
+                    </div>
+                    <input
+                      value={renameAgent || ''}
+                      // value = {showRenameAgentPopup?.name}
+                      onChange={(e) => {
+                        setRenameAgent(e.target.value)
+                      }}
+                      placeholder={
+                        'Enter agent title'
+                        // selectedRenameAgent?.name
+                        //   ? selectedRenameAgent.name
+                        //   : "Enter agent title"
+                      }
+                      className="outline-none bg-transparent w-full border-none focus:outline-none focus:ring-0 rounded-lg h-[50px]"
+                      style={{ border: '1px solid #00000020' }}
+                    />
+                  </div>
+                </div>
+
+                {renameAgentLoader ? (
+                  <div className="flex flex-row iems-center justify-center w-full mt-4">
+                    <CircularProgress size={25} />
+                  </div>
+                ) : (
+                  <button
+                    className="mt-4 outline-none"
+                    style={{
+                      backgroundColor: 'hsl(var(--brand-primary))',
+                      color: 'white',
+                      height: '50px',
+                      borderRadius: '10px',
+                      width: '100%',
+                      fontWeight: 600,
+                      fontSize: '20',
                     }}
-                  />
-                  {/* <button
+                    onClick={handleRenameAgent}
+                  >
+                    Update
+                  </button>
+                )}
+              </div>
+            </Box>
+          </Modal>
+          {/* Test ai modal */}
+          <Modal
+            open={openTestAiModal}
+            onClose={() => {
+              setOpenTestAiModal(false)
+              setName('')
+              setPhone('')
+              setErrorMessage('')
+            }}
+            closeAfterTransition
+            BackdropProps={{
+              timeout: 500,
+              sx: {
+                backgroundColor: '#00000020',
+                // //backdropFilter: "blur(20px)",
+              },
+            }}
+          >
+            <Box className="lg:w-4/12 sm:w-10/12 w-full" sx={styles.modalsStyle}>
+              <div className="flex flex-row justify-center w-full max-h-[80vh]">
+                <div
+                  className="sm:w-full w-full px-10 py-8 h-full"
+                  style={{
+                    backgroundColor: '#ffffff',
+                    scrollbarWidth: 'none',
+                    borderRadius: '13px',
+                  }}
+                >
+                  <div className="h-[85%] overflow-auto">
+                    <div className="flex flex-row justify-between">
+                      <div className="flex flex-row gap-3">
+                        <Image
+                          src={'/otherAssets/testAiIcon.png'}
+                          height={19}
+                          width={19}
+                          alt="icon"
+                        />
+                        <div
+                          style={{ fontSize: 16, fontWeight: '500', color: '#000' }}
+                        >
+                          Test
+                        </div>
+
+                        {!selectedAgent?.phoneNumber && (
+                          <div className="flex flex-row items-center gap-2 -mt-1">
+                            <Image
+                              src={'/assets/warningFill.png'}
+                              height={20}
+                              width={20}
+                              alt="*"
+                            />
+                            <p>
+                              <i
+                                className="text-red"
+                                style={{
+                                  fontSize: 12,
+                                  fontWeight: '600',
+                                }}
+                              >
+                                No phone number assigned
+                              </i>
+                            </p>
+                          </div>
+                        )}
+                      </div>
+
+                      <CloseBtn
+                        onClick={() => {
+                          // setShowRenameAgentPopup(null);
+                          setOpenTestAiModal(false)
+                          setName('')
+                          setPhone('')
+                          setErrorMessage('')
+                        }}
+                      />
+                      {/* <button
                     onClick={() => {
                       setOpenTestAiModal(false);
                       setName("");
@@ -4325,1873 +4329,1873 @@ function Page() {
                       alt="*"
                     />
                   </button> */}
-                </div>
-
-                <div
-                  style={{
-                    fontSize: 24,
-                    fontWeight: '700',
-                    color: '#000',
-                    marginTop: 20,
-                  }}
-                >
-                  Tryout ({selectedAgent?.name.slice(0, 1).toUpperCase()}
-                  {selectedAgent?.name.slice(1)})
-                </div>
-
-                <div className="pt-5" style={styles.headingStyle}>
-                  Who are you calling
-                </div>
-                <input
-                  placeholder="Name"
-                  className="w-full rounded p-2 outline-none focus:outline-none focus:ring-0"
-                  style={{
-                    ...styles.inputStyle,
-                    border: '1px solid #00000010',
-                  }}
-                  value={name || ''}
-                  onChange={(e) => {
-                    setName(e.target.value)
-                  }}
-                />
-
-                <div className="pt-5" style={styles.headingStyle}>
-                  Phone Number
-                </div>
-
-                <div style={{ marginTop: '8px' }}>
-                  <PhoneInput
-                    className="border outline-none bg-white"
-                    country={'us'}
-                    onlyCountries={['us', 'sv', 'pk', 'mx','sv', 'ec']}
-                    disableDropdown={false}
-                    countryCodeEditable={false}
-                    value={phone}
-                    onChange={handlePhoneNumberChange}
-                    placeholder={
-                      locationLoader ? 'Loading location ...' : 'Enter Number'
-                    }
-                    // disabled={loading} // Disable input if still loading
-                    style={{ borderRadius: '7px' }}
-                    inputStyle={{
-                      width: '100%',
-                      borderWidth: '0px',
-                      backgroundColor: 'transparent',
-                      paddingLeft: '60px',
-                      paddingTop: '20px',
-                      paddingBottom: '20px',
-                    }}
-                    buttonStyle={{
-                      border: 'none',
-                      backgroundColor: 'transparent',
-                      // display: 'flex',
-                      // alignItems: 'center',
-                      // justifyContent: 'center',
-                    }}
-                    dropdownStyle={{
-                      maxHeight: '150px',
-                      overflowY: 'auto',
-                    }}
-                  // defaultMask={loading ? 'Loading...' : undefined}
-                  />
-                </div>
-
-                {errorMessage ? (
-                  <p
-                    style={{
-                      ...styles.errmsg,
-                      color: errorMessage && 'red',
-                      height: '20px',
-                    }}
-                  >
-                    {errorMessage}
-                  </p>
-                ) : (
-                  ''
-                )}
-
-                <div
-                  className="max-h-[37vh] overflow-none"
-                  style={{ scrollbarWidth: 'none' }}
-                >
-                  {scriptKeys?.map((key, index) => (
-                    <div key={index}>
-                      <div className="pt-5" style={styles.headingStyle}>
-                        {key[0]?.toUpperCase()}
-                        {key?.slice(1)}
-                      </div>
-                      <input
-                        placeholder="Type here"
-                        // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
-                        className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? 'mb-16' : ''
-                          }`}
-                        style={{
-                          ...styles.inputStyle,
-                          border: '1px solid #00000010',
-                        }}
-                        value={inputValues[key] || ''} // Default to empty string if no value
-                        onChange={(e) => handleInputChange(key, e.target.value)}
-                      />
                     </div>
-                  ))}
-                </div>
-              </div>
-              <div className="w-full mt-6 h-[15%]" style={{}}>
-                {testAIloader ? (
-                  <div className="flex flex-row items-center justify-center w-full p-3 mt-2">
-                    <CircularProgress size={30} />
-                  </div>
-                ) : (
-                  <div>
-                    {name && phone && (
-                      <button
-                        // style={{ marginTop: 10 }}
-                        className="w-full flex bg-brand-primary p-3 rounded-lg items-center justify-center text-white"
-                        onClick={handleTestAiClick}
-                      >
-                        <div
-                          style={{
-                            fontSize: 16,
-                            fontWeight: '500',
-                            color: '#fff',
-                          }}
-                        >
-                          Test AI
-                        </div>
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
 
-              {/* Can be use full to add shadow */}
-              {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
-            </div>
-          </div>
-        </Box>
-      </Modal>
-      <UnlockPremiunFeatures
-        open={showUnlockPremiumFeaturesPopup}
-        handleClose={() => {
-          setShowUnlockPremiumFeaturesPopup(false)
-        }}
-        title={featureTitle}
-      />
-      <UpgradeModal
-        open={showUpgradeModal}
-        handleClose={() => {
-          setFeatureTitle('')
-          setShowUpgradeModal(false)
-        }}
-        onUpgradeSuccess={handleUpgradeSuccess}
-        title={title || 'Unlock More Agents'}
-        subTitle={
-          subTitle ||
-          'Upgrade to add more agents to your team and scale your calling power'
-        }
-        buttonTitle={'No Thanks'}
-        functionality="webAgent"
-        featureTitle={featureTitle}
-      />
-      <UpgradePlan
-        selectedPlan={null}
-        setSelectedPlan={() => { }}
-        open={showUpgradePlanModal}
-        handleClose={async (upgradeResult) => {
-          setShowUpgradePlanModal(false)
-          if (upgradeResult) {
-            setShowDuplicateConfirmationPopup(false)
-            await refreshUserData()
-          }
-        }}
-        plan={null}
-        currentFullPlan={reduxUser?.user?.plan}
-      />
-      <MoreAgentsPopup
-        open={showMoreAgentsPopup}
-        onClose={() => {
-          setShowMoreAgentsPopup(false)
-        }}
-        onUpgrade={() => {
-          // Close current modal first, then open upgrade modal after delay to prevent React DOM errors
-          setShowMoreAgentsPopup(false)
-          setTimeout(() => {
-            setShowUpgradePlanModal(true)
-          }, 150)
-        }}
-        onAddAgent={() => {
-          // Close modal first to prevent React DOM errors
-          setShowMoreAgentsPopup(false)
-          // Execute action after a small delay
-          setTimeout(() => {
-            if (moreAgentsPopupType === 'duplicate') {
-              handleDuplicate()
-            } else if (moreAgentsPopupType === 'newagent') {
-              handleAddAgentByMoreAgentsPopup()
-            } else {
-              handleAddAgentByMoreAgentsPopup()
-            }
-          }, 150)
-        }}
-        costPerAdditionalAgent={
-          reduxUser?.planCapabilities?.costPerAdditionalAgent || 10
-        }
-        from={'agents'}
-      />
-      <AskToUpgrade
-        open={showAskToUpgradeModal}
-        handleClose={() => {
-          setShowAskToUPgradeModal(false)
-        }}
-      />
-      {/* Error snack bar message */}
-      {/* drawer */}
-      <Drawer
-        anchor="right"
-        open={showDrawerSelectedAgent != null}
-        onClose={() => {
-          handleDrawerClose()
-        }}
-        PaperProps={{
-          className: 'responsive-drawer-paper',
-          sx: {
-            padding: '0px', // Internal padding
-            boxShadow: 3, // Light shadow
-            backgroundColor: 'white', // Ensure it's visible
-            overflow: 'hidden',
-            scrollbarWidth: 'none',
-            // Keep sx props as fallback, but CSS class will override
-            width: {
-              xs: '100%',
-              sm: '85%',
-              md: '70%',
-              lg: '50%',
-              xl: '40%'
-            },
-            maxWidth: { xs: '100vw', sm: '500px', md: '600px', lg: '700px', xl: '800px' },
-            borderRadius: { xs: '0px', sm: '20px' },
-            margin: { xs: '0%', sm: '1%' },
-            height: { xs: '100vh', sm: '96.5vh' },
-          },
-        }}
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: '#00000020',
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <div
-          className="flex flex-col w-full h-full py-2 px-3 sm:px-5 rounded-xl"
-        // style={{  }}
-        >
-          <div
-            className="w-full flex flex-col h-[95%]"
-            style={{
-              overflowY: 'auto',
-              overflowX: 'hidden',
-              scrollbarWidth: 'none',
-            }}
-          >
-            {/* Agent TOp Info */}
-            <div className="flex flex-row items-start justify-between w-full mt-2 ">
-              <div className="flex flex-row items-start justify-start mt-2 gap-4">
-                {/* Profile Image */}
-                <div className="">
-                  <button
-                    // className='mt-8'
-                    onClick={() => {
-                      document.getElementById('fileInput').click()
-                      // if (typeof document === "undefined") {
-                      // }
-                    }}
-                    onDrop={handleDrop}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                  >
                     <div
-                      className="flex flex-row items-end"
-                      style={
-                        {
-                          // border: dragging ? "2px dashed #0070f3" : "",
-                        }
-                      }
-                    >
-                      {selectedImage ? (
-                        <div style={{ marginTop: '', background: '' }}>
-                          <Image
-                            src={selectedImage}
-                            height={45}
-                            width={45}
-                            alt="profileImage"
-                            className="rounded-full"
-                            style={{
-                              objectFit: 'cover',
-                              resize: 'cover',
-                              height: '74px',
-                              width: '74px',
-                            }}
-                          />
-                        </div>
-                      ) : (
-                        getAgentsListImage(showDrawerSelectedAgent)
-                      )}
-
-                      <Image
-                        src={'/otherAssets/cameraBtn.png'}
-                        style={{ marginLeft: -25 }}
-                        height={20}
-                        width={20}
-                        alt="profileImage"
-                      />
-                    </div>
-                  </button>
-
-                  {/* Hidden file input */}
-                  <input
-                    value={''}
-                    type="file"
-                    accept="image/*"
-                    id="fileInput"
-                    style={{ display: 'none' }}
-                    onChange={handleImageChange}
-                  />
-
-                  {/* Global Loader */}
-                  {globalLoader && (
-                    <CircularLoader
-                      globalLoader={globalLoader}
-                      setGlobalLoader={setGlobalLoader}
-                    />
-                  )}
-                </div>
-                <div className="flex flex-col gap-2 items-start ml-2">
-                  <div className="flex flex-row justify-center items-center gap-2">
-                    <button
-                      onClick={() => {
-                        setShowRenameAgentPopup(true)
-                        setSelectedRenameAgent(showDrawerSelectedAgent)
-                        setRenameAgent(showDrawerSelectedAgent?.name)
+                      style={{
+                        fontSize: 24,
+                        fontWeight: '700',
+                        color: '#000',
+                        marginTop: 20,
                       }}
                     >
-                      <div className="flex flex-row items-center gap-2">
-                        {renderBrandedIcon('/svgIcons/editIcon2.svg', 24, 24)}
-                        <div className="relative group max-w-[150px]">
-                          <div className="truncate font-semibold text-[22px]">
-                            {showDrawerSelectedAgent?.name
-                              ?.slice(0, 1)
-                              .toUpperCase()}
-                            {showDrawerSelectedAgent?.name?.slice(1)}
-                          </div>
-
-                          {/* Tooltip */}
-                          <div
-                            className="absolute left-0 top-full mt-1 w-max max-w-xs px-2 py-1 rounded-md bg-white
-                           shadow-md p-2 text-black text-md font-[500] opacity-0 group-hover:opacity-100 pointer-events-none
-                           transition-opacity duration-200 z-50"
-                          >
-                            {showDrawerSelectedAgent?.name}
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                    <div
-                      className="text-brand-primary max-w-[140px]"
-                      style={{ fontSize: 11, fontWeight: '600' }}
-                    >
-                      {showDrawerSelectedAgent?.agentObjective}{' '}
-                      <span>
-                        {' '}
-                        |{' '}
-                        {showDrawerSelectedAgent?.agentType
-                          ?.slice(0, 1)
-                          .toUpperCase(0)}
-                        {showDrawerSelectedAgent?.agentType?.slice(1)} |{' '}
-                      </span>
+                      Tryout ({selectedAgent?.name.slice(0, 1).toUpperCase()}
+                      {selectedAgent?.name.slice(1)})
                     </div>
 
-                    {/* <EmbedWidget
+                    <div className="pt-5" style={styles.headingStyle}>
+                      Who are you calling
+                    </div>
+                    <input
+                      placeholder="Name"
+                      className="w-full rounded p-2 outline-none focus:outline-none focus:ring-0"
+                      style={{
+                        ...styles.inputStyle,
+                        border: '1px solid #00000010',
+                      }}
+                      value={name || ''}
+                      onChange={(e) => {
+                        setName(e.target.value)
+                      }}
+                    />
+
+                    <div className="pt-5" style={styles.headingStyle}>
+                      Phone Number
+                    </div>
+
+                    <div style={{ marginTop: '8px' }}>
+                      <PhoneInput
+                        className="border outline-none bg-white"
+                        country={'us'}
+                        onlyCountries={['us', 'sv', 'pk', 'mx', 'sv', 'ec']}
+                        disableDropdown={false}
+                        countryCodeEditable={false}
+                        value={phone}
+                        onChange={handlePhoneNumberChange}
+                        placeholder={
+                          locationLoader ? 'Loading location ...' : 'Enter Number'
+                        }
+                        // disabled={loading} // Disable input if still loading
+                        style={{ borderRadius: '7px' }}
+                        inputStyle={{
+                          width: '100%',
+                          borderWidth: '0px',
+                          backgroundColor: 'transparent',
+                          paddingLeft: '60px',
+                          paddingTop: '20px',
+                          paddingBottom: '20px',
+                        }}
+                        buttonStyle={{
+                          border: 'none',
+                          backgroundColor: 'transparent',
+                          // display: 'flex',
+                          // alignItems: 'center',
+                          // justifyContent: 'center',
+                        }}
+                        dropdownStyle={{
+                          maxHeight: '150px',
+                          overflowY: 'auto',
+                        }}
+                      // defaultMask={loading ? 'Loading...' : undefined}
+                      />
+                    </div>
+
+                    {errorMessage ? (
+                      <p
+                        style={{
+                          ...styles.errmsg,
+                          color: errorMessage && 'red',
+                          height: '20px',
+                        }}
+                      >
+                        {errorMessage}
+                      </p>
+                    ) : (
+                      ''
+                    )}
+
+                    <div
+                      className="max-h-[37vh] overflow-none"
+                      style={{ scrollbarWidth: 'none' }}
+                    >
+                      {scriptKeys?.map((key, index) => (
+                        <div key={index}>
+                          <div className="pt-5" style={styles.headingStyle}>
+                            {key[0]?.toUpperCase()}
+                            {key?.slice(1)}
+                          </div>
+                          <input
+                            placeholder="Type here"
+                            // className="w-full border rounded p-2 outline-none focus:outline-none focus:ring-0 mb-12"
+                            className={`w-full rounded p-2 outline-none focus:outline-none focus:ring-0 ${index === scriptKeys?.length - 1 ? 'mb-16' : ''
+                              }`}
+                            style={{
+                              ...styles.inputStyle,
+                              border: '1px solid #00000010',
+                            }}
+                            value={inputValues[key] || ''} // Default to empty string if no value
+                            onChange={(e) => handleInputChange(key, e.target.value)}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="w-full mt-6 h-[15%]" style={{}}>
+                    {testAIloader ? (
+                      <div className="flex flex-row items-center justify-center w-full p-3 mt-2">
+                        <CircularProgress size={30} />
+                      </div>
+                    ) : (
+                      <div>
+                        {name && phone && (
+                          <button
+                            // style={{ marginTop: 10 }}
+                            className="w-full flex bg-brand-primary p-3 rounded-lg items-center justify-center text-white"
+                            onClick={handleTestAiClick}
+                          >
+                            <div
+                              style={{
+                                fontSize: 16,
+                                fontWeight: '500',
+                                color: '#fff',
+                              }}
+                            >
+                              Test AI
+                            </div>
+                          </button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Can be use full to add shadow */}
+                  {/* <div style={{ backgroundColor: "#ffffff", borderRadius: 7, padding: 10 }}> </div> */}
+                </div>
+              </div>
+            </Box>
+          </Modal>
+          <UnlockPremiunFeatures
+            open={showUnlockPremiumFeaturesPopup}
+            handleClose={() => {
+              setShowUnlockPremiumFeaturesPopup(false)
+            }}
+            title={featureTitle}
+          />
+          <UpgradeModal
+            open={showUpgradeModal}
+            handleClose={() => {
+              setFeatureTitle('')
+              setShowUpgradeModal(false)
+            }}
+            onUpgradeSuccess={handleUpgradeSuccess}
+            title={title || 'Unlock More Agents'}
+            subTitle={
+              subTitle ||
+              'Upgrade to add more agents to your team and scale your calling power'
+            }
+            buttonTitle={'No Thanks'}
+            functionality="webAgent"
+            featureTitle={featureTitle}
+          />
+          <UpgradePlan
+            selectedPlan={null}
+            setSelectedPlan={() => { }}
+            open={showUpgradePlanModal}
+            handleClose={async (upgradeResult) => {
+              setShowUpgradePlanModal(false)
+              if (upgradeResult) {
+                setShowDuplicateConfirmationPopup(false)
+                await refreshUserData()
+              }
+            }}
+            plan={null}
+            currentFullPlan={reduxUser?.user?.plan}
+          />
+          <MoreAgentsPopup
+            open={showMoreAgentsPopup}
+            onClose={() => {
+              setShowMoreAgentsPopup(false)
+            }}
+            onUpgrade={() => {
+              // Close current modal first, then open upgrade modal after delay to prevent React DOM errors
+              setShowMoreAgentsPopup(false)
+              setTimeout(() => {
+                setShowUpgradePlanModal(true)
+              }, 150)
+            }}
+            onAddAgent={() => {
+              // Close modal first to prevent React DOM errors
+              setShowMoreAgentsPopup(false)
+              // Execute action after a small delay
+              setTimeout(() => {
+                if (moreAgentsPopupType === 'duplicate') {
+                  handleDuplicate()
+                } else if (moreAgentsPopupType === 'newagent') {
+                  handleAddAgentByMoreAgentsPopup()
+                } else {
+                  handleAddAgentByMoreAgentsPopup()
+                }
+              }, 150)
+            }}
+            costPerAdditionalAgent={
+              reduxUser?.planCapabilities?.costPerAdditionalAgent || 10
+            }
+            from={'agents'}
+          />
+          <AskToUpgrade
+            open={showAskToUpgradeModal}
+            handleClose={() => {
+              setShowAskToUPgradeModal(false)
+            }}
+          />
+          {/* Error snack bar message */}
+          {/* drawer */}
+          <Drawer
+            anchor="right"
+            open={showDrawerSelectedAgent != null}
+            onClose={() => {
+              handleDrawerClose()
+            }}
+            PaperProps={{
+              className: 'responsive-drawer-paper',
+              sx: {
+                padding: '0px', // Internal padding
+                boxShadow: 3, // Light shadow
+                backgroundColor: 'white', // Ensure it's visible
+                overflow: 'hidden',
+                scrollbarWidth: 'none',
+                // Keep sx props as fallback, but CSS class will override
+                width: {
+                  xs: '100%',
+                  sm: '85%',
+                  md: '70%',
+                  lg: '50%',
+                  xl: '40%'
+                },
+                maxWidth: { xs: '100vw', sm: '500px', md: '600px', lg: '700px', xl: '800px' },
+                borderRadius: { xs: '0px', sm: '20px' },
+                margin: { xs: '0%', sm: '1%' },
+                height: { xs: '100vh', sm: '96.5vh' },
+              },
+            }}
+            BackdropProps={{
+              timeout: 100,
+              sx: {
+                backgroundColor: '#00000020',
+                // //backdropFilter: "blur(20px)",
+              },
+            }}
+          >
+            <div
+              className="flex flex-col w-full h-full py-2 px-3 sm:px-5 rounded-xl"
+            // style={{  }}
+            >
+              <div
+                className="w-full flex flex-col h-[95%]"
+                style={{
+                  overflowY: 'auto',
+                  overflowX: 'hidden',
+                  scrollbarWidth: 'none',
+                }}
+              >
+                {/* Agent TOp Info */}
+                <div className="flex flex-row items-start justify-between w-full mt-2 ">
+                  <div className="flex flex-row items-start justify-start mt-2 gap-4">
+                    {/* Profile Image */}
+                    <div className="">
+                      <button
+                        // className='mt-8'
+                        onClick={() => {
+                          document.getElementById('fileInput').click()
+                          // if (typeof document === "undefined") {
+                          // }
+                        }}
+                        onDrop={handleDrop}
+                        onDragOver={handleDragOver}
+                        onDragLeave={handleDragLeave}
+                      >
+                        <div
+                          className="flex flex-row items-end"
+                          style={
+                            {
+                              // border: dragging ? "2px dashed #0070f3" : "",
+                            }
+                          }
+                        >
+                          {selectedImage ? (
+                            <div style={{ marginTop: '', background: '' }}>
+                              <Image
+                                src={selectedImage}
+                                height={45}
+                                width={45}
+                                alt="profileImage"
+                                className="rounded-full"
+                                style={{
+                                  objectFit: 'cover',
+                                  resize: 'cover',
+                                  height: '74px',
+                                  width: '74px',
+                                }}
+                              />
+                            </div>
+                          ) : (
+                            getAgentsListImage(showDrawerSelectedAgent)
+                          )}
+
+                          <Image
+                            src={'/otherAssets/cameraBtn.png'}
+                            style={{ marginLeft: -25 }}
+                            height={20}
+                            width={20}
+                            alt="profileImage"
+                          />
+                        </div>
+                      </button>
+
+                      {/* Hidden file input */}
+                      <input
+                        value={''}
+                        type="file"
+                        accept="image/*"
+                        id="fileInput"
+                        style={{ display: 'none' }}
+                        onChange={handleImageChange}
+                      />
+
+                      {/* Global Loader */}
+                      {globalLoader && (
+                        <CircularLoader
+                          globalLoader={globalLoader}
+                          setGlobalLoader={setGlobalLoader}
+                        />
+                      )}
+                    </div>
+                    <div className="flex flex-col gap-2 items-start ml-2">
+                      <div className="flex flex-row justify-center items-center gap-2">
+                        <button
+                          onClick={() => {
+                            setShowRenameAgentPopup(true)
+                            setSelectedRenameAgent(showDrawerSelectedAgent)
+                            setRenameAgent(showDrawerSelectedAgent?.name)
+                          }}
+                        >
+                          <div className="flex flex-row items-center gap-2">
+                            {renderBrandedIcon('/svgIcons/editIcon2.svg', 24, 24)}
+                            <div className="relative group max-w-[150px]">
+                              <div className="truncate font-semibold text-[22px]">
+                                {showDrawerSelectedAgent?.name
+                                  ?.slice(0, 1)
+                                  .toUpperCase()}
+                                {showDrawerSelectedAgent?.name?.slice(1)}
+                              </div>
+
+                              {/* Tooltip */}
+                              <div
+                                className="absolute left-0 top-full mt-1 w-max max-w-xs px-2 py-1 rounded-md bg-white
+                           shadow-md p-2 text-black text-md font-[500] opacity-0 group-hover:opacity-100 pointer-events-none
+                           transition-opacity duration-200 z-50"
+                              >
+                                {showDrawerSelectedAgent?.name}
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                        <div
+                          className="text-brand-primary max-w-[140px]"
+                          style={{ fontSize: 11, fontWeight: '600' }}
+                        >
+                          {showDrawerSelectedAgent?.agentObjective}{' '}
+                          <span>
+                            {' '}
+                            |{' '}
+                            {showDrawerSelectedAgent?.agentType
+                              ?.slice(0, 1)
+                              .toUpperCase(0)}
+                            {showDrawerSelectedAgent?.agentType?.slice(1)} |{' '}
+                          </span>
+                        </div>
+
+                        {/* <EmbedWidget
                       assistantId={showDrawerSelectedAgent?.modelIdVapi}
                       setShowSuccessSnack={setShowSuccessSnack}
                       setIsVisible={setIsVisibleSnack}
                       baseUrl={baseUrl}
                     /> */}
-                  </div>
+                      </div>
 
-                  <div
-                    style={{ fontSize: 15, fontWeight: '500', color: '#000' }}
-                  >
-                    {/* {showDrawer?.phoneNumber} */}
-                    {formatPhoneNumber(showDrawerSelectedAgent?.phoneNumber)}
-                  </div>
+                      <div
+                        style={{ fontSize: 15, fontWeight: '500', color: '#000' }}
+                      >
+                        {/* {showDrawer?.phoneNumber} */}
+                        {formatPhoneNumber(showDrawerSelectedAgent?.phoneNumber)}
+                      </div>
 
-                  <div className="flex flex-row gap-2 items-center ">
-                    <div
-                      style={{ fontSize: 11, fontWeight: '500', color: '#666' }}
-                    >
-                      Created on:
-                    </div>
-                    <div
-                      style={{ fontSize: 11, fontWeight: '500', color: '#000' }}
-                    >
-                      {/* {showDrawer?.createdAt} */}
-                      {GetFormattedDateString(
-                        showDrawerSelectedAgent?.createdAt,
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col items-center gap-2">
-                <div>
-                  <DuplicateConfirmationPopup
-                    open={showDuplicateConfirmationPopup}
-                    handleClose={() => setShowDuplicateConfirmationPopup(false)}
-                    handleDuplicate={shouldDuplicateAgent}
-                    duplicateLoader={duplicateLoader}
-                  />
-                  <div className="flex flex-col gap-2  ">
-                    {/* GPT Button */}
-
-                    {showModelLoader ? (
-                      <CircularProgress size={25} />
-                    ) : (
-                      <div>
-                        <button
-                          id="gpt"
-                          onClick={(event) =>
-                            setOpenGptManu(event.currentTarget)
-                          }
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            borderRadius: '20px',
-                            padding: '6px 12px',
-                            border: '1px solid #EEE',
-                            backgroundColor: 'white',
-                            // boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.05)",
-                            fontSize: '16px',
-                            fontWeight: '500',
-                            color: '#000',
-                            textTransform: 'none',
-                            '&:hover': { backgroundColor: '#F5F5F5' },
-                          }}
+                      <div className="flex flex-row gap-2 items-center ">
+                        <div
+                          style={{ fontSize: 11, fontWeight: '500', color: '#666' }}
                         >
-                          <Avatar
-                            src={selectedGptManu?.icon}
-                            sx={{ width: 24, height: 24, marginRight: 1 }}
-                          />
-                          {selectedGptManu?.name}
-                          <Image
-                            src={'/svgIcons/downArrow.svg'}
-                            width={18}
-                            height={18}
-                            alt="*"
-                          />
-                        </button>
-
-                        <Menu
-                          id="gpt"
-                          anchorEl={openGptManu}
-                          open={openGptManu}
-                          onClose={() => setOpenGptManu(null)}
-                          sx={{
-                            '& .MuiPaper-root': {
-                              borderRadius: '12px',
-                              padding: '8px',
-                              minWidth: '220px',
-                            },
-                          }}
+                          Created on:
+                        </div>
+                        <div
+                          style={{ fontSize: 11, fontWeight: '500', color: '#000' }}
                         >
-                          {models.map((model, index) => (
-                            <MenuItem
-                              key={index}
-                              onClick={() => handleGptManuSelect(model)}
-                              disabled={model.disabled}
-                              sx={{
+                          {/* {showDrawer?.createdAt} */}
+                          {GetFormattedDateString(
+                            showDrawerSelectedAgent?.createdAt,
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center gap-2">
+                    <div>
+                      <DuplicateConfirmationPopup
+                        open={showDuplicateConfirmationPopup}
+                        handleClose={() => setShowDuplicateConfirmationPopup(false)}
+                        handleDuplicate={shouldDuplicateAgent}
+                        duplicateLoader={duplicateLoader}
+                      />
+                      <div className="flex flex-col gap-2  ">
+                        {/* GPT Button */}
+
+                        {showModelLoader ? (
+                          <CircularProgress size={25} />
+                        ) : (
+                          <div>
+                            <button
+                              id="gpt"
+                              onClick={(event) =>
+                                setOpenGptManu(event.currentTarget)
+                              }
+                              style={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: 'space-between',
-                                gap: '10px',
-                                padding: '8px 12px',
-                                borderRadius: '8px',
-                                transition: 'background 0.2s',
-                                '&:hover': {
-                                  backgroundColor: model.disabled
-                                    ? 'inherit'
-                                    : '#F5F5F5',
-                                },
-                                opacity: model.disabled ? 0.6 : 1,
+                                borderRadius: '20px',
+                                padding: '6px 12px',
+                                border: '1px solid #EEE',
+                                backgroundColor: 'white',
+                                // boxShadow: "0px 4px 6px rgba(0, 0, 0, 0.05)",
+                                fontSize: '16px',
+                                fontWeight: '500',
+                                color: '#000',
+                                textTransform: 'none',
+                                '&:hover': { backgroundColor: '#F5F5F5' },
                               }}
                             >
-                              <div
-                                style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '10px',
-                                }}
-                              >
-                                <Avatar
-                                  src={model.icon}
-                                  sx={{ width: 24, height: 24 }}
-                                />
-                                <span
-                                  style={{
-                                    fontSize: '14px',
-                                    fontWeight: '500',
-                                  }}
-                                >
-                                  {model.name}
-                                </span>
-                              </div>
-                              <div
-                                style={{
-                                  backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
-                                  color: 'hsl(var(--brand-primary))',
-                                  padding: '4px 8px',
+                              <Avatar
+                                src={selectedGptManu?.icon}
+                                sx={{ width: 24, height: 24, marginRight: 1 }}
+                              />
+                              {selectedGptManu?.name}
+                              <Image
+                                src={'/svgIcons/downArrow.svg'}
+                                width={18}
+                                height={18}
+                                alt="*"
+                              />
+                            </button>
+
+                            <Menu
+                              id="gpt"
+                              anchorEl={openGptManu}
+                              open={openGptManu}
+                              onClose={() => setOpenGptManu(null)}
+                              sx={{
+                                '& .MuiPaper-root': {
                                   borderRadius: '12px',
-                                  fontSize: '12px',
-                                  fontWeight: '600',
-                                  minWidth: 'fit-content',
-                                }}
-                              >
-                                {model.responseTime}
-                              </div>
-                            </MenuItem>
-                          ))}
-                        </Menu>
-                      </div>
-                    )}
-                  </div>
-                </div>
-                <div className="flex flex-row items-center gap-2">
-                  <Tooltip
-                    title="Duplicate"
-                    arrow
-                    componentsProps={{
-                      tooltip: {
-                        sx: {
-                          backgroundColor: '#ffffff', // Ensure white background
-                          color: '#333', // Dark text color
-                          fontSize: '14px',
-                          padding: '10px 15px',
-                          borderRadius: '8px',
-                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                        },
-                      },
-                      arrow: {
-                        sx: {
-                          color: '#ffffff', // Match tooltip background
-                        },
-                      },
-                    }}
-                  >
-                    <div className="cursor-pointer pt-1">
-                      <DuplicateButton
-                        handleDuplicate={() => {
-                          setShowDuplicateConfirmationPopup(true)
-                        }}
-                        loading={duplicateLoader}
-                      />
-                    </div>
-                  </Tooltip>
-                  <Tooltip
-                    title="Open Tab"
-                    arrow
-                    componentsProps={{
-                      tooltip: {
-                        sx: {
-                          backgroundColor: '#ffffff', // Ensure white background
-                          color: '#333', // Dark text color
-                          fontSize: '14px',
-                          padding: '10px 15px',
-                          borderRadius: '8px',
-                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                        },
-                      },
-                      arrow: {
-                        sx: {
-                          color: '#ffffff', // Match tooltip background
-                        },
-                      },
-                    }}
-                  >
-                    <button
-                      onClick={() => {
-                        handleWebAgentClick(showDrawerSelectedAgent)
-                      }}
-                    >
-                      {renderBrandedIcon('/assets/openVoice.png', 18, 18)}
-                    </button>
-                  </Tooltip>
-                  <Tooltip
-                    title="Embed"
-                    arrow
-                    componentsProps={{
-                      tooltip: {
-                        sx: {
-                          backgroundColor: '#ffffff', // Ensure white background
-                          color: '#333', // Dark text color
-                          fontSize: '14px',
-                          padding: '10px 15px',
-                          borderRadius: '8px',
-                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                        },
-                      },
-                      arrow: {
-                        sx: {
-                          color: '#ffffff', // Match tooltip background
-                        },
-                      },
-                    }}
-                  >
-                    <button
-                      style={{ paddingLeft: '3px' }}
-                      onClick={() => {
-                        handleEmbedClick(showDrawerSelectedAgent)
-                      }}
-                    >
-                      {renderBrandedIcon('/svgIcons/embedIcon.svg', 22, 22)}
-                    </button>
-                  </Tooltip>
-
-                  <Tooltip
-                    title="Webhook"
-                    arrow
-                    componentsProps={{
-                      tooltip: {
-                        sx: {
-                          backgroundColor: '#ffffff', // Ensure white background
-                          color: '#333', // Dark text color
-                          fontSize: '14px',
-                          padding: '10px 15px',
-                          borderRadius: '8px',
-                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                        },
-                      },
-                      arrow: {
-                        sx: {
-                          color: '#ffffff', // Match tooltip background
-                        },
-                      },
-                    }}
-                  >
-                    <button
-                      style={{ paddingLeft: '3px' }}
-                      onClick={() => {
-                        // handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, demoBaseUrl)
-                        if (
-                          reduxUser?.agencyCapabilities
-                            ?.allowEmbedAndWebAgents === false
-                        ) {
-                          setShowUpgradeModal(true)
-                          setTitle('Unlock your Web Agent')
-                          setSubTitle(
-                            'Bring your AI agent to your website allowing them to engage with leads and customers',
-                          )
-                          setFeatureTitle('EmbedAgents')
-                        } else {
-                          if (
-                            reduxUser?.planCapabilities
-                              ?.allowEmbedAndWebAgents === false
-                          ) {
-                            setShowUpgradeModal(true)
-                            setTitle('Unlock your Web Agent')
-                            setSubTitle(
-                              'Bring your AI agent to your website allowing them to engage with leads and customers',
-                            )
-                          } else {
-                            // Merge with existing updated agent state if available
-                            let agentToUse = showDrawerSelectedAgent
-                            if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
-                              // We have an updated version of this agent - merge the smartlist fields
-                              agentToUse = {
-                                ...showDrawerSelectedAgent,
-                                // Preserve updated smartlist fields from state
-                                smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? showDrawerSelectedAgent.smartListIdForWeb,
-                                smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? showDrawerSelectedAgent.smartListEnabledForWeb,
-                                smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? showDrawerSelectedAgent.smartListIdForWebhook,
-                                smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? showDrawerSelectedAgent.smartListEnabledForWebhook,
-                                smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? showDrawerSelectedAgent.smartListIdForEmbed,
-                                smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? showDrawerSelectedAgent.smartListEnabledForEmbed,
-                              }
-                            }
-                            setFetureType('webhook')
-                            setSelectedAgentForWebAgent(agentToUse)
-                            setShowWebAgentModal(true)
-                          }
-                        }
-                      }}
-                    >
-                      {renderBrandedIcon('/svgIcons/webhook.svg', 22, 22)}
-                    </button>
-                  </Tooltip>
-                </div>
-              </div>
-            </div>
-
-            {/* Center Stats View  */}
-            <div className="grid grid-cols-5 gap-6 border p-6 flex-row justify-between w-full rounded-lg mb-6 mt-2 ">
-              <Card
-                name="Calls"
-                value={
-                  showDrawerSelectedAgent?.calls &&
-                    showDrawerSelectedAgent?.calls > 0 ? (
-                    <div>{showDrawerSelectedAgent?.calls}</div>
-                  ) : (
-                    '-'
-                  )
-                }
-                icon="/svgIcons/selectedCallIcon.svg"
-                bgColor="bg-blue-100"
-                iconColor="text-blue-500"
-                isCustomDomain={isCustomDomain}
-                agencyBranding={agencyBranding}
-              />
-              <Card
-                name="Convos"
-                value={
-                  showDrawerSelectedAgent?.callsGt10 &&
-                    showDrawerSelectedAgent?.callsGt10 > 0 ? (
-                    <div>{showDrawerSelectedAgent?.callsGt10}</div>
-                  ) : (
-                    '-'
-                  )
-                }
-                icon="/svgIcons/convosIcon2.svg"
-                bgColor="bg-brand-primary/10"
-                iconColor="text-brand-primary"
-                isCustomDomain={isCustomDomain}
-                agencyBranding={agencyBranding}
-              />
-              <Card
-                name="Hot Leads"
-                value={
-                  <div>
-                    {showDrawerSelectedAgent?.hotleads
-                      ? showDrawerSelectedAgent?.hotleads
-                      : '-'}
-                  </div>
-                }
-                icon="/otherAssets/hotLeadsIcon2.png"
-                bgColor="bg-orange-100"
-                iconColor="text-orange-500"
-                isCustomDomain={isCustomDomain}
-                agencyBranding={agencyBranding}
-              />
-              <Card
-                name="Booked"
-                value={
-                  <div>
-                    {showDrawerSelectedAgent?.booked
-                      ? showDrawerSelectedAgent?.booked
-                      : '-'}
-                  </div>
-                }
-                icon="/otherAssets/greenCalenderIcon.png"
-                bgColor="bg-green-100"
-                iconColor="text-green-500"
-                isCustomDomain={isCustomDomain}
-                agencyBranding={agencyBranding}
-              />
-              <Card
-                name="Mins Talked"
-                value={
-                  showDrawerSelectedAgent?.totalDuration &&
-                    showDrawerSelectedAgent?.totalDuration > 0 ? (
-                    // <div>{showDrawer?.totalDuration}</div>
-                    (<div>
-                      {showDrawerSelectedAgent?.totalDuration
-                        ? moment
-                          .utc(
-                            (showDrawerSelectedAgent?.totalDuration || 0) *
-                            1000,
-                          )
-                          .format('HH:mm:ss')
-                        : '-'}
-                    </div>)
-                  ) : (
-                    '-'
-                  )
-                }
-                icon="/otherAssets/minsCounter.png"
-                bgColor="bg-green-100"
-                iconColor="text-green-500"
-                isCustomDomain={isCustomDomain}
-                agencyBranding={agencyBranding}
-              />
-            </div>
-            {/* Bottom Agent Info */}
-            <div className="flex flex-row justify-between items-center pb-2 mb-4">
-              {AgentMenuOptions.map((tab) => (
-                <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`${activeTab === tab
-                    ? 'text-brand-primary border-b-2 border-brand-primary'
-                    : 'text-black-500'
-                    }`}
-                  style={{
-                    fontSize: 15,
-                    fontWeight: '500',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
-
-            {/* Code for agent info */}
-            {activeTab === 'Agent Info' ? (
-              <div className="w-full">
-                <div className="flex flex-col">
-                  <div className="flex flex-row items-center justify-between">
-                    <div
-                      style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
-                    >
-                      Voice Options
-                    </div>
-
-                    <button
-                      onClick={() => {
-                        setShowAdvancedSettingsModal(true)
-                      }}
-                    >
-                      <div
-                        style={{ fontSize: 15, fontWeight: '500', color: 'hsl(var(--brand-primary))' }}
-                      >
-                        Advanced Settings
-                      </div>
-                    </button>
-                  </div>
-                  {/* Language */}
-                  <div className="flex w-full justify-between items-center ">
-                    <div
-                      style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
-                    >
-                      Language
-                    </div>
-
-                    <div
-                      style={{
-                        // width: "115px",
-                        display: 'flex',
-                        alignItems: 'center',
-                        // borderWidth:1,
-                        marginRight: -15,
-                      }}
-                    >
-                      {showLanguageLoader ? (
-                        <div
-                          style={{
-                            width: '115px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          <CircularProgress size={15} />
-                        </div>
-                      ) : (
-                        <FormControl>
-                          <Select
-                            value={languageValue}
-                            onChange={async (event) => {
-                              handleLanguageChange(event)
-                            }}
-                            displayEmpty // Enables placeholder
-                            renderValue={(selected) => {
-                              if (!selected) {
-                                return (
-                                  <div style={{ color: '#aaa' }}>Select</div>
-                                ) // Placeholder style
-                              }
-                              const selectedVoice = AgentLanguagesList.find(
-                                (lang) => lang?.title === selected,
-                              )
-                              // console.log(
-                              //   `Selected Language for ${selected} is ${selectedVoice?.title}`
-                              // );
-                              //  return selectedVoice ? selectedVoice.title : null;
-
-                              return (
-                                <div
-                                  style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 10,
-                                  }}
-                                >
-                                  <Image
-                                    src={selectedVoice?.flag}
-                                    height={22}
-                                    width={22}
-                                    alt="Selected Language"
-                                  />
-                                  <div>{selectedVoice?.title}</div>
-                                </div>
-                              )
-                            }}
-                            sx={{
-                              border: 'none', // Default border
-                              '&:hover': {
-                                border: 'none', // Same border on hover
-                              },
-                              '& .MuiOutlinedInput-notchedOutline': {
-                                border: 'none', // Remove the default outline
-                              },
-                              '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                              {
-                                border: 'none', // Remove outline on focus
-                              },
-                              '&.MuiSelect-select': {
-                                py: 0, // Optional padding adjustments
-                              },
-                            }}
-                            MenuProps={{
-                              PaperProps: {
-                                style: {
-                                  maxHeight: '30vh', // Limit dropdown height
-                                  overflow: 'auto', // Enable scrolling in dropdown
-                                  scrollbarWidth: 'none',
-                                  // borderRadius: "10px"
+                                  padding: '8px',
+                                  minWidth: '220px',
                                 },
-                              },
-                            }}
-                          >
-                            {AgentLanguagesList.map((item, index) => {
-                              return (
+                              }}
+                            >
+                              {models.map((model, index) => (
                                 <MenuItem
-                                  className="flex flex-row items-center gap-2 bg-brand-primary/10 w-full"
-                                  value={item?.title}
                                   key={index}
-                                  // disabled={item.value === "multi" && (reduxUser?.planCapabilities?.allowLanguageSelection === false)}
-                                  style={
-                                    item.value === 'multi' &&
-                                      reduxUser?.planCapabilities
-                                        ?.allowLanguageSelection === false
-                                      ? { pointerEvents: 'auto' }
-                                      : {}
-                                  }
+                                  onClick={() => handleGptManuSelect(model)}
+                                  disabled={model.disabled}
                                   sx={{
-                                    '&:hover': {
-                                      backgroundColor: '#F5F5F5',
-                                    },
-                                    '&.Mui-selected': {
-                                      backgroundColor: '#F5F5F5',
-                                      '&:hover': {
-                                        backgroundColor: '#F5F5F5',
-                                      },
-                                    },
-                                  }}
-                                >
-                                  <Image
-                                    src={item?.flag}
-                                    alt="*"
-                                    height={22}
-                                    width={22}
-                                  />
-                                  <div>{item?.title}</div>
-                                  {item.value !== 'multi' && item.subLang && (
-                                    <div
-                                      style={{ color: '#00000060', fontSize: 13 }}
-                                    >
-                                      {item.subLang}
-                                    </div>
-                                  )}
-
-                                  {item.value === 'multi' &&
-                                    // Combined check - Redux first, localStorage fallback
-                                    (reduxUser?.agencyCapabilities
-                                      ?.allowLanguageSelection === false ? (
-                                      <UpgradeTagWithModal
-                                        externalTrigger={showUpgradePlanModal}
-                                        onModalClose={() =>
-                                          setShowUpgradePlanModal(false)
-                                        }
-                                        reduxUser={reduxUser}
-                                        setReduxUser={setReduxUser}
-                                        requestFeature={true}
-                                      />
-                                    ) : (
-                                      !isFeatureAllowed(
-                                        'allowLanguageSelection',
-                                      ) && (
-                                        <UpgradeTagWithModal
-                                          externalTrigger={showUpgradePlanModal}
-                                          onModalClose={() =>
-                                            setShowUpgradePlanModal(false)
-                                          }
-                                          reduxUser={reduxUser}
-                                          setReduxUser={setReduxUser}
-                                        />
-                                      )
-                                    ))}
-                                </MenuItem>
-                              )
-                            })}
-                          </Select>
-                        </FormControl>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex w-full justify-between items-center -mt-4">
-                    <div
-                      style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
-                    >
-                      Voice
-                    </div>
-
-                    <div
-                      style={{
-                        // width: "115px",
-                        display: 'flex',
-                        alignItems: 'center',
-                        // borderWidth:1,
-                        marginRight: -15,
-                      }}
-                    >
-                      {showVoiceLoader ? (
-                        <div
-                          style={{
-                            width: '115px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          <CircularProgress size={15} />
-                        </div>
-                      ) : (
-                        <FormControl>
-                          <Select
-                            value={SelectedVoice}
-                            onChange={handleChangeVoice}
-                            displayEmpty // Enables placeholder
-                            renderValue={(selected) => {
-                              // console.log("selected", selected);
-                              if (!selected)
-                                return (
-                                  <div style={{ color: '#aaa' }}>Select</div>
-                                )
-
-                              const selectedVoice = voicesList.find(
-                                (voice) => voice.name === selected,
-                              )
-
-                              return selectedVoice ? (
-                                <div
-                                  style={{
                                     display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                  }}
-                                >
-                                  {selectedVoice.img && (
-                                    <Image
-                                      src={selectedVoice.img}
-                                      height={30}
-                                      width={30}
-                                      alt="Selected Voice"
-                                    />
-                                  )}
-                                  <div>{selectedVoice.name}</div>
-                                </div>
-                              ) : null
-                            }}
-                            sx={{
-                              border: 'none', // Default border
-                              '&:hover': { border: 'none' }, // Same border on hover
-                              '& .MuiOutlinedInput-notchedOutline': {
-                                border: 'none',
-                              }, // Remove the default outline
-                              '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                { border: 'none' },
-                            }}
-                            MenuProps={{
-                              PaperProps: {
-                                style: {
-                                  maxHeight: '30vh', // Limit dropdown height
-                                  overflow: 'auto', // Enable scrolling in dropdown
-                                  scrollbarWidth: 'none',
-                                },
-                              },
-                            }}
-                          >
-                            {voicesList.map((item, index) => {
-                              const selectedVoiceName = (id) => {
-                                const voiceName = voicesList.find(
-                                  (voice) => voice.voice_id === id,
-                                )
-                                return voiceName?.name || 'Unknown'
-                              }
-
-                              return (
-                                <MenuItem
-                                  style={{
-                                    display: 'flex',
-                                    flexDirection: 'row',
                                     alignItems: 'center',
                                     justifyContent: 'space-between',
-
+                                    gap: '10px',
+                                    padding: '8px 12px',
+                                    borderRadius: '8px',
+                                    transition: 'background 0.2s',
+                                    '&:hover': {
+                                      backgroundColor: model.disabled
+                                        ? 'inherit'
+                                        : '#F5F5F5',
+                                    },
+                                    opacity: model.disabled ? 0.6 : 1,
                                   }}
-                                  value={item.name}
-                                  key={index}
-                                  disabled={SelectedVoice === item.name}
                                 >
-                                  <div className="flex flex-row items-center justify-center">
-                                    <Image
-                                      src={item.img}
-                                      height={
-                                        // item.name === 'Axel' ||
-                                        // item.name === 'Max'
-                                        //   ? 40
-                                        // :
-                                        35
-                                      }
-                                      width={
-                                        // item.name === 'Axel' ||
-                                        // item.name === 'Max'
-                                        //   ? 22: 
-                                        35
-                                      }
-                                      alt="*"
+                                  <div
+                                    style={{
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '10px',
+                                    }}
+                                  >
+                                    <Avatar
+                                      src={model.icon}
+                                      sx={{ width: 24, height: 24 }}
                                     />
+                                    <span
+                                      style={{
+                                        fontSize: '14px',
+                                        fontWeight: '500',
+                                      }}
+                                    >
+                                      {model.name}
+                                    </span>
                                   </div>
-                                  <div>{item.name}</div>
-
-                                  {/* Play/Pause Button (Prevents dropdown close) */}
-                                  {item.preview ? (
-                                    <div //style={{marginLeft:15}}
-                                      onClick={(e) => {
-                                        // console.log(
-                                        //   "audio preview ",
-                                        //   item.preview
-                                        // );
-                                        e.stopPropagation() // Prevent dropdown from closing
-                                        e.preventDefault() // Prevent selection event
-
-                                        if (preview === item.preview) {
-                                          if (audio) {
-                                            audio.pause()
-                                            audio.removeEventListener(
-                                              'ended',
-                                              () => { },
-                                            )
-                                          }
-                                          setPreview(null)
-                                        } else {
-                                          playVoice(item.preview)
-                                        }
-                                      }}
-                                    >
-                                      {preview === item.preview ? (
-                                        <PauseCircle
-                                          size={38}
-                                          weight="regular"
-                                        />
-                                      ) : (
-                                        <Image
-                                          src={'/assets/play.png'}
-                                          height={25}
-                                          width={25}
-                                          alt="*"
-                                        />
-                                      )}
-                                    </div>
-                                  ) : (
-                                    <div
-                                      onClick={(e) => {
-                                        e.stopPropagation()
-                                        e.preventDefault()
-                                        setShowNoAudioModal(item)
-                                      }}
-                                    >
-                                      <Image
-                                        src={'/assets/play.png'}
-                                        height={25}
-                                        width={25}
-                                        alt="*"
-                                      />
-                                    </div>
-                                  )}
+                                  <div
+                                    style={{
+                                      backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+                                      color: 'hsl(var(--brand-primary))',
+                                      padding: '4px 8px',
+                                      borderRadius: '12px',
+                                      fontSize: '12px',
+                                      fontWeight: '600',
+                                      minWidth: 'fit-content',
+                                    }}
+                                  >
+                                    {model.responseTime}
+                                  </div>
                                 </MenuItem>
-                              )
-                            })}
-                          </Select>
-                        </FormControl>
-                      )}
+                              ))}
+                            </Menu>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                  {/* Expression */}
-                  <div className="flex w-full justify-between items-center -mt-4">
-                    <div
-                      style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
-                    >
-                      Personality
-                    </div>
-
-                    <div
-                      style={{
-                        // width: "115px",
-                        display: 'flex',
-                        alignItems: 'center',
-                        // borderWidth:1,
-                        marginRight: -15,
-                      }}
-                    >
-                      {showVoiceExpressivenessLoader ? (
-                        <div
-                          style={{
-                            width: '115px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
+                    <div className="flex flex-row items-center gap-2">
+                      <Tooltip
+                        title="Duplicate"
+                        arrow
+                        componentsProps={{
+                          tooltip: {
+                            sx: {
+                              backgroundColor: '#ffffff', // Ensure white background
+                              color: '#333', // Dark text color
+                              fontSize: '14px',
+                              padding: '10px 15px',
+                              borderRadius: '8px',
+                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                            },
+                          },
+                          arrow: {
+                            sx: {
+                              color: '#ffffff', // Match tooltip background
+                            },
+                          },
+                        }}
+                      >
+                        <div className="cursor-pointer pt-1">
+                          <DuplicateButton
+                            handleDuplicate={() => {
+                              setShowDuplicateConfirmationPopup(true)
+                            }}
+                            loading={duplicateLoader}
+                          />
+                        </div>
+                      </Tooltip>
+                      <Tooltip
+                        title="Open Tab"
+                        arrow
+                        componentsProps={{
+                          tooltip: {
+                            sx: {
+                              backgroundColor: '#ffffff', // Ensure white background
+                              color: '#333', // Dark text color
+                              fontSize: '14px',
+                              padding: '10px 15px',
+                              borderRadius: '8px',
+                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                            },
+                          },
+                          arrow: {
+                            sx: {
+                              color: '#ffffff', // Match tooltip background
+                            },
+                          },
+                        }}
+                      >
+                        <button
+                          onClick={() => {
+                            handleWebAgentClick(showDrawerSelectedAgent)
                           }}
                         >
-                          <CircularProgress size={15} />
-                        </div>
-                      ) : (
-                        <FormControl>
-                          <Select
-                            value={voiceExpressiveness}
-                            onChange={async (event) => {
-                              setShowVoiceExpressivenessLoader(true)
-                              let value = event.target.value
-                              //console.log;
-                              let voiceData = {
-                                voiceExpressiveness: value,
-                              }
-                              await updateSubAgent(voiceData)
-                              setShowVoiceExpressivenessLoader(false)
-                              setVoiceExpressiveness(value)
-                            }}
-                            displayEmpty // Enables placeholder
-                            renderValue={(selected) => {
-                              if (!selected) {
-                                return (
-                                  <div style={{ color: '#aaa' }}>Select</div>
-                                ) // Placeholder style
-                              }
-                              const selectedVoice =
-                                voiceExpressivenessList.find(
-                                  (voice) => voice.value === selected,
+                          {renderBrandedIcon('/assets/openVoice.png', 18, 18)}
+                        </button>
+                      </Tooltip>
+                      <Tooltip
+                        title="Embed"
+                        arrow
+                        componentsProps={{
+                          tooltip: {
+                            sx: {
+                              backgroundColor: '#ffffff', // Ensure white background
+                              color: '#333', // Dark text color
+                              fontSize: '14px',
+                              padding: '10px 15px',
+                              borderRadius: '8px',
+                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                            },
+                          },
+                          arrow: {
+                            sx: {
+                              color: '#ffffff', // Match tooltip background
+                            },
+                          },
+                        }}
+                      >
+                        <button
+                          style={{ paddingLeft: '3px' }}
+                          onClick={() => {
+                            handleEmbedClick(showDrawerSelectedAgent)
+                          }}
+                        >
+                          {renderBrandedIcon('/svgIcons/embedIcon.svg', 22, 22)}
+                        </button>
+                      </Tooltip>
+
+                      <Tooltip
+                        title="Webhook"
+                        arrow
+                        componentsProps={{
+                          tooltip: {
+                            sx: {
+                              backgroundColor: '#ffffff', // Ensure white background
+                              color: '#333', // Dark text color
+                              fontSize: '14px',
+                              padding: '10px 15px',
+                              borderRadius: '8px',
+                              boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                            },
+                          },
+                          arrow: {
+                            sx: {
+                              color: '#ffffff', // Match tooltip background
+                            },
+                          },
+                        }}
+                      >
+                        <button
+                          style={{ paddingLeft: '3px' }}
+                          onClick={() => {
+                            // handleWebhookClick(showDrawerSelectedAgent?.modelIdVapi, demoBaseUrl)
+                            if (
+                              reduxUser?.agencyCapabilities
+                                ?.allowEmbedAndWebAgents === false
+                            ) {
+                              setShowUpgradeModal(true)
+                              setTitle('Unlock your Web Agent')
+                              setSubTitle(
+                                'Bring your AI agent to your website allowing them to engage with leads and customers',
+                              )
+                              setFeatureTitle('EmbedAgents')
+                            } else {
+                              if (
+                                reduxUser?.planCapabilities
+                                  ?.allowEmbedAndWebAgents === false
+                              ) {
+                                setShowUpgradeModal(true)
+                                setTitle('Unlock your Web Agent')
+                                setSubTitle(
+                                  'Bring your AI agent to your website allowing them to engage with leads and customers',
                                 )
-                              return selectedVoice ? selectedVoice?.title : null
-                            }}
-                            sx={{
-                              border: 'none', // Default border
-                              '&:hover': {
-                                border: 'none', // Same border on hover
-                              },
-                              '& .MuiOutlinedInput-notchedOutline': {
-                                border: 'none', // Remove the default outline
-                              },
-                              '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                              {
-                                border: 'none', // Remove outline on focus
-                              },
-                              '&.MuiSelect-select': {
-                                py: 0, // Optional padding adjustments
-                              },
-                            }}
-                            MenuProps={{
-                              PaperProps: {
-                                style: {
-                                  maxHeight: '30vh', // Limit dropdown height
-                                  overflow: 'auto', // Enable scrolling in dropdown
-                                  scrollbarWidth: 'none',
-                                  // borderRadius: "10px"
-                                },
-                              },
-                            }}
-                          >
-                            {voiceExpressivenessList.map((item, index) => {
-                              return (
-                                <MenuItem
-                                  value={item?.value}
-                                  key={index}
-                                  disabled={voiceExpressiveness === item?.title}
-                                >
-                                  <div>{item?.title}</div>
-                                </MenuItem>
-                              )
-                            })}
-                          </Select>
-                        </FormControl>
-                      )}
-                    </div>
-                  </div>
-                  {/* Talking Pace */}
-                  <div className="flex w-full justify-between items-center -mt-4">
-                    <div
-                      style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
-                    >
-                      Talking Pace
-                    </div>
-
-                    <div
-                      style={{
-                        // width: "115px",
-                        display: 'flex',
-                        alignItems: 'center',
-                        // borderWidth:1,
-                        marginRight: -15,
-                      }}
-                    >
-                      {showStartingPaceLoader ? (
-                        <div
-                          style={{
-                            width: '115px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
+                              } else {
+                                // Merge with existing updated agent state if available
+                                let agentToUse = showDrawerSelectedAgent
+                                if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
+                                  // We have an updated version of this agent - merge the smartlist fields
+                                  agentToUse = {
+                                    ...showDrawerSelectedAgent,
+                                    // Preserve updated smartlist fields from state
+                                    smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? showDrawerSelectedAgent.smartListIdForWeb,
+                                    smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? showDrawerSelectedAgent.smartListEnabledForWeb,
+                                    smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? showDrawerSelectedAgent.smartListIdForWebhook,
+                                    smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? showDrawerSelectedAgent.smartListEnabledForWebhook,
+                                    smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? showDrawerSelectedAgent.smartListIdForEmbed,
+                                    smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? showDrawerSelectedAgent.smartListEnabledForEmbed,
+                                  }
+                                }
+                                setFetureType('webhook')
+                                setSelectedAgentForWebAgent(agentToUse)
+                                setShowWebAgentModal(true)
+                              }
+                            }
                           }}
                         >
-                          <CircularProgress size={15} />
-                        </div>
-                      ) : (
-                        <FormControl>
-                          <Select
-                            value={startingPace}
-                            onChange={async (event) => {
-                              setShowStartingPaceLoader(true)
-                              let value = event.target.value
-                              //console.log;
-                              let voiceData = {
-                                talkingPace: value,
-                              }
-                              await updateSubAgent(voiceData)
-                              setShowStartingPaceLoader(false)
-                              // setSelectedVoice(event.target.value);
-                              setStartingPace(value)
-                            }}
-                            displayEmpty // Enables placeholder
-                            renderValue={(selected) => {
-                              if (!selected) {
-                                return (
-                                  <div style={{ color: '#aaa' }}>Select</div>
-                                ) // Placeholder style
-                              }
-                              const selectedVoice = TalkingPaceList.find(
-                                (voice) => voice.value === selected,
-                              )
-                              return selectedVoice ? selectedVoice?.title : null
-                            }}
-                            sx={{
-                              border: 'none', // Default border
-                              '&:hover': {
-                                border: 'none', // Same border on hover
-                              },
-                              '& .MuiOutlinedInput-notchedOutline': {
-                                border: 'none', // Remove the default outline
-                              },
-                              '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                              {
-                                border: 'none', // Remove outline on focus
-                              },
-                              '&.MuiSelect-select': {
-                                py: 0, // Optional padding adjustments
-                              },
-                            }}
-                            MenuProps={{
-                              PaperProps: {
-                                style: {
-                                  maxHeight: '30vh', // Limit dropdown height
-                                  overflow: 'auto', // Enable scrolling in dropdown
-                                  scrollbarWidth: 'none',
-                                  // borderRadius: "10px"
-                                },
-                              },
-                            }}
-                          >
-                            {TalkingPaceList.map((item, index) => {
-                              return (
-                                <MenuItem
-                                  value={item.value}
-                                  key={index}
-                                  disabled={startingPace === item?.title}
-                                >
-                                  <div>{item?.title}</div>
-                                </MenuItem>
-                              )
-                            })}
-                          </Select>
-                        </FormControl>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Patience level */}
-                  <div className="flex w-full justify-between items-center -mt-4">
-                    <div
-                      style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
-                    >
-                      Response Speed
-                    </div>
-
-                    <div
-                      style={{
-                        // width: "115px",
-                        display: 'flex',
-                        alignItems: 'center',
-                        // borderWidth:1,
-                        marginRight: -15,
-                      }}
-                    >
-                      {showPatienceLoader ? (
-                        <div
-                          style={{
-                            width: '115px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          <CircularProgress size={15} />
-                        </div>
-                      ) : (
-                        <FormControl>
-                          <Select
-                            value={patienceValue}
-                            onChange={async (event) => {
-                              setShowPatienceLoader(true)
-                              let value = event.target.value
-                              //console.log;
-                              let voiceData = {
-                                responseSpeed: value,
-                              }
-                              await updateSubAgent(voiceData)
-                              setShowPatienceLoader(false)
-                              // setSelectedVoice(event.target.value);
-                              setPatienceValue(value)
-                            }}
-                            displayEmpty // Enables placeholder
-                            renderValue={(selected) => {
-                              if (!selected) {
-                                return (
-                                  <div style={{ color: '#aaa' }}>Select</div>
-                                ) // Placeholder style
-                              }
-                              const selectedVoice = ResponseSpeedList.find(
-                                (voice) => voice.value === selected,
-                              )
-                              return selectedVoice ? selectedVoice?.title : null
-                            }}
-                            sx={{
-                              border: 'none', // Default border
-                              '&:hover': {
-                                border: 'none', // Same border on hover
-                              },
-                              '& .MuiOutlinedInput-notchedOutline': {
-                                border: 'none', // Remove the default outline
-                              },
-                              '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                              {
-                                border: 'none', // Remove outline on focus
-                              },
-                              '&.MuiSelect-select': {
-                                py: 0, // Optional padding adjustments
-                              },
-                            }}
-                            MenuProps={{
-                              PaperProps: {
-                                style: {
-                                  maxHeight: '30vh', // Limit dropdown height
-                                  overflow: 'auto', // Enable scrolling in dropdown
-                                  scrollbarWidth: 'none',
-                                  // borderRadius: "10px"
-                                },
-                              },
-                            }}
-                          >
-                            {ResponseSpeedList.map((item, index) => {
-                              return (
-                                <MenuItem
-                                  value={item.value}
-                                  key={index}
-                                  disabled={patienceValue === item?.title}
-                                >
-                                  <div>{item?.title}</div>
-                                </MenuItem>
-                              )
-                            })}
-                          </Select>
-                        </FormControl>
-                      )}
+                          {renderBrandedIcon('/svgIcons/webhook.svg', 22, 22)}
+                        </button>
+                      </Tooltip>
                     </div>
                   </div>
                 </div>
-          
-                <div className="flex flex-col gap-1 mt-4">
-                  <div
-                    style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
-                  >
-                    Contact
-                  </div>
 
-                  <div className="flex justify-between items-center">
-                    <div
-                      style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
-                    >
-                      Number used for calls
-                    </div>
-                    <div
+                {/* Center Stats View  */}
+                <div className="grid grid-cols-5 gap-6 border p-6 flex-row justify-between w-full rounded-lg mb-6 mt-2 ">
+                  <Card
+                    name="Calls"
+                    value={
+                      showDrawerSelectedAgent?.calls &&
+                        showDrawerSelectedAgent?.calls > 0 ? (
+                        <div>{showDrawerSelectedAgent?.calls}</div>
+                      ) : (
+                        '-'
+                      )
+                    }
+                    icon="/svgIcons/selectedCallIcon.svg"
+                    bgColor="bg-blue-100"
+                    iconColor="text-blue-500"
+                    isCustomDomain={isCustomDomain}
+                    agencyBranding={agencyBranding}
+                  />
+                  <Card
+                    name="Convos"
+                    value={
+                      showDrawerSelectedAgent?.callsGt10 &&
+                        showDrawerSelectedAgent?.callsGt10 > 0 ? (
+                        <div>{showDrawerSelectedAgent?.callsGt10}</div>
+                      ) : (
+                        '-'
+                      )
+                    }
+                    icon="/svgIcons/convosIcon2.svg"
+                    bgColor="bg-brand-primary/10"
+                    iconColor="text-brand-primary"
+                    isCustomDomain={isCustomDomain}
+                    agencyBranding={agencyBranding}
+                  />
+                  <Card
+                    name="Hot Leads"
+                    value={
+                      <div>
+                        {showDrawerSelectedAgent?.hotleads
+                          ? showDrawerSelectedAgent?.hotleads
+                          : '-'}
+                      </div>
+                    }
+                    icon="/otherAssets/hotLeadsIcon2.png"
+                    bgColor="bg-orange-100"
+                    iconColor="text-orange-500"
+                    isCustomDomain={isCustomDomain}
+                    agencyBranding={agencyBranding}
+                  />
+                  <Card
+                    name="Booked"
+                    value={
+                      <div>
+                        {showDrawerSelectedAgent?.booked
+                          ? showDrawerSelectedAgent?.booked
+                          : '-'}
+                      </div>
+                    }
+                    icon="/otherAssets/greenCalenderIcon.png"
+                    bgColor="bg-green-100"
+                    iconColor="text-green-500"
+                    isCustomDomain={isCustomDomain}
+                    agencyBranding={agencyBranding}
+                  />
+                  <Card
+                    name="Mins Talked"
+                    value={
+                      showDrawerSelectedAgent?.totalDuration &&
+                        showDrawerSelectedAgent?.totalDuration > 0 ? (
+                        // <div>{showDrawer?.totalDuration}</div>
+                        (<div>
+                          {showDrawerSelectedAgent?.totalDuration
+                            ? moment
+                              .utc(
+                                (showDrawerSelectedAgent?.totalDuration || 0) *
+                                1000,
+                              )
+                              .format('HH:mm:ss')
+                            : '-'}
+                        </div>)
+                      ) : (
+                        '-'
+                      )
+                    }
+                    icon="/otherAssets/minsCounter.png"
+                    bgColor="bg-green-100"
+                    iconColor="text-green-500"
+                    isCustomDomain={isCustomDomain}
+                    agencyBranding={agencyBranding}
+                  />
+                </div>
+                {/* Bottom Agent Info */}
+                <div className="flex flex-row justify-between items-center pb-2 mb-4">
+                  {AgentMenuOptions.map((tab) => (
+                    <button
+                      key={tab}
+                      onClick={() => setActiveTab(tab)}
+                      className={`${activeTab === tab
+                        ? 'text-brand-primary border-b-2 border-brand-primary'
+                        : 'text-black-500'
+                        }`}
                       style={{
                         fontSize: 15,
                         fontWeight: '500',
-                        color: '#000',
+                        whiteSpace: 'nowrap',
                       }}
                     >
-                      {showPhoneLoader ? (
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Code for agent info */}
+                {activeTab === 'Agent Info' ? (
+                  <div className="w-full">
+                    <div className="flex flex-col">
+                      <div className="flex flex-row items-center justify-between">
                         <div
-                          style={{
-                            width: '150px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
+                          style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
+                        >
+                          Voice Options
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            setShowAdvancedSettingsModal(true)
                           }}
                         >
-                          <CircularProgress size={15} />
+                          <div
+                            style={{ fontSize: 15, fontWeight: '500', color: 'hsl(var(--brand-primary))' }}
+                          >
+                            Advanced Settings
+                          </div>
+                        </button>
+                      </div>
+                      {/* Language */}
+                      <div className="flex w-full justify-between items-center ">
+                        <div
+                          style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
+                        >
+                          Language
                         </div>
-                      ) : (
-                        <Box className="w-full">
-                          <FormControl className="w-full">
-                            <Select
-                              ref={selectRef}
-                              open={openCalimNumDropDown}
-                              onClose={() => setOpenCalimNumDropDown(false)}
-                              onOpen={() => setOpenCalimNumDropDown(true)}
-                              className="border-none rounded-2xl outline-none p-0 m-0"
-                              displayEmpty
-                              value={assignNumber}
-                              // onChange={handleSelectNumber}
-                              // onChange={(e) => {
-                              //   let value = e.target.value;
-                              //   console.log(
-                              //     "Assign number here: Value changed",
-                              //     value
-                              //   );
-                              //   // return;
-                              //   setAssignNumber(value);
-                              //   // setOpenCalimNumDropDown(false);
-                              // }}
-                              renderValue={(selected) => {
-                                if (selected === '') {
-                                  return <div>Select Number</div>
-                                }
-                                return (
-                                  <div
-                                    style={{
-                                      fontSize: 15,
-                                      fontWeight: '500',
-                                      color: '#000',
-                                    }}
-                                  >
-                                    <div>{selected}</div>
-                                  </div>
-                                )
-                              }}
-                              sx={{
-                                ...styles.dropdownMenu,
-                                backgroundColor: 'none',
-                                '& .MuiOutlinedInput-notchedOutline': {
-                                  border: 'none',
-                                },
-                                padding: 0,
-                                margin: 0,
+
+                        <div
+                          style={{
+                            // width: "115px",
+                            display: 'flex',
+                            alignItems: 'center',
+                            // borderWidth:1,
+                            marginRight: -15,
+                          }}
+                        >
+                          {showLanguageLoader ? (
+                            <div
+                              style={{
+                                width: '115px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
                               }}
                             >
-                              {previousNumber?.map((item, index) => {
-                                // //console.log;
-                                // //console.log;
-                                return (
-                                  <MenuItem
-                                    key={index}
-                                    style={styles.dropdownMenu}
-                                    value={item.phoneNumber.slice(1)}
-                                    className="flex flex-row items-center gap-2 "
-                                    disabled={
-                                      assignNumber?.replace('+', '') ===
-                                      item.phoneNumber.replace('+', '')
-                                    }
-                                    onClick={(e) => {
-                                      //console.log;
-                                      // return;
-                                      if (showReassignBtn && item?.claimedBy) {
-                                        e.stopPropagation()
-                                        setShowConfirmationModal(item)
-                                        // console.log(
-                                        //   "Hit release number api",
-                                        //   item
-                                        // );
-                                        // AssignNumber
-                                      } else {
-                                        //console.log;
-                                        //// console.log(
-                                        //   "Should call assign number api"
-                                        // );
-                                        // return;
-                                        AssignNumber(item.phoneNumber)
-                                        //// console.log(
-                                        //   "Updated number is",
-                                        //   item.phoneNumber
-                                        // );
-                                      }
-                                    }}
-                                  >
+                              <CircularProgress size={15} />
+                            </div>
+                          ) : (
+                            <FormControl>
+                              <Select
+                                value={languageValue}
+                                onChange={async (event) => {
+                                  handleLanguageChange(event)
+                                }}
+                                displayEmpty // Enables placeholder
+                                renderValue={(selected) => {
+                                  if (!selected) {
+                                    return (
+                                      <div style={{ color: '#aaa' }}>Select</div>
+                                    ) // Placeholder style
+                                  }
+                                  const selectedVoice = AgentLanguagesList.find(
+                                    (lang) => lang?.title === selected,
+                                  )
+                                  // console.log(
+                                  //   `Selected Language for ${selected} is ${selectedVoice?.title}`
+                                  // );
+                                  //  return selectedVoice ? selectedVoice.title : null;
+
+                                  return (
                                     <div
                                       style={{
-                                        width: numberDropDownWidth(
-                                          item?.claimedBy?.name,
-                                        ),
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 10,
                                       }}
                                     >
-                                      {item.phoneNumber}
+                                      <Image
+                                        src={selectedVoice?.flag}
+                                        height={22}
+                                        width={22}
+                                        alt="Selected Language"
+                                      />
+                                      <div>{selectedVoice?.title}</div>
                                     </div>
-                                    {showReassignBtn && (
-                                      <div
-                                        className="w-full"
-                                      // onClick={(e) => {
-                                      //   console.log(
-                                      //     "Should open confirmation modal"
-                                      //   );
-                                      //   e.stopPropagation();
-                                      //   setShowConfirmationModal(item);
-                                      // }}
-                                      >
-                                        {item.claimedBy && (
-                                          <div className="flex flex-row items-center gap-2">
-                                            {showDrawerSelectedAgent?.name !==
-                                              item.claimedBy.name && (
-                                                <div>
-                                                  <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
-                                                  {reassignLoader === item ? (
-                                                    <CircularProgress size={15} />
-                                                  ) : (
-                                                    <button
-                                                      className="text-brand-primary underline"
-                                                      onClick={(e) => {
-                                                        e.stopPropagation()
-                                                        setShowConfirmationModal(
-                                                          item,
-                                                        )
-                                                      }}
-                                                    >
-                                                      Reassign
-                                                    </button>
-                                                  )}
-                                                </div>
-                                              )}
-                                          </div>
-                                        )}
-                                      </div>
-                                    )}
-                                  </MenuItem>
-                                )
-                              })}
-                              {showGlobalBtn && getGlobalPhoneNumber(reduxUser) && (
-                                <MenuItem
-                                  style={styles.dropdownMenu}
-                                  value={
-                                    getGlobalPhoneNumber(reduxUser)?.replace(
-                                      '+',
-                                      '',
-                                    ) || ''
-                                  }
-                                  disabled={
-                                    (assignNumber &&
-                                      assignNumber.replace('+', '') ===
-                                      getGlobalPhoneNumber(reduxUser)?.replace(
-                                        '+',
-                                        '',
-                                      )) ||
-                                    (showDrawerSelectedAgent &&
-                                      showDrawerSelectedAgent.agentType ===
-                                      'inbound')
-                                  }
-                                  onClick={() => {
-                                    // console.log(
-                                    //   "This triggers when user clicks on assigning global number",
-                                    //   assignNumber
-                                    // );
-                                    // return;
-                                    const globalNumber = getGlobalPhoneNumber(reduxUser)
-                                    if (globalNumber) {
-                                      AssignNumber(globalNumber)
-                                    }
-                                    // handleReassignNumber(showConfirmationModal);
-                                  }}
-                                >
-                                  {getGlobalPhoneNumber(reduxUser)}
-                                  {' (available for testing calls only)'}
-                                </MenuItem>
-                              )}
-                              <div
-                                className="ms-4 pe-4"
-                                style={{
-                                  ...styles.inputStyle,
-                                  color: '#00000070',
+                                  )
+                                }}
+                                sx={{
+                                  border: 'none', // Default border
+                                  '&:hover': {
+                                    border: 'none', // Same border on hover
+                                  },
+                                  '& .MuiOutlinedInput-notchedOutline': {
+                                    border: 'none', // Remove the default outline
+                                  },
+                                  '&.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                  {
+                                    border: 'none', // Remove outline on focus
+                                  },
+                                  '&.MuiSelect-select': {
+                                    py: 0, // Optional padding adjustments
+                                  },
+                                }}
+                                MenuProps={{
+                                  PaperProps: {
+                                    style: {
+                                      maxHeight: '30vh', // Limit dropdown height
+                                      overflow: 'auto', // Enable scrolling in dropdown
+                                      scrollbarWidth: 'none',
+                                      // borderRadius: "10px"
+                                    },
+                                  },
                                 }}
                               >
-                                <i>Get your own unique phone number.</i>{' '}
-                                <button
-                                  className="text-brand-primary underline"
-                                  onClick={() => {
-                                    setShowClaimPopup(true)
+                                {AgentLanguagesList.map((item, index) => {
+                                  return (
+                                    <MenuItem
+                                      className="flex flex-row items-center gap-2 bg-brand-primary/10 w-full"
+                                      value={item?.title}
+                                      key={index}
+                                      // disabled={item.value === "multi" && (reduxUser?.planCapabilities?.allowLanguageSelection === false)}
+                                      style={
+                                        item.value === 'multi' &&
+                                          reduxUser?.planCapabilities
+                                            ?.allowLanguageSelection === false
+                                          ? { pointerEvents: 'auto' }
+                                          : {}
+                                      }
+                                      sx={{
+                                        '&:hover': {
+                                          backgroundColor: '#F5F5F5',
+                                        },
+                                        '&.Mui-selected': {
+                                          backgroundColor: '#F5F5F5',
+                                          '&:hover': {
+                                            backgroundColor: '#F5F5F5',
+                                          },
+                                        },
+                                      }}
+                                    >
+                                      <Image
+                                        src={item?.flag}
+                                        alt="*"
+                                        height={22}
+                                        width={22}
+                                      />
+                                      <div>{item?.title}</div>
+                                      {item.value !== 'multi' && item.subLang && (
+                                        <div
+                                          style={{ color: '#00000060', fontSize: 13 }}
+                                        >
+                                          {item.subLang}
+                                        </div>
+                                      )}
+
+                                      {item.value === 'multi' &&
+                                        // Combined check - Redux first, localStorage fallback
+                                        (reduxUser?.agencyCapabilities
+                                          ?.allowLanguageSelection === false ? (
+                                          <UpgradeTagWithModal
+                                            externalTrigger={showUpgradePlanModal}
+                                            onModalClose={() =>
+                                              setShowUpgradePlanModal(false)
+                                            }
+                                            reduxUser={reduxUser}
+                                            setReduxUser={setReduxUser}
+                                            requestFeature={true}
+                                          />
+                                        ) : (
+                                          !isFeatureAllowed(
+                                            'allowLanguageSelection',
+                                          ) && (
+                                            <UpgradeTagWithModal
+                                              externalTrigger={showUpgradePlanModal}
+                                              onModalClose={() =>
+                                                setShowUpgradePlanModal(false)
+                                              }
+                                              reduxUser={reduxUser}
+                                              setReduxUser={setReduxUser}
+                                            />
+                                          )
+                                        ))}
+                                    </MenuItem>
+                                  )
+                                })}
+                              </Select>
+                            </FormControl>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex w-full justify-between items-center -mt-4">
+                        <div
+                          style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
+                        >
+                          Voice
+                        </div>
+
+                        <div
+                          style={{
+                            // width: "115px",
+                            display: 'flex',
+                            alignItems: 'center',
+                            // borderWidth:1,
+                            marginRight: -15,
+                          }}
+                        >
+                          {showVoiceLoader ? (
+                            <div
+                              style={{
+                                width: '115px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <CircularProgress size={15} />
+                            </div>
+                          ) : (
+                            <FormControl>
+                              <Select
+                                value={SelectedVoice}
+                                onChange={handleChangeVoice}
+                                displayEmpty // Enables placeholder
+                                renderValue={(selected) => {
+                                  // console.log("selected", selected);
+                                  if (!selected)
+                                    return (
+                                      <div style={{ color: '#aaa' }}>Select</div>
+                                    )
+
+                                  const selectedVoice = voicesList.find(
+                                    (voice) => voice.name === selected,
+                                  )
+
+                                  return selectedVoice ? (
+                                    <div
+                                      style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                      }}
+                                    >
+                                      {selectedVoice.img && (
+                                        <Image
+                                          src={selectedVoice.img}
+                                          height={30}
+                                          width={30}
+                                          alt="Selected Voice"
+                                        />
+                                      )}
+                                      <div>{selectedVoice.name}</div>
+                                    </div>
+                                  ) : null
+                                }}
+                                sx={{
+                                  border: 'none', // Default border
+                                  '&:hover': { border: 'none' }, // Same border on hover
+                                  '& .MuiOutlinedInput-notchedOutline': {
+                                    border: 'none',
+                                  }, // Remove the default outline
+                                  '&.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                    { border: 'none' },
+                                }}
+                                MenuProps={{
+                                  PaperProps: {
+                                    style: {
+                                      maxHeight: '30vh', // Limit dropdown height
+                                      overflow: 'auto', // Enable scrolling in dropdown
+                                      scrollbarWidth: 'none',
+                                    },
+                                  },
+                                }}
+                              >
+                                {voicesList.map((item, index) => {
+                                  const selectedVoiceName = (id) => {
+                                    const voiceName = voicesList.find(
+                                      (voice) => voice.voice_id === id,
+                                    )
+                                    return voiceName?.name || 'Unknown'
+                                  }
+
+                                  return (
+                                    <MenuItem
+                                      style={{
+                                        display: 'flex',
+                                        flexDirection: 'row',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+
+                                      }}
+                                      value={item.name}
+                                      key={index}
+                                      disabled={SelectedVoice === item.name}
+                                    >
+                                      <div className="flex flex-row items-center justify-center">
+                                        <Image
+                                          src={item.img}
+                                          height={
+                                            // item.name === 'Axel' ||
+                                            // item.name === 'Max'
+                                            //   ? 40
+                                            // :
+                                            35
+                                          }
+                                          width={
+                                            // item.name === 'Axel' ||
+                                            // item.name === 'Max'
+                                            //   ? 22: 
+                                            35
+                                          }
+                                          alt="*"
+                                        />
+                                      </div>
+                                      <div>{item.name}</div>
+
+                                      {/* Play/Pause Button (Prevents dropdown close) */}
+                                      {item.preview ? (
+                                        <div //style={{marginLeft:15}}
+                                          onClick={(e) => {
+                                            // console.log(
+                                            //   "audio preview ",
+                                            //   item.preview
+                                            // );
+                                            e.stopPropagation() // Prevent dropdown from closing
+                                            e.preventDefault() // Prevent selection event
+
+                                            if (preview === item.preview) {
+                                              if (audio) {
+                                                audio.pause()
+                                                audio.removeEventListener(
+                                                  'ended',
+                                                  () => { },
+                                                )
+                                              }
+                                              setPreview(null)
+                                            } else {
+                                              playVoice(item.preview)
+                                            }
+                                          }}
+                                        >
+                                          {preview === item.preview ? (
+                                            <PauseCircle
+                                              size={38}
+                                              weight="regular"
+                                            />
+                                          ) : (
+                                            <Image
+                                              src={'/assets/play.png'}
+                                              height={25}
+                                              width={25}
+                                              alt="*"
+                                            />
+                                          )}
+                                        </div>
+                                      ) : (
+                                        <div
+                                          onClick={(e) => {
+                                            e.stopPropagation()
+                                            e.preventDefault()
+                                            setShowNoAudioModal(item)
+                                          }}
+                                        >
+                                          <Image
+                                            src={'/assets/play.png'}
+                                            height={25}
+                                            width={25}
+                                            alt="*"
+                                          />
+                                        </div>
+                                      )}
+                                    </MenuItem>
+                                  )
+                                })}
+                              </Select>
+                            </FormControl>
+                          )}
+                        </div>
+                      </div>
+                      {/* Expression */}
+                      <div className="flex w-full justify-between items-center -mt-4">
+                        <div
+                          style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
+                        >
+                          Personality
+                        </div>
+
+                        <div
+                          style={{
+                            // width: "115px",
+                            display: 'flex',
+                            alignItems: 'center',
+                            // borderWidth:1,
+                            marginRight: -15,
+                          }}
+                        >
+                          {showVoiceExpressivenessLoader ? (
+                            <div
+                              style={{
+                                width: '115px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <CircularProgress size={15} />
+                            </div>
+                          ) : (
+                            <FormControl>
+                              <Select
+                                value={voiceExpressiveness}
+                                onChange={async (event) => {
+                                  setShowVoiceExpressivenessLoader(true)
+                                  let value = event.target.value
+                                  //console.log;
+                                  let voiceData = {
+                                    voiceExpressiveness: value,
+                                  }
+                                  await updateSubAgent(voiceData)
+                                  setShowVoiceExpressivenessLoader(false)
+                                  setVoiceExpressiveness(value)
+                                }}
+                                displayEmpty // Enables placeholder
+                                renderValue={(selected) => {
+                                  if (!selected) {
+                                    return (
+                                      <div style={{ color: '#aaa' }}>Select</div>
+                                    ) // Placeholder style
+                                  }
+                                  const selectedVoice =
+                                    voiceExpressivenessList.find(
+                                      (voice) => voice.value === selected,
+                                    )
+                                  return selectedVoice ? selectedVoice?.title : null
+                                }}
+                                sx={{
+                                  border: 'none', // Default border
+                                  '&:hover': {
+                                    border: 'none', // Same border on hover
+                                  },
+                                  '& .MuiOutlinedInput-notchedOutline': {
+                                    border: 'none', // Remove the default outline
+                                  },
+                                  '&.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                  {
+                                    border: 'none', // Remove outline on focus
+                                  },
+                                  '&.MuiSelect-select': {
+                                    py: 0, // Optional padding adjustments
+                                  },
+                                }}
+                                MenuProps={{
+                                  PaperProps: {
+                                    style: {
+                                      maxHeight: '30vh', // Limit dropdown height
+                                      overflow: 'auto', // Enable scrolling in dropdown
+                                      scrollbarWidth: 'none',
+                                      // borderRadius: "10px"
+                                    },
+                                  },
+                                }}
+                              >
+                                {voiceExpressivenessList.map((item, index) => {
+                                  return (
+                                    <MenuItem
+                                      value={item?.value}
+                                      key={index}
+                                      disabled={voiceExpressiveness === item?.title}
+                                    >
+                                      <div>{item?.title}</div>
+                                    </MenuItem>
+                                  )
+                                })}
+                              </Select>
+                            </FormControl>
+                          )}
+                        </div>
+                      </div>
+                      {/* Talking Pace */}
+                      <div className="flex w-full justify-between items-center -mt-4">
+                        <div
+                          style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
+                        >
+                          Talking Pace
+                        </div>
+
+                        <div
+                          style={{
+                            // width: "115px",
+                            display: 'flex',
+                            alignItems: 'center',
+                            // borderWidth:1,
+                            marginRight: -15,
+                          }}
+                        >
+                          {showStartingPaceLoader ? (
+                            <div
+                              style={{
+                                width: '115px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <CircularProgress size={15} />
+                            </div>
+                          ) : (
+                            <FormControl>
+                              <Select
+                                value={startingPace}
+                                onChange={async (event) => {
+                                  setShowStartingPaceLoader(true)
+                                  let value = event.target.value
+                                  //console.log;
+                                  let voiceData = {
+                                    talkingPace: value,
+                                  }
+                                  await updateSubAgent(voiceData)
+                                  setShowStartingPaceLoader(false)
+                                  // setSelectedVoice(event.target.value);
+                                  setStartingPace(value)
+                                }}
+                                displayEmpty // Enables placeholder
+                                renderValue={(selected) => {
+                                  if (!selected) {
+                                    return (
+                                      <div style={{ color: '#aaa' }}>Select</div>
+                                    ) // Placeholder style
+                                  }
+                                  const selectedVoice = TalkingPaceList.find(
+                                    (voice) => voice.value === selected,
+                                  )
+                                  return selectedVoice ? selectedVoice?.title : null
+                                }}
+                                sx={{
+                                  border: 'none', // Default border
+                                  '&:hover': {
+                                    border: 'none', // Same border on hover
+                                  },
+                                  '& .MuiOutlinedInput-notchedOutline': {
+                                    border: 'none', // Remove the default outline
+                                  },
+                                  '&.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                  {
+                                    border: 'none', // Remove outline on focus
+                                  },
+                                  '&.MuiSelect-select': {
+                                    py: 0, // Optional padding adjustments
+                                  },
+                                }}
+                                MenuProps={{
+                                  PaperProps: {
+                                    style: {
+                                      maxHeight: '30vh', // Limit dropdown height
+                                      overflow: 'auto', // Enable scrolling in dropdown
+                                      scrollbarWidth: 'none',
+                                      // borderRadius: "10px"
+                                    },
+                                  },
+                                }}
+                              >
+                                {TalkingPaceList.map((item, index) => {
+                                  return (
+                                    <MenuItem
+                                      value={item.value}
+                                      key={index}
+                                      disabled={startingPace === item?.title}
+                                    >
+                                      <div>{item?.title}</div>
+                                    </MenuItem>
+                                  )
+                                })}
+                              </Select>
+                            </FormControl>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Patience level */}
+                      <div className="flex w-full justify-between items-center -mt-4">
+                        <div
+                          style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
+                        >
+                          Response Speed
+                        </div>
+
+                        <div
+                          style={{
+                            // width: "115px",
+                            display: 'flex',
+                            alignItems: 'center',
+                            // borderWidth:1,
+                            marginRight: -15,
+                          }}
+                        >
+                          {showPatienceLoader ? (
+                            <div
+                              style={{
+                                width: '115px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <CircularProgress size={15} />
+                            </div>
+                          ) : (
+                            <FormControl>
+                              <Select
+                                value={patienceValue}
+                                onChange={async (event) => {
+                                  setShowPatienceLoader(true)
+                                  let value = event.target.value
+                                  //console.log;
+                                  let voiceData = {
+                                    responseSpeed: value,
+                                  }
+                                  await updateSubAgent(voiceData)
+                                  setShowPatienceLoader(false)
+                                  // setSelectedVoice(event.target.value);
+                                  setPatienceValue(value)
+                                }}
+                                displayEmpty // Enables placeholder
+                                renderValue={(selected) => {
+                                  if (!selected) {
+                                    return (
+                                      <div style={{ color: '#aaa' }}>Select</div>
+                                    ) // Placeholder style
+                                  }
+                                  const selectedVoice = ResponseSpeedList.find(
+                                    (voice) => voice.value === selected,
+                                  )
+                                  return selectedVoice ? selectedVoice?.title : null
+                                }}
+                                sx={{
+                                  border: 'none', // Default border
+                                  '&:hover': {
+                                    border: 'none', // Same border on hover
+                                  },
+                                  '& .MuiOutlinedInput-notchedOutline': {
+                                    border: 'none', // Remove the default outline
+                                  },
+                                  '&.Mui-focused .MuiOutlinedInput-notchedOutline':
+                                  {
+                                    border: 'none', // Remove outline on focus
+                                  },
+                                  '&.MuiSelect-select': {
+                                    py: 0, // Optional padding adjustments
+                                  },
+                                }}
+                                MenuProps={{
+                                  PaperProps: {
+                                    style: {
+                                      maxHeight: '30vh', // Limit dropdown height
+                                      overflow: 'auto', // Enable scrolling in dropdown
+                                      scrollbarWidth: 'none',
+                                      // borderRadius: "10px"
+                                    },
+                                  },
+                                }}
+                              >
+                                {ResponseSpeedList.map((item, index) => {
+                                  return (
+                                    <MenuItem
+                                      value={item.value}
+                                      key={index}
+                                      disabled={patienceValue === item?.title}
+                                    >
+                                      <div>{item?.title}</div>
+                                    </MenuItem>
+                                  )
+                                })}
+                              </Select>
+                            </FormControl>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col gap-1 mt-4">
+                      <div
+                        style={{ fontSize: 16, fontWeight: '600', color: '#000' }}
+                      >
+                        Contact
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <div
+                          style={{ fontSize: 15, fontWeight: '500', color: '#666' }}
+                        >
+                          Number used for calls
+                        </div>
+                        <div
+                          style={{
+                            fontSize: 15,
+                            fontWeight: '500',
+                            color: '#000',
+                          }}
+                        >
+                          {showPhoneLoader ? (
+                            <div
+                              style={{
+                                width: '150px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                              }}
+                            >
+                              <CircularProgress size={15} />
+                            </div>
+                          ) : (
+                            <Box className="w-full">
+                              <FormControl className="w-full">
+                                <Select
+                                  ref={selectRef}
+                                  open={openCalimNumDropDown}
+                                  onClose={() => setOpenCalimNumDropDown(false)}
+                                  onOpen={() => setOpenCalimNumDropDown(true)}
+                                  className="border-none rounded-2xl outline-none p-0 m-0"
+                                  displayEmpty
+                                  value={assignNumber}
+                                  // onChange={handleSelectNumber}
+                                  // onChange={(e) => {
+                                  //   let value = e.target.value;
+                                  //   console.log(
+                                  //     "Assign number here: Value changed",
+                                  //     value
+                                  //   );
+                                  //   // return;
+                                  //   setAssignNumber(value);
+                                  //   // setOpenCalimNumDropDown(false);
+                                  // }}
+                                  renderValue={(selected) => {
+                                    if (selected === '') {
+                                      return <div>Select Number</div>
+                                    }
+                                    return (
+                                      <div
+                                        style={{
+                                          fontSize: 15,
+                                          fontWeight: '500',
+                                          color: '#000',
+                                        }}
+                                      >
+                                        <div>{selected}</div>
+                                      </div>
+                                    )
+                                  }}
+                                  sx={{
+                                    ...styles.dropdownMenu,
+                                    backgroundColor: 'none',
+                                    '& .MuiOutlinedInput-notchedOutline': {
+                                      border: 'none',
+                                    },
+                                    padding: 0,
+                                    margin: 0,
                                   }}
                                 >
-                                  Claim one
-                                </button>
-                              </div>
-                            </Select>
-                          </FormControl>
-                        </Box>
-                      )}
+                                  {previousNumber?.map((item, index) => {
+                                    // //console.log;
+                                    // //console.log;
+                                    return (
+                                      <MenuItem
+                                        key={index}
+                                        style={styles.dropdownMenu}
+                                        value={item.phoneNumber.slice(1)}
+                                        className="flex flex-row items-center gap-2 "
+                                        disabled={
+                                          assignNumber?.replace('+', '') ===
+                                          item.phoneNumber.replace('+', '')
+                                        }
+                                        onClick={(e) => {
+                                          //console.log;
+                                          // return;
+                                          if (showReassignBtn && item?.claimedBy) {
+                                            e.stopPropagation()
+                                            setShowConfirmationModal(item)
+                                            // console.log(
+                                            //   "Hit release number api",
+                                            //   item
+                                            // );
+                                            // AssignNumber
+                                          } else {
+                                            //console.log;
+                                            //// console.log(
+                                            //   "Should call assign number api"
+                                            // );
+                                            // return;
+                                            AssignNumber(item.phoneNumber)
+                                            //// console.log(
+                                            //   "Updated number is",
+                                            //   item.phoneNumber
+                                            // );
+                                          }
+                                        }}
+                                      >
+                                        <div
+                                          style={{
+                                            width: numberDropDownWidth(
+                                              item?.claimedBy?.name,
+                                            ),
+                                          }}
+                                        >
+                                          {item.phoneNumber}
+                                        </div>
+                                        {showReassignBtn && (
+                                          <div
+                                            className="w-full"
+                                          // onClick={(e) => {
+                                          //   console.log(
+                                          //     "Should open confirmation modal"
+                                          //   );
+                                          //   e.stopPropagation();
+                                          //   setShowConfirmationModal(item);
+                                          // }}
+                                          >
+                                            {item.claimedBy && (
+                                              <div className="flex flex-row items-center gap-2">
+                                                {showDrawerSelectedAgent?.name !==
+                                                  item.claimedBy.name && (
+                                                    <div>
+                                                      <span className="text-[#15151570]">{`(Claimed by ${item.claimedBy.name}) `}</span>
+                                                      {reassignLoader === item ? (
+                                                        <CircularProgress size={15} />
+                                                      ) : (
+                                                        <button
+                                                          className="text-brand-primary underline"
+                                                          onClick={(e) => {
+                                                            e.stopPropagation()
+                                                            setShowConfirmationModal(
+                                                              item,
+                                                            )
+                                                          }}
+                                                        >
+                                                          Reassign
+                                                        </button>
+                                                      )}
+                                                    </div>
+                                                  )}
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                      </MenuItem>
+                                    )
+                                  })}
+                                  {showGlobalBtn && getGlobalPhoneNumber(reduxUser) && (
+                                    <MenuItem
+                                      style={styles.dropdownMenu}
+                                      value={
+                                        getGlobalPhoneNumber(reduxUser)?.replace(
+                                          '+',
+                                          '',
+                                        ) || ''
+                                      }
+                                      disabled={
+                                        (assignNumber &&
+                                          assignNumber.replace('+', '') ===
+                                          getGlobalPhoneNumber(reduxUser)?.replace(
+                                            '+',
+                                            '',
+                                          )) ||
+                                        (showDrawerSelectedAgent &&
+                                          showDrawerSelectedAgent.agentType ===
+                                          'inbound')
+                                      }
+                                      onClick={() => {
+                                        // console.log(
+                                        //   "This triggers when user clicks on assigning global number",
+                                        //   assignNumber
+                                        // );
+                                        // return;
+                                        const globalNumber = getGlobalPhoneNumber(reduxUser)
+                                        if (globalNumber) {
+                                          AssignNumber(globalNumber)
+                                        }
+                                        // handleReassignNumber(showConfirmationModal);
+                                      }}
+                                    >
+                                      {getGlobalPhoneNumber(reduxUser)}
+                                      {' (available for testing calls only)'}
+                                    </MenuItem>
+                                  )}
+                                  <div
+                                    className="ms-4 pe-4"
+                                    style={{
+                                      ...styles.inputStyle,
+                                      color: '#00000070',
+                                    }}
+                                  >
+                                    <i>Get your own unique phone number.</i>{' '}
+                                    <button
+                                      className="text-brand-primary underline"
+                                      onClick={() => {
+                                        setShowClaimPopup(true)
+                                      }}
+                                    >
+                                      Claim one
+                                    </button>
+                                  </div>
+                                </Select>
+                              </FormControl>
+                            </Box>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex justify-between">
+                        <div className="flex flex-row gap-3">
+                          <div
+                            style={{
+                              fontSize: 15,
+                              fontWeight: '500',
+                              color: '#666',
+                            }}
+                          >
+                            Call back number
+                          </div>
+                          <div
+                          // aria-owns={open ? 'mouse-over-popover' : undefined}
+                          // aria-haspopup="true"
+                          // onMouseEnter={handlePopoverOpen}
+                          // onMouseLeave={handlePopoverClose}
+                          ></div>
+                          {/* Code for popover */}
+                        </div>
+
+                        <div className="flex flex-row items-center justify-between gap-2">
+                          <div
+                            style={{
+                              fontSize: 15,
+                              fontWeight: '400',
+                              color: '#000',
+                            }}
+                          >
+                            {showDrawerSelectedAgent?.callbackNumber ? (
+                              <div>{showDrawerSelectedAgent?.callbackNumber}</div>
+                            ) : (
+                              '-'
+                            )}
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              setShowEditNumberPopup(
+                                showDrawerSelectedAgent?.callbackNumber,
+                              )
+                              setSelectedNumber('Callback')
+                            }}
+                          >
+                            {renderBrandedIcon('/svgIcons/editIcon2.svg', 24, 24)}
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex justify-between mt-4">
+                        <div className="flex flex-row gap-3">
+                          <div
+                            style={{
+                              fontSize: 15,
+                              fontWeight: '500',
+                              color: '#666',
+                            }}
+                          >
+                            Call transfer number
+                          </div>
+                        </div>
+                        {renderLiveCallTransferSection({
+                          reduxUser,
+                          setReduxUser,
+                          showDrawerSelectedAgent,
+                          setShowEditNumberPopup,
+                          setSelectedNumber,
+                        })}
+                      </div>
+                    </div>
+
+                    <div className="w-full">
+                      <EditPhoneNumberModal
+                        open={showEditNumberPopup}
+                        close={() => setShowEditNumberPopup(null)}
+                        number={showEditNumberPopup && showEditNumberPopup}
+                        title={
+                          selectedNumber === 'Callback'
+                            ? 'Call Back Number'
+                            : 'Call Transfer Number'
+                        }
+                        loading={loading}
+                        update={async (value) => {
+                          let data = ''
+                          if (selectedNumber === 'Callback') {
+                            data = {
+                              callbackNumber: value,
+                            }
+                          } else {
+                            data = {
+                              liveTransferNumber: value,
+                            }
+                          }
+                          //console.log;
+                          setLoading(true)
+                          await updateSubAgent(data)
+                          setLoading(false)
+                          setShowEditNumberPopup(null)
+                        }}
+                      />
                     </div>
                   </div>
-                  <div className="flex justify-between">
-                    <div className="flex flex-row gap-3">
+                ) : activeTab === 'Actions' ? (
+                  !allowToolsAndActions &&
+                    reduxUser?.userRole !== 'AgencySubAccount' ? (
+                    <UpgardView
+                      setShowSnackMsg={setShowSnackMsg}
+                      title={'Unlock Actions'}
+                      subTitle={
+                        'Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools.'
+                      }
+                    />
+                  ) : (
+                    <div className="w-full">
                       <div
-                        style={{
-                          fontSize: 15,
-                          fontWeight: '500',
-                          color: '#666',
-                        }}
-                      >
-                        Call back number
-                      </div>
-                      <div
-                      // aria-owns={open ? 'mouse-over-popover' : undefined}
-                      // aria-haspopup="true"
-                      // onMouseEnter={handlePopoverOpen}
-                      // onMouseLeave={handlePopoverClose}
+                        className=" lg:flex hidden  xl:w-[350px] lg:w-[350px]"
+                        style={
+                          {
+                            // backgroundColor: "red"
+                          }
+                        }
                       ></div>
-                      {/* Code for popover */}
-                    </div>
 
-                    <div className="flex flex-row items-center justify-between gap-2">
-                      <div
-                        style={{
-                          fontSize: 15,
-                          fontWeight: '400',
-                          color: '#000',
-                        }}
-                      >
-                        {showDrawerSelectedAgent?.callbackNumber ? (
-                          <div>{showDrawerSelectedAgent?.callbackNumber}</div>
-                        ) : (
-                          '-'
-                        )}
-                      </div>
+                      <ActionsTab
+                        calendarDetails={calendarDetails}
+                        setUserDetails={setMainAgentsList}
+                        selectedAgent={showDrawerSelectedAgent}
+                        setSelectedAgent={setShowDrawerSelectedAgent}
+                        mainAgentId={MainAgentId}
+                        previousCalenders={previousCalenders}
+                        updateVariableData={updateAfterAddCalendar}
+                        setShowUpgradeModal={setShowUpgradeModal}
+                        activeTab={activeTab}
+                        showDrawerSelectedAgent={showDrawerSelectedAgent}
+                        setShowAddScoringModal={setShowAddScoringModal}
+                        setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+                        setShowSnackMsg={setShowSnackMsg}
+                      />
 
-                      <button
-                        onClick={() => {
-                          setShowEditNumberPopup(
-                            showDrawerSelectedAgent?.callbackNumber,
-                          )
-                          setSelectedNumber('Callback')
-                        }}
-                      >
-                        {renderBrandedIcon('/svgIcons/editIcon2.svg', 24, 24)}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="flex justify-between mt-4">
-                    <div className="flex flex-row gap-3">
-                      <div
-                        style={{
-                          fontSize: 15,
-                          fontWeight: '500',
-                          color: '#666',
-                        }}
-                      >
-                        Call transfer number
-                      </div>
-                    </div>
-                    {renderLiveCallTransferSection({
-                      reduxUser,
-                      setReduxUser,
-                      showDrawerSelectedAgent,
-                      setShowEditNumberPopup,
-                      setSelectedNumber,
-                    })}
-                  </div>
-                </div>
-
-                <div className="w-full">
-                  <EditPhoneNumberModal
-                    open={showEditNumberPopup}
-                    close={() => setShowEditNumberPopup(null)}
-                    number={showEditNumberPopup && showEditNumberPopup}
-                    title={
-                      selectedNumber === 'Callback'
-                        ? 'Call Back Number'
-                        : 'Call Transfer Number'
-                    }
-                    loading={loading}
-                    update={async (value) => {
-                      let data = ''
-                      if (selectedNumber === 'Callback') {
-                        data = {
-                          callbackNumber: value,
-                        }
-                      } else {
-                        data = {
-                          liveTransferNumber: value,
-                        }
-                      }
-                      //console.log;
-                      setLoading(true)
-                      await updateSubAgent(data)
-                      setLoading(false)
-                      setShowEditNumberPopup(null)
-                    }}
-                  />
-                </div>
-              </div>
-            ) : activeTab === 'Actions' ? (
-              !allowToolsAndActions &&
-                reduxUser?.userRole !== 'AgencySubAccount' ? (
-                <UpgardView
-                  setShowSnackMsg={setShowSnackMsg}
-                  title={'Unlock Actions'}
-                  subTitle={
-                    'Upgrade to enable AI booking, calendar sync, and advanced tools to give you AI like Gmail, Hubspot and 10k+ tools.'
-                  }
-                />
-              ) : (
-                <div className="w-full">
-                  <div
-                    className=" lg:flex hidden  xl:w-[350px] lg:w-[350px]"
-                    style={
-                      {
-                        // backgroundColor: "red"
-                      }
-                    }
-                  ></div>
-
-                  <ActionsTab
-                    calendarDetails={calendarDetails}
-                    setUserDetails={setMainAgentsList}
-                    selectedAgent={showDrawerSelectedAgent}
-                    setSelectedAgent={setShowDrawerSelectedAgent}
-                    mainAgentId={MainAgentId}
-                    previousCalenders={previousCalenders}
-                    updateVariableData={updateAfterAddCalendar}
-                    setShowUpgradeModal={setShowUpgradeModal}
-                    activeTab={activeTab}
-                    showDrawerSelectedAgent={showDrawerSelectedAgent}
-                    setShowAddScoringModal={setShowAddScoringModal}
-                    setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
-                    setShowSnackMsg={setShowSnackMsg}
-                  />
-
-                  {/* Calendar Section 
+                      {/* Calendar Section 
                   <UserCalender
                     calendarDetails={calendarDetails}
                     setUserDetails={setMainAgentsList}
@@ -6203,246 +6207,246 @@ function Page() {
                     setShowUpgradeModal={setShowUpgradeModal}
                   />*/}
 
-                  {/* Lead Scoring Section 
+                      {/* Lead Scoring Section 
                   <LeadScoring
                     activeTab={activeTab}
                     showDrawerSelectedAgent={showDrawerSelectedAgent}
                     setShowAddScoringModal={setShowAddScoringModal}
 
                   />*/}
-                </div>
-              )
-            ) : activeTab === 'Pipeline' ? (
-              <div className="flex flex-col gap-4">
-                <PiepelineAdnStage
-                  selectedAgent={showDrawerSelectedAgent}
-                  UserPipeline={UserPipeline}
-                  mainAgent={calendarDetails}
-                />
+                    </div>
+                  )
+                ) : activeTab === 'Pipeline' ? (
+                  <div className="flex flex-col gap-4">
+                    <PiepelineAdnStage
+                      selectedAgent={showDrawerSelectedAgent}
+                      UserPipeline={UserPipeline}
+                      mainAgent={calendarDetails}
+                    />
+                  </div>
+                ) : activeTab === 'Knowledge' ? (
+                  user?.agencyCapabilities?.allowKnowledgeBases === false ? (
+                    <UpgardView
+                      setShowSnackMsg={setShowSnackMsg}
+                      title={'Unlock Knowledge Base'}
+                      subTitle={
+                        'Upgrade to enable custom knowledge bases and document uploads for your AI agents.'
+                      }
+                    />
+                  ) : !allowKnowledgeBases ? (
+                    <UpgardView
+                      setShowSnackMsg={setShowSnackMsg}
+                      title={'Unlock Knowledge Base'}
+                      subTitle={
+                        'Upgrade to enable custom knowledge bases and document uploads for your AI agents.'
+                      }
+                    />
+                  ) : (
+                    <div className="flex flex-col gap-4">
+                      <Knowledgebase
+                        user={reduxUser}
+                        agent={showDrawerSelectedAgent}
+                        setShowUpgradeModal={setShowUpgradeModal}
+                      />
+                    </div>
+                  )
+                ) : activeTab === 'Voicemail' ? (
+                  user?.agencyCapabilities?.allowVoicemail === false ? (
+                    <UpgardView
+                      setShowSnackMsg={setShowSnackMsg}
+                      title={'Unlock Voicemail'}
+                      subTitle={
+                        'Upgrade to enable voicemail features for your outbound agents.'
+                      }
+                    />
+                  ) : !allowVoicemail ? (
+                    <UpgardView
+                      setShowSnackMsg={setShowSnackMsg}
+                      title={'Unlock Voicemail'}
+                      subTitle={
+                        'Upgrade to enable voicemail features for your outbound agents.'
+                      }
+                    />
+                  ) : (
+                    <div className="flex flex-col gap-4 w-full">
+                      <VoiceMailTab
+                        setMainAgentsList={setMainAgentsList}
+                        agent={showDrawerSelectedAgent}
+                        setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
+                        kycsData={kycsData}
+                        uniqueColumns={uniqueColumns}
+                      />
+                    </div>
+                  )
+                ) : (
+                  ''
+                )}
               </div>
-            ) : activeTab === 'Knowledge' ? (
-              user?.agencyCapabilities?.allowKnowledgeBases === false ? (
-                <UpgardView
-                  setShowSnackMsg={setShowSnackMsg}
-                  title={'Unlock Knowledge Base'}
-                  subTitle={
-                    'Upgrade to enable custom knowledge bases and document uploads for your AI agents.'
+              {/* Delete agent button */}
+              <div className="w-full flex flex-row items-center justify-end">
+                <button
+                  className="flex flex-row gap-2 items-center"
+                  onClick={() => {
+                    setDelAgentModal(true)
+                  }}
+                  style={
+                    {
+                      // // marginTop: 20,
+                      // alignSelf: "end",
+                      // position: "absolute",
+                      // bottom: "7%",
+                    }
                   }
-                />
-              ) : !allowKnowledgeBases ? (
-                <UpgardView
-                  setShowSnackMsg={setShowSnackMsg}
-                  title={'Unlock Knowledge Base'}
-                  subTitle={
-                    'Upgrade to enable custom knowledge bases and document uploads for your AI agents.'
-                  }
-                />
-              ) : (
-                <div className="flex flex-col gap-4">
-                  <Knowledgebase
-                    user={reduxUser}
-                    agent={showDrawerSelectedAgent}
-                    setShowUpgradeModal={setShowUpgradeModal}
-                  />
-                </div>
-              )
-            ) : activeTab === 'Voicemail' ? (
-              user?.agencyCapabilities?.allowVoicemail === false ? (
-                <UpgardView
-                  setShowSnackMsg={setShowSnackMsg}
-                  title={'Unlock Voicemail'}
-                  subTitle={
-                    'Upgrade to enable voicemail features for your outbound agents.'
-                  }
-                />
-              ) : !allowVoicemail ? (
-                <UpgardView
-                  setShowSnackMsg={setShowSnackMsg}
-                  title={'Unlock Voicemail'}
-                  subTitle={
-                    'Upgrade to enable voicemail features for your outbound agents.'
-                  }
-                />
-              ) : (
-                <div className="flex flex-col gap-4 w-full">
-                  <VoiceMailTab
-                    setMainAgentsList={setMainAgentsList}
-                    agent={showDrawerSelectedAgent}
-                    setShowDrawerSelectedAgent={setShowDrawerSelectedAgent}
-                    kycsData={kycsData}
-                    uniqueColumns={uniqueColumns}
-                  />
-                </div>
-              )
-            ) : (
-              ''
-            )}
-          </div>
-          {/* Delete agent button */}
-          <div className="w-full flex flex-row items-center justify-end">
-            <button
-              className="flex flex-row gap-2 items-center"
-              onClick={() => {
-                setDelAgentModal(true)
-              }}
-              style={
-                {
-                  // // marginTop: 20,
-                  // alignSelf: "end",
-                  // position: "absolute",
-                  // bottom: "7%",
-                }
-              }
-            >
-              {/* <Image src={'/otherAssets/redDeleteIcon.png'}
+                >
+                  {/* <Image src={'/otherAssets/redDeleteIcon.png'}
                 height={24}
                 width={24}
                 alt='del'
               /> */}
 
-              <Image
-                src={'/otherAssets/redDeleteIcon.png'}
-                height={24}
-                width={24}
-                alt="del"
-                style={{
-                  filter: 'brightness(0) saturate(100%) opacity(0.5)', // Convert to black and make semi-transparent
-                }}
-              />
-
-              <div
-                style={{
-                  fontSize: 15,
-                  fontWeight: '600',
-                  color: '#15151590',
-                  textDecorationLine: 'underline',
-                }}
-              >
-                Delete Agent
-              </div>
-            </button>
-          </div>
-        </div>
-      </Drawer>
-      {/* Code to del agent */}
-      <Modal
-        open={delAgentModal}
-        onClose={() => {
-          setDelAgentModal(false)
-        }}
-        BackdropProps={{
-          timeout: 200,
-          sx: {
-            backgroundColor: '#00000020',
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box
-          className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
-          sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
-        >
-          <div style={{ width: '100%' }}>
-            <div
-              className="max-h-[60vh] overflow-auto"
-              style={{ scrollbarWidth: 'none' }}
-            >
-              <div
-                style={{
-                  width: '100%',
-                  direction: 'row',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                {/* <div style={{ width: "20%" }} /> */}
-                <div style={{ fontWeight: '500', fontSize: 17 }}>
-                  Delete Agent
-                </div>
-                <div
-                  style={{
-                    direction: 'row',
-                    display: 'flex',
-                    justifyContent: 'end',
-                  }}
-                >
-                  <button
-                    onClick={() => {
-                      setDelAgentModal(false)
-                    }}
-                    className="outline-none"
-                  >
-                    <Image
-                      src={'/assets/crossIcon.png'}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
-                </div>
-              </div>
-
-              <div className="mt-6" style={{ fontWeight: '700', fontSize: 22 }}>
-                This is irreversible. Are you sure?
-              </div>
-            </div>
-
-            <div className="flex flex-row items-center gap-4 mt-6">
-              <button className="w-1/2 text-[#6b7280] outline-none  h-[50px] outline-none">
-                Cancel
-              </button>
-              <div className="w-1/2">
-                {DelLoader ? (
-                  <div className="flex flex-row iems-center justify-center w-full mt-4">
-                    <CircularProgress size={25} />
-                  </div>
-                ) : (
-                  <button
-                    className="outline-none bg-red"
+                  <Image
+                    src={'/otherAssets/redDeleteIcon.png'}
+                    height={24}
+                    width={24}
+                    alt="del"
                     style={{
-                      color: 'white',
-                      height: '50px',
-                      borderRadius: '10px',
-                      width: '100%',
-                      fontWeight: 600,
-                      fontSize: '20',
+                      filter: 'brightness(0) saturate(100%) opacity(0.5)', // Convert to black and make semi-transparent
                     }}
-                    onClick={handleDeleteAgent}
+                  />
+
+                  <div
+                    style={{
+                      fontSize: 15,
+                      fontWeight: '600',
+                      color: '#15151590',
+                      textDecorationLine: 'underline',
+                    }}
                   >
-                    Yes! Delete
-                  </button>
-                )}
+                    Delete Agent
+                  </div>
+                </button>
               </div>
             </div>
-          </div>
-        </Box>
-      </Modal>
-      {/*  Test comment */}
-      {/* Code for the confirmation of reassign button */}
-      <Modal
-        open={showConfirmationModal}
-        onClose={() => {
-          setShowConfirmationModal(null)
-        }}
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: '#00000020',
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box
-          className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-5/12 p-8 rounded-[15px]"
-          sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
-        >
-          <div style={{ width: '100%' }}>
-            <div
-              className="max-h-[60vh] overflow-auto"
-              style={{ scrollbarWidth: 'none' }}
+          </Drawer>
+          {/* Code to del agent */}
+          <Modal
+            open={delAgentModal}
+            onClose={() => {
+              setDelAgentModal(false)
+            }}
+            BackdropProps={{
+              timeout: 200,
+              sx: {
+                backgroundColor: '#00000020',
+                // //backdropFilter: "blur(20px)",
+              },
+            }}
+          >
+            <Box
+              className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-4/12 p-8 rounded-[15px]"
+              sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
             >
-              {/* <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "end", alignItems: "center" }}>
+              <div style={{ width: '100%' }}>
+                <div
+                  className="max-h-[60vh] overflow-auto"
+                  style={{ scrollbarWidth: 'none' }}
+                >
+                  <div
+                    style={{
+                      width: '100%',
+                      direction: 'row',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    {/* <div style={{ width: "20%" }} /> */}
+                    <div style={{ fontWeight: '500', fontSize: 17 }}>
+                      Delete Agent
+                    </div>
+                    <div
+                      style={{
+                        direction: 'row',
+                        display: 'flex',
+                        justifyContent: 'end',
+                      }}
+                    >
+                      <button
+                        onClick={() => {
+                          setDelAgentModal(false)
+                        }}
+                        className="outline-none"
+                      >
+                        <Image
+                          src={'/assets/crossIcon.png'}
+                          height={40}
+                          width={40}
+                          alt="*"
+                        />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="mt-6" style={{ fontWeight: '700', fontSize: 22 }}>
+                    This is irreversible. Are you sure?
+                  </div>
+                </div>
+
+                <div className="flex flex-row items-center gap-4 mt-6">
+                  <button className="w-1/2 text-[#6b7280] outline-none  h-[50px] outline-none">
+                    Cancel
+                  </button>
+                  <div className="w-1/2">
+                    {DelLoader ? (
+                      <div className="flex flex-row iems-center justify-center w-full mt-4">
+                        <CircularProgress size={25} />
+                      </div>
+                    ) : (
+                      <button
+                        className="outline-none bg-red"
+                        style={{
+                          color: 'white',
+                          height: '50px',
+                          borderRadius: '10px',
+                          width: '100%',
+                          fontWeight: 600,
+                          fontSize: '20',
+                        }}
+                        onClick={handleDeleteAgent}
+                      >
+                        Yes! Delete
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </Box>
+          </Modal>
+          {/*  Test comment */}
+          {/* Code for the confirmation of reassign button */}
+          <Modal
+            open={showConfirmationModal}
+            onClose={() => {
+              setShowConfirmationModal(null)
+            }}
+            BackdropProps={{
+              timeout: 100,
+              sx: {
+                backgroundColor: '#00000020',
+                // //backdropFilter: "blur(20px)",
+              },
+            }}
+          >
+            <Box
+              className="w-10/12 sm:w-8/12 md:w-6/12 lg:w-5/12 p-8 rounded-[15px]"
+              sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
+            >
+              <div style={{ width: '100%' }}>
+                <div
+                  className="max-h-[60vh] overflow-auto"
+                  style={{ scrollbarWidth: 'none' }}
+                >
+                  {/* <div style={{ width: "100%", direction: "row", display: "flex", justifyContent: "end", alignItems: "center" }}>
                 <div style={{ direction: "row", display: "flex", justifyContent: "end" }}>
                   <button onClick={() => {
                     setShowWarningModal(false);
@@ -6452,77 +6456,53 @@ function Page() {
                 </div>
               </div> */}
 
-              <div className="flex flex-row items-center justify-between w-full">
-                <div
-                  style={{
-                    fontSize: 17,
-                    fontWeight: '600',
-                  }}
-                >
-                  Reassign Number
-                </div>
-                <CloseBtn
-                  onClick={() => {
-                    setShowConfirmationModal(null)
-                  }}
-                />
-              </div>
-
-              <div
-                className="mt-8"
-                style={{
-                  fontSize: 22,
-                  fontWeight: '600',
-                }}
-              >
-                Confirm Action
-              </div>
-
-              <p
-                className="mt-8"
-                style={{
-                  fontSize: 15,
-                  fontWeight: '500',
-                }}
-              >
-                Please confirm you would like to reassign{' '}
-                <span className="text-brand-primary">
-                  {formatPhoneNumber(showConfirmationModal?.phoneNumber)}
-                </span>{' '}
-                to {showDrawerSelectedAgent?.name}.
-                {/* {`{${showDrawer?.name}}`}. */}
-              </p>
-            </div>
-
-            <div className="flex flex-row items-center gap-4 mt-6">
-              <button
-                className="mt-4 outline-none w-1/2"
-                style={{
-                  color: 'black',
-                  height: '50px',
-                  borderRadius: '10px',
-                  width: '100%',
-                  fontWeight: 600,
-                  fontSize: '20',
-                }}
-                onClick={() => {
-                  setShowClaimPopup(null)
-                  setAssignNumber(showDrawerSelectedAgent?.phoneNumber || '')
-                  setShowConfirmationModal(false)
-                }}
-              >
-                Discard
-              </button>
-              <div className="w-full">
-                {reassignLoader ? (
-                  <div className="mt-4 w-full flex flex-row items-center justify-center">
-                    <CircularProgress size={25} />
+                  <div className="flex flex-row items-center justify-between w-full">
+                    <div
+                      style={{
+                        fontSize: 17,
+                        fontWeight: '600',
+                      }}
+                    >
+                      Reassign Number
+                    </div>
+                    <CloseBtn
+                      onClick={() => {
+                        setShowConfirmationModal(null)
+                      }}
+                    />
                   </div>
-                ) : (
-                  <button
-                    className="mt-4 outline-none bg-brand-primary w-full"
+
+                  <div
+                    className="mt-8"
                     style={{
-                      color: 'white',
+                      fontSize: 22,
+                      fontWeight: '600',
+                    }}
+                  >
+                    Confirm Action
+                  </div>
+
+                  <p
+                    className="mt-8"
+                    style={{
+                      fontSize: 15,
+                      fontWeight: '500',
+                    }}
+                  >
+                    Please confirm you would like to reassign{' '}
+                    <span className="text-brand-primary">
+                      {formatPhoneNumber(showConfirmationModal?.phoneNumber)}
+                    </span>{' '}
+                    to {showDrawerSelectedAgent?.name}.
+                    {/* {`{${showDrawer?.name}}`}. */}
+                  </p>
+                </div>
+
+                <div className="flex flex-row items-center gap-4 mt-6">
+                  <button
+                    className="mt-4 outline-none w-1/2"
+                    style={{
+                      color: 'black',
                       height: '50px',
                       borderRadius: '10px',
                       width: '100%',
@@ -6530,379 +6510,403 @@ function Page() {
                       fontSize: '20',
                     }}
                     onClick={() => {
-                      handleReassignNumber(showConfirmationModal)
-                      ////console.log
+                      setShowClaimPopup(null)
+                      setAssignNumber(showDrawerSelectedAgent?.phoneNumber || '')
+                      setShowConfirmationModal(false)
                     }}
                   >
-                    {`I'm sure`}
+                    Discard
                   </button>
-                )}
-              </div>
-            </div>
-          </div>
-        </Box>
-      </Modal>
-      {/* code for script */}
-      <Modal
-        open={showScriptModal}
-        onClose={() => {
-          handleCloseScriptModal()
-        }}
-        BackdropProps={{
-          timeout: 100,
-          sx: {
-            backgroundColor: '#00000020',
-            // //backdropFilter: "blur(20px)",
-          },
-        }}
-      >
-        <Box
-          className="w-10/12 h-[90%] sm:w-[760px] p-8 rounded-xl"
-          sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
-        >
-          <div style={{ width: '100%' }}>
-            <div className="h-[90vh]" style={{ scrollbarWidth: 'none' }}>
-              <div
-                style={{
-                  height: '8%',
-                  width: '100%',
-                  direction: 'row',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                {/* <div style={{ width: "20%" }} /> */}
-                <div style={{ fontWeight: '600', fontSize: 22 }}>
-                  {showScriptModal?.name?.slice(0, 1).toUpperCase(0)}
-                  {showScriptModal?.name?.slice(1)}
-                </div>
-                <div
-                  style={{
-                    direction: 'row',
-                    display: 'flex',
-                    justifyContent: 'end',
-                  }}
-                >
-                  <button
-                    onClick={() => {
-                      handleCloseScriptModal()
-                    }}
-                    className="outline-none"
-                  >
-                    <Image
-                      src={'/assets/crossIcon.png'}
-                      height={40}
-                      width={40}
-                      alt="*"
-                    />
-                  </button>
+                  <div className="w-full">
+                    {reassignLoader ? (
+                      <div className="mt-4 w-full flex flex-row items-center justify-center">
+                        <CircularProgress size={25} />
+                      </div>
+                    ) : (
+                      <button
+                        className="mt-4 outline-none bg-brand-primary w-full"
+                        style={{
+                          color: 'white',
+                          height: '50px',
+                          borderRadius: '10px',
+                          width: '100%',
+                          fontWeight: 600,
+                          fontSize: '20',
+                        }}
+                        onClick={() => {
+                          handleReassignNumber(showConfirmationModal)
+                          ////console.log
+                        }}
+                      >
+                        {`I'm sure`}
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
-
-              <div
-                className="mt-4 flex flex-row gap-6"
-                style={{ height: '', fontWeight: '500', fontSize: 15 }}
-              >
-                <button
-                  className="px-2 pb-1"
-                  style={{
-                    borderBottom: showScript && '2px solid hsl(var(--brand-primary))',
-                  }}
-                  onClick={handleShowScript}
-                >
-                  Script
-                </button>
-                <button
-                  className="px-2 pb-1"
-                  style={{
-                    borderBottom: SeledtedScriptKYC && '2px solid hsl(var(--brand-primary))',
-                  }}
-                  onClick={handleShowKycs}
-                >
-                  KYC
-                </button>
-                <button
-                  className="px-2 pb-1"
-                  style={{
-                    borderBottom:
-                      SeledtedScriptAdvanceSetting && '2px solid hsl(var(--brand-primary))',
-                  }}
-                  onClick={handleShowAdvanceSeting}
-                >
-                  Advanced Settings
-                </button>
-              </div>
-
-              {showScript && (
-                <div style={{ height: '73%', borderWidth: 0 }}>
+            </Box>
+          </Modal>
+          {/* code for script */}
+          <Modal
+            open={showScriptModal}
+            onClose={() => {
+              handleCloseScriptModal()
+            }}
+            BackdropProps={{
+              timeout: 100,
+              sx: {
+                backgroundColor: '#00000020',
+                // //backdropFilter: "blur(20px)",
+              },
+            }}
+          >
+            <Box
+              className="w-10/12 h-[90%] sm:w-[760px] p-8 rounded-xl"
+              sx={{ ...styles.modalsStyle, backgroundColor: 'white' }}
+            >
+              <div style={{ width: '100%' }}>
+                <div className="h-[90vh]" style={{ scrollbarWidth: 'none' }}>
                   <div
                     style={{
-                      height: showSaveChangesBtn ? '95%' : '100%',
-                      borderWidth: 0,
+                      height: '8%',
+                      width: '100%',
+                      direction: 'row',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
                     }}
                   >
-                    <div className="bg-[#00000002] p-2 mt-2">
-                      <div
-                        style={styles.inputStyle}
-                        className="flex flex-row items-center gap-2"
+                    {/* <div style={{ width: "20%" }} /> */}
+                    <div style={{ fontWeight: '600', fontSize: 22 }}>
+                      {showScriptModal?.name?.slice(0, 1).toUpperCase(0)}
+                      {showScriptModal?.name?.slice(1)}
+                    </div>
+                    <div
+                      style={{
+                        direction: 'row',
+                        display: 'flex',
+                        justifyContent: 'end',
+                      }}
+                    >
+                      <button
+                        onClick={() => {
+                          handleCloseScriptModal()
+                        }}
+                        className="outline-none"
                       >
                         <Image
-                          src={'/assets/lightBulb.png'}
+                          src={'/assets/crossIcon.png'}
+                          height={40}
+                          width={40}
                           alt="*"
-                          height={24}
-                          width={24}
-                        />{' '}
-                        Editing Tips
-                      </div>
+                        />
+                      </button>
+                    </div>
+                  </div>
+
+                  <div
+                    className="mt-4 flex flex-row gap-6"
+                    style={{ height: '', fontWeight: '500', fontSize: 15 }}
+                  >
+                    <button
+                      className="px-2 pb-1"
+                      style={{
+                        borderBottom: showScript && '2px solid hsl(var(--brand-primary))',
+                      }}
+                      onClick={handleShowScript}
+                    >
+                      Script
+                    </button>
+                    <button
+                      className="px-2 pb-1"
+                      style={{
+                        borderBottom: SeledtedScriptKYC && '2px solid hsl(var(--brand-primary))',
+                      }}
+                      onClick={handleShowKycs}
+                    >
+                      KYC
+                    </button>
+                    <button
+                      className="px-2 pb-1"
+                      style={{
+                        borderBottom:
+                          SeledtedScriptAdvanceSetting && '2px solid hsl(var(--brand-primary))',
+                      }}
+                      onClick={handleShowAdvanceSeting}
+                    >
+                      Advanced Settings
+                    </button>
+                  </div>
+
+                  {showScript && (
+                    <div style={{ height: '73%', borderWidth: 0 }}>
                       <div
-                        style={styles.inputStyle}
-                        className="flex flex-row flex-wrap gap-2"
+                        style={{
+                          height: showSaveChangesBtn ? '95%' : '100%',
+                          borderWidth: 0,
+                        }}
                       >
-                        <div>You can use these variables:</div>
-                        {/* <div className='flex flex-row items-center gap-2'> */}
-                        <div
-                          style={{ width: 'fit-content' }}
-                          className="text-brand-primary flex flex-row gap-2"
-                        >
-                          {`{Address}`},{`{Phone}`}, {`{Email}`},{`{Kyc}`}
-                          {/* {`{First Name}`}, {`{Email}`}, */}
+                        <div className="bg-[#00000002] p-2 mt-2">
+                          <div
+                            style={styles.inputStyle}
+                            className="flex flex-row items-center gap-2"
+                          >
+                            <Image
+                              src={'/assets/lightBulb.png'}
+                              alt="*"
+                              height={24}
+                              width={24}
+                            />{' '}
+                            Editing Tips
+                          </div>
+                          <div
+                            style={styles.inputStyle}
+                            className="flex flex-row flex-wrap gap-2"
+                          >
+                            <div>You can use these variables:</div>
+                            {/* <div className='flex flex-row items-center gap-2'> */}
+                            <div
+                              style={{ width: 'fit-content' }}
+                              className="text-brand-primary flex flex-row gap-2"
+                            >
+                              {`{Address}`},{`{Phone}`}, {`{Email}`},{`{Kyc}`}
+                              {/* {`{First Name}`}, {`{Email}`}, */}
+                            </div>
+
+                            {uniqueColumns?.length > 0 && showMoreUniqueColumns ? (
+                              <div className="flex flex-row flex-wrap gap-2">
+                                {uniqueColumns.map((item, index) => (
+                                  <div
+                                    key={index}
+                                    className="flex flex-row items-center gap-2 text-brand-primary"
+                                  >
+                                    {`{${item}}`},
+                                  </div>
+                                ))}
+                                <button
+                                  className="text-brand-primary outline-none"
+                                  onClick={handleShowUniqueCols}
+                                >
+                                  show less
+                                </button>
+                              </div>
+                            ) : (
+                              <div>
+                                {uniqueColumns?.length > 0 && (
+                                  <button
+                                    className="text-brand-primary flex flex-row items-center font-bold outline-none"
+                                    onClick={() => {
+                                      handleShowUniqueCols()
+                                    }}
+                                  >
+                                    <Plus
+                                      weight="bold"
+                                      size={15}
+                                      style={{
+                                        strokeWidth: 40, // Adjust as needed
+                                      }}
+                                    />
+                                    {uniqueColumns?.length}
+                                  </button>
+                                )}
+                              </div>
+                            )}
+
+                            {/* </div> */}
+                          </div>
                         </div>
 
-                        {uniqueColumns?.length > 0 && showMoreUniqueColumns ? (
-                          <div className="flex flex-row flex-wrap gap-2">
-                            {uniqueColumns.map((item, index) => (
-                              <div
-                                key={index}
-                                className="flex flex-row items-center gap-2 text-brand-primary"
-                              >
-                                {`{${item}}`},
-                              </div>
-                            ))}
-                            <button
-                              className="text-brand-primary outline-none"
-                              onClick={handleShowUniqueCols}
-                            >
-                              show less
-                            </button>
+                        <div className="w-full">
+                          <div className="flex">
+                            <VideoCard
+                              duration={getTutorialByType(HowToVideoTypes.Script)?.description || '13:56'}
+                              width="60"
+                              height="40"
+                              horizontal={false}
+                              playVideo={() => {
+                                setIntroVideoModal(true)
+                              }}
+                              title={getTutorialByType(HowToVideoTypes.Script)?.title || 'Learn how to customize your script'}
+                            />
                           </div>
-                        ) : (
-                          <div>
-                            {uniqueColumns?.length > 0 && (
-                              <button
-                                className="text-brand-primary flex flex-row items-center font-bold outline-none"
-                                onClick={() => {
-                                  handleShowUniqueCols()
-                                }}
-                              >
-                                <Plus
-                                  weight="bold"
-                                  size={15}
-                                  style={{
-                                    strokeWidth: 40, // Adjust as needed
-                                  }}
-                                />
-                                {uniqueColumns?.length}
-                              </button>
-                            )}
-                          </div>
-                        )}
 
-                        {/* </div> */}
-                      </div>
-                    </div>
-
-                    <div className="w-full">
-                      <div className="flex">
-                        <VideoCard
-                          duration={getTutorialByType(HowToVideoTypes.Script)?.description || '13:56'}
-                          width="60"
-                          height="40"
-                          horizontal={false}
-                          playVideo={() => {
-                            setIntroVideoModal(true)
-                          }}
-                          title={getTutorialByType(HowToVideoTypes.Script)?.title || 'Learn how to customize your script'}
-                        />
-                      </div>
-
-                      {/* <div
+                          {/* <div
                         className="mt-4"
                         style={{ fontSize: 24, fontWeight: "700" }}
                       >
                         Script
                       </div> */}
 
-                      <div
-                        style={{ fontSize: 24, fontWeight: '700' }}
-                        className="flex flex-row items-center center w-full justify-between"
-                      >
-                        <div>Script</div>
+                          <div
+                            style={{ fontSize: 24, fontWeight: '700' }}
+                            className="flex flex-row items-center center w-full justify-between"
+                          >
+                            <div>Script</div>
+                          </div>
+
+                          <div className="flex flex-row items-center justify-between">
+                            <div
+                              className="mt-2"
+                              style={{ ...styles.paragraph, color: '#00000060' }}
+                            >
+                              Greeting
+                            </div>
+
+                            <button
+                              className="flex flex-row items-center gap-2 h-[43px] rounded-md bg-brand-primary text-white px-4"
+                              style={{
+                                fontWeight: '500',
+                                fontSize: 15,
+                              }}
+                              onClick={() => {
+                                window.open(
+                                  'https://chatgpt.com/g/g-0O0jItKdk-agentx-script-builder',
+                                  '_blank',
+                                )
+                              }}
+                            >
+                              Use Script Builder
+                              <ArrowUpRight size={20} color="white" />
+                            </button>
+                          </div>
+
+                          <div className="mt-2">
+                            <GreetingTagInput
+                              greetTag={showScriptModal?.prompt?.greeting}
+                              kycsList={kycsData}
+                              uniqueColumns={uniqueColumns}
+                              tagValue={(text) => {
+                                setGreetingTagInput(text)
+                                let agent = showScriptModal
+                                agent.prompt.greeting = text
+                                setShowScriptModal(agent)
+                              }}
+                              scrollOffset={scrollOffset}
+                            />
+                          </div>
+                          <div className="mt-4 w-full ">
+                            <PromptTagInput
+                              promptTag={scriptTagInput}
+                              kycsList={kycsData}
+                              from={'Prompt'}
+                              uniqueColumns={uniqueColumns}
+                              tagValue={(text) => {
+                                // console.log("Text updated ", text);
+                                setScriptTagInput(text)
+                                // let agent = showScriptModal;
+                                // agent.prompt.callScript = text;
+                                // setShowScriptModal(agent);
+                              }}
+                              scrollOffset={scrollOffset}
+                              showSaveChangesBtn={showSaveChangesBtn}
+                              saveUpdates={async () => {
+                                await updateAgent()
+                                setShowSaveChangesBtn(false)
+                                setOldScriptTagInput(scriptTagInput)
+                              }}
+                            />
+
+                            {/* <DynamicDropdown /> */}
+                          </div>
+                        </div>
                       </div>
 
-                      <div className="flex flex-row items-center justify-between">
-                        <div
-                          className="mt-2"
-                          style={{ ...styles.paragraph, color: '#00000060' }}
-                        >
-                          Greeting
-                        </div>
+                      <div className="absolute bottom-2 right-7 left-7" style={{}}>
+                        {showSaveChangesBtn && (
+                          <div className="w-full">
+                            {UpdateAgentLoader ? (
+                              <div className="w-full flex flex-row mt-6 justify-center">
+                                <CircularProgress size={35} />
+                              </div>
+                            ) : (
+                              <button
+                                className="bg-brand-primary w-full h-[50px] rounded-xl text-white"
+                                style={{ fontWeight: '600', fontSize: 15 }}
+                                onClick={async () => {
+                                  await updateAgent()
+                                  setShowScriptModal(null)
+                                  setGreetingTagInput('')
+                                  setScriptTagInput('')
+                                  setShowScript(false)
+                                  setSeledtedScriptKYC(false)
+                                  setSeledtedScriptAdvanceSetting(false)
+                                  setShowSaveChangesBtn(false)
+                                  setShowObjectionsSaveBtn(false)
+                                }}
+                              >
+                                Save Changes
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
+                  {SeledtedScriptAdvanceSetting && (
+                    <div style={{ height: '80%' }}>
+                      <div className="flex flex-row items-center gap-2 mt-4">
                         <button
-                          className="flex flex-row items-center gap-2 h-[43px] rounded-md bg-brand-primary text-white px-4"
+                          className="px-2 outline-none"
                           style={{
-                            fontWeight: '500',
-                            fontSize: 15,
+                            borderBottom: showObjectives && '2px solid hsl(var(--brand-primary))',
                           }}
-                          onClick={() => {
-                            window.open(
-                              'https://chatgpt.com/g/g-0O0jItKdk-agentx-script-builder',
-                              '_blank',
-                            )
-                          }}
+                          onClick={handleShowObjectives}
                         >
-                          Use Script Builder
-                          <ArrowUpRight size={20} color="white" />
+                          Objective
+                        </button>
+                        <button
+                          className="px-2 outline-none"
+                          style={{
+                            borderBottom: showGuardrails && '2px solid hsl(var(--brand-primary))',
+                          }}
+                          onClick={handleShowGuardrails}
+                        >
+                          Guardrails
+                        </button>
+                        <button
+                          className="px-2 outline-none"
+                          style={{
+                            borderBottom: showObjection && '2px solid hsl(var(--brand-primary))',
+                          }}
+                          onClick={handleShowObjection}
+                        >
+                          Objections
                         </button>
                       </div>
 
-                      <div className="mt-2">
-                        <GreetingTagInput
-                          greetTag={showScriptModal?.prompt?.greeting}
-                          kycsList={kycsData}
-                          uniqueColumns={uniqueColumns}
-                          tagValue={(text) => {
-                            setGreetingTagInput(text)
-                            let agent = showScriptModal
-                            agent.prompt.greeting = text
-                            setShowScriptModal(agent)
-                          }}
-                          scrollOffset={scrollOffset}
-                        />
-                      </div>
-                      <div className="mt-4 w-full ">
-                        <PromptTagInput
-                          promptTag={scriptTagInput}
-                          kycsList={kycsData}
-                          from={'Prompt'}
-                          uniqueColumns={uniqueColumns}
-                          tagValue={(text) => {
-                            // console.log("Text updated ", text);
-                            setScriptTagInput(text)
-                            // let agent = showScriptModal;
-                            // agent.prompt.callScript = text;
-                            // setShowScriptModal(agent);
-                          }}
-                          scrollOffset={scrollOffset}
-                          showSaveChangesBtn={showSaveChangesBtn}
-                          saveUpdates={async () => {
-                            await updateAgent()
-                            setShowSaveChangesBtn(false)
-                            setOldScriptTagInput(scriptTagInput)
-                          }}
-                        />
-
-                        {/* <DynamicDropdown /> */}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="absolute bottom-2 right-7 left-7" style={{}}>
-                    {showSaveChangesBtn && (
-                      <div className="w-full">
-                        {UpdateAgentLoader ? (
-                          <div className="w-full flex flex-row mt-6 justify-center">
-                            <CircularProgress size={35} />
+                      {showObjection && (
+                        <div style={{ height: '80%' }}>
+                          <div style={{ marginTop: '40px', height: '80%' }}>
+                            <Objection
+                              showTitle={true}
+                              selectedAgentId={showScriptModal}
+                              kycsData={kycsData}
+                              uniqueColumns={uniqueColumns}
+                            />
                           </div>
-                        ) : (
-                          <button
-                            className="bg-brand-primary w-full h-[50px] rounded-xl text-white"
-                            style={{ fontWeight: '600', fontSize: 15 }}
-                            onClick={async () => {
-                              await updateAgent()
-                              setShowScriptModal(null)
-                              setGreetingTagInput('')
-                              setScriptTagInput('')
-                              setShowScript(false)
-                              setSeledtedScriptKYC(false)
-                              setSeledtedScriptAdvanceSetting(false)
-                              setShowSaveChangesBtn(false)
-                              setShowObjectionsSaveBtn(false)
-                            }}
-                          >
-                            Save Changes
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
+                        </div>
+                      )}
 
-              {SeledtedScriptAdvanceSetting && (
-                <div style={{ height: '80%' }}>
-                  <div className="flex flex-row items-center gap-2 mt-4">
-                    <button
-                      className="px-2 outline-none"
-                      style={{
-                        borderBottom: showObjectives && '2px solid hsl(var(--brand-primary))',
-                      }}
-                      onClick={handleShowObjectives}
-                    >
-                      Objective
-                    </button>
-                    <button
-                      className="px-2 outline-none"
-                      style={{
-                        borderBottom: showGuardrails && '2px solid hsl(var(--brand-primary))',
-                      }}
-                      onClick={handleShowGuardrails}
-                    >
-                      Guardrails
-                    </button>
-                    <button
-                      className="px-2 outline-none"
-                      style={{
-                        borderBottom: showObjection && '2px solid hsl(var(--brand-primary))',
-                      }}
-                      onClick={handleShowObjection}
-                    >
-                      Objections
-                    </button>
-                  </div>
+                      {showGuardrails && (
+                        <div style={{ height: '80%' }}>
+                          <div style={{ marginTop: '40px', height: '80%' }}>
+                            <GuarduanSetting
+                              showTitle={true}
+                              selectedAgentId={showScriptModal}
+                              kycsData={kycsData}
+                              uniqueColumns={uniqueColumns}
+                            />
+                          </div>
+                        </div>
+                      )}
 
-                  {showObjection && (
-                    <div style={{ height: '80%' }}>
-                      <div style={{ marginTop: '40px', height: '80%' }}>
-                        <Objection
-                          showTitle={true}
-                          selectedAgentId={showScriptModal}
-                          kycsData={kycsData}
-                          uniqueColumns={uniqueColumns}
-                        />
-                      </div>
-                    </div>
-                  )}
+                      {showObjectives && (
+                        <div style={{ height: '80%' }}>
+                          <div style={{ marginTop: '40px', height: '80%' }}>
+                            {/* {showScriptModal?.prompt?.objective} */}
 
-                  {showGuardrails && (
-                    <div style={{ height: '80%' }}>
-                      <div style={{ marginTop: '40px', height: '80%' }}>
-                        <GuarduanSetting
-                          showTitle={true}
-                          selectedAgentId={showScriptModal}
-                          kycsData={kycsData}
-                          uniqueColumns={uniqueColumns}
-                        />
-                      </div>
-                    </div>
-                  )}
-
-                  {showObjectives && (
-                    <div style={{ height: '80%' }}>
-                      <div style={{ marginTop: '40px', height: '80%' }}>
-                        {/* {showScriptModal?.prompt?.objective} */}
-
-                        {/* {
+                            {/* {
                           <textarea
                             className="outline-none rounded-xl focus:ring-0"
                             // ref={objective}
@@ -6926,243 +6930,243 @@ function Page() {
                           />
                         } */}
 
-                        <div className="mt-4 w-full">
-                          <PromptTagInput
-                            promptTag={objective}
-                            kycsList={kycsData}
-                            uniqueColumns={uniqueColumns}
-                            tagValue={setObjective}
-                            scrollOffset={scrollOffset}
-                            showSaveChangesBtn={showObjectionsSaveBtn}
-                            from={'Objective'}
-                            saveUpdates={async () => {
-                              await updateAgent()
-                              setShowObjectionsSaveBtn(false)
-                              setOldObjective(objective)
-                            }}
-                          />
+                            <div className="mt-4 w-full">
+                              <PromptTagInput
+                                promptTag={objective}
+                                kycsList={kycsData}
+                                uniqueColumns={uniqueColumns}
+                                tagValue={setObjective}
+                                scrollOffset={scrollOffset}
+                                showSaveChangesBtn={showObjectionsSaveBtn}
+                                from={'Objective'}
+                                saveUpdates={async () => {
+                                  await updateAgent()
+                                  setShowObjectionsSaveBtn(false)
+                                  setOldObjective(objective)
+                                }}
+                              />
 
-                          {/* <DynamicDropdown /> */}
-                        </div>
-
-                        <div>
-                          {showObjectionsSaveBtn && (
-                            <div>
-                              {UpdateAgentLoader ? (
-                                <div className="w-full flex flex-row justify-center">
-                                  <CircularProgress size={35} />
-                                </div>
-                              ) : (
-                                <button
-                                  className="bg-brand-primary w-full h-[50px] rounded-xl mb-4 text-white"
-                                  style={{ fontWeight: '600', fontSize: 15 }}
-                                  onClick={async () => {
-                                    await updateAgent()
-                                    setShowObjectionsSaveBtn(false)
-                                    setOldObjective(objective)
-                                  }}
-                                >
-                                  Save Changes
-                                </button>
-                              )}
+                              {/* <DynamicDropdown /> */}
                             </div>
-                          )}
 
-                          
+                            <div>
+                              {showObjectionsSaveBtn && (
+                                <div>
+                                  {UpdateAgentLoader ? (
+                                    <div className="w-full flex flex-row justify-center">
+                                      <CircularProgress size={35} />
+                                    </div>
+                                  ) : (
+                                    <button
+                                      className="bg-brand-primary w-full h-[50px] rounded-xl mb-4 text-white"
+                                      style={{ fontWeight: '600', fontSize: 15 }}
+                                      onClick={async () => {
+                                        await updateAgent()
+                                        setShowObjectionsSaveBtn(false)
+                                        setOldObjective(objective)
+                                      }}
+                                    >
+                                      Save Changes
+                                    </button>
+                                  )}
+                                </div>
+                              )}
+
+
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      )}
+                    </div>
+                  )}
+
+                  {SeledtedScriptKYC && (
+                    <div
+                      style={{
+                        height: '80%',
+                        overflow: 'auto',
+                        scrollbarWidth: 'none',
+                        backgroundColor: '',
+                      }}
+                    >
+                      <KYCs
+                        kycsDetails={setKycsData}
+                        mainAgentId={MainAgentId}
+                        user={user && user}
+                      />
                     </div>
                   )}
                 </div>
-              )}
+              </div>
+            </Box>
+          </Modal>
+          {/* Modal for video */}
+          <IntroVideoModal
+            open={introVideoModal}
+            onClose={() => setIntroVideoModal(false)}
+            videoTitle={
+              getTutorialByType(HowToVideoTypes.Script)?.title ||
+              'Learn how to customize your script'
+            }
+            videoUrl={
+              getVideoUrlByType(HowToVideoTypes.Script) || HowtoVideos.script
+            }
+          />
+          <IntroVideoModal
+            open={introVideoModal2}
+            onClose={() => setIntroVideoModal2(false)}
+            videoTitle="Learn how to add a calendar"
+            videoUrl={HowtoVideos.Calendar}
+          />
+          {showClaimPopup && (
+            <ClaimNumber
+              showClaimPopup={showClaimPopup}
+              handleCloseClaimPopup={handleCloseClaimPopup}
+              setOpenCalimNumDropDown={setOpenCalimNumDropDown}
+              setSelectNumber={setAssignNumber}
+              setPreviousNumber={setPreviousNumber}
+              previousNumber={previousNumber}
+              AssignNumber={AssignNumber}
+            />
+          )}
+          <AdvancedSettingsModalCN
+            open={showAdvancedSettingsModal}
+            onOpenChange={setShowAdvancedSettingsModal}
+            onSave={handleSaveAdvancedSettings}
+            initialValues={{
+              maxDurationSeconds: showDrawerSelectedAgent?.maxDurationSeconds ?? 600,
+              idleTimeoutSeconds: showDrawerSelectedAgent?.idleTimeoutSeconds ?? 10,
+              idleMessage: showDrawerSelectedAgent?.idleMessage ?? 'Are you still there?',
+            }}
+            loading={advancedSettingsLoader}
+          />
+          {/* Web Agent Modals */}
+          <WebAgentModal
+            open={showWebAgentModal}
+            onClose={() => setShowWebAgentModal(false)}
+            agentName={selectedAgentForWebAgent?.name || ''}
+            modelId={
+              selectedAgentForWebAgent?.modelIdVapi ||
+              selectedAgentForWebAgent?.agentUuid ||
+              ''
+            }
+            agentId={
+              selectedAgentForWebAgent?.id || selectedAgentForWebAgent?.modelIdVapi
+            }
+            onOpenAgent={handleOpenAgentInNewTab}
+            onShowNewSmartList={handleShowNewSmartList}
+            agentSmartRefill={selectedAgentForWebAgent?.smartListId}
+            fetureType={fetureType}
+            onCopyUrl={handleWebhookClick}
+            selectedSmartList={selectedSmartList}
+            setSelectedSmartList={setSelectedSmartList}
+            agent={selectedAgentForWebAgent} // Pass full agent object
+            onAgentUpdate={(updatedAgent) => {
+              // Update the agent state when smartlist is attached/detached
+              setSelectedAgentForWebAgent(updatedAgent)
 
-              {SeledtedScriptKYC && (
-                <div
-                  style={{
-                    height: '80%',
-                    overflow: 'auto',
-                    scrollbarWidth: 'none',
-                    backgroundColor: '',
-                  }}
-                >
-                  <KYCs
-                    kycsDetails={setKycsData}
-                    mainAgentId={MainAgentId}
-                    user={user && user}
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        </Box>
-      </Modal>
-      {/* Modal for video */}
-      <IntroVideoModal
-        open={introVideoModal}
-        onClose={() => setIntroVideoModal(false)}
-        videoTitle={
-          getTutorialByType(HowToVideoTypes.Script)?.title ||
-          'Learn how to customize your script'
-        }
-        videoUrl={
-          getVideoUrlByType(HowToVideoTypes.Script) || HowtoVideos.script
-        }
-      />
-      <IntroVideoModal
-        open={introVideoModal2}
-        onClose={() => setIntroVideoModal2(false)}
-        videoTitle="Learn how to add a calendar"
-        videoUrl={HowtoVideos.Calendar}
-      />
-      {showClaimPopup && (
-        <ClaimNumber
-          showClaimPopup={showClaimPopup}
-          handleCloseClaimPopup={handleCloseClaimPopup}
-          setOpenCalimNumDropDown={setOpenCalimNumDropDown}
-          setSelectNumber={setAssignNumber}
-          setPreviousNumber={setPreviousNumber}
-          previousNumber={previousNumber}
-          AssignNumber={AssignNumber}
-        />
-      )}
-      <AdvancedSettingsModalCN
-        open={showAdvancedSettingsModal}
-        onOpenChange={setShowAdvancedSettingsModal}
-        onSave={handleSaveAdvancedSettings}
-        initialValues={{
-          maxDurationSeconds: showDrawerSelectedAgent?.maxDurationSeconds ?? 600,
-          idleTimeoutSeconds: showDrawerSelectedAgent?.idleTimeoutSeconds ?? 10,
-          idleMessage: showDrawerSelectedAgent?.idleMessage ?? 'Are you still there?',
-        }}
-        loading={advancedSettingsLoader}
-      />
-      {/* Web Agent Modals */}
-      <WebAgentModal
-        open={showWebAgentModal}
-        onClose={() => setShowWebAgentModal(false)}
-        agentName={selectedAgentForWebAgent?.name || ''}
-        modelId={
-          selectedAgentForWebAgent?.modelIdVapi ||
-          selectedAgentForWebAgent?.agentUuid ||
-          ''
-        }
-        agentId={
-          selectedAgentForWebAgent?.id || selectedAgentForWebAgent?.modelIdVapi
-        }
-        onOpenAgent={handleOpenAgentInNewTab}
-        onShowNewSmartList={handleShowNewSmartList}
-        agentSmartRefill={selectedAgentForWebAgent?.smartListId}
-        fetureType={fetureType}
-        onCopyUrl={handleWebhookClick}
-        selectedSmartList={selectedSmartList}
-        setSelectedSmartList={setSelectedSmartList}
-        agent={selectedAgentForWebAgent} // Pass full agent object
-        onAgentUpdate={(updatedAgent) => {
-          // Update the agent state when smartlist is attached/detached
-          setSelectedAgentForWebAgent(updatedAgent)
+              // Also update in mainAgentsList and localStorage
+              // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
+              const agentIdToUpdate = updatedAgent?.id
+              if (agentIdToUpdate && typeof agentIdToUpdate === 'number') {
+                // Determine which fields were updated
+                const updates = {}
+                if (updatedAgent.smartListIdForWeb !== undefined) {
+                  updates.smartListIdForWeb = updatedAgent.smartListIdForWeb
+                }
+                if (updatedAgent.smartListEnabledForWeb !== undefined) {
+                  updates.smartListEnabledForWeb = updatedAgent.smartListEnabledForWeb
+                }
+                if (updatedAgent.smartListIdForWebhook !== undefined) {
+                  updates.smartListIdForWebhook = updatedAgent.smartListIdForWebhook
+                }
+                if (updatedAgent.smartListEnabledForWebhook !== undefined) {
+                  updates.smartListEnabledForWebhook = updatedAgent.smartListEnabledForWebhook
+                }
+                if (Object.keys(updates).length > 0) {
+                  updateAgentInMainList(agentIdToUpdate, updates)
+                }
+              }
+            }}
+          />
+          <NewSmartListModal
+            open={showNewSmartListModal}
+            onClose={() => setShowNewSmartListModal(false)}
+            agentId={
+              selectedAgentForWebAgent?.id || selectedAgentForWebAgent?.modelIdVapi
+            }
+            onSuccess={handleSmartListCreated}
+            agentType={fetureType === 'webhook' ? 'webhook' : 'web'} // Pass agentType
+          />
+          <AllSetModal
+            open={showAllSetModal}
+            onClose={handleCloseAllSetModal}
+            agentName={selectedAgentForWebAgent?.name || ''}
+            onOpenAgent={handleOpenAgentInNewTab}
+            fetureType={fetureType}
+            onCopyUrl={handleWebhookClick}
+          />
+          {/* Embed Modals */}
+          <EmbedModal
+            open={showEmbedModal}
+            onClose={() => setShowEmbedModal(false)}
+            agentName={selectedAgentForEmbed?.name || ''}
+            agentId={
+              selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi
+            }
+            agentSmartRefill={selectedAgentForEmbed?.smartListIdForEmbed || selectedAgentForEmbed?.smartListId} // Use embed-specific field
+            onShowSmartList={handleShowEmbedSmartList}
+            agent={selectedAgentForEmbed}
+            onAgentUpdate={(updatedAgent) => {
+              // Update the agent state when smartlist is attached
+              setSelectedAgentForEmbed(updatedAgent)
 
-          // Also update in mainAgentsList and localStorage
-          // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
-          const agentIdToUpdate = updatedAgent?.id
-          if (agentIdToUpdate && typeof agentIdToUpdate === 'number') {
-            // Determine which fields were updated
-            const updates = {}
-            if (updatedAgent.smartListIdForWeb !== undefined) {
-              updates.smartListIdForWeb = updatedAgent.smartListIdForWeb
-            }
-            if (updatedAgent.smartListEnabledForWeb !== undefined) {
-              updates.smartListEnabledForWeb = updatedAgent.smartListEnabledForWeb
-            }
-            if (updatedAgent.smartListIdForWebhook !== undefined) {
-              updates.smartListIdForWebhook = updatedAgent.smartListIdForWebhook
-            }
-            if (updatedAgent.smartListEnabledForWebhook !== undefined) {
-              updates.smartListEnabledForWebhook = updatedAgent.smartListEnabledForWebhook
-            }
-            if (Object.keys(updates).length > 0) {
-              updateAgentInMainList(agentIdToUpdate, updates)
-            }
-          }
-        }}
-      />
-      <NewSmartListModal
-        open={showNewSmartListModal}
-        onClose={() => setShowNewSmartListModal(false)}
-        agentId={
-          selectedAgentForWebAgent?.id || selectedAgentForWebAgent?.modelIdVapi
-        }
-        onSuccess={handleSmartListCreated}
-        agentType={fetureType === 'webhook' ? 'webhook' : 'web'} // Pass agentType
-      />
-      <AllSetModal
-        open={showAllSetModal}
-        onClose={handleCloseAllSetModal}
-        agentName={selectedAgentForWebAgent?.name || ''}
-        onOpenAgent={handleOpenAgentInNewTab}
-        fetureType={fetureType}
-        onCopyUrl={handleWebhookClick}
-      />
-      {/* Embed Modals */}
-      <EmbedModal
-        open={showEmbedModal}
-        onClose={() => setShowEmbedModal(false)}
-        agentName={selectedAgentForEmbed?.name || ''}
-        agentId={
-          selectedAgentForEmbed?.id || selectedAgentForEmbed?.modelIdVapi
-        }
-        agentSmartRefill={selectedAgentForEmbed?.smartListIdForEmbed || selectedAgentForEmbed?.smartListId} // Use embed-specific field
-        onShowSmartList={handleShowEmbedSmartList}
-        agent={selectedAgentForEmbed}
-        onAgentUpdate={(updatedAgent) => {
-          // Update the agent state when smartlist is attached
-          setSelectedAgentForEmbed(updatedAgent)
-
-          // Also update in mainAgentsList and localStorage
-          // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
-          const agentIdToUpdate = updatedAgent?.id
-          if (agentIdToUpdate && typeof agentIdToUpdate === 'number') {
-            // Determine which fields were updated
-            const updates = {}
-            if (updatedAgent.smartListIdForEmbed !== undefined) {
-              updates.smartListIdForEmbed = updatedAgent.smartListIdForEmbed
-            }
-            if (updatedAgent.smartListEnabledForEmbed !== undefined) {
-              updates.smartListEnabledForEmbed = updatedAgent.smartListEnabledForEmbed
-            }
-            if (Object.keys(updates).length > 0) {
-              updateAgentInMainList(agentIdToUpdate, updates)
-            }
-          }
-        }}
-        onShowAllSet={() => {
-          setShowEmbedModal(false)
-          setShowEmbedAllSetModal(true)
-          const code = `<iframe src="${baseUrl}embed/support/${selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
+              // Also update in mainAgentsList and localStorage
+              // CRITICAL: Use numeric ID only - never use modelIdVapi as it could match wrong agent
+              const agentIdToUpdate = updatedAgent?.id
+              if (agentIdToUpdate && typeof agentIdToUpdate === 'number') {
+                // Determine which fields were updated
+                const updates = {}
+                if (updatedAgent.smartListIdForEmbed !== undefined) {
+                  updates.smartListIdForEmbed = updatedAgent.smartListIdForEmbed
+                }
+                if (updatedAgent.smartListEnabledForEmbed !== undefined) {
+                  updates.smartListEnabledForEmbed = updatedAgent.smartListEnabledForEmbed
+                }
+                if (Object.keys(updates).length > 0) {
+                  updateAgentInMainList(agentIdToUpdate, updates)
+                }
+              }
+            }}
+            onShowAllSet={() => {
+              setShowEmbedModal(false)
+              setShowEmbedAllSetModal(true)
+              const code = `<iframe src="${baseUrl}embed/support/${selectedAgentForEmbed ? selectedAgentForEmbed?.modelIdVapi : DEFAULT_ASSISTANT_ID}" style="position: fixed; bottom: 0; right: 0; width: 320px; 
   height: 100vh; border: none; background: transparent; z-index: 
   9999; pointer-events: none;" allow="microphone" onload="this.style.pointerEvents = 'auto';">
   </iframe>`
-          setEmbedCode(code)
-        }}
-      />
-      <EmbedSmartListModal
-        open={showEmbedSmartListModal}
-        onClose={() => setShowEmbedSmartListModal(false)}
-        agentId={
-          selectedAgentForEmbed?.id ?? selectedAgentForEmbed?.modelIdVapi
-        }
-        onSuccess={handleEmbedSmartListCreated}
-        fetureType={fetureType}
-        agent={selectedAgentForEmbed}
-      />
-      <AllSetModal
-        open={showEmbedAllSetModal}
-        onClose={handleCloseEmbedAllSetModal}
-        agentName={selectedAgentForEmbed?.name || ''}
-        isEmbedFlow={true}
-        embedCode={embedCode}
-      // fetureType={fetureType}
-      // onCopyUrl={handleWebhookClick}
-      />
+              setEmbedCode(code)
+            }}
+          />
+          <EmbedSmartListModal
+            open={showEmbedSmartListModal}
+            onClose={() => setShowEmbedSmartListModal(false)}
+            agentId={
+              selectedAgentForEmbed?.id ?? selectedAgentForEmbed?.modelIdVapi
+            }
+            onSuccess={handleEmbedSmartListCreated}
+            fetureType={fetureType}
+            agent={selectedAgentForEmbed}
+          />
+          <AllSetModal
+            open={showEmbedAllSetModal}
+            onClose={handleCloseEmbedAllSetModal}
+            agentName={selectedAgentForEmbed?.name || ''}
+            isEmbedFlow={true}
+            embedCode={embedCode}
+          // fetureType={fetureType}
+          // onCopyUrl={handleWebhookClick}
+          />
         </div>
       </ProtectedRoute>
     </PermissionProvider>
