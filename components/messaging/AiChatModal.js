@@ -1,8 +1,9 @@
 'use client'
 
-import React, { useState, useRef, useEffect, useCallback } from 'react'
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+import dynamic from 'next/dynamic'
 import moment from 'moment'
-import { PaperPlaneTilt, CircleNotch, Paperclip } from '@phosphor-icons/react'
+import { PaperPlaneTilt, CircleNotch, Paperclip, CaretDown } from '@phosphor-icons/react'
 import { Drawer, CircularProgress } from '@mui/material'
 import Image from 'next/image'
 import { toast } from '@/utils/toast'
@@ -12,6 +13,16 @@ import { AgentXOrb } from '@/components/common/AgentXOrb'
 import CallTranscriptCN from '@/components/dashboard/leads/extras/CallTranscriptCN'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import Apis from '@/components/apis/Apis'
+
+const Lottie = dynamic(() => import('lottie-react'), { ssr: false })
+
+// Lottie animation for "Thinking..." state (load once)
+let thinkingAnimationData = null
+try {
+  thinkingAnimationData = require('../../public/assets/animation/subAccountLoader.json')
+} catch {
+  // fallback if path differs
+}
 
 // Helpers for rich text (match MessageComposer)
 const hasTextContent = (html) => {
@@ -66,9 +77,14 @@ const AiChatModal = ({
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingHistory, setIsLoadingHistory] = useState(false)
   const [aiKeyError, setAiKeyError] = useState(false)
+  const [agentsList, setAgentsList] = useState([]) // from API: array of { id: mainAgentId, name, agents: [{ id: agentId, name, ... }] }
+  const [selectedAgentId, setSelectedAgentId] = useState(null) // AgentModel.id (sub-agent)
+  const [agentsLoading, setAgentsLoading] = useState(false)
+  const [agentDropdownOpen, setAgentDropdownOpen] = useState(false)
   const messagesEndRef = useRef(null)
   const aiEditorRef = useRef(null)
   const hasLoadedRef = useRef(false)
+  const agentDropdownRef = useRef(null)
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -88,14 +104,77 @@ const AiChatModal = ({
     }
   }, [open])
 
+  // Load user's agents for prompt dropdown (no pagination = get up to 100)
+  const loadAgents = useCallback(async () => {
+    if (!open) return
+    setAgentsLoading(true)
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return
+      const userData = JSON.parse(localData)
+      const token = userData.token
+      const res = await fetch(`${Apis.getAgents}?pagination=false`, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      const data = await res.json()
+      if (data?.status && Array.isArray(data?.data)) {
+        setAgentsList(data.data)
+      }
+    } catch (error) {
+      console.error('Error loading agents for AI chat:', error)
+    } finally {
+      setAgentsLoading(false)
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (open) loadAgents()
+  }, [open, loadAgents])
+
+  // Close agent dropdown when clicking outside
+  useEffect(() => {
+    if (!agentDropdownOpen) return
+    const handleClickOutside = (e) => {
+      if (agentDropdownRef.current && !agentDropdownRef.current.contains(e.target)) {
+        setAgentDropdownOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [agentDropdownOpen])
+
+  // Get auth token from localStorage (same as other API calls)
+  const getAuthToken = () => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) return null
+      const userData = JSON.parse(localData)
+      return userData?.token ?? null
+    } catch {
+      return null
+    }
+  }
+
   // Load persisted chat history when modal opens
   const loadChatHistory = useCallback(async () => {
     if (!parentMessageId || !open) return
 
     setIsLoadingHistory(true)
     try {
+      const token = getAuthToken()
       const res = await fetch(
         `${Apis.aiChat}?parentMessageId=${parentMessageId}`,
+        {
+          method: 'GET',
+          headers: {
+            ...(token && { Authorization: `Bearer ${token}` }),
+            'Content-Type': 'application/json',
+          },
+        },
       )
       const data = await res.json()
 
@@ -131,8 +210,21 @@ const AiChatModal = ({
     setInputValue('')
     setMessages([])
     setAiKeyError(false)
+    setSelectedAgentId(null)
+    setAgentDropdownOpen(false)
     onClose()
   }
+
+  // Flat list of sub-agents (AgentModel) for dropdown: each main agent has .agents array
+  const flatAgentsList = React.useMemo(() => {
+    if (!Array.isArray(agentsList)) return []
+    return agentsList.flatMap((m) =>
+      (m.agents || []).map((a) => ({
+        id: a.id,
+        name: a.name || m.name || `Agent ${a.id}`,
+      })),
+    )
+  }, [agentsList])
 
   // Build system prompt and context from call data
   const buildSystemPromptAndContext = () => {
@@ -171,17 +263,29 @@ const AiChatModal = ({
     setIsLoading(true)
 
     try {
+      const token = getAuthToken()
+      if (!token) {
+        toast.error('Please log in again to use AI Chat.')
+        setMessages((prev) => prev.filter((m) => m.id !== userMessage.id))
+        setIsLoading(false)
+        return
+      }
+
       const { systemPrompt, context } = buildSystemPromptAndContext()
 
       const res = await fetch(Apis.aiChat, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           parentMessageId,
           threadId: selectedThread?.id,
           message: messageText,
           systemPrompt,
           context,
+          agentId: selectedAgentId || undefined,
         }),
       })
 
@@ -313,7 +417,64 @@ const AiChatModal = ({
             />
             <h2 className="text-xl font-semibold">AI Chat</h2>
           </div>
-          <CloseBtn onClick={handleClose} />
+          <div className="flex items-center gap-2">
+            {/* Agent dropdown: use selected agent's prompt as base prompt (variables replaced by lead + call summary in context) */}
+            <div className="relative" ref={agentDropdownRef}>
+              <button
+                type="button"
+                onClick={() => setAgentDropdownOpen((v) => !v)}
+                disabled={agentsLoading}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed min-w-[140px] justify-between"
+              >
+                {agentsLoading ? (
+                  <span className="text-gray-500">Loading...</span>
+                ) : (
+                  <>
+                    <span className="truncate">
+                      {selectedAgentId
+                        ? (flatAgentsList.find((a) => a.id === selectedAgentId)?.name ?? 'Select agent')
+                        : 'Select agent'}
+                    </span>
+                    <CaretDown
+                      size={16}
+                      className={`flex-shrink-0 text-gray-500 transition-transform ${agentDropdownOpen ? 'rotate-180' : ''}`}
+                    />
+                  </>
+                )}
+              </button>
+              {agentDropdownOpen && !agentsLoading && (
+                <div className="absolute right-0 top-full mt-1 z-50 w-56 max-h-60 overflow-auto bg-white border border-gray-200 rounded-lg shadow-lg py-1">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedAgentId(null)
+                      setAgentDropdownOpen(false)
+                    }}
+                    className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 ${!selectedAgentId ? 'bg-brand-primary/10 text-brand-primary font-medium' : 'text-gray-700'}`}
+                  >
+                    Default prompt
+                  </button>
+                  {flatAgentsList.map((agent) => (
+                    <button
+                      key={agent.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedAgentId(agent.id)
+                        setAgentDropdownOpen(false)
+                      }}
+                      className={`w-full px-3 py-2 text-left text-sm hover:bg-gray-50 truncate ${selectedAgentId === agent.id ? 'bg-brand-primary/10 text-brand-primary font-medium' : 'text-gray-700'}`}
+                    >
+                      {agent.name}
+                    </button>
+                  ))}
+                  {flatAgentsList.length === 0 && (
+                    <div className="px-3 py-2 text-sm text-gray-500">No agents found</div>
+                  )}
+                </div>
+              )}
+            </div>
+            <CloseBtn onClick={handleClose} />
+          </div>
         </div>
 
         {/* Messages area */}
@@ -436,20 +597,24 @@ const AiChatModal = ({
               )
             })}
 
-            {/* Loading indicator */}
+            {/* Loading indicator: Lottie animation + "Thinking..." */}
             {isLoading && (
-              <div className="flex items-end gap-2 w-full justify-start">
-                <div className="flex-shrink-0">
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden">
-                    <AgentXOrb width={32} height={32} />
-                  </div>
+              <div className="flex items-end gap-3 w-full justify-start">
+                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center overflow-hidden">
+                  {thinkingAnimationData && (
+                    <Lottie
+                      animationData={thinkingAnimationData}
+                      loop
+                      style={{ width: 48, height: 48 }}
+                    />
+                  )}
+                  {!thinkingAnimationData && (
+                    <div className="w-10 h-10 rounded-full border-2 border-brand-primary border-t-transparent animate-spin" />
+                  )}
                 </div>
-                <div className="bg-gray-100 text-foreground rounded-tr-2xl rounded-bl-2xl rounded-br-2xl px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                  </div>
+                <div className=" text-foreground rounded-tr-2xl rounded-bl-2xl rounded-br-2xl px-4 py-3 flex items-center gap-2 min-w-[120px]">
+                  <span className="text-sm text-gray-600">Thinking...</span>
+                  <div className="flex-1 min-w-[60px] border-b border-dashed border-gray-300" aria-hidden />
                 </div>
               </div>
             )}
