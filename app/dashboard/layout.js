@@ -32,6 +32,14 @@ export default function DashboardLayout({ children }) {
   const preventClose = useSelector(selectPreventClose)
   const leadData = useSelector(selectLeadData)
 
+
+  console.log("selectIsDialerOpen",selectIsDialerOpen)
+  console.log("selectCallStatus",selectCallStatus)
+  console.log("selectIsDialerOpen",selectPreventClose)
+  console.log("selectLeadData",selectLeadData)
+
+  
+
   // #region agent log
   const renderCount = useRef(0)
   const mountTime = useRef(Date.now())

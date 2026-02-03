@@ -195,6 +195,15 @@ function DialerModal({
   const dispatch = useDispatch()
 
   // #region agent log
+  
+
+
+
+
+
+
+
+
   const mountTime = useRef(Date.now())
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -293,7 +302,8 @@ function DialerModal({
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:75', message: 'DialerModal props changed', data: { open, initialPhoneNumber, leadId, leadName, pathname: window.location.pathname, timeSinceMount: Date.now() - mountTime.current, hasGlobalDevice: !!getGlobalDevice(), hasGlobalCall: !!getGlobalCall() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run3', hypothesisId: 'I' }) }).catch(() => { });
+      //fetch('http
+      // ://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:75', message: 'DialerModal props changed', data: { open, initialPhoneNumber, leadId, leadName, pathname: window.location.pathname, timeSinceMount: Date.now() - mountTime.current, hasGlobalDevice: !!getGlobalDevice(), hasGlobalCall: !!getGlobalCall() }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run3', hypothesisId: 'I' }) }).catch(() => { });
     }
   }, [open, initialPhoneNumber, leadId, leadName]);
   // #endregion
@@ -1430,7 +1440,7 @@ function DialerModal({
         return
       }
 
-      let userData
+      let userData = userStr
       try {
         userData = JSON.parse(userStr)
       } catch (e) {
@@ -2064,18 +2074,30 @@ function DialerModal({
       const formData = new FormData()
 
       // Add required fields
-      formData.append('leadPhone', leadData?.phone || '')
+      formData.append('smsPhoneNumberId', leadData?.phone || '')
       formData.append('content', selectedTemplate?.content || '')
       formData.append('phone', selectedPhone?.phone || '')
       formData.append('leadId', leadData?.leadId || '')
+
+    
+
+
       console.log('Lead data', leadData)
+      console.log('content is',  selectedTemplate?.content )
+      
+
+      let token = userData.token
+
 
       const response = await axios.post(Apis.sendSMSToLead, formData, {
         headers: {
-          Authorization: `Bearer ${userData.token}`,
-          'Content-Type': 'multipart/form-data',
-        },
+          "Contant-Type": 'multipart/form-data',
+          "Authorization": "Bearer " + token
+        }
       })
+
+
+      console.log("response of send sms is",response)
       const data = response.data
 
 

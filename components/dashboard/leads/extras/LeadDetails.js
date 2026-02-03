@@ -1722,14 +1722,24 @@ const LeadDetails = ({
       // Use phone number as-is if parsing fails
     }
 
-    console.log("opening dialer")
+    console.log("opening dialer with data : ",selectedLeadsDetails)
     // Open dialer modal with the phone number
+
+
     dispatch(openDialer({
       leadId: selectedLeadsDetails?.id,
       leadName: selectedLeadsDetails?.name || selectedLeadsDetails?.firstName,
       phoneNumber: selectedLeadsDetails?.phone || '',
       selectedLeadDetails: selectedLeadsDetails, // Full object
     }))
+
+    console.log("dispatch", dispatch(openDialer({
+      leadId: selectedLeadsDetails?.id,
+      leadName: selectedLeadsDetails?.name || selectedLeadsDetails?.firstName,
+      phoneNumber: selectedLeadsDetails?.phone || '',
+      selectedLeadDetails: selectedLeadsDetails, // Full object
+    }))
+)
   }
 
   // Helper function to format objections from JSON
@@ -1827,11 +1837,14 @@ const LeadDetails = ({
 
       setShowMessageModal(true)
     } else if (opt.value === 'call') {
+
+      // console.log("")
       if (!dialerCapability.hasAccess) {
         // Trigger upgrade modal if user doesn't have access
         handleUpgradeClick()
         return
       }
+
       startCallAction()
     } else if (opt.value === 'sms') {
       if (!smsCapability.hasAccess) {
