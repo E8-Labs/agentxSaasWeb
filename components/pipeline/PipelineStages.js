@@ -154,6 +154,8 @@ const PipelineStages = ({
   const [gmailAccounts, setGmailAccounts] = useState([])
   const [accountLoader, setAccountLoader] = useState(false)
 
+  const [isFromAdminOrAgency, setIsFromAdminOrAgency] = useState(null)
+
   const [targetUser, setTargetUser] = useState(null)
 
   useEffect(() => {
@@ -428,6 +430,11 @@ const PipelineStages = ({
   }
 
   useEffect(() => {
+    const isFromAdminOrAgency = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
+    if (isFromAdminOrAgency) {
+      const parsedIsFromAdminOrAgency = JSON.parse(isFromAdminOrAgency)
+      setIsFromAdminOrAgency(parsedIsFromAdminOrAgency)
+    } 
     // Use Redux reduxUser instead of localStorage
     if (reduxUser) {
       setUser(reduxUser)
@@ -482,7 +489,7 @@ const PipelineStages = ({
     }
     setPhoneLoading(true)
     let id = selectedUser?.id
-    let num = await getA2PNumbers(id)
+    let num = await getA2PNumbers(id,isFromAdminOrAgency)
     if (num) {
       setPhoneNumbers(num)
     }
@@ -2078,6 +2085,7 @@ const PipelineStages = ({
                 setEditingStageIndex(null)
                 closeAddMenu(selectedIndex)
               }}
+                isFromAdminOrAgency={isFromAdminOrAgency}
             />
 
             {/* Code for add stage modal */}
