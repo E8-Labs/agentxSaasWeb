@@ -200,7 +200,6 @@ const AiChatModal = ({
     setMessages([])
     setAiKeyError(false)
     setSelectedAgentId(null)
-    setAgentDropdownOpen(false)
     onClose()
   }
 
@@ -397,7 +396,7 @@ const AiChatModal = ({
       onClose={handleClose}
       PaperProps={{
         sx: {
-          width: '45%',
+          width: '40%',
           borderRadius: '20px',
           padding: '0px',
           boxShadow: 3,

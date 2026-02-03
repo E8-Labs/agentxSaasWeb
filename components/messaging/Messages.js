@@ -31,6 +31,7 @@ import ConversationHeader from './ConversationHeader'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import MessageSettingsModal from './MessageSettingsModal'
 import DraftCards from './DraftCards'
+import AiChatModal from './AiChatModal'
 
 const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const searchParams = useSearchParams()
@@ -89,6 +90,8 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const threadsRequestIdRef = useRef(0)
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
   const [showMessageSettingsModal, setShowMessageSettingsModal] = useState(false)
+  // Single AI Chat drawer: only one instance in the app, opened from a call summary in SystemMessage
+  const [aiChatContext, setAiChatContext] = useState(null)
 
   // Draft state for AI-generated responses
   const [drafts, setDrafts] = useState([])
@@ -2873,6 +2876,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                       onOpenEmailTimeline={handleOpenEmailTimeline}
                       updateComposerFromMessage={updateComposerFromMessage}
                       onOpenMessageSettings={() => setShowMessageSettingsModal(true)}
+                      onOpenAiChat={setAiChatContext}
                     />
 
                     {/* AI-Generated Draft Responses */}
@@ -3143,6 +3147,19 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                 open={showMessageSettingsModal}
                 onClose={() => setShowMessageSettingsModal(false)}
                 selectedUser={selectedUser}
+              />
+
+              {/* Single AI Chat drawer - always one instance, visibility controlled by open (avoids MUI duplicate backdrop/paper) */}
+              <AiChatModal
+                open={!!aiChatContext}
+                onClose={() => setAiChatContext(null)}
+                callData={aiChatContext?.callData ?? null}
+                callSummaryMessage={aiChatContext?.message ?? null}
+                selectedThread={selectedThread}
+                parentMessageId={aiChatContext?.message?.id ?? null}
+                onPlayRecording={aiChatContext?.onPlayRecording ?? (() => {})}
+                onCopyCallId={aiChatContext?.onCopyCallId ?? (() => {})}
+                onReadTranscript={aiChatContext?.onReadTranscript ?? (() => {})}
               />
 
             </div>

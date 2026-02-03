@@ -20,7 +20,6 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Mail, ChevronDown, MessagesSquare, MessageSquareDot } from 'lucide-react'
 import CallTranscriptCN from '@/components/dashboard/leads/extras/CallTranscriptCN'
-import AiChatModal from '@/components/messaging/AiChatModal'
 import Image from 'next/image'
 import Apis from '@/components/apis/Apis'
 
@@ -45,9 +44,8 @@ const isDevelopment = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Product
  * SystemMessage component for displaying system activity messages
  * (stage changes, team assignments, comments, etc.)
  */
-const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscript, onOpenMessageSettings }) => {
+const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscript, onOpenMessageSettings, onOpenAiChat }) => {
   const [showAudioPlay, setShowAudioPlay] = useState(null)
-  const [showAiChatModal, setShowAiChatModal] = useState(false)
   const [aiActionType, setAiActionType] = useState(null)
   const [aiActionInput, setAiActionInput] = useState('')
   const [hasAiKey, setHasAiKey] = useState(null) // null = loading, true/false
@@ -437,7 +435,15 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                                 </DropdownMenuItem>
                                 <DropdownMenuItem
                                   onClick={() => {
-                                    setShowAiChatModal(true)
+                                    if (typeof onOpenAiChat === 'function') {
+                                      onOpenAiChat({
+                                        message,
+                                        callData,
+                                        onPlayRecording: handlePlayRecording,
+                                        onCopyCallId: handleCopyCallId,
+                                        onReadTranscript: handleReadTranscript,
+                                      })
+                                    }
                                   }}
                                   className="flex items-center gap-2 cursor-pointer"
                                 >
@@ -528,19 +534,6 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
             )}
           </Tooltip>
         </TooltipProvider>
-
-        {/* AI Chat Modal */}
-        <AiChatModal
-          open={showAiChatModal}
-          onClose={() => setShowAiChatModal(false)}
-          callData={callData}
-          callSummaryMessage={message}
-          selectedThread={selectedThread}
-          parentMessageId={message.id}
-          onPlayRecording={handlePlayRecording}
-          onCopyCallId={handleCopyCallId}
-          onReadTranscript={handleReadTranscript}
-        />
 
         {/* Audio Player Modal */}
         <Modal

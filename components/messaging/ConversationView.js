@@ -32,6 +32,7 @@ const ConversationView = ({
   onOpenEmailTimeline,
   updateComposerFromMessage,
   onOpenMessageSettings,
+  onOpenAiChat,
 }) => {
   // State for transcript modal
   const [showTranscriptModal, setShowTranscriptModal] = useState(null)
@@ -276,6 +277,7 @@ const ConversationView = ({
                         setShowTranscriptModal(item)
                       }}
                       onOpenMessageSettings={onOpenMessageSettings}
+                      onOpenAiChat={onOpenAiChat}
                     />
                   ) : (
                     <div
