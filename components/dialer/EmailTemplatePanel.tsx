@@ -20,6 +20,7 @@ interface EmailTemplatePanelProps {
   sendingEmail: boolean
   leadId?: number
   selectedUser: any
+  deletingTemplateId?: number | null
   onTemplateSelect: (template: any) => void
   onSendEmail: (emailAccountId?: number) => void
   onDeleteTemplate: (template: any) => void
@@ -45,6 +46,7 @@ export default function EmailTemplatePanel({
   onRefreshTemplates,
   onRefreshEmailAccounts,
   onClose,
+  deletingTemplateId = null,
 }: EmailTemplatePanelProps) {
   const [emailAccountDropdownAnchor, setEmailAccountDropdownAnchor] = useState<null | HTMLElement>(null)
   const [selectedEmailAccount, setSelectedEmailAccount] = useState<any>(null)
@@ -368,10 +370,15 @@ export default function EmailTemplatePanel({
           </MenuItem>
           <MenuItem
             onClick={() => handleDeleteClick(selectedTemplateForMenu)}
+            disabled={deletingTemplateId != null}
             style={{ color: '#dc2626' }}
           >
-            <Trash size={14} className="mr-2" />
-            Delete
+            {deletingTemplateId === (selectedTemplateForMenu?.id ?? selectedTemplateForMenu?.templateId) ? (
+              <Loader2 size={14} className="mr-2 animate-spin" />
+            ) : (
+              <Trash size={14} className="mr-2" />
+            )}
+            {deletingTemplateId === (selectedTemplateForMenu?.id ?? selectedTemplateForMenu?.templateId) ? 'Deleting...' : 'Delete'}
           </MenuItem>
         </Menu>
       )}

@@ -412,6 +412,7 @@ function DialerModal({
   const numberDropdownButtonRef = useRef<HTMLButtonElement | null>(null)
   const [sendingEmail, setSendingEmail] = useState(false)
   const [sendingSms, setSendingSms] = useState(false)
+  const [deletingTemplateId, setDeletingTemplateId] = useState<number | null>(null)
   const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null)
   const [showClaimNumberModal, setShowClaimNumberModal] = useState(false)
 
@@ -2145,27 +2146,36 @@ function DialerModal({
 
 
   const handleDeleteTemplate = async (template: any) => {
+    const templateId = template?.id ?? template?.templateId
+    setDeletingTemplateId(templateId ?? null)
     try {
-     let data = await deleteTemplete(template)
+      const data = await deleteTemplete(template)
       if (data?.status === true) {
-        toast.success('Template deleted successfully')
-        // Refresh templates
+        toast.success(data?.message || 'Template deleted successfully')
+        // Remove deleted template from list immediately (fetch would be skipped by cache guard)
         if (showEmailPanel) {
-          await fetchEmailTemplates()
+          dispatch(setEmailTemplates({
+            templates: emailTemplates.filter((t: any) => (t?.id ?? t?.templateId) !== templateId),
+            timestamp: Date.now(),
+          }))
         } else if (showSmsPanel) {
-          await fetchSmsTemplates()
+          dispatch(setSmsTemplates({
+            templates: smsTemplates.filter((t: any) => (t?.id ?? t?.templateId) !== templateId),
+            timestamp: Date.now(),
+          }))
         }
         // Clear selection if deleted template was selected
-        if (selectedTemplate?.id === template.id) {
-          setSelectedTemplate(null)
+        if ((selectedTemplate?.id ?? selectedTemplate?.templateId) === templateId) {
+          dispatch(setSelectedTemplate(null))
         }
       } else {
-        console.log("error in delete temp",data)
         toast.error(data?.message || 'Failed to delete template')
       }
     } catch (error: any) {
       console.error('Error deleting template:', error)
       toast.error('Failed to delete template')
+    } finally {
+      setDeletingTemplateId(null)
     }
   }
 
@@ -2791,6 +2801,7 @@ function DialerModal({
             leadId={leadId}
             leadPhone={phoneNumber}
             selectedUser={selectedUser}
+            deletingTemplateId={deletingTemplateId}
             onTemplateSelect={(template) => dispatch(setSelectedTemplate(template))}
             onSendSms={handleSendSms}
             onDeleteTemplate={handleDeleteTemplate}
@@ -2809,6 +2820,7 @@ function DialerModal({
             sendingEmail={sendingEmail}
             leadId={leadId}
             selectedUser={selectedUser}
+            deletingTemplateId={deletingTemplateId}
             onTemplateSelect={(template) => dispatch(setSelectedTemplate(template))}
             onSendEmail={handleSendEmail}
             onDeleteTemplate={handleDeleteTemplate}

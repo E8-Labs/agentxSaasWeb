@@ -21,6 +21,7 @@ interface SmsTemplatePanelProps {
   leadId?: number
   leadPhone?: string
   selectedUser: any
+  deletingTemplateId?: number | null
   onTemplateSelect: (template: any) => void
   onSendSms: (phoneNumberId?: number) => void
   onDeleteTemplate: (template: any) => void
@@ -45,6 +46,7 @@ export default function SmsTemplatePanel({
   onEditTemplate,
   onRefreshTemplates,
   onClose,
+  deletingTemplateId = null,
 }: SmsTemplatePanelProps) {
   const [smsPhoneNumberDropdownAnchor, setSmsPhoneNumberDropdownAnchor] = useState<null | HTMLElement>(null)
   const [showSmsTemplatePopup, setShowSmsTemplatePopup] = useState(false)
@@ -343,10 +345,15 @@ export default function SmsTemplatePanel({
           </MenuItem>
           <MenuItem
             onClick={() => handleDeleteClick(selectedTemplateForMenu)}
+            disabled={deletingTemplateId != null}
             style={{ color: '#dc2626' }}
           >
-            <X size={14} className="mr-2" />
-            Delete
+            {deletingTemplateId === (selectedTemplateForMenu?.id ?? selectedTemplateForMenu?.templateId) ? (
+              <Loader2 size={14} className="mr-2 animate-spin" />
+            ) : (
+              <X size={14} className="mr-2" />
+            )}
+            {deletingTemplateId === (selectedTemplateForMenu?.id ?? selectedTemplateForMenu?.templateId) ? 'Deleting...' : 'Delete'}
           </MenuItem>
         </Menu>
       )}
