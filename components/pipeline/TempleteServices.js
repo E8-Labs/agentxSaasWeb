@@ -214,7 +214,6 @@ export const updateTemplete = async (data, tempId) => {
 export const deleteTemplete = async (temp) => {
   try {
     let token = AuthToken()
-    // console.log('token', token)
     let path = `${Apis.templets}/${temp.id}`
 
     const response = await axios.delete(path, {
@@ -223,10 +222,24 @@ export const deleteTemplete = async (temp) => {
       },
     })
 
-    if (response) {
-      return response.data.data
+    // On 2xx, always return success so UI never shows "failed" when backend succeeded
+    if (response?.status >= 200 && response?.status < 300) {
+      const data = response?.data
+      return {
+        status: true,
+        message: (data && typeof data === 'object' && data.message) ? data.message : 'Template deleted successfully',
+      }
     }
-  } catch (e) {}
+    if (response?.data != null) {
+      return response.data.data !== undefined ? response.data.data : response.data
+    }
+    return { status: false, message: 'Unknown error' }
+  } catch (e) {
+    if (e?.response?.data) {
+      return e.response.data
+    }
+    return { status: false, message: e?.message || 'Failed to delete template' }
+  }
 }
 
 export const getGmailAccounts = async (id) => {
