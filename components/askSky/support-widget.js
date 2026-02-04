@@ -38,6 +38,7 @@ export function SupportWidget({
 
   const [agentUserDetails, setAgentUserDetails] = useState(null)
   const [smartListData, setSmartListData] = useState(null)
+  const [initialAgentLoading, setInitialAgentLoading] = useState(!!isEmbed)
   const [showLeadModal, setShowLeadModal] = useState(false)
   const [formData, setFormData] = useState({
     firstName: '',
@@ -74,10 +75,14 @@ export function SupportWidget({
   // User loading messages to fake feedback...
 
   useEffect(() => {
-    // Load agent details when component mounts
-    if (assistantId) {
-      getAgentByVapiId()
-    }
+    if (!assistantId) return
+    if (isEmbed) setInitialAgentLoading(true)
+    getAgentByVapiId()
+      .then(() => {})
+      .catch(() => {})
+      .finally(() => {
+        if (isEmbed) setInitialAgentLoading(false)
+      })
   }, [assistantId])
 
   useEffect(() => {
@@ -263,8 +268,10 @@ export function SupportWidget({
         const newOverrides = response?.data?.data?.assistantOverrides
 
         setShowLeadModal(false)
+        setOpen(true)
+        setVoiceOpen(true)
         setLoading(true)
-        setloadingMessage('')
+        setloadingMessage('Connecting...')
 
         // Start call with the new overrides directly
         await startCall(newOverrides)
@@ -486,15 +493,25 @@ export function SupportWidget({
         </div>
       </div>
       {isEmbed && !open && (
-        <GetHelpBtn
-          titleColor = "#000"
-          text={agentUserDetails?.agent?.supportButtonText || 'Get Help'}
-          avatar={
-            agentUserDetails?.agent?.supportButtonAvatar ||
-            agentUserDetails?.agent?.profile_image
-          }
-          handleReopen={handleGetHelpClick}
-        />
+        initialAgentLoading ? (
+          <div
+            className="flex flex-col items-center justify-center gap-3 p-4 rounded-2xl bg-white shadow-lg border border-black/10 min-w-[200px] min-h-[80px]"
+            style={{ marginRight: '16px', marginBottom: '16px' }}
+          >
+            <CircularProgress size={28} sx={{ color: 'var(--color-primary, #9333ea)' }} />
+            <span className="text-sm text-gray-600">Loading agent...</span>
+          </div>
+        ) : (
+          <GetHelpBtn
+            titleColor="#000"
+            text={agentUserDetails?.agent?.supportButtonText || 'Get Help'}
+            avatar={
+              agentUserDetails?.agent?.supportButtonAvatar ||
+              agentUserDetails?.agent?.profile_image
+            }
+            handleReopen={handleGetHelpClick}
+          />
+        )
       )}
       <div className="relative z-0 h-11 mb-4 mr-4">
         {voiceOpen && isCallRunning && (
