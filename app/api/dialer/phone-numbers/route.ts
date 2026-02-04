@@ -34,18 +34,18 @@ export async function GET(req: NextRequest) {
       )
     }
 
-    // Call backend API to get phone numbers
-    const response = await fetch(
-      `${BASE_API_URL}api/dialer/phone-numbers`,
-      {
-        method: 'GET',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        cache: 'no-store',
+    const userIdParam = req.nextUrl.searchParams.get('userId')
+    const backendUrl = userIdParam
+      ? `${BASE_API_URL}api/dialer/phone-numbers?userId=${userIdParam}`
+      : `${BASE_API_URL}api/dialer/phone-numbers`
+    const response = await fetch(backendUrl, {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
-    )
+      cache: 'no-store',
+    })
 
     const data = await response.json()
 
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { phoneNumberId } = body
+    const { phoneNumberId, userId } = body
 
     if (!phoneNumberId) {
       return NextResponse.json(
@@ -87,7 +87,6 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Get token from request
     const authHeader = req.headers.get('Authorization')
     const token = authHeader?.startsWith('Bearer ')
       ? authHeader.split(' ')[1]
@@ -100,19 +99,17 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // Call backend API to set internal dialer number
-    const response = await fetch(
-      `${BASE_API_URL}api/dialer/phone-numbers`,
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ phoneNumberId }),
-        cache: 'no-store',
+    const postBody: { phoneNumberId: number; userId?: number } = { phoneNumberId }
+    if (userId != null) postBody.userId = userId
+    const response = await fetch(`${BASE_API_URL}api/dialer/phone-numbers`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
       },
-    )
+      body: JSON.stringify(postBody),
+      cache: 'no-store',
+    })
 
     const data = await response.json()
 

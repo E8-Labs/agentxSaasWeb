@@ -487,6 +487,7 @@ function DialerModal({
   const hasDialerNumber = dialerState.hasDialerNumber
   const deviceRegistered = dialerState.deviceRegistered
   const selectedUser = dialerState.selectedUser
+  const dialerUserId = selectedUser?.id ?? undefined
 
   // #region agent log
   useEffect(() => {
@@ -769,7 +770,10 @@ function DialerModal({
         return
       }
 
-      const response = await fetch('/api/dialer/phone-numbers', {
+      const phoneNumbersUrl = dialerUserId
+        ? `/api/dialer/phone-numbers?userId=${dialerUserId}`
+        : '/api/dialer/phone-numbers'
+      const response = await fetch(phoneNumbersUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -817,7 +821,10 @@ function DialerModal({
         return
       }
 
-      const response = await fetch('/api/dialer/phone-numbers/with-agents', {
+      const withAgentsUrl = dialerUserId
+        ? `/api/dialer/phone-numbers/with-agents?userId=${dialerUserId}`
+        : '/api/dialer/phone-numbers/with-agents'
+      const response = await fetch(withAgentsUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -859,13 +866,15 @@ function DialerModal({
         return
       }
 
+      const postBody: { phoneNumberId: number; userId?: number } = { phoneNumberId }
+      if (dialerUserId) postBody.userId = dialerUserId
       const response = await fetch('/api/dialer/phone-numbers', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ phoneNumberId }),
+        body: JSON.stringify(postBody),
       })
 
       const data = await response.json()
@@ -920,19 +929,21 @@ function DialerModal({
       //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:168', message: 'Requesting access token', data: { hasToken: !!token }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'E' }) }).catch(() => { });
       // #endregion
 
-      // Get access token from backend
+      // Get access token from backend (pass userId when agency acting for subaccount)
+      const tokenBody: { metadata: { leadId: number | null; leadName: string | null }; userId?: number } = {
+        metadata: {
+          leadId: leadId || null,
+          leadName: leadName || null,
+        },
+      }
+      if (dialerUserId) tokenBody.userId = dialerUserId
       const response = await fetch('/api/dialer/calls/token', {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          metadata: {
-            leadId: leadId || null,
-            leadName: leadName || null,
-          },
-        }),
+        body: JSON.stringify(tokenBody),
       })
 
       // Check if response is JSON before parsing
