@@ -156,8 +156,9 @@ function SelectedUserDetails({
     router.replace(newUrl, { scroll: false })
   }
 
-  // Function to find menu item by param value
+  // Function to find menu item by param value (includes Account which is not in allMenuItems)
   const findMenuItemByParamValue = (paramValue, items) => {
+    if (paramValue === 'account') return accountMenu
     return items.find(item => item.paramValue === paramValue)
   }
 
@@ -389,9 +390,9 @@ function SelectedUserDetails({
     if (enablePermissionChecks && isInvitee && !effectiveIsChecking && currentPermissionKey && 
         !effectiveHasPermission && selectedUser?.id && permissionContextAvailable && 
         selectedManu && accessibleMenuItems.length > 0) {
-      
-      // Check if current menu is in accessible items
-      const isCurrentMenuAccessible = accessibleMenuItems.some(item => item.id === selectedManu.id)
+      // Account (profile) is always considered accessible when the profile button is shown
+      const isAccountTab = selectedManu.id === accountMenu.id || selectedManu.paramValue === 'account'
+      const isCurrentMenuAccessible = isAccountTab || accessibleMenuItems.some(item => item.id === selectedManu.id)
       
       if (!isCurrentMenuAccessible && accessibleMenuItems.length > 0) {
         setSelectedManu(accessibleMenuItems[0])
