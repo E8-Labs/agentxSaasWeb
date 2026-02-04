@@ -48,6 +48,8 @@ function AgencySubacount({ selectedAgency }) {
   const [agencyData, setAgencyData] = useState(null)
   const [twililoConectedStatus, setTwilioConnectedStatus] = useState(false)
 
+  const [IsExpandedUser,setIsExpanded]= useState(null)
+
   //code for invite team popup
   const [openInvitePopup, setOpenInvitePopup] = useState(false)
   //code for show plans
@@ -354,6 +356,15 @@ function AgencySubacount({ selectedAgency }) {
   // get agency data from local
 
   const getLocalData = () => {
+
+    const isExpanded = localStorage.getItem("IsExpanded")
+
+    if(isExpanded){
+      let user = JSON.parse(isExpanded)
+      setSelectedUser(user)
+      setIsExpanded(user)
+    }
+
     if (selectedAgency) {
       setAgencyData(selectedAgency)
     }
@@ -1492,6 +1503,7 @@ function AgencySubacount({ selectedAgency }) {
           open={selectedUser ? true : false}
           onClose={() => {
             setSelectedUser(null)
+            localStorage.removeItem("IsExpanded")
           }}
           BackdropProps={{
             timeout: 200,
@@ -1516,6 +1528,7 @@ function AgencySubacount({ selectedAgency }) {
             }}
           >
             <SelectedUserDetails
+
               from="subaccount"
               selectedUser={selectedUser}
               hideViewDetails={true}

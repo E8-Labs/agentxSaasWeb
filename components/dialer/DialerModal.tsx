@@ -3512,15 +3512,7 @@ function DialerModal({
                             boxShadow: 'none',
                           }}
                         >
-                          <MessageCircleMore
-                            size={16}
-                            className="mr-2"
-                            style={{
-                              color: showSmsPanel
-                                ? 'hsl(var(--brand-primary))'
-                                : '#374151'
-                            }}
-                          />
+                         <Image className='mr-2' src={"/otherAssets/smsIcon.png"} height={17} width={17} alt='*' />
                           Send Text
                         </Button>
                       </div>

@@ -3,6 +3,7 @@ import { Cross } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
+import { useSearchParams, useRouter } from 'next/navigation' // Add these imports
 
 import AdminLeads from '@/components/admin/users/AdminLeads'
 import Apis from '@/components/apis/Apis'
@@ -46,15 +47,117 @@ function SelectedUserDetails({
   handleClose,
   agencyUser = false,
 }) {
-
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  
   const [manuLoading, setManuLoading] = useState(true)
   const [accessibleMenuItems, setAccessibleMenuItems] = useState([])
   const [isInvitee, setIsInvitee] = useState(false)
   const [selectedManu, setSelectedManu] = useState(null)
   const [permissionContextAvailable, setPermissionContextAvailable] = useState(false)
+  const [initialTabSet, setInitialTabSet] = useState(false)
+
+  // Get the tab from URL parameter
+  const tabParam = searchParams.get('tab')
 
   // Get permission context
   const permissionContext = usePermission()
+
+  // All menu items definition
+  const allMenuItems = [
+    {
+      id: 1,
+      name: 'Dashboard',
+      selectedImage: '/svgIcons/selectdDashboardIcon.svg',
+      unSelectedImage: '/svgIcons/unSelectedDashboardIcon.svg',
+      permissionKey: 'subaccount.dashboard.view',
+      paramValue: 'dashboard',
+    },
+    {
+      id: 2,
+      name: 'Agents',
+      selectedImage: '/svgIcons/selectedAgentXIcon.svg',
+      unSelectedImage: '/svgIcons/agentXIcon.svg',
+      permissionKey: 'subaccount.agents.view',
+      paramValue: 'agents',
+    },
+    {
+      id: 3,
+      name: 'Leads',
+      selectedImage: '/svgIcons/selectedLeadsIcon.svg',
+      unSelectedImage: '/svgIcons/unSelectedLeadsIcon.svg',
+      permissionKey: 'subaccount.leads.manage',
+      paramValue: 'leads',
+    },
+    {
+      id: 5,
+      name: 'Pipeline',
+      selectedImage: '/svgIcons/selectedPiplineIcon.svg',
+      unSelectedImage: '/svgIcons/unSelectedPipelineIcon.svg',
+      permissionKey: 'subaccount.pipelines.manage',
+      paramValue: 'pipeline',
+    },
+    {
+      id: 9,
+      name: 'Messages (Beta)',
+      selectedImage: '/messaging/icons_chat_menu.svg',
+      unSelectedImage: '/messaging/icons_chat_menu.svg',
+      permissionKey: 'subaccount.messages.manage',
+      paramValue: 'messages',
+    },
+    {
+      id: 4,
+      name: 'Activity',
+      selectedImage: '/otherAssets/selectedActivityLog.png',
+      unSelectedImage: '/otherAssets/activityLog.png',
+      permissionKey: 'subaccount.activity.view',
+      paramValue: 'activity',
+    },
+    {
+      id: 6,
+      name: 'Integration',
+      selectedImage: '/svgIcons/selectedIntegration.svg',
+      unSelectedImage: '/svgIcons/unSelectedIntegrationIcon.svg',
+      permissionKey: 'subaccount.integrations.manage',
+      paramValue: 'integration',
+    },
+    {
+      id: 7,
+      name: 'Team',
+      selectedImage: '/svgIcons/selectedTeam.svg',
+      unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg',
+      permissionKey: 'subaccount.teams.manage',
+      paramValue: 'team',
+    },
+  ]
+
+  // Account menu item
+  const accountMenu = {
+    id: 8,
+    name: 'Account',
+    selectedImage: '/svgIcons/selectedProfileCircle.svg',
+    unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
+    paramValue: 'account',
+  }
+
+  // Function to update URL with selected tab
+  const updateUrlWithTab = (tabValue) => {
+    const params = new URLSearchParams(searchParams.toString())
+    
+    if (tabValue) {
+      params.set('tab', tabValue)
+    } else {
+      params.delete('tab')
+    }
+    
+    // Update URL without page reload
+    router.replace(`?${params.toString()}`, { scroll: false })
+  }
+
+  // Function to find menu item by param value
+  const findMenuItemByParamValue = (paramValue, items) => {
+    return items.find(item => item.paramValue === paramValue)
+  }
 
   // Check user role and permissions on mount
   useEffect(() => {
@@ -81,7 +184,20 @@ function SelectedUserDetails({
         // If permission checks disabled or user is not Invitee, show all items immediately
         if (!enablePermissionChecks || !userIsInvitee) {
           setAccessibleMenuItems(allMenuItems)
-          setSelectedManu(allMenuItems[0])
+          
+          // Check if there's a tab parameter in URL
+          if (tabParam && !initialTabSet) {
+            const tabMenuItem = findMenuItemByParamValue(tabParam, allMenuItems)
+            if (tabMenuItem) {
+              setSelectedManu(tabMenuItem)
+              setInitialTabSet(true)
+            } else {
+              setSelectedManu(allMenuItems[0])
+            }
+          } else {
+            setSelectedManu(allMenuItems[0])
+          }
+          
           setManuLoading(false)
           return
         }
@@ -130,8 +246,18 @@ function SelectedUserDetails({
           
           setAccessibleMenuItems(accessibleItems)
           
-          // Set selected menu to first accessible item or null if none
-          if (accessibleItems.length > 0) {
+          // Set selected menu based on URL parameter or first accessible item
+          if (tabParam && !initialTabSet) {
+            const tabMenuItem = findMenuItemByParamValue(tabParam, accessibleItems)
+            if (tabMenuItem) {
+              setSelectedManu(tabMenuItem)
+              setInitialTabSet(true)
+            } else if (accessibleItems.length > 0) {
+              setSelectedManu(accessibleItems[0])
+            } else {
+              setSelectedManu(null)
+            }
+          } else if (accessibleItems.length > 0) {
             setSelectedManu(accessibleItems[0])
           } else {
             setSelectedManu(null)
@@ -139,7 +265,18 @@ function SelectedUserDetails({
         } else {
           // Fallback for non-invitee or no permission checks
           setAccessibleMenuItems(allMenuItems)
-          setSelectedManu(allMenuItems.length > 0 ? allMenuItems[0] : null)
+          
+          if (tabParam && !initialTabSet) {
+            const tabMenuItem = findMenuItemByParamValue(tabParam, allMenuItems)
+            if (tabMenuItem) {
+              setSelectedManu(tabMenuItem)
+              setInitialTabSet(true)
+            } else {
+              setSelectedManu(allMenuItems[0])
+            }
+          } else {
+            setSelectedManu(allMenuItems[0])
+          }
         }
       } catch (error) {
         console.error('Error initializing menu:', error)
@@ -152,7 +289,7 @@ function SelectedUserDetails({
     }
 
     initializeMenu()
-  }, [enablePermissionChecks, selectedUser?.id, permissionContext])
+  }, [enablePermissionChecks, selectedUser?.id, permissionContext, tabParam])
 
   // Update when isInvitee or selectedUser changes
   useEffect(() => {
@@ -185,7 +322,20 @@ function SelectedUserDetails({
           
           // Update selected menu if current one is no longer accessible
           if (selectedManu && !accessibleItems.some(item => item.id === selectedManu.id)) {
-            setSelectedManu(accessibleItems.length > 0 ? accessibleItems[0] : null)
+            // Try to keep the same tab if possible, otherwise use first accessible
+            const tabMenuItem = findMenuItemByParamValue(tabParam, accessibleItems)
+            if (tabMenuItem) {
+              setSelectedManu(tabMenuItem)
+            } else if (accessibleItems.length > 0) {
+              setSelectedManu(accessibleItems[0])
+              // Update URL to reflect the new tab
+              if (accessibleItems[0]?.paramValue) {
+                updateUrlWithTab(accessibleItems[0].paramValue)
+              }
+            } else {
+              setSelectedManu(null)
+              updateUrlWithTab(null)
+            }
           }
         } catch (error) {
           console.error('Error updating permissions:', error)
@@ -196,73 +346,6 @@ function SelectedUserDetails({
     }
   }, [isInvitee, selectedUser?.id, permissionContextAvailable])
 
-  const allMenuItems = [
-    {
-      id: 1,
-      name: 'Dashboard',
-      selectedImage: '/svgIcons/selectdDashboardIcon.svg',
-      unSelectedImage: '/svgIcons/unSelectedDashboardIcon.svg',
-      permissionKey: 'subaccount.dashboard.view',
-    },
-    {
-      id: 2,
-      name: 'Agents',
-      selectedImage: '/svgIcons/selectedAgentXIcon.svg',
-      unSelectedImage: '/svgIcons/agentXIcon.svg',
-      permissionKey: 'subaccount.agents.view',
-    },
-    {
-      id: 3,
-      name: 'Leads',
-      selectedImage: '/svgIcons/selectedLeadsIcon.svg',
-      unSelectedImage: '/svgIcons/unSelectedLeadsIcon.svg',
-      permissionKey: 'subaccount.leads.manage',
-    },
-    {
-      id: 5,
-      name: 'Pipeline',
-      selectedImage: '/svgIcons/selectedPiplineIcon.svg',
-      unSelectedImage: '/svgIcons/unSelectedPipelineIcon.svg',
-      permissionKey: 'subaccount.pipelines.manage',
-    },
-    {
-      id: 9,
-      name: 'Messages (Beta)',
-      selectedImage: '/messaging/icons_chat_menu.svg',
-      unSelectedImage: '/messaging/icons_chat_menu.svg',
-      permissionKey: 'subaccount.messages.manage',
-    },
-    {
-      id: 4,
-      name: 'Activity',
-      selectedImage: '/otherAssets/selectedActivityLog.png',
-      unSelectedImage: '/otherAssets/activityLog.png',
-      permissionKey: 'subaccount.activity.view',
-    },
-    {
-      id: 6,
-      name: 'Integration',
-      selectedImage: '/svgIcons/selectedIntegration.svg',
-      unSelectedImage: '/svgIcons/unSelectedIntegrationIcon.svg',
-      permissionKey: 'subaccount.integrations.manage',
-    },
-    {
-      id: 7,
-      name: 'Team',
-      selectedImage: '/svgIcons/selectedTeam.svg',
-      unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg',
-      permissionKey: 'subaccount.teams.manage',
-    },
-  ]
-
-  // Account menu item
-  const accountMenu = {
-    id: 8,
-    name: 'Account',
-    selectedImage: '/svgIcons/selectedProfileCircle.svg',
-    unSelectedImage: '/svgIcons/unSelectedProfileIcon.svg',
-  }
-
   console.log('Permission checks enabled:', enablePermissionChecks)
 
   // Current menu item's permission key for content protection
@@ -271,19 +354,6 @@ function SelectedUserDetails({
 
   // Check if logged-in user is Admin
   const [isAdmin, setIsAdmin] = useState(false)
-  useEffect(() => {
-    try {
-      const localData = localStorage.getItem('User')
-      if (localData) {
-        const userData = JSON.parse(localData)
-        setIsAdmin(userData.user?.userRole === 'Admin')
-      }
-    } catch (error) {
-      console.error('Error checking user role:', error)
-    }
-  }, [])
-  // Check if logged-in user is Admin
-  // const [isAdmin, setIsAdmin] = useState(false)
   useEffect(() => {
     try {
       const localData = localStorage.getItem('User')
@@ -317,6 +387,10 @@ function SelectedUserDetails({
       
       if (!isCurrentMenuAccessible && accessibleMenuItems.length > 0) {
         setSelectedManu(accessibleMenuItems[0])
+        // Update URL to reflect the new tab
+        if (accessibleMenuItems[0]?.paramValue) {
+          updateUrlWithTab(accessibleMenuItems[0].paramValue)
+        }
       }
     }
   }, [enablePermissionChecks, isInvitee, effectiveIsChecking, currentPermissionKey, 
@@ -424,9 +498,13 @@ function SelectedUserDetails({
 
   const handleManuClick = (item) => {
     console.log('item', item)  
-      setSelectedManu(item)
-      storeTabState(item.name)
+    setSelectedManu(item)
+    storeTabState(item.name)
     
+    // Update URL with the selected tab
+    if (item.paramValue) {
+      updateUrlWithTab(item.paramValue)
+    }
   }
 
   const handleAddMinutes = async () => {
@@ -774,7 +852,10 @@ function SelectedUserDetails({
                           } else if (from === 'subaccount') {
                             url = `/agency/users?userId=${selectedUser.id}&enablePermissionChecks=true`
                           }
+                            let user = JSON.stringify(selectedUser)
+                            localStorage.setItem("IsExpanded",user)
                           window.open(url, '_blank')
+
                         }
                       }}
                     >
