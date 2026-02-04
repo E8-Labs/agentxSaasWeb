@@ -6222,6 +6222,7 @@ function Page() {
                       selectedAgent={showDrawerSelectedAgent}
                       UserPipeline={UserPipeline}
                       mainAgent={calendarDetails}
+                      selectedUser={reduxUser}
                     />
                   </div>
                 ) : activeTab === 'Knowledge' ? (

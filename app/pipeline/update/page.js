@@ -53,7 +53,7 @@ const Page = () => {
           return `hsl(${computedColor})`
         }
       }
-    } catch (error) {}
+    } catch (error) { }
     return 'hsl(270, 75%, 50%)'
   }
 
@@ -83,7 +83,7 @@ const Page = () => {
   useEffect(() => {
     const checkUserRole = () => {
       if (typeof window === 'undefined') return false
-      
+
       const userData = localStorage.getItem('User')
       if (userData) {
         try {
@@ -92,9 +92,9 @@ const Page = () => {
           if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
             return true
           }
-        } catch (error) {}
+        } catch (error) { }
       }
-      
+
       const localUser = localStorage.getItem('LocalStorageUser')
       if (localUser) {
         try {
@@ -103,9 +103,9 @@ const Page = () => {
           if (userRole === 'AgencySubAccount' || userRole === 'Agency') {
             return true
           }
-        } catch (error) {}
+        } catch (error) { }
       }
-      
+
       const subAccountData = localStorage.getItem('SubaccoutDetails')
       if (subAccountData) {
         try {
@@ -113,21 +113,21 @@ const Page = () => {
           if (parsed) {
             return true
           }
-        } catch (error) {}
+        } catch (error) { }
       }
-      
+
       // Check if we're on a custom domain or subdomain and have branding
       const hostname = window.location.hostname
       const isDevDomain = hostname === 'dev.assignx.ai'
       const isProdDomain = hostname === 'app.assignx.ai'
       const isLocalhost = hostname === 'localhost' || hostname.includes('127.0.0.1')
       const isCustomDomain = !hostname.includes('.assignx.ai') && hostname !== 'assignx.ai' && !isLocalhost
-      const isAssignxSubdomain = hostname.includes('.assignx.ai') && 
-                                 hostname !== 'assignx.ai' && 
-                                 !isDevDomain && 
-                                 !isProdDomain && 
-                                 !isLocalhost
-      
+      const isAssignxSubdomain = hostname.includes('.assignx.ai') &&
+        hostname !== 'assignx.ai' &&
+        !isDevDomain &&
+        !isProdDomain &&
+        !isLocalhost
+
       const branding = localStorage.getItem('agencyBranding')
       if (branding) {
         try {
@@ -135,15 +135,15 @@ const Page = () => {
           if ((isCustomDomain || isAssignxSubdomain) && brandingData?.primaryColor) {
             return true
           }
-        } catch (error) {}
+        } catch (error) { }
       }
-      
+
       return false
     }
 
     const initGradient = () => {
       const isSubaccountOrAgency = checkUserRole()
-      
+
       if (isSubaccountOrAgency) {
         const brandColor = getBrandColor()
         const gradientStr = getGradientString(brandColor)
@@ -157,14 +157,14 @@ const Page = () => {
 
     initGradient()
     const timeout = setTimeout(initGradient, 500)
-    
+
     // Listen for branding updates
     const handleUpdate = () => {
       initGradient()
     }
-    
+
     window.addEventListener('agencyBrandingUpdated', handleUpdate)
-    
+
     return () => {
       clearTimeout(timeout)
       window.removeEventListener('agencyBrandingUpdated', handleUpdate)
@@ -228,7 +228,19 @@ const Page = () => {
       if (targetUserId) {
         ApiData.userId = targetUserId
       }
+
+      //check if agent is inbound then send data in api
+      const agentDetails = localStorage.getItem('agentDetails')
+      if (agentDetails && agentDetails != 'undefined') {
+        const agentData = JSON.parse(agentDetails)
+        // //console.log;
+        if (agentData?.agentType === 'inbound') {
+          ApiData.agentType = "inbound"
+        }
+      }
       // return
+
+      console.log("Api data sennding in update cadence api is", ApiData);
 
       const ApiPath = Apis.createPipeLineCadence
       //////console.log;
@@ -276,6 +288,55 @@ const Page = () => {
                 '🔥 PIPELINE-UPDATE - Failed to get profile details',
               )
             }
+
+            localStorage.removeItem('AddCadenceDetails')
+            // router.push("/dashboard/leads");
+            let isFromAgencyOrAdmin = null
+            const isFromAdminOrAgency = localStorage.getItem(
+              PersistanceKeys.isFromAdminOrAgency,
+            )
+            isFromAgencyOrAdmin = isFromAdminOrAgency
+            const returnUrl = localStorage.getItem(
+              PersistanceKeys.returnUrlAfterAgentCreation,
+            )
+
+            //If the agency/admin is creating the agent, send the event to the parent window
+            //and close this tab else route to the dashboard/myAgentX
+            if (isFromAdminOrAgency) {
+              // Parse the stored data to get subaccount info
+              let subaccountData = null
+              try {
+                const parsed = JSON.parse(isFromAdminOrAgency)
+                subaccountData = parsed?.subAccountData
+              } catch (error) { }
+
+              // Send event to parent window (opener) that agent was created
+              if (window.opener && subaccountData) {
+                try {
+                  window.opener.postMessage(
+                    {
+                      type: 'AGENT_CREATED',
+                      userId: subaccountData.id,
+                      agentId: mainAgentId,
+                    },
+                    '*', // In production, specify the exact origin
+                  )
+                } catch (error) { }
+              }
+
+              // Clean up the stored data
+              localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency)
+              localStorage.removeItem(PersistanceKeys.returnUrlAfterAgentCreation)
+
+              // Close the tab after a short delay to allow message to be sent
+              setTimeout(() => {
+                window.close()
+              }, 500)
+            }
+            else {
+              router.push('/dashboard/myAgentX')
+            }
+
           } catch (error) {
             console.error(
               '🔥 PIPELINE-UPDATE - Error refreshing user data:',
@@ -299,9 +360,9 @@ const Page = () => {
           // Route based on where user came from
           // Check for both isFrom and isFromAgency properties (for compatibility)
           const isFromAdmin = isFromAgencyOrAdmin?.isFrom === 'admin' || isFromAgencyOrAdmin?.isFromAgency === 'admin'
-          const isFromSubaccount = isFromAgencyOrAdmin?.isFrom === 'subaccount' || 
-                                   isFromAgencyOrAdmin?.isFromAgency === 'subaccount' ||
-                                   (isFromAgencyOrAdmin?.subAccountData && !isFromAdmin) // If subAccountData exists and not admin, assume subaccount
+          const isFromSubaccount = isFromAgencyOrAdmin?.isFrom === 'subaccount' ||
+            isFromAgencyOrAdmin?.isFromAgency === 'subaccount' ||
+            (isFromAgencyOrAdmin?.subAccountData && !isFromAdmin) // If subAccountData exists and not admin, assume subaccount
 
           if (isFromAdmin) {
             router.push('/admin')

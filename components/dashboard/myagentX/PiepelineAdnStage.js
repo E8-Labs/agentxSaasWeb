@@ -14,6 +14,7 @@ import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../leads/AgentSelectSnackMessage'
 import { UpdateCadenceConfirmationPopup } from './UpdateCadenceConfirmationPopup'
+import { useUser } from '@/hooks/redux-hooks'
 
 const PipelineAndStage = ({
   selectedAgent,
@@ -22,6 +23,10 @@ const PipelineAndStage = ({
   selectedUser,
   from,
 }) => {
+
+  //for redux user
+  const { user: reduxUser, setUser: setReduxUser } = useUser()
+
   const [message, setMessage] = useState(null)
   const router = useRouter()
   const [expandedStages, setExpandedStages] = useState([])
@@ -134,12 +139,67 @@ const PipelineAndStage = ({
   }
 
   const handleUpdateCadence = () => {
+
+    console.log("selected user is", selectedUser);
+    // return
     localStorage.setItem('selectedUser', JSON.stringify(selectedUser))
+    // return
     setShowConfirmationPopup(false)
 
+    //code for redirecting to same url
+
+    const data = {
+      status: true,
+    }
+    localStorage.setItem('fromDashboard', JSON.stringify(data))
+    const d = {
+      subAccountData: selectedUser,
+      isFromAgency: from,
+    }
+
+    localStorage.setItem(
+      PersistanceKeys.isFromAdminOrAgency,
+      JSON.stringify(d),
+    )
+
+    // Save current URL for redirect after agent creation
+    if (typeof window !== 'undefined') {
+      const currentUrl = window.location.href
+      localStorage.setItem(
+        PersistanceKeys.returnUrlAfterAgentCreation,
+        currentUrl,
+      )
+    }
+
+    // Check if current logged-in user is Admin or Agency
+    let isAdminOrAgency = false
+
+    // Check from Redux first
+    if (reduxUser) {
+      const userType = reduxUser?.userType
+      const userRole = reduxUser?.userRole
+      isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
+    }
+
+    // Fallback to localStorage if Redux doesn't have the data
+    if (!isAdminOrAgency && typeof window !== 'undefined') {
+      try {
+        const localUserData = localStorage.getItem('User')
+        if (localUserData) {
+          const parsedUser = JSON.parse(localUserData)
+          const userType = parsedUser?.user?.userType || parsedUser?.userType
+          const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
+          isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
+        }
+      } catch (error) { }
+    }
+
+
+
+    // return
     // Store agent details for pipeline update page
     if (mainAgent?.id) {
-      localStorage.setItem('agentDetails', JSON.stringify({ id: mainAgent.id }))
+      localStorage.setItem('agentDetails', JSON.stringify({ id: mainAgent.id, agentType: selectedAgent?.agentType }))
     }
 
     // Store cadence data in the format expected by Pipeline1.js
@@ -149,7 +209,7 @@ const PipelineAndStage = ({
         calls: stage.calls.map((call) => {
           // Determine if this is a booking stage
           const isBookingStage = stage.cadence.stage?.identifier === 'booked'
-          
+
           return {
             id: call.id,
             waitTimeDays: call.waitTimeDays || 0,
@@ -243,7 +303,15 @@ const PipelineAndStage = ({
       )
     }
     // router.push("/pipeline/update");
-    window.location.href = '/pipeline/update'
+    // window.location.href = '/pipeline/update'
+
+    // Open in new tab if current user is Admin or Agency
+    if (isAdminOrAgency) {
+      window.open('/pipeline/update', '_blank')
+    } else {
+      // router.push("/createagent");
+      window.location.href = '/pipeline/update'
+    }
   }
 
   return (
