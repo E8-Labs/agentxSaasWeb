@@ -2867,8 +2867,8 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                 )
               })()}
 
-              {/* Right Side - Messages View */}
-              <div className={`flex-1 flex flex-col ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[93vh]'}`}>
+              {/* Right Side - Messages View (relative so LeadDetails wrapper doesn't affect layout) */}
+              <div className={`relative flex-1 flex flex-col min-w-0 ${selectedUser && !agencyUser ? 'h-[70vh]' : 'h-[93vh]'}`}>
                 {selectedThread ? (
                   <>
                     {/* Messages Header */}

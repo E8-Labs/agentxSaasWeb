@@ -2829,9 +2829,11 @@ const LeadDetails = ({
 
 
 
-  // Otherwise, render with Drawer (original behavior)
+  // Otherwise, render with Drawer (original behavior).
+  // Wrapper is zero-size so it does not affect layout when used inside Messages (ConversationHeader);
+  // the Drawer portals its content to body and overlays the page.
   return (
-    <div className="h-[100svh]">
+    <div className="absolute left-0 top-0 w-0 h-0 overflow-visible">
       <Drawer
         open={showDetailsModal}
         anchor="right"

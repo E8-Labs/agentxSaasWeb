@@ -13,7 +13,7 @@ import SmsTemplatePanel from './SmsTemplatePanel'
 import EmailTemplatePanel from './EmailTemplatePanel'
 import { deleteTemplete, getGmailAccounts } from '../pipeline/TempleteServices'
 import ClaimNumber from '../dashboard/myagentX/ClaimNumber'
-import { ArrowUp, Pause, Mic, MicOff, FileText, StickyNote, X, ChevronDown, Check, Phone, Mail, MessageSquare, MoreVertical, Pencil, Loader2, MessageCircleMore } from 'lucide-react'
+import { ArrowUp, Pause, Mic, MicOff, FileText, StickyNote, X, ChevronDown, Check, Phone, Mail, MessageSquare, MoreVertical, Pencil, Loader2, MessageCircleMore, MessageSquareDot } from 'lucide-react'
 import { Menu, MenuItem } from '@mui/material'
 import Image from 'next/image'
 import { formatPhoneNumber, getAgentsListImage } from '@/utilities/agentUtilities'
@@ -3512,7 +3512,8 @@ function DialerModal({
                             boxShadow: 'none',
                           }}
                         >
-                         <Image className='mr-2' src={"/otherAssets/smsIcon.png"} height={17} width={17} alt='*' />
+                         {/* <Image className='mr-2' src={"/otherAssets/smsIcon.png"} height={17} width={17} alt='*' /> */}
+                         <MessageSquareDot size={16} className="mr-2" />
                           Send Text
                         </Button>
                       </div>
