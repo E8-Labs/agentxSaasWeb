@@ -149,6 +149,64 @@ export const deleteTask = async (taskId, userId = null) => {
 }
 
 /**
+ * Pin a task (via Next.js API route)
+ * @param {number} taskId - Task ID
+ * @param {number} userId - Optional user ID (for admin/agency)
+ * @returns {Promise<Object>} Response with updated task
+ */
+export const pinTask = async (taskId, userId = null) => {
+  try {
+    const AuthToken = getAuthToken()
+    if (!AuthToken) {
+      throw new Error('Authentication token not found')
+    }
+
+    const url = `/api/tasks/${taskId}/pin${userId ? `?userId=${userId}` : ''}`
+
+    const response = await axios.patch(url, null, {
+      headers: {
+        Authorization: `Bearer ${AuthToken}`,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    return response.data
+  } catch (error) {
+    console.error('Error pinning task:', error)
+    throw error
+  }
+}
+
+/**
+ * Unpin a task (via Next.js API route)
+ * @param {number} taskId - Task ID
+ * @param {number} userId - Optional user ID (for admin/agency)
+ * @returns {Promise<Object>} Response with updated task
+ */
+export const unpinTask = async (taskId, userId = null) => {
+  try {
+    const AuthToken = getAuthToken()
+    if (!AuthToken) {
+      throw new Error('Authentication token not found')
+    }
+
+    const url = `/api/tasks/${taskId}/unpin${userId ? `?userId=${userId}` : ''}`
+
+    const response = await axios.patch(url, null, {
+      headers: {
+        Authorization: `Bearer ${AuthToken}`,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    return response.data
+  } catch (error) {
+    console.error('Error unpinning task:', error)
+    throw error
+  }
+}
+
+/**
  * Get task statistics (counts by status)
  * @param {Object} params - Query parameters (userId, leadId, threadId, callId)
  * @returns {Promise<Object>} Task stats

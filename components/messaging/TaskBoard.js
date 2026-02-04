@@ -9,7 +9,7 @@ import TaskCard from './TaskCard'
 import TaskForm from './TaskForm'
 import TaskEmptyState from './TaskEmptyState'
 import TaskBoardFilterPopover from './TaskBoardFilterPopover'
-import { getTasks, createTask, updateTask, deleteTask } from '@/components/onboarding/services/apisServices/TaskService'
+import { getTasks, createTask, updateTask, deleteTask, pinTask, unpinTask } from '@/components/onboarding/services/apisServices/TaskService'
 import { getTeamsList } from '@/components/onboarding/services/apisServices/ApiService'
 import { toast } from '@/utils/toast'
 import { TypographyH3, TypographyBody } from '@/lib/typography'
@@ -276,6 +276,34 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
     }
   }
 
+  // Handle pin / unpin: call API then move task to top locally
+  const handlePinTask = async (taskId, pin) => {
+    try {
+      const api = pin ? pinTask : unpinTask
+      const response = await api(taskId, selectedUser?.id)
+      if (response.status) {
+        setTasks((prev) => {
+          const task = prev.find((t) => t.id === taskId)
+          if (!task) return prev
+          const updated = { ...task, isPinned: pin }
+          const rest = prev.filter((t) => t.id !== taskId)
+          if (pin) return [updated, ...rest]
+          const pinned = rest.filter((t) => t.isPinned)
+          const unpinned = rest.filter((t) => !t.isPinned)
+          const newUnpinned = [...unpinned.filter((t) => t.id !== taskId), updated]
+          return [...pinned, ...newUnpinned]
+        })
+        toast.success(pin ? 'Task pinned' : 'Task unpinned')
+        window.dispatchEvent(new CustomEvent('tasksChanged'))
+      } else {
+        toast.error(response.message || (pin ? 'Failed to pin task' : 'Failed to unpin task'))
+      }
+    } catch (error) {
+      console.error('Error pinning/unpinning task:', error)
+      toast.error(pin ? 'Failed to pin task' : 'Failed to unpin task')
+    }
+  }
+
   // Handle task deletion
   const handleDeleteTask = async (taskId) => {
     try {
@@ -327,10 +355,11 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
     },
   ]
 
-  // Filter tasks by selected status
+  // Filter tasks by selected status.
+  // AI tab: only tasks with status 'ai'. Todo/In Progress/Done: all tasks with that status (including AI-origin tasks moved to that status).
   const filteredTasks =
     selectedStatus === 'ai'
-      ? tasks
+      ? tasks.filter((task) => task.status === 'ai')
       : tasks.filter((task) => task.status === selectedStatus)
 
   // Reset state when closing
@@ -465,8 +494,8 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
           />
         </div>
 
-        {/* Content Area */}
-        <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+        {/* Content Area - constrain width so cards don't overflow */}
+        <div className="flex-1 flex flex-col overflow-hidden min-h-0 min-w-0">
           {isCreating || selectedTask ? (
             /* Task Form */
             (<ScrollArea className="flex-1 px-4 py-4">
@@ -485,39 +514,42 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
               />
             </ScrollArea>)
           ) : (
-            /* Task List */
-            (<ScrollArea className="flex-1 px-4 py-4 min-h-0">
-              {loading ? (
-                <div className="flex items-center justify-center py-12">
-                  <div className="text-muted-foreground">Loading tasks...</div>
-                </div>
-              ) : filteredTasks.length === 0 ? (
-                <TaskEmptyState
-                  title={selectedStatus === 'todo' ? 'No Task Created' : 'No Task Found'}
-                  description={selectedStatus === 'todo' ? undefined : null}
-                />
-              ) : (
-                <div className="space-y-3">
-                  {filteredTasks.map((task) => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      onUpdate={handleUpdateTask}
-                      onDelete={() => {
-                        setShowDeleteConfirmation(true)
-                        setSelectedTaskForDelete(task)
-                      }}
-                      teamMembers={teamMembers}
-                      priorityOptions={priorityOptions}
-                      statusOptions={statusOptions}
-                      onEditClick={()=>{
-                        setSelectedTask(task)
-                      }}
-                    />
-                  ))}
-                </div>
-              )}
-            </ScrollArea>)
+            /* Task List - plain overflow container so width is strictly constrained (no horizontal scroll) */
+            (<div className="flex-1 min-h-0 min-w-0 flex flex-col overflow-hidden">
+              <div className="flex-1 overflow-y-auto overflow-x-hidden px-4 py-4 min-w-0">
+                {loading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="text-muted-foreground">Loading tasks...</div>
+                  </div>
+                ) : filteredTasks.length === 0 ? (
+                  <TaskEmptyState
+                    title={selectedStatus === 'todo' ? 'No Task Created' : 'No Task Found'}
+                    description={selectedStatus === 'todo' ? undefined : null}
+                  />
+                ) : (
+                  <div className="space-y-3" style={{ width: '100%', maxWidth: '100%', overflow: 'hidden' }}>
+                    {filteredTasks.map((task) => (
+                      <TaskCard
+                        key={task.id}
+                        task={task}
+                        onUpdate={handleUpdateTask}
+                        onDelete={() => {
+                          setShowDeleteConfirmation(true)
+                          setSelectedTaskForDelete(task)
+                        }}
+                        onPin={handlePinTask}
+                        teamMembers={teamMembers}
+                        priorityOptions={priorityOptions}
+                        statusOptions={statusOptions}
+                        onEditClick={()=>{
+                          setSelectedTask(task)
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>)
           )}
 
           {/* Action Buttons - Always visible in footer */}

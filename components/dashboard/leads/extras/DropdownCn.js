@@ -120,7 +120,7 @@ const DropdownCn = ({ label, icon: Icon, options = [], onSelect, align = 'start'
                   e.stopPropagation()
                 }}
               >
-                <div className="flex items-center px-4 py-[1px] text-base font-regular">
+                <div className="flex items-center px-3 py-[1px] text-base font-regular">
                   {Icon ? <Icon className={cn("mr-2 h-4 w-4", backgroundClassName?.includes('text-white') && 'text-white')} style={iconColor ? { color: iconColor } : undefined} /> : null}
                   <span>{label}</span>
                 </div>
