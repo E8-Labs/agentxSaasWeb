@@ -1922,10 +1922,12 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
       })
 
       // setAssignLoader(false);
+      getAvailabePhoneNumbers()
       setShowPhoneLoader(false)
       if (response) {
         //// //console.log;
         if (response.data.status === true) {
+          setAssignNumber(phoneNumber)
           setShowSuccessSnack(`Phone number assigned`)
 
           setDrawerSelectedAgent((prev) => {
@@ -5129,6 +5131,10 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                         await updateSubAgent(data)
                         setLoading(false)
                         setShowEditNumberPopup(null)
+                        // Immediately reflect the updated number in the drawer (same as user side)
+                        setDrawerSelectedAgent((prev) =>
+                          prev ? { ...prev, ...data } : prev,
+                        )
                       }}
                     />
                   </div>
