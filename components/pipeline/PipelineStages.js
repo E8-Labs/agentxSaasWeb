@@ -159,7 +159,7 @@ const PipelineStages = ({
   const [targetUser, setTargetUser] = useState(null)
 
   useEffect(() => {
-    const getTargetUser = () =>{
+    const getTargetUser = () => {
       let data = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
       if (data) {
         let user = JSON.parse(data)
@@ -202,11 +202,11 @@ const PipelineStages = ({
         showRequestFeature: false,
       }
     }
-    
+
     // For subaccounts
     // First check if parent agency has access
     const agencyHasAccess = reduxUser?.agencyCapabilities?.allowEmails === true
-    
+
     if (!agencyHasAccess) {
       // Agency doesn't have access - show Request Feature
       return {
@@ -215,10 +215,10 @@ const PipelineStages = ({
         showRequestFeature: true,
       }
     }
-    
+
     // Agency has access, check subaccount access
     const subaccountHasAccess = reduxUser?.planCapabilities?.allowEmails === true
-    
+
     return {
       hasAccess: subaccountHasAccess,
       showUpgrade: !subaccountHasAccess,
@@ -237,11 +237,11 @@ const PipelineStages = ({
         showRequestFeature: false,
       }
     }
-    
+
     // For subaccounts
     // First check if parent agency has access
     const agencyHasAccess = reduxUser?.agencyCapabilities?.allowTextMessages === true
-    
+
     if (!agencyHasAccess) {
       // Agency doesn't have access - show Request Feature
       return {
@@ -250,10 +250,10 @@ const PipelineStages = ({
         showRequestFeature: true,
       }
     }
-    
+
     // Agency has access, check subaccount access
     const subaccountHasAccess = reduxUser?.planCapabilities?.allowTextMessages === true
-    
+
     return {
       hasAccess: subaccountHasAccess,
       showUpgrade: !subaccountHasAccess,
@@ -341,7 +341,7 @@ const PipelineStages = ({
         return
       }
     }
-    
+
     if (value != 'call') {
       setSelectedIndex(stageIndex)
       setSelectedType(value)
@@ -370,7 +370,7 @@ const PipelineStages = ({
   const handleEditRow = useCallback((stageIndex, row, e) => {
     // Capture event target immediately to avoid React's synthetic event pooling
     const eventTarget = e?.currentTarget || null
-    
+
     // Check if this is a default cadence
     const isDefaultCadence = !row.communicationType
 
@@ -434,7 +434,7 @@ const PipelineStages = ({
     if (isFromAdminOrAgency) {
       const parsedIsFromAdminOrAgency = JSON.parse(isFromAdminOrAgency)
       setIsFromAdminOrAgency(parsedIsFromAdminOrAgency)
-    } 
+    }
     // Use Redux reduxUser instead of localStorage
     if (reduxUser) {
       setUser(reduxUser)
@@ -489,7 +489,7 @@ const PipelineStages = ({
     }
     setPhoneLoading(true)
     let id = selectedUser?.id
-    let num = await getA2PNumbers(id,isFromAdminOrAgency)
+    let num = await getA2PNumbers(id, isFromAdminOrAgency)
     if (num) {
       setPhoneNumbers(num)
     }
@@ -586,14 +586,19 @@ const PipelineStages = ({
     if (agentDetails && agentDetails != 'undefined') {
       const agentData = JSON.parse(agentDetails)
       // //console.log;
-      if (agentData?.agents?.length > 1) {
-        // //console.log;
-        setIsInboundAgent(false)
+      if (agentData?.agentType === 'inbound') {
+        console.log("agent type is ", agentData?.agentType);
+        setIsInboundAgent(true)
       } else {
-        if (agentData?.agents?.[0]?.agentType === 'inbound') {
-          setIsInboundAgent(true)
-        } else {
+        if (agentData?.agents?.length > 1) {
+          // //console.log;
           setIsInboundAgent(false)
+        } else {
+          if (agentData?.agents?.[0]?.agentType === 'inbound') {
+            setIsInboundAgent(true)
+          } else {
+            setIsInboundAgent(false)
+          }
         }
       }
     }
@@ -1138,198 +1143,198 @@ const PipelineStages = ({
                                       ...row,
                                       referencePoint: row.referencePoint || (isBookingStage ? 'before_meeting' : 'regular_calls'),
                                     }
-                                    
-                                    return (
-                                    <div
-                                      key={row.id}
-                                      className="flex flex-row items-center justify-center mb-2"
-                                    >
-                                      <div
-                                        className="mt-2"
-                                        style={styles.headingStyle}
-                                      >
-                                        Wait
-                                      </div>
-                                      <div className="ms-6 flex flex-row items-center w-full justify-between">
-                                        <div className="flex flex-row items-center">
-                                          <div>
-                                            <label
-                                              className="ms-1 px-2"
-                                              style={styles.labelStyle}
-                                            >
-                                              Days
-                                            </label>
-                                            <input
-                                              className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
-                                              style={{
-                                                ...styles.inputStyle,
-                                                height: '42px',
-                                                width: '80px',
-                                                border: '1px solid #00000020',
-                                                borderTopLeftRadius: '10px',
-                                                borderBottomLeftRadius: '10px',
-                                              }}
-                                              placeholder="Days"
-                                              value={row.waitTimeDays}
-                                              onChange={(e) =>
-                                                handleInputChange(
-                                                  index,
-                                                  row.id,
-                                                  'waitTimeDays',
-                                                  e.target.value.replace(
-                                                    /[^0-9]/g,
-                                                    '',
-                                                  ),
-                                                )
-                                              }
-                                            />
-                                          </div>
-                                          <div>
-                                            <label
-                                              className="ms-1 px-2"
-                                              style={styles.labelStyle}
-                                            >
-                                              Hours
-                                            </label>
-                                            <input
-                                              className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
-                                              style={{
-                                                ...styles.inputStyle,
-                                                height: '42px',
-                                                width: '80px',
-                                                border: '1px solid #00000020',
-                                                borderRight: 'none',
-                                                borderLeft: 'none',
-                                              }}
-                                              placeholder="Hours"
-                                              value={row.waitTimeHours}
-                                              onChange={(e) =>
-                                                handleInputChange(
-                                                  index,
-                                                  row.id,
-                                                  'waitTimeHours',
-                                                  e.target.value.replace(
-                                                    /[^0-9]/g,
-                                                    '',
-                                                  ),
-                                                )
-                                              }
-                                            />
-                                          </div>
-                                          <div>
-                                            <label
-                                              className="ms-1 px-2"
-                                              style={styles.labelStyle}
-                                            >
-                                              Mins
-                                            </label>
-                                            <input
-                                              className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
-                                              style={{
-                                                ...styles.inputStyle,
-                                                height: '42px',
-                                                width: '80px',
-                                                border: '1px solid #00000020',
-                                                borderTopRightRadius: '10px',
-                                                borderBottomRightRadius: '10px',
-                                              }}
-                                              placeholder="Minutes"
-                                              value={row.waitTimeMinutes}
-                                              onChange={(e) =>
-                                                handleInputChange(
-                                                  index,
-                                                  row.id,
-                                                  'waitTimeMinutes',
-                                                  e.target.value.replace(
-                                                    /[^0-9]/g,
-                                                    '',
-                                                  ),
-                                                )
-                                              }
-                                            />
-                                          </div>
-                                          <div
-                                            className="ms-4 mt-2 flex flex-row items-center"
-                                            style={styles.inputStyle}
-                                          >
-                                            {isBookingStage ? (
-                                              <div className="flex flex-row items-center gap-2">
-                                                <select
-                                                  value={rowWithReferencePoint.referencePoint}
-                                                  onChange={(e) =>
-                                                    handleInputChange(
-                                                      index,
-                                                      row.id,
-                                                      'referencePoint',
-                                                      e.target.value,
-                                                    )
-                                                  }
-                                                  className="outline-none border border-gray-300 rounded px-2 py-1 text-sm"
-                                                  style={{
-                                                    backgroundColor: 'white',
-                                                    minWidth: '140px',
-                                                  }}
-                                                >
-                                                  <option value="before_meeting">before the meeting</option>
-                                                  <option value="after_booking">after booking</option>
-                                                </select>
-                                                , then{' '}
-                                              </div>
-                                            ) : (
-                                              <div>, then{' '}</div>
-                                            )}
-                                            <div
-                                              className="ml-2"
-                                              style={{ fontWeight: '600' }}
-                                            >
-                                              <div className="flex flex-row items-cetner gap-2 p-2 rounded"
-                                              style={{
-                                                backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
-                                              }}
-                                              >
-                                                <div className="text-brand-primary text-[12px]">
-                                                  {(row.communicationType &&
-                                                    row.communicationType !=
-                                                      'call') ||
-                                                  (row.action &&
-                                                    row.action != 'call')
-                                                    ? `Send ${actionLabel(row.communicationType)}`
-                                                    : `Make Call`}
-                                                </div>
 
-                                                <button
-                                                  onClick={(e) => {
-                                                    console.log('row clicked', row)
-                                                    e.stopPropagation()
-                                                    handleEditRow(index, row, e)
-                                                  }}
-                                                  type="button"
-                                                  className="cursor-pointer"
-                                                  style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
-                                                >
-                                                  <PencilSimple
-                                                    size={16}
-                                                    weight="regular"
+                                    return (
+                                      <div
+                                        key={row.id}
+                                        className="flex flex-row items-center justify-center mb-2"
+                                      >
+                                        <div
+                                          className="mt-2"
+                                          style={styles.headingStyle}
+                                        >
+                                          Wait
+                                        </div>
+                                        <div className="ms-6 flex flex-row items-center w-full justify-between">
+                                          <div className="flex flex-row items-center">
+                                            <div>
+                                              <label
+                                                className="ms-1 px-2"
+                                                style={styles.labelStyle}
+                                              >
+                                                Days
+                                              </label>
+                                              <input
+                                                className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
+                                                style={{
+                                                  ...styles.inputStyle,
+                                                  height: '42px',
+                                                  width: '80px',
+                                                  border: '1px solid #00000020',
+                                                  borderTopLeftRadius: '10px',
+                                                  borderBottomLeftRadius: '10px',
+                                                }}
+                                                placeholder="Days"
+                                                value={row.waitTimeDays}
+                                                onChange={(e) =>
+                                                  handleInputChange(
+                                                    index,
+                                                    row.id,
+                                                    'waitTimeDays',
+                                                    e.target.value.replace(
+                                                      /[^0-9]/g,
+                                                      '',
+                                                    ),
+                                                  )
+                                                }
+                                              />
+                                            </div>
+                                            <div>
+                                              <label
+                                                className="ms-1 px-2"
+                                                style={styles.labelStyle}
+                                              >
+                                                Hours
+                                              </label>
+                                              <input
+                                                className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
+                                                style={{
+                                                  ...styles.inputStyle,
+                                                  height: '42px',
+                                                  width: '80px',
+                                                  border: '1px solid #00000020',
+                                                  borderRight: 'none',
+                                                  borderLeft: 'none',
+                                                }}
+                                                placeholder="Hours"
+                                                value={row.waitTimeHours}
+                                                onChange={(e) =>
+                                                  handleInputChange(
+                                                    index,
+                                                    row.id,
+                                                    'waitTimeHours',
+                                                    e.target.value.replace(
+                                                      /[^0-9]/g,
+                                                      '',
+                                                    ),
+                                                  )
+                                                }
+                                              />
+                                            </div>
+                                            <div>
+                                              <label
+                                                className="ms-1 px-2"
+                                                style={styles.labelStyle}
+                                              >
+                                                Mins
+                                              </label>
+                                              <input
+                                                className="flex flex-row items-center justify-center text-center outline-none focus:ring-0"
+                                                style={{
+                                                  ...styles.inputStyle,
+                                                  height: '42px',
+                                                  width: '80px',
+                                                  border: '1px solid #00000020',
+                                                  borderTopRightRadius: '10px',
+                                                  borderBottomRightRadius: '10px',
+                                                }}
+                                                placeholder="Minutes"
+                                                value={row.waitTimeMinutes}
+                                                onChange={(e) =>
+                                                  handleInputChange(
+                                                    index,
+                                                    row.id,
+                                                    'waitTimeMinutes',
+                                                    e.target.value.replace(
+                                                      /[^0-9]/g,
+                                                      '',
+                                                    ),
+                                                  )
+                                                }
+                                              />
+                                            </div>
+                                            <div
+                                              className="ms-4 mt-2 flex flex-row items-center"
+                                              style={styles.inputStyle}
+                                            >
+                                              {isBookingStage ? (
+                                                <div className="flex flex-row items-center gap-2">
+                                                  <select
+                                                    value={rowWithReferencePoint.referencePoint}
+                                                    onChange={(e) =>
+                                                      handleInputChange(
+                                                        index,
+                                                        row.id,
+                                                        'referencePoint',
+                                                        e.target.value,
+                                                      )
+                                                    }
+                                                    className="outline-none border border-gray-300 rounded px-2 py-1 text-sm"
                                                     style={{
-                                                      color: 'hsl(var(--brand-primary))',
+                                                      backgroundColor: 'white',
+                                                      minWidth: '140px',
                                                     }}
-                                                  />
-                                                </button>
+                                                  >
+                                                    <option value="before_meeting">before the meeting</option>
+                                                    <option value="after_booking">after booking</option>
+                                                  </select>
+                                                  , then{' '}
+                                                </div>
+                                              ) : (
+                                                <div>, then{' '}</div>
+                                              )}
+                                              <div
+                                                className="ml-2"
+                                                style={{ fontWeight: '600' }}
+                                              >
+                                                <div className="flex flex-row items-cetner gap-2 p-2 rounded"
+                                                  style={{
+                                                    backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                                                  }}
+                                                >
+                                                  <div className="text-brand-primary text-[12px]">
+                                                    {(row.communicationType &&
+                                                      row.communicationType !=
+                                                      'call') ||
+                                                      (row.action &&
+                                                        row.action != 'call')
+                                                      ? `Send ${actionLabel(row.communicationType)}`
+                                                      : `Make Call`}
+                                                  </div>
+
+                                                  <button
+                                                    onClick={(e) => {
+                                                      console.log('row clicked', row)
+                                                      e.stopPropagation()
+                                                      handleEditRow(index, row, e)
+                                                    }}
+                                                    type="button"
+                                                    className="cursor-pointer"
+                                                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                                                  >
+                                                    <PencilSimple
+                                                      size={16}
+                                                      weight="regular"
+                                                      style={{
+                                                        color: 'hsl(var(--brand-primary))',
+                                                      }}
+                                                    />
+                                                  </button>
+                                                </div>
                                               </div>
                                             </div>
                                           </div>
+                                          {rowIndex > 0 && (
+                                            <CloseBtn
+                                              onClick={() =>
+                                                removeRow(index, row.id)
+                                              }
+                                            />
+                                          )}
                                         </div>
-                                        {rowIndex > 0 && (
-                                          <CloseBtn
-                                            onClick={() =>
-                                              removeRow(index, row.id)
-                                            }
-                                          />
-                                        )}
                                       </div>
-                                    </div>
-                                  )
-                                })}
+                                    )
+                                  })}
                                 <button
                                   onClick={(e) => {
                                     e.stopPropagation()
@@ -1368,8 +1373,8 @@ const PipelineStages = ({
                                       key={a.value}
                                       title={
                                         shouldDisable(a) &&
-                                        user?.planCapabilities
-                                          .allowTextMessages === true
+                                          user?.planCapabilities
+                                            .allowTextMessages === true
                                           ? 'You need to complete A2P to text'
                                           : ''
                                       }
@@ -1848,13 +1853,13 @@ const PipelineStages = ({
                                             border: '1px solid #00000020', // Same border on hover
                                           },
                                           '& .MuiOutlinedInput-notchedOutline':
-                                            {
-                                              border: 'none', // Remove the default outline
-                                            },
+                                          {
+                                            border: 'none', // Remove the default outline
+                                          },
                                           '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                            {
-                                              border: 'none', // Remove outline on focus
-                                            },
+                                          {
+                                            border: 'none', // Remove outline on focus
+                                          },
                                           '&.MuiSelect-select': {
                                             py: 0, // Optional padding adjustments
                                           },
@@ -2030,7 +2035,7 @@ const PipelineStages = ({
                 }
               }}
               showEmailTemPopup={false}
-              setShowEmailTempPopup={() => {}}
+              setShowEmailTempPopup={() => { }}
               setSelectedGoogleAccount={(account) => {
                 setSelectedGoogleAccount(account)
               }}
@@ -2085,7 +2090,7 @@ const PipelineStages = ({
                 setEditingStageIndex(null)
                 closeAddMenu(selectedIndex)
               }}
-                isFromAdminOrAgency={isFromAdminOrAgency}
+              isFromAdminOrAgency={isFromAdminOrAgency}
             />
 
             {/* Code for add stage modal */}
@@ -2416,9 +2421,9 @@ const PipelineStages = ({
                                   border: 'none', // Remove the default outline
                                 },
                                 '&.Mui-focused .MuiOutlinedInput-notchedOutline':
-                                  {
-                                    border: 'none', // Remove outline on focus
-                                  },
+                                {
+                                  border: 'none', // Remove outline on focus
+                                },
                                 '&.MuiSelect-select': {
                                   py: 0, // Optional padding adjustments
                                 },
@@ -2521,7 +2526,7 @@ const PipelineStages = ({
                               fontWeight: 600,
                               fontSize: '20',
                             }}
-                            // onClick={handleAddNewStageTitle}
+                          // onClick={handleAddNewStageTitle}
                           >
                             Add Stage
                           </button>

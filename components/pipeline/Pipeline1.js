@@ -35,7 +35,11 @@ import AgentSelectSnackMessage, {
 } from '../dashboard/leads/AgentSelectSnackMessage'
 import PipelineStages from './PipelineStages'
 
-const Pipeline1 = ({ handleContinue }) => {
+const Pipeline1 = ({
+  handleContinue,
+  stopLoaderTrigger = false,
+  onContinueClick,
+}) => {
   const router = useRouter()
 
   const [shouldContinue, setShouldContinue] = useState(true)
@@ -68,6 +72,12 @@ const Pipeline1 = ({ handleContinue }) => {
   useEffect(() => {
     // //console.log;
   }, [reorderSuccessBarMessage])
+
+  useEffect(() => {
+    if (stopLoaderTrigger) {
+      setPipelineLoader(false)
+    }
+  }, [stopLoaderTrigger])
 
   useEffect(() => {
     // Check if user is subaccount and if agency has logo
@@ -446,6 +456,7 @@ const Pipeline1 = ({ handleContinue }) => {
 
   const printAssignedLeadsData = async () => {
     // return
+    onContinueClick?.()
     setPipelineLoader(true)
 
     const allData = Object.keys(assignedLeads)
