@@ -487,6 +487,7 @@ export function SupportWidget({
       </div>
       {isEmbed && !open && (
         <GetHelpBtn
+          titleColor = "#000"
           text={agentUserDetails?.agent?.supportButtonText || 'Get Help'}
           avatar={
             agentUserDetails?.agent?.supportButtonAvatar ||

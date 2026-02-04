@@ -370,6 +370,8 @@ const AgencySupportWidget = ({
                   ? agencyBranding.supportWidgetTitle
                   : null
               }
+
+              titleColor = "hsl(var(brand-primary))"
             />
           </motion.div>
         )}

@@ -1184,7 +1184,7 @@ const NewMessageModal = ({
           response = await updateTemplete(templateData, selectedTemplate.id)
         }
         // Priority 2: If editing existing row and not default cadence, update the template
-        else if (isEditing && editingRow?.templateId && !IsdefaultCadence) {
+        else if ((isEditing && editingRow?.templateId && !IsdefaultCadence)||selectedTemplate) {
           // Update existing template (not default cadence)
           isUpdating = true
           console.log('🔧 [Pipeline Mode] Updating existing template:', {
@@ -1192,7 +1192,8 @@ const NewMessageModal = ({
             templateData: JSON.stringify(templateData, null, 2),
             templateType: templateData.templateType
           })
-          response = await updateTemplete(templateData, editingRow.templateId)
+          let id = editingRow.templateId || selectedTemplate
+          response = await updateTemplete(templateData, id)
         }
         // Priority 3: Otherwise, create new template
         else {
@@ -2765,7 +2766,7 @@ const NewMessageModal = ({
                     className="h-5 w-5"
                   />
                   <label className="text-sm text-gray-700 cursor-pointer select-none">
-                    Save as template
+                    {selectedTemplate ? "Update template": "Save as template" } 
                   </label>
                 </div>
               )}
@@ -2797,7 +2798,7 @@ const NewMessageModal = ({
                   </>
                 ) : (
                   <>
-                    {isPipelineMode ? ((isEditing && !IsdefaultCadence) ? 'Update' : 'Save') : 'Send'}
+                    {isPipelineMode ? ((isEditing && !IsdefaultCadence) ?  'Update' : 'Save') : selectedTemplate ? "Update" : 'Send'}
                     {!isPipelineMode && <PaperPlaneTilt size={16} />}
                   </>
                 )}
