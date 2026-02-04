@@ -98,6 +98,7 @@ const dialerSlice = createSlice({
       // Only close if not prevented
       if (!state.preventClose) {
         state.isOpen = false
+        state.selectedUser = null
       }
     },
 
@@ -105,6 +106,7 @@ const dialerSlice = createSlice({
     forceCloseDialer: (state) => {
       state.isOpen = false
       state.preventClose = false
+      state.selectedUser = null
     },
 
     // Update call status and auto-set preventClose

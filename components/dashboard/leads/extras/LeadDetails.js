@@ -99,7 +99,7 @@ import LeadTeamsAssignedList from '../LeadTeamsAssignedList'
 import SelectStageDropdown from '../StageSelectDropdown'
 import DeleteCallLogConfimation from './DeleteCallLogConfimation'
 import { useDispatch } from 'react-redux'
-import { openDialer } from '@/store/slices/dialerSlice'
+import { openDialer, setSelectedUser } from '@/store/slices/dialerSlice'
 import DropdownCn from './DropdownCn'
 // import MultiSelectDropdownCn from './MultiSelectDropdownCn'
 import TeamAssignDropdownCn from './TeamAssignDropdownCn'
@@ -1722,24 +1722,15 @@ const LeadDetails = ({
       // Use phone number as-is if parsing fails
     }
 
-    console.log("opening dialer with data : ",selectedLeadsDetails)
-    // Open dialer modal with the phone number
-
-
     dispatch(openDialer({
       leadId: selectedLeadsDetails?.id,
       leadName: selectedLeadsDetails?.name || selectedLeadsDetails?.firstName,
       phoneNumber: selectedLeadsDetails?.phone || '',
       selectedLeadDetails: selectedLeadsDetails, // Full object
     }))
-
-    console.log("dispatch", dispatch(openDialer({
-      leadId: selectedLeadsDetails?.id,
-      leadName: selectedLeadsDetails?.name || selectedLeadsDetails?.firstName,
-      phoneNumber: selectedLeadsDetails?.phone || '',
-      selectedLeadDetails: selectedLeadsDetails, // Full object
-    }))
-)
+    if (selectedUser?.id) {
+      dispatch(setSelectedUser(selectedUser))
+    }
   }
 
   // Helper function to format objections from JSON

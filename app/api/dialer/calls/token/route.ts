@@ -45,14 +45,15 @@ export async function POST(req: NextRequest) {
       // Continue without metadata
     }
 
-    // Call backend API to mint token
+    const backendBody: { metadata?: any; userId?: number } = { metadata }
+    if (body.userId != null) backendBody.userId = body.userId
     const response = await fetch(`${BASE_API_URL}api/dialer/calls/token`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ metadata }),
+      body: JSON.stringify(backendBody),
       cache: 'no-store',
     })
 
