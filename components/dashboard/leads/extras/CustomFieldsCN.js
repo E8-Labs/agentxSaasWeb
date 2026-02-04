@@ -133,6 +133,25 @@ const CustomFieldsCN = ({
     }
   }
 
+  /** Full value for tooltip (always complete answer, no truncation). */
+  const getFullValueForTooltip = (column, item) => {
+    const { title } = column
+    if (!item) return ''
+    switch (title) {
+      case 'Date':
+        return item.createdAt ? GetFormattedDateString(item.createdAt) : '-'
+      case 'Phone':
+        return '-'
+      case 'Stage':
+        return item.stage ? item.stage.stageTitle : 'No Stage'
+      default:
+        const value = item[title]
+        if (value === undefined || value === null) return ''
+        if (typeof value === 'object') return JSON.stringify(value)
+        return String(value)
+    }
+  }
+
   const ShowReadMoreButton = (column, item) => {
     const { title } = column
     if (item) {
@@ -191,24 +210,26 @@ const CustomFieldsCN = ({
                 </TypographyCaption>
                 <div className="flex flex-row items-end gap-2 flex-wrap">
                   <Tooltip
-                    title={getDetailsColumnData(column, selectedLeadsDetails)}
+                    title={getFullValueForTooltip(column, selectedLeadsDetails)}
                     arrow
                     placement="top"
                     componentsProps={{
                       tooltip: {
                         sx: {
-                          backgroundColor: '#ffffff',
-                          color: '#333',
-                          fontSize: '10px',
-                          padding: '10px 15px',
+                          backgroundColor: 'white',
+                          color: 'hsl(var(--foreground))',
+                          fontSize: '12px',
+                          padding: '10px 14px',
                           borderRadius: '8px',
-                          boxShadow: '0px 4px 10px rgba(0,0,0,0.2)',
+                          border: '1px solid hsl(var(--border))',
+                          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
+                          maxWidth: 320,
                         },
                       },
-                      arrow: { sx: { color: '#ffffff' } },
+                      arrow: { sx: { color: 'white' } },
                     }}
                   >
-                    <TypographyBody className="text-right">
+                    <TypographyBody className="text-right cursor-default">
                       {getDetailsColumnData(column, selectedLeadsDetails)}
                     </TypographyBody>
                   </Tooltip>
