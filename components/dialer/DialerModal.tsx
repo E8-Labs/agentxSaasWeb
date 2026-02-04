@@ -724,15 +724,15 @@ function DialerModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, hasDialerNumber, device, initializing, checkingDialerNumber, dispatch])
 
-  // Fetch phone numbers when modal opens (only if not already fetched or cache is stale)
+  // Fetch phone numbers when modal opens or when dialer user context changes (e.g. agency switched subaccount)
   useEffect(() => {
     if (open) {
-      // Fetch phone numbers immediately when modal opens, regardless of hasDialerNumber or initialization status
-      // The fetchPhoneNumbersWithAgents function will check if we should refetch based on cache
-      fetchPhoneNumbersWithAgents()
+      // When viewing as a specific user (e.g. agency for subaccount), always refetch so we show that user's numbers
+      const forceForUser = !!dialerUserId
+      fetchPhoneNumbersWithAgents(forceForUser)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, shouldRefetchPhoneNumbers])
+  }, [open, shouldRefetchPhoneNumbers, dialerUserId])
 
   // Get user data for template popups
   useEffect(() => {
@@ -796,9 +796,9 @@ function DialerModal({
   }
 
   // Fetch phone numbers with agent assignments
-  const fetchPhoneNumbersWithAgents = async () => {
-    // Check if we should refetch (cache is stale or empty)
-    if (!shouldRefetchPhoneNumbers && phoneNumbers.length > 0) {
+  const fetchPhoneNumbersWithAgents = async (forceRefetch?: boolean) => {
+    // Check if we should refetch (cache is stale or empty), unless forceRefetch (e.g. after setting internal number)
+    if (!forceRefetch && !shouldRefetchPhoneNumbers && phoneNumbers.length > 0) {
       return // Use cached data
     }
 
@@ -824,6 +824,11 @@ function DialerModal({
       const withAgentsUrl = dialerUserId
         ? `/api/dialer/phone-numbers/with-agents?userId=${dialerUserId}`
         : '/api/dialer/phone-numbers/with-agents'
+      console.log('[DialerModal] fetchPhoneNumbersWithAgents', {
+        dialerUserId,
+        forceRefetch,
+        url: withAgentsUrl,
+      })
       const response = await fetch(withAgentsUrl, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -832,13 +837,22 @@ function DialerModal({
 
       const data = await response.json()
       if (data.status && data.data) {
-        // Find and set the internal dialer number
         const internalNumber = data.data.find((pn: any) => pn.usageType === 'internal_dialer')
+        console.log('[DialerModal] with-agents response', {
+          count: data.data.length,
+          usageTypes: data.data.map((pn: any) => ({ id: pn.id, phone: pn.phone, usageType: pn.usageType })),
+          hasInternalDialer: !!internalNumber,
+          selectedInternalNumberId: internalNumber?.id,
+        })
         dispatch(setPhoneNumbers({
           phoneNumbers: data.data,
           selectedInternalNumber: internalNumber || null,
           timestamp: Date.now(),
         }))
+        // Keep hasDialerNumber in sync so banner and "Initializing" state reflect the same source as the list
+        dispatch(updateDeviceState({ hasDialerNumber: !!internalNumber, checkingDialerNumber: false }))
+      } else {
+        console.warn('[DialerModal] with-agents non-ok or no data', { status: data.status, hasData: !!data.data })
       }
     } catch (error) {
       console.error('Error fetching phone numbers with agents:', error)
@@ -883,8 +897,8 @@ function DialerModal({
         return
       }
 
-      // Refresh phone numbers
-      await fetchPhoneNumbersWithAgents()
+      // Force refresh phone numbers so UI shows the new internal dialer
+      await fetchPhoneNumbersWithAgents(true)
       toast.success('Internal dialer updated')
       setNumberDropdownAnchor(null)
     } catch (error: any) {
