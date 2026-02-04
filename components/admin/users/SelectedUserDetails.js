@@ -3,7 +3,7 @@ import { Cross } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
 import React, { useEffect, useState } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation' // Add these imports
+import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 
 import AdminLeads from '@/components/admin/users/AdminLeads'
 import Apis from '@/components/apis/Apis'
@@ -48,6 +48,7 @@ function SelectedUserDetails({
   agencyUser = false,
 }) {
   const router = useRouter()
+  const pathname = usePathname()
   const searchParams = useSearchParams()
   
   const [manuLoading, setManuLoading] = useState(true)
@@ -150,8 +151,9 @@ function SelectedUserDetails({
       params.delete('tab')
     }
     
-    // Update URL without page reload
-    router.replace(`?${params.toString()}`, { scroll: false })
+    // Update URL without page reload (use full path for reliable navigation)
+    const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname
+    router.replace(newUrl, { scroll: false })
   }
 
   // Function to find menu item by param value
@@ -195,7 +197,9 @@ function SelectedUserDetails({
               setSelectedManu(allMenuItems[0])
             }
           } else {
-            setSelectedManu(allMenuItems[0])
+            // Sync with URL when tabParam changes (e.g. user clicked Pipeline)
+            const tabMenuItem = tabParam ? findMenuItemByParamValue(tabParam, allMenuItems) : null
+            setSelectedManu(tabMenuItem || allMenuItems[0])
           }
           
           setManuLoading(false)
@@ -258,7 +262,9 @@ function SelectedUserDetails({
               setSelectedManu(null)
             }
           } else if (accessibleItems.length > 0) {
-            setSelectedManu(accessibleItems[0])
+            // Sync with URL when tabParam changes
+            const tabMenuItem = tabParam ? findMenuItemByParamValue(tabParam, accessibleItems) : null
+            setSelectedManu(tabMenuItem || accessibleItems[0])
           } else {
             setSelectedManu(null)
           }
@@ -275,7 +281,9 @@ function SelectedUserDetails({
               setSelectedManu(allMenuItems[0])
             }
           } else {
-            setSelectedManu(allMenuItems[0])
+            // Sync with URL when tabParam changes
+            const tabMenuItem = tabParam ? findMenuItemByParamValue(tabParam, allMenuItems) : null
+            setSelectedManu(tabMenuItem || allMenuItems[0])
           }
         }
       } catch (error) {
