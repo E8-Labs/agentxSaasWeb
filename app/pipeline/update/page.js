@@ -33,6 +33,7 @@ const Page = () => {
   const [errorMessage, setErrorMessage] = useState(null)
   const [isErrorVisible, setIsErrorVisible] = useState(false)
   const [errorType, setErrorType] = useState(SnackbarTypes.Error)
+  const [stopLoaderTrigger, setStopLoaderTrigger] = useState(false)
 
   // Redux user state
   const { user: userData, setUser: setUserData, token } = useUser()
@@ -381,6 +382,7 @@ const Page = () => {
           setErrorMessage(errorMsg)
           setErrorType(SnackbarTypes.Error)
           setIsErrorVisible(true)
+          setStopLoaderTrigger(true)
         }
       }
     } catch (error) {
@@ -408,6 +410,7 @@ const Page = () => {
       setErrorMessage(errorMsg)
       setErrorType(SnackbarTypes.Error)
       setIsErrorVisible(true)
+      setStopLoaderTrigger(true)
     } finally {
     }
   }
@@ -454,7 +457,12 @@ const Page = () => {
         message={errorMessage}
         type={errorType}
       />
-      <CurrentComp handleContinue={handleContinue} handleBack={handleBack} />
+      <CurrentComp
+        handleContinue={handleContinue}
+        handleBack={handleBack}
+        stopLoaderTrigger={stopLoaderTrigger}
+        onContinueClick={() => setStopLoaderTrigger(false)}
+      />
     </div>
   );
 }
