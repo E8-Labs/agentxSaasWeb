@@ -13,6 +13,7 @@ import {
   getAgentsListImage,
 } from '@/utilities/agentUtilities'
 
+import ImportantCallsModal from '@/components/modals/ImportantCallsModal'
 import AgentInfoCard from './AgentInfoCard'
 import AgentStatsCallsModal from './AgentStatsCallsModal'
 import NoAgent from './NoAgent'
@@ -83,6 +84,8 @@ const AgentsListPaginated = ({
   const [statsModalAgentId, setStatsModalAgentId] = useState(null)
   const [statsModalType, setStatsModalType] = useState(null)
   const [statsModalAgentName, setStatsModalAgentName] = useState('')
+  const [importantCallsModalOpen, setImportantCallsModalOpen] = useState(false)
+  const [importantCallsModalContext, setImportantCallsModalContext] = useState(null)
 
   const [actionInfoEl, setActionInfoEl] = useState(null)
   const [hoveredIndexStatus, setHoveredIndexStatus] = useState(null)
@@ -537,10 +540,12 @@ const AgentsListPaginated = ({
                     <button
                       type="button"
                       onClick={() => {
-                        setStatsModalAgentId(item.id)
-                        setStatsModalType('calls')
-                        setStatsModalAgentName(item.name || '')
-                        setStatsModalOpen(true)
+                        setImportantCallsModalContext({
+                          agentId: item.id,
+                          type: 'calls',
+                          agentName: item.name || '',
+                        })
+                        setImportantCallsModalOpen(true)
                       }}
                       className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
                       style={{ minWidth: 0 }}
@@ -556,10 +561,12 @@ const AgentsListPaginated = ({
                     <button
                       type="button"
                       onClick={() => {
-                        setStatsModalAgentId(item.id)
-                        setStatsModalType('convos')
-                        setStatsModalAgentName(item.name || '')
-                        setStatsModalOpen(true)
+                        setImportantCallsModalContext({
+                          agentId: item.id,
+                          type: 'convos',
+                          agentName: item.name || '',
+                        })
+                        setImportantCallsModalOpen(true)
                       }}
                       className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
                       style={{ minWidth: 0 }}
@@ -594,10 +601,12 @@ const AgentsListPaginated = ({
                     <button
                       type="button"
                       onClick={() => {
-                        setStatsModalAgentId(item.id)
-                        setStatsModalType('booked')
-                        setStatsModalAgentName(item.name || '')
-                        setStatsModalOpen(true)
+                        setImportantCallsModalContext({
+                          agentId: item.id,
+                          type: 'booked',
+                          agentName: item.name || '',
+                        })
+                        setImportantCallsModalOpen(true)
                       }}
                       className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
                       style={{ minWidth: 0 }}
@@ -607,6 +616,23 @@ const AgentsListPaginated = ({
                         value={item.booked || '-'}
                         icon="/otherAssets/greenCalenderIcon.png"
                         bgColor="green"
+                        iconColor="text-orange-500"
+                      />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setImportantCallsModalContext(null)
+                        setImportantCallsModalOpen(true)
+                      }}
+                      className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
+                      style={{ minWidth: 0 }}
+                    >
+                      <AgentInfoCard
+                        name="Important Calls"
+                        value="-"
+                        icon="/svgIcons/fireIcon.png"
+                        bgColor="bg-orange-100"
                         iconColor="text-orange-500"
                       />
                     </button>
@@ -649,6 +675,18 @@ const AgentsListPaginated = ({
         agentName={statsModalAgentName}
         type={statsModalType}
       />
+      {importantCallsModalOpen && (
+        <ImportantCallsModal
+          open={importantCallsModalOpen}
+          onClose={() => {
+            setImportantCallsModalOpen(false)
+            setImportantCallsModalContext(null)
+          }}
+          agentId={importantCallsModalContext?.agentId}
+          type={importantCallsModalContext?.type}
+          agentName={importantCallsModalContext?.agentName}
+        />
+      )}
     </div>
   );
 }
