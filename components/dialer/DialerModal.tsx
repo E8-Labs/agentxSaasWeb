@@ -1440,9 +1440,10 @@ function DialerModal({
         return
       }
 
-      let userData = userStr
+      type UserStorage = { user?: { id: number; agencyId?: number }; id?: number; agencyId?: number }
+      let userData: UserStorage
       try {
-        userData = JSON.parse(userStr)
+        userData = JSON.parse(userStr) as UserStorage
       } catch (e) {
         console.error('Error parsing user data:', e)
         updateCallStatusInRedux('idle')
