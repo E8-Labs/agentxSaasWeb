@@ -2843,10 +2843,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                                   <Checkbox
                                     checked={isSelected}
                                     onCheckedChange={() => handleSubaccountSelectionToggle(subaccount.id)}
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      handleSubaccountPermissionToggle(subaccount.id)
-                                    }}
+                                    onClick={(e) => e.stopPropagation()}
                                   />
                                   <div className="flex flex-row gap-2 items-center">
                                     <span className="text-sm text-gray-900">
@@ -3302,10 +3299,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                                   <Checkbox
                                     checked={isSelected}
                                     onCheckedChange={() => handleExistingSubaccountSelectionToggle(subaccount.id)}
-                                    onClick={(e) => {
-                                      e.stopPropagation()
-                                      handleExistingSubaccountPermissionToggle(subaccount.id)
-                                    }}
+                                    onClick={(e) => e.stopPropagation()}
                                   />
                                   <div className="flex flex-row gap-2 items-center">
                                     <span className="text-sm text-gray-900">
