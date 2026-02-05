@@ -85,8 +85,15 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
       fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'Teams.js:openInvitePopup-effect', message: 'openInvitePopup state changed to true - Modal should open', data: { value: openInvitePopup, url: window.location.href }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'G' }) }).catch(() => { });
       // #endregion
 
-      // Load permissions when modal opens for AgentX/AgencySubAccount users
       const userRole = agencyData?.userRole || userLocalData?.userRole
+
+      // For agency: auto-select "Select all" for subaccounts when opening invite modal
+      if (userRole === 'Agency') {
+        setSelectAllSubaccounts(true)
+        setSelectedSubaccountIds([])
+      }
+
+      // Load permissions when modal opens for AgentX/AgencySubAccount users
       if ((userRole === 'AgentX' || userRole === 'AgencySubAccount') && permissionContext) {
         // Load permissions for AgentX/AgencySubAccount users
         if (agencyPermissions.length === 0) {
@@ -539,18 +546,21 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
       console.log(`Loaded ${context} permissions:`, available)
       setAgencyPermissions(available || [])
 
-      // Initialize permission states - preserve existing selections
+      // Initialize permission states: when inviting (no prior selection), auto-enable all; otherwise preserve selections
+      const isNewInvite = selectedInvitationPermissions == null || selectedInvitationPermissions.length === 0
       setAgencyPermissionStates(prevStates => {
-        const states = { ...prevStates } // Keep existing state
+        const states = { ...prevStates }
         available?.forEach((perm) => {
           const key = perm.key || perm.permissionKey
-          if (key && states[key] === undefined) {
-            // Only set to false if not already in state
-            // Check if this permission was already selected in selectedInvitationPermissions
-            const wasSelected = selectedInvitationPermissions?.some(
-              p => p.permissionKey === key && (!p.contextUserId || p.contextUserId === null)
-            )
-            states[key] = wasSelected || false
+          if (key) {
+            if (isNewInvite) {
+              states[key] = true
+            } else if (states[key] === undefined) {
+              const wasSelected = selectedInvitationPermissions?.some(
+                p => p.permissionKey === key && (!p.contextUserId || p.contextUserId === null)
+              )
+              states[key] = wasSelected || false
+            }
           }
         })
         return states
@@ -574,18 +584,21 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
       console.log('Loaded subaccount permissions:', available)
       setSubaccountPermissions(available || [])
 
-      // Initialize permission states - preserve existing selections
+      // Initialize permission states: when inviting (no prior selection), auto-enable all; otherwise preserve selections
+      const isNewInvite = selectedInvitationPermissions == null || selectedInvitationPermissions.length === 0
       setSubaccountPermissionStates(prevStates => {
-        const states = { ...prevStates } // Keep existing state
+        const states = { ...prevStates }
         available?.forEach((perm) => {
           const key = perm.key || perm.permissionKey
-          if (key && states[key] === undefined) {
-            // Only set to false if not already in state
-            // Check if this permission was already selected in selectedInvitationPermissions
-            const wasSelected = selectedInvitationPermissions?.some(
-              p => p.permissionKey === key && (p.contextUserId === null || !p.contextUserId)
-            )
-            states[key] = wasSelected || false
+          if (key) {
+            if (isNewInvite) {
+              states[key] = true
+            } else if (states[key] === undefined) {
+              const wasSelected = selectedInvitationPermissions?.some(
+                p => p.permissionKey === key && (p.contextUserId === null || !p.contextUserId)
+              )
+              states[key] = wasSelected || false
+            }
           }
         })
         return states
@@ -2509,7 +2522,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                     agencyData?.userRole === 'AgencySubAccount' ||
                     userLocalData?.userRole === 'AgencySubAccount') && (
                       <div className="mt-6 space-y-2">
-                        <div className="text-sm font-medium text-gray-700">Permissions</div>
+                        <div className="text-sm font-medium text-gray-700">Team member permissions</div>
                         <div className="space-y-1">
                           {/* For Agency users, show both Agency and Subaccount sections */}
                           {(agencyData?.userRole === 'Agency' || userLocalData?.userRole === 'Agency') && (
@@ -3049,7 +3062,7 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
               {/* Initial View */}
               {managePermissionModalStep === 'initial' && (
                 <div className="mt-6 space-y-2">
-                  <div className="text-sm font-medium text-gray-700">Permissions</div>
+                  <div className="text-sm font-medium text-gray-700">Team member permissions</div>
                   <div className="space-y-1">
                     {/* Agency users: show separate Agency and Subaccount sections */}
                     {(agencyData?.userRole === 'Agency' || userLocalData?.userRole === 'Agency') && (
