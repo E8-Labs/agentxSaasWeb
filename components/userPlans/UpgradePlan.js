@@ -454,6 +454,7 @@ function UpgradePlanContent({
   useEffect(() => {
   }, [currentSelectedPlan])
 
+  // Re-validate promo/referral code whenever plan or billing cycle (duration) changes
   useEffect(() => {
     if (!inviteCode || inviteCode.trim().length === 0) {
       setReferralStatus('idle')
@@ -467,19 +468,10 @@ function UpgradePlanContent({
     setPromoCodeDetails(null)
     const timer = setTimeout(async () => {
       try {
-        // Include planId if a plan is selected for better discount calculation
-        const requestBody = {
-          referralCode: inviteCode.trim(),
-        }
+        // Include planId if a plan is selected (plan includes billing cycle, so validity is re-checked)
+        const planId = currentSelectedPlan?.id
 
-        if (currentSelectedPlan?.id) {
-          requestBody.planId = currentSelectedPlan.id
-        }
-
-        const resp = await checkReferralCode(
-          inviteCode.trim(),
-          requestBody.planId,
-        )
+        const resp = await checkReferralCode(inviteCode.trim(), planId)
 
         if (resp && resp.status) {
           setReferralStatus('valid')
@@ -511,7 +503,7 @@ function UpgradePlanContent({
     return () => {
       clearTimeout(timer)
     }
-  }, [inviteCode, currentSelectedPlan?.id])
+  }, [inviteCode, currentSelectedPlan?.id, selectedDuration?.id])
 
   // Autofocus the first field when the component mounts
   useEffect(() => {
@@ -1185,6 +1177,9 @@ function UpgradePlanContent({
       }
       if (selectedUser) {
         ApiData.userId = selectedUser?.id || effectiveUser?.id
+      }
+      if (inviteCode && inviteCode.trim()) {
+        ApiData.inviteCode = inviteCode.trim()
       }
       const DataToSendInApi = ApiData
 

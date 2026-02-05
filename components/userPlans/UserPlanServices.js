@@ -590,6 +590,7 @@ export const purchaseMins = async (mins) => {
 
 export const checkReferralCode = async (code, planId = null) => {
   try {
+    console.log('checkReferralCode', code, planId)
     let token = AuthToken()
 
     const requestBody = {
@@ -600,12 +601,15 @@ export const checkReferralCode = async (code, planId = null) => {
       requestBody.planId = planId
     }
 
+  
     const response = await axios.post(Apis.validateReferralCode, requestBody, {
       headers: {
         Authorization: 'Bearer ' + token,
         'Content-Type': 'application/json',
       },
     })
+
+    console.log('Ref code response', response)
 
     if (response) {
       if (response.data.status == true) {
