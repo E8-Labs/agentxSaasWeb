@@ -619,7 +619,7 @@ const AgentsListPaginated = ({
                         iconColor="text-orange-500"
                       />
                     </button>
-                    <button
+                    {/* <button
                       type="button"
                       onClick={() => {
                         setImportantCallsModalContext(null)
@@ -635,7 +635,7 @@ const AgentsListPaginated = ({
                         bgColor="bg-orange-100"
                         iconColor="text-orange-500"
                       />
-                    </button>
+                    </button> */}
                     <div className="flex flex-col items-start gap-2">
                       <AgentInfoCard
                         name="Time"
