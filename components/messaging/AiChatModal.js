@@ -15,8 +15,22 @@ import CallTranscriptCN from '@/components/dashboard/leads/extras/CallTranscript
 import DropdownCn from '@/components/dashboard/leads/extras/DropdownCn'
 import RichTextEditor from '@/components/common/RichTextEditor'
 import Apis from '@/components/apis/Apis'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 const Lottie = dynamic(() => import('lottie-react'), { ssr: false })
+
+// Markdown components for AI replies: compact styling inside the chat bubble
+const markdownComponents = {
+  p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+  h1: ({ children }) => <h1 className="text-base font-semibold mb-1.5 mt-2 first:mt-0">{children}</h1>,
+  h2: ({ children }) => <h2 className="text-sm font-semibold mb-1 mt-2 first:mt-0">{children}</h2>,
+  h3: ({ children }) => <h3 className="text-sm font-semibold mb-1 mt-2 first:mt-0">{children}</h3>,
+  strong: ({ children }) => <strong className="font-bold">{children}</strong>,
+  ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-0.5">{children}</ul>,
+  ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-0.5">{children}</ol>,
+  li: ({ children }) => <li className="leading-relaxed">{children}</li>,
+}
 
 // Lottie animation for "Thinking..." state (load once)
 let thinkingAnimationData = null
@@ -540,7 +554,13 @@ const AiChatModal = ({
                           : 'bg-gray-100 text-foreground rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
                       }`}
                     >
-                      {msg.content}
+                      {isUser ? (
+                        msg.content
+                      ) : (
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                          {msg.content || ''}
+                        </ReactMarkdown>
+                      )}
                     </div>
 
                     {/* User avatar on right */}
