@@ -546,7 +546,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
                 onClick={() => setActiveTab('existing')}
                 className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === 'existing'
-                    ? 'border-purple-600 text-purple-600'
+                    ? 'border-brand-primary text-brand-primary'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -557,7 +557,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
                 onClick={() => setActiveTab('custom')}
                 className={`px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                   activeTab === 'custom'
-                    ? 'border-purple-600 text-purple-600'
+                    ? 'border-brand-primary text-brand-primary'
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
@@ -570,7 +570,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
         <div className="p-6 space-y-4">
           {fetchingIntegrations ? (
             <div className="text-center py-8">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary mx-auto"></div>
               <p className="text-gray-500 mt-4">Loading available domains...</p>
             </div>
           ) : isSubaccount && !agencyHasMailgun ? (
@@ -587,12 +587,12 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
               {activeTab === 'existing' && (
                 <>
                   {mailgunIntegrations.length === 0 ? (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 text-center">
-                      <AlertCircle className="text-blue-600 mx-auto mb-3" size={32} />
-                      <p className="text-sm font-medium text-blue-900 mb-2">
+                    <div className="bg-brand-primary/5 border border-brand-primary/20 rounded-lg p-6 text-center">
+                      <AlertCircle className="text-brand-primary mx-auto mb-3" size={32} />
+                      <p className="text-sm font-medium text-foreground mb-2">
                         No domains available
                       </p>
-                      <p className="text-sm text-blue-700 mb-4">
+                      <p className="text-sm text-brand-primary/90 mb-4">
                         {isSubaccount 
                           ? 'Switch to "Setup Custom Domain" tab to connect your own domain.'
                           : 'Switch to another tab to create a subdomain or set up your own custom domain.'}
@@ -608,7 +608,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
                           id="domain"
                           value={selectedIntegrationId}
                           onChange={(e) => setSelectedIntegrationId(e.target.value)}
-                          className="mt-2 w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white text-sm"
+                          className="mt-2 w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-sm"
                         >
                           {mailgunIntegrations.map((integration) => {
                             const isVerified = integration.verificationStatus === 'verified'
@@ -666,7 +666,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
                               const newValue = e.target.value.toLowerCase().replace(/[^a-z0-9._-]/g, '')
                               setEmailPrefix(newValue)
                             }}
-                            className="flex-1 h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                            className="flex-1 h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                             autoComplete="off"
                             autoFocus
                             onClick={(e) => {
@@ -699,7 +699,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
                           placeholder="John Doe"
                           value={displayName}
                           onChange={(e) => setDisplayName(e.target.value)}
-                          className="mt-2 h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                          className="mt-2 h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                           autoComplete="off"
                           onClick={(e) => {
                             e.stopPropagation()
@@ -726,7 +726,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
                             !selectedIntegrationId ||
                             selectedIntegration?.verificationStatus !== 'verified'
                           }
-                          className="bg-purple-600 hover:bg-purple-700"
+                          className="bg-brand-primary text-white hover:bg-brand-primary/90"
                           title={selectedIntegration?.verificationStatus !== 'verified' ? 'Domain must be verified before creating email addresses' : ''}
                         >
                           {loading ? 'Creating...' : 'Create Email'}
@@ -740,16 +740,16 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
               {/* Tab 2: Create Subdomain - Commented out for now */}
               {/* {activeTab === 'subdomain' && (
                 <div className="space-y-4">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="bg-brand-primary/5 border border-brand-primary/20 rounded-lg p-4">
                     <div className="flex items-start gap-3">
-                      <div className="bg-blue-100 rounded-full p-2">
-                        <Plus className="text-blue-600" size={20} />
+                      <div className="bg-brand-primary/10 rounded-full p-2">
+                        <Plus className="text-brand-primary" size={20} />
                       </div>
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-blue-900 mb-1">
+                        <p className="text-sm font-medium text-foreground mb-1">
                           Create a Subdomain
                         </p>
-                        <p className="text-xs text-blue-700">
+                        <p className="text-xs text-brand-primary/90">
                           Create a subdomain from an existing domain (e.g., <span className="font-mono">salman.main.assignx.ai</span>). 
                           You'll need to configure DNS records after creation.
                         </p>
@@ -767,7 +767,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
                           id="parentDomain"
                           value={selectedParentDomainId}
                           onChange={(e) => setSelectedParentDomainId(e.target.value)}
-                          className="mt-2 w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 bg-white text-sm"
+                          className="mt-2 w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary bg-white text-sm"
                         >
                           {availableDomains.map((domain) => (
                             <option key={domain.id} value={domain.id.toString()}>
@@ -790,7 +790,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
                             placeholder="salman"
                             value={subdomainPrefix}
                             onChange={(e) => setSubdomainPrefix(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
-                            className="flex-1 h-10 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                            className="flex-1 h-10 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                             autoComplete="off"
                             onClick={(e) => {
                               e.stopPropagation()
@@ -819,7 +819,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
                           type="button"
                           onClick={handleCreateSubdomain}
                           disabled={creatingSubdomain || !subdomainPrefix}
-                          className="bg-purple-600 hover:bg-purple-700"
+                          className="bg-brand-primary text-white hover:bg-brand-primary/90"
                         >
                           {creatingSubdomain ? 'Creating...' : 'Create Subdomain'}
                         </Button>
@@ -850,16 +850,16 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
                     </div>)
                   ) : (
                     <>
-                      <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-                        <div className="flex items-start gap-3">
-                          <div className="bg-purple-100 rounded-full p-2">
-                            <Settings className="text-purple-600" size={20} />
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-purple-900 mb-1">
+<div className="bg-brand-primary/5 border border-brand-primary/20 rounded-lg p-4">
+                          <div className="flex items-start gap-3">
+                            <div className="bg-brand-primary/10 rounded-full p-2">
+                              <Settings className="text-brand-primary" size={20} />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-foreground mb-1">
                               Setup Your Own Custom Domain
                             </p>
-                            <p className="text-xs text-purple-700">
+                            <p className="text-xs text-brand-primary/90">
                               {isSubaccount 
                                 ? "Connect your own domain (e.g., mail.yourdomain.com). You'll need access to your domain's DNS settings."
                                 : "Connect your own domain(eg. mail.yourdomain.com). You'll need access to your domain's DNS settings."
@@ -888,7 +888,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
                                       {userDomains.map((integration) => (
                                         <div
                                           key={integration.id}
-                                          className="border border-gray-200 rounded-lg p-4 hover:border-purple-300 transition-colors"
+                                          className="border border-gray-200 rounded-lg p-4 hover:border-brand-primary/30 transition-colors"
                                         >
                                           <div className="flex items-center justify-between">
                                             <div className="flex-1">
@@ -924,7 +924,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
                                                 variant="outline"
                                                 size="sm"
                                                 onClick={() => setViewingDnsRecords(integration)}
-                                                className="border-purple-600 text-purple-600 hover:bg-purple-50"
+                                                className="border-brand-primary text-brand-primary hover:bg-brand-primary/10"
                                               >
                                                 <Eye size={14} className="mr-1" />
                                                 DNS
@@ -974,7 +974,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
                                         placeholder="mail.yourdomain.com"
                                         value={customDomain}
                                         onChange={(e) => setCustomDomain(e.target.value.toLowerCase().trim())}
-                                        className="mt-2 h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                        className="mt-2 h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
                                         autoComplete="off"
                                         onClick={(e) => {
                                           e.stopPropagation()
@@ -993,7 +993,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
                                         type="button"
                                         onClick={handleCreateCustomDomain}
                                         disabled={creatingDomain || !customDomain}
-                                        className="bg-purple-600 hover:bg-purple-700"
+                                        className="bg-brand-primary text-white hover:bg-brand-primary/90"
                                       >
                                         {creatingDomain ? 'Creating...' : 'Create Domain'}
                                       </Button>
@@ -1017,7 +1017,7 @@ const MailgunEmailRequest = ({ open, onClose, onSuccess, targetUserId }) => {
                           <Button
                             type="button"
                             onClick={() => setShowDomainSetup(true)}
-                            className="bg-purple-600 hover:bg-purple-700"
+                            className="bg-brand-primary text-white hover:bg-brand-primary/90"
                           >
                             <Settings size={16} className="mr-2" />
                             Start Domain Setup

@@ -150,15 +150,15 @@ function AgencyCancelConfirmation({
           >
             {confirmChecked ? (
               <div
-                className="bg-brand-primary flex flex-row items-center justify-center rounded"
+                className="bg-brand-primary flex flex-row items-center justify-center rounded border-2 border-brand-primary"
                 style={{ height: '20px', width: '20px' }}
               >
                 <Image
-                  src={'/assets/whiteTick.png'}
-                  height={8}
-                  width={10}
-                  alt="*"
-                  className="h-2 w-2.5"
+                  src="/assets/whiteTick.png"
+                  alt=""
+                  width={12}
+                  height={12}
+                  className="object-contain"
                 />
               </div>
             ) : (
