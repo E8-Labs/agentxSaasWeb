@@ -1146,24 +1146,24 @@ function Page() {
 
   // 🐢
   const TalkingPaceList = [
-    { id: 1, title: '💨 Fast', value: 'Fast' },
-    { id: 2, title: '⚖️ Balanced', value: 'Balanced' },
-    { id: 3, title: '🐢 Slow', value: 'Slow' },
+    { id: 1, title: '💨 Fast ~1.1', value: 'Fast' },
+    { id: 2, title: '⚖️ Balanced ~3.0', value: 'Balanced' },
+    { id: 3, title: '🐢 Slow ~0.9', value: 'Slow' },
   ]
   const ResponseSpeedList = [
     {
       id: 1,
-      title: '⚡️ Instant',
+      title: '⚡️ Instant ~100ms',
       value: 'Instant',
     },
     {
       id: 2,
-      title: '⏳ Short Pause',
+      title: '⏳ Short Pause ~400ms',
       value: 'Short Pause',
     },
     {
       id: 3,
-      title: '🧘 Delayed',
+      title: '🧘 Delayed ~600ms',
       value: 'Natural Conversation Flow',
     },
   ]

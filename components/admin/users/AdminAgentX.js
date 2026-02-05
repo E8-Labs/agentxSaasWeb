@@ -2332,7 +2332,6 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
     }
 
     window.addEventListener('refreshSelectedUser', handleRefreshSelectedUser)
-    setShowDrawerSelectedAgent(null);
     return () => {
       window.removeEventListener('refreshSelectedUser', handleRefreshSelectedUser)
     }
