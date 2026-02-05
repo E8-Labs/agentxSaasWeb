@@ -883,6 +883,10 @@ function EmailTempletePopup({
     setSaveEmailLoader(true)
     // Use tempName, newTemplateName, or generate a default name
     const finalTemplateName = tempName?.trim() || newTemplateName?.trim() || subject?.trim() || 'Email Template'
+    // templateType: when updating existing template keep 'user'; when creating new use checkbox
+    const templateTypeForNew = saveAsTemplate ? 'user' : 'auto'
+    const templateTypeForUpdate = 'user'
+
     let data = {
       communicationType: communicationType,
       subject: subject,
@@ -891,7 +895,7 @@ function EmailTempletePopup({
       bccEmails: bccEmails,
       attachments: attachments,
       templateName: finalTemplateName,
-      templateType: saveAsTemplate ? 'user' : 'auto', // Set templateType based on checkbox
+      templateType: templateTypeForNew,
     }
 
     // Add userId if selectedUser is provided (for agency/admin creating templates for subaccounts)
@@ -927,6 +931,7 @@ function EmailTempletePopup({
       return // Don't close modal yet, let the send function handle it
     }
 
+    // 1) Selected existing template, no changes, not editing → attach only (no API call)
     if (selectedTemp && !hasTemplateChanges && !isEditing) {
       response = {
         data: {
@@ -934,19 +939,32 @@ function EmailTempletePopup({
           data: selectedTemp, // Use the existing template
         },
       }
-    } else if (selectedTemp && isEditing) {
-      response = await updateTemplete(data, selectedTemp.id)
-    } else if (isEditing && !IsdefaultCadence) {
-      // Editing existing row's template
-      let id
-      if (selectedTemp) {
-        id = selectedTemp.id
+    }
+    // 2) Selected existing template while editing row
+    else if (selectedTemp && isEditing) {
+      if (saveAsTemplate) {
+        data.templateType = templateTypeForUpdate
+        response = await updateTemplete(data, selectedTemp.id)
+      } else if (!hasTemplateChanges) {
+        response = { data: { status: true, data: selectedTemp } }
       } else {
-        id = editingRow.templateId
+        data.templateType = 'auto'
+        response = await createTemplete(data)
       }
-
-      response = await updateTemplete(data, id)
-    } else {
+    }
+    // 3) Editing existing row's template (no template selected from list)
+    else if (isEditing && !IsdefaultCadence) {
+      const id = selectedTemp?.id ?? editingRow?.templateId
+      if (saveAsTemplate && id) {
+        data.templateType = templateTypeForUpdate
+        response = await updateTemplete(data, id)
+      } else {
+        data.templateType = 'auto'
+        response = await createTemplete(data)
+      }
+    }
+    // 4) New template
+    else {
       response = await createTemplete(data)
     }
 

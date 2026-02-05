@@ -1129,25 +1129,42 @@ const NewMessageModal = ({
           ? (emailSubject?.trim() || 'Email Template')
           : (actualMessageBody?.trim() ? actualMessageBody.trim().substring(0, 15) : 'SMS Template')
 
-        // Determine templateType based on saveAsTemplate checkbox
+        // Helper: check if current form content is unchanged from a template (for "attach only" case)
+        const isContentUnchangedFromTemplate = (tpl) => {
+          if (!tpl) return false
+          if (selectedMode === 'email') {
+            const subjectSame = (emailSubject || '').trim() === (tpl.subject || '').trim()
+            const bodySame = (actualMessageBody || '').trim() === (tpl.content || '').trim()
+            const ccParsed = Array.isArray(tpl.ccEmails) ? tpl.ccEmails : (typeof tpl.ccEmails === 'string' ? (() => { try { return JSON.parse(tpl.ccEmails || '[]') } catch { return [] } })() : [])
+            const bccParsed = Array.isArray(tpl.bccEmails) ? tpl.bccEmails : (typeof tpl.bccEmails === 'string' ? (() => { try { return JSON.parse(tpl.bccEmails || '[]') } catch { return [] } })() : [])
+            const ccSame = JSON.stringify(ccEmails || []) === JSON.stringify(ccParsed)
+            const bccSame = JSON.stringify(bccEmails || []) === JSON.stringify(bccParsed)
+            return subjectSame && bodySame && ccSame && bccSame
+          }
+          const bodySame = (actualMessageBody || '').trim() === (typeof tpl.content === 'string' ? stripHTML(tpl.content).trim() : '').trim()
+          return bodySame
+        }
+
+        // Determine templateType: when updating existing we keep 'user'; when creating new from "Update template" unchecked we use 'auto'
         const isUserTemplate = saveAsTemplate === true
-        const templateTypeValue = isUserTemplate ? 'user' : 'auto'
+        const templateTypeForNew = isUserTemplate ? 'user' : 'auto'
+        const templateTypeForUpdate = 'user' // When updating existing template, always keep it user-visible
 
         console.log('🔧 [Pipeline Mode] Template creation:', {
           saveAsTemplate,
           isUserTemplate,
-          templateTypeValue,
           templateName,
-          actualMessageBody: actualMessageBody?.substring(0, 20)
+          actualMessageBody: actualMessageBody?.substring(0, 20),
+          selectedTemplateId: selectedTemplate?.id,
+          isEditing,
+          editingRowTemplateId: editingRow?.templateId
         })
 
         let templateData = {
           communicationType: selectedMode,
           templateName: templateName,
           content: actualMessageBody || messageBody,
-          templateType: templateTypeValue, // Use checkbox value, not hardcoded 'user'
-          content: actualMessageBody || messageBody,
-          templateType: templateTypeValue, // Use checkbox value, not hardcoded 'user'
+          templateType: templateTypeForNew,
         }
 
         // Add email-specific fields
@@ -1171,50 +1188,65 @@ const NewMessageModal = ({
 
         let response = null
         let isUpdating = false
+        let attachOnlyTemplateId = null // When true, we skip API and use this template id for the row
 
-        // Priority 1: If user selected a template from dropdown, update that template
+        // --- Selected an existing template from dropdown ---
         if (selectedTemplate && selectedTemplate.id) {
-          // User selected a template - update it
-          isUpdating = true
-          console.log('🔧 [Pipeline Mode] Updating selected template:', {
-            templateId: selectedTemplate.id,
-            templateData: JSON.stringify(templateData, null, 2),
-            templateType: templateData.templateType
-          })
-          response = await updateTemplete(templateData, selectedTemplate.id)
+          if (saveAsTemplate) {
+            // 2) Update template checked: update existing template, keep templateType = 'user'
+            isUpdating = true
+            templateData.templateType = templateTypeForUpdate
+            console.log('🔧 [Pipeline Mode] Updating selected template (Update template checked), templateType=user')
+            response = await updateTemplete(templateData, selectedTemplate.id)
+          } else if (isContentUnchangedFromTemplate(selectedTemplate)) {
+            // 1) No changes: just attach template to cadence row (no API call)
+            attachOnlyTemplateId = selectedTemplate.id
+            console.log('🔧 [Pipeline Mode] Attach only: using selected template id', attachOnlyTemplateId)
+          } else {
+            // 3) Update template unchecked but content changed: create new template with templateType = 'auto'
+            isUpdating = false
+            templateData.templateType = 'auto'
+            console.log('🔧 [Pipeline Mode] Creating new template (content changed, Update template unchecked), templateType=auto')
+            response = await createTemplete(templateData)
+          }
         }
-        // Priority 2: If editing existing row and not default cadence, update the template
-        else if ((isEditing && editingRow?.templateId && !IsdefaultCadence)||selectedTemplate) {
-          // Update existing template (not default cadence)
-          isUpdating = true
-          console.log('🔧 [Pipeline Mode] Updating existing template:', {
-            templateId: editingRow.templateId,
-            templateData: JSON.stringify(templateData, null, 2),
-            templateType: templateData.templateType
-          })
-          let id = editingRow.templateId || selectedTemplate
-          response = await updateTemplete(templateData, id)
+        // --- Editing existing cadence row (no template selected from dropdown, or row had a template) ---
+        else if (isEditing && editingRow?.templateId && !IsdefaultCadence) {
+          if (saveAsTemplate) {
+            // Update existing row's template, keep templateType = 'user'
+            isUpdating = true
+            templateData.templateType = templateTypeForUpdate
+            console.log('🔧 [Pipeline Mode] Updating existing row template (Update template checked), templateType=user')
+            response = await updateTemplete(templateData, editingRow.templateId)
+          } else if (selectedTemplate && isContentUnchangedFromTemplate(selectedTemplate)) {
+            attachOnlyTemplateId = selectedTemplate.id
+            console.log('🔧 [Pipeline Mode] Attach only (editing row): using template id', attachOnlyTemplateId)
+          } else {
+            // Create new template with templateType = 'auto' and attach to row
+            isUpdating = false
+            templateData.templateType = 'auto'
+            console.log('🔧 [Pipeline Mode] Creating new template for edited row (Update template unchecked), templateType=auto')
+            response = await createTemplete(templateData)
+          }
         }
-        // Priority 3: Otherwise, create new template
+        // --- New row or default cadence: create template ---
         else {
-          // Create new template (either new or default cadence)
           isUpdating = false
-          console.log('🔧 [Pipeline Mode] About to call createTemplete with:', {
-            templateData: JSON.stringify(templateData, null, 2),
-            templateType: templateData.templateType,
-            saveAsTemplate
-          })
+          templateData.templateType = templateTypeForNew
+          console.log('🔧 [Pipeline Mode] Creating new template, templateType=', templateData.templateType)
           response = await createTemplete(templateData)
-          console.log('🔧 [Pipeline Mode] createTemplete response:', {
-            status: response?.data?.status,
-            templateType: response?.data?.data?.templateType
-          })
         }
 
-        if (response?.data?.status === true) {
-          const createdTemplate = response?.data?.data
+        if (attachOnlyTemplateId !== null || response?.data?.status === true) {
+          // Resolve template id: attach-only uses selected template id; otherwise use API response
+          const createdTemplate = attachOnlyTemplateId !== null
+            ? { id: attachOnlyTemplateId }
+            : response?.data?.data
+          const templateId = createdTemplate?.id
           let message = ''
-          if (!saveAsTemplate) {
+          if (attachOnlyTemplateId !== null) {
+            message = 'Template attached to stage'
+          } else if (!saveAsTemplate) {
             if (isUpdating) {
               message = `${selectedMode[0].toUpperCase() + selectedMode.slice(1)} updated successfully`
             } else {
@@ -1226,9 +1258,9 @@ const NewMessageModal = ({
           toast.success(message || response?.data?.message)
 
           // Call onSaveTemplate with template data for pipeline
-          if (onSaveTemplate) {
+          if (onSaveTemplate && templateId) {
             const pipelineData = {
-              templateId: createdTemplate.id,
+              templateId,
               communicationType: selectedMode,
             }
             if (selectedMode === 'email') {
