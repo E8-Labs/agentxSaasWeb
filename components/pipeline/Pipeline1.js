@@ -14,7 +14,7 @@ import axios from 'axios'
 import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import Body from '@/components/onboarding/Body'
 import Footer from '@/components/onboarding/Footer'
@@ -35,6 +35,13 @@ import AgentSelectSnackMessage, {
 } from '../dashboard/leads/AgentSelectSnackMessage'
 import PipelineStages from './PipelineStages'
 
+const EMPTY_CADENCE_SLICE = {
+  assignedLeads: {},
+  rowsByIndex: {},
+  nextStage: {},
+  selectedNextStage: {},
+}
+
 const Pipeline1 = ({
   handleContinue,
   stopLoaderTrigger = false,
@@ -53,17 +60,42 @@ const Pipeline1 = ({
   const [selectedPipelineStages, setSelectedPipelineStages] = useState([])
   const [oldStages, setOldStages] = useState([])
   const [pipelinesDetails, setPipelinesDetails] = useState([])
-  const [assignedLeads, setAssignedLeads] = useState({})
-  const [rowsByIndex, setRowsByIndex] = useState({})
+  // Per-pipeline cadence: { [pipelineId]: { assignedLeads, rowsByIndex, nextStage, selectedNextStage } }
+  const [cadenceByPipeline, setCadenceByPipeline] = useState({})
   const [createPipelineLoader, setPipelineLoader] = useState(false)
-
-  const [nextStage, setNextStage] = useState({})
-  const [selectedNextStage, setSelectedNextStage] = useState({})
 
   const [showRearrangeErr, setShowRearrangeErr] = useState(null)
 
-  // const [nextStage, setNextStage] = useState([]);
-  // const [selectedNextStage, setSelectedNextStage] = useState([]);
+  const pipelineId = selectedPipelineItem?.id
+  const currentCadence = useMemo(
+    () =>
+      pipelineId
+        ? {
+            ...EMPTY_CADENCE_SLICE,
+            ...cadenceByPipeline[pipelineId],
+          }
+        : EMPTY_CADENCE_SLICE,
+    [pipelineId, cadenceByPipeline],
+  )
+  const {
+    assignedLeads,
+    rowsByIndex,
+    nextStage,
+    selectedNextStage,
+  } = currentCadence
+
+  const updateCurrentPipelineCadence = (updater) => {
+    const id = selectedPipelineItem?.id
+    if (!id) return
+    setCadenceByPipeline((prev) => {
+      const current = prev[id] ?? EMPTY_CADENCE_SLICE
+      const updated = updater({ ...current })
+      return {
+        ...prev,
+        [id]: { ...EMPTY_CADENCE_SLICE, ...current, ...updated },
+      }
+    })
+  }
 
   const [reorderSuccessBarMessage, setReorderSuccessBarMessage] = useState(null)
   const [isVisibleSnack, setIsVisibleSnack] = useState(false)
@@ -182,22 +214,27 @@ const Pipeline1 = ({
               referencePoint: call.referencePoint || (isBookingStage ? 'before_meeting' : 'regular_calls'),
             }))
             if (cadence.moveToStage) {
-              const nextStage = selectedPipeline.stages.find(
+              const nextStageObj = selectedPipeline.stages.find(
                 (stage) => stage.id === cadence.moveToStage,
               )
-              if (nextStage) {
-                restoredNextStage[stageIndex] = nextStage
+              if (nextStageObj) {
+                restoredNextStage[stageIndex] = nextStageObj
                 // Also set the stage title for the dropdown
-                restoredNextStageTitles[stageIndex] = nextStage.stageTitle || nextStage.title
+                restoredNextStageTitles[stageIndex] = nextStageObj.stageTitle || nextStageObj.title
               }
             }
           }
         })
 
-        setAssignedLeads(restoredAssignedLeads)
-        setRowsByIndex(restoredRowsByIndex)
-        setSelectedNextStage(restoredNextStage)
-        setNextStage(restoredNextStageTitles) // Set dropdown values
+        setCadenceByPipeline((prev) => ({
+          ...prev,
+          [storedPipelineItem]: {
+            assignedLeads: restoredAssignedLeads,
+            rowsByIndex: restoredRowsByIndex,
+            nextStage: restoredNextStageTitles,
+            selectedNextStage: restoredNextStage,
+          },
+        }))
       } else {
         // //console.log;
       }
@@ -219,17 +256,11 @@ const Pipeline1 = ({
   }, [])
 
   useEffect(() => {
-    if (selectedPipelineItem && rowsByIndex) {
-      // //console.log;
-      setShouldContinue(false)
-      return
-    } else if (!selectedPipelineItem || !rowsByIndex) {
-      // //console.log;
-      setShouldContinue(true)
-    }
-
-    //// //console.log;
-  }, [selectedPipelineItem, selectedPipelineStages])
+    const hasAssignedStage =
+      selectedPipelineItem &&
+      Object.keys(assignedLeads).some((k) => assignedLeads[k])
+    setShouldContinue(!hasAssignedStage)
+  }, [selectedPipelineItem, assignedLeads])
 
   //code to raorder the stages list
 
@@ -362,44 +393,55 @@ const Pipeline1 = ({
   //code for selecting stages
 
   const assignNewStage = (index) => {
-    setAssignedLeads((prev) => ({ ...prev, [index]: true }))
-    setRowsByIndex((prev) => ({
-      ...prev,
-      [index]: [
-        { id: index, waitTimeDays: 0, waitTimeHours: 0, waitTimeMinutes: 0 },
-      ],
+    updateCurrentPipelineCadence((prev) => ({
+      assignedLeads: { ...prev.assignedLeads, [index]: true },
+      rowsByIndex: {
+        ...prev.rowsByIndex,
+        [index]: [
+          {
+            id: index,
+            waitTimeDays: 0,
+            waitTimeHours: 0,
+            waitTimeMinutes: 0,
+          },
+        ],
+      },
     }))
   }
 
   const handleUnAssignNewStage = (index) => {
-    setAssignedLeads((prev) => ({ ...prev, [index]: false }))
-    setRowsByIndex((prev) => {
-      const updatedRows = { ...prev }
+    updateCurrentPipelineCadence((prev) => {
+      const updatedRows = { ...prev.rowsByIndex }
       delete updatedRows[index]
-      return updatedRows
+      return {
+        assignedLeads: { ...prev.assignedLeads, [index]: false },
+        rowsByIndex: updatedRows,
+      }
     })
   }
 
   const handleInputChange = (leadIndex, rowId, field, value) => {
-    setRowsByIndex((prev) => ({
-      ...prev,
-      [leadIndex]: (prev[leadIndex] ?? []).map((row) =>
-        row.id === rowId 
-          ? { 
-              ...row, 
-              [field]: field === 'referencePoint' ? value : (Number(value) || 0) 
-            } 
-          : row,
-      ),
+    updateCurrentPipelineCadence((prev) => ({
+      rowsByIndex: {
+        ...prev.rowsByIndex,
+        [leadIndex]: (prev.rowsByIndex[leadIndex] ?? []).map((row) =>
+          row.id === rowId
+            ? {
+                ...row,
+                [field]:
+                  field === 'referencePoint' ? value : (Number(value) || 0),
+              }
+            : row,
+        ),
+      },
     }))
   }
 
   const addRow = (index, action = 'call', templateData = null) => {
-    setRowsByIndex((prev) => {
-      const list = prev[index] ?? []
+    updateCurrentPipelineCadence((prev) => {
+      const list = prev.rowsByIndex[index] ?? []
       const nextId = list.length ? list[list.length - 1].id + 1 : 1
 
-      // Check if this is a booking stage
       const currentStage = selectedPipelineStages[index]
       const isBookingStage = currentStage?.identifier === 'booked'
 
@@ -408,50 +450,48 @@ const Pipeline1 = ({
         waitTimeDays: 0,
         waitTimeHours: 0,
         waitTimeMinutes: 0,
-        action, // "call" | "sms" | "email"
-        communicationType: action, // Set communicationType to match action
-        referencePoint: isBookingStage ? 'before_meeting' : 'regular_calls', // Set default referencePoint
+        action,
+        communicationType: action,
+        referencePoint: isBookingStage ? 'before_meeting' : 'regular_calls',
       }
 
-      // Add template information for email and SMS actions
       if (templateData) {
-        // Add all template data to the row
         Object.keys(templateData).forEach((key) => {
           if (templateData[key] !== undefined) {
             newRow[key] = templateData[key]
           }
         })
-      } else {}
+      }
 
       return {
-        ...prev,
-        [index]: [...list, newRow],
+        rowsByIndex: {
+          ...prev.rowsByIndex,
+          [index]: [...list, newRow],
+        },
       }
     })
   }
 
   const removeRow = (leadIndex, rowId) => {
-    setRowsByIndex((prev) => ({
-      ...prev,
-      [leadIndex]: (prev[leadIndex] ?? []).filter((row) => row.id !== rowId),
+    updateCurrentPipelineCadence((prev) => ({
+      rowsByIndex: {
+        ...prev.rowsByIndex,
+        [leadIndex]: (prev.rowsByIndex[leadIndex] ?? []).filter(
+          (row) => row.id !== rowId,
+        ),
+      },
     }))
   }
 
   const updateRow = (leadIndex, rowId, updatedData) => {
-    setRowsByIndex((prev) => {
-      const updatedRows = {
-        ...prev,
-        [leadIndex]: (prev[leadIndex] ?? []).map((row) => {
-          if (row.id === rowId) {
-            const updatedRow = { ...row, ...updatedData }
-            return updatedRow
-          }
-          return row
-        }),
-      }
-
-      return updatedRows
-    })
+    updateCurrentPipelineCadence((prev) => ({
+      rowsByIndex: {
+        ...prev.rowsByIndex,
+        [leadIndex]: (prev.rowsByIndex[leadIndex] ?? []).map((row) =>
+          row.id === rowId ? { ...row, ...updatedData } : row,
+        ),
+      },
+    }))
   }
 
   const printAssignedLeadsData = async () => {
@@ -601,23 +641,13 @@ const Pipeline1 = ({
   const handleSelectNextChange = (index, event) => {
     const selectedValue = event.target.value
 
-    // Update the next stage for the specific index
-    setNextStage((prev) => ({
-      ...prev,
-      [index]: selectedValue,
-    }))
-
-    // Find the selected item for the specific index
     const selectedItem = selectedPipelineStages.find(
       (item) => item.stageTitle === selectedValue,
     )
 
-    // //console.log;
-
-    // Update the selected next stage for the specific index
-    setSelectedNextStage((prev) => ({
-      ...prev,
-      [index]: selectedItem,
+    updateCurrentPipelineCadence((prev) => ({
+      nextStage: { ...prev.nextStage, [index]: selectedValue },
+      selectedNextStage: { ...prev.selectedNextStage, [index]: selectedItem },
     }))
   }
 
