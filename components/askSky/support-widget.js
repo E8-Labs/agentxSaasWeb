@@ -12,7 +12,7 @@ import PhoneInput from 'react-phone-input-2'
 import { GetHelpBtn } from '../animations/DashboardSlider'
 import Apis from '../apis/Apis'
 import { ChatInterface } from './askskycomponents/chat-interface'
-import { API_KEY, DEFAULT_ASSISTANT_ID } from './constants'
+import { API_KEY, ASSIGNX_URL, DEFAULT_ASSISTANT_ID } from './constants'
 import { VoiceInterface } from './voice-interface'
 
 export function SupportWidget({
@@ -445,6 +445,39 @@ export function SupportWidget({
     })
   }
 
+  // Embed branding: AssignX logo for main AgentX users, agency logo for subaccount agents
+  const poweredByProps = (() => {
+    if (!isEmbed) return {}
+    const userRole = agentUserDetails?.user?.userRole
+    const agencyBranding = agentUserDetails?.agencyBranding
+    if (userRole === 'AgentX') {
+      return {
+        poweredByLogoUrl: '/assets/assignX.png',
+        poweredByLink: ASSIGNX_URL,
+        poweredByAlt: 'AssignX',
+      }
+    }
+    if (agencyBranding) {
+      const link = agencyBranding.customDomain
+        ? `https://${agencyBranding.customDomain}/`
+        : (agencyBranding.website || '#')
+      if (agencyBranding.logoUrl) {
+        return {
+          poweredByLogoUrl: agencyBranding.logoUrl,
+          poweredByLink: link,
+          poweredByAlt: agencyBranding.companyName || 'Agency',
+        }
+      }
+      if (agencyBranding.companyName) {
+        return {
+          poweredByLink: link,
+          poweredByText: agencyBranding.companyName,
+        }
+      }
+    }
+    return {}
+  })()
+
   return (
     <div className="fixed bottom-0 right-0 z-modal flex flex-col items-end justify-end max-w-full max-h-full">
       <div
@@ -478,6 +511,7 @@ export function SupportWidget({
               loading={loading}
               loadingMessage={loadingMessage}
               isSpeaking={isSpeaking}
+              {...poweredByProps}
             />
           ) : chatOpen ? (
             <ChatInterface
