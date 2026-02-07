@@ -94,7 +94,7 @@ const AiChatModal = ({
   const [isLoadingHistory, setIsLoadingHistory] = useState(false)
   const [aiKeyError, setAiKeyError] = useState(false)
   const [agentsList, setAgentsList] = useState([]) // from API: array of { id: mainAgentId, name, agents: [{ id: agentId, name, ... }] }
-  const [selectedAgentId, setSelectedAgentId] = useState(null) // AgentModel.id (sub-agent)
+  const [selectedAgentId, setSelectedAgentId] = useState(null) // AgentModel.id (sub-agent), loaded from message settings (DB)
   const [agentsLoading, setAgentsLoading] = useState(false)
   const messagesEndRef = useRef(null)
   const aiEditorRef = useRef(null)
@@ -148,6 +148,33 @@ const AiChatModal = ({
   useEffect(() => {
     if (open) loadAgents()
   }, [open, loadAgents])
+
+  // When modal opens, load persisted AI chat agent from message settings (DB)
+  const loadMessageSettingsForAgent = useCallback(async () => {
+    if (!open) return
+    const token = getAuthToken()
+    if (!token) return
+    try {
+      const res = await fetch(Apis.getMessageSettings, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      const data = await res.json()
+      if (data?.status && data?.data) {
+        const id = data.data.aiChatSelectedAgentId
+        setSelectedAgentId(id === undefined || id === null ? null : id)
+      }
+    } catch (error) {
+      console.error('Error loading message settings for AI chat agent:', error)
+    }
+  }, [open])
+
+  useEffect(() => {
+    if (open) loadMessageSettingsForAgent()
+  }, [open, loadMessageSettingsForAgent])
 
 
   // Get auth token from localStorage (same as other API calls)
@@ -208,12 +235,11 @@ const AiChatModal = ({
     }
   }, [open, parentMessageId, loadChatHistory])
 
-  // Reset state when modal closes
+  // Reset state when modal closes (keep selectedAgentId so it persists for next open)
   const handleClose = () => {
     setInputValue('')
     setMessages([])
     setAiKeyError(false)
-    setSelectedAgentId(null)
     onClose()
   }
 
@@ -228,23 +254,54 @@ const AiChatModal = ({
     )
   }, [agentsList])
 
+  // Persist selected AI chat agent to message settings (DB)
+  const persistAgentSelectionToDb = useCallback(async (agentId) => {
+    const token = getAuthToken()
+    if (!token) return
+    try {
+      const res = await fetch(Apis.updateMessageSettings, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          aiChatSelectedAgentId: agentId === null || agentId === undefined ? null : agentId,
+        }),
+      })
+      const data = await res.json()
+      if (!data?.status) {
+        toast.error(data?.message || 'Failed to save agent preference')
+      }
+    } catch (error) {
+      console.error('Error saving AI chat agent preference:', error)
+      toast.error('Failed to save agent preference')
+    }
+  }, [])
+
   const agentDropdownOptions = React.useMemo(() => {
     const defaultOpt = {
       label: 'Default prompt',
       value: '__default__',
-      onSelect: () => setSelectedAgentId(null),
+      onSelect: () => {
+        setSelectedAgentId(null)
+        persistAgentSelectionToDb(null)
+      },
     }
     const agentOpts = flatAgentsList.map((agent) => ({
       label: agent.name,
       value: agent.id,
-      onSelect: () => setSelectedAgentId(agent.id),
+      onSelect: () => {
+        setSelectedAgentId(agent.id)
+        persistAgentSelectionToDb(agent.id)
+      },
     }))
     return [defaultOpt, ...agentOpts]
-  }, [flatAgentsList])
+  }, [flatAgentsList, persistAgentSelectionToDb])
 
   const agentDropdownLabel =
     selectedAgentId != null
-      ? (flatAgentsList.find((a) => a.id === selectedAgentId)?.name ?? 'Select agent')
+      ? (flatAgentsList.find((a) => a.id == selectedAgentId)?.name ?? 'Select agent')
       : agentsList.length === 0 && !agentsLoading
         ? 'No agents'
         : 'Select agent'

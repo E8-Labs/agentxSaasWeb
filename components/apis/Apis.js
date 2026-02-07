@@ -269,6 +269,8 @@ const Apis = {
   deleteMailgunIntegration: `${BasePath}api/mailgun/integration`,
   requestMailgunEmail: `${BasePath}api/mail/request-mailgun-email`,
   assignMailgunEmail: `${BasePath}api/mail/assign-mailgun-email`,
+  getMessageSettings: `${BasePath}api/mail/settings`,
+  updateMessageSettings: `${BasePath}api/mail/settings`,
   a2pNumbers: `${BasePath}api/agent/getA2PVerifiedNumbers`,
 
   agencyActivityData: `${BasePath}api/admin/stats`,
