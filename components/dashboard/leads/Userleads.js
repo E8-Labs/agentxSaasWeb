@@ -1150,9 +1150,9 @@ const Userleads = ({
       //////console.log;
 
       //   const id = currentSheet.id;
-      //   let stageIds = selectedStage.map((stage) => stage.id);
-      //   const stages = stageIds.join(",");
-      //   //////console.log;
+      let uniqueTags = filterTags.map((tag) => tag);
+      const uniqueTagsString = uniqueTags.join(",");
+      console.log("Filter tags list is", uniqueTagsString);
       let ApiPath = null
       console.log("Filter text is", filterText);
       if (filterText) {
@@ -1161,13 +1161,16 @@ const Userleads = ({
         if (nextCursorValue && nextCursorValue != 'undefined') {
           ApiPath = ApiPath + `&id=${nextCursorValue}`
         }
+        if (filterTags.length > 0) {
+          ApiPath = ApiPath + '&tags=' + uniqueTagsString;
+        }
       } else {
         if (nextCursorValue == 0) {
           getLocallyCachedLeads()
         }
         ApiPath = `${Apis.getLeads}?sheetId=${SelectedSheetId}&id=${nextCursorValue}`
       }
-
+      console.log("Api path for filter is", ApiPath);
       // return
       const response = await axios.get(ApiPath, {
         headers: {
