@@ -26,6 +26,7 @@ import {
 
 import { Input } from '@/components/ui/input'
 import CloseBtn from '../globalExtras/CloseBtn'
+import AgentSelectSnackMessage, { SnackbarTypes } from '../dashboard/leads/AgentSelectSnackMessage'
 
 // Predefined idle messages
 const IDLE_MESSAGES = [
@@ -60,6 +61,8 @@ const AdvancedSettingsModalCN = ({
   const initMaxDuration = initialValues.maxDurationSeconds ?? 600
   const initIdleTimeout = initialValues.idleTimeoutSeconds ?? 10
   const initIdleMessage = initialValues.idleMessage ?? IDLE_MESSAGES[0]
+  //code for snackbar
+  const [isVisibleSnack, setIsVisibleSnack] = useState(false)
 
   useEffect(() => {
     if (open) {
@@ -105,9 +108,18 @@ const AdvancedSettingsModalCN = ({
     setMaxDurationSeconds(value)
   }
 
+  const isMinimumTimeValid = (value) => {
+    if (value < 10) {
+      setIsVisibleSnack(true)
+    } else if (value >= 10) {
+      setIsVisibleSnack(false)
+    }
+  }
+
   const handleIdleTimeoutChange = (e) => {
     const value = e.target.value === '' ? '' : parseInt(e.target.value, 10)
     setIdleTimeoutSeconds(value)
+    isMinimumTimeValid(value);
   }
 
   return (
@@ -139,6 +151,17 @@ const AdvancedSettingsModalCN = ({
       >
         {/* Header */}
 
+        <div>
+          <AgentSelectSnackMessage
+            isVisible={isVisibleSnack}
+            type={SnackbarTypes.Error}
+            message={`Minimum time of the call can’t be less than 10 seconds`}
+            hide={() => {
+              setIsVisibleSnack(false)
+            }}
+          />
+        </div>
+
         <div className='flex flex-row items-center justify-between z-1750'>
           <Typography
             variant="h5"
@@ -149,7 +172,7 @@ const AdvancedSettingsModalCN = ({
           </Typography>
 
           <CloseBtn
-            onClick={()=>{
+            onClick={() => {
               console.log("clicked")
               onOpenChange(false)
             }}
@@ -262,13 +285,13 @@ const AdvancedSettingsModalCN = ({
             justifyContent: 'flex-end',
           }}
         >
-        <Button
-        onClick={handleSave}
-        disabled={loading || !isValid()}
-        className="bg-brand-primary hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        {loading ? 'Saving...' : 'Save Changes'}
-      </Button>
+          <Button
+            onClick={handleSave}
+            disabled={loading || !isValid()}
+            className="bg-brand-primary hover:bg-brand-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {loading ? 'Saving...' : 'Save Changes'}
+          </Button>
         </Box>
       </Box>
     </Modal>
