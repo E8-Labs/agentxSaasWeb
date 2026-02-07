@@ -108,6 +108,7 @@ const PipelineAndStage = ({
 
       if (response) {
         setAgentCadence(response.data.data)
+        console.log("agent cadence data is", response.data.data)
       }
     } catch (error) {
       // console.error("Error occured in get cadence api is:", error);
@@ -123,6 +124,15 @@ const PipelineAndStage = ({
       return 'then Send Email'
     } else if (cadence.communicationType === 'sms') {
       return 'then Send SMS'
+    }
+  }
+
+  //booking time status text
+  const decideTextToShowForBookingTimeStatus = (cadence) => {
+    if (cadence.referencePoint === "after_booking") {
+      return "after meeting"
+    } else if (cadence.referencePoint === "before_meeting") {
+      return "before meeting"
     }
   }
 
@@ -467,7 +477,7 @@ const PipelineAndStage = ({
                                 </div>
                               </div>
                               <div>
-                                , {decideTextToShowForCadenceType(item)}
+                                {decideTextToShowForBookingTimeStatus(item)}, {decideTextToShowForCadenceType(item)}
                               </div>
                             </div>
                           </div>
