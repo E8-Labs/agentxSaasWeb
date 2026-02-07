@@ -582,10 +582,12 @@ const AgentsListPaginated = ({
                     <button
                       type="button"
                       onClick={() => {
-                        setStatsModalAgentId(item.id)
-                        setStatsModalType('hotleads')
-                        setStatsModalAgentName(item.name || '')
-                        setStatsModalOpen(true)
+                        setImportantCallsModalContext({
+                          agentId: item.id,
+                          type: 'hotleads',
+                          agentName: item.name || '',
+                        })
+                        setImportantCallsModalOpen(true)
                       }}
                       className="flex flex-col items-start gap-2 cursor-pointer hover:opacity-80 transition-opacity text-left border-0 bg-transparent p-0"
                       style={{ minWidth: 0 }}
