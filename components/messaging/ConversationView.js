@@ -14,6 +14,7 @@ const ConversationView = ({
   messagesEndRef,
   messagesTopRef,
   sanitizeHTML,
+  sanitizeHTMLForEmailBody,
   getLeadName,
   getAgentAvatar,
   getImageUrl,
@@ -324,6 +325,7 @@ const ConversationView = ({
                               message={message}
                               isOutbound={isOutbound}
                               sanitizeHTML={sanitizeHTML}
+                              sanitizeHTMLForEmailBody={sanitizeHTMLForEmailBody}
                               openEmailDetailId={openEmailDetailId}
                               setOpenEmailDetailId={setOpenEmailDetailId}
                               getEmailDetails={getEmailDetails}
