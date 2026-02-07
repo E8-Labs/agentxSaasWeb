@@ -487,7 +487,9 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
 
       const ApiPath = Apis.asignPhoneNumber
 
-      for (let [key, value] of formData.entries()) {}
+      for (let [key, value] of formData.entries()) {
+        // console.log(`key: ${key}, value: ${value}`);
+      }
       // return;
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -725,6 +727,7 @@ const CreateAgent4 = ({ handleContinue, handleBack }) => {
                                   e.stopPropagation()
                                   setShowConfirmationModal(item)
                                 } else {
+                                  setSelectNumber(item.phoneNumber)
                                   AssignNumber()
                                 }
                               }}
