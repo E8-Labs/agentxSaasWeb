@@ -1551,6 +1551,33 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
     })
   }
 
+  // Sanitize HTML for email body while preserving rich formatting (bold, lists, links).
+  // Skips removeQuotedText so we don't strip HTML to plain text; use for outbound/composer-sent emails.
+  const sanitizeHTMLForEmailBody = (html) => {
+    if (typeof window === 'undefined') return html
+    if (!html) return ''
+    let processedContent = html || ''
+    processedContent = processedContent.replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+    if (!/<[^>]+>/.test(processedContent) && processedContent.includes('\n')) {
+      processedContent = processedContent.replace(/\n/g, '<br>')
+    } else if (processedContent.includes('\n')) {
+      processedContent = processedContent.replace(/\n/g, '<br>')
+    }
+    processedContent = processedContent.replace(/<div[^>]*>([^<]+)<\/div>/gi, '$1<br>')
+    processedContent = processedContent.replace(/<\/div>\s*<div[^>]*>/gi, '<br>')
+    processedContent = processedContent.replace(/<div[^>]*><\/div>/gi, '')
+    processedContent = processedContent.replace(/<div[^>]*><div[^>]*>([^<>]+)<\/div><\/div>/gi, '$1<br>')
+    processedContent = processedContent.replace(/<div[^>]*><\/div>/gi, '')
+    processedContent = processedContent.replace(/<br>\s*$/gi, '')
+    processedContent = processedContent.replace(/\n/g, '<br>')
+    processedContent = processedContent.replace(/(<br>\s*){3,}/gi, '<br><br>')
+    return DOMPurify.sanitize(processedContent, {
+      ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'span', 'h2', 'h3', 'h4', 'div'],
+      ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+      KEEP_CONTENT: true,
+    })
+  }
+
   // Helper function to normalize email subject for threading
   const normalizeSubject = (subject) => {
     if (!subject) return ''
@@ -2886,6 +2913,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                       messagesEndRef={messagesEndRef}
                       messagesTopRef={messagesTopRef}
                       sanitizeHTML={sanitizeHTML}
+                      sanitizeHTMLForEmailBody={sanitizeHTMLForEmailBody}
                       getLeadName={getLeadName}
                       getAgentAvatar={getAgentAvatar}
                       getImageUrl={getImageUrl}

@@ -6,6 +6,7 @@ const EmailBubble = ({
   message,
   isOutbound,
   sanitizeHTML,
+  sanitizeHTMLForEmailBody,
   openEmailDetailId,
   setOpenEmailDetailId,
   getEmailDetails,
@@ -121,13 +122,26 @@ const EmailBubble = ({
         </div>
       )}
       <div
-        className={`prose prose-sm max-w-none break-words ${isOutbound
+        className={`prose prose-sm max-w-none break-words
+          [&_p]:!mt-0 [&_p]:!mb-[0.35em] [&_p]:!leading-snug
+          [&_ul]:!my-[0.35em] [&_ul]:!pl-[1.25em] [&_ul]:!list-disc
+          [&_ol]:!my-[0.35em] [&_ol]:!pl-[1.25em]
+          [&_li]:!my-[0.15em]
+          ${isOutbound
           ? 'text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_p]:!text-white [&_strong]:!text-white [&_em]:!text-white [&_a]:!text-white [&_a:hover]:!text-white/80 [&_ul]:!text-white [&_ol]:!text-white [&_li]:!text-white [&_span]:!text-white [&_*]:!text-white'
           : 'text-black'
           }`}
         style={isOutbound ? { color: 'white' } : {}}
         dangerouslySetInnerHTML={{
-          __html: sanitizeAndLinkifyHTML(message.content, sanitizeHTML),
+          __html: (() => {
+            const content = message.content || ''
+            // Use formatting-preserving sanitizer when available (keeps bold, lists, links)
+            if (sanitizeHTMLForEmailBody) {
+              return sanitizeHTMLForEmailBody(content)
+            }
+            // Fallback: plain text linkify and line breaks
+            return sanitizeAndLinkifyHTML(content, sanitizeHTML)
+          })(),
         }}
       />
 
