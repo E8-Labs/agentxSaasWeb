@@ -667,14 +667,14 @@ export const GetHelpBtn = ({
       className="flex flex-row bg-white items-center pe-4 ps-4 py-2 rounded-full shadow-md relative overflow-hidden"
       onClick={handleReopen}
     >
-      {/* Stars */}
-      <Image
+      {/* Stars<Image
         src="/otherAssets/getHelpStars.png"
         height={20}
         width={20}
         alt="Stars"
         className="absolute top-0 left-12 z-10 bg-transparent"
-      />
+      /> */}
+      
 
       {/* Orb */}
       <div className="relative z-0 bg-white shadow-lg rounded-full w-[46px] h-[46px] overflow-hidden flex-shrink-0">
