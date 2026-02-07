@@ -15,6 +15,7 @@ import AgentSelectSnackMessage, {
 } from '../leads/AgentSelectSnackMessage'
 import { UpdateCadenceConfirmationPopup } from './UpdateCadenceConfirmationPopup'
 import { useUser } from '@/hooks/redux-hooks'
+import { AuthToken } from '@/components/agency/plan/AuthDetails'
 
 const PipelineAndStage = ({
   selectedAgent,
@@ -42,8 +43,30 @@ const PipelineAndStage = ({
 
   const [showConfirmationPopup, setShowConfirmationPopup] = useState(false)
 
+  //fetch agent details state
+  const [agentDetails, setAgentDetails] = useState(null)
+  const [agentDetailsLoading, setAgentDetailsLoading] = useState(false);
+
+  //eventlistener
   useEffect(() => {
-    console.log("Main agent passed to Pipeline And Stages", mainAgent)
+    const handleRefreshSelectedUser = (event) => {
+      console.log("Event listener trigered for refreshing the pipeline and stages", event.detail)
+      const { userId, userData } = event.detail || {}
+      fetchAgentDetails()
+      if (selectedAgent.agentType !== 'inbound') {
+        handleGetCadence()
+      }
+    }
+
+    window.addEventListener('refreshSelectedUser', handleRefreshSelectedUser)
+    return () => {
+      window.removeEventListener('refreshSelectedUser', handleRefreshSelectedUser)
+    }
+  }, [selectedUser]);
+
+  useEffect(() => {
+    console.log("Main agent passed to Pipeline And Stages", mainAgent);
+    fetchAgentDetails();
     if (selectedAgent.agentType !== 'inbound') {
       handleGetCadence()
     }
@@ -65,6 +88,31 @@ const PipelineAndStage = ({
         return [...prevIds, stage.cadence.id]
       }
     })
+  }
+
+  //fetch agent details
+  const fetchAgentDetails = async () => {
+    try {
+      setAgentDetailsLoading(true);
+      const Token = AuthToken();
+      // console.log(Token);
+      const ApiPath = Apis.getAgentDetails + '?mainAgentId=' + mainAgent?.id
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: 'Bearer ' + Token,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response) {
+        if (response.data.status === true) {
+          setAgentDetails(response.data.data)
+        }
+      }
+    } catch (error) {
+      console.log("Error occured in fetching agent details api is", error)
+    } finally {
+      setAgentDetailsLoading(false);
+    }
   }
 
   //funciton to call get cadence api
@@ -108,6 +156,7 @@ const PipelineAndStage = ({
 
       if (response) {
         setAgentCadence(response.data.data)
+        console.log("agent cadence data is", response.data.data)
       }
     } catch (error) {
       // console.error("Error occured in get cadence api is:", error);
@@ -123,6 +172,15 @@ const PipelineAndStage = ({
       return 'then Send Email'
     } else if (cadence.communicationType === 'sms') {
       return 'then Send SMS'
+    }
+  }
+
+  //booking time status text
+  const decideTextToShowForBookingTimeStatus = (cadence) => {
+    if (cadence.referencePoint === "after_booking") {
+      return "after meeting"
+    } else if (cadence.referencePoint === "before_meeting") {
+      return "before meeting"
     }
   }
 
@@ -178,7 +236,8 @@ const PipelineAndStage = ({
     if (reduxUser) {
       const userType = reduxUser?.userType
       const userRole = reduxUser?.userRole
-      isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
+      const TeamFor = reduxUser?.teamFor
+      isAdminOrAgency = userType === 'admin' || userRole === 'Agency' || TeamFor === "Agency"
     }
 
     // Fallback to localStorage if Redux doesn't have the data
@@ -189,7 +248,8 @@ const PipelineAndStage = ({
           const parsedUser = JSON.parse(localUserData)
           const userType = parsedUser?.user?.userType || parsedUser?.userType
           const userRole = parsedUser?.user?.userRole || parsedUser?.userRole
-          isAdminOrAgency = userType === 'admin' || userRole === 'Agency'
+          const TeamFor = parsedUser?.user?.teamFor || parsedUser?.teamFor
+          isAdminOrAgency = userType === 'admin' || userRole === 'Agency' || TeamFor === "Agency"
         }
       } catch (error) { }
     }
@@ -335,7 +395,14 @@ const PipelineAndStage = ({
           {/* <Image src={"/svgIcons/infoIcon.svg"} height={20} width={20} alt='*' /> */}
         </div>
         <div style={styles.paragraph}>
-          {mainAgent?.pipeline?.title ? mainAgent?.pipeline?.title : '-'}
+          {/*
+            {mainAgent?.pipeline?.title ? mainAgent?.pipeline?.title : '-'}
+          */}
+          {agentDetailsLoading ? (
+            <CircularProgress size={25} />
+          ) : (
+            <div>{agentDetails?.pipeline ? agentDetails?.pipeline?.title : '-'}</div>
+          )}
         </div>
       </div>
 
@@ -467,7 +534,7 @@ const PipelineAndStage = ({
                                 </div>
                               </div>
                               <div>
-                                , {decideTextToShowForCadenceType(item)}
+                                {decideTextToShowForBookingTimeStatus(item)}, {decideTextToShowForCadenceType(item)}
                               </div>
                             </div>
                           </div>
