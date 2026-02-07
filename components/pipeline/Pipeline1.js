@@ -189,7 +189,8 @@ const Pipeline1 = ({
       )
 
       if (selectedPipeline) {
-        // //console.log;
+        // console.log("Pipeline stages1 are ", selectedPipeline.stages);
+        // console.log("Pipeline indentifier1 are ", selectedPipeline);
         setSelectedPipelineItem(selectedPipeline)
         setSelectedPipelineStages(selectedPipeline.stages)
 
@@ -356,6 +357,8 @@ const Pipeline1 = ({
         setSelectPipleLine(pipelineToSelect.title)
         setSelectedPipelineItem(pipelineToSelect)
         setSelectedPipelineStages(pipelineToSelect.stages)
+        // console.log("Pipeline stages2 are ", pipelineToSelect.stages);
+        // console.log("Pipeline indentifier2 are ", pipelineToSelect);
         setOldStages(pipelineToSelect.stages)
         localStorage.setItem(
           'pipelinesData',
@@ -635,6 +638,8 @@ const Pipeline1 = ({
     // //console.log;
     setSelectedPipelineItem(selectedItem)
     setSelectedPipelineStages(selectedItem.stages)
+    // console.log("Pipeline stages3 are ", selectedItem.stages);
+    // console.log("Pipeline indentifier3 are ", selectedItem);
     setOldStages(selectedItem.stages)
   }
 
@@ -718,6 +723,8 @@ const Pipeline1 = ({
     }
     setSelectedPipelineItem(pipeline)
     setSelectedPipelineStages(pipeline.stages)
+    // console.log("Pipeline stages4 are ", pipeline.stages);
+    // console.log("Pipeline indentifier4 are ", pipeline);
     setPipelinesDetails(pipelines)
   }
 
