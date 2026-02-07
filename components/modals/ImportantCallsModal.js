@@ -489,7 +489,7 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
                                 <div className="flex flex-col gap-2 items-start">
                                   <div className="flex flex-row gap-2 items-center">
                                     <div
-                                      className="h-[27px] w-[27px] items-center justify-center pt-[2px] rounded-full bg-black text-white"
+                                      className="h-[27px] w-[27px] items-center justify-center text-center pt-[2px] rounded-full bg-black text-white"
                                       style={{ fontSize: 15, fontWeight: '500' }}
                                     >
                                       {(lead?.firstName || '?')[0]}

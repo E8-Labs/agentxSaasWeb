@@ -190,7 +190,6 @@ const PipelineStages = ({
     },
   ]
 
-
   // Check email capability based on user type
   const checkEmailCapability = () => {
     // For AgentX users (not subaccounts)
@@ -1618,7 +1617,7 @@ const PipelineStages = ({
 
                       {index > 0 &&
                         !isInboundAgent &&
-                        item.stageTitle !== 'Booked' && (
+                        (item.stageTitle === 'Booked' || (selectedPipelineItem?.pipelineType === "agency_use" && (item.stageTitle === 'account_created' || item.stageTitle === 'on_trial' || item.stageTitle === 'paying' || item.stageTitle === 'cancelled'))) && (
                           <div className="w-full flex flex-row items-center justify-end mt-2">
                             <button
                               className="flex flex-row items-center gap-1"
