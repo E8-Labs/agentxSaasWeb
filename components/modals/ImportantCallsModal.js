@@ -138,7 +138,9 @@ function ImportantCallsModal({ open, close, onClose, agentId, type, agentName })
       setAgentStatsTotal(0)
       setAgentStatsOffset(0)
       fetchAgentCallsByType(true)
+      console.log("agent stats calls", agentStatsCalls)
     } else {
+      console.log("important calls")
       getImportantCalls()
     }
   }, [open, agentId, type])

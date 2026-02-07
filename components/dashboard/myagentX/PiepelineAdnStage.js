@@ -171,7 +171,7 @@ const PipelineAndStage = ({
     } else if (cadence.communicationType === 'email') {
       return 'then Send Email'
     } else if (cadence.communicationType === 'sms') {
-      return 'then Send SMS'
+      return 'then Send Text'
     }
   }
 

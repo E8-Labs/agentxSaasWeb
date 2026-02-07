@@ -3407,6 +3407,13 @@ function Page() {
 
   //function to add new agent - Combined Redux + localStorage logic
   const handleAddNewAgent = (event) => {
+
+    const isFromAdminOrAgency = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency);
+    if (isFromAdminOrAgency) {
+      localStorage.removeItem(PersistanceKeys.isFromAdminOrAgency);
+      console.log("Admin agency removed");
+    } else { console.log("No admin agency"); }
+
     if (!isPlanActive(reduxUser?.plan)) {
       setShowErrorSnack('Your plan is paused. Activate to create agents')
       setIsVisibleSnack2(true)

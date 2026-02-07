@@ -260,6 +260,7 @@ const Pipeline1 = ({
     const hasAssignedStage =
       selectedPipelineItem &&
       Object.keys(assignedLeads).some((k) => assignedLeads[k])
+      // Agent needs to be assigned to a pipeline and stage.
     setShouldContinue(!hasAssignedStage)
   }, [selectedPipelineItem, assignedLeads])
 
