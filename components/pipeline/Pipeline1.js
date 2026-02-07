@@ -63,7 +63,7 @@ const Pipeline1 = ({
   // Per-pipeline cadence: { [pipelineId]: { assignedLeads, rowsByIndex, nextStage, selectedNextStage } }
   const [cadenceByPipeline, setCadenceByPipeline] = useState({})
   const [createPipelineLoader, setPipelineLoader] = useState(false)
-
+  const [isInboundAgent, setIsInboundAgent] = useState(false)
   const [showRearrangeErr, setShowRearrangeErr] = useState(null)
 
   const pipelineId = selectedPipelineItem?.id
@@ -71,9 +71,9 @@ const Pipeline1 = ({
     () =>
       pipelineId
         ? {
-            ...EMPTY_CADENCE_SLICE,
-            ...cadenceByPipeline[pipelineId],
-          }
+          ...EMPTY_CADENCE_SLICE,
+          ...cadenceByPipeline[pipelineId],
+        }
         : EMPTY_CADENCE_SLICE,
     [pipelineId, cadenceByPipeline],
   )
@@ -118,7 +118,7 @@ const Pipeline1 = ({
         const userData = localStorage.getItem('User')
         let isSub = false
         let hasLogo = false
-        
+
         if (userData) {
           const parsedUser = JSON.parse(userData)
           isSub =
@@ -133,11 +133,11 @@ const Pipeline1 = ({
         if (storedBranding) {
           try {
             branding = JSON.parse(storedBranding)
-          } catch (error) {}
+          } catch (error) { }
         }
 
         // Also check user data for agencyBranding
-        if ( userData) {
+        if (userData) {
           try {
             const parsedUser = JSON.parse(userData)
             if (parsedUser?.user?.agencyBranding) {
@@ -147,7 +147,7 @@ const Pipeline1 = ({
             } else if (parsedUser?.user?.agency?.agencyBranding) {
               branding = parsedUser.user.agency.agencyBranding
             }
-          } catch (error) {}
+          } catch (error) { }
         }
 
         hasLogo = !!branding?.logoUrl
@@ -155,7 +155,7 @@ const Pipeline1 = ({
 
         // Show orb if: not subaccount OR (subaccount but no logo)
         setShowOrb(!isSub || (isSub && !hasLogo))
-      } catch (error) {}
+      } catch (error) { }
     }
   }, [])
 
@@ -254,14 +254,40 @@ const Pipeline1 = ({
     //    // //console.log;
     // }
     getPipelines()
+
+    const agentDetails = localStorage.getItem('agentDetails')
+    if (agentDetails && agentDetails != 'undefined') {
+      const agentData = JSON.parse(agentDetails)
+      // //console.log;
+      if (agentData?.agentType === 'inbound') {
+        console.log("agent type is ", agentData?.agentType);
+        setIsInboundAgent(true)
+      } else {
+        if (agentData?.agents?.length > 1) {
+          // //console.log;
+          setIsInboundAgent(false)
+        } else {
+          if (agentData?.agents?.[0]?.agentType === 'inbound') {
+            setIsInboundAgent(true)
+          } else {
+            setIsInboundAgent(false)
+          }
+        }
+      }
+    }
+
   }, [])
 
   useEffect(() => {
     const hasAssignedStage =
       selectedPipelineItem &&
       Object.keys(assignedLeads).some((k) => assignedLeads[k])
-      // Agent needs to be assigned to a pipeline and stage.
-    setShouldContinue(!hasAssignedStage)
+    // Agent needs to be assigned to a pipeline and stage.
+    if (isInboundAgent) {
+      setShouldContinue(false)
+    } else {
+      setShouldContinue(!hasAssignedStage)
+    }
   }, [selectedPipelineItem, assignedLeads])
 
   //code to raorder the stages list
@@ -343,16 +369,16 @@ const Pipeline1 = ({
           try {
             const localCadenceDetails = JSON.parse(localCadences)
             const storedPipelineId = localCadenceDetails.pipelineID
-            
+
             // Find the pipeline that matches the stored cadence
             const matchingPipeline = response.data.data.find(
               (pipeline) => pipeline.id === storedPipelineId,
             )
-            
+
             if (matchingPipeline) {
               pipelineToSelect = matchingPipeline
             }
-          } catch (error) {}
+          } catch (error) { }
         }
 
         setSelectPipleLine(pipelineToSelect.title)
@@ -366,7 +392,7 @@ const Pipeline1 = ({
           JSON.stringify(response.data.data),
         )
       }
-    } catch (error) {} finally {
+    } catch (error) { } finally {
       // //console.log;
     }
   }
@@ -431,10 +457,10 @@ const Pipeline1 = ({
         [leadIndex]: (prev.rowsByIndex[leadIndex] ?? []).map((row) =>
           row.id === rowId
             ? {
-                ...row,
-                [field]:
-                  field === 'referencePoint' ? value : (Number(value) || 0),
-              }
+              ...row,
+              [field]:
+                field === 'referencePoint' ? value : (Number(value) || 0),
+            }
             : row,
         ),
       },
@@ -839,7 +865,7 @@ const Pipeline1 = ({
             />
           </div>
 
-          <div 
+          <div
             className="flex flex-col items-center px-4 w-full flex-1 min-h-0 overflow-hidden"
           >
 
