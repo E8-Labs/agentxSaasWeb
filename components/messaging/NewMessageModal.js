@@ -2830,7 +2830,7 @@ const NewMessageModal = ({
                   </>
                 ) : (
                   <>
-                    {isPipelineMode ? ((isEditing && !IsdefaultCadence) ?  'Update' : 'Save') : selectedTemplate ? "Update" : 'Send'}
+                    {isPipelineMode ? ((isEditing && !IsdefaultCadence) ?  'Update' : 'Save') : selectedTemplate ? "Update" : selectedMode === 'sms' ? 'Send' : 'Send email'}
                     {!isPipelineMode && <PaperPlaneTilt size={16} />}
                   </>
                 )}
