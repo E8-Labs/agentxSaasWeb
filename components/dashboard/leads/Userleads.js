@@ -217,6 +217,11 @@ const Userleads = ({
   const [selectedSmartList, setSelectedSmartList] = useState(null)
   const [dropdownOpen, setDropdownOpen] = useState({})
 
+  //code for edit smart list
+  const [editSmartListLoader, setEditSmartListLoader] = useState(false)
+  const [showEditSmartList, setShowEditSmartList] = useState(false)
+  const [selectedSmartListForEdit, setSelectedSmartListForEdit] = useState(null)
+
   //code for passing columns
   const [Columns, setColumns] = useState(null)
 
@@ -1615,7 +1620,7 @@ const Userleads = ({
       })
 
       if (response) {
-        //////console.log;
+        console.log("response of get sheets", response.data);
         if (response.data.data.length === 0) {
           handleShowUserLeads(null)
         } else {
@@ -2462,6 +2467,35 @@ const Userleads = ({
                             className="w-[120px]"
                           >
                             <DropdownMenuItem
+                              className="text-black focus:text-purple cursor-pointer"
+                              onSelect={(e) => {
+                                e.preventDefault()
+                                setShowEditSmartList(true);
+                                setSelectedSmartListForEdit(item);
+                                console.log("selectedSmartListForEdit", item);
+                              }}
+                              disabled={editSmartListLoader}
+                            >
+                              {editSmartListLoader ? (
+                                <CircularProgress
+                                  size={15}
+                                  sx={{ color: 'hsl(var(--brand-primary))' }}
+                                  className="mr-2"
+                                />
+                              ) : (
+                                <Image
+                                  className='mr-2'
+                                  src={'/assets/editPen.png'}
+                                  height={15}
+                                  width={15}
+                                  alt="*"
+                                />
+                              )}
+                              <span style={{ fontWeight: '500', fontSize: 16 }}>
+                                Edit
+                              </span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
                               className="text-red focus:text-red cursor-pointer"
                               onSelect={(e) => {
                                 e.preventDefault()
@@ -2990,6 +3024,23 @@ const Userleads = ({
                   setSheetsList([...SheetsList, newSmartlist])
                 }}
               />
+
+              {showEditSmartList && (
+                <CreateSmartlistModal
+                  open={showEditSmartList}
+                  onClose={() => {
+                    setShowEditSmartList(false)
+                    setSelectedSmartListForEdit(null)
+                  }}
+                  onSuccess={(newSmartlist) => {
+                    setSheetsList(SheetsList.map(item => item.id === selectedSmartListForEdit.id ? newSmartlist : item))
+                    setShowEditSmartList(false)
+                    setSelectedSmartListForEdit(null)
+                  }}
+                  isEditSmartList={true}
+                  selectedSmartList={selectedSmartListForEdit}
+                />
+              )}
             </div>
           </div>
 
