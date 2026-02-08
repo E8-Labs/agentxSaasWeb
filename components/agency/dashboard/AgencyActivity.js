@@ -113,7 +113,7 @@ function AgencyActivity({ user, selectedAgency }) {
   //All bottom cards >2 agents, >1 pipelines etc
   function GetStatView(title, percentage, count, icon) {
     return (
-      <Card className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center   ">
+      <Card className="cursor-pointer bg-transparent shadow-none rounded-none border border-[#EFEFEF] py-4 px-3 flex flex-col items-center w-[250px] min-w-[250px] hover:bg-black/[0.02] transition-colors">
         <TopVoicesModal
           topVoices={stats?.topVoices || []}
           open={showAllVoices}
@@ -129,80 +129,78 @@ function AgencyActivity({ user, selectedAgency }) {
           }}
           from="agency"
         />
-        <div className="cursor-pointer flex items-start  justify-between w-full  mb-2">
+        <div className="cursor-pointer flex flex-row items-start w-full gap-2">
           <img
-            src={`${icon}`} //"/mt2agentsicon.png"
+            src={`${icon}`}
             alt="Icon"
-            className="cursor-pointer h-20  -ml-2 -mt-3"
+            className="cursor-pointer w-12 h-12 flex-shrink-0 object-contain"
           />
-          {/* Show both count and percentage when both are valid (including count=0) */}
-          {(typeof count === 'number' ||
-            (count !== '' && count !== null && count !== undefined)) &&
-            percentage !== '' &&
-            percentage !== null &&
-            percentage !== undefined && (
-              <div className="cursor-pointer flex flex-col mr-2 items-end">
-                <div
-                  className="cursor-pointer font-light"
+          <div className="cursor-pointer flex flex-col flex-1 min-w-0 items-start gap-1">
+            <p className="cursor-pointer font-semibold mt-2 mb-1 text-sm">{title}</p>
+            {/* Show both count and percentage when both are valid (including count=0) */}
+            {(typeof count === 'number' ||
+              (count !== '' && count !== null && count !== undefined)) &&
+              percentage !== '' &&
+              percentage !== null &&
+              percentage !== undefined && (
+                <div className="cursor-pointer flex flex-col items-start">
+                  <div
+className="cursor-pointer font-medium text-2xl"
                   style={{
                     fontFamily: 'Inter',
-                    fontSize: 23,
-                    fontWeight: 'bold',
+                    fontSize: 24,
+                    fontWeight: 500,
                   }}
                 >
                   {count}
-                </div>
-                <p className="cursor-pointer text-gray-500 text-lg font-light">
-                  {percentage}%
-                </p>
-              </div>
-            )}
-          {/* Show single value (count or percentage) when only one exists */}
-          {(!(
-            typeof count === 'number' ||
-            (count !== '' && count !== null && count !== undefined)
-          ) ||
-            !(
-              percentage !== '' &&
-              percentage !== null &&
-              percentage !== undefined
-            )) && (
-            <div className="cursor-pointer flex flex-col mr-2 items-end">
-              <h2
-                className="cursor-pointer font-light"
-                style={{
-                  fontFamily: 'Inter',
-                  fontSize: 23,
-                  fontWeight: 'bold',
-                }}
-              >
-                {typeof count === 'number' ||
-                (count !== '' && count !== null && count !== undefined)
-                  ? count
-                  : percentage}
-                {!(
-                  typeof count === 'number' ||
-                  (count !== '' && count !== null && count !== undefined)
-                )
-                  ? '%'
-                  : ''}
-              </h2>
-              {/* Only show percentage below if we're showing count above */}
-              {(typeof count === 'number' ||
-                (count !== '' && count !== null && count !== undefined)) &&
-                percentage !== '' &&
-                percentage !== null &&
-                percentage !== undefined && (
-                  <p className="cursor-pointer text-gray-500 text-lg">
+                  </div>
+                  <p className="cursor-pointer text-gray-500 text-sm font-light">
                     {percentage}%
                   </p>
-                )}
-            </div>
-          )}
-        </div>
-
-        <div className="cursor-pointer flex flex-row items-start w-full pl-3">
-          <p className="cursor-pointer font-semibold mt-2 mb-2">{title}</p>
+                </div>
+              )}
+            {/* Show single value (count or percentage) when only one exists */}
+            {(!(
+              typeof count === 'number' ||
+              (count !== '' && count !== null && count !== undefined)
+            ) ||
+              !(
+                percentage !== '' &&
+                percentage !== null &&
+                percentage !== undefined
+              )) && (
+              <div className="cursor-pointer flex flex-col items-start">
+                <h2
+                  className="cursor-pointer font-medium text-2xl"
+                  style={{
+                    fontFamily: 'Inter',
+                    fontSize: 24,
+                    fontWeight: 500,
+                  }}
+                >
+                  {typeof count === 'number' ||
+                  (count !== '' && count !== null && count !== undefined)
+                    ? count
+                    : percentage}
+                  {!(
+                    typeof count === 'number' ||
+                    (count !== '' && count !== null && count !== undefined)
+                  )
+                    ? '%'
+                    : ''}
+                </h2>
+                {(typeof count === 'number' ||
+                  (count !== '' && count !== null && count !== undefined)) &&
+                  percentage !== '' &&
+                  percentage !== null &&
+                  percentage !== undefined && (
+<p className="cursor-pointer text-gray-500 text-sm">
+                    {percentage}%
+                  </p>
+                  )}
+              </div>
+            )}
+          </div>
         </div>
       </Card>
     )
@@ -214,7 +212,7 @@ function AgencyActivity({ user, selectedAgency }) {
     </div>
   ) : stats?.totalUsers > 0 ? (
     <div
-      className="flex flex-col justify-start items-start pl-10 h-[90svh] gap-3 pb-8 max-w-[1300px] w-full mx-auto"
+      className="flex flex-col justify-start items-start h-[90svh] gap-3 pb-8 max-w-[1300px] w-full mx-auto m-3"
       style={{ overflow: 'auto', scrollbarWidth: 'none' }}
     >
       {/*  Stats  */}
@@ -258,7 +256,7 @@ function AgencyActivity({ user, selectedAgency }) {
 
       {/*  DAU MAU  */}
       <div
-        className=" cursor-pointer grid gap-6 grid-cols-4 md:grid-cols-4 lg:grid-cols-4 px-8 rounded-lg w-[96%]"
+        className=" cursor-pointer grid gap-6 grid-cols-4 md:grid-cols-4 lg:grid-cols-4 px-8 py-4 rounded-lg w-[96%]"
         style={{
           backgroundImage:
             process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
@@ -269,61 +267,61 @@ function AgencyActivity({ user, selectedAgency }) {
         }}
       >
         {/* Top Metrics */}
-        <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[18.5vw] bg-transparent text-white">
-          <CardHeader>
+        <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[18.5vw] bg-transparent text-white gap-3">
+          <CardHeader className="p-0">
             <CardTitle>Daily Active Users</CardTitle>
           </CardHeader>
-          <CardContent>
-            <h2 className="cursor-pointer text-2xl font-bold">
+          <CardContent className="p-0">
+            <h2 className="cursor-pointer text-2xl font-semibold">
               {stats?.activeUsers?.DAU?.count || '-'}
             </h2>
           </CardContent>
-          <CardContent>
+          <CardContent className="p-0">
             <h2 className="cursor-pointer text-lg text-gray-300 font-bold">
               {stats?.activeUsers?.DAU?.percentage || 0}%
             </h2>
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none  w-[16vw] bg-transparent text-white">
-          <CardHeader>
+        <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none  w-[16vw] bg-transparent text-white gap-3">
+          <CardHeader className="p-0">
             <CardTitle>Avg Weekly Sign Ups</CardTitle>
           </CardHeader>
-          <CardContent>
-            <h2 className="cursor-pointer text-2xl font-bold">
+          <CardContent className="p-0">
+            <h2 className="cursor-pointer text-2xl font-semibold">
               {stats?.weeklySignups}
             </h2>
             {/* <Progress value={27} /> */}
           </CardContent>
-          <CardContent>
+          <CardContent className="p-0">
             <h2 className="cursor-pointer text-lg text-gray-300 font-bold">
               {stats?.weeklySignupsPercentage || 0}%
             </h2>
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[16vw] bg-transparent text-white">
-          <CardHeader>
+        <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[16vw] bg-transparent text-white gap-3">
+          <CardHeader className="p-0">
             <CardTitle>Monthly Active Users</CardTitle>
           </CardHeader>
-          <CardContent>
-            <h2 className="cursor-pointer text-2xl font-bold">
+          <CardContent className="p-0">
+            <h2 className="cursor-pointer text-2xl font-semibold">
               {stats?.activeUsers?.MAU?.count || '-'}
             </h2>
           </CardContent>
-          <CardContent>
+          <CardContent className="p-0">
             <h2 className="cursor-pointer text-lg text-gray-300 font-bold">
               {stats?.activeUsers.MAU.percentage || 0}%
             </h2>
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[16vw] bg-transparent text-white">
-          <CardHeader>
+        <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[16vw] bg-transparent text-white gap-3">
+          <CardHeader className="p-0">
             <CardTitle>Session Length</CardTitle>
           </CardHeader>
-          <CardContent>
-            <h2 className="cursor-pointer text-2xl font-bold">
+          <CardContent className="p-0">
+            <h2 className="cursor-pointer text-2xl font-semibold">
               {stats?.avgSessionDuration || '0 min'}
             </h2>
             {/* <Progress value={48} /> */}
@@ -398,7 +396,7 @@ function AgencyActivity({ user, selectedAgency }) {
       </div>
       {/* </div> */}
 
-      <div className=" grid gap-3 grid-cols-5 md:grid-cols-5 lg:grid-cols-5  rounded-lg w-[96%]">
+      <div className=" grid gap-[-1px] grid-cols-5 md:grid-cols-5 lg:grid-cols-5 rounded-lg w-[96%]">
         {/* Top Metrics */}
         <button
           onClick={() => {
@@ -526,23 +524,23 @@ function VoicesComponent({
       color = 'bg-pink-500/80'
     }
     return (
-      <Card className="cursor-pointer  h-[160px] border-white relative  border border-white shadow-[0px_4px_31.5px_0px_rgba(121,2,223,0.04)] rounded-2xl p-6 flex flex-col items-center text-center bg-white/60 overflow-hidden">
+      <Card className="cursor-pointer h-[192px] border-white relative border border-white shadow-[0px_4px_31.5px_0px_rgba(121,2,223,0.04)] rounded-2xl p-6 flex flex-col items-center text-center bg-white/60 overflow-hidden">
         <div
           className={`cursor-pointer absolute top-0 left-1/2 transform -translate-x-1/2 w-28 h-20 ${color} rounded-full blur-2xl`}
         />
-        <div className="cursor-pointer relative w-16 h-16 mb-4 ">
+        <div className="cursor-pointer relative w-20 h-20 mb-4">
           <div className="cursor-pointer -top-[15px] absolute left-1/2 transform -translate-x-1/2 inset-0 bg-white/40 w-12 h-12 rounded-full backdrop-blur-md" />
-          <Avatar className="cursor-pointer w-9 h-9 absolute  left-1/2 transform -translate-x-1/2 top-1/3 transform -translate-y-1/3">
+          <Avatar className="cursor-pointer w-11 h-11 absolute left-1/2 transform -translate-x-1/2 top-1/3 transform -translate-y-1/3">
             <AvatarImage
               src={FindVoice(voiceIds[index].voiceId).img}
               alt="User"
             />
           </Avatar>
         </div>
-        <h2 className="cursor-pointer mt-4 text-black text-2xl font-medium leading-snug">
+        <h2 className="cursor-pointer mt-4 text-black text-base font-medium leading-snug">
           {FindVoice(voiceIds[index].voiceId).name}
         </h2>
-        <p className="cursor-pointer mt-4 text-black opacity-60 text-md font-medium leading-tight">
+        <p className="cursor-pointer mt-4 text-black opacity-60 text-sm font-medium leading-tight">
           {voiceIds[index].count} agents
         </p>
       </Card>
@@ -551,15 +549,15 @@ function VoicesComponent({
 
   return (
     <div className=" grid gap-3 grid-cols-6 md:grid-cols-6 lg:grid-cols-6  bg-white pt-2 rounded-lg ">
-      <Card className="cursor-pointer border-none flex flex-col items-center justify-center shadow-none w-[13vw]">
+      <Card className="cursor-pointer border-none flex flex-col items-center justify-center shadow-none w-[150px] min-w-[150px]">
         <CardContent>
-          <h2 className="cursor-pointer text-2xl font-regular">Top</h2>
+          <h2 className="cursor-pointer text-base font-medium">Top</h2>
         </CardContent>
         <CardContent>
           <h1 className="cursor-pointer text-4xl font-regular">3</h1>
         </CardContent>
         <CardContent>
-          <h2 className="cursor-pointer text-2xl font-regular">Voices</h2>
+          <h2 className="cursor-pointer text-sm font-regular">Voices</h2>
         </CardContent>
       </Card>
 
@@ -692,7 +690,7 @@ function SubscriptionsStatsComponent({ stats, plans, onViewPlan }) {
         {/* Scrollable Container */}
         <div
           ref={scrollContainerRef}
-          className="plans-scroll-container flex gap-3 overflow-x-auto p-3"
+          className="plans-scroll-container flex gap-3 overflow-x-auto py-3"
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
@@ -747,9 +745,9 @@ function SubscriptionsStatsComponent({ stats, plans, onViewPlan }) {
               </CardHeader>
               <div className="flex flex-col gap-1">
                 <CardContent className="p-0">
-                  <h2 className="cursor-pointer text-base font-medium">
-                    {data.count}
-                  </h2>
+<h2 className="cursor-pointer text-2xl font-medium">
+                  {data.count}
+                </h2>
                 </CardContent>
                 <CardContent className="p-0">
                   <p className="cursor-pointer text-sm font-regular text-gray-500">
