@@ -702,7 +702,7 @@ const PipelineStages = ({
     // //console.log;
     setPipelineStages(updatedStages)
     onUpdateOrder(updatedStages)
-    handleReOrder()
+    handleReorder(updatedStages)
   }
 
   //functions to move to stage after deleting one

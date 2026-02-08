@@ -686,10 +686,11 @@ const Pipeline1 = ({
   }
 
   //code to rearrange stages list
-  const handleReorder = async () => {
+  const handleReorder = async (stagesToUse = null) => {
     try {
       setReorderLoader(true)
-      const updateStages = selectedPipelineStages.map((stage, index) => ({
+      const sourceStages = stagesToUse ?? selectedPipelineStages
+      const updateStages = sourceStages.map((stage, index) => ({
         id: stage.id,
         order: stage.order,
       }))
