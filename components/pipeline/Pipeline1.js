@@ -695,7 +695,7 @@ const Pipeline1 = ({
         order: stage.order,
       }))
 
-      // //console.log;
+      console.log("updateStages reorder Selected pipeline stages are", updateStages);
 
       const ApiPath = Apis.reorderStages
       let AuthToken = null
