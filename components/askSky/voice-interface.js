@@ -7,7 +7,7 @@ import { MYAGENTX_URL } from './constants'
 import { useUser } from '@/hooks/redux-hooks'
 import { useEffect } from 'react'
 
-const DEFAULT_LOGO_SRC = '/agentx-logo.png'
+const DEFAULT_LOGO_SRC = "/assets/assignX.png"  //'/agentx-logo.png'
 const DEFAULT_LOGO_ALT = 'AgentX Logo'
 
 export function VoiceInterface({
@@ -70,7 +70,7 @@ export function VoiceInterface({
         userRole === 'AgentX' && (
           <div className="relative w-2/3 flex flex-col h-5 items-center justify-center gap-6 z-10">
             <div className="h-full flex justify-center items-center gap-1">
-              <p className="text-xs">Powered by</p>
+              <p className="text-xs pt-1">Powered by</p>
               <a
                 href={link}
                 target="_blank"
