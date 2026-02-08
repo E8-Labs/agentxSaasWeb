@@ -193,7 +193,7 @@ const Pipeline1 = ({
         // console.log("Pipeline indentifier1 are ", selectedPipeline);
         setSelectedPipelineItem(selectedPipeline)
         setSelectedPipelineStages(selectedPipeline.stages)
-
+        console.log("From useEffect Selected pipeline stages are", selectedPipeline.stages);
         // Restore assigned leads and rows by index
         const restoredAssignedLeads = {}
         const restoredRowsByIndex = {}
@@ -384,6 +384,7 @@ const Pipeline1 = ({
         setSelectPipleLine(pipelineToSelect.title)
         setSelectedPipelineItem(pipelineToSelect)
         setSelectedPipelineStages(pipelineToSelect.stages)
+        console.log("From api Selected pipeline stages are", pipelineToSelect.stages);
         // console.log("Pipeline stages2 are ", pipelineToSelect.stages);
         // console.log("Pipeline indentifier2 are ", pipelineToSelect);
         setOldStages(pipelineToSelect.stages)
@@ -665,6 +666,7 @@ const Pipeline1 = ({
     // //console.log;
     setSelectedPipelineItem(selectedItem)
     setSelectedPipelineStages(selectedItem.stages)
+    console.log("From handleSelectPipleLine Selected pipeline stages are", selectedItem.stages);
     // console.log("Pipeline stages3 are ", selectedItem.stages);
     // console.log("Pipeline indentifier3 are ", selectedItem);
     setOldStages(selectedItem.stages)
@@ -750,6 +752,7 @@ const Pipeline1 = ({
     }
     setSelectedPipelineItem(pipeline)
     setSelectedPipelineStages(pipeline.stages)
+    console.log("From onNewStageCreated Selected pipeline stages are", pipeline.stages);
     // console.log("Pipeline stages4 are ", pipeline.stages);
     // console.log("Pipeline indentifier4 are ", pipeline);
     setPipelinesDetails(pipelines)

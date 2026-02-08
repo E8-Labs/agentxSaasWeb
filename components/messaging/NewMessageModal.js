@@ -20,7 +20,7 @@ import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
 import UpgardView from '@/constants/UpgardView'
 import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
 import { Paperclip, X as XIcon, MessageCircleMore, Mail, AlertTriangle, ChevronDown, Trash2 } from 'lucide-react'
-import { FormControl, MenuItem, Select } from '@mui/material'
+import { FormControl, ListSubheader, MenuItem, Select } from '@mui/material'
 import { useUser } from '@/hooks/redux-hooks'
 import ToggleGroupCN from '@/components/ui/ToggleGroupCN'
 import SplitButtonCN from '@/components/ui/SplitButtonCN'
@@ -151,8 +151,14 @@ const NewMessageModal = ({
   const [selectedVariable, setSelectedVariable] = useState('')
   const [selectedSubjectVariable, setSelectedSubjectVariable] = useState('')
   const [selectedSmsVariable, setSelectedSmsVariable] = useState('')
+  const [smsVariableSearchQuery, setSmsVariableSearchQuery] = useState('')
+  const [subjectVariableSearchQuery, setSubjectVariableSearchQuery] = useState('')
+  const [variableSearchQuery, setVariableSearchQuery] = useState('')
   const [attachments, setAttachments] = useState([])
   const smsTextareaRef = useRef(null)
+  const smsVariableSearchInputRef = useRef(null)
+  const subjectVariableSearchInputRef = useRef(null)
+  const variableSearchInputRef = useRef(null)
   const [templates, setTemplates] = useState([])
   const [templatesLoading, setTemplatesLoading] = useState(false)
   const [deletingEmailAccountId, setDeletingEmailAccountId] = useState(null)
@@ -610,6 +616,28 @@ const NewMessageModal = ({
       setUserData(user)
     }
   }, [open])
+
+  // Keep focus on Variables search input when query changes (prevents MUI Menu from stealing focus on backspace/typing)
+  useEffect(() => {
+    const id = setTimeout(() => {
+      smsVariableSearchInputRef.current?.focus()
+    }, 0)
+    return () => clearTimeout(id)
+  }, [smsVariableSearchQuery])
+
+  useEffect(() => {
+    const id = setTimeout(() => {
+      subjectVariableSearchInputRef.current?.focus()
+    }, 0)
+    return () => clearTimeout(id)
+  }, [subjectVariableSearchQuery])
+
+  useEffect(() => {
+    const id = setTimeout(() => {
+      variableSearchInputRef.current?.focus()
+    }, 0)
+    return () => clearTimeout(id)
+  }, [variableSearchQuery])
 
   // Fetch unique columns for variables
   const fetchUniqueColumns = async () => {
@@ -2328,6 +2356,7 @@ const NewMessageModal = ({
                               <FormControl size="small" sx={{ minWidth: 150, height: '42px' }}>
                                 <Select
                                   value={selectedSubjectVariable}
+                                  onOpen={() => setSubjectVariableSearchQuery('')}
                                   onChange={(e) => {
                                     const value = e.target.value
                                     setSelectedSubjectVariable('')
@@ -2354,6 +2383,7 @@ const NewMessageModal = ({
                                       style: {
                                         zIndex: 1800,
                                       },
+                                      autoFocus: false,
                                     },
                                     style: {
                                       zIndex: 1800,
@@ -2386,16 +2416,43 @@ const NewMessageModal = ({
                                   <MenuItem value="" disabled>
                                     <em>Variables</em>
                                   </MenuItem>
-                                  {uniqueColumns.map((variable, index) => {
-                                    const displayText = variable.startsWith('{') && variable.endsWith('}')
-                                      ? variable
-                                      : `{${variable}}`
-                                    return (
-                                      <MenuItem key={index} value={variable}>
-                                        {displayText}
-                                      </MenuItem>
-                                    )
-                                  })}
+                                  <ListSubheader className="sticky top-0 bg-white z-10 pb-2 pt-1">
+                                    <div onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+                                      <Input
+                                        ref={subjectVariableSearchInputRef}
+                                        placeholder="Search variables..."
+                                        value={subjectVariableSearchQuery}
+                                        onChange={(e) => setSubjectVariableSearchQuery(e.target.value)}
+                                        className="h-9 text-sm border border-gray-200 rounded-md px-2 w-full focus-visible:ring-2 focus-visible:ring-brand-primary"
+                                        style={{ borderColor: '#E2E8F0', borderWidth: '1px' }}
+                                      />
+                                    </div>
+                                  </ListSubheader>
+                                  {(() => {
+                                    const filtered = uniqueColumns.filter((variable) => {
+                                      const displayText = variable.startsWith('{') && variable.endsWith('}')
+                                        ? variable
+                                        : `{${variable}}`
+                                      return displayText.toLowerCase().includes(subjectVariableSearchQuery.trim().toLowerCase())
+                                    })
+                                    if (subjectVariableSearchQuery.trim() && filtered.length === 0) {
+                                      return (
+                                        <MenuItem disabled>
+                                          <span className="text-muted-foreground">No variables match</span>
+                                        </MenuItem>
+                                      )
+                                    }
+                                    return filtered.map((variable, index) => {
+                                      const displayText = variable.startsWith('{') && variable.endsWith('}')
+                                        ? variable
+                                        : `{${variable}}`
+                                      return (
+                                        <MenuItem key={index} value={variable}>
+                                          {displayText}
+                                        </MenuItem>
+                                      )
+                                    })
+                                  })()}
                                 </Select>
                               </FormControl>
                             )}
@@ -2517,6 +2574,7 @@ const NewMessageModal = ({
                               <FormControl size="small" sx={{ minWidth: 150 }}>
                                 <Select
                                   value={selectedVariable}
+                                  onOpen={() => setVariableSearchQuery('')}
                                   onChange={(e) => {
                                     const value = e.target.value
                                     setSelectedVariable('')
@@ -2540,6 +2598,7 @@ const NewMessageModal = ({
                                       style: {
                                         zIndex: 1800,
                                       },
+                                      autoFocus: false,
                                     },
                                     style: {
                                       zIndex: 1800,
@@ -2566,16 +2625,43 @@ const NewMessageModal = ({
                                   <MenuItem value="" disabled>
                                     <em>Variables</em>
                                   </MenuItem>
-                                  {uniqueColumns.map((variable, index) => {
-                                    const displayText = variable.startsWith('{') && variable.endsWith('}')
-                                      ? variable
-                                      : `{${variable}}`
-                                    return (
-                                      <MenuItem key={index} value={variable}>
-                                        {displayText}
-                                      </MenuItem>
-                                    )
-                                  })}
+                                  <ListSubheader className="sticky top-0 bg-white z-10 pb-2 pt-1">
+                                    <div onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+                                      <Input
+                                        ref={variableSearchInputRef}
+                                        placeholder="Search variables..."
+                                        value={variableSearchQuery}
+                                        onChange={(e) => setVariableSearchQuery(e.target.value)}
+                                        className="h-9 text-sm border border-gray-200 rounded-md px-2 w-full focus-visible:ring-2 focus-visible:ring-brand-primary"
+                                        style={{ borderColor: '#E2E8F0', borderWidth: '1px' }}
+                                      />
+                                    </div>
+                                  </ListSubheader>
+                                  {(() => {
+                                    const filtered = uniqueColumns.filter((variable) => {
+                                      const displayText = variable.startsWith('{') && variable.endsWith('}')
+                                        ? variable
+                                        : `{${variable}}`
+                                      return displayText.toLowerCase().includes(variableSearchQuery.trim().toLowerCase())
+                                    })
+                                    if (variableSearchQuery.trim() && filtered.length === 0) {
+                                      return (
+                                        <MenuItem disabled>
+                                          <span className="text-muted-foreground">No variables match</span>
+                                        </MenuItem>
+                                      )
+                                    }
+                                    return filtered.map((variable, index) => {
+                                      const displayText = variable.startsWith('{') && variable.endsWith('}')
+                                        ? variable
+                                        : `{${variable}}`
+                                      return (
+                                        <MenuItem key={index} value={variable}>
+                                          {displayText}
+                                        </MenuItem>
+                                      )
+                                    })
+                                  })()}
                                 </Select>
                               </FormControl>
                             ) : null
@@ -2603,6 +2689,7 @@ const NewMessageModal = ({
                               <FormControl size="small" sx={{ minWidth: 150 }}>
                                 <Select
                                   value={selectedSmsVariable}
+                                  onOpen={() => setSmsVariableSearchQuery('')}
                                   onChange={(e) => {
                                     const value = e.target.value
                                     setSelectedSmsVariable('')
@@ -2644,6 +2731,7 @@ const NewMessageModal = ({
                                       style: {
                                         zIndex: 1800,
                                       },
+                                      autoFocus: false,
                                     },
                                     style: {
                                       zIndex: 1800,
@@ -2672,16 +2760,43 @@ const NewMessageModal = ({
                                   <MenuItem value="" disabled>
                                     <em>Variables</em>
                                   </MenuItem>
-                                  {uniqueColumns.map((variable, index) => {
-                                    const displayText = variable.startsWith('{') && variable.endsWith('}')
-                                      ? variable
-                                      : `{${variable}}`
-                                    return (
-                                      <MenuItem key={index} value={variable}>
-                                        {displayText}
-                                      </MenuItem>
-                                    )
-                                  })}
+                                  <ListSubheader className="sticky top-0 bg-white z-10 pb-2 pt-1">
+                                    <div onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+                                      <Input
+                                        ref={smsVariableSearchInputRef}
+                                        placeholder="Search variables..."
+                                        value={smsVariableSearchQuery}
+                                        onChange={(e) => setSmsVariableSearchQuery(e.target.value)}
+                                        className="h-9 text-sm border border-gray-200 rounded-md px-2 w-full focus-visible:ring-2 focus-visible:ring-brand-primary"
+                                        style={{ borderColor: '#E2E8F0', borderWidth: '1px' }}
+                                      />
+                                    </div>
+                                  </ListSubheader>
+                                  {(() => {
+                                    const filtered = uniqueColumns.filter((variable) => {
+                                      const displayText = variable.startsWith('{') && variable.endsWith('}')
+                                        ? variable
+                                        : `{${variable}}`
+                                      return displayText.toLowerCase().includes(smsVariableSearchQuery.trim().toLowerCase())
+                                    })
+                                    if (smsVariableSearchQuery.trim() && filtered.length === 0) {
+                                      return (
+                                        <MenuItem disabled>
+                                          <span className="text-muted-foreground">No variables match</span>
+                                        </MenuItem>
+                                      )
+                                    }
+                                    return filtered.map((variable, index) => {
+                                      const displayText = variable.startsWith('{') && variable.endsWith('}')
+                                        ? variable
+                                        : `{${variable}}`
+                                      return (
+                                        <MenuItem key={index} value={variable}>
+                                          {displayText}
+                                        </MenuItem>
+                                      )
+                                    })
+                                  })()}
                                 </Select>
                               </FormControl>
                             </div>
@@ -2798,7 +2913,7 @@ const NewMessageModal = ({
                     className="h-5 w-5"
                   />
                   <label className="text-sm text-gray-700 cursor-pointer select-none">
-                    {selectedTemplate ? "Update template": "Save as template" } 
+                    {selectedTemplate ? "Update template" : "Save as template"}
                   </label>
                 </div>
               )}
@@ -2830,7 +2945,7 @@ const NewMessageModal = ({
                   </>
                 ) : (
                   <>
-                    {isPipelineMode ? ((isEditing && !IsdefaultCadence) ?  'Update' : 'Save') : selectedTemplate ? "Update" : selectedMode === 'sms' ? 'Send' : 'Send email'}
+                    {isPipelineMode ? ((isEditing && !IsdefaultCadence) ? 'Update' : 'Save') : selectedTemplate ? "Update" : selectedMode === 'sms' ? 'Send' : 'Send email'}
                     {!isPipelineMode && <PaperPlaneTilt size={16} />}
                   </>
                 )}
