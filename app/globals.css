@@ -137,8 +137,10 @@ input[type="date"]::-moz-datetime-edit-year-field {
     background: #ffffff !important;
   }
 
-  /* Agency sidebar: no forced white background on any inner elements */
-  .agency-sidebar * {
+  /* Agency sidebar: no forced white background (exclude from .flex.flex-col.w-full rule above) */
+  .agency-sidebar *,
+  .agency-sidebar.flex.flex-col.w-full,
+  .agency-sidebar .flex.flex-col.w-full {
     background-color: transparent !important;
     background: transparent !important;
   }

@@ -64,9 +64,12 @@ function PermissionNavLink({ item, isActive, hasAccess }) {
 // Component to render a nav link
 function NavLinkItem({ item, isActive }) {
   return (
-    <div className="relative z-10 w-full flex flex-col px-3 h-10 flex justify-center gap-2 rounded-xl transition-colors !bg-transparent">
+    <div className={cn(
+      'relative z-10 w-full flex flex-col px-3 h-10 flex justify-center gap-2 rounded-xl transition-colors [&_*]:!bg-transparent',
+      isActive(item.href) ? 'bg-brand-primary/5' : '!bg-transparent',
+    )}>
       <Link
-        className="no-underline hover:no-underline w-full h-full flex flex-row items-center gap-2"
+        className="no-underline hover:no-underline w-full h-full flex flex-row items-center gap-2 active:scale-[0.95] transition-transform duration-150 ease-out origin-center"
         style={{ cursor: 'pointer', textDecoration: 'none' }}
         href={item.href}
       >
