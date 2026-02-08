@@ -48,9 +48,9 @@ export default function DashboardLayout({ children }) {
             shouldShowServiceBanner ? 'pt-[4vh]' : ''
           }`}
         >
-          {/* Sidebar */}
+          {/* Sidebar - fixed width 250px, no max-width */}
           <div
-            className="h-screen w-2/12"
+            className="h-screen w-[250px] min-w-[250px] shrink-0"
             style={{
               borderRight: '1px solid #00000010',
               backgroundColor: 'white',

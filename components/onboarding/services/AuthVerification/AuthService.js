@@ -10,9 +10,11 @@ const SendVerificationCode = async (phone, login = true, verifyApiResponse) => {
       phone: phone,
     }
 
-    //// //console.log
-
-    const ApiPath = Apis.sendVerificationCode
+    // Use same-origin API route to avoid CORS when calling from browser
+    const ApiPath =
+      typeof window !== 'undefined'
+        ? '/api/auth/send-verification-code'
+        : Apis.sendVerificationCode
     let result = await axios.post(ApiPath, ApiData, {
       headers: {
         'Content-Type': 'application/json',

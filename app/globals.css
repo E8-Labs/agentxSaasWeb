@@ -137,6 +137,18 @@ input[type="date"]::-moz-datetime-edit-year-field {
     background: #ffffff !important;
   }
 
+  /* Agency sidebar: no forced white background on any inner elements */
+  .agency-sidebar * {
+    background-color: transparent !important;
+    background: transparent !important;
+  }
+
+  /* Sliding pill must stay visible (exception to the rule above) */
+  .agency-sidebar .agency-sidebar-pill {
+    background-color: #f9f9f9 !important;
+    background: #f9f9f9 !important;
+  }
+
   /* Prevent any black space at top - ensure body and html are white */
   html, body {
     background-color: #ffffff !important;

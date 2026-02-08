@@ -15,7 +15,6 @@ export async function POST(req) {
           message: 'Missing credentials',
           status: false,
           data: null,
-          k,
         },
         { status: 400 },
       )

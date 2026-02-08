@@ -715,7 +715,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   const handleLoginOld = async () => {
     try {
       setLoginLoader(true)
-      const ApiPath = Apis.LogIn
+      const ApiPath = '/api/auth/login'
       const AipData = {
         phone: userPhoneNumber,
         verificationCode: VerifyCode.join(''),
@@ -849,7 +849,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       }
       setLoginLoader(true)
-      const response = await axios.post(Apis.LogIn, ApiData, {
+      const response = await axios.post('/api/auth/login', ApiData, {
         headers: {
           'Content-Type': 'application/json',
         },
@@ -1174,7 +1174,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
   }
 
   return (
-    <div className="flex flex-row w-full justify-center h-[100svh]">
+    <div className="flex flex-row w-full justify-center h-[100svh] px-0">
       {/* <div className='w-6/12 ms-8 flex flex-row justify-center ' style={backgroundImage}>
         <div className='w-11/12'>
           <div className='h-[433px] w-[494px] md:w-[594px] bg-white mt-16'>
@@ -1187,8 +1187,8 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           </div>
         </div>
       </div> */}
-      <div className="w-11/12 flex flex-col items-center h-[95svh] ">
-        <div className="w-full gap-3 h-[10%] flex flex-row items-end">
+      <div className="flex w-full flex-col items-center h-[95svh]">
+        <div className="flex h-[60px] w-full flex-row items-center justify-start px-10">
           <AppLogo
             height={50}
             width={150}
@@ -1199,7 +1199,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         </div>
         <div className="w-full  h-[80%] flex flex-row items-center justify-center">
           <div className="w-full">
-            <div className="flex flex-col w-full items-center gap-4 pb-6">
+            <div className="flex flex-col w-full items-center gap-3 pb-6">
               <Image
                 src={'/assets/signinAvatar.png'}
                 height={100}
@@ -1217,7 +1217,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
 
             {/* Code for phone input field */}
             <div className="flex flex-row items-center justify-center gap-2 w-full">
-              <div className="flex flex-row items-center gap-2 border rounded-lg w-full sm:w-4/12 justify-between pe-4">
+              <div className="flex h-[40px] w-full max-w-[500px] flex-row items-center justify-between gap-2 rounded-[8px] border pe-4 sm:w-4/12">
                 <div className="w-[90%]">
                   <PhoneInput
                     className="outline-none bg-transparent focus:ring-0"
@@ -1250,9 +1250,9 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                       borderWidth: '0px',
                       backgroundColor: 'transparent',
                       paddingLeft: '60px',
-                      paddingTop: '12px',
-                      paddingBottom: '12px',
-                      height: '50px',
+                      paddingTop: '8px',
+                      paddingBottom: '8px',
+                      height: '36px',
                       outline: 'none', // Remove outline on input
                       boxShadow: 'none', // Remove shadow as well
                     }}
@@ -1296,45 +1296,43 @@ const LoginComponent = ({ length = 6, onComplete }) => {
             </div>
 
             {/* Code for error messages */}
-            <div className="flex flex-row items-center w-full justify-center mt-4">
-              <div>
-                {errorMessage ? (
-                  <div className="text-center" style={styles.errmsg}>
-                    {errorMessage}
-                  </div>
-                ) : (
-                  <div>
-                    {phoneNumberLoader ? (
-                      <div className="text-center" style={styles.errmsg}>
-                        Checking
-                      </div>
-                    ) : (
-                      <div
-                        style={{
-                          ...styles.errmsg,
-                          color:
-                            checkPhoneResponse?.status === false
-                              ? 'green'
-                              : 'red',
-                          height: '20px',
-                        }}
-                      >
-                        {checkPhoneResponse && (
-                          <div className="text-center">
-                            {checkPhoneResponse === true
-                              ? 'User not found'
-                              : ''}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
+            <>
+              {errorMessage ? (
+                <div className="text-center" style={styles.errmsg}>
+                  {errorMessage}
+                </div>
+              ) : (
+                <>
+                  {phoneNumberLoader ? (
+                    <div className="text-center" style={styles.errmsg}>
+                      Checking
+                    </div>
+                  ) : (
+                    <div
+                      style={{
+                        ...styles.errmsg,
+                        color:
+                          checkPhoneResponse?.status === false
+                            ? 'green'
+                            : 'red',
+                        height: '20px',
+                      }}
+                    >
+                      {checkPhoneResponse && (
+                        <div className="text-center">
+                          {checkPhoneResponse === true
+                            ? 'User not found'
+                            : ''}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+            </>
 
             <div
-              className="flex flex-row items-center justify-center gap-1 mt-[40px]"
+              className="flex flex-row items-center justify-center gap-1"
               style={{ fontWeight: '500', fontSize: 15 }}
             >
               <div //onClick={() => setShowVerifyPopup(true)}
@@ -1359,7 +1357,7 @@ const LoginComponent = ({ length = 6, onComplete }) => {
         </div>
 
         <div
-          className="mt-6 h-[10%] flex flex-row items-end justify-end w-full gap-2 overflow-auto flex-shrink-0 hidden sm:flex"
+          className="mt-auto h-[60px] w-full flex flex-row items-center justify-end gap-2 overflow-auto flex-shrink-0 px-10 hidden sm:flex"
           style={{ fontWeight: '500', fontSize: 11.6 }}
         >
           <div className="flex-shrink-0">

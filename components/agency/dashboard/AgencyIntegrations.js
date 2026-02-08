@@ -59,10 +59,10 @@ function AgencyIntegrations({ selectedAgency, initialTab = 1 }) {
   }
 
   return (
-    <div className="flex w-full items-center flex-row justify-start">
-      <div className="py-6 w-full">
+    <div className="flex w-full flex-row items-start justify-start">
+      <div className="flex flex-1 min-w-0 w-full flex-col items-start py-6 bg-[#fafafa]">
         <div
-          className="px-10 flex flex-row items-cetner justify-between w-full"
+          className="flex h-[60px] w-full flex-row items-center justify-between border-b border-black/10 px-4"
           style={{ fontSize: 24, fontWeight: '600' }}
         >
           Integrations

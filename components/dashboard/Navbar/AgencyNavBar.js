@@ -17,7 +17,7 @@ import axios from 'axios'
 import { initializeApp } from 'firebase/app'
 import Image from 'next/image'
 import { usePathname, useRouter } from 'next/navigation'
-import React, { useEffect, useState, useMemo } from 'react'
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import moment from 'moment'
 
 import EditAgencyName from '@/components/agency/agencyExtras.js/EditAgencyName'
@@ -64,16 +64,13 @@ function PermissionNavLink({ item, isActive, hasAccess }) {
 // Component to render a nav link
 function NavLinkItem({ item, isActive }) {
   return (
-    <div className="w-full flex flex-col pl-3">
+    <div className="relative z-10 w-full flex flex-col px-3 h-10 flex justify-center gap-2 rounded-xl transition-colors !bg-transparent">
       <Link
-        sx={{ cursor: 'pointer', textDecoration: 'none' }}
+        className="no-underline hover:no-underline w-full h-full flex flex-row items-center gap-2"
+        style={{ cursor: 'pointer', textDecoration: 'none' }}
         href={item.href}
       >
-        <div
-          className={cn(
-            'w-full flex flex-row gap-2 items-center py-1 rounded-full',
-          )}
-        >
+        <div className="w-full flex flex-row gap-2 items-center h-10 rounded-xl !bg-transparent">
           <div
             className={cn(
               isActive(item.href)
@@ -98,8 +95,8 @@ function NavLinkItem({ item, isActive }) {
                   ? item.selected
                   : item.uneselected
               }
-              height={24}
-              width={24}
+              height={16}
+              width={16}
               alt="icon"
             />
           </div>
@@ -108,7 +105,7 @@ function NavLinkItem({ item, isActive }) {
               'text-sm font-medium',
               isActive(item.href)
                 ? 'text-brand-primary'
-                : 'text-black',
+                : 'text-black/80',
             )}
           >
             {item.name}
@@ -235,6 +232,37 @@ const AgencyNavBarContent = () => {
   const [currentPathname, setCurrentPathname] = useState(
     typeof window !== 'undefined' ? window.location.pathname : pathname
   )
+
+  // Sliding pill background for nav links hover
+  const [navHoveredIndex, setNavHoveredIndex] = useState(null)
+  const [navPillStyle, setNavPillStyle] = useState(null)
+  const [navPillScaleIn, setNavPillScaleIn] = useState(false)
+  const navListContainerRef = useRef(null)
+  const navItemRefs = useRef([])
+
+  useLayoutEffect(() => {
+    if (navHoveredIndex === null || !navListContainerRef.current) {
+      setNavPillStyle(null)
+      setNavPillScaleIn(false)
+      return
+    }
+    const itemEl = navItemRefs.current[navHoveredIndex]
+    const containerEl = navListContainerRef.current
+    if (!itemEl || !containerEl) return
+    const itemRect = itemEl.getBoundingClientRect()
+    const containerRect = containerEl.getBoundingClientRect()
+    setNavPillStyle({
+      left: itemRect.left - containerRect.left,
+      top: itemRect.top - containerRect.top,
+      width: itemRect.width,
+      height: itemRect.height,
+    })
+    setNavPillScaleIn(false)
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => setNavPillScaleIn(true))
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [navHoveredIndex])
   
   useEffect(() => {
     if (typeof window === 'undefined') return
@@ -837,9 +865,9 @@ const AgencyNavBarContent = () => {
           </div>
         )
       )}
-      <div className="h-screen w-full flex flex-col items-center justify-between">
+      <div className="agency-sidebar h-screen w-[250px] min-w-[250px] max-w-[250px] flex flex-col items-center justify-between px-3 bg-white border border-[#EDEDED]">
         <div
-          className="w-full pt-5 flex flex-col items-center ps-4"
+          className="w-full p-0 flex flex-col items-center !bg-transparent"
           style={{
             maxHeight: '90vh',
             overflow: 'auto',
@@ -851,7 +879,7 @@ const AgencyNavBarContent = () => {
             <div className="w-10/12 flex flex-col items-end">
               {agencyLogoUrl ? (
                 // Show logo if available
-                (<div className="w-full flex justify-start items-center">
+                (<div className="w-full flex justify-start items-center h-[60px]">
                   <Image
                     src={agencyLogoUrl}
                     alt="agency logo"
@@ -881,36 +909,52 @@ const AgencyNavBarContent = () => {
           </div>
 
           <div
-            className="w-full mt-8 flex flex-col items-center gap-3 overflow-auto"
+            ref={navListContainerRef}
+            className="relative w-full mt-8 flex flex-col items-center gap-1 overflow-auto !bg-transparent"
             style={{
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
             }}
+            onMouseLeave={() => setNavHoveredIndex(null)}
           >
+            {navHoveredIndex !== null && navPillStyle && (
+              <div
+                className={cn(
+                  'agency-sidebar-pill absolute z-0 rounded-xl bg-[#f9f9f9] pointer-events-none transition-all duration-200 ease-out',
+                  navPillScaleIn ? 'scale-100' : 'scale-[0.95]',
+                )}
+                style={{
+                  left: navPillStyle.left,
+                  top: navPillStyle.top,
+                  width: navPillStyle.width,
+                  height: 40,
+                }}
+              />
+            )}
             {!permissionsLoaded && isInvitee ? (
               // Show loading state while checking permissions
-              <div className="w-full flex flex-col items-center justify-center py-8">
+              <div className="w-full flex flex-col items-center justify-center py-8 !bg-transparent">
                 <CircularProgress size={24} />
               </div>
             ) : (
-              allAgencyLinks.map((item) => {
-                // For non-Invitee users, show all links
-                if (!isInvitee) {
-                  return (
-                    <NavLinkItem key={item.id} item={item} isActive={isActive} />
-                  )
-                }
-                
-                // For Invitee users, use pre-checked permissions
-                return (
-                  <PermissionNavLink
-                    key={item.id}
-                    item={item}
-                    isActive={isActive}
-                    hasAccess={menuPermissions[item.id] || false}
-                  />
-                )
-              })
+              allAgencyLinks.map((item, index) => (
+                <div
+                  key={item.id}
+                  ref={(el) => { navItemRefs.current[index] = el }}
+                  onMouseEnter={() => setNavHoveredIndex(index)}
+                  className="w-full !bg-transparent"
+                >
+                  {!isInvitee ? (
+                    <NavLinkItem item={item} isActive={isActive} />
+                  ) : (
+                    <PermissionNavLink
+                      item={item}
+                      isActive={isActive}
+                      hasAccess={menuPermissions[item.id] || false}
+                    />
+                  )}
+                </div>
+              ))
             )}
           </div>
 
@@ -921,9 +965,9 @@ const AgencyNavBarContent = () => {
         </div> */}
         </div>
 
-        <div className="w-full flex flex-col items-center pt-2">
+        <div className="w-full flex flex-col items-center pt-2 !bg-transparent">
           {/* Code for Check list menu bar */}
-          <div className="w-full border-b border-border">
+          <div className="w-full border-b border-border !bg-transparent">
             {reduxUser && <AgencyChecklist userDetails={reduxUser} />}
           </div>
           <Link
