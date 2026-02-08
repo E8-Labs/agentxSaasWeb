@@ -44,7 +44,7 @@ export default function DashboardLayout({ children }) {
 
         {/* Main Layout */}
         <div
-          className={`flex flex-row w-full ${
+          className={`flex flex-row w-full px-0 ${
             shouldShowServiceBanner ? 'pt-[4vh]' : ''
           }`}
         >
@@ -60,7 +60,7 @@ export default function DashboardLayout({ children }) {
           </div>
 
           {/* Main Content */}
-          <div className="w-10/12">
+          <div className="flex-1 min-w-0 w-full">
             <div>{/* <NoPlanPopup /> */}</div>
             {children}
           </div>

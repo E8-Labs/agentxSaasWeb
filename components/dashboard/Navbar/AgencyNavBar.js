@@ -868,9 +868,9 @@ const AgencyNavBarContent = () => {
           </div>
         )
       )}
-      <div className="agency-sidebar h-screen w-[250px] min-w-[250px] max-w-[250px] flex flex-col items-center justify-between px-3 bg-white border border-[#EDEDED]">
+      <div className="agency-sidebar h-screen w-[250px] min-w-[250px] max-w-[250px] flex flex-col items-center justify-between p-0 bg-white border border-[#EDEDED]">
         <div
-          className="w-full p-0 flex flex-col items-center !bg-transparent"
+          className="w-full p-0 flex flex-col items-start justify-start gap-0 !bg-transparent"
           style={{
             maxHeight: '90vh',
             overflow: 'auto',
@@ -878,7 +878,7 @@ const AgencyNavBarContent = () => {
             msOverflowStyle: 'none',
           }}
         >
-          <div className="w-full flex flex-row gap-3 items-center justify-start">
+          <div className="w-full flex flex-row gap-3 items-center justify-start h-[60px] border-b border-[#EDEDED] px-3">
             <div className="w-10/12 flex flex-col items-end">
               {agencyLogoUrl ? (
                 // Show logo if available
@@ -913,7 +913,7 @@ const AgencyNavBarContent = () => {
 
           <div
             ref={navListContainerRef}
-            className="relative w-full mt-8 flex flex-col items-center gap-1 overflow-auto !bg-transparent"
+            className="relative w-full mt-3 flex flex-col items-center gap-1 overflow-auto !bg-transparent px-3"
             style={{
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',

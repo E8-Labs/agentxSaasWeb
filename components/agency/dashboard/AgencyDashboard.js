@@ -88,13 +88,13 @@ export default function AgencyDashboard({ selectedAgency }) {
 
   return (
     <div className="flex w-full flex-row items-start justify-start">
-      <div className="flex flex-1 min-w-0 w-full flex-col items-start py-6 bg-[#fafafa]">
+      <div className="flex flex-1 min-w-0 w-full flex-col items-start pt-0 pb-6 bg-[#fafafa]">
         <div
           className="flex h-[60px] w-full flex-row items-center justify-between border-b border-black/10 px-4"
-          style={{ fontSize: 24, fontWeight: '600' }}
+          style={{ fontSize: 24, fontWeight: 600 }}
         >
-          Analytics
-          <div className="flex flex-row items-center gap-2">
+          <span className="text-2xl font-semibold">Analytics</span>
+          <div className="flex w-10 h-10 items-center justify-center rounded-lg hover:bg-[#f6f6f6] transition-colors">
             <NotficationsDrawer />
           </div>
         </div>
