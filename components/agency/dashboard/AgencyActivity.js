@@ -214,7 +214,7 @@ function AgencyActivity({ user, selectedAgency }) {
     </div>
   ) : stats?.totalUsers > 0 ? (
     <div
-      className=" flex flex-col justify-start items-start pl-10 h-[90svh] gap-4 pb-8 "
+      className="flex flex-col justify-start items-start pl-10 h-[90svh] gap-3 pb-8 max-w-[1300px] w-full mx-auto"
       style={{ overflow: 'auto', scrollbarWidth: 'none' }}
     >
       {/*  Stats  */}
@@ -663,17 +663,17 @@ function SubscriptionsStatsComponent({ stats, plans, onViewPlan }) {
           display: none;
         }
       `}</style>
-      <div className="relative bg-white rounded-lg w-[96%]">
+      <div className="relative bg-transparent rounded-lg w-[96%]">
         {/* Left Arrow Button */}
         {showLeftArrow && (
           <button
             onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-100 rounded-full p-2 shadow-lg border border-gray-200"
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center bg-white hover:bg-gray-100 rounded-full shadow-lg border border-gray-200 active:scale-[0.95] transition-transform"
             style={{ transform: 'translateY(-50%)' }}
           >
             <svg
-              width="24"
-              height="24"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
@@ -692,7 +692,7 @@ function SubscriptionsStatsComponent({ stats, plans, onViewPlan }) {
         {/* Scrollable Container */}
         <div
           ref={scrollContainerRef}
-          className="plans-scroll-container flex gap-2 overflow-x-auto pe-4 ps-4"
+          className="plans-scroll-container flex gap-3 overflow-x-auto p-3"
           style={{
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
@@ -701,12 +701,12 @@ function SubscriptionsStatsComponent({ stats, plans, onViewPlan }) {
         >
         {/* Total Users Card */}
         {stats?.totalUsers ? (
-          <Card className="cursor-pointer border-none shadow-none flex-shrink-0 w-[11vw] min-w-[150px]">
-            <CardHeader>
+          <Card className="cursor-pointer rounded-lg border border-[#EDEDED] shadow-none flex-shrink-0 w-[250px] min-w-[250px] px-4 py-3 flex flex-col gap-2">
+            <CardHeader className="p-0">
               <CardTitle>Total Users</CardTitle>
             </CardHeader>
-            <CardContent>
-              <h2 className="cursor-pointer text-3xl font-bold">
+            <CardContent className="p-0">
+              <h2 className="cursor-pointer text-[32px] font-semibold">
                 {stats?.totalUsers}
               </h2>
             </CardContent>
@@ -727,10 +727,10 @@ function SubscriptionsStatsComponent({ stats, plans, onViewPlan }) {
           Object.entries(stats.usersOnPlans).map(([planName, data]) => (
             <Card
               key={planName}
-              className="cursor-pointer border-none shadow-none flex-shrink-0 w-[11vw] min-w-[150px]"
+              className="cursor-pointer rounded-lg border border-[#EDEDED] shadow-none flex-shrink-0 w-[250px] min-w-[250px] px-4 py-3 flex flex-col gap-2"
             >
-              <CardHeader className="w-full flex flex-row items-baseline justify-between pb-2">
-                <CardTitle className="text-sm truncate flex-1 pr-2 leading-tight">
+              <CardHeader className="p-0 w-full flex flex-row items-baseline justify-between pb-2">
+                <CardTitle className="text-sm font-semibold truncate flex-1 pr-2 leading-tight text-black/80">
                   {planName}
                 </CardTitle>
                 <button
@@ -740,21 +740,23 @@ function SubscriptionsStatsComponent({ stats, plans, onViewPlan }) {
                       onViewPlan(planName)
                     }
                   }}
-                  className="text-sm text-brand-primary  font-semibold cursor-pointer underline flex-shrink-0 leading-tight m-0 p-0 border-0 bg-transparent"
+                  className="text-sm text-black/80 font-semibold cursor-pointer no-underline flex-shrink-0 leading-tight px-3 py-1.5 rounded-lg bg-[#EAEAEA] border-0 active:scale-[0.95] transition-transform"
                 >
                   View
                 </button>
               </CardHeader>
-              <CardContent>
-                <h2 className="cursor-pointer text-2xl font-regular">
-                  {data.count}
-                </h2>
-              </CardContent>
-              <CardContent className="pt-0">
-                <p className="cursor-pointer text-lg font-regular text-gray-500">
-                  {data.percentage}%
-                </p>
-              </CardContent>
+              <div className="flex flex-col gap-1">
+                <CardContent className="p-0">
+                  <h2 className="cursor-pointer text-base font-medium">
+                    {data.count}
+                  </h2>
+                </CardContent>
+                <CardContent className="p-0">
+                  <p className="cursor-pointer text-sm font-regular text-gray-500">
+                    {data.percentage}%
+                  </p>
+                </CardContent>
+              </div>
             </Card>
           ))
         ) : (
@@ -773,12 +775,12 @@ function SubscriptionsStatsComponent({ stats, plans, onViewPlan }) {
       {showRightArrow && (
         <button
           onClick={() => scroll('right')}
-          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-100 rounded-full p-2 shadow-lg border border-gray-200"
+          className="absolute right-0 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center bg-white hover:bg-gray-100 rounded-full shadow-lg border border-gray-200 active:scale-[0.95] transition-transform"
           style={{ transform: 'translateY(-50%)' }}
         >
           <svg
-            width="24"
-            height="24"
+            width="20"
+            height="20"
             viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"

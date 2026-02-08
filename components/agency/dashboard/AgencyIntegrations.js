@@ -60,9 +60,9 @@ function AgencyIntegrations({ selectedAgency, initialTab = 1 }) {
 
   return (
     <div className="flex w-full flex-row items-start justify-start">
-      <div className="flex flex-1 min-w-0 w-full flex-col items-start pt-0 pb-6 bg-[#fafafa]">
+      <div className="agency-dashboard-inner flex flex-1 min-w-0 w-full flex-col items-start pt-0 pb-6 bg-[#f9f9f9]">
         <div
-          className="flex h-[60px] w-full flex-row items-center justify-between border-b border-black/10 px-4"
+          className="flex h-[60px] w-full flex-row items-center justify-between border-b border-black/10 px-4 bg-transparent"
           style={{ fontSize: 24, fontWeight: 600 }}
         >
           <span className="text-2xl font-semibold">Integrations</span>
@@ -71,8 +71,8 @@ function AgencyIntegrations({ selectedAgency, initialTab = 1 }) {
           </div>
         </div>
         {/* Tabs for navigation */}
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6 w-full">
-          <TabsList className="flex flex-row items-center justify-center gap-4 border-b pb-2 w-full pl-10 bg-transparent outline-none focus:outline-none">
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6 w-full bg-transparent">
+          <TabsList className="flex flex-row items-center justify-center gap-4 pb-2 w-full pl-10 bg-transparent outline-none focus:outline-none">
             <TabsTrigger value="twilio" className="outline-none">
               Twilio
             </TabsTrigger>

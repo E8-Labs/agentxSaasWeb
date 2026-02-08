@@ -31,7 +31,7 @@ export default function DashboardLayout({ children }) {
 
   return (
     <ErrorBoundary>
-      <div className="flex flex-col w-full">
+      <div className="agency-dashboard-layout-wrap flex flex-col w-full">
         {/* Service Banner */}
         {shouldShowServiceBanner && (
           <div className="pt-2 fixed top-0 left-0 w-full  bg-purple text-white z-[9999] flex flex-col items-center justify-center">
@@ -44,7 +44,7 @@ export default function DashboardLayout({ children }) {
 
         {/* Main Layout */}
         <div
-          className={`flex flex-row w-full px-0 ${
+          className={`agency-dashboard-layout-row flex flex-row w-full px-0 ${
             shouldShowServiceBanner ? 'pt-[4vh]' : ''
           }`}
         >
@@ -59,8 +59,8 @@ export default function DashboardLayout({ children }) {
             <AgencyNavBar />
           </div>
 
-          {/* Main Content */}
-          <div className="flex-1 min-w-0 w-full">
+          {/* Main Content - page background #f9f9f9 */}
+          <div className="agency-dashboard-content flex-1 min-w-0 w-full min-h-screen bg-[#f9f9f9]">
             <div>{/* <NoPlanPopup /> */}</div>
             {children}
           </div>

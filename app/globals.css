@@ -151,6 +151,33 @@ input[type="date"]::-moz-datetime-edit-year-field {
     background: #f9f9f9 !important;
   }
 
+  /* Agency dashboard content: force #f9f9f9 and override parent */
+  .agency-dashboard-content {
+    background-color: #f9f9f9 !important;
+    background: #f9f9f9 !important;
+    min-height: 100vh;
+  }
+
+  /* Agency dashboard page: exclude from .flex.flex-col.w-full white background rule */
+  .agency-dashboard-content .flex.flex-col.w-full,
+  .agency-dashboard-content.flex.flex-col.w-full {
+    background-color: transparent !important;
+    background: transparent !important;
+  }
+
+  /* Parent and grandparent of content: transparent, override any !important */
+  .agency-dashboard-layout-wrap,
+  .agency-dashboard-layout-row {
+    background-color: transparent !important;
+    background: transparent !important;
+  }
+
+  /* Agency dashboard/integrations inner: force #f9f9f9 */
+  .agency-dashboard-inner {
+    background-color: #f9f9f9 !important;
+    background: #f9f9f9 !important;
+  }
+
   /* Prevent any black space at top - ensure body and html are white */
   html, body {
     background-color: #ffffff !important;

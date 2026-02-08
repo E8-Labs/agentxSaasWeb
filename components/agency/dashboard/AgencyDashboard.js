@@ -88,9 +88,9 @@ export default function AgencyDashboard({ selectedAgency }) {
 
   return (
     <div className="flex w-full flex-row items-start justify-start">
-      <div className="flex flex-1 min-w-0 w-full flex-col items-start pt-0 pb-6 bg-[#fafafa]">
+      <div className="agency-dashboard-inner flex flex-1 min-w-0 w-full flex-col items-start pt-0 pb-6 bg-[#f9f9f9]">
         <div
-          className="flex h-[60px] w-full flex-row items-center justify-between border-b border-black/10 px-4"
+          className="flex h-[60px] w-full flex-row items-center justify-between border-b border-black/10 px-4 bg-transparent"
           style={{ fontSize: 24, fontWeight: 600 }}
         >
           <span className="text-2xl font-semibold">Analytics</span>
@@ -99,15 +99,17 @@ export default function AgencyDashboard({ selectedAgency }) {
           </div>
         </div>
         {/* Tabs for navigation */}
-        <Tabs value={activeTab} onValueChange={handleTabChange} className="mb-6 w-full">
-          <TabsList className="flex flex-row items-center justify-center gap-4 border-b pb-2 w-full pl-10 bg-transparent outline-none focus:outline-none">
-            <TabsTrigger value="user-activity" className="outline-none">
-              User Activity
-            </TabsTrigger>
-            {/* <TabsTrigger value="engagement">Engagement</TabsTrigger> */}
-            <TabsTrigger value="revenue" className="outline-none">
-              Revenue
-            </TabsTrigger>
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full bg-transparent">
+          <TabsList className="flex h-10 flex-row items-center justify-center pb-2 w-full bg-transparent outline-none focus:outline-none">
+            <div className="w-auto mx-auto p-1 flex flex-row items-center gap-2">
+              <TabsTrigger value="user-activity" className="outline-none">
+                User Activity
+              </TabsTrigger>
+              {/* <TabsTrigger value="engagement">Engagement</TabsTrigger> */}
+              <TabsTrigger value="revenue" className="outline-none">
+                Revenue
+              </TabsTrigger>
+            </div>
           </TabsList>
 
           <TabsContent value="user-activity">
