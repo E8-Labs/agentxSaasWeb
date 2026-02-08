@@ -868,6 +868,7 @@ const PipelineStages = ({
           setNewStageTitle('')
           // setStageColor("");
           setStagesList(response.data.data.stages)
+          console.log("From handleAddNewStageTitle Selected pipeline stages are", response.data.data.stages);
           selectedPipelineItem.stages = response.data.data.stages
           onNewStageCreated(selectedPipelineItem)
         } else {
