@@ -306,10 +306,13 @@ const TaskCard = ({
         </div>
       </div>
 
-      {/* Description - constrained to card width, wrap long text */}
+      {/* Description - constrained to card width, preserve line breaks, wrap long lines */}
       {task.description && (
         <div className="mb-3 mt-2 w-full min-w-0 overflow-hidden">
-          <TypographyBody className="text-muted-foreground line-height-2 break-words" style={{ overflowWrap: 'break-word' }}>
+          <TypographyBody
+            className="text-muted-foreground line-height-2 break-words"
+            style={{ overflowWrap: 'break-word', whiteSpace: 'pre-line' }}
+          >
             {task.description}
           </TypographyBody>
         </div>
