@@ -593,7 +593,7 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
       const userData = JSON.parse(localData)
       const token = userData.token
 
-      // Build extraColumns from custom fields
+      // Build custom fields as top-level keys (UpdateLead expects them on the body)
       const extraColumns = {}
       customFields.forEach((field) => {
         const value = customFieldValues[field.columnName]?.trim() || ''
@@ -602,61 +602,43 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
         }
       })
 
-      // Build the payload according to the specified structure
+      // UpdateLead payload: upsert by smartListId + phone (add if missing, else update)
       const payload = {
-        sheetName: selectedSmartlist.sheetName,
-        leads: [
-          {
-            firstName: formData.firstName.trim(),
-            lastName: formData.lastName.trim() || '',
-            fullName: `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim(),
-            phone: formData.phone.trim() || '',
-            email: formData.email.trim() || '',
-            address: '', // Not in form, but in example
-            extraColumns: extraColumns,
-          },
-        ],
+        smartListId: selectedSmartlist.id,
+        phoneNumber: formData.phone.trim(),
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim() || '',
+        email: formData.email.trim() || '',
+        address: '',
+        batchSize: 5,
+        startTimeDifFromNow: 0,
+        ...extraColumns,
       }
 
-      // Add optional fields if selected
-      if (selectedPipeline?.id) {
-        payload.pipelineId = selectedPipeline.id.toString()
-
-        // Add stageId if a stage is selected
-        if (selectedStage?.id) {
-          payload.stageId = selectedStage.id.toString()
-        }
+      if (selectedPipeline?.id && selectedStage?.id) {
+        payload.stage = selectedStage.id
       }
 
-      // Add agent assignments if selected (only if pipeline is selected)
-      // Extract mainAgentIds from selected agent objects and deduplicate
       if (selectedPipeline?.id && selectedAgents.length > 0) {
         payload.mainAgentIds = [
           ...new Set(selectedAgents.map((agent) => agent.mainAgentId.toString())),
         ]
       }
 
-      // Add team assignments if selected
       if (selectedTeamMemberIds.length > 0) {
         payload.teamsAssigned = selectedTeamMemberIds.map((id) => id.toString())
       }
 
-      // Add default values from example
-      payload.batchSize = 5
-      payload.startTimeDifFromNow = 0
-
-      // Add createMessageThread parameter
       if (createMessageThread) {
         payload.createMessageThread = true
       }
 
-      // Add userId if selectedUser is provided (for agency creating contact for subaccount)
       const userId = selectedUser?.id || selectedUser?.userId || selectedUser?.user?.id
       if (userId) {
         payload.userId = userId.toString()
       }
 
-      const response = await axios.post('/api/leads/create', payload, {
+      const response = await axios.put('/api/leads/update', payload, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -664,15 +646,19 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
       })
 
       if (response.data?.status) {
-        toast.success('Contact created successfully')
+        toast.success(
+          response.data?.message === 'Lead created successfully'
+            ? 'Contact created successfully'
+            : 'Contact updated successfully',
+        )
         onSuccess?.()
         onClose()
       } else {
-        toast.error(response.data?.message || 'Failed to create contact')
+        toast.error(response.data?.message || 'Failed to save contact')
       }
     } catch (error) {
-      console.error('Error creating contact:', error)
-      toast.error(error.response?.data?.message || 'Failed to create contact')
+      console.error('Error saving contact:', error)
+      toast.error(error.response?.data?.message || 'Failed to save contact')
     } finally {
       setSubmitting(false)
     }
