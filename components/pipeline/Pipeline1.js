@@ -14,7 +14,7 @@ import axios from 'axios'
 import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import Body from '@/components/onboarding/Body'
 import Footer from '@/components/onboarding/Footer'
@@ -65,6 +65,9 @@ const Pipeline1 = ({
   const [createPipelineLoader, setPipelineLoader] = useState(false)
   const [isInboundAgent, setIsInboundAgent] = useState(false)
   const [showRearrangeErr, setShowRearrangeErr] = useState(null)
+
+  // Ref for the main scroll container so PipelineStages can auto-scroll it during drag
+  const mainScrollContainerRef = useRef(null)
 
   const pipelineId = selectedPipelineItem?.id
   const currentCadence = useMemo(
@@ -193,7 +196,7 @@ const Pipeline1 = ({
         // console.log("Pipeline indentifier1 are ", selectedPipeline);
         setSelectedPipelineItem(selectedPipeline)
         setSelectedPipelineStages(selectedPipeline.stages)
-
+        console.log("From useEffect Selected pipeline stages are", selectedPipeline.stages);
         // Restore assigned leads and rows by index
         const restoredAssignedLeads = {}
         const restoredRowsByIndex = {}
@@ -384,6 +387,7 @@ const Pipeline1 = ({
         setSelectPipleLine(pipelineToSelect.title)
         setSelectedPipelineItem(pipelineToSelect)
         setSelectedPipelineStages(pipelineToSelect.stages)
+        console.log("From api Selected pipeline stages are", pipelineToSelect.stages);
         // console.log("Pipeline stages2 are ", pipelineToSelect.stages);
         // console.log("Pipeline indentifier2 are ", pipelineToSelect);
         setOldStages(pipelineToSelect.stages)
@@ -665,6 +669,7 @@ const Pipeline1 = ({
     // //console.log;
     setSelectedPipelineItem(selectedItem)
     setSelectedPipelineStages(selectedItem.stages)
+    console.log("From handleSelectPipleLine Selected pipeline stages are", selectedItem.stages);
     // console.log("Pipeline stages3 are ", selectedItem.stages);
     // console.log("Pipeline indentifier3 are ", selectedItem);
     setOldStages(selectedItem.stages)
@@ -684,15 +689,16 @@ const Pipeline1 = ({
   }
 
   //code to rearrange stages list
-  const handleReorder = async () => {
+  const handleReorder = async (stagesToUse = null) => {
     try {
       setReorderLoader(true)
-      const updateStages = selectedPipelineStages.map((stage, index) => ({
+      const sourceStages = stagesToUse ?? selectedPipelineStages
+      const updateStages = sourceStages.map((stage, index) => ({
         id: stage.id,
         order: stage.order,
       }))
 
-      // //console.log;
+      console.log("updateStages reorder Selected pipeline stages are", updateStages);
 
       const ApiPath = Apis.reorderStages
       let AuthToken = null
@@ -750,6 +756,7 @@ const Pipeline1 = ({
     }
     setSelectedPipelineItem(pipeline)
     setSelectedPipelineStages(pipeline.stages)
+    console.log("From onNewStageCreated Selected pipeline stages are", pipeline.stages);
     // console.log("Pipeline stages4 are ", pipeline.stages);
     // console.log("Pipeline indentifier4 are ", pipeline);
     setPipelinesDetails(pipelines)
@@ -804,7 +811,10 @@ const Pipeline1 = ({
       <div
         className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative"
       >
-        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
+        <div
+          ref={mainScrollContainerRef}
+          className="h-[95svh] sm:h-[92svh] overflow-auto pb-24"
+        >
           {/* header with title centered vertically */}
           <div className="relative w-full flex-shrink-0" style={{ minHeight: showOrb ? '140px' : '100px' }}>
             <Header />
@@ -947,6 +957,7 @@ const Pipeline1 = ({
                 selectedPipelineItem={selectedPipelineItem}
                 setShowRearrangeErr={setReorderSuccessBarMessage}
                 setIsVisibleSnack={setIsVisibleSnack}
+                scrollContainerRef={mainScrollContainerRef}
                 setSnackType={setSnackType}
                 onNewStageCreated={onNewStageCreated}
                 handleReOrder={handleReorder}

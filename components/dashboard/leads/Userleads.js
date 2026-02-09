@@ -217,6 +217,11 @@ const Userleads = ({
   const [selectedSmartList, setSelectedSmartList] = useState(null)
   const [dropdownOpen, setDropdownOpen] = useState({})
 
+  //code for edit smart list
+  const [editSmartListLoader, setEditSmartListLoader] = useState(false)
+  const [showEditSmartList, setShowEditSmartList] = useState(false)
+  const [selectedSmartListForEdit, setSelectedSmartListForEdit] = useState(null)
+
   //code for passing columns
   const [Columns, setColumns] = useState(null)
 
@@ -319,6 +324,15 @@ const Userleads = ({
     loadFilterTagSuggestions()
   }, [])
 
+  // Reload filter tag suggestions when LeadDetails drawer closes (tags may have changed)
+  const prevShowDetailsModalRef = useRef(showDetailsModal)
+  useEffect(() => {
+    if (prevShowDetailsModalRef.current === true && showDetailsModal === false) {
+      loadFilterTagSuggestions()
+    }
+    prevShowDetailsModalRef.current = showDetailsModal
+  }, [showDetailsModal])
+
   // Add these handler functions
   const handleFilterTagInputChange = (e) => {
     const value = e.target.value
@@ -348,11 +362,19 @@ const Userleads = ({
   }
 
   const handleFilterTagAdd = (tag) => {
-    if (!filterTags.includes(tag)) {
-      setFilterTags(prev => [...prev, tag])
+    console.log("select Filter tags btn triggered")
+    // if (!filterTags.includes(tag)) {
+    //   setFilterTags(prev => [...prev, tag])
+    // }
+    // setFilterTagInputValue('')
+    // setShowFilterTagSuggestions(false)
+    setFilterTags((prevTags) => {
+      const isSelected = prevTags.some((t) => t === tag)
+      return isSelected
+        ? prevTags.filter((t) => t !== tag)
+        : [...prevTags, tag]
     }
-    setFilterTagInputValue('')
-    setShowFilterTagSuggestions(false)
+    )
   }
 
   const handleFilterTagRemove = (tagToRemove) => {
@@ -1598,7 +1620,7 @@ const Userleads = ({
       })
 
       if (response) {
-        //////console.log;
+        console.log("response of get sheets", response.data);
         if (response.data.data.length === 0) {
           handleShowUserLeads(null)
         } else {
@@ -1882,6 +1904,13 @@ const Userleads = ({
       }
       return ''
     }
+    if (filter.key == 'tag') {
+      let values = filter.values
+      if (values.length > 0) {
+        return values[0]
+      }
+      return ''
+    }
   }
 
   function setFiltersFromSelection() {
@@ -1909,8 +1938,11 @@ const Userleads = ({
         filters.push(dateFilter)
       })
     }
-
-
+    if (filterTags && filterTags.length > 0) {
+      filterTags.forEach((tag) => {
+        filters.push({ key: 'tag', values: [tag] })
+      })
+    }
 
     setFiltersSelected(filters)
   }
@@ -2180,6 +2212,7 @@ const Userleads = ({
                                 let pipeline = null
                                 let fromDate = null
                                 let toDate = null
+                                const remainingTags = []
                                 setNextCursorValue('')
                                 filtersSelected.map((f, ind) => {
                                   if (index != ind) {
@@ -2194,18 +2227,11 @@ const Userleads = ({
                                       fromDate = f.values[0]
                                       toDate = f.values[1]
                                     }
-                                  } else {
+                                    if (f.key == 'tag') {
+                                      remainingTags.push(f.values[0])
+                                    }
                                   }
                                 })
-
-                                //////console.log;
-                                //////console.log;
-                                //////console.log;
-                                // //console.log;
-                                setSelectedStage(stages)
-                                setSelectedFromDate(fromDate)
-                                setSelectedToDate(toDate)
-                                setSelectedPipeline(pipeline)
                                 //   setFilterLeads([]);
                                 //   setLeadsList([]);
                                 //   setTimeout(() => {
@@ -2214,7 +2240,11 @@ const Userleads = ({
                                 //   }, 1000);
 
                                 //   filters.splice(index, 1);
-                                //////console.log;
+                                setSelectedStage(stages)
+                                setSelectedFromDate(fromDate)
+                                setSelectedToDate(toDate)
+                                setSelectedPipeline(pipeline)
+                                setFilterTags(remainingTags)
                                 setFiltersSelected(filters)
                               }}
                             >
@@ -2436,6 +2466,35 @@ const Userleads = ({
                             align="end"
                             className="w-[120px]"
                           >
+                            <DropdownMenuItem
+                              className="text-black focus:text-purple cursor-pointer"
+                              onSelect={(e) => {
+                                e.preventDefault()
+                                setShowEditSmartList(true);
+                                setSelectedSmartListForEdit(item);
+                                console.log("selectedSmartListForEdit", item);
+                              }}
+                              disabled={editSmartListLoader}
+                            >
+                              {editSmartListLoader ? (
+                                <CircularProgress
+                                  size={15}
+                                  sx={{ color: 'hsl(var(--brand-primary))' }}
+                                  className="mr-2"
+                                />
+                              ) : (
+                                <Image
+                                  className='mr-2'
+                                  src={'/assets/editPen.png'}
+                                  height={15}
+                                  width={15}
+                                  alt="*"
+                                />
+                              )}
+                              <span style={{ fontWeight: '500', fontSize: 16 }}>
+                                Edit
+                              </span>
+                            </DropdownMenuItem>
                             <DropdownMenuItem
                               className="text-red focus:text-red cursor-pointer"
                               onSelect={(e) => {
@@ -2925,12 +2984,7 @@ const Userleads = ({
                         className="outline-none w-[105px]"
                         style={{ fontSize: 16.8, fontWeight: '600' }}
                         onClick={() => {
-                          // setSelectedFromDate(null);
-                          // setSelectedToDate(null);
-                          // setSelectedStage(null);
-                          // getLeads()
-                          //   window.location.reload();
-                          setFiltersSelected([])
+                          resetFilters()
                         }}
                       >
                         Reset
@@ -2970,6 +3024,23 @@ const Userleads = ({
                   setSheetsList([...SheetsList, newSmartlist])
                 }}
               />
+
+              {showEditSmartList && (
+                <CreateSmartlistModal
+                  open={showEditSmartList}
+                  onClose={() => {
+                    setShowEditSmartList(false)
+                    setSelectedSmartListForEdit(null)
+                  }}
+                  onSuccess={(newSmartlist) => {
+                    setSheetsList(SheetsList.map(item => item.id === selectedSmartListForEdit.id ? newSmartlist : item))
+                    setShowEditSmartList(false)
+                    setSelectedSmartListForEdit(null)
+                  }}
+                  isEditSmartList={true}
+                  selectedSmartList={selectedSmartListForEdit}
+                />
+              )}
             </div>
           </div>
 

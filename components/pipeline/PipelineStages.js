@@ -16,7 +16,7 @@ import {
 import { CaretDown, CaretUp, Minus, PencilSimple } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { flushSync } from 'react-dom'
 
 import CloseBtn, { CloseBtn2 } from '@/components/globalExtras/CloseBtn'
@@ -65,6 +65,7 @@ const PipelineStages = ({
   setSnackType,
   onNewStageCreated,
   handleReOrder,
+  scrollContainerRef: scrollContainerRefProp,
 }) => {
   const [showSampleTip, setShowSampleTip] = useState(false)
 
@@ -669,41 +670,117 @@ const PipelineStages = ({
     ])
   }
 
-  //code for drag and drop stages
-  const handleOnDragEnd = (result) => {
-    // //console.log;
-    const { source, destination } = result
-    // //console.log;
-    // if (!destination) return;
-    if (!destination || source.index === 0 || destination.index === 0) {
-      setShowRearrangeErr('Cannot rearrange when stage is expanded.')
-      setIsVisibleSnack(true)
-      setSnackType('Error')
-      // //console.log;
-      return
+  // Refs for custom auto-scroll while dragging
+  const droppableContainerRef = useRef(null)
+  const scrollContainerRef = useRef(null)
+  const dragScrollRafRef = useRef(null)
+  const lastPointerYRef = useRef(null)
+
+  const getClosestScrollable = useCallback((el) => {
+    if (!el || el === document.body) return null
+    const style = window.getComputedStyle(el)
+    const ox = style.overflowX
+    const oy = style.overflowY
+    const isScrollable =
+      ox === 'auto' ||
+      ox === 'scroll' ||
+      oy === 'auto' ||
+      oy === 'scroll'
+    if (isScrollable) return el
+    return getClosestScrollable(el.parentElement)
+  }, [])
+
+  const EDGE_THRESHOLD = 100
+  const SCROLL_SPEED = 12
+
+  const applyDragScroll = useCallback((clientY) => {
+    const scrollEl = scrollContainerRef.current
+    if (!scrollEl) return false
+    const rect = scrollEl.getBoundingClientRect()
+    const maxScroll = scrollEl.scrollHeight - scrollEl.clientHeight
+    if (maxScroll <= 0) return false
+
+    let delta = 0
+    if (clientY <= rect.top + EDGE_THRESHOLD) {
+      delta = -SCROLL_SPEED
+    } else if (clientY >= rect.bottom - EDGE_THRESHOLD) {
+      delta = SCROLL_SPEED
     }
+    if (delta === 0) return false
 
-    // if (!destination || source.index === destination.index) {
-    //    // //console.log
-    //     return;
-    // }
+    const next = Math.max(0, Math.min(maxScroll, scrollEl.scrollTop + delta))
+    scrollEl.scrollTop = next
+    return true
+  }, [])
 
-    // //console.log;
-    const items = Array.from(pipelineStages)
-    const [reorderedItem] = items.splice(source.index, 1)
-    items.splice(destination.index, 0, reorderedItem)
+  const handleDragMove = useCallback(
+    (e) => {
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY
+      lastPointerYRef.current = clientY
+      if (dragScrollRafRef.current) return
+      const tick = () => {
+        if (lastPointerYRef.current == null) return
+        const inZone = applyDragScroll(lastPointerYRef.current)
+        dragScrollRafRef.current = inZone
+          ? requestAnimationFrame(tick)
+          : null
+      }
+      dragScrollRafRef.current = requestAnimationFrame(tick)
+    },
+    [applyDragScroll],
+  )
 
-    // //console.log;
-    const updatedStages = items.map((stage, index) => ({
-      ...stage,
-      order: index + 1,
-    }))
+  const handleOnDragStart = useCallback(() => {
+    const scrollable =
+      scrollContainerRefProp?.current ?? getClosestScrollable(droppableContainerRef.current)
+    scrollContainerRef.current = scrollable
+    if (scrollable) {
+      window.addEventListener('mousemove', handleDragMove)
+      window.addEventListener('touchmove', handleDragMove, { passive: false })
+    }
+  }, [scrollContainerRefProp, getClosestScrollable, handleDragMove])
 
-    // //console.log;
-    setPipelineStages(updatedStages)
-    onUpdateOrder(updatedStages)
-    handleReOrder()
-  }
+  const handleOnDragEnd = useCallback(
+    (result) => {
+      window.removeEventListener('mousemove', handleDragMove)
+      window.removeEventListener('touchmove', handleDragMove)
+      if (dragScrollRafRef.current) {
+        cancelAnimationFrame(dragScrollRafRef.current)
+        dragScrollRafRef.current = null
+      }
+      scrollContainerRef.current = null
+      lastPointerYRef.current = null
+
+      const { source, destination } = result
+      if (!destination || source.index === 0 || destination.index === 0) {
+        setShowRearrangeErr('Cannot rearrange when stage is expanded.')
+        setIsVisibleSnack(true)
+        setSnackType('Error')
+        return
+      }
+
+      const items = Array.from(pipelineStages)
+      const [reorderedItem] = items.splice(source.index, 1)
+      items.splice(destination.index, 0, reorderedItem)
+
+      const updatedStages = items.map((stage, index) => ({
+        ...stage,
+        order: index + 1,
+      }))
+
+      setPipelineStages(updatedStages)
+      onUpdateOrder(updatedStages)
+      handleReOrder(updatedStages)
+  },
+  [
+    handleDragMove,
+    setShowRearrangeErr,
+    setIsVisibleSnack,
+    setSnackType,
+    pipelineStages,
+    onUpdateOrder,
+    handleReOrder,
+  ])
 
   //functions to move to stage after deleting one
   const handleChangeNextStage = (event) => {
@@ -868,6 +945,7 @@ const PipelineStages = ({
           setNewStageTitle('')
           // setStageColor("");
           setStagesList(response.data.data.stages)
+          console.log("From handleAddNewStageTitle Selected pipeline stages are", response.data.data.stages);
           selectedPipelineItem.stages = response.data.data.stages
           onNewStageCreated(selectedPipelineItem)
         } else {
@@ -940,12 +1018,18 @@ const PipelineStages = ({
   }
 
   return (
-    <DragDropContext onDragEnd={handleOnDragEnd}>
+    <DragDropContext
+      onDragStart={handleOnDragStart}
+      onDragEnd={handleOnDragEnd}
+    >
       <Droppable droppableId="pipelineStages">
         {(provided) => (
           <div
             {...provided.droppableProps}
-            ref={provided.innerRef}
+            ref={(el) => {
+              provided.innerRef(el)
+              droppableContainerRef.current = el
+            }}
             style={{
               maxHeight: '100vh',
               // overflowY: "auto",

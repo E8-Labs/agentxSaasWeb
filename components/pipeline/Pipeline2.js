@@ -90,6 +90,8 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
   const [isErrorVisible, setIsErrorVisible] = useState(false)
   const [errorType, setErrorType] = useState(SnackbarTypes.Error)
 
+  const [showOrb, setShowOrb] = useState(true)
+
   //code for objective
   const [objective, setObjective] = useState('')
 
@@ -140,6 +142,53 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
   const greetingInputRef = useRef(null) // Reference to the input element
 
   useEffect(() => {
+    // Check if user is subaccount and if agency has logo
+    if (typeof window !== 'undefined') {
+      try {
+        const userData = localStorage.getItem('User')
+        let isSub = false
+        let hasLogo = false
+
+        if (userData) {
+          const parsedUser = JSON.parse(userData)
+          isSub =
+            parsedUser?.user?.userRole === 'AgencySubAccount' ||
+            parsedUser?.userRole === 'AgencySubAccount'
+          setIsSubaccount(isSub)
+        }
+
+        // Check if agency has branding logo
+        let branding = null
+        const storedBranding = localStorage.getItem('agencyBranding')
+        if (storedBranding) {
+          try {
+            branding = JSON.parse(storedBranding)
+          } catch (error) { }
+        }
+
+        // Also check user data for agencyBranding
+        if (userData) {
+          try {
+            const parsedUser = JSON.parse(userData)
+            if (parsedUser?.user?.agencyBranding) {
+              branding = parsedUser.user.agencyBranding
+            } else if (parsedUser?.agencyBranding) {
+              branding = parsedUser.agencyBranding
+            } else if (parsedUser?.user?.agency?.agencyBranding) {
+              branding = parsedUser.user.agency.agencyBranding
+            }
+          } catch (error) { }
+        }
+
+        hasLogo = !!branding?.logoUrl
+
+        // Show orb if: not subaccount OR (subaccount but no logo)
+        setShowOrb(!isSub || (isSub && !hasLogo))
+      } catch (error) { }
+    }
+  }, [])
+
+  useEffect(() => {
     let userData = localStorage.getItem(PersistanceKeys.LocalStorageUser)
     if (userData) {
       let u = JSON.parse(userData)
@@ -156,7 +205,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             parsedUser?.userRole === 'AgencySubAccount',
           )
         }
-      } catch (error) {}
+      } catch (error) { }
     }
   }, [])
 
@@ -617,7 +666,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
             try {
               const parsed = JSON.parse(isFromAdminOrAgency)
               subaccountData = parsed?.subAccountData
-            } catch (error) {}
+            } catch (error) { }
 
             // Send event to parent window (opener) that agent was created
             if (window.opener && subaccountData) {
@@ -630,7 +679,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                   },
                   '*', // In production, specify the exact origin
                 )
-              } catch (error) {}
+              } catch (error) { }
             }
 
             // Clean up the stored data
@@ -642,7 +691,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
               window.close()
             }, 500)
           }
-          else{
+          else {
             router.push('/dashboard/myAgentX')
           }
           // console.log('Is from agency or admin', isFromAgencyOrAdmin)
@@ -852,14 +901,14 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
       <div className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative">
         <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
           {/* header with title centered vertically */}
-          <div className="relative w-full flex-shrink-0">
+          <div className="relative w-full flex-shrink-0 mb-6">
             <Header />
             <div
-              className="absolute left-1/2 transform -translate-x-1/2 md:text-4xl text-lg font-[700]"
+              className="absolute left-1/2 md:text-4xl text-lg font-[700]"
               style={{
-                top: '50%',
+                top: showOrb ? 'calc(50% + 45px)' : '50%',
                 transform: 'translate(-50%, -50%)',
-                zIndex: 10,
+                zIndex: 50,
                 pointerEvents: 'none',
               }}
             >
@@ -875,7 +924,7 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
               // left: "18%",
               // translate: "-50%",
               // left: "14%",
-              top: '20%',
+              top: '30%',
               // backgroundColor: "red"
             }}
           >

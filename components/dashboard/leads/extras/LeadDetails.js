@@ -2239,7 +2239,13 @@ const LeadDetails = ({
                         </div>
 
 
-                        {selectedLeadsDetails?.phone && <InfoRow icon={<PhoneIcon className="h-4 w-4" />}>{selectedLeadsDetails?.phone}</InfoRow>}
+                        {selectedLeadsDetails?.phone && (
+                          <InfoRow icon={<PhoneIcon className="h-4 w-4" />}>
+                            {selectedLeadsDetails.phone.startsWith('+')
+                              ? selectedLeadsDetails.phone
+                              : `+${selectedLeadsDetails.phone}`}
+                          </InfoRow>
+                        )}
                         {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>{selectedLeadsDetails?.address}</InfoRow>}
                         <InfoRow icon={<WorkflowIcon className="h-4 w-4" />}>
                           {selectedLeadsDetails?.pipeline?.title ||
