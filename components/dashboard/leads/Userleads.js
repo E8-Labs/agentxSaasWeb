@@ -1021,12 +1021,32 @@ const Userleads = ({
   }
 
   function getFilterText() {
-    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&id=${nextCursorValue === null ? 'null' : nextCursorValue}
+    const searchTrimmed = searchLead ? String(searchLead).trim() : ''
+    // When user is searching: do not send sheetId so API searches across all sheets
+    if (searchTrimmed) {
+      let string = `search=${encodeURIComponent(searchTrimmed)}`
+      let stageIds = ''
+      let stageSeparator = ''
+      filtersSelected.forEach((filter) => {
+        if (filter.key == 'date') {
+          const formtFromDate = moment(filter.values[0]).format('MM/DD/YYYY')
+          const formtToDate = moment(filter.values[1]).format('MM/DD/YYYY')
+          string = `${string}&fromDate=${formtFromDate}&toDate=${formtToDate}`
+        }
+        if (filter.key == 'stage') {
+          stageIds = `${stageIds}${stageSeparator}${filter.values[0].id}`
+          stageSeparator = ','
+        }
+      })
+      if (stageIds.length > 0) {
+        string = `${string}&stageIds=${stageIds}`
+      }
+      return string
+    }
+
+    // No search: require sheetId (single sheet)
     let string = `sheetId=${SelectedSheetId}`
     if (filtersSelected.length == 0) {
-      if (searchLead && searchLead.length > 0) {
-        string = `${string}&search=${searchLead}`
-      }
       return string
     }
 
@@ -1047,10 +1067,6 @@ const Userleads = ({
         // stageSeparator = ","
       }
     })
-    if (searchLead && searchLead.length > 0) {
-      string = `${string}&search=${searchLead}`
-    }
-    // string = `${string}&stageIds=${stageIds}`;
     if (stageIds.length > 0) {
       string = `${string}&stageIds=${stageIds}`
     }
@@ -1059,17 +1075,16 @@ const Userleads = ({
   }
 
   function getFiltersObject() {
-    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&id=${nextCursorValue === null ? 'null' : nextCursorValue}
+    const searchTrimmed = searchLead ? String(searchLead).trim() : ''
     let filters = {}
-    let string = `sheetId=${SelectedSheetId}`
-    if (SelectedSheetId) {
+    // When searching across all sheets, do not send sheetId
+    if (!searchTrimmed && SelectedSheetId) {
       filters['sheetId'] = SelectedSheetId
     }
-    // if (filtersSelected.length == 0) {
-    if (searchLead && searchLead.length > 0) {
-      string = `${string}&search=${searchLead}`
-      filters['search'] = searchLead
+    if (searchTrimmed) {
+      filters['search'] = searchTrimmed
     }
+    let string = searchTrimmed ? `search=${encodeURIComponent(searchTrimmed)}` : `sheetId=${SelectedSheetId}`
     // return string;
     // }
 
@@ -1149,6 +1164,8 @@ const Userleads = ({
 
   //function for filtering leads
   const handleFilterLeads = async (filterText = null) => {
+    const searchTrimmed = searchLead ? String(searchLead).trim() : ''
+    const isSearchingAllSheets = !!searchTrimmed
     //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&id=${nextCursorValue === null ? 'null' : nextCursorValue}
     console.log("Filter leads triggered")
     const currentRequestVersion = ++requestVersion.current
@@ -1218,17 +1235,16 @@ const Userleads = ({
             //   setShowNoLeadErr("No leads found");
 
             const data = response.data.data
-            // Get sheetId from response to verify it matches current selection
+            // Get sheetId from response to verify it matches current selection (not used when searching all sheets)
             let sheetId = null
             if (data.length > 0) {
               sheetId = data[0].sheetId
             }
 
-            // Only process response if it matches the currently selected sheet
-            // This prevents race conditions when switching sheets quickly
-            // For empty responses, we process them if it's the first page (nextCursorValue is 0/falsy)
-            // because empty responses don't have a sheetId but should still be shown for the current sheet
-            const shouldProcess = (sheetId == SelectedSheetId) ||
+            // When searching across all sheets, always process; otherwise only if sheet matches or empty first page
+            const shouldProcess =
+              isSearchingAllSheets ||
+              (sheetId == SelectedSheetId) ||
               (data.length === 0 && !nextCursorValue)
 
             if (shouldProcess) {
@@ -1240,9 +1256,9 @@ const Userleads = ({
                   setShowNoLeadsLabel(true)
                 }
 
-                // Only set leads if sheet matches (or empty response for first page)
-                if (sheetId == SelectedSheetId || data.length === 0) {
-                  if (data.length > 0 && sheetId == SelectedSheetId) {
+                // When searching all sheets, don't cache by sheet; always set leads
+                if (isSearchingAllSheets || sheetId == SelectedSheetId || data.length === 0) {
+                  if (!isSearchingAllSheets && data.length > 0 && sheetId == SelectedSheetId) {
                     LeadsInSheet[SelectedSheetId] = response.data
 
                     // Try to save to localStorage with error handling
@@ -1263,15 +1279,15 @@ const Userleads = ({
                   setFilterLeads(data)
                 }
               } else {
-                // For pagination, append leads only if sheet matches
-                if (sheetId == SelectedSheetId && data.length > 0) {
+                // For pagination: append when searching all sheets or when sheet matches
+                if ((isSearchingAllSheets || sheetId == SelectedSheetId) && data.length > 0) {
                   setLeadsList((prevDetails) => [...prevDetails, ...data])
                   setFilterLeads((prevDetails) => [...prevDetails, ...data])
                 }
               }
 
-              // Set columns only if sheet matches or it's an empty response
-              if (sheetId == SelectedSheetId || (data.length === 0 && !nextCursorValue)) {
+              // Set columns when searching all sheets, or when sheet matches or empty response
+              if (isSearchingAllSheets || sheetId == SelectedSheetId || (data.length === 0 && !nextCursorValue)) {
                 let leads = data
                 let leadColumns = response.data.columns
                 if (leads && leadColumns) {
@@ -2370,6 +2386,8 @@ const Userleads = ({
                 </div>
               </div>
 
+              {/* Hide sheets list when searching across all sheets */}
+              {!(searchLead && String(searchLead).trim()) && (
               <div
                 className="flex flex-row items-center mt-8 gap-2"
                 style={styles.paragraph}
@@ -2549,6 +2567,7 @@ const Userleads = ({
                   <span>New Leads</span>
                 </button>
               </div>
+              )}
 
               {LeadsList.length > 0 ? (
                 <div

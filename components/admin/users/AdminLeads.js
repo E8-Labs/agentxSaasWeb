@@ -102,6 +102,8 @@ const AdminLeads = ({
   const [showAddNewSheetModal, setShowAddNewSheetModal] = useState(false)
 
   const requestVersion = useRef(0)
+  const searchDebounceRef = useRef(null)
+  const hasSearchedRef = useRef(false)
 
   const [filtersSelected, setFiltersSelected] = useState([])
   const [isInbound, setIsInbound] = useState(false)
@@ -274,6 +276,37 @@ const AdminLeads = ({
     handleFilterLeads(filterText)
     setShowNoLeadsLabel(false)
   }, [filtersSelected, SelectedSheetId, selectedUser])
+
+  // Debounced search: when user types in search, fetch from API (no sheetId) after 400ms; when cleared after a search, refetch current sheet
+  useEffect(() => {
+    const searchTrimmed = searchLead ? String(searchLead).trim() : ''
+    if (searchTrimmed) {
+      hasSearchedRef.current = true
+      if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
+      searchDebounceRef.current = setTimeout(() => {
+        setFilterLeads([])
+        setLeadsList([])
+        setNextCursorValue(0)
+        nextCursorRef.current = 0
+        setHasMore(true)
+        handleFilterLeads(getFilterText())
+        setShowNoLeadsLabel(false)
+      }, 400)
+      return () => {
+        if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current)
+      }
+    }
+    if (hasSearchedRef.current) {
+      hasSearchedRef.current = false
+      setFilterLeads([])
+      setLeadsList([])
+      setNextCursorValue(0)
+      nextCursorRef.current = 0
+      setHasMore(true)
+      handleFilterLeads(getFilterText())
+      setShowNoLeadsLabel(false)
+    }
+  }, [searchLead])
 
   //Caching & refresh logic
   useEffect(() => {
@@ -637,7 +670,29 @@ const AdminLeads = ({
   }
 
   function getFilterText() {
-    //fromDate=${formtFromDate}&toDate=${formtToDate}&stageIds=${stages}&offset=${offset}
+    const searchTrimmed = searchLead ? String(searchLead).trim() : ''
+    // When user is searching: do not send sheetId so API searches across all sheets
+    if (searchTrimmed) {
+      let string = `search=${encodeURIComponent(searchTrimmed)}`
+      let stageIds = ''
+      let stageSeparator = ''
+      filtersSelected.forEach((filter) => {
+        if (filter.key == 'date') {
+          const formtFromDate = moment(filter.values[0]).format('MM/DD/YYYY')
+          const formtToDate = moment(filter.values[1]).format('MM/DD/YYYY')
+          string = `${string}&fromDate=${formtFromDate}&toDate=${formtToDate}`
+        }
+        if (filter.key == 'stage') {
+          stageIds = `${stageIds}${stageSeparator}${filter.values[0].id}`
+          stageSeparator = ','
+        }
+      })
+      if (stageIds.length > 0) {
+        string = `${string}&stageIds=${stageIds}`
+      }
+      return string
+    }
+    // No search: require sheetId when using filters
     if (filtersSelected.length == 0) {
       return null
     }
@@ -659,7 +714,6 @@ const AdminLeads = ({
         // stageSeparator = ","
       }
     })
-    // string = `${string}&stageIds=${stageIds}`;
     if (stageIds.length > 0) {
       string = `${string}&stageIds=${stageIds}`
     }
@@ -746,6 +800,8 @@ const AdminLeads = ({
 
   //function for filtering leads (using cursor-based pagination like Userleads)
   const handleFilterLeads = async (filterText = null, append = false) => {
+    const searchTrimmed = searchLead ? String(searchLead).trim() : ''
+    const isSearchingAllSheets = !!searchTrimmed
     // Use ref value for API call to ensure we always use the latest cursor
     const currentCursor = nextCursorRef.current
     
@@ -834,17 +890,16 @@ const AdminLeads = ({
             setTotalLeads(response.data.leadCount)
 
             const data = responseLeads
-            // Get sheetId from response to verify it matches current selection
+            // Get sheetId from response to verify it matches current selection (not used when searching all sheets)
             let sheetId = null
             if (data && data.length > 0) {
               sheetId = data[0].sheetId
             }
             
-            // Only process response if it matches the currently selected sheet
-            // This prevents race conditions when switching sheets quickly
-            // For empty responses, we process them if it's the first page
-            // because empty responses don't have a sheetId but should still be shown for the current sheet
-            const shouldProcess = (sheetId == SelectedSheetId) || 
+            // When searching across all sheets, always process; otherwise only if sheet matches or empty first page
+            const shouldProcess =
+              isSearchingAllSheets ||
+              (sheetId == SelectedSheetId) ||
               (data.length === 0 && wasFirstLoad)
             
             if (shouldProcess) {
@@ -856,9 +911,9 @@ const AdminLeads = ({
                   setShowNoLeadsLabel(true)
                 }
 
-                // Only set leads if sheet matches (or empty response for first page)
-                if (sheetId == SelectedSheetId || data.length === 0) {
-                  if (data.length > 0 && sheetId == SelectedSheetId) {
+                // When searching all sheets, don't cache by sheet; always set leads
+                if (isSearchingAllSheets || sheetId == SelectedSheetId || data.length === 0) {
+                  if (!isSearchingAllSheets && data.length > 0 && sheetId == SelectedSheetId) {
                     LeadsInSheet[SelectedSheetId] = response.data
                     localStorage.setItem(
                       `Leads${SelectedSheetId}`,
@@ -870,16 +925,16 @@ const AdminLeads = ({
                   setFilterLeads(data)
                 }
               } else {
-                // For pagination, append leads only if sheet matches
+                // For pagination: append when searching all sheets or when sheet matches
                 setShowNoLeadsLabel(false)
-                if (sheetId == SelectedSheetId && data.length > 0) {
+                if ((isSearchingAllSheets || sheetId == SelectedSheetId) && data.length > 0) {
                   setLeadsList((prevDetails) => [...prevDetails, ...data])
                   setFilterLeads((prevDetails) => [...prevDetails, ...data])
                 }
               }
 
-              // Set columns only if sheet matches or it's an empty response
-              if (sheetId == SelectedSheetId || (data.length === 0 && wasFirstLoad)) {
+              // Set columns when searching all sheets, or when sheet matches or empty response
+              if (isSearchingAllSheets || sheetId == SelectedSheetId || (data.length === 0 && wasFirstLoad)) {
                 let leads = data
                 let leadColumns = response.data.columns
                 if (leads && leadColumns) {
@@ -1472,27 +1527,9 @@ const AdminLeads = ({
     }
   }
 
-  //code for handle search change
+  // Search is handled by API (getLeads without sheetId when search has value); debounced in useEffect
   const handleSearchChange = (value) => {
-    if (value.trim() === '') {
-      // //////console.log;
-      // Reset to original list when input is empty
-      setFilterLeads(LeadsList)
-      return
-    }
-
-    const filtered = LeadsList.filter((item) => {
-      const term = value.toLowerCase()
-      return (
-        item.firstName?.toLowerCase().includes(term) ||
-        item.lastName?.toLowerCase().includes(term) ||
-        item.address?.toLowerCase().includes(term) ||
-        item.email?.toLowerCase().includes(term) ||
-        (item.phone && item.phone.includes(term))
-      )
-    })
-
-    setFilterLeads(filtered)
+    setSearchLead(value)
   }
 
   function HandleUpdateStage(stage) {
@@ -1961,6 +1998,8 @@ const AdminLeads = ({
               </div>
             </div>
 
+            {/* Hide sheets list when searching across all sheets */}
+            {!(searchLead && String(searchLead).trim()) && (
             <div
               className="flex flex-row items-center mt-8 gap-2"
               style={styles.paragraph}
@@ -2086,6 +2125,7 @@ const AdminLeads = ({
                 <span>New Leads</span>
               </button>
             </div>
+            )}
 
             {/* <div className='w-full flex flex-row items-center mt-4' style={{ ...styles.paragraph, color: "#00000060" }}>
                                 <div className='w-2/12'>Name</div>
