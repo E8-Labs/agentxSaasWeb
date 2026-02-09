@@ -7,9 +7,18 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Switch } from '@/components/ui/switch'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
-import { Info } from 'lucide-react'
+import { Info, ChevronRight, ArrowLeft } from 'lucide-react'
 import { toast } from '@/utils/toast'
 import Apis from '@/components/apis/Apis'
+import {
+  COMMUNICATION_STYLES,
+  TAILORING_COMMUNICATION_OPTIONS,
+  SENTENCE_STRUCTURE_OPTIONS,
+  EXPRESSING_ENTHUSIASM_OPTIONS,
+  EXPLAINING_COMPLEX_CONCEPTS_OPTIONS,
+  GIVING_UPDATES_OPTIONS,
+  HANDLING_OBJECTIONS_OPTIONS,
+} from '@/components/constants/constants'
 
 const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
   const [loading, setLoading] = useState(false)
@@ -19,7 +28,17 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     replyDelayEnabled: false,
     replyDelaySeconds: 30,
     saveAsDraftEnabled: false,
+    communicationStyle: null,
+    tailoringCommunication: null,
+    sentenceStructure: null,
+    expressingEnthusiasm: null,
+    explainingComplexConcepts: null,
+    givingUpdates: null,
+    handlingObjections: null,
   })
+  const [subModalKey, setSubModalKey] = useState(null) // 'style' | 'tailoring' | 'sentenceStructure' | ...
+  const [subModalSelectedValue, setSubModalSelectedValue] = useState(null) // value selected in sub-modal (before Save)
+  const [savingSubModal, setSavingSubModal] = useState(false)
   const [apiKey, setApiKey] = useState('')
   const [apiKeyError, setApiKeyError] = useState('')
   const [aiIntegrations, setAiIntegrations] = useState([])
@@ -102,6 +121,13 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
           replyDelayEnabled: data.replyDelayEnabled || false,
           replyDelaySeconds: data.replyDelaySeconds || 30,
           saveAsDraftEnabled: data.saveAsDraftEnabled || false,
+          communicationStyle: data.communicationStyle ?? null,
+          tailoringCommunication: data.tailoringCommunication ?? null,
+          sentenceStructure: data.sentenceStructure ?? null,
+          expressingEnthusiasm: data.expressingEnthusiasm ?? null,
+          explainingComplexConcepts: data.explainingComplexConcepts ?? null,
+          givingUpdates: data.givingUpdates ?? null,
+          handlingObjections: data.handlingObjections ?? null,
         })
 
         // If there's an existing integration, store the API key for masking
@@ -216,6 +242,27 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
         return
       }
 
+      // Validate communication settings: each value must be in the allowed list for that key
+      const communicationFieldsToValidate = [
+        { key: 'communicationStyle', options: COMMUNICATION_STYLES },
+        { key: 'tailoringCommunication', options: TAILORING_COMMUNICATION_OPTIONS },
+        { key: 'sentenceStructure', options: SENTENCE_STRUCTURE_OPTIONS },
+        { key: 'expressingEnthusiasm', options: EXPRESSING_ENTHUSIASM_OPTIONS },
+        { key: 'explainingComplexConcepts', options: EXPLAINING_COMPLEX_CONCEPTS_OPTIONS },
+        { key: 'givingUpdates', options: GIVING_UPDATES_OPTIONS },
+        { key: 'handlingObjections', options: HANDLING_OBJECTIONS_OPTIONS },
+      ]
+      for (const { key, options } of communicationFieldsToValidate) {
+        const v = settings[key]
+        if (v != null && v !== '') {
+          const validValues = options.map((o) => o.value)
+          if (!validValues.includes(v)) {
+            toast.error(`Invalid value for ${key}. Please refresh and try again.`)
+            return
+          }
+        }
+      }
+
       let integrationId = settings.aiIntegrationId
 
       // If API key is provided and it's not the masked version or placeholder, create or update the integration
@@ -292,12 +339,19 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
         }
       }
 
-      // Save message settings
+      // Save message settings (including communication settings from backend)
       const payload = {
         aiIntegrationId: integrationId || null,
         replyDelayEnabled: settings.replyDelayEnabled,
         replyDelaySeconds: settings.replyDelayEnabled ? settings.replyDelaySeconds : null,
         saveAsDraftEnabled: settings.saveAsDraftEnabled,
+        communicationStyle: settings.communicationStyle ?? null,
+        tailoringCommunication: settings.tailoringCommunication ?? null,
+        sentenceStructure: settings.sentenceStructure ?? null,
+        expressingEnthusiasm: settings.expressingEnthusiasm ?? null,
+        explainingComplexConcepts: settings.explainingComplexConcepts ?? null,
+        givingUpdates: settings.givingUpdates ?? null,
+        handlingObjections: settings.handlingObjections ?? null,
       }
 
       // Add userId if viewing subaccount from admin/agency
@@ -369,9 +423,237 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     })
   }
 
+  // Communication Settings rows config: key, label, options, question, settingsKey
+  const communicationRowsConfig = [
+    {
+      key: 'style',
+      label: 'Style',
+      options: COMMUNICATION_STYLES,
+      question: 'What is your communication style when you engage in conversations?',
+      settingsKey: 'communicationStyle',
+    },
+    {
+      key: 'tailoring',
+      label: 'Tailoring Communication',
+      options: TAILORING_COMMUNICATION_OPTIONS,
+      question: 'How do you tailor your communication style in different conversations?',
+      settingsKey: 'tailoringCommunication',
+    },
+    {
+      key: 'sentenceStructure',
+      label: 'Sentence Structure',
+      options: SENTENCE_STRUCTURE_OPTIONS,
+      question: 'Do you prefer to use short, concise sentences or more elaborate, detailed explanations?',
+      settingsKey: 'sentenceStructure',
+    },
+    {
+      key: 'expressingEnthusiasm',
+      label: 'Expressing Enthusiasm',
+      options: EXPRESSING_ENTHUSIASM_OPTIONS,
+      question: 'How do you typically express enthusiasm or excitement in a conversation?',
+      settingsKey: 'expressingEnthusiasm',
+    },
+    {
+      key: 'explainingComplexConcepts',
+      label: 'Explaining Complex Concepts',
+      options: EXPLAINING_COMPLEX_CONCEPTS_OPTIONS,
+      question: 'Which example best represents how you explain complex concepts or terms to clients?',
+      settingsKey: 'explainingComplexConcepts',
+    },
+    {
+      key: 'givingUpdates',
+      label: 'Giving updates',
+      options: GIVING_UPDATES_OPTIONS,
+      question: 'How do you approach giving updates or bad news?',
+      settingsKey: 'givingUpdates',
+    },
+    {
+      key: 'handlingObjections',
+      label: 'Handling Objections',
+      options: HANDLING_OBJECTIONS_OPTIONS,
+      question: 'How do you usually handle objections or concerns from clients?',
+      settingsKey: 'handlingObjections',
+    },
+  ]
+
+  const getLabelForValue = (options, value) => {
+    if (!value) return null
+    const opt = options.find((o) => o.value === value)
+    return opt ? opt.label : null
+  }
+
+  const handleSaveCommunicationSubModal = async (settingsKey, value) => {
+    const localData = localStorage.getItem('User')
+    if (!localData) {
+      toast.error('Please log in to save')
+      return
+    }
+    // Client-side validation: value must be null or one of the allowed values for this key
+    const config = communicationRowsConfig.find((r) => r.settingsKey === settingsKey)
+    if (config) {
+      const validValues = config.options.map((o) => o.value)
+      if (value != null && value !== '' && !validValues.includes(value)) {
+        toast.error(`Invalid value for ${config.label}. Please choose an option from the list.`)
+        return
+      }
+    }
+    const userData = JSON.parse(localData)
+    const token = userData.token
+    try {
+      setSavingSubModal(true)
+      const payload = {
+        ...settings,
+        [settingsKey]: value,
+      }
+      if (selectedUser?.id) payload.userId = selectedUser.id
+      const apiUrl = `${Apis.BasePath}api/mail/settings`
+      const response = await axios.put(apiUrl, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response.data?.status && response.data?.data) {
+        const data = response.data.data
+        setSettings((prev) => ({
+          ...prev,
+          communicationStyle: data.communicationStyle ?? null,
+          tailoringCommunication: data.tailoringCommunication ?? null,
+          sentenceStructure: data.sentenceStructure ?? null,
+          expressingEnthusiasm: data.expressingEnthusiasm ?? null,
+          explainingComplexConcepts: data.explainingComplexConcepts ?? null,
+          givingUpdates: data.givingUpdates ?? null,
+          handlingObjections: data.handlingObjections ?? null,
+        }))
+        setSubModalKey(null)
+        toast.success('Saved')
+      } else {
+        toast.error(response.data?.message || 'Failed to save')
+      }
+    } catch (error) {
+      console.error('Error saving communication setting:', error)
+      toast.error(error.response?.data?.message || 'Failed to save')
+    } finally {
+      setSavingSubModal(false)
+    }
+  }
+
+  const activeSubModalConfig = subModalKey
+    ? communicationRowsConfig.find((r) => r.key === subModalKey)
+    : null
+
+  const isSubScreen = !!activeSubModalConfig
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md" overlayClassName="bg-black/40">
+        {/* Sub-screen: Communication setting (iPhone-style back + content) */}
+        {isSubScreen ? (
+          <>
+            <DialogHeader className="flex flex-row items-center gap-3 pb-2">
+              <button
+                type="button"
+                onClick={() => setSubModalKey(null)}
+                className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-gray-100 transition-colors -ml-1"
+                aria-label="Back"
+              >
+                <ArrowLeft className="w-5 h-5 text-gray-700" />
+              </button>
+              <DialogTitle className="text-xl font-bold flex-1">{activeSubModalConfig.label}</DialogTitle>
+            </DialogHeader>
+            <p className="text-sm text-gray-600 mt-1">{activeSubModalConfig.question}</p>
+            <div className="space-y-2 py-4 overflow-y-auto flex-1 min-h-0">
+              {activeSubModalConfig.options.map((opt) => {
+                const isOptSelected = subModalSelectedValue === opt.value
+                return (
+                  <label
+                    key={opt.value}
+                    className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${
+                      isOptSelected ? '' : 'border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                    }`}
+                    style={
+                      isOptSelected
+                        ? {
+                            borderColor: 'hsl(var(--brand-primary))',
+                            backgroundColor: 'hsl(var(--brand-primary) / 0.1)',
+                          }
+                        : undefined
+                    }
+                  >
+                    <span className="relative mt-1 shrink-0 flex items-center justify-center w-4 h-4">
+                      <input
+                        type="radio"
+                        name={activeSubModalConfig.settingsKey}
+                        value={opt.value}
+                        checked={isOptSelected}
+                        onChange={() => setSubModalSelectedValue(opt.value)}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-[1]"
+                      />
+                      <span
+                        className={`w-4 h-4 rounded-full border-2 flex items-center justify-center pointer-events-none ${
+                          !isOptSelected ? 'border-gray-300 bg-white' : ''
+                        }`}
+                        style={
+                          isOptSelected
+                            ? {
+                                borderColor: 'hsl(var(--brand-primary))',
+                                backgroundColor: 'hsl(var(--brand-primary))',
+                              }
+                            : undefined
+                        }
+                      >
+                        {isOptSelected && (
+                          <span
+                            className="w-1.5 h-1.5 rounded-full bg-white"
+                            aria-hidden
+                          />
+                        )}
+                      </span>
+                    </span>
+                    <div className="min-w-0">
+                      <span
+                        className="text-sm font-medium"
+                        style={isOptSelected ? { color: 'hsl(var(--brand-primary))' } : undefined}
+                      >
+                        {opt.label}
+                      </span>
+                      {opt.bestFor && (
+                        <p className="text-xs text-gray-500 mt-0.5">Best for: {opt.bestFor}</p>
+                      )}
+                      {opt.example && (
+                        <p className="text-xs text-gray-600 mt-0.5">Ex: {opt.example}</p>
+                      )}
+                    </div>
+                  </label>
+                )
+              })}
+            </div>
+            <DialogFooter className="gap-2 border-t pt-4 mt-2">
+              <Button
+                variant="outline"
+                onClick={() => setSubModalKey(null)}
+                disabled={savingSubModal}
+                className="bg-white hover:bg-gray-50"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={() =>
+                  handleSaveCommunicationSubModal(
+                    activeSubModalConfig.settingsKey,
+                    subModalSelectedValue
+                  )
+                }
+                disabled={savingSubModal}
+                className="hover:opacity-90 text-white"
+                style={{ backgroundColor: 'hsl(var(--brand-primary))' }}
+              >
+                {savingSubModal ? 'Saving...' : 'Save'}
+              </Button>
+            </DialogFooter>
+          </>
+        ) : (
+          <>
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold">Message Settings</DialogTitle>
         </DialogHeader>
@@ -512,6 +794,38 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                 />
               </div>
             </div>
+
+            {/* Communication Settings */}
+            <div className="space-y-2">
+              <h3 className="text-sm text-[#666666]">Communication Settings</h3>
+              <div className="space-y-0 rounded-lg overflow-hidden">
+                {communicationRowsConfig.map((row) => {
+                  const value = settings[row.settingsKey]
+                  const selectedLabel = getLabelForValue(row.options, value)
+                  return (
+                    <button
+                      key={row.key}
+                      type="button"
+                      onClick={() => {
+                        setSubModalKey(row.key)
+                        setSubModalSelectedValue(settings[row.settingsKey] ?? null)
+                      }}
+                      className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left transition-colors bg-white hover:bg-gray-50 rounded-lg border-2 border-transparent focus:outline-none focus-visible:border-dashed focus-visible:border-gray-400"
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="text-sm font-regular text-gray-900">{row.label}</div>
+                        {selectedLabel && (
+                          <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium border border-gray-200 text-gray-500">
+                            {selectedLabel}
+                          </span>
+                        )}
+                      </div>
+                      <ChevronRight className="shrink-0 w-5 h-5 text-gray-400" />
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
           </div>
         )}
 
@@ -527,11 +841,14 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
           <Button
             onClick={handleSave}
             disabled={saving || loading}
-            className="bg-brand-primary hover:bg-brand-primary/90 text-white"
+            className="hover:opacity-90 text-white"
+            style={{ backgroundColor: 'hsl(var(--brand-primary))' }}
           >
             {saving ? 'Saving...' : 'Save Changes'}
           </Button>
         </DialogFooter>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   )
