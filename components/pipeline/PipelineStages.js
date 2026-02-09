@@ -770,7 +770,7 @@ const PipelineStages = ({
 
       setPipelineStages(updatedStages)
       onUpdateOrder(updatedStages)
-      handleReorder(updatedStages)
+      handleReOrder(updatedStages)
   },
   [
     handleDragMove,
