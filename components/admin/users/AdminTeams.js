@@ -523,7 +523,7 @@ function AdminTeam({ selectedUser, agencyUser }) {
   }
 
   return (
-    <div className="w-full flex flex-col items-center h-full">
+    <div className="w-full flex flex-col items-center h-full mt-[4vh]">
       {/* Slider code */}
       <div
         style={{
