@@ -14,7 +14,7 @@ import axios from 'axios'
 import { set } from 'draft-js/lib/DefaultDraftBlockRenderMap'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import Body from '@/components/onboarding/Body'
 import Footer from '@/components/onboarding/Footer'
@@ -65,6 +65,9 @@ const Pipeline1 = ({
   const [createPipelineLoader, setPipelineLoader] = useState(false)
   const [isInboundAgent, setIsInboundAgent] = useState(false)
   const [showRearrangeErr, setShowRearrangeErr] = useState(null)
+
+  // Ref for the main scroll container so PipelineStages can auto-scroll it during drag
+  const mainScrollContainerRef = useRef(null)
 
   const pipelineId = selectedPipelineItem?.id
   const currentCadence = useMemo(
@@ -808,7 +811,10 @@ const Pipeline1 = ({
       <div
         className="bg-white sm:rounded-2xl flex flex-col w-full sm:mx-2 md:w-10/12 h-[100%] sm:h-[95%] py-4 relative"
       >
-        <div className="h-[95svh] sm:h-[92svh] overflow-auto pb-24">
+        <div
+          ref={mainScrollContainerRef}
+          className="h-[95svh] sm:h-[92svh] overflow-auto pb-24"
+        >
           {/* header with title centered vertically */}
           <div className="relative w-full flex-shrink-0" style={{ minHeight: showOrb ? '140px' : '100px' }}>
             <Header />
@@ -951,6 +957,7 @@ const Pipeline1 = ({
                 selectedPipelineItem={selectedPipelineItem}
                 setShowRearrangeErr={setReorderSuccessBarMessage}
                 setIsVisibleSnack={setIsVisibleSnack}
+                scrollContainerRef={mainScrollContainerRef}
                 setSnackType={setSnackType}
                 onNewStageCreated={onNewStageCreated}
                 handleReOrder={handleReorder}
