@@ -30,7 +30,7 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, s
   useEffect(() => {
     if (!isEditSmartList) {
       setInputs(defaultColumns)
-    } else if (selectedSmartList?.columns && Array.isArray(selectedSmartList.columns) && selectedSmartList?.type === 'manual') {
+    } else if (selectedSmartList?.columns && Array.isArray(selectedSmartList.columns)) {
       setInputs(
         selectedSmartList.columns.map((col, index) => ({
           id: index + 1,
@@ -356,91 +356,86 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, s
                   autoFocus={false}
                 />
               </div>
-              {
-                /* When editing: show only if type is manual. When creating: show Create Columns (new list is manual by default). */
-                (!isEditSmartList || selectedSmartList?.type === 'manual') && (
-                  <div>
-                    <div className="mt-8" style={styles.paragraph}>
-                      Create Columns
-                    </div>
+              <div>
+                <div className="mt-8" style={styles.paragraph}>
+                  Create Columns
+                </div>
+                <div
+                  className="max-h-[29vh] overflow-auto mt-2"
+                  style={{
+                    scrollbarWidth: 'none',
+                  }}
+                >
+                  {inputs.map((input, index) => (
                     <div
-                      className="max-h-[29vh] overflow-auto mt-2"
-                      style={{
-                        scrollbarWidth: 'none',
-                      }}
+                      key={input.id}
+                      className="w-full flex flex-row items-center gap-4 mt-4"
                     >
-                      {inputs.map((input, index) => (
-                        <div
-                          key={input.id}
-                          className="w-full flex flex-row items-center gap-4 mt-4"
-                        >
-                          <input
-                            type="text"
-                            className="border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]"
-                            style={{
-                              ...styles.paragraph,
-                              width: '95%',
-                              borderColor: '#00000020',
-                            }}
-                            placeholder={`Column Name`}
-                            value={input.value}
-                            readOnly={isEditSmartList ? false : index < 3}
-                            disabled={isEditSmartList ? false : index < 3}
-                            tabIndex={isEditSmartList ? 0 : index < 3 ? -1 : 0}
-                            onChange={(e) => {
-                              if (isEditSmartList ? true : index > 2) {
-                                handleInputChange(input.id, e.target.value)
-                              }
-                            }}
-                            onFocus={(e) => {
-                              // Ensure input can receive focus
-                              if (isEditSmartList ? true : index > 2) {
-                                e.target.focus()
-                              }
-                            }}
-                          />
-                          <div style={{ width: '5%' }}>
-                            {(isEditSmartList ? true : index > 2) && (
-                              <button
-                                className="outline-none border-none"
-                                onClick={(e) => {
-                                  e.stopPropagation()
-                                  handleDelete(input.id)
-                                }}
-                                style={{ pointerEvents: 'auto' }}
-                              >
-                                <Image
-                                  src={'/assets/blackBgCross.png'}
-                                  height={20}
-                                  width={20}
-                                  alt="*"
-                                />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                      {/* Dummy element for scrolling */}
-                      <div ref={bottomRef}></div>
-                    </div>
-                    <div style={{ height: '50px' }}>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleAddInput()
-                        }}
-                        className="mt-4 p-2 outline-none border-none text-brand-primary rounded-lg underline"
+                      <input
+                        type="text"
+                        className="border p-2 rounded-lg px-3 outline-none focus:outline-none focus:ring-0 h-[53px]"
                         style={{
                           ...styles.paragraph,
-                          pointerEvents: 'auto',
+                          width: '95%',
+                          borderColor: '#00000020',
                         }}
-                      >
-                        New Column
-                      </button>
+                        placeholder={`Column Name`}
+                        value={input.value}
+                        readOnly={isEditSmartList ? false : index < 3}
+                        disabled={isEditSmartList ? false : index < 3}
+                        tabIndex={isEditSmartList ? 0 : index < 3 ? -1 : 0}
+                        onChange={(e) => {
+                          if (isEditSmartList ? true : index > 2) {
+                            handleInputChange(input.id, e.target.value)
+                          }
+                        }}
+                        onFocus={(e) => {
+                          // Ensure input can receive focus
+                          if (isEditSmartList ? true : index > 2) {
+                            e.target.focus()
+                          }
+                        }}
+                      />
+                      <div style={{ width: '5%' }}>
+                        {(isEditSmartList ? true : index > 2) && (
+                          <button
+                            className="outline-none border-none"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              handleDelete(input.id)
+                            }}
+                            style={{ pointerEvents: 'auto' }}
+                          >
+                            <Image
+                              src={'/assets/blackBgCross.png'}
+                              height={20}
+                              width={20}
+                              alt="*"
+                            />
+                          </button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                )
-              }
+                  ))}
+                  {/* Dummy element for scrolling */}
+                  <div ref={bottomRef}></div>
+                </div>
+                <div style={{ height: '50px' }}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      handleAddInput()
+                    }}
+                    className="mt-4 p-2 outline-none border-none text-brand-primary rounded-lg underline"
+                    style={{
+                      ...styles.paragraph,
+                      pointerEvents: 'auto',
+                    }}
+                  >
+                    New Column
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
 
