@@ -14,6 +14,7 @@ import Apis from '../apis/Apis'
 import { ChatInterface } from './askskycomponents/chat-interface'
 import { API_KEY, ASSIGNX_URL, DEFAULT_ASSISTANT_ID } from './constants'
 import { VoiceInterface } from './voice-interface'
+import parsePhoneNumberFromString from 'libphonenumber-js'
 
 export function SupportWidget({
   assistantId = DEFAULT_ASSISTANT_ID,
@@ -48,6 +49,7 @@ export function SupportWidget({
   })
   const [smartListFields, setSmartListFields] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [formErrors, setFormErrors] = useState({ phone: '' })
 
   // Validation functions
   const isValidEmail = (email) => {
@@ -57,8 +59,25 @@ export function SupportWidget({
 
   const isValidPhone = (phone) => {
     // Phone number should be at least 10 digits (without country code prefix)
-    const phoneDigits = phone.replace(/\D/g, '')
-    return phoneDigits.length >= 10
+    // const phoneDigits = phone.replace(/\D/g, '')
+    // return phoneDigits.length >= 10
+    const parsedNumber = parsePhoneNumberFromString(
+      `+${phone}`,
+      'US',
+    )
+    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
+    if (!parsedNumber || !parsedNumber.isValid()) {
+      return false
+    } else {
+      return true
+
+      // if (timerRef.current) {
+      //   clearTimeout(timerRef.current)
+      // }
+
+      // setCheckPhoneResponse(null);
+      ////console.log
+    }
   }
 
   const isFormValid = () => {
@@ -78,8 +97,8 @@ export function SupportWidget({
     if (!assistantId) return
     if (isEmbed) setInitialAgentLoading(true)
     getAgentByVapiId()
-      .then(() => {})
-      .catch(() => {})
+      .then(() => { })
+      .catch(() => { })
       .finally(() => {
         if (isEmbed) setInitialAgentLoading(false)
       })
@@ -88,7 +107,7 @@ export function SupportWidget({
   useEffect(() => {
     // setLoadingMsg()
   }, [loading])
-  useEffect(() => {}, [loading, isEmbed])
+  useEffect(() => { }, [loading, isEmbed])
 
   // 1) Safer loading message
   const setLoadingMsg = async () => {
@@ -127,7 +146,7 @@ export function SupportWidget({
         setSmartListData(response?.data?.data?.smartList)
         return response?.data?.data?.agent ?? null
       }
-    } catch (e) {}
+    } catch (e) { }
   }
 
   useEffect(() => {
@@ -195,7 +214,30 @@ export function SupportWidget({
     if (!isEmbed) {
       handleStartCall(true)
     }
-  }, [vapi])
+  }, [vapi]);
+
+  // Function to validate phone number
+  const validatePhoneNumber = (phoneNumber) => {
+    // const parsedNumber = parsePhoneNumberFromString(`+${phoneNumber}`);
+    // parsePhoneNumberFromString(`+${phone}`, countryCode?.toUpperCase())
+    const parsedNumber = parsePhoneNumberFromString(
+      `+${phoneNumber}`,
+      countryCode?.toUpperCase(),
+    )
+    // if (parsedNumber && parsedNumber.isValid() && parsedNumber.country === countryCode?.toUpperCase()) {
+    if (!parsedNumber || !parsedNumber.isValid()) {
+      setErrorMessage('Invalid')
+    } else {
+      setErrorMessage('')
+
+      if (timerRef.current) {
+        clearTimeout(timerRef.current)
+      }
+
+      // setCheckPhoneResponse(null);
+      ////console.log
+    }
+  }
 
   // Form handling functions
   const handleFormDataChange = (field, value) => {
@@ -204,6 +246,19 @@ export function SupportWidget({
       [field]: value,
     }
     setFormData(newFormData)
+    // Phone validation error message (same as other places)
+    if (field === 'phone') {
+      if (!value?.trim()) {
+        setFormErrors((prev) => ({ ...prev, phone: 'Phone number is required' }))
+      } else if (!isValidPhone(value)) {
+        setFormErrors((prev) => ({
+          ...prev,
+          phone: 'Please enter a valid phone number',
+        }))
+      } else {
+        setFormErrors((prev) => ({ ...prev, phone: '' }))
+      }
+    }
   }
 
   const handleSmartListFieldChange = (field, value) => {
@@ -221,6 +276,7 @@ export function SupportWidget({
 
   const handleModalClose = () => {
     setShowLeadModal(false)
+    setFormErrors({ phone: '' })
   }
 
   // Handle form submission and call initiation with overrides
@@ -649,26 +705,39 @@ export function SupportWidget({
                 required
               />
             </div>
-
             <div>
               <label className="block text-sm font-medium mb-2">
                 Phone Number *
               </label>
-              <PhoneInput
-                country={'us'}
-                value={formData.phone}
-                onChange={(phone) => handleFormDataChange('phone', phone)}
-                inputStyle={{
-                  width: '100%',
-                  height: '48px',
-                  fontSize: '16px',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '8px',
-                }}
-                containerStyle={{
-                  width: '100%',
-                }}
-              />
+              <div
+                className={classNames(
+                  'rounded-lg border shadow-sm focus-within:ring-2 focus-within:ring-purple-500 focus-within:border-transparent',
+                  formErrors.phone
+                    ? 'border-red-500 focus-within:border-red-500 focus-within:ring-red-500'
+                    : 'border-gray-300'
+                )}
+              >
+                <PhoneInput
+                  country={'us'}
+                  value={formData.phone}
+                  onChange={(phone) => handleFormDataChange('phone', phone)}
+                  inputStyle={{
+                    width: '100%',
+                    height: '48px',
+                    fontSize: '16px',
+                    border: 'none',
+                    outline: 'none',
+                    boxShadow: 'none',
+                    borderRadius: '8px',
+                  }}
+                  containerStyle={{
+                    width: '100%',
+                  }}
+                />
+              </div>
+              {formErrors.phone && (
+                <p className="text-xs text-red-500 mt-0.5">{formErrors.phone}</p>
+              )}
             </div>
 
             {/* Smart List Fields */}

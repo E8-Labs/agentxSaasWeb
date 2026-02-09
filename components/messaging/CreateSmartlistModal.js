@@ -164,7 +164,7 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, s
       const ApiPath = Apis.updateSmartList
       console.log("api path for update samrtlist", ApiPath);
       console.log("api data for update samrtlist", ApiData);
-      const response = await axios.post(ApiPath, ApiData, {
+      const response = await axios.put(ApiPath, ApiData, {
         headers: {
           Authorization: 'Bearer ' + AuthToken,
           'Content-Type': 'application/json',
@@ -286,7 +286,7 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, s
         >
           <div className="w-full">
             <div className="flex flex-row items-center justify-between w-full mt-4 px-2">
-              <div style={{ fontWeight: '500', fontSize: 15 }}>{ isEditSmartList ? "Edit SmartList" : "New SmartList" }</div>
+              <div style={{ fontWeight: '500', fontSize: 15 }}>{isEditSmartList ? "Edit SmartList" : "New SmartList"}</div>
               <button
                 onClick={(e) => {
                   e.stopPropagation()
@@ -380,23 +380,23 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, s
                       }}
                       placeholder={`Column Name`}
                       value={input.value}
-                      readOnly={index < 3}
-                      disabled={index < 3}
-                      tabIndex={index < 3 ? -1 : 0}
+                      readOnly={isEditSmartList ? false : index < 3}
+                      disabled={isEditSmartList ? false : index < 3}
+                      tabIndex={isEditSmartList ? 0 : index < 3 ? -1 : 0}
                       onChange={(e) => {
-                        if (index > 2) {
+                        if (isEditSmartList ? true : index > 2) {
                           handleInputChange(input.id, e.target.value)
                         }
                       }}
                       onFocus={(e) => {
                         // Ensure input can receive focus
-                        if (index > 2) {
+                        if (isEditSmartList ? true : index > 2) {
                           e.target.focus()
                         }
                       }}
                     />
                     <div style={{ width: '5%' }}>
-                      {index > 2 && (
+                      {isEditSmartList ? true : index > 2 && (
                         <button
                           className="outline-none border-none"
                           onClick={(e) => {

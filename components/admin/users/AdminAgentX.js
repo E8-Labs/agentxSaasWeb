@@ -3413,7 +3413,7 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                 <PhoneInput
                   className="border outline-none bg-white"
                   country={'us'}
-                  onlyCountries={['us', 'sv', 'pk', 'mx','sv', 'ec']}
+                  onlyCountries={['us', 'sv', 'pk', 'mx', 'sv', 'ec']}
                   disableDropdown={false}
                   countryCodeEditable={false}
                   value={phone}
@@ -3825,83 +3825,172 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                     </div>
                   )}
                   <div className="flex flex-row items-center gap-2">
-                    <DuplicateButton
-                      handleDuplicate={() => {
-                        setShowDuplicateConfirmationPopup(true)
-                      }}
-                      loading={duplicateLoader}
-                    />
-                    <button
-                      onClick={() => {
-                        handleWebAgentClick(showDrawerSelectedAgent)
+                    <Tooltip
+                      title="Duplicate"
+                      arrow
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: '#ffffff', // Ensure white background
+                            color: '#333', // Dark text color
+                            fontSize: '14px',
+                            padding: '10px 15px',
+                            borderRadius: '8px',
+                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                          },
+                        },
+                        arrow: {
+                          sx: {
+                            color: '#ffffff', // Match tooltip background
+                          },
+                        },
                       }}
                     >
-                      {renderBrandedIcon('/assets/openVoice.png', 18, 18)}
-                    </button>
-                    <button
-                      style={{ paddingLeft: '3px' }}
-                      onClick={() => {
-                        handleEmbedClick(showDrawerSelectedAgent)
+                      <div className="cursor-pointer pt-1">
+                        <DuplicateButton
+                          handleDuplicate={() => {
+                            setShowDuplicateConfirmationPopup(true)
+                          }}
+                          loading={duplicateLoader}
+                        />
+                      </div>
+                    </Tooltip>
+                    <Tooltip
+                      title="Open Tab"
+                      arrow
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: '#ffffff', // Ensure white background
+                            color: '#333', // Dark text color
+                            fontSize: '14px',
+                            padding: '10px 15px',
+                            borderRadius: '8px',
+                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                          },
+                        },
+                        arrow: {
+                          sx: {
+                            color: '#ffffff', // Match tooltip background
+                          },
+                        },
                       }}
                     >
-                      {renderBrandedIcon('/svgIcons/embedIcon.svg', 22, 22)}
-                    </button>
+                      <button
+                        onClick={() => {
+                          handleWebAgentClick(showDrawerSelectedAgent)
+                        }}
+                      >
+                        {renderBrandedIcon('/assets/openVoice.png', 18, 18)}
+                      </button>
+                    </Tooltip>
+                    <Tooltip
+                      title="Embed"
+                      arrow
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: '#ffffff', // Ensure white background
+                            color: '#333', // Dark text color
+                            fontSize: '14px',
+                            padding: '10px 15px',
+                            borderRadius: '8px',
+                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                          },
+                        },
+                        arrow: {
+                          sx: {
+                            color: '#ffffff', // Match tooltip background
+                          },
+                        },
+                      }}
+                    >
+                      <button
+                        style={{ paddingLeft: '3px' }}
+                        onClick={() => {
+                          handleEmbedClick(showDrawerSelectedAgent)
+                        }}
+                      >
+                        {renderBrandedIcon('/svgIcons/embedIcon.svg', 22, 22)}
+                      </button>
+                    </Tooltip>
+                    <Tooltip
+                      title="Webhook"
+                      arrow
+                      componentsProps={{
+                        tooltip: {
+                          sx: {
+                            backgroundColor: '#ffffff', // Ensure white background
+                            color: '#333', // Dark text color
+                            fontSize: '14px',
+                            padding: '10px 15px',
+                            borderRadius: '8px',
+                            boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                          },
+                        },
+                        arrow: {
+                          sx: {
+                            color: '#ffffff', // Match tooltip background
+                          },
+                        },
+                      }}
+                    >
+                      <button
+                        style={{ paddingLeft: '3px' }}
+                        onClick={() => {
+                          if (
+                            selectedUser?.agencyCapabilities
+                              ?.allowEmbedAndWebAgents === false
+                          ) {
+                            setShowUpgradeModal(true)
+                            setFeatureTitle('EmbedAgents')
+                          } else if (
+                            selectedUser?.planCapabilities
+                              ?.allowEmbedAndWebAgents === false
+                          ) {
+                            setShowUpgradeModal(true)
+                          } else {
+                            // Merge with existing updated agent state if available
+                            // Also check mainAgentsList for the most up-to-date agent data
+                            let agentToUse = showDrawerSelectedAgent
 
-                    <button
-                      style={{ paddingLeft: '3px' }}
-                      onClick={() => {
-                        if (
-                          selectedUser?.agencyCapabilities
-                            ?.allowEmbedAndWebAgents === false
-                        ) {
-                          setShowUpgradeModal(true)
-                          setFeatureTitle('EmbedAgents')
-                        } else if (
-                          selectedUser?.planCapabilities
-                            ?.allowEmbedAndWebAgents === false
-                        ) {
-                          setShowUpgradeModal(true)
-                        } else {
-                          // Merge with existing updated agent state if available
-                          // Also check mainAgentsList for the most up-to-date agent data
-                          let agentToUse = showDrawerSelectedAgent
+                            // First, try to get updated agent from mainAgentsList (which is updated after smartlist creation)
+                            const agentIdToFind = showDrawerSelectedAgent.id
+                            if (agentIdToFind && typeof agentIdToFind === 'number') {
+                              const updatedAgentFromList = mainAgentsList
+                                .flatMap(ma => ma.agents || [])
+                                .find(a => a.id === agentIdToFind)
 
-                          // First, try to get updated agent from mainAgentsList (which is updated after smartlist creation)
-                          const agentIdToFind = showDrawerSelectedAgent.id
-                          if (agentIdToFind && typeof agentIdToFind === 'number') {
-                            const updatedAgentFromList = mainAgentsList
-                              .flatMap(ma => ma.agents || [])
-                              .find(a => a.id === agentIdToFind)
-
-                            if (updatedAgentFromList) {
-                              // Use the agent from mainAgentsList as it has the latest updates
-                              agentToUse = updatedAgentFromList
+                              if (updatedAgentFromList) {
+                                // Use the agent from mainAgentsList as it has the latest updates
+                                agentToUse = updatedAgentFromList
+                              }
                             }
-                          }
 
-                          // Also merge with selectedAgentForWebAgent if it exists and matches (for additional state updates)
-                          if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
-                            // Merge any additional updates from selectedAgentForWebAgent state
-                            agentToUse = {
-                              ...agentToUse,
-                              // Preserve updated smartlist fields from state (prefer selectedAgentForWebAgent if it has newer data)
-                              smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? agentToUse.smartListIdForWeb,
-                              smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? agentToUse.smartListEnabledForWeb,
-                              smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? agentToUse.smartListIdForWebhook,
-                              smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? agentToUse.smartListEnabledForWebhook,
-                              smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? agentToUse.smartListIdForEmbed,
-                              smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? agentToUse.smartListEnabledForEmbed,
+                            // Also merge with selectedAgentForWebAgent if it exists and matches (for additional state updates)
+                            if (selectedAgentForWebAgent && selectedAgentForWebAgent.id === showDrawerSelectedAgent.id) {
+                              // Merge any additional updates from selectedAgentForWebAgent state
+                              agentToUse = {
+                                ...agentToUse,
+                                // Preserve updated smartlist fields from state (prefer selectedAgentForWebAgent if it has newer data)
+                                smartListIdForWeb: selectedAgentForWebAgent.smartListIdForWeb ?? agentToUse.smartListIdForWeb,
+                                smartListEnabledForWeb: selectedAgentForWebAgent.smartListEnabledForWeb ?? agentToUse.smartListEnabledForWeb,
+                                smartListIdForWebhook: selectedAgentForWebAgent.smartListIdForWebhook ?? agentToUse.smartListIdForWebhook,
+                                smartListEnabledForWebhook: selectedAgentForWebAgent.smartListEnabledForWebhook ?? agentToUse.smartListEnabledForWebhook,
+                                smartListIdForEmbed: selectedAgentForWebAgent.smartListIdForEmbed ?? agentToUse.smartListIdForEmbed,
+                                smartListEnabledForEmbed: selectedAgentForWebAgent.smartListEnabledForEmbed ?? agentToUse.smartListEnabledForEmbed,
+                              }
                             }
-                          }
 
-                          setFetureType('webhook')
-                          setSelectedAgentForWebAgent(agentToUse)
-                          setShowWebAgentModal(true)
-                        }
-                      }}
-                    >
-                      {renderBrandedIcon('/svgIcons/webhook.svg', 22, 22)}
-                    </button>
+                            setFetureType('webhook')
+                            setSelectedAgentForWebAgent(agentToUse)
+                            setShowWebAgentModal(true)
+                          }
+                        }}
+                      >
+                        {renderBrandedIcon('/svgIcons/webhook.svg', 22, 22)}
+                      </button>
+                    </Tooltip>
                   </div>
                 </div>
               </div>

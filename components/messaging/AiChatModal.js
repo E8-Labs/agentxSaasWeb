@@ -659,7 +659,7 @@ const AiChatModal = ({
                 </div>
                 <div className=" text-foreground rounded-tr-2xl rounded-bl-2xl rounded-br-2xl px-4 py-3 flex items-center gap-2 min-w-[120px]">
                   <span className="text-sm text-gray-600">Thinking...</span>
-                  <div className="flex-1 min-w-[60px] border-b border-dashed border-gray-300" aria-hidden />
+                  {/*<div className="flex-1 min-w-[60px] border-b border-dashed border-gray-300" aria-hidden />*/}
                 </div>
               </div>
             )}
