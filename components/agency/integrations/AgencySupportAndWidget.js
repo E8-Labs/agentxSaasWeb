@@ -273,6 +273,7 @@ const handleUserSettings = async (from) => {
     }
 
     console.log('Sending API Data for', from, ':', ApiData)
+    console.log("Api path for user settings api is",ApiPath)
     
     const response = await axios.put(ApiPath, ApiData, {
       headers: {
@@ -567,14 +568,18 @@ const handleUserSettings = async (from) => {
                           width: 40,
                           height: 40,
                           borderRadius: '50%',
-                          backgroundImage: logoPreview
-                            ? `url(${logoPreview})`
-                            : 'url(/thumbOrbSmall.png)',
+                          backgroundImage:
+                            logoPreview && logoPreview.trim() !== ''
+                              ? `url(${encodeURI(logoPreview)})`
+                              : 'url(/thumbOrbSmall.png)',
                           backgroundSize: 'cover',
                           backgroundPosition: 'center',
                           backgroundRepeat: 'no-repeat',
                           marginRight: 12,
-                          border: logoPreview ? 'none' : '1px solid #e0e0e0',
+                          border:
+                            logoPreview && logoPreview.trim() !== ''
+                              ? 'none'
+                              : '1px solid #e0e0e0',
                         }}
                       />
                       <button
@@ -772,7 +777,11 @@ const handleUserSettings = async (from) => {
                 {settingsData?.supportWebinarCalendarUrl && (
                   <div className="flex flex-row items-center justify-between w-full mt-2">
                     <div style={styles.subHeading}>
-                      URL: {settingsData?.supportWebinarCalendarUrl || ''}
+                      URL: {settingsData?.supportWebinarCalendarUrl
+                        ? (settingsData.supportWebinarCalendarUrl.length > 30
+                            ? `${settingsData.supportWebinarCalendarUrl.slice(0, 30)}....`
+                            : settingsData.supportWebinarCalendarUrl)
+                        : ''}
                     </div>
                     <button
                       className="flex flex-row items-center gap-2"
