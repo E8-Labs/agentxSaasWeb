@@ -2945,7 +2945,7 @@ const NewMessageModal = ({
                   </>
                 ) : (
                   <>
-                    {isPipelineMode ? ((isEditing && !IsdefaultCadence) ? 'Update' : 'Save') : selectedTemplate ? "Update" : selectedMode === 'sms' ? 'Send' : 'Send email'}
+                    {isPipelineMode ? ((isEditing && !IsdefaultCadence) ? 'Update' : 'Save') : selectedTemplate ? (selectedMode === 'sms' ? "Update" : "Send Email") : selectedMode === 'sms' ? 'Send' : 'Send Email'}
                     {!isPipelineMode && <PaperPlaneTilt size={16} />}
                   </>
                 )}
