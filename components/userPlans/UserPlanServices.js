@@ -698,7 +698,7 @@ export const getTotalPrice = (selectedPlan) => {
 // monthly: +30 days, quarterly: +3 calendar months, yearly: +12 calendar months
 // If plan has trial, adds trial days to the date
 export const getNextChargeDate = (selectedPlan, fromDate = new Date()) => {
-  console.log("Trigered the getnextcharge date functi")
+  console.log("Trigered the getnextcharge date function")
   const getTodayFormatted = () => {
     const today = new Date()
     return today.toLocaleDateString(undefined, {
