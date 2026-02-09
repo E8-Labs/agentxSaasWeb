@@ -8,20 +8,43 @@ import { toast } from '@/utils/toast'
 import Apis from '@/components/apis/Apis'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 
-const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, showInbound = true }) => {
-  const modalRef = useRef(null)
-  const [newSheetName, setNewSheetName] = useState('')
-  const [isInbound, setIsInbound] = useState(false)
-  const [inputs, setInputs] = useState([
+const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, showInbound = true, isEditSmartList, selectedSmartList = null }) => {
+
+  const defaultColumns = [
     { id: 1, value: 'First Name' },
     { id: 2, value: 'Last Name' },
     { id: 3, value: 'Phone Number' },
     { id: 4, value: '' },
     { id: 5, value: '' },
     { id: 6, value: '' },
-  ])
+  ]
+
+  const modalRef = useRef(null)
+  const [newSheetName, setNewSheetName] = useState('')
+  const [isInbound, setIsInbound] = useState(false)
+  const [inputs, setInputs] = useState([])
   const [showaddCreateListLoader, setShowaddCreateListLoader] = useState(false)
   const bottomRef = useRef(null)
+
+  //set default columns state
+  useEffect(() => {
+    if (!isEditSmartList) {
+      setInputs(defaultColumns)
+    } else if (selectedSmartList?.columns && Array.isArray(selectedSmartList.columns)) {
+      setInputs(
+        selectedSmartList.columns.map((col, index) => ({
+          id: index + 1,
+          value: col.columnName ?? '',
+        }))
+      )
+      setNewSheetName(selectedSmartList?.sheetName ?? '')
+      if (selectedSmartList?.type !== undefined && selectedSmartList?.type === "inbound") {
+        setIsInbound(true)
+      } else {
+        setIsInbound(false)
+      }
+    }
+  }, [selectedSmartList, isEditSmartList])
 
   // Reset form when modal closes
   useEffect(() => {
@@ -88,6 +111,59 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, s
       }
 
       const ApiPath = Apis.addSmartList
+      const response = await axios.post(ApiPath, ApiData, {
+        headers: {
+          Authorization: 'Bearer ' + AuthToken,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (response) {
+        if (response.data.status === true) {
+          toast.success('Smartlist created successfully')
+          onSuccess?.(response.data.data)
+          onClose()
+        } else {
+          toast.error(response.data.message || 'Failed to create smartlist')
+        }
+      }
+    } catch (error) {
+      console.error('Error creating smartlist:', error)
+      toast.error(error.response?.data?.message || 'Failed to create smartlist')
+    } finally {
+      setShowaddCreateListLoader(false)
+    }
+  }
+
+  // Handle creating the smartlist
+  const handleEditSmartList = async () => {
+    try {
+      setShowaddCreateListLoader(true)
+
+      const localData = localStorage.getItem('User')
+      let AuthToken = null
+      if (localData) {
+        const UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails.token
+      }
+
+      const ApiData = {
+        sheetName: newSheetName,
+        columns: inputs.map((columns) => columns.value),
+        inbound: isInbound,
+        enrich: false,
+        smartListId: selectedSmartList?.id,
+      }
+
+      // Add userId if selectedUser is provided (for agency creating smartlist for subaccount)
+      const userId = selectedUser?.id || selectedUser?.userId || selectedUser?.user?.id
+      if (userId) {
+        ApiData.userId = userId
+      }
+
+      const ApiPath = Apis.updateSmartList
+      console.log("api path for update samrtlist", ApiPath);
+      console.log("api data for update samrtlist", ApiData);
       const response = await axios.post(ApiPath, ApiData, {
         headers: {
           Authorization: 'Bearer ' + AuthToken,
@@ -210,7 +286,7 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, s
         >
           <div className="w-full">
             <div className="flex flex-row items-center justify-between w-full mt-4 px-2">
-              <div style={{ fontWeight: '500', fontSize: 15 }}>New SmartList</div>
+              <div style={{ fontWeight: '500', fontSize: 15 }}>{ isEditSmartList ? "Edit SmartList" : "New SmartList" }</div>
               <button
                 onClick={(e) => {
                   e.stopPropagation()
@@ -369,8 +445,8 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, s
             ) : (
               <button
                 className={`h-[50px] rounded-xl w-full ${newSheetName && newSheetName.length > 0
-                    ? 'bg-brand-primary text-white'
-                    : 'bg-btngray text-gray-600 cursor-not-allowed'
+                  ? 'bg-brand-primary text-white'
+                  : 'bg-btngray text-gray-600 cursor-not-allowed'
                   }`}
                 style={{
                   fontWeight: '600',
@@ -379,11 +455,16 @@ const CreateSmartlistModal = ({ open, onClose, onSuccess, selectedUser = null, s
                 }}
                 onClick={(e) => {
                   e.stopPropagation()
-                  handleAddSheetNewList()
+                  if (isEditSmartList) {
+                    handleEditSmartList()
+                  } else {
+                    handleAddSheetNewList()
+                  }
+                  // handleAddSheetNewList()
                 }}
                 disabled={newSheetName == null || newSheetName === ''}
               >
-                Create List
+                {isEditSmartList ? 'Update List' : 'Create List'}
               </button>
             )}
           </div>

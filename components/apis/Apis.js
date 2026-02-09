@@ -356,6 +356,7 @@ const Apis = {
   toggleNotificationCustomization: `${BasePath}api/agency/notification-customizations`,
   previewNotificationTemplate: `${BasePath}api/agency/notification-customizations`,
   addSmartList: `${BasePath}api/leads/addSmartList`,
+  updateSmartList: `${BasePath}api/leads/updateSmartList`,
 
   resumeSubscription: `${BasePath}api/user/cancellation/resume`,
   editScoringTemplate: `${BasePath}api/agent/scoring-templates/update`,
