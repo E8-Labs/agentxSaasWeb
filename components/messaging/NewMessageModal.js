@@ -1348,11 +1348,12 @@ const NewMessageModal = ({
         let data = null
 
         if (selectedMode === 'sms') {
-          // Get phone number string from phoneNumbers array
-          const phoneObj = phoneNumbers.find((p) => p.id === parseInt(selectedPhoneNumber))
+          // Backend requires smsPhoneNumberId (A2P From number record id)
+          const smsFromId = selectedPhoneNumberObj?.id ?? selectedPhoneNumber
           data = {
             content: messageBody,
             phone: selectedPhoneNumber,
+            smsPhoneNumberId: smsFromId,
             mode: selectedMode,
           }
         } else if (selectedMode === 'email') {
