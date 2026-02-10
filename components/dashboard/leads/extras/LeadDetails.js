@@ -1664,11 +1664,14 @@ const LeadDetails = ({
       const userData = JSON.parse(localData)
       const formData = new FormData()
 
-      // Add required fields
+      // Add required fields (smsPhoneNumberId = From number record id, required by backend)
       formData.append('leadPhone', selectedLeadsDetails?.phone || '')
       formData.append('content', smsData.content || '')
       formData.append('phone', smsData.phone || '')
       formData.append('leadId', selectedLeadsDetails?.id || '')
+      if (smsData.smsPhoneNumberId != null && smsData.smsPhoneNumberId !== '') {
+        formData.append('smsPhoneNumberId', smsData.smsPhoneNumberId)
+      }
 
       //print form data
       formData.forEach((value, key) => { })
