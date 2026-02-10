@@ -9,6 +9,7 @@ import { Toaster } from '../components/ui/sonner'
 
 import { ReduxProvider } from '../components/providers/redux-provider'
 import { AgentationProvider } from '../components/providers/agentation-provider'
+import { MuiAgentationThemeProvider } from '../components/providers/mui-agentation-theme-provider'
 import { BrandingProvider } from '../components/providers/branding-provider'
 import { LayoutTracker } from '../components/providers/layout-tracker'
 import DynamicTitle from '../components/common/DynamicTitle'
@@ -514,9 +515,11 @@ export default function RootLayout({ children }) {
       >
         <ReduxProvider>
           <BrandingProvider>
-            <LayoutTracker />
-            <DynamicTitle />
-            {children}
+            <MuiAgentationThemeProvider>
+              <LayoutTracker />
+              <DynamicTitle />
+              {children}
+            </MuiAgentationThemeProvider>
           </BrandingProvider>
         </ReduxProvider>
         <Toaster />

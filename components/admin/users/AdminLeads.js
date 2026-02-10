@@ -89,6 +89,7 @@ const AdminLeads = ({
   const [sheetsLoader, setSheetsLoader] = useState(false)
   const [LeadsList, setLeadsList] = useState([])
   const [searchLead, setSearchLead] = useState('')
+  const [searchFocused, setSearchFocused] = useState(false)
   const [FilterLeads, setFilterLeads] = useState([])
   const [leadColumns, setLeadColumns] = useState([])
   const [SelectedSheetId, setSelectedSheetId] = useState(null)
@@ -1586,7 +1587,7 @@ const AdminLeads = ({
   }
 
   return (
-    <div className="w-full flex flex-col items-center h-full justify-start">
+    <div className="w-full flex flex-col items-center h-full justify-start pt-0">
       {/* Slider code */}
       <div
         style={{
@@ -1604,70 +1605,30 @@ const AdminLeads = ({
         type={messageType}
       />
       <div
-        className="flex flex-row items-center justify-between w-full px-4"
-        style={{ }}
-        // style={{ borderBottom: "1px solid #15151510" }}
+        className="flex flex-row items-center justify-between w-full px-4 h-[60px] border-b border-[#eaeaea]"
       >
-        <div className="flex fex-row items-center gap-2">
-          <TypographyH3>Leads</TypographyH3>
+        <div className="flex flex-row items-center gap-2">
+          <TypographyH3 className="text-[24px] font-semibold">Leads</TypographyH3>
           {userDetails?.currentUsage?.maxLeads &&
             userDetails?.planCapabilities?.maxLeads < 10000000 &&
             userDetails?.plan?.planId != null && (
-              <div
-                style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
-              >
+              <div className="text-[14px] font-normal text-black/80">
                 {`${formatFractional2(userDetails?.currentUsage?.maxLeads)}/${formatFractional2(userDetails?.planCapabilities?.maxLeads) || 0} used`}
               </div>
             )}
         </div>
 
-        <div className="flex fex-row items-center gap-6">
-          <button
-            style={{
-              backgroundColor: toggleClick.length > 0 ? 'hsl(var(--brand-primary))' : '',
-              color: toggleClick.length > 0 ? 'white' : '#000000',
-            }}
-            className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
-            onClick={() => {
-              if (userLocalDetails?.plan) {
-                setAssignLeadModal(true)
-              } else {
-                setSnackMessage('Add payment method to continue')
-                setShowSnackMessage(true)
-                setMessageType(SnackbarTypes.Warning)
-              }
-            }}
-            disabled={!toggleClick.length > 0}
-          >
-            {toggleClick.length > 0 ? (
-              <Image
-                src={'/assets/callBtnFocus.png'}
-                height={17}
-                width={17}
-                alt="*"
-              />
-            ) : (
-              <Image
-                src={'/assets/callBtn.png'}
-                height={17}
-                width={17}
-                alt="*"
-              />
-            )}
-            <span style={styles.heading}>Start Campaign</span>
-          </button>
-          {/* <div className="flex flex-col">
-            <NotficationsDrawer />
-          </div> */}
+        <div className="flex flex-row items-center gap-6">
+          {/* Start Campaign moved to search/filter row beside Select All */}
         </div>
       </div>
-      <div className="w-[95%] pe-12 mt-2">
+      <div className="w-full max-w-[1300px] mx-auto pt-0 px-0 mt-2 border-l border-r border-[#eaeaea]">
         {initialLoader ? (
           <div className="w-full h-screen flex flex-row justify-center mt-12">
             <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />
           </div>
         ) : (
-          <div>
+          <div className="flex flex-col gap-0.5 pt-0 h-full">
             <div className="flex flex-row items-center justify-end">
               <div className="flex flex-row items-center gap-6">
                 <Modal
@@ -1721,14 +1682,16 @@ const AdminLeads = ({
               </div>
             </div>
            
-            <div className="flex flex-row items-center justify-between w-full mt-4 w-full">
-              <div className="flex flex-row items-center gap-4 overflow-none flex-shrink-0 w-[90%]">
-                <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border  rounded-full pe-2">
+            <div className="flex flex-row items-center justify-between w-full mt-0 mb-0 py-3 px-3 min-w-0 overflow-hidden">
+              <div className="flex flex-row items-center gap-4 overflow-hidden flex-shrink min-w-0 w-full">
+                <div className={`flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 rounded-lg pe-2 transition-colors ${searchFocused ? 'border-2 border-[hsl(var(--brand-primary))]' : 'border border-[#eaeaea]'}`}>
                   <input
-                    style={styles.paragraph}
-                    className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 rounded-full"
+                    style={{ ...styles.paragraph, fontSize: 14 }}
+                    className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0 rounded-full text-[14px]"
                     placeholder="Search by name, email or phone"
                     value={searchLead}
+                    onFocus={() => setSearchFocused(true)}
+                    onBlur={() => setSearchFocused(false)}
                     onChange={(e) => {
                       const value = e.target.value
                       setSearchLead(e.target.value)
@@ -1738,8 +1701,8 @@ const AdminLeads = ({
                   <button className="outline-none border-none">
                     <Image
                       src={'/assets/searchIcon.png'}
-                      height={24}
-                      width={24}
+                      height={16}
+                      width={16}
                       alt="*"
                     />
                   </button>
@@ -1770,8 +1733,8 @@ const AdminLeads = ({
                     return (
                       <div className="flex-shrink-0" key={filter.key + index}>
                         <div
-                          className="px-4 py-2 bg-brand-primary/10 text-brand-primary  flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2"
-                          style={{ fontWeight: '500', fontSize: 15 }}
+                          className="px-4 py-2 bg-brand-primary/10 text-brand-primary flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2 text-[14px]"
+                          style={{ fontWeight: '500', fontSize: 14 }}
                         >
                           {getFilterTitle(filter)}
                           <button
@@ -1828,13 +1791,13 @@ const AdminLeads = ({
                 </div>
               </div>
 
-              <div className="flex flex-row items-center gap-2 w-[40%]">
+              <div className="flex flex-row items-center gap-2 w-auto min-w-[300px] max-w-none py-1.5 px-1.5 justify-end">
                 {toggleClick.length >= 0 && (
                   <div>
                     {toggleClick.length === FilterLeads.length ? (
                       <div>
                         {LeadsList.length > 0 && (
-                          <div className="flex flex-row items-center gap-2">
+                          <div className="flex flex-row items-center gap-2 py-1.5 px-1.5">
                             <button
                               className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
                               onClick={() => {
@@ -1850,15 +1813,11 @@ const AdminLeads = ({
                               />
                             </button>
                             <div
-                              style={{
-                                fontSize: '15',
-                                fontWeight: '600',
-                                whiteSpace: 'nowrap',
-                              }}
+                              className="text-[14px] font-normal whitespace-nowrap"
                             >
                               Select All
                             </div>
-                            <div style={{ fontSize: '15', fontWeight: '600', whiteSpace: 'nowrap' }}>
+                            <div className="text-[14px] font-normal whitespace-nowrap">
                               {/*getLeadSelectedCount()*/}
                               {totalLeads}
                             </div>
@@ -1866,7 +1825,7 @@ const AdminLeads = ({
                         )}
                       </div>
                     ) : (
-                      <div className="flex flex-row items-center gap-2">
+                      <div className="flex flex-row items-center gap-2 py-1.5 px-1.5">
                         <button
                           className="h-[20px] w-[20px] border-2 rounded outline-none"
                           onClick={() => {
@@ -1874,7 +1833,7 @@ const AdminLeads = ({
                             setSelectedAll(true)
                           }}
                         ></button>
-                        <div style={{ fontSize: '15', fontWeight: '600', whiteSpace: 'nowrap' }}>
+                        <div className="text-[14px] font-normal whitespace-nowrap">
                           Select All
                         </div>
                       </div>
@@ -1888,17 +1847,52 @@ const AdminLeads = ({
                                         </span>
                                         <Image src={"/assets/downloadIcon.png"} height={15} width={15} alt='*' />
                                     </button> */}
+                <button
+                  style={{
+                    backgroundColor: toggleClick.length > 0 ? 'hsl(var(--brand-primary))' : '',
+                    color: toggleClick.length > 0 ? 'white' : '#000000',
+                    boxShadow: '0 4px 14px 0 hsl(var(--brand-primary) / 0.2)',
+                  }}
+                  className="flex flex-row items-center gap-4 h-[40px] rounded-[12px] bg-[#33333315] w-auto min-w-0 px-3 justify-center flex-shrink-0 transition-transform duration-150 active:scale-[0.98]"
+                  onClick={() => {
+                    if (userLocalDetails?.plan) {
+                      setAssignLeadModal(true)
+                    } else {
+                      setSnackMessage('Add payment method to continue')
+                      setShowSnackMessage(true)
+                      setMessageType(SnackbarTypes.Warning)
+                    }
+                  }}
+                  disabled={!toggleClick.length > 0}
+                >
+                  {toggleClick.length > 0 ? (
+                    <Image
+                      src={'/assets/callBtnFocus.png'}
+                      height={17}
+                      width={17}
+                      alt="*"
+                    />
+                  ) : (
+                    <Image
+                      src={'/assets/callBtn.png'}
+                      height={17}
+                      width={17}
+                      alt="*"
+                    />
+                  )}
+                  <span className="text-[14px] font-medium">Start Campaign</span>
+                </button>
               </div>
             </div>
 
             <div
-              className="flex flex-row items-center mt-8 gap-2"
+              className="flex flex-row items-center mt-0 mx-0 w-full gap-2"
               style={styles.paragraph}
               // className="flex flex-row items-center mt-8 gap-2"
               // style={{ ...styles.paragraph, overflowY: "hidden" }}
             >
               <div
-                className="flex flex-row items-center gap-2 w-full"
+                className="flex flex-row items-center gap-2 w-full border-b border-[#eaeaea]"
                 style={{
                   ...styles.paragraph,
                   overflowY: 'hidden',
@@ -1917,7 +1911,7 @@ const AdminLeads = ({
                   return (
                     <div
                       key={index}
-                      className="flex flex-row items-center gap-1 px-3"
+                      className="flex flex-row items-center gap-1 px-3 py-3"
                       style={{
                         borderBottom:
                           SelectedSheetId === item.id
@@ -1930,8 +1924,8 @@ const AdminLeads = ({
                       // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid hsl(var(--brand-primary))" : "", color: SelectedSheetId === item.id ? "hsl(var(--brand-primary))" : "" }}
                     >
                       <button
-                        style={styles.paragraph}
-                        className="outline-none w-full"
+                        className="outline-none w-full text-[14px]"
+                        style={{ ...styles.paragraph, fontSize: 14 }}
                         onClick={() => {
                           setSearchLead('')
                           setSelectedSheetId(item.id)
@@ -2005,7 +1999,7 @@ const AdminLeads = ({
                 })}
               </div>
               <button
-                className="flex flex-row items-center gap-1 text-brand-primary flex-shrink-0"
+                className="flex flex-row items-center gap-1 text-brand-primary flex-shrink-0 h-[40px] px-3"
                 style={styles.paragraph}
                 // onClick={() => { setShowAddNewSheetModal(true) }}
                 onClick={() => {
@@ -2035,7 +2029,7 @@ const AdminLeads = ({
                 <CircularProgress size={30} sx={{ color: 'hsl(var(--brand-primary))' }} />
               </div>
             ) : (
-              <div className="w-full flex flex-col">
+              <div className="w-full flex flex-col pt-0">
                 {LeadsList.length > 0 ? (
                   <div
                     className={`relative overflow-auto pb-[100px] mt-6 ${agencyUser ? 'h-[75vh]' : 'h-[70vh]'}`}
@@ -2087,8 +2081,8 @@ const AdminLeads = ({
                     >
                       <div className="flex flex-col w-full pb-[20px]">
                         <table className="table-auto w-full border-collapse border border-none">
-                          <thead>
-                            <tr style={{ fontWeight: '500' }}>
+                          <thead className="sticky top-0 z-10 bg-white shadow-[0_1px_0_0_#eaeaea]">
+                            <tr style={{ fontWeight: '500' }} className="bg-white">
                               {leadColumns.map((column, index) => {
                                 const isMoreColumn = column.title === 'More'
                                 const isDateColumn = column.title === 'Date'
@@ -2097,7 +2091,7 @@ const AdminLeads = ({
                                 return (
                                   <th
                                     key={index}
-                                    className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${
+                                    className={`border-none px-4 py-2 text-left text-[14px] text-[#00000060] font-[500] ${
                                       isMoreColumn
                                         ? 'sticky right-0 bg-white'
                                         : ''
@@ -2236,7 +2230,7 @@ const AdminLeads = ({
                     <CloseBtn onClick={() => setShowFilterModal(false)} />
                   </div>
                   <div className="mt-2 w-full overflow-auto h-[85%]">
-                    <div className="flex flex-row items-start gap-4">
+                    <div className="flex flex-row items-start gap-4 h-full w-full">
                       <div className="w-1/2 h-full">
                         <div
                           className="h-full"

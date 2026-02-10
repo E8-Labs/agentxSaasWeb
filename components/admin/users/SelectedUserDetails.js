@@ -2,7 +2,7 @@ import { Box, CircularProgress, Modal } from '@mui/material'
 import { Cross } from '@phosphor-icons/react'
 import axios from 'axios'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import AdminLeads from '@/components/admin/users/AdminLeads'
 import Apis from '@/components/apis/Apis'
@@ -52,6 +52,32 @@ function SelectedUserDetails({
   const [isInvitee, setIsInvitee] = useState(false)
   const [selectedManu, setSelectedManu] = useState(null)
   const [permissionContextAvailable, setPermissionContextAvailable] = useState(false)
+  const [sidebarHoveredIndex, setSidebarHoveredIndex] = useState(null)
+  const [sidebarPillStyle, setSidebarPillStyle] = useState(null)
+  const sidebarMenuRef = useRef(null)
+  const sidebarItemRefs = useRef([])
+
+  const sidebarPillIndex = sidebarHoveredIndex !== null
+    ? sidebarHoveredIndex
+    : (selectedManu ? accessibleMenuItems.findIndex((m) => m.id === selectedManu.id) : -1)
+
+  useLayoutEffect(() => {
+    if (sidebarPillIndex < 0 || !sidebarMenuRef.current) {
+      setSidebarPillStyle(null)
+      return
+    }
+    const itemEl = sidebarItemRefs.current[sidebarPillIndex]
+    const containerEl = sidebarMenuRef.current
+    if (!itemEl || !containerEl) return
+    const itemRect = itemEl.getBoundingClientRect()
+    const containerRect = containerEl.getBoundingClientRect()
+    setSidebarPillStyle({
+      left: itemRect.left - containerRect.left,
+      top: itemRect.top - containerRect.top,
+      width: itemRect.width,
+      height: itemRect.height,
+    })
+  }, [sidebarPillIndex, selectedManu, accessibleMenuItems])
 
   // Get permission context
   const permissionContext = usePermission()
@@ -586,7 +612,7 @@ function SelectedUserDetails({
 
   const logoBranding = () => {
     return (
-      <div className="w-full flex flex-col gap-2 pt-4">
+      <div className="w-full max-w-full flex flex-col gap-2 pt-4 px-3 text-left">
         {user && (user?.userRole === "AgencySubAccount" || user?.userRole === "Invitee") && user?.agencyBranding && !user.agencyBranding.logoUrl && user.agencyBranding.companyName ? (
           <div className="w-full text-left pl-6" style={{ marginLeft: "-8px" }}>
             <div className="text-lg font-bold text-black truncate">
@@ -745,7 +771,7 @@ function SelectedUserDetails({
             </div>
           )}
           <div className="flex flex-row items-start w-full  ">
-            <div className={`flex border-r border-[#00000015] ${!enablePermissionChecks && '-mt-10'} flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} ${enablePermissionChecks ? 'h-auto max-h-[85vh] overflow-y-auto' : 'h-auto'}`}>
+            <div className={`flex border-r border-[#00000015] ${!enablePermissionChecks && '-mt-10'} flex-col items-start justify-start w-[250px] px-0 py-0 h-full min-h-[100svh]`}>
 
               {agencyUser ? (
                 logoBranding()
@@ -777,8 +803,8 @@ function SelectedUserDetails({
                     >
                       <Image
                         src={'/svgIcons/arrowboxIcon.svg'}
-                        height={20}
-                        width={20}
+                        height={14}
+                        width={14}
                         alt="*"
                       />
                     </button>
@@ -787,19 +813,32 @@ function SelectedUserDetails({
               )}
               
               {/* Menu Items - Only show accessible items */}
-              <div className='flex flex-col items-start justify-center gap-3 w-full pt-10'>
-                {accessibleMenuItems.map((item) => (
+              <div className="flex flex-col flex-1 min-h-0 overflow-y-auto w-full">
+                <div className="flex flex-col items-start justify-center gap-2.5 w-full py-3 px-3 relative" ref={sidebarMenuRef} onMouseLeave={() => setSidebarHoveredIndex(null)}>
+                {sidebarPillStyle && (
+                  <div
+                    className="absolute z-0 rounded-xl pointer-events-none transition-all duration-200 ease-out bg-[#f9f9f9]"
+                    style={{
+                      left: sidebarPillStyle.left,
+                      top: sidebarPillStyle.top,
+                      width: sidebarPillStyle.width,
+                      height: 40,
+                    }}
+                  />
+                )}
+                {accessibleMenuItems.map((item, index) => (
                   <button
                     key={item.id}
+                    ref={(el) => { sidebarItemRefs.current[index] = el }}
+                    onMouseEnter={() => setSidebarHoveredIndex(index)}
                     onClick={() => handleManuClick(item)}
-                    className={`flex flex-row items-center gap-3 p-2 items-center 
-                      ${selectedManu?.id == item.id && 'border-b-[2px] border-brand-primary'}`}
+                    className="flex flex-row items-center gap-3 p-2 w-full items-center relative z-[1]"
                   >
                     {selectedManu?.id == item.id ? (
                       <div
                         style={{
-                          width: 24,
-                          height: 24,
+                          width: 14,
+                          height: 14,
                           backgroundColor: 'hsl(var(--brand-primary))',
                           maskImage: `url(${item.selectedImage})`,
                           maskSize: 'contain',
@@ -814,24 +853,23 @@ function SelectedUserDetails({
                     ) : (
                       <Image
                         src={item.unSelectedImage}
-                        height={24}
-                        width={24}
+                        height={14}
+                        width={14}
                         alt="*"
                       />
                     )}
 
                     <div
+                      className="text-[14px] font-medium whitespace-nowrap"
                       style={{
-                        fontSize: 16,
-                        fontWeight: 500,
                         color: selectedManu?.id == item.id ? 'hsl(var(--brand-primary))' : '#000',
-                        whiteSpace: 'nowrap',
                       }}
                     >
                       {item.name}
                     </div>
                   </button>
                 ))}
+              </div>
               </div>
 
               {enablePermissionChecks && (
@@ -840,13 +878,12 @@ function SelectedUserDetails({
                     console.log('clicked')
                     handleManuClick(accountMenu)
                   }}
-                  className="w-full flex flex-row items-start gap-3 py-2 truncate outline-none text-start  no-underline hover:no-underline cursor-pointer"
+                  className="w-full flex flex-row items-start gap-3 py-2 truncate outline-none text-start no-underline hover:no-underline cursor-pointer mt-auto flex-shrink-0"
                   style={{
                     textOverflow: "ellipsis",
                     textDecoration: "none",
-                    position: "absolute",
-                    bottom: 8,
-                  }}>
+                  }}
+                >
                   {user?.thumb_profile_image ? (
                     <img
                       src={user?.thumb_profile_image}
@@ -897,12 +934,12 @@ function SelectedUserDetails({
             </div>
 
             <div
-              className={`flex flex-col items-center justify-start pt-2 px-4 h-[95vh] overflow-auto w-10/12`}
+              className={`flex flex-col items-center justify-start pt-0 px-0 h-[95vh] overflow-auto w-10/12`}
             >
               <div
-                className={`flex flex-col h-full ${selectedManu?.name == 'Leads' ? 'items-stretch' : 'items-center justify-center'} ${enablePermissionChecks ? 'max-h-[85vh]' : 'h-[76vh]'} ${selectedManu?.name == 'Leads' ? 'overflow-hidden' : 'overflow-auto'} w-full`}
+                className={`flex flex-col h-full ${selectedManu?.name == 'Leads' ? 'items-stretch' : 'items-center justify-center'} ${selectedManu?.name == 'Leads' ? 'overflow-hidden' : 'overflow-auto'} w-full`}
                 id={selectedManu?.name == 'Leads' ? 'adminLeadsParentContainer' : undefined}
-                style={selectedManu?.name == 'Leads' ? { overflow: 'hidden', maxHeight: enablePermissionChecks ? '85vh' : '76vh' } : {}}
+                style={selectedManu?.name == 'Leads' ? { overflow: 'hidden' } : {}}
               >
                 {/* Check permission before rendering content when permission checks enabled */}
                 {enablePermissionChecks && isInvitee && currentPermissionKey && !effectiveIsChecking && !effectiveHasPermission ? (

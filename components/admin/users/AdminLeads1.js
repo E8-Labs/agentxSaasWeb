@@ -1250,19 +1250,12 @@ const AdminLeads1 = ({ selectedUser, agencyUser }) => {
             </div>
           ) : (
             <div className={`${agencyUser ? 'h-[75vh]' : 'h-[50vh]'} w-full flex flex-col  items-center justify-start`}>
-              <div className={`flex flex-row  items-center self-start gap-3 px-4} `}>
-                <div style={{ fontWeight: '600', fontSize: 24 }}>Leads</div>
+              <div className={`flex flex-row items-center self-start gap-3 px-4`}>
+                <div className="text-[24px] font-semibold">Leads</div>
 
                 {userDetails?.planCapabilities?.maxLeads < 10000000 &&
                   userDetails?.plan?.planId != null && (
-                    <div
-                      style={{
-                        fontSize: 14,
-                        fontWeight: '400',
-                        color: '#0000080',
-                        padding: 20,
-                      }}
-                    >
+                    <div className="text-[14px] font-normal text-black/80 py-5">
                       {`${formatFractional2(userDetails?.currentUsage?.maxLeads)}/${formatFractional2(userDetails?.planCapabilities?.maxLeads || 0)} used`}
                     </div>
                   )}
