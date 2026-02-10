@@ -123,9 +123,12 @@ const StirCalling = ({
             message: response.message,
             isVisible: true,
           })
-          // handleClose(response);
+          const selectedDisplayName =
+            trustProducts?.shakenStir?.all?.find(
+              (p) => p.sid === selectedSTIR,
+            )?.friendlyName || ''
           setTimeout(() => {
-            handleClose(response)
+            handleClose({ ...response, displayName: selectedDisplayName })
           }, 300)
         } else {
           setShowSnack({
@@ -166,9 +169,12 @@ const StirCalling = ({
               message: apiResponse.message,
               isVisible: true,
             })
-            // handleClose(response);
             setTimeout(() => {
-              handleClose(apiResponse)
+              handleClose({
+                ...apiResponse,
+                displayName:
+                  productName || apiResponse?.data?.friendlyName || '',
+              })
             }, 300)
           } else if (apiResponse.status === false) {
             setShowSnack({

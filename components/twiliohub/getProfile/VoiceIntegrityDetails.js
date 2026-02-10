@@ -23,6 +23,9 @@ const VoiceIntegrityDetails = ({
   const [showAddVoice, setShowAddVoice] = useState(false)
   //temporary Voice Integrity Status
   const [voiceIntegrityStatus, setVoiceIntegrityStatus] = useState('')
+  // display name while in-review (before server returns or until approved/rejected)
+  const [voiceIntegrityPendingDisplayName, setVoiceIntegrityPendingDisplayName] =
+    useState('')
   //show snack
   const [showSnack, setShowSnack] = useState({
     type: SnackbarTypes.Success,
@@ -42,23 +45,33 @@ const VoiceIntegrityDetails = ({
   }, [twilioHubData])
 
   const checkVoiceIntegrityStatus = () => {
-    // If twilioHubData is null (disconnected), clear status and localStorage
+    const Data = localStorage.getItem('VoiceIntegrityStatusReview')
+    // When server data is empty (e.g. just added), show "added" state from localStorage
     if (!twilioHubData) {
+      if (Data) {
+        const data = JSON.parse(Data)
+        setVoiceIntegrityStatus(data.status)
+        setVoiceIntegrityPendingDisplayName(data.displayName || '')
+        return
+      }
       setVoiceIntegrityStatus('')
+      setVoiceIntegrityPendingDisplayName('')
       localStorage.removeItem('VoiceIntegrityStatusReview')
       return
     }
-    const Data = localStorage.getItem('VoiceIntegrityStatusReview')
     if (!twilioHubData?.status && Data) {
       const data = JSON.parse(Data)
       setVoiceIntegrityStatus(data.status)
+      setVoiceIntegrityPendingDisplayName(data.displayName || '')
       return
     }
     if (twilioHubData?.status) {
       setVoiceIntegrityStatus(twilioHubData?.status)
+      setVoiceIntegrityPendingDisplayName('')
       localStorage.removeItem('VoiceIntegrityStatusReview')
     } else {
       setVoiceIntegrityStatus('')
+      setVoiceIntegrityPendingDisplayName('')
     }
   }
 
@@ -168,7 +181,9 @@ const VoiceIntegrityDetails = ({
                 Voice integrity friendly name
               </div>
               <div className="w-1/2" style={styles.mediumfontDarkClr}>
-                {twilioHubData?.friendlyName || 'N/A'}
+                {twilioHubData?.friendlyName ||
+                  voiceIntegrityPendingDisplayName ||
+                  'N/A'}
               </div>
             </div>
             {/*
@@ -199,14 +214,18 @@ const VoiceIntegrityDetails = ({
           handleClose={(d) => {
             setShowAddVoice(false)
             if (d) {
+              const displayName =
+                d.displayName ?? d.data?.friendlyName ?? ''
               const data = {
                 message: 'Voice Integrity is being reviewed',
                 status: 'in-review',
+                displayName,
               }
               localStorage.setItem(
                 'VoiceIntegrityStatusReview',
                 JSON.stringify(data),
               )
+              setVoiceIntegrityPendingDisplayName(displayName)
               checkVoiceIntegrityStatus()
               getProfileData(d)
               setShowSnack({

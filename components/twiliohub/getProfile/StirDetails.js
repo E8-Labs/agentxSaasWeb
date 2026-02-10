@@ -23,6 +23,8 @@ const StirDetails = ({
   const [showShakenStirModal, setShowShakenStirModal] = useState(false)
   //temporary SHAKEN/STIR Status
   const [stirStatus, setStirStatus] = useState('')
+  // display name while in-review (before server returns or until approved/rejected)
+  const [stirPendingDisplayName, setStirPendingDisplayName] = useState('')
   //allow add details btn
   const [allowAddDetails, setAllowAddDetails] = useState(true)
 
@@ -42,23 +44,33 @@ const StirDetails = ({
   }, [twilioHubData])
 
   const checkStirStatus = () => {
-    // If twilioHubData is null (disconnected), clear status and localStorage
+    const Data = localStorage.getItem('StirStatusReview')
+    // When server data is empty (e.g. just added), show "added" state from localStorage
     if (!twilioHubData) {
+      if (Data) {
+        const data = JSON.parse(Data)
+        setStirStatus(data.status)
+        setStirPendingDisplayName(data.displayName || '')
+        return
+      }
       setStirStatus('')
+      setStirPendingDisplayName('')
       localStorage.removeItem('StirStatusReview')
       return
     }
-    const Data = localStorage.getItem('StirStatusReview')
     if (!twilioHubData?.status && Data) {
       const data = JSON.parse(Data)
       setStirStatus(data.status)
+      setStirPendingDisplayName(data.displayName || '')
       return
     }
     if (twilioHubData?.status) {
       setStirStatus(twilioHubData?.status)
+      setStirPendingDisplayName('')
       localStorage.removeItem('StirStatusReview')
     } else {
       setStirStatus('')
+      setStirPendingDisplayName('')
     }
   }
 
@@ -176,7 +188,9 @@ const StirDetails = ({
                 Trust product name
               </div>
               <div className="w-1/2" style={styles.mediumfontDarkClr}>
-                {twilioHubData?.friendlyName || 'N/A'}
+                {twilioHubData?.friendlyName ||
+                  stirPendingDisplayName ||
+                  'N/A'}
               </div>
             </div>
             {/*<div className='flex flex-row items-center mt-2'>
@@ -206,11 +220,15 @@ const StirDetails = ({
           handleClose={(d) => {
             setShowShakenStirModal(false)
             if (d) {
+              const displayName =
+                d.displayName ?? d.data?.friendlyName ?? ''
               const data = {
                 message: 'SHAKEN/STIR is being reviewed',
                 status: 'in-review',
+                displayName,
               }
               localStorage.setItem('StirStatusReview', JSON.stringify(data))
+              setStirPendingDisplayName(displayName)
               checkStirStatus()
               getProfileData(d)
               setShowSnack({
