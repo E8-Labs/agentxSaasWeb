@@ -182,7 +182,7 @@ const PipelineAndStage = ({
   //booking time status text
   const decideTextToShowForBookingTimeStatus = (cadence) => {
     if (cadence.referencePoint === "after_booking") {
-      return "after meeting"
+      return "after booking"
     } else if (cadence.referencePoint === "before_meeting") {
       return "before meeting"
     }

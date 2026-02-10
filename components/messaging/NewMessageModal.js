@@ -293,6 +293,7 @@ const NewMessageModal = ({
 
   // Fetch data when modal opens or mode changes
   useEffect(() => {
+    // console.log("Editing row is", editingRow);
     if (open) {
       if (selectedMode === 'sms' && canSendSMS) {
         fetchPhoneNumbers()
