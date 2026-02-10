@@ -32,6 +32,20 @@ import MultiSelectDropdownCn from '@/components/dashboard/leads/extras/MultiSele
 import CloseBtn from '../globalExtras/CloseBtn'
 import CreateSmartlistModal from './CreateSmartlistModal'
 
+// Module-level agents cache (persists across re-mounts, shared by all instances)
+const AGENTS_CACHE_TTL = 60 * 1000 // 1 minute
+let agentsCache = { data: null, timestamp: 0, cacheKey: null }
+
+/** Call this after creating a new agent to bust the cache */
+export function invalidateAgentsCache() {
+  agentsCache = { data: null, timestamp: 0, cacheKey: null }
+}
+
+// Also listen for a custom event so any part of the app can invalidate
+if (typeof window !== 'undefined') {
+  window.addEventListener('agentsCacheInvalidated', invalidateAgentsCache)
+}
+
 const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => {
   // Form state
   const [selectedSmartlist, setSelectedSmartlist] = useState(null)
@@ -339,66 +353,75 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
 
       const userData = JSON.parse(localData)
       const token = userData.token
-
-      // Build query string with userId if selectedUser is provided (for agency viewing subaccount)
-      let queryString = ''
       const userId = selectedUser?.id || selectedUser?.userId || selectedUser?.user?.id
-      if (userId) {
-        queryString = `?userId=${userId}`
-      }
+      const cacheKey = userId || 'default'
 
-      // Fetch all agents (same as AssignLead.js)
-      const response = await axios.get(`/api/agents${queryString}`, {
-        headers: {
+      let allAgentsData
+
+      // Use cached data if fresh (< 1 min) and same user context
+      const now = Date.now()
+      if (
+        agentsCache.data &&
+        agentsCache.cacheKey === cacheKey &&
+        (now - agentsCache.timestamp) < AGENTS_CACHE_TTL
+      ) {
+        allAgentsData = agentsCache.data
+      } else {
+        // Fetch all agents with pagination (backend paginates via offset like AssignLead.js)
+        allAgentsData = []
+        let offset = 0
+        let hasMore = true
+        const headers = {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
-        },
+        }
+
+        while (hasMore) {
+          const params = new URLSearchParams()
+          params.set('offset', offset.toString())
+          if (userId) params.set('userId', userId)
+
+          const response = await axios.get(`/api/agents?${params.toString()}`, { headers })
+
+          if (response.data?.status && response.data?.data?.length > 0) {
+            allAgentsData = [...allAgentsData, ...response.data.data]
+            offset = allAgentsData.length
+          } else {
+            hasMore = false
+          }
+        }
+
+        // Update cache
+        agentsCache = { data: allAgentsData, timestamp: Date.now(), cacheKey }
+      }
+
+      // Filter to agents assigned to the selected pipeline
+      const agentsInPipeline = allAgentsData.filter((agent) => {
+        return agent.pipeline?.id?.toString() === pipelineId?.toString()
       })
 
-      if (response.data?.status && response.data?.data) {
-        // Step 1: Filter to only agents that have a pipeline and stages (same as AssignLead.js)
-        const agentsWithPipeline = response.data.data.filter((agent) => {
-          return agent.pipeline != null && agent.stages && agent.stages.length > 0
-        })
+      // Filter out inbound-only agents, deduplicate, and include stages for conflict checking
+      const agentsMap = new Map()
+      agentsInPipeline.forEach((agent) => {
+        // Skip agents that only have inbound sub-agents (no outbound)
+        const hasOutbound = agent.agents?.some(a => a.agentType === 'outbound')
+        if (!hasOutbound) return
 
-        // Step 2: Filter by selected pipeline ID
-        const agentsInPipeline = agentsWithPipeline.filter((agent) => {
-          return agent.pipeline?.id?.toString() === pipelineId?.toString()
-        })
+        const mainAgentId = agent.id
+        if (!agentsMap.has(mainAgentId)) {
+          const outboundSubAgent = agent.agents?.find(a => a.agentType === 'outbound')
 
-        // Step 3: Filter to only show outbound agents with valid phone numbers and flatten the structure
-        // Use a Map to deduplicate by mainAgentId - only keep one sub-agent per main agent
-        const outboundAgentsMap = new Map()
-        agentsInPipeline.forEach((agent) => {
-          // Check if agent has sub-agents with outbound type
-          if (agent.agents && agent.agents.length > 0) {
-            agent.agents.forEach((subAgent) => {
-              // Only include outbound agents with valid phone numbers
-              const hasValidPhoneNumber =
-                subAgent.phoneNumber &&
-                subAgent.phoneNumber.trim() !== '' &&
-                subAgent.phoneStatus !== 'inactive'
-
-              if (subAgent.agentType === 'outbound' && hasValidPhoneNumber) {
-                // Store main agent ID (from agent.id or subAgent.mainAgentId) for pipeline assignment
-                const mainAgentId = agent.id || subAgent.mainAgentId
-
-                // Only add if we haven't seen this mainAgentId before (deduplicate)
-                if (!outboundAgentsMap.has(mainAgentId)) {
-                  outboundAgentsMap.set(mainAgentId, {
-                    id: subAgent.id, // Sub-agent ID for display/selection
-                    mainAgentId: mainAgentId, // Main agent ID for pipeline assignment
-                    name: subAgent.name || agent.name,
-                    thumb_profile_image: subAgent.thumb_profile_image || agent.thumb_profile_image,
-                    raw: { ...subAgent, mainAgentId },
-                  })
-                }
-              }
-            })
-          }
-        })
-        setAgents(Array.from(outboundAgentsMap.values()))
-      }
+          agentsMap.set(mainAgentId, {
+            id: outboundSubAgent?.id || mainAgentId,
+            mainAgentId: mainAgentId,
+            name: outboundSubAgent?.name || agent.name,
+            thumb_profile_image: outboundSubAgent?.thumb_profile_image || agent.thumb_profile_image,
+            stages: agent.stages || [],
+            pipeline: agent.pipeline,
+          })
+        }
+      })
+      setAgents(Array.from(agentsMap.values()))
     } catch (error) {
       console.error('Error fetching agents:', error)
       toast.error('Failed to load agents')
@@ -550,6 +573,30 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
     }
 
     return true
+  }
+
+  // Check for stage conflicts when selecting agents (same logic as AssignLead.js)
+  const checkAgentConflicts = (agentToSelect) => {
+    const agentStages = agentToSelect.stages || []
+
+    // Collect all stages from already-selected agents
+    const allSelectedStages = []
+    selectedAgents.forEach((agent) => {
+      if (agent.stages) {
+        allSelectedStages.push(...agent.stages)
+      }
+    })
+
+    // Check for stage overlap
+    for (const stage of agentStages) {
+      for (const selectedStage of allSelectedStages) {
+        if (stage.id === selectedStage.id) {
+          return { canSelect: false, reason: "You can't assign agents that share the same stage" }
+        }
+      }
+    }
+
+    return { canSelect: true }
   }
 
   const validateForm = () => {
@@ -1111,10 +1158,14 @@ const NewContactDrawer = ({ open, onClose, onSuccess, selectedUser = null }) => 
                       onToggle={(opt, checked) => {
                         const raw = opt.raw
                         if (raw.type === 'agent') {
-                          // Handle agent selection - store complete agent object
                           if (checked) {
+                            // Validate stage conflicts before selecting
+                            const { canSelect, reason } = checkAgentConflicts(raw)
+                            if (!canSelect) {
+                              toast.error(reason)
+                              return
+                            }
                             setSelectedAgents((prev) => {
-                              // Avoid duplicates by checking mainAgentId
                               const exists = prev.some(
                                 (agent) => agent.mainAgentId === raw.mainAgentId
                               )
