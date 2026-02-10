@@ -49,7 +49,7 @@ const AdvancedSettingsModalCN = ({
   className,
 }) => {
   const [maxDurationSeconds, setMaxDurationSeconds] = useState(
-    initialValues.maxDurationSeconds ?? 600
+    initialValues.maxDurationSeconds ?? 10
   )
   const [idleTimeoutSeconds, setIdleTimeoutSeconds] = useState(
     initialValues.idleTimeoutSeconds ?? 10
@@ -66,7 +66,7 @@ const AdvancedSettingsModalCN = ({
 
   useEffect(() => {
     if (open) {
-      setMaxDurationSeconds(initMaxDuration)
+      setMaxDurationSeconds(initMaxDuration / 60)
       setIdleTimeoutSeconds(initIdleTimeout)
       setIdleMessage(initIdleMessage)
     }
@@ -74,8 +74,8 @@ const AdvancedSettingsModalCN = ({
 
   const isValid = () => {
     const maxDurationValid =
-      maxDurationSeconds >= 10 &&
-      maxDurationSeconds <= 43200 &&
+      maxDurationSeconds >= 1 &&
+      maxDurationSeconds <= 720 &&
       !isNaN(maxDurationSeconds)
     const idleTimeoutValid =
       idleTimeoutSeconds >= 10 &&
@@ -90,14 +90,14 @@ const AdvancedSettingsModalCN = ({
     if (!isValid()) return
 
     onSave({
-      maxDurationSeconds: Number(maxDurationSeconds),
+      maxDurationSeconds: Number(maxDurationSeconds) * 60,
       idleTimeoutSeconds: Number(idleTimeoutSeconds),
       idleMessage,
     })
   }
 
   const handleCancel = () => {
-    setMaxDurationSeconds(initialValues.maxDurationSeconds ?? 600)
+    setMaxDurationSeconds(initialValues.maxDurationSeconds / 60 ?? 10)
     setIdleTimeoutSeconds(initialValues.idleTimeoutSeconds ?? 10)
     setIdleMessage(initialValues.idleMessage ?? IDLE_MESSAGES[0])
     onOpenChange(false)
@@ -205,14 +205,19 @@ const AdvancedSettingsModalCN = ({
               gutterBottom
               sx={{ mb: 1 }}
             >
-              The maximum duration of a call in seconds (10-43200 seconds)
+              The maximum duration of a call in minutes
             </Typography>
-            <Input
-              type="number"
-              value={maxDurationSeconds}
-              onChange={(e) => setMaxDurationSeconds(e.target.value)}
-              className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
-            />
+            <div className="flex flex-row items-center border rounded w-1/2 focus-within:outline-none focus-within:ring-0 focus-within:border-black transition-colors">
+              <Input
+                type="number"
+                value={maxDurationSeconds}
+                onChange={(e) => setMaxDurationSeconds(e.target.value)}
+                className="border-0 rounded-r-none rounded-l px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 w-full bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              <span className="text-sm text-muted-foreground whitespace-nowrap pr-3 pointer-events-none">
+                {Number(maxDurationSeconds) === 1 ? 'min' : 'mins'}
+              </span>
+            </div>
           </Box>
 
           {/* Silence Timeout */}
@@ -230,16 +235,20 @@ const AdvancedSettingsModalCN = ({
               gutterBottom
               sx={{ mb: 1 }}
             >
-              Time before considering user as idle (10-3600 seconds)
+              Time before considering user as idle
             </Typography>
-            <Input
-              type="number"
-              value={idleTimeoutSeconds}
-              onChange={handleIdleTimeoutChange}
-              placeholder="Silence Timeout"
-              className="border rounded px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus:border-black w-full transition-colors"
-
-            />
+            <div className="flex flex-row items-center border rounded w-1/2 focus-within:outline-none focus-within:ring-0 focus-within:border-black transition-colors">
+              <Input
+                type="number"
+                value={idleTimeoutSeconds}
+                onChange={handleIdleTimeoutChange}
+                placeholder="Silence Timeout"
+                className="border-0 rounded-r-none rounded-l px-3 py-2.5 outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 w-full bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              />
+              <span className="text-sm text-muted-foreground whitespace-nowrap pr-3 pointer-events-none">
+                {Number(idleTimeoutSeconds) === 1 ? 'sec' : 'secs'}
+              </span>
+            </div>
           </Box>
 
           {/* Silence Response */}

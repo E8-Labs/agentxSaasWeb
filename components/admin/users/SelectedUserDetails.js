@@ -130,6 +130,14 @@ function SelectedUserDetails({
       permissionKey: 'subaccount.teams.manage',
       paramValue: 'team',
     },
+    {
+      id: 123,
+      name: 'View Details',
+      selectedImage: '/svgIcons/selectedTeam.svg',
+      unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg',
+      permissionKey: null,
+      paramValue: 'viewDetails',
+    },
   ]
 
   // Account menu item
@@ -506,6 +514,10 @@ function SelectedUserDetails({
   }
 
   const handleManuClick = (item) => {
+    if (item.paramValue === 'viewDetails') {
+      setShowActivityLogs(true)
+      return
+    }
     console.log('item', item)  
     setSelectedManu(item)
     storeTabState(item.name)
@@ -715,7 +727,7 @@ function SelectedUserDetails({
   }
 
   return (
-    <div className="w-full flex flex-col h-full items-center justify-center ">
+    <div className="w-full flex flex-col h-[100svh] items-center justify-center overflow-y-auto">
       <AgentSelectSnackMessage
         isVisible={showSnackMessage != null && showSnackMessage !== ''}
         hide={() => {
@@ -834,7 +846,7 @@ function SelectedUserDetails({
           )}
           <div className="flex flex-row items-start w-full  ">
             <div className={`flex border-r border-[#00000015] ${!enablePermissionChecks && '-mt-10'} flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} ${enablePermissionChecks ? 'h-auto max-h-[85vh] overflow-y-auto' : 'h-auto'}`}>
-
+  
               {agencyUser ? (
                 <div className="flex flex-row items-center justify-start w-full  pb-1 flex-shrink-0 mt-4">
                   <AppLogo height={29} width={122} />
@@ -927,7 +939,7 @@ function SelectedUserDetails({
                 ))}
               </div>
 
-              {enablePermissionChecks && (
+              {(from === "admin" || enablePermissionChecks) && (
                 <div
                   onClick={() => {
                     console.log('clicked')
@@ -1055,8 +1067,7 @@ function SelectedUserDetails({
           </div>
         </div>
       </div>
-      {/* View Details Button - Bottom Left */}
-      {!hideViewDetails && (
+      {/* View Details Button - Bottom Left{!hideViewDetails && (
         <div className="absolute bottom-4 left-4">
           <button
             className="text-white bg-brand-primary outline-none rounded-xl px-4 py-2 flex items-center gap-2"
@@ -1074,7 +1085,8 @@ function SelectedUserDetails({
             View Details
           </button>
         </div>
-      )}
+      )} */}
+      
       {/* Code to del user */}
       <Modal
         open={showDeleteModal}

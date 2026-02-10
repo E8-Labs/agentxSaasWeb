@@ -426,7 +426,7 @@ export default function CallingScript({
             style={{ position: 'relative', zIndex: 2000 }}
           >
               <label className="text-sm font-medium mb-2 block text-gray-700">Title</label>
-            <div style={{ position: 'relative', zIndex: 2001 ,backgroundColor:'red'}}>
+            <div style={{ position: 'relative', zIndex: 2001 ,backgroundColor:'transparent'}}>
               <Input
                 ref={titleInputRef}
                 type="text"
