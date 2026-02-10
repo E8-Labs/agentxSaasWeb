@@ -231,11 +231,11 @@ function EmailTempletePopup({
   const loadTemplateDetails = async (template) => {
     try {
       setDetailsLoader(template.id || template.templateId)
-      const details = await getTempleteDetails(template)
+      const details = await getTempleteDetails(template, selectedUser?.id)
       if (details) {
         setTempName(details.templateName || '')
         setSubject(details.subject || '')
-        setBody(details.content || '')
+        setBody(details.content != null && details.content !== '' ? details.content : (template.content || ''))
 
         // Parse ccEmails if it's a string (JSON string)
         let parsedCcEmails = []
@@ -304,6 +304,11 @@ function EmailTempletePopup({
             })
           }
         }
+      } else if (template && (template.content != null || template.subject != null || template.templateName)) {
+        // Fallback when API returns no details: use template object (e.g. from list)
+        if (template.templateName) setTempName(template.templateName)
+        if (template.subject != null) setSubject(template.subject || '')
+        if (template.content != null) setBody(template.content || '')
       }
     } catch (error) {
       console.error('Error loading template details:', error)
@@ -1694,7 +1699,7 @@ function EmailTempletePopup({
                       className="h-4 w-4 text-brand-primary border-gray-300 rounded focus:ring-brand-primary"
                     />
                     <label htmlFor="saveAsTemplate" className="text-sm text-gray-700 cursor-pointer select-none">
-                      Save as template
+                      {(selectedTemp || (isEditing && (editingRow?.templateId || editingRow?.id))) ? 'Update template' : 'Save as template'}
                     </label>
                   </div>
                 )}

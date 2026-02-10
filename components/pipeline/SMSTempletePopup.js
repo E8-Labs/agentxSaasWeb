@@ -181,16 +181,14 @@ function SMSTempletePopup({
       const details = await getTempleteDetails(normalizedTemplate, selectedUser?.id)
       // #region agent log
       //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:128', message: 'getTempleteDetails response', data: { hasDetails: !!details, hasContent: !!details?.content, contentLength: details?.content?.length || 0, detailsKeys: Object.keys(details || {}) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
-      if (details) {
-        setBody(details.content || '')
-        // #region agent log
-        //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:132', message: 'Setting body from details', data: { bodyLength: (details.content || '').length, bodyPreview: (details.content || '').substring(0, 50) }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
-        // #endregion
+      if (details && details.content != null && details.content !== '') {
+        setBody(details.content)
         // Don't set phone from details - it doesn't exist there
-      } else {
-        // #region agent log
-        //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'SMSTempletePopup.js:136', message: 'No details returned from getTempleteDetails', data: {}, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'A' }) }).catch(() => { });
-        // #endregion
+      } else if (template.content != null && template.content !== '') {
+        // Fallback: use content from template object (e.g. from list) when API returns no content
+        setBody(template.content)
+      } else if (details) {
+        setBody(details.content || '')
       }
     } catch (error) {
       // #region agent log
@@ -246,6 +244,7 @@ function SMSTempletePopup({
           templateName: templateName || "Sms Template",
           content: body,
           phone: selectedPhone?.phone || leadPhone,
+          templateType: 'user', // User chose "Save as template" so save as user template
         }
 
         // Add userId if selectedUser is provided
@@ -279,6 +278,8 @@ function SMSTempletePopup({
         smsPhoneNumberId: selectedPhone?.id,
         leadId: leadId,
       }
+      // When admin/agency sends for a subaccount, pass userId so backend checks/deducts subaccount credits
+      if (selectedUser?.id) smsData.userId = selectedUser.id
 
       let token = AuthToken()
 
@@ -966,7 +967,7 @@ function SMSTempletePopup({
                   className="h-4 w-4 text-brand-primary border-gray-300 rounded focus:ring-brand-primary"
                 />
                 <label htmlFor="saveAsTemplateSMS" className="text-sm text-gray-700 cursor-pointer select-none">
-                  {isEditing && !IsDefaultCadence ? 'Update template' : 'Save as template'}
+                  {selectedTemplate ? 'Update template' : 'Save as template'}
                 </label>
               </div>
             )}
