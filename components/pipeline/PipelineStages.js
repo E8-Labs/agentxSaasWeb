@@ -771,16 +771,16 @@ const PipelineStages = ({
       setPipelineStages(updatedStages)
       onUpdateOrder(updatedStages)
       handleReOrder(updatedStages)
-  },
-  [
-    handleDragMove,
-    setShowRearrangeErr,
-    setIsVisibleSnack,
-    setSnackType,
-    pipelineStages,
-    onUpdateOrder,
-    handleReOrder,
-  ])
+    },
+    [
+      handleDragMove,
+      setShowRearrangeErr,
+      setIsVisibleSnack,
+      setSnackType,
+      pipelineStages,
+      onUpdateOrder,
+      handleReOrder,
+    ])
 
   //functions to move to stage after deleting one
   const handleChangeNextStage = (event) => {
@@ -1701,7 +1701,7 @@ const PipelineStages = ({
 
                       {index > 0 &&
                         !isInboundAgent &&
-                        (item.stageTitle === 'Booked' || (selectedPipelineItem?.pipelineType === "agency_use" && (item.stageTitle === 'account_created' || item.stageTitle === 'on_trial' || item.stageTitle === 'paying' || item.stageTitle === 'cancelled'))) && (
+                        !(item.stageTitle === 'Booked' || (selectedPipelineItem?.pipelineType === "agency_use" && (item.stageTitle === 'account_created' || item.stageTitle === 'on_trial' || item.stageTitle === 'paying' || item.stageTitle === 'cancelled'))) && (
                           <div className="w-full flex flex-row items-center justify-end mt-2">
                             <button
                               className="flex flex-row items-center gap-1"
