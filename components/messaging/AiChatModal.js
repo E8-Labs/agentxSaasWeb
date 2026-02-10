@@ -118,6 +118,29 @@ const AiChatModal = ({
     }
   }, [open])
 
+  const messagesList = [
+    "Sipping coffee...",
+    "Typing...",
+    "Dreaming...",
+    "Creating...",
+    "Still on it...",
+    "Don't leave yet...",
+    "Stay with me...",
+  ];
+
+  const [rotatingIndex, setRotatingIndex] = useState(0);
+
+  useEffect(() => {
+    // if (!isLoading) {
+    //   setRotatingIndex(0);
+    //   return;
+    // }
+    const id = setInterval(() => {
+      setRotatingIndex((prev) => (prev + 1) % messagesList.length);
+    }, 1000);
+    return () => clearInterval(id);
+  }, [isLoading]);
+
   // Load user's agents for prompt dropdown (no pagination = get up to 100)
   const loadAgents = useCallback(async () => {
     if (!open) return
@@ -390,11 +413,11 @@ const AiChatModal = ({
         prev.map((m) =>
           m.id === userMessage.id
             ? {
-                id: data.userMessage.id,
-                content: data.userMessage.content,
-                role: data.userMessage.role,
-                createdAt: data.userMessage.createdAt,
-              }
+              id: data.userMessage.id,
+              content: data.userMessage.content,
+              role: data.userMessage.role,
+              createdAt: data.userMessage.createdAt,
+            }
             : m,
         ),
       )
@@ -527,8 +550,8 @@ const AiChatModal = ({
                 <span className="px-4 text-xs text-muted-foreground">
                   {callSummaryMessage?.createdAt
                     ? moment(callSummaryMessage.createdAt).format(
-                        'MMMM DD, YYYY',
-                      )
+                      'MMMM DD, YYYY',
+                    )
                     : 'Today'}
                 </span>
                 <div className="border-t border-gray-200 flex-1" />
@@ -590,9 +613,8 @@ const AiChatModal = ({
               return (
                 <div key={msg.id} className="flex flex-col w-full">
                   <div
-                    className={`flex items-end gap-2 w-full ${
-                      isUser ? 'justify-end' : 'justify-start'
-                    }`}
+                    className={`flex items-end gap-2 w-full ${isUser ? 'justify-end' : 'justify-start'
+                      }`}
                   >
                     {/* AI avatar on left */}
                     {!isUser && (
@@ -605,11 +627,10 @@ const AiChatModal = ({
 
                     {/* Message bubble */}
                     <div
-                      className={`max-w-[75%] min-w-[100px] px-4 py-2.5 text-sm leading-relaxed ${
-                        isUser
-                          ? 'bg-brand-primary text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
-                          : 'bg-gray-100 text-foreground rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
-                      }`}
+                      className={`max-w-[75%] min-w-[100px] px-4 py-2.5 text-sm leading-relaxed ${isUser
+                        ? 'bg-brand-primary text-white rounded-tl-2xl rounded-bl-2xl rounded-br-2xl'
+                        : 'bg-gray-100 text-foreground rounded-tr-2xl rounded-bl-2xl rounded-br-2xl'
+                        }`}
                     >
                       {isUser ? (
                         msg.content
@@ -632,9 +653,8 @@ const AiChatModal = ({
 
                   {/* Timestamp */}
                   <div
-                    className={`mt-1 text-[10px] text-muted-foreground ${
-                      isUser ? 'text-right mr-10' : 'ml-10'
-                    }`}
+                    className={`mt-1 text-[10px] text-muted-foreground ${isUser ? 'text-right mr-10' : 'ml-10'
+                      }`}
                   >
                     {moment(msg.createdAt).format('h:mm A')}
                   </div>
@@ -642,7 +662,7 @@ const AiChatModal = ({
               )
             })}
 
-            {/* Loading indicator: Lottie animation + "Thinking..." */}
+            {/* Loading indicator: Lottie animation + rotating message every 0.5s */}
             {isLoading && (
               <div className="flex items-end gap-3 w-full justify-start">
                 <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center overflow-hidden">
@@ -658,7 +678,7 @@ const AiChatModal = ({
                   )}
                 </div>
                 <div className=" text-foreground rounded-tr-2xl rounded-bl-2xl rounded-br-2xl px-4 py-3 flex items-center gap-2 min-w-[120px]">
-                  <span className="text-sm text-gray-600">Thinking...</span>
+                  <span className="text-sm text-gray-600">{messagesList[rotatingIndex]}</span>
                   {/*<div className="flex-1 min-w-[60px] border-b border-dashed border-gray-300" aria-hidden />*/}
                 </div>
               </div>
@@ -670,16 +690,9 @@ const AiChatModal = ({
 
         {/* Input area - same formatting toolbar as MessageComposer (Bold, Underline, Lists, Paperclip, Send) */}
         <div className="border-t border-border pt-3 pb-3">
-          {isLoading && (
-            <div className="flex items-center gap-2 mb-2 text-sm text-muted-foreground">
-              <CircleNotch size={16} className="animate-spin flex-shrink-0" />
-              <span>AI is typing...</span>
-            </div>
-          )}
           <div
-            className={`relative border border-brand-primary/20 rounded-lg bg-white transition-opacity ${
-              aiKeyError || isLoading ? 'pointer-events-none opacity-60' : ''
-            }`}
+            className={`relative border border-brand-primary/20 rounded-lg bg-white transition-opacity ${aiKeyError || isLoading ? 'pointer-events-none opacity-60' : ''
+              }`}
           >
             <RichTextEditor
               ref={aiEditorRef}

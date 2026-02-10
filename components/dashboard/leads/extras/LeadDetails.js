@@ -100,7 +100,6 @@ import SelectStageDropdown from '../StageSelectDropdown'
 import DeleteCallLogConfimation from './DeleteCallLogConfimation'
 import { useDispatch } from 'react-redux'
 import { openDialer, setSelectedUser } from '@/store/slices/dialerSlice'
-import DropdownCn from './DropdownCn'
 // import MultiSelectDropdownCn from './MultiSelectDropdownCn'
 import TeamAssignDropdownCn from './TeamAssignDropdownCn'
 import { useUser } from '@/hooks/redux-hooks'
@@ -116,6 +115,9 @@ import TabsCN from './TabsCN'
 import { renderBrandedIcon } from '@/utilities/iconMasking'
 import { Input } from '@/components/ui/input'
 import Link from 'next/link'
+// import ActionsTab from '../../myagentX/ActionsTab'
+// import ActionsGroupBtnCN from './ActionsGroupBtnCN'
+import SendActionsButtonGroup from './SendActionsButtonGroup'
 
 const LeadDetails = ({
   showDetailsModal,
@@ -447,7 +449,7 @@ const LeadDetails = ({
 
   useEffect(() => {
     if (!selectedLead) return
-    
+
     // Always fetch from API to get latest data, but getLeadDetails will preserve teamsAssigned
     getLeadDetails(selectedLead)
 
@@ -907,7 +909,7 @@ const LeadDetails = ({
         // This ensures UI updates are not lost when API is called
         const currentTeamsAssigned = selectedLeadsDetails?.teamsAssigned || []
         const apiTeamsAssigned = response.data.data?.teamsAssigned || []
-        
+
         // Use current teamsAssigned if it has more items (indicating recent assignment)
         // Otherwise use API data, but merge to ensure we don't lose any assignments
         let finalTeamsAssigned = apiTeamsAssigned
@@ -929,7 +931,7 @@ const LeadDetails = ({
           })
           finalTeamsAssigned = merged
         }
-        
+
         const updatedLeadData = {
           ...response.data.data,
           tags: (response.data.data.tags || []).filter(
@@ -1817,7 +1819,7 @@ const LeadDetails = ({
   }
   const handleSendAction = (opt) => {
 
-    console.log("!dialerCapability.hasAccess" ,!dialerCapability.hasAccess)
+    console.log("!dialerCapability.hasAccess", !dialerCapability.hasAccess)
     if (opt.value === 'email') {
       if (!emailCapability.hasAccess) {
         // Trigger upgrade modal if user doesn't have access
@@ -1924,166 +1926,123 @@ const LeadDetails = ({
                     </div>
                   )}
                   <div>
-                  <div className="flex flex-row items-start justify-between mt-4  w-full">
-                    <div className="flex flex-col items-start  w-full">
-                      <div className="flex flex-row items-between justify-between w-full">
-                        <div className="flex flex-row items-center gap-3">
-                          
-                          <Avatar className="h-8 w-8 bg-red">
-                            {selectedLeadsDetails?.avatar ? (
-                              <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
-                            ) : (
-                              <AvatarFallback className="text-md font-semibold">{selectedLeadsDetails?.firstName?.slice(0, 1) || 'L'}</AvatarFallback>
-                            )}
-                          </Avatar>
-                          <div className="flex min-w-0 flex-1 items-center gap-3">
-                            <p className="truncate text-lg font-semibold leading-none text-foreground">
-                              {/* max characters 15 combined */}
-                              {(() => {
-                                const firstName = selectedLeadsDetails?.firstName || ''
-                                const lastName = selectedLeadsDetails?.lastName || ''
-                                const fullName = `${firstName}${lastName ? ' ' + lastName : ''}`.trim()
-                                if (fullName.length > 10) {
-                                  return fullName.slice(0, 10) + '...'
-                                }
-                                return fullName
-                              })()}
-                            </p>
-                            {/* Send Action Dropdown Button */}
-                            <>
-                              <DropdownCn
-                                label="Send"
-                                options={[
-                                  {
-                                    label: 'Email',
-                                    value: 'email',
-                                    icon: Mail,
-                                    upgradeTag: (emailCapability.showUpgrade || emailCapability.showRequestFeature) ? (
-                                      <UpgradeTag
-                                        onClick={handleEmailUpgradeClick}
-                                        requestFeature={emailCapability.showRequestFeature}
-                                      />
-                                    ) : null,
-                                    showUpgradeTag: emailCapability.showUpgrade || emailCapability.showRequestFeature,
-                                    disabled: !emailCapability.hasAccess,
-                                    onUpgradeClick: handleEmailUpgradeClick,
-                                  },
-                                  {
-                                    label: 'Call',
-                                    value: 'call',
-                                    icon: PhoneCall,
-                                    upgradeTag: (dialerCapability.showUpgrade || dialerCapability.showRequestFeature) ? (
-                                      <UpgradeTag
-                                        onClick={handleUpgradeClick}
-                                        requestFeature={dialerCapability.showRequestFeature}
-                                      />
-                                    ) : null,
-                                    showUpgradeTag: dialerCapability.showUpgrade || dialerCapability.showRequestFeature,
-                                    disabled: !dialerCapability.hasAccess,
-                                    onUpgradeClick: handleUpgradeClick,
-                                  },
-                                  {
-                                    label: 'Text',
-                                    value: 'sms',
-                                    icon: MessageSquareDot,
-                                    upgradeTag: (smsCapability.showUpgrade || smsCapability.showRequestFeature) ? (
-                                      <UpgradeTag
-                                        onClick={handleSMSUpgradeClick}
-                                        requestFeature={smsCapability.showRequestFeature}
-                                      />
-                                    ) : null,
-                                    showUpgradeTag: smsCapability.showUpgrade || smsCapability.showRequestFeature,
-                                    disabled: !smsCapability.hasAccess,
-                                    onUpgradeClick: handleSMSUpgradeClick,
-                                  },
-                                ]}
-                                onSelect={handleSendAction}
-                              />
-                              {/* Render upgrade modals outside dropdown to avoid re-render issues - hideTag=true so it doesn't render the button */}
-                              {(dialerCapability.showUpgrade || dialerCapability.showRequestFeature) && (
-                                <UpgradeTagWithModal
-                                  reduxUser={effectiveUser}
-                                  setReduxUser={setReduxUser}
-                                  requestFeature={dialerCapability.showRequestFeature}
-                                  externalTrigger={triggerUpgradeModal > 0}
-                                  onModalClose={handleUpgradeModalClose}
-                                  hideTag={true}
-                                  selectedUser={memoizedSelectedUserForUpgrade}
-                                />
+                    <div className="flex flex-row items-start justify-between mt-4  w-full">
+                      <div className="flex flex-col items-start  w-full">
+                        <div className="flex flex-row items-between justify-between w-full">
+                          <div className="flex flex-row items-center gap-3">
+
+                            <Avatar className="h-8 w-8 bg-red">
+                              {selectedLeadsDetails?.avatar ? (
+                                <AvatarImage src={selectedLeadsDetails?.avatar} alt={selectedLeadsDetails?.name} />
+                              ) : (
+                                <AvatarFallback className="text-md font-semibold">{selectedLeadsDetails?.firstName?.slice(0, 1) || 'L'}</AvatarFallback>
                               )}
-                              {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
-                                <UpgradeTagWithModal
-                                  reduxUser={effectiveUser}
-                                  setReduxUser={setReduxUser}
-                                  requestFeature={emailCapability.showRequestFeature}
-                                  externalTrigger={triggerEmailUpgradeModal > 0}
-                                  onModalClose={handleEmailUpgradeModalClose}
-                                  hideTag={true}
-                                  selectedUser={memoizedSelectedUserForUpgrade}
-                                  featureTitle="Enable Emails"
+                            </Avatar>
+                            <div className="flex min-w-0 flex-1 items-center gap-3">
+                              <p className="truncate text-lg font-semibold leading-none text-foreground">
+                                {/* max characters 15 combined */}
+                                {(() => {
+                                  const firstName = selectedLeadsDetails?.firstName || ''
+                                  const lastName = selectedLeadsDetails?.lastName || ''
+                                  const fullName = `${firstName}${lastName ? ' ' + lastName : ''}`.trim()
+                                  if (fullName.length > 10) {
+                                    return fullName.slice(0, 10) + '...'
+                                  }
+                                  return fullName
+                                })()}
+                              </p>
+                              {/* Send actions: Text | Email | Call (ShadCN button group) */}
+                              <>
+                                <SendActionsButtonGroup
+                                  onSelect={handleSendAction}
+                                  emailCapability={emailCapability}
+                                  dialerCapability={dialerCapability}
+                                  smsCapability={smsCapability}
                                 />
-                              )}
-                              {(smsCapability.showUpgrade || smsCapability.showRequestFeature) && (
-                                <UpgradeTagWithModal
-                                  reduxUser={effectiveUser}
-                                  setReduxUser={setReduxUser}
-                                  requestFeature={smsCapability.showRequestFeature}
-                                  externalTrigger={triggerSMSUpgradeModal > 0}
-                                  onModalClose={handleSMSUpgradeModalClose}
-                                  hideTag={true}
-                                  selectedUser={memoizedSelectedUserForUpgrade}
-                                />
-                              )}
-                            </>
-                          </div>
-
-
-
-
-
-                          {/* Scoring Progress */}
-                          {selectedLeadsDetails?.scoringDetails &&
-                            selectedLeadsDetails?.scoringDetails?.questions
-                              ?.length > 0 && (
-                              <ScoringProgress
-                                value={
-                                  selectedLeadsDetails?.scoringDetails
-                                    ?.totalScore
-                                }
-                                maxValue={10}
-                                questions={
-                                  selectedLeadsDetails?.scoringDetails
-                                    ?.questions
-                                }
-                                showTooltip={true}
-                                tooltipTitle="Results"
-                              />
-                            )}
-
-                          {selectedLeadsDetails?.isOnDncList && (
-                            <div className="rounded-full bg-red justify-center items-center  color-black p-1 px-2">
-                              DNC
+                                {(dialerCapability.showUpgrade || dialerCapability.showRequestFeature) && (
+                                  <UpgradeTagWithModal
+                                    reduxUser={effectiveUser}
+                                    setReduxUser={setReduxUser}
+                                    requestFeature={dialerCapability.showRequestFeature}
+                                    externalTrigger={triggerUpgradeModal > 0}
+                                    onModalClose={handleUpgradeModalClose}
+                                    hideTag={true}
+                                    selectedUser={memoizedSelectedUserForUpgrade}
+                                  />
+                                )}
+                                {(emailCapability.showUpgrade || emailCapability.showRequestFeature) && (
+                                  <UpgradeTagWithModal
+                                    reduxUser={effectiveUser}
+                                    setReduxUser={setReduxUser}
+                                    requestFeature={emailCapability.showRequestFeature}
+                                    externalTrigger={triggerEmailUpgradeModal > 0}
+                                    onModalClose={handleEmailUpgradeModalClose}
+                                    hideTag={true}
+                                    selectedUser={memoizedSelectedUserForUpgrade}
+                                    featureTitle="Enable Emails"
+                                  />
+                                )}
+                                {(smsCapability.showUpgrade || smsCapability.showRequestFeature) && (
+                                  <UpgradeTagWithModal
+                                    reduxUser={effectiveUser}
+                                    setReduxUser={setReduxUser}
+                                    requestFeature={smsCapability.showRequestFeature}
+                                    externalTrigger={triggerSMSUpgradeModal > 0}
+                                    onModalClose={handleSMSUpgradeModalClose}
+                                    hideTag={true}
+                                    selectedUser={memoizedSelectedUserForUpgrade}
+                                  />
+                                )}
+                              </>
                             </div>
-                          )}
-                        </div>
-                        {/* Stage Select Dropdown */}
-                        <div className="flex flex-col align-self-end gap-[5px] ">
-                          <div className="flex flex-row items-center gap-2">
-                            {/* <Image
+
+
+
+
+
+                            {/* Scoring Progress */}
+                            {selectedLeadsDetails?.scoringDetails &&
+                              selectedLeadsDetails?.scoringDetails?.questions
+                                ?.length > 0 && (
+                                <ScoringProgress
+                                  value={
+                                    selectedLeadsDetails?.scoringDetails
+                                      ?.totalScore
+                                  }
+                                  maxValue={10}
+                                  questions={
+                                    selectedLeadsDetails?.scoringDetails
+                                      ?.questions
+                                  }
+                                  showTooltip={true}
+                                  tooltipTitle="Results"
+                                />
+                              )}
+
+                            {selectedLeadsDetails?.isOnDncList && (
+                              <div className="rounded-full bg-red justify-center items-center  color-black p-1 px-2">
+                                DNC
+                              </div>
+                            )}
+                          </div>
+                          {/* Stage Select Dropdown */}
+                          <div className="flex flex-col align-self-end gap-[5px] ">
+                            <div className="flex flex-row items-center gap-2">
+                              {/* <Image
                               src={"/assets/arrow.png"}
                               height={16}
                               width={16}
                               alt="man"
                             /> */}
-                            <div
-                              className="text-end flex flex-row items-center gap-1"
-                              style={styles.paragraph}
-                            >
-                              {stagesListLoader ? (
-                                <CircularProgress size={25} />
-                              ) : (
-                                <>
-                                  {/* <div
+                              <div
+                                className="text-end flex flex-row items-center gap-1"
+                                style={styles.paragraph}
+                              >
+                                {stagesListLoader ? (
+                                  <CircularProgress size={25} />
+                                ) : (
+                                  <>
+                                    {/* <div
                                   className="h-[10px] w-[10px] rounded-full"
                                   style={{
                                     backgroundColor:
@@ -2092,30 +2051,30 @@ const LeadDetails = ({
                                   }}
                                 ></div> */}
 
-                                  {updateLeadLoader ? (
-                                    <CircularProgress size={20} />
-                                  ) : (
+                                    {updateLeadLoader ? (
+                                      <CircularProgress size={20} />
+                                    ) : (
 
-                                    <SelectStageDropdown
-                                      selectedStage={selectedStage}
-                                      handleStageChange={handleStageChange}
-                                      stagesList={stagesList}
-                                      updateLeadStage={updateLeadStage}
-                                      chevronIcon={ChevronDown}
-                                    />
-                                  )}
-                                </>
-                              )}
+                                      <SelectStageDropdown
+                                        selectedStage={selectedStage}
+                                        handleStageChange={handleStageChange}
+                                        stagesList={stagesList}
+                                        updateLeadStage={updateLeadStage}
+                                        chevronIcon={ChevronDown}
+                                      />
+                                    )}
+                                  </>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                      <div className="space-y-2 text-sm mt-2">
-                        {/* Email with edit functionality */}
+                        <div className="space-y-2 text-sm mt-2">
+                          {/* Email with edit functionality */}
 
 
-                        {/* Email with edit functionality - Updated Version */}
-                        {/* {!isEditingEmail ? (
+                          {/* Email with edit functionality - Updated Version */}
+                          {/* {!isEditingEmail ? (
                           (selectedLeadsDetails?.email || selectedLeadsDetails?.emails?.length > 0) && (
                             <div className="flex flex-row items-center gap-2">
                               <MailIcon className="h-4 w-4 text-muted-foreground" />
@@ -2140,202 +2099,202 @@ const LeadDetails = ({
                           )
                         ) : (  */}
 
-                        <div className="flex flex-col gap-2">
-                          <div className="flex flex-row items-center gap-2">
-                            <MailIcon className="h-4 w-4 text-muted-foreground" />
-                            <div className="flex flex-row items-center gap-2 flex-1">
-                              <Input
-                                ref={emailInputRef}
-                                type="email"
-                                value={editedEmail || selectedLeadsDetails?.email}
-                                onChange={(e) => {
-                                  setEditedEmail(e.target.value)
-                                  setIsEditingEmail(true)
+                          <div className="flex flex-col gap-2">
+                            <div className="flex flex-row items-center gap-2">
+                              <MailIcon className="h-4 w-4 text-muted-foreground" />
+                              <div className="flex flex-row items-center gap-2 flex-1">
+                                <Input
+                                  ref={emailInputRef}
+                                  type="email"
+                                  value={editedEmail || selectedLeadsDetails?.email}
+                                  onChange={(e) => {
+                                    setEditedEmail(e.target.value)
+                                    setIsEditingEmail(true)
 
-                                }}
-                                placeholder="Enter email address"
-                                className="flex-1 max-w-[200px] text-sm h-8 border border-gray-300 rounded-md p-2 focus:border-black focus:ring-0"
-                                disabled={updateEmailLoader}
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                    updateLeadEmail()
-                                  } else if (e.key === 'Escape') {
-                                    handleCancelEditEmail()
-                                  }
-                                }}
-                              />
-                              <div className="flex items-center gap-1">
-                                {updateEmailLoader ? (
-                                  <CircularProgress size={16} />
-                                ) : (
-                                  <>
-                                    {isEditingEmail && (
-                                    
-                                      <Tooltip title="Save">
-                                        <button
-                                          onClick={updateLeadEmail}
-                                          disabled={!editedEmail?.trim()}
-                                          className="p-1 text-brand-primary disabled:opacity-50 disabled:cursor-not-allowed"
-                                        >
-                                          <span className="text-sm font-semibold">Save</span>
-                                        </button>
-                                      </Tooltip>
-                                    )}
-                                  </>
-                                )}
+                                  }}
+                                  placeholder="Enter email address"
+                                  className="flex-1 max-w-[200px] text-sm h-8 border border-gray-300 rounded-md p-2 focus:border-black focus:ring-0"
+                                  disabled={updateEmailLoader}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      updateLeadEmail()
+                                    } else if (e.key === 'Escape') {
+                                      handleCancelEditEmail()
+                                    }
+                                  }}
+                                />
+                                <div className="flex items-center gap-1">
+                                  {updateEmailLoader ? (
+                                    <CircularProgress size={16} />
+                                  ) : (
+                                    <>
+                                      {isEditingEmail && (
+
+                                        <Tooltip title="Save">
+                                          <button
+                                            onClick={updateLeadEmail}
+                                            disabled={!editedEmail?.trim()}
+                                            className="p-1 text-brand-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                                          >
+                                            <span className="text-sm font-semibold">Save</span>
+                                          </button>
+                                        </Tooltip>
+                                      )}
+                                    </>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                        {/*)} */}
+                          {/*)} */}
 
 
-                        <div>
-                          {selectedLeadsDetails?.email && (
-                            <div className="flex flex-row w-full justify-start">
-                              {selectedLeadsDetails?.emails
-                                ?.slice(0, 1)
-                                .map((email, emailIndex) => {
-                                  return (
-                                    <div
-                                      key={emailIndex}
-                                      className="flex flex-row items-center gap-2"
-                                    >
+                          <div>
+                            {selectedLeadsDetails?.email && (
+                              <div className="flex flex-row w-full justify-start">
+                                {selectedLeadsDetails?.emails
+                                  ?.slice(0, 1)
+                                  .map((email, emailIndex) => {
+                                    return (
                                       <div
-                                        className="flex flex-row items-center gap-2 px-1 mt-1 mb-1 rounded-lg border border-[#00000020]"
-                                        style={styles.paragraph}
+                                        key={emailIndex}
+                                        className="flex flex-row items-center gap-2"
                                       >
-                                        <Image
-                                          src={'/assets/power.png'}
-                                          height={9}
-                                          width={7}
-                                          alt="*"
-                                        />
-                                        <div className="text-[12px] font-[400]">
-                                          <span className="text-brand-primary text-[15px] font-[400]">
-                                            New
-                                          </span>{' '}
-                                          {truncateEmail(email.email)}
+                                        <div
+                                          className="flex flex-row items-center gap-2 px-1 mt-1 mb-1 rounded-lg border border-[#00000020]"
+                                          style={styles.paragraph}
+                                        >
+                                          <Image
+                                            src={'/assets/power.png'}
+                                            height={9}
+                                            width={7}
+                                            alt="*"
+                                          />
+                                          <div className="text-[12px] font-[400]">
+                                            <span className="text-brand-primary text-[15px] font-[400]">
+                                              New
+                                            </span>{' '}
+                                            {truncateEmail(email.email)}
+                                          </div>
                                         </div>
+                                        <button
+                                          className="text-brand-primary underline"
+                                          onClick={() => {
+                                            setShowAllEmails(true)
+                                          }}
+                                        >
+                                          {selectedLeadsDetails?.emails
+                                            ?.length > 1
+                                            ? `+${selectedLeadsDetails?.emails
+                                              ?.length - 1
+                                            }`
+                                            : ''}
+                                        </button>
                                       </div>
-                                      <button
-                                        className="text-brand-primary underline"
-                                        onClick={() => {
-                                          setShowAllEmails(true)
-                                        }}
-                                      >
-                                        {selectedLeadsDetails?.emails
-                                          ?.length > 1
-                                          ? `+${selectedLeadsDetails?.emails
-                                            ?.length - 1
-                                          }`
-                                          : ''}
-                                      </button>
-                                    </div>
-                                  )
-                                })}
-                            </div>
+                                    )
+                                  })}
+                              </div>
+                            )}
+                          </div>
+
+
+                          {selectedLeadsDetails?.phone && (
+                            <InfoRow icon={<PhoneIcon className="h-4 w-4" />}>
+                              {selectedLeadsDetails.phone.startsWith('+')
+                                ? selectedLeadsDetails.phone
+                                : `+${selectedLeadsDetails.phone}`}
+                            </InfoRow>
                           )}
-                        </div>
-
-
-                        {selectedLeadsDetails?.phone && (
-                          <InfoRow icon={<PhoneIcon className="h-4 w-4" />}>
-                            {selectedLeadsDetails.phone.startsWith('+')
-                              ? selectedLeadsDetails.phone
-                              : `+${selectedLeadsDetails.phone}`}
+                          {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>{selectedLeadsDetails?.address}</InfoRow>}
+                          <InfoRow icon={<WorkflowIcon className="h-4 w-4" />}>
+                            {selectedLeadsDetails?.pipeline?.title ||
+                              selectedLeadsDetails?.pipeline?.name ||
+                              selectedLeadsDetails?.pipeline ||
+                              '-'}
                           </InfoRow>
-                        )}
-                        {selectedLeadsDetails?.address && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>{selectedLeadsDetails?.address}</InfoRow>}
-                        <InfoRow icon={<WorkflowIcon className="h-4 w-4" />}>
-                          {selectedLeadsDetails?.pipeline?.title ||
-                            selectedLeadsDetails?.pipeline?.name ||
-                            selectedLeadsDetails?.pipeline ||
-                            '-'}
-                        </InfoRow>
-                        {selectedLeadsDetails?.booking && <div className="flex flex-row items-center gap-2">
-                          <InfoRow icon={<CalendarIcon className="h-4 w-4" />}>{GetFormattedDateString(selectedLeadsDetails?.booking?.datetime, true)}</InfoRow>
-                          {
-                            selectedLeadsDetails?.booking?.duration && (
-                              <TagPill label={`${selectedLeadsDetails?.booking?.duration} min`} />
-                            )
-                          }
-                        </div>}
-                        {selectedLeadsDetails?.meetingLocation && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>
-                          <Link href={selectedLeadsDetails?.meetingLocation} target="_blank">{selectedLeadsDetails?.meetingLocation}</Link>
-                        </InfoRow>}
-                        <div className="flex items-center gap-2">
-                          <TagIcon className="h-4 w-4 text-muted-foreground" />
-                          <TagManagerCn
-                            tags={selectedLeadsDetails?.tags || []}
-                            tagInputRef={tagInputRef}
-                            tagInputValue={tagInputValue}
-                            onInputChange={handleTagInputChange}
-                            onInputKeyDown={handleTagInputKeyDown}
-                            showSuggestions={showTagSuggestions}
-                            setShowSuggestions={setShowTagSuggestions}
-                            tagSuggestions={tagSuggestions}
-                            onSuggestionClick={handleTagSuggestionClick}
-                            addTagLoader={addTagLoader}
-                            onRemoveTag={handleDelTag}
-                            delTagLoader={DelTagLoader}
-                            onRefreshSuggestions={getUniqueTags}
-                            selectedUser={selectedUser}
-                            showSnackbar={showSnackbar}
-                            onLeadDetailsUpdated={handleLeadDetailsUpdated}
-                          />
-                        </div>
-                        <div className="flex items-center gap-2">
-                          
-                          {
-
-                            globalLoader ? (
-                              <CircularProgress size={20} />
-                            ) : (
-
-                          <TeamAssignDropdownCn
-                          withoutBorder={true}
-                          label="Assign"
-                          teamOptions={teamOptions}
-                          onToggle={(teamId, team, shouldAssign) => {
-                            console.log('🎯 [TeamAssignDropdownCn] Toggle:', {
-                              teamId,
-                              team,
-                              shouldAssign,
-                              teamLabel: team?.label,
-                              teamRaw: team?.raw
-                            });
-
-                            if (shouldAssign) {
-                              // If team.raw is available, use it directly
-                              if (team?.raw) {
-                                handleAssignLeadToTeammember(team.raw);
-                              } else {
-                                // Otherwise find the team in our list
-                                const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeam || [])];
-                                const teamToAssign = allTeams.find(t => {
-                                  const tId = t.invitedUserId || t.invitedUser?.id || t.id;
-                                  return String(tId) === String(teamId);
-                                });
-
-                                if (teamToAssign) {
-                                  handleAssignLeadToTeammember(teamToAssign);
-                                } else {
-                                  console.error('❌ Could not find team member with ID:', teamId);
-                                }
-                              }
-                            } else {
-                              handleUnassignLeadFromTeammember(teamId);
+                          {selectedLeadsDetails?.booking && <div className="flex flex-row items-center gap-2">
+                            <InfoRow icon={<CalendarIcon className="h-4 w-4" />}>{GetFormattedDateString(selectedLeadsDetails?.booking?.datetime, true)}</InfoRow>
+                            {
+                              selectedLeadsDetails?.booking?.duration && (
+                                <TagPill label={`${selectedLeadsDetails?.booking?.duration} min`} />
+                              )
                             }
-                          }}
+                          </div>}
+                          {selectedLeadsDetails?.meetingLocation && <InfoRow icon={<MapPinIcon className="h-4 w-4" />}>
+                            <Link href={selectedLeadsDetails?.meetingLocation} target="_blank">{selectedLeadsDetails?.meetingLocation}</Link>
+                          </InfoRow>}
+                          <div className="flex items-center gap-2">
+                            <TagIcon className="h-4 w-4 text-muted-foreground" />
+                            <TagManagerCn
+                              tags={selectedLeadsDetails?.tags || []}
+                              tagInputRef={tagInputRef}
+                              tagInputValue={tagInputValue}
+                              onInputChange={handleTagInputChange}
+                              onInputKeyDown={handleTagInputKeyDown}
+                              showSuggestions={showTagSuggestions}
+                              setShowSuggestions={setShowTagSuggestions}
+                              tagSuggestions={tagSuggestions}
+                              onSuggestionClick={handleTagSuggestionClick}
+                              addTagLoader={addTagLoader}
+                              onRemoveTag={handleDelTag}
+                              delTagLoader={DelTagLoader}
+                              onRefreshSuggestions={getUniqueTags}
+                              selectedUser={selectedUser}
+                              showSnackbar={showSnackbar}
+                              onLeadDetailsUpdated={handleLeadDetailsUpdated}
+                            />
+                          </div>
+                          <div className="flex items-center gap-2">
 
-                        />
-                        )}
+                            {
+
+                              globalLoader ? (
+                                <CircularProgress size={20} />
+                              ) : (
+
+                                <TeamAssignDropdownCn
+                                  withoutBorder={true}
+                                  label="Assign"
+                                  teamOptions={teamOptions}
+                                  onToggle={(teamId, team, shouldAssign) => {
+                                    console.log('🎯 [TeamAssignDropdownCn] Toggle:', {
+                                      teamId,
+                                      team,
+                                      shouldAssign,
+                                      teamLabel: team?.label,
+                                      teamRaw: team?.raw
+                                    });
+
+                                    if (shouldAssign) {
+                                      // If team.raw is available, use it directly
+                                      if (team?.raw) {
+                                        handleAssignLeadToTeammember(team.raw);
+                                      } else {
+                                        // Otherwise find the team in our list
+                                        const allTeams = [...(myTeamAdmin ? [myTeamAdmin] : []), ...(myTeam || [])];
+                                        const teamToAssign = allTeams.find(t => {
+                                          const tId = t.invitedUserId || t.invitedUser?.id || t.id;
+                                          return String(tId) === String(teamId);
+                                        });
+
+                                        if (teamToAssign) {
+                                          handleAssignLeadToTeammember(teamToAssign);
+                                        } else {
+                                          console.error('❌ Could not find team member with ID:', teamId);
+                                        }
+                                      }
+                                    } else {
+                                      handleUnassignLeadFromTeammember(teamId);
+                                    }
+                                  }}
+
+                                />
+                              )}
+                          </div>
                         </div>
-                      </div>
 
 
-                        
+
                       </div>
 
 
