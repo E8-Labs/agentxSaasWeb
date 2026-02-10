@@ -1622,7 +1622,7 @@ const AdminLeads = ({
           {/* Start Campaign moved to search/filter row beside Select All */}
         </div>
       </div>
-      <div className="w-full max-w-[1300px] mx-auto pt-0 px-0 mt-2 border-l border-r border-[#eaeaea]">
+      <div className="w-full max-w-[1300px] mx-auto pt-0 px-0 border-l border-r border-[#eaeaea] h-full">
         {initialLoader ? (
           <div className="w-full h-screen flex flex-row justify-center mt-12">
             <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />
@@ -1722,7 +1722,7 @@ const AdminLeads = ({
                 </button>
                 {/* Show filters here in a row*/}
                 <div
-                  className="flex flex-row items-center gap-4 flex-shrink-0 overflow-auto w-[60%] "
+                  className="flex flex-row items-center gap-1 flex-shrink-0 overflow-auto w-[60%] "
                   style={{
                     scrollbarColor: '#00000000',
                     scrollbarWidth: 'none',
@@ -1733,7 +1733,7 @@ const AdminLeads = ({
                     return (
                       <div className="flex-shrink-0" key={filter.key + index}>
                         <div
-                          className="px-4 py-2 bg-brand-primary/10 text-brand-primary flex-shrink-0 rounded-[25px] flex flex-row items-center gap-2 text-[14px]"
+                          className="px-2 py-1 bg-black/5 text-black flex-shrink-0 rounded-lg flex flex-row items-center gap-2 text-[14px]"
                           style={{ fontWeight: '500', fontSize: 14 }}
                         >
                           {getFilterTitle(filter)}
@@ -1851,7 +1851,7 @@ const AdminLeads = ({
                   style={{
                     backgroundColor: toggleClick.length > 0 ? 'hsl(var(--brand-primary))' : '',
                     color: toggleClick.length > 0 ? 'white' : '#000000',
-                    boxShadow: '0 4px 14px 0 hsl(var(--brand-primary) / 0.2)',
+                    boxShadow: toggleClick.length > 0 ? '0 4px 14px 0 hsl(var(--brand-primary) / 0.2)' : 'none',
                   }}
                   className="flex flex-row items-center gap-4 h-[40px] rounded-[12px] bg-[#33333315] w-auto min-w-0 px-3 justify-center flex-shrink-0 transition-transform duration-150 active:scale-[0.98]"
                   onClick={() => {
@@ -1911,7 +1911,7 @@ const AdminLeads = ({
                   return (
                     <div
                       key={index}
-                      className="flex flex-row items-center gap-1 px-3 py-3"
+                      className="group flex flex-row items-center gap-1 px-3 py-3 hover:bg-black/[0.02] transition-transform duration-150 active:scale-[0.98]"
                       style={{
                         borderBottom:
                           SelectedSheetId === item.id
@@ -1936,7 +1936,7 @@ const AdminLeads = ({
                         {item.sheetName}
                       </button>
                       <button
-                        className="outline-none"
+                        className={`outline-none transition-opacity ${SelectedSheetId === item.id || (open && selectedSmartList?.id === item.id) ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 pointer-events-none group-hover:pointer-events-auto'}`}
                         aria-describedby={id}
                         variant="contained"
                         onClick={(event) => {
@@ -1952,24 +1952,25 @@ const AdminLeads = ({
                         onClose={handleClosePopup}
                         anchorOrigin={{
                           vertical: 'bottom',
-                          horizontal: 'right',
+                          horizontal: 'center',
                         }}
                         transformOrigin={{
                           vertical: 'top',
-                          horizontal: 'left', // Ensures the Popover's top right corner aligns with the anchor point
+                          horizontal: 'center',
                         }}
                         PaperProps={{
-                          elevation: 0, // This will remove the shadow
+                          elevation: 0,
                           style: {
-                            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
-                            borderRadius: '10px',
+                            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                            borderRadius: '12px',
+                            border: '1px solid #eaeaea',
                             width: '120px',
                           },
                         }}
                       >
                         <div
-                          className="p-2 flex flex-col gap-2"
-                          style={{ fontWeight: '500', fontSize: 15 }}
+                          className="p-2 flex flex-col gap-2 text-[14px]"
+                          style={{ fontWeight: '500', fontSize: 14 }}
                         >
                           {delSmartListLoader ? (
                             <CircularProgress size={15} sx={{ color: 'hsl(var(--brand-primary))' }} />
@@ -1985,8 +1986,8 @@ const AdminLeads = ({
                                 alt="*"
                               />
                               <p
-                                className="text-red"
-                                style={{ fontWeight: '00', fontSize: 16 }}
+                                className="text-red text-[14px]"
+                                style={{ fontWeight: '500' }}
                               >
                                 Delete
                               </p>
@@ -2050,7 +2051,7 @@ const AdminLeads = ({
                             style={{
                               fontWeight: '500',
                               fontFamily: 'inter',
-                              fontSize: 12,
+                              fontSize: 14,
                               color: '#00000080',
                             }}
                           >
@@ -2119,7 +2120,7 @@ const AdminLeads = ({
                                   {leadColumns.map((column, colIndex) => (
                                     <td
                                       key={colIndex}
-                                      className={`border-none px-4 py-2 ${
+                                      className={`border-none px-4 py-2 text-[14px] ${
                                         column.title === 'More'
                                           ? 'sticky right-0 bg-white'
                                           : ''
@@ -2162,7 +2163,7 @@ const AdminLeads = ({
                               style={{
                                 fontWeight: '500',
                                 fontFamily: 'inter',
-                                fontSize: 12,
+                                fontSize: 14,
                                 color: '#00000080',
                               }}
                             >
@@ -2179,7 +2180,7 @@ const AdminLeads = ({
                             paddingTop: '10px',
                             fontWeight: '400',
                             fontFamily: 'inter',
-                            fontSize: 16,
+                            fontSize: 14,
                             color: '#00000060',
                           }}
                         >
@@ -2497,7 +2498,7 @@ const AdminLeads = ({
                       <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
                     ) : (
                       <button
-                        className="bg-purple h-[45px] w-[140px] bg-purple text-white rounded-xl outline-none"
+                        className="bg-brand-primary h-[45px] w-[140px] text-white rounded-xl outline-none"
                         style={{
                           fontSize: 16.8,
                           fontWeight: '600',
