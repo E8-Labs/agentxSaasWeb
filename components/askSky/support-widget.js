@@ -6,7 +6,7 @@ import axios from 'axios'
 import classNames from 'classnames'
 import { Headset, Sparkles, X } from 'lucide-react'
 import Image from 'next/image'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import PhoneInput from 'react-phone-input-2'
 
 import { GetHelpBtn } from '../animations/DashboardSlider'
@@ -50,6 +50,8 @@ export function SupportWidget({
   const [smartListFields, setSmartListFields] = useState({})
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [formErrors, setFormErrors] = useState({ phone: '' })
+  /** Lead ID to register with the call when call starts (set after form submit with lead details) */
+  const pendingLeadIdRef = useRef(null)
 
   // Validation functions
   const isValidEmail = (email) => {
@@ -321,6 +323,11 @@ export function SupportWidget({
           return
         }
 
+        const createdLead = response?.data?.data?.createdLead
+        if (createdLead?.id) {
+          pendingLeadIdRef.current = createdLead.id
+        }
+
         const newOverrides = response?.data?.data?.assistantOverrides
 
         setShowLeadModal(false)
@@ -403,10 +410,25 @@ export function SupportWidget({
       const payloadSize = new Blob([JSON.stringify(cleanedOverrides)]).size
 
       // Check if agent has smart list to determine which assistant ID to use
-      if (smartListData?.id) {
-        vapi.start(assistantId, cleanedOverrides)
-      } else {
-        vapi.start(assistantId)
+      const startResult = await (smartListData?.id
+        ? vapi.start(assistantId, cleanedOverrides)
+        : vapi.start(assistantId))
+
+      // Register embed call with lead when we have call id (same as web agent)
+      const leadId = pendingLeadIdRef.current
+      const callId = startResult?.id ?? startResult?.callId
+      if (leadId && callId && assistantId) {
+        axios
+          .post(`${Apis.registerWebCall}/${assistantId}`, { leadId, callId })
+          .then(() => {
+            console.log('✅ Embed call registered with lead:', leadId)
+          })
+          .catch((err) => {
+            console.error('Failed to register embed call with lead:', err)
+          })
+          .finally(() => {
+            pendingLeadIdRef.current = null
+          })
       }
     } else {
       console.error('Vapi instance not initialized')
