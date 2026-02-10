@@ -63,6 +63,9 @@ export const getTempleteDetails = async (temp, userId = null) => {
       return null
     }
     let path = `${Apis.templets}/${templateId}`
+    if (userId) {
+      path = path + '?userId=' + userId
+    }
 
     const response = await axios.get(path, {
       headers: {

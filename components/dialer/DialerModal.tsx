@@ -1953,10 +1953,11 @@ function DialerModal({
     try {
       dispatch(setLoadingState({ key: 'templates', value: true }))
       const localData = localStorage.getItem('User')
-      let AuthToken = null
+      let AuthToken: string | null = null
+      let UserDetails: { token?: string; user?: { userRole?: string }; userRole?: string } | null = null
       if (localData) {
-        const UserDetails = JSON.parse(localData)
-        AuthToken = UserDetails.token
+        UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails?.token ?? null
       }
 
       if (!AuthToken) {
@@ -1964,7 +1965,12 @@ function DialerModal({
         return
       }
 
-      const response = await fetch('/api/templates?communicationType=email', {
+      const emailUrl = new URL('/api/templates', window.location.origin)
+      emailUrl.searchParams.set('communicationType', 'email')
+      const userRole = UserDetails?.user?.userRole ?? UserDetails?.userRole
+      const isAdminOrAgency = userRole === 'Admin' || userRole === 'Agency'
+      if (isAdminOrAgency && dialerUserId) emailUrl.searchParams.set('userId', String(dialerUserId))
+      const response = await fetch(emailUrl.toString(), {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${AuthToken}`,
@@ -2005,10 +2011,11 @@ function DialerModal({
     try {
       dispatch(setLoadingState({ key: 'templates', value: true }))
       const localData = localStorage.getItem('User')
-      let AuthToken = null
+      let AuthToken: string | null = null
+      let UserDetails: { token?: string; user?: { userRole?: string }; userRole?: string } | null = null
       if (localData) {
-        const UserDetails = JSON.parse(localData)
-        AuthToken = UserDetails.token
+        UserDetails = JSON.parse(localData)
+        AuthToken = UserDetails?.token ?? null
       }
 
       if (!AuthToken) {
@@ -2017,7 +2024,12 @@ function DialerModal({
         return
       }
 
-      const response = await fetch('/api/templates?communicationType=sms', {
+      const smsUrl = new URL('/api/templates', window.location.origin)
+      smsUrl.searchParams.set('communicationType', 'sms')
+      const userRole = UserDetails?.user?.userRole ?? UserDetails?.userRole
+      const isAdminOrAgency = userRole === 'Admin' || userRole === 'Agency'
+      if (isAdminOrAgency && dialerUserId) smsUrl.searchParams.set('userId', String(dialerUserId))
+      const response = await fetch(smsUrl.toString(), {
         method: 'GET',
         headers: {
           Authorization: `Bearer ${AuthToken}`,
@@ -2106,6 +2118,10 @@ function DialerModal({
       formData.append('content', selectedTemplate?.content || '')
       formData.append('phone', selectedPhone?.phone || '')
       formData.append('leadId', leadData?.leadId || '')
+      // When admin/agency sends for a subaccount, pass userId so backend checks/deducts subaccount credits
+      const userRole = userData?.user?.userRole ?? userData?.userRole
+      const isAdminOrAgency = userRole === 'Admin' || userRole === 'Agency'
+      if (isAdminOrAgency && dialerUserId) formData.append('userId', String(dialerUserId))
 
     
 
