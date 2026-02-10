@@ -895,6 +895,9 @@ const AdminLeadDetails = ({
       formData.append('content', smsData.content || '')
       formData.append('phone', smsData.phone || '')
       formData.append('leadId', smsData.leadId || '')
+      if (smsData.smsPhoneNumberId != null && smsData.smsPhoneNumberId !== '') {
+        formData.append('smsPhoneNumberId', smsData.smsPhoneNumberId)
+      }
 
       const response = await axios.post(Apis.sendSMSToLead, formData, {
         headers: {

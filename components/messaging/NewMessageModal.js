@@ -1470,6 +1470,10 @@ const NewMessageModal = ({
     // Normal send mode (original functionality)
     if (selectedLeads.length === 0 || !messageBody.trim()) return
     if (selectedMode === 'email' && !emailSubject.trim()) return
+    if (selectedMode === 'sms' && !selectedPhoneNumber) {
+      toast.error('Please select a From number to send SMS')
+      return
+    }
 
     setSending(true)
     try {
@@ -1478,6 +1482,9 @@ const NewMessageModal = ({
 
       const userData = JSON.parse(localData)
       const token = userData.token
+
+      // Use phone record id (backend requires A2P verified From number)
+      const smsFromId = selectedPhoneNumberObj?.id ?? selectedPhoneNumber
 
       // Send to each lead individually
       const sendPromises = selectedLeads.map(async (lead) => {
@@ -1488,7 +1495,7 @@ const NewMessageModal = ({
             {
               leadId: lead.id,
               content: messageBody,
-              smsPhoneNumberId: selectedPhoneNumber,
+              smsPhoneNumberId: smsFromId,
             },
             {
               headers: {

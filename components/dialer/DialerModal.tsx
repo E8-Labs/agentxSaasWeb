@@ -2100,8 +2100,8 @@ function DialerModal({
       const selectedPhone = phoneNumbers.find((pn: any) => pn.id === phoneNumberId)
       const formData = new FormData()
 
-      // Add required fields
-      formData.append('smsPhoneNumberId', leadData?.phone || '')
+      // Add required fields (smsPhoneNumberId = From number record id, required by backend)
+      formData.append('smsPhoneNumberId', selectedPhone?.id ?? '')
       formData.append('content', selectedTemplate?.content || '')
       formData.append('phone', selectedPhone?.phone || '')
       formData.append('leadId', leadData?.leadId || '')
