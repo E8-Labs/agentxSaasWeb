@@ -104,6 +104,7 @@ const PipelineAndStage = ({
         },
       })
       if (response) {
+        // console.log("Agent details are", response.data)
         if (response.data.status === true) {
           setAgentDetails(response.data.data)
         }
@@ -136,16 +137,19 @@ const PipelineAndStage = ({
       // //console.log;
 
       const ApiData = {
-        mainAgentId: selectedAgent.mainAgentId,
+        mainAgentId: selectedAgent.id,
       }
 
       const formData = new FormData()
-      formData.append('mainAgentId', selectedAgent.mainAgentId)
+      formData.append('mainAgentId', mainAgent?.id)
 
       const ApiPath = Apis.getAgentCadence
 
       // //console.log;
-      // //console.log;
+      for(let [key, value] of formData.entries()) {
+        console.log("Key is", key, "and value is", value);
+      }
+      // console.log("Api path for agent cadence data is", ApiPath);
       // return
       const response = await axios.post(ApiPath, formData, {
         headers: {

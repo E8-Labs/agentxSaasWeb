@@ -1916,18 +1916,18 @@ function Page() {
     let comparedAgent = []
 
     // console.log('search before', search)
-    if (!search) {
-      comparedAgent = mainAgentsList.find((mainAgent) => {
-        // console.log("Main agent list is", mainAgent);
-        return mainAgent.agents.some((subAgent) => subAgent.id === item.id)
-      })
-    } else {
-      // console.log('agentsListSeparated', agentsListSeparated)
-      comparedAgent = agentsListSeparated.find((mainAgent) => {
-        // console.log("seperated agent list is", mainAgent);
-        return mainAgent.id === item.id
-      })
-    }
+    comparedAgent = mainAgentsList.find((mainAgent) => {
+      // console.log("Main agent list is", mainAgent);
+      return mainAgent.agents.some((subAgent) => subAgent.id === item.id)
+    })
+    // if (!search) {
+    // } else {
+    //   console.log('agentsListSeparated', agentsListSeparated)
+    //   comparedAgent = agentsListSeparated.find((mainAgent) => {
+    //     // console.log("seperated agent list is", mainAgent);
+    //     return mainAgent.id === item.id
+    //   })
+    // }
 
     console.log("comparedAgent is", comparedAgent);
 
@@ -3344,9 +3344,9 @@ function Page() {
             }
           })
 
-          setAgentsListSeparated(subAgents)
+          setAgentsListSeparated(agents) //subAgents
 
-          return
+          // return
         }
 
         let newList = [...mainAgentsList] // makes a shallow copy
@@ -3361,8 +3361,18 @@ function Page() {
             PersistanceKeys.LocalStoredAgentsListMain,
             JSON.stringify(newList),
           )
+        } else {
+          localStorage.setItem(
+            PersistanceKeys.LocalStoredAgentsListMain,
+            JSON.stringify(agents),
+          )
         }
-        setMainAgentsList(newList)
+        // console.log("New list is", newList);
+        if(search){
+          setMainAgentsList(agents)
+        }else{
+          setMainAgentsList(newList)
+        }
       }
     } catch (error) {
       setInitialLoader(false)
