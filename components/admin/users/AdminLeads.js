@@ -1,9 +1,6 @@
 'use client'
 
 // Import default styles
-// import "./CalendarOverrides.css";
-import '../../calls/CalendarOverrides.css'
-import 'react-calendar/dist/Calendar.css'
 
 import {
   Alert,
@@ -36,7 +33,12 @@ import moment from 'moment'
 import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import Calendar from 'react-calendar'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Popover as ShadPopover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import InfiniteScroll from '@/components/ui/infinite-scroll'
 
 import { formatFractional2 } from '@/components/agency/plan/AgencyUtilities'
@@ -660,12 +662,12 @@ const AdminLeads = ({
 
   // function to handle select data change
   const handleFromDateChange = (date) => {
-    setSelectedFromDate(date) // Set the selected date
+    setSelectedFromDate(date || null)
     setShowFromDatePicker(false)
   }
 
   const handleToDateChange = (date) => {
-    setSelectedToDate(date) // Set the selected date
+    setSelectedToDate(date || null)
     setShowToDatePicker(false)
   }
 
@@ -2359,56 +2361,33 @@ const AdminLeads = ({
                         >
                           From
                         </div>
-                        <div>
-                          <button
-                            style={{ border: '1px solid #00000020' }}
-                            className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
-                            onClick={() => {
-                              setShowFromDatePicker(true)
-                            }}
-                          >
-                            <p>
-                              {selectedFromDate
-                                ? selectedFromDate.toDateString()
-                                : 'Select Date'}
-                            </p>
-                            <CalendarDots weight="regular" size={25} />
-                          </button>
-
-                          <div>
-                            {showFromDatePicker && (
-                              <div>
-                                {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
-                                                                    <button>
-                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
-                                                                    </button>
-                                                                </div> */}
-                                <Calendar
-                                  onChange={handleFromDateChange}
-                                  value={selectedFromDate}
-                                  locale="en-US"
-                                  onClose={() => {
-                                    setShowFromDatePicker(false)
-                                  }}
-                                  tileClassName={({ date, view }) => {
-                                    const today = new Date()
-
-                                    // Highlight the current date
-                                    if (
-                                      date.getDate() === today.getDate() &&
-                                      date.getMonth() === today.getMonth() &&
-                                      date.getFullYear() === today.getFullYear()
-                                    ) {
-                                      return 'current-date' // Add a custom class for current date
-                                    }
-
-                                    return null // Default for other dates
-                                  }}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                        <ShadPopover open={showFromDatePicker} onOpenChange={setShowFromDatePicker}>
+                          <PopoverTrigger asChild>
+                            <button
+                              style={{ border: '1px solid #00000020' }}
+                              className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full"
+                            >
+                              <p>
+                                {selectedFromDate
+                                  ? selectedFromDate.toDateString()
+                                  : 'Select Date'}
+                              </p>
+                              <CalendarDots weight="regular" size={25} />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
+                            <Calendar
+                              mode="single"
+                              selected={selectedFromDate}
+                              onSelect={handleFromDateChange}
+                              initialFocus
+                              classNames={{
+                                day_selected: 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white focus:bg-brand-primary focus:text-white',
+                                day_today: 'bg-brand-primary/20 text-brand-primary',
+                              }}
+                            />
+                          </PopoverContent>
+                        </ShadPopover>
                       </div>
 
                       <div className="w-1/2 h-full">
@@ -2422,55 +2401,33 @@ const AdminLeads = ({
                         >
                           To
                         </div>
-                        <div>
-                          <button
-                            style={{ border: '1px solid #00000020' }}
-                            className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
-                            onClick={() => {
-                              setShowToDatePicker(true)
-                            }}
-                          >
-                            <p>
-                              {selectedToDate
-                                ? selectedToDate.toDateString()
-                                : 'Select Date'}
-                            </p>
-                            <CalendarDots weight="regular" size={25} />
-                          </button>
-                          <div>
-                            {showToDatePicker && (
-                              <div>
-                                {/* <div className='w-full flex flex-row items-center justify-start -mb-5'>
-                                                                    <button>
-                                                                        <Image src={"/assets/cross.png"} height={18} width={18} alt='*' />
-                                                                    </button>
-                                                                </div> */}
-                                <Calendar
-                                  onChange={handleToDateChange}
-                                  value={selectedToDate}
-                                  locale="en-US"
-                                  onClose={() => {
-                                    setShowToDatePicker(false)
-                                  }}
-                                  tileClassName={({ date, view }) => {
-                                    const today = new Date()
-
-                                    // Highlight the current date
-                                    if (
-                                      date.getDate() === today.getDate() &&
-                                      date.getMonth() === today.getMonth() &&
-                                      date.getFullYear() === today.getFullYear()
-                                    ) {
-                                      return 'current-date' // Add a custom class for current date
-                                    }
-
-                                    return null // Default for other dates
-                                  }}
-                                />
-                              </div>
-                            )}
-                          </div>
-                        </div>
+                        <ShadPopover open={showToDatePicker} onOpenChange={setShowToDatePicker}>
+                          <PopoverTrigger asChild>
+                            <button
+                              style={{ border: '1px solid #00000020' }}
+                              className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full"
+                            >
+                              <p>
+                                {selectedToDate
+                                  ? selectedToDate.toDateString()
+                                  : 'Select Date'}
+                              </p>
+                              <CalendarDots weight="regular" size={25} />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
+                            <Calendar
+                              mode="single"
+                              selected={selectedToDate}
+                              onSelect={handleToDateChange}
+                              initialFocus
+                              classNames={{
+                                day_selected: 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white focus:bg-brand-primary focus:text-white',
+                                day_today: 'bg-brand-primary/20 text-brand-primary',
+                              }}
+                            />
+                          </PopoverContent>
+                        </ShadPopover>
                       </div>
                     </div>
 
@@ -2577,7 +2534,7 @@ const AdminLeads = ({
                                   handleSelectStage(item)
                                 }}
                                 className={`p-2 border border-[#00000020] ${
-                                  found >= 0 ? `bg-purple` : 'bg-transparent'
+                                  found >= 0 ? `bg-brand-primary` : 'bg-transparent'
                                 } px-6
                                                                     ${
                                                                       found >= 0
@@ -2613,7 +2570,7 @@ const AdminLeads = ({
                       <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
                     ) : (
                       <button
-                        className="bg-purple h-[45px] w-[140px] bg-purple text-white rounded-xl outline-none"
+                        className="bg-brand-primary h-[45px] w-[140px] text-white rounded-xl outline-none"
                         style={{
                           fontSize: 16.8,
                           fontWeight: '600',
