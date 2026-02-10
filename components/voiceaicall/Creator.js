@@ -92,6 +92,8 @@ const Creator = ({ agentId, name }) => {
   const profileBoxRef = useRef(null)
   const createAIButtonRef = useRef(null)
   const endCallButtonRef = useRef(null)
+  /** Lead ID to register with the call when call-start fires (set after form submit with lead details) */
+  const pendingLeadIdRef = useRef(null)
 
   const [isSmallScreen, setIsSmallScreen] = useState(false)
 
@@ -530,6 +532,10 @@ const Creator = ({ agentId, name }) => {
         }
         // Update assistant overrides with new data
         const newAssistantOverrides = response.data.data.assistantOverrides
+        const createdLead = response.data.data.createdLead
+        if (createdLead?.id) {
+          pendingLeadIdRef.current = createdLead.id
+        }
         if (newAssistantOverrides) {
           // Clean assistantOverrides: remove duplicates and invalid properties
           const cleanedNewOverrides = cleanAssistantOverrides(
@@ -616,6 +622,10 @@ const Creator = ({ agentId, name }) => {
                   return
                 }
 
+                const createdLead = response.data.data.createdLead
+                if (createdLead?.id) {
+                  pendingLeadIdRef.current = createdLead.id
+                }
                 const newAssistantOverrides =
                   response.data.data.assistantOverrides
                 if (newAssistantOverrides) {
@@ -653,7 +663,7 @@ const Creator = ({ agentId, name }) => {
   useEffect(() => {
     const vapiInstance = new Vapi(API_KEY)
     setVapi(vapiInstance)
-    vapiInstance.on('call-start', (call) => {
+    vapiInstance.on('call-start', () => {
       setLoading(false)
       setOpen(true)
     })
@@ -768,10 +778,24 @@ const Creator = ({ agentId, name }) => {
       }
 
       // Start VAPI call - permission is already granted, so this will be instant
-      if (agentDetails?.data?.data?.smartList) {
-        vapi.start(agentId, cleanedOverrides ? cleanedOverrides : null)
-      } else {
-        vapi.start(agentId, cleanedOverrides ? cleanedOverrides : null)
+      const startResult = await (agentDetails?.data?.data?.smartList
+        ? vapi.start(agentId, cleanedOverrides ? cleanedOverrides : null)
+        : vapi.start(agentId, cleanedOverrides ? cleanedOverrides : null))
+      // Register web call with lead when we have call id (Vapi returns call object or call-start-success fires)
+      const leadId = pendingLeadIdRef.current
+      const callId = startResult?.id ?? startResult?.callId
+      if (leadId && callId && agentId) {
+        axios
+          .post(`${Apis.registerWebCall}/${agentId}`, { leadId, callId })
+          .then(() => {
+            console.log('✅ Web call registered with lead:', leadId)
+          })
+          .catch((err) => {
+            console.error('Failed to register web call with lead:', err)
+          })
+          .finally(() => {
+            pendingLeadIdRef.current = null
+          })
       }
     } else {
       console.error('Vapi instance not initialized')
