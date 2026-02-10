@@ -172,7 +172,7 @@ function AdminIntegration({ selectedUser, agencyUser }) {
   }
 
   return (
-    <div className={`w-full h-screen flex flex-col items-center mt-[22vh]`}>
+    <div className={`w-full h-screen flex flex-col items-center mt-[19vh]`}>
       {/* Slider code */}
       <div
         style={{
