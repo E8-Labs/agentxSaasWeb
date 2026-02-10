@@ -1,9 +1,6 @@
 'use client'
 
 // Import default styles
-// import "./CalendarOverrides.css";
-import '../../calls/CalendarOverrides.css'
-import 'react-calendar/dist/Calendar.css'
 
 import {
   Alert,
@@ -35,7 +32,12 @@ import Image from 'next/image'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { fromJSON } from 'postcss'
 import React, { useEffect, useRef, useState } from 'react'
-import Calendar from 'react-calendar'
+import { Calendar } from '@/components/ui/calendar'
+import {
+  Popover as ShadPopover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
 import InfiniteScroll from 'react-infinite-scroll-component'
 import { pipeline } from 'zod'
 
@@ -169,8 +171,6 @@ const Userleads = ({
 
   const [exportLoading, setExportLoading] = useState(false)
 
-  const fromCalendarRef = useRef(null)
-  const toCalendarRef = useRef(null)
 
   useEffect(() => {
     //console.log;
@@ -454,30 +454,6 @@ const Userleads = ({
     checkLocalStorageUsage()
   }, [])
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (
-        showFromDatePicker &&
-        fromCalendarRef.current &&
-        !fromCalendarRef.current.contains(event.target)
-      ) {
-        setShowFromDatePicker(false)
-      }
-
-      if (
-        showToDatePicker &&
-        toCalendarRef.current &&
-        !toCalendarRef.current.contains(event.target)
-      ) {
-        setShowToDatePicker(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [showFromDatePicker, showToDatePicker])
 
   useEffect(() => {
     if (shouldSet === true) {
@@ -1011,12 +987,12 @@ const Userleads = ({
 
   // function to handle select data change
   const handleFromDateChange = (date) => {
-    setSelectedFromDate(date) // Set the selected date
+    setSelectedFromDate(date || null)
     setShowFromDatePicker(false)
   }
 
   const handleToDateChange = (date) => {
-    setSelectedToDate(date) // Set the selected date
+    setSelectedToDate(date || null)
     setShowToDatePicker(false)
   }
 
@@ -2727,34 +2703,33 @@ const Userleads = ({
                           >
                             From
                           </div>
-                          <div>
-                            <button
-                              style={{ border: '1px solid #00000020' }}
-                              className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
-                              onClick={() => {
-                                setShowFromDatePicker(true)
-                              }}
-                            >
-                              <p>
-                                {selectedFromDate
-                                  ? selectedFromDate.toDateString()
-                                  : 'Select Date'}
-                              </p>
-                              <CalendarDots weight="regular" size={25} />
-                            </button>
-
-                            <div>
-                              {showFromDatePicker && (
-                                <div ref={fromCalendarRef}>
-                                  <Calendar
-                                    onChange={handleFromDateChange}
-                                    value={selectedFromDate}
-                                    locale="en-US"
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          </div>
+                          <ShadPopover open={showFromDatePicker} onOpenChange={setShowFromDatePicker}>
+                            <PopoverTrigger asChild>
+                              <button
+                                style={{ border: '1px solid #00000020' }}
+                                className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full"
+                              >
+                                <p>
+                                  {selectedFromDate
+                                    ? selectedFromDate.toDateString()
+                                    : 'Select Date'}
+                                </p>
+                                <CalendarDots weight="regular" size={25} />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
+                              <Calendar
+                                mode="single"
+                                selected={selectedFromDate}
+                                onSelect={handleFromDateChange}
+                                initialFocus
+                                classNames={{
+                                  day_selected: 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white focus:bg-brand-primary focus:text-white',
+                                  day_today: 'bg-brand-primary/20 text-brand-primary',
+                                }}
+                              />
+                            </PopoverContent>
+                          </ShadPopover>
                         </div>
 
                         <div className="w-1/2 h-full">
@@ -2768,36 +2743,33 @@ const Userleads = ({
                           >
                             To
                           </div>
-                          <div>
-                            <button
-                              style={{ border: '1px solid #00000020' }}
-                              className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full justify-between"
-                              onClick={() => {
-                                setShowToDatePicker(true)
-                              }}
-                            >
-                              <p>
-                                {selectedToDate
-                                  ? selectedToDate.toDateString()
-                                  : 'Select Date'}
-                              </p>
-                              <CalendarDots weight="regular" size={25} />
-                            </button>
-                            <div>
-                              {showToDatePicker && (
-                                <div
-                                  className="w-full border"
-                                  ref={toCalendarRef}
-                                >
-                                  <Calendar
-                                    onChange={handleToDateChange}
-                                    value={selectedToDate}
-                                    locale="en-US"
-                                  />
-                                </div>
-                              )}
-                            </div>
-                          </div>
+                          <ShadPopover open={showToDatePicker} onOpenChange={setShowToDatePicker}>
+                            <PopoverTrigger asChild>
+                              <button
+                                style={{ border: '1px solid #00000020' }}
+                                className="flex flex-row items-center justify-between p-2 rounded-lg mt-2 w-full"
+                              >
+                                <p>
+                                  {selectedToDate
+                                    ? selectedToDate.toDateString()
+                                    : 'Select Date'}
+                                </p>
+                                <CalendarDots weight="regular" size={25} />
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" style={{ zIndex: 1400 }} align="start">
+                              <Calendar
+                                mode="single"
+                                selected={selectedToDate}
+                                onSelect={handleToDateChange}
+                                initialFocus
+                                classNames={{
+                                  day_selected: 'bg-brand-primary text-white hover:bg-brand-primary hover:text-white focus:bg-brand-primary focus:text-white',
+                                  day_today: 'bg-brand-primary/20 text-brand-primary',
+                                }}
+                              />
+                            </PopoverContent>
+                          </ShadPopover>
                         </div>
                       </div>
 
