@@ -91,9 +91,11 @@ const Cnammain = ({
             message: response.message,
             isVisible: true,
           })
-          // handleClose(response);
+          const selectedDisplayName =
+            trustProducts?.cnam?.all?.find((p) => p.sid === selectedCNAM)
+              ?.friendlyName || ''
           setTimeout(() => {
-            handleClose(response)
+            handleClose({ ...response, displayName: selectedDisplayName })
           }, 300)
         } else {
           setShowSnack({
@@ -125,9 +127,11 @@ const Cnammain = ({
               message: apiResponse.message,
               isVisible: true,
             })
-            // handleClose(response);
             setTimeout(() => {
-              handleClose(apiResponse)
+              handleClose({
+                ...apiResponse,
+                displayName: cnamName || apiResponse?.data?.friendlyName || '',
+              })
             }, 300)
             // handleClose(apiResponse);
           } else if (apiResponse.status === false) {
