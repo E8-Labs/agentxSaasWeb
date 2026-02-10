@@ -20,7 +20,7 @@ import {
   TextareaAutosize,
 } from '@mui/material'
 import {
-  CalendarDots,
+  Calendar as CalendarIcon,
   CaretDown,
   CaretUp,
   Cross,
@@ -1853,7 +1853,7 @@ const AdminLeads = ({
                     color: toggleClick.length > 0 ? 'white' : '#000000',
                     boxShadow: toggleClick.length > 0 ? '0 4px 14px 0 hsl(var(--brand-primary) / 0.2)' : 'none',
                   }}
-                  className="flex flex-row items-center gap-4 h-[40px] rounded-[12px] bg-[#33333315] w-auto min-w-0 px-3 justify-center flex-shrink-0 transition-transform duration-150 active:scale-[0.98]"
+                  className="flex flex-row items-center gap-2 h-[40px] rounded-[12px] bg-[#33333315] w-auto min-w-0 px-3 justify-center flex-shrink-0 transition-transform duration-150 active:scale-[0.98]"
                   onClick={() => {
                     if (userLocalDetails?.plan) {
                       setAssignLeadModal(true)
@@ -1950,6 +1950,9 @@ const AdminLeads = ({
                         open={open}
                         anchorEl={anchorEl}
                         onClose={handleClosePopup}
+                        slotProps={{
+                          backdrop: { sx: { boxShadow: 'none' } },
+                        }}
                         anchorOrigin={{
                           vertical: 'bottom',
                           horizontal: 'center',
@@ -1961,7 +1964,7 @@ const AdminLeads = ({
                         PaperProps={{
                           elevation: 0,
                           style: {
-                            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
+                            boxShadow: 'none',
                             borderRadius: '12px',
                             border: '1px solid #eaeaea',
                             width: '120px',
@@ -2194,8 +2197,7 @@ const AdminLeads = ({
                   </div>
                 ) : (
                   <div
-                    className="text-xl text-center mt-8"
-                    style={{ fontWeight: '700', fontSize: 22 }}
+                    className="text-center mt-8 text-[24px] font-semibold"
                   >
                     {showNoLeadsLabel == true ? 'No leads found' : 'Loading...'}
                   </div>
@@ -2207,38 +2209,46 @@ const AdminLeads = ({
             <Modal
               open={showFilterModal}
               closeAfterTransition
+              slotProps={{
+                root: {
+                  sx: {
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  },
+                },
+              }}
               BackdropProps={{
                 sx: {
-                  backgroundColor: '#00000020',
+                  backgroundColor: 'rgba(0, 0, 0, 0.6)',
                   maxHeight: '100%',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  // //backdropFilter: "blur(5px)",
                 },
               }}
             >
               <Box
-                className="flex flex-row justify-center items-start lg:w-4/12 sm:w-7/12 w-8/12 py-2 px-6 bg-white max-h-[75svh]  overflow-auto md:overflow-auto"
+                className="flex flex-row justify-center items-stretch w-[450px] p-0 bg-white max-h-[550px] overflow-auto md:overflow-auto rounded-[16px]"
                 sx={{
                   ...styles.modalsStyle,
                   scrollbarWidth: 'none',
                   backgroundColor: 'white',
+                  borderRadius: '16px',
+                  animation: 'agentationModalEnter 0.35s ease-out forwards',
                 }}
               >
-                <div className="w-full flex flex-col items-center justify-start ">
-                  <div className="flex flex-row items-center justify-between w-full">
-                    <div>Filter</div>
-                    <CloseBtn onClick={() => setShowFilterModal(false)} />
+                <div className="w-full flex flex-col items-center justify-start p-0 min-h-[500px] h-auto gap-0.5">
+                  <div className="flex flex-row items-center justify-between w-full h-auto px-4 py-4 border-b border-[#EDEDED]">
+                    <div className="text-[18px] font-semibold">Filter</div>
+                    <CloseBtn iconSize={16} className="!bg-transparent !w-6 !h-6 !min-w-[24px] !min-h-[24px] flex items-center justify-center" onClick={() => setShowFilterModal(false)} />
                   </div>
-                  <div className="mt-2 w-full overflow-auto h-[85%]">
-                    <div className="flex flex-row items-start gap-4 h-full w-full">
-                      <div className="w-1/2 h-full">
+                  <div className="mt-2 w-full overflow-y-auto overflow-x-hidden flex-1 min-h-0 px-4 pb-3 text-[14px] flex flex-col gap-4 items-start">
+                    <div className="flex flex-row items-start gap-3 h-auto w-full">
+                      <div className="w-1/2 h-auto flex flex-col gap-1">
                         <div
-                          className="h-full"
+                          className="h-auto"
                           style={{
                             fontWeight: '500',
-                            fontSize: 12,
-                            color: '#00000060',
+                            fontSize: 14,
+                            color: 'rgba(0, 0, 0, 0.8)',
                             marginTop: 10,
                           }}
                         >
@@ -2257,7 +2267,7 @@ const AdminLeads = ({
                                 ? selectedFromDate.toDateString()
                                 : 'Select Date'}
                             </p>
-                            <CalendarDots weight="regular" size={25} />
+                            <CalendarIcon weight="regular" size={16} />
                           </button>
 
                           <div>
@@ -2296,12 +2306,12 @@ const AdminLeads = ({
                         </div>
                       </div>
 
-                      <div className="w-1/2 h-full">
+                      <div className="w-1/2 h-auto flex flex-col gap-1">
                         <div
                           style={{
                             fontWeight: '500',
-                            fontSize: 12,
-                            color: '#00000060',
+                            fontSize: 14,
+                            color: 'rgba(0, 0, 0, 0.8)',
                             marginTop: 10,
                           }}
                         >
@@ -2320,7 +2330,7 @@ const AdminLeads = ({
                                 ? selectedToDate.toDateString()
                                 : 'Select Date'}
                             </p>
-                            <CalendarDots weight="regular" size={25} />
+                            <CalendarIcon weight="regular" size={16} />
                           </button>
                           <div>
                             {showToDatePicker && (
@@ -2359,19 +2369,17 @@ const AdminLeads = ({
                       </div>
                     </div>
 
-                    <div
-                      className="mt-6"
-                      style={{
-                        fontWeight: '500',
-                        fontSize: 14,
-                        color: '#00000060',
-                        marginTop: 10,
-                      }}
-                    >
-                      Select Pipeline
-                    </div>
-
-                    <div className="mt-2">
+                    <div className="w-full flex flex-col gap-1">
+                      <div
+                        style={{
+                          fontWeight: '500',
+                          fontSize: 14,
+                          color: 'rgba(0, 0, 0, 0.8)',
+                          marginTop: 10,
+                        }}
+                      >
+                        Select Pipeline
+                      </div>
                       <FormControl fullWidth>
                         <Select
                           labelId="demo-simple-select-label"
@@ -2388,17 +2396,27 @@ const AdminLeads = ({
                           }}
                           sx={{
                             border: '1px solid #00000020', // Default border
-                            '&:hover': {
-                              border: '1px solid #00000020', // Same border on hover
-                            },
+                            fontSize: 14,
+                            height: 40,
+                            borderRadius: '8px',
+                            justifyContent: 'flex-start',
                             '& .MuiOutlinedInput-notchedOutline': {
                               border: 'none', // Remove the default outline
                             },
                             '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
                               border: 'none', // Remove outline on focus
                             },
-                            '&.MuiSelect-select': {
-                              py: 0, // Optional padding adjustments
+                            '& .MuiSelect-select': {
+                              py: 0,
+                              height: 40,
+                              minHeight: 40,
+                              boxSizing: 'border-box',
+                              textAlign: 'left',
+                              display: 'flex',
+                              alignItems: 'center',
+                            },
+                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                              border: 'none',
                             },
                           }}
                           MenuProps={{
@@ -2407,14 +2425,32 @@ const AdminLeads = ({
                                 maxHeight: '30vh', // Limit dropdown height
                                 overflow: 'auto', // Enable scrolling in dropdown
                                 scrollbarWidth: 'none',
-                                // borderRadius: "10px"
+                                borderRadius: '8px',
+                                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)',
+                                paddingLeft: 8,
+                                paddingRight: 8,
+                              },
+                              sx: {
+                                '& .MuiMenuItem-root': {
+                                  fontSize: 14,
+                                  borderRadius: '8px',
+                                },
+                                '& .MuiMenuItem-root:hover': {
+                                  backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                                },
+                                '& .MuiMenuItem-root:active': {
+                                  transform: 'none',
+                                },
+                                '& .MuiButtonBase-root:active': {
+                                  transform: 'none',
+                                },
                               },
                             },
                           }}
                         >
                           {pipelinesList.map((item, index) => {
                             return (
-                              <MenuItem key={index} value={item.title}>
+                              <MenuItem key={index} value={item.title} disableRipple>
                                 <button
                                   onClick={() => {
                                     //////console.log;
@@ -2431,44 +2467,42 @@ const AdminLeads = ({
                       </FormControl>
                     </div>
 
-                    <div
-                      className="mt-6"
-                      style={{
-                        fontWeight: '500',
-                        fontSize: 14,
-                        color: '#00000060',
-                        marginTop: 10,
-                      }}
-                    >
-                      Stage
-                    </div>
-
-                    {stagesLoader ? (
+                    <div className="w-full flex flex-col gap-1">
+                      <div
+                        style={{
+                          fontWeight: '500',
+                          fontSize: 14,
+                          color: 'rgba(0, 0, 0, 0.8)',
+                          marginTop: 10,
+                        }}
+                      >
+                        Stage
+                      </div>
+                      {stagesLoader ? (
                       <div className="w-full flex flex-row justify-center mt-8">
                         <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
                       </div>
                     ) : (
-                      <div className="w-full flex flex-wrap gap-4">
+                      <div className="w-full flex flex-wrap gap-x-2 gap-y-2">
                         {stagesList?.map((item, index) => {
                           let found = isStageSelected(item)
                           return (
                             <div
                               key={index}
-                              className="flex flex-row items-center mt-2 justify-start"
-                              style={{ fontSize: 15, fontWeight: '500' }}
+                              className="flex flex-row items-center justify-start"
+                              style={{ fontSize: 14, fontWeight: '500' }}
                             >
                               <button
                                 onClick={() => {
                                   handleSelectStage(item)
                                 }}
-                                className={`p-2 border border-[#00000020] ${
-                                  found >= 0 ? `bg-purple` : 'bg-transparent'
-                                } px-6
-                                                                    ${
-                                                                      found >= 0
-                                                                        ? `text-white`
-                                                                        : 'text-black'
-                                                                    } rounded-2xl`}
+                                className={`border border-[#00000020] ${
+                                  found >= 0 ? `bg-brand-primary text-white` : 'bg-transparent'
+                                } px-3 py-1.5 text-[14px] font-normal ${
+                                  found >= 0
+                                    ? `text-white`
+                                    : 'text-black'
+                                } rounded-[8px] transition-transform duration-150 active:scale-[0.98]`}
                               >
                                 {item.stageTitle}
                               </button>
@@ -2477,12 +2511,13 @@ const AdminLeads = ({
                         })}
                       </div>
                     )}
+                    </div>
+
                   </div>
 
-                  <div className="flex flex-row items-center w-full justify-between mt-4 pb-8">
+                  <div className="flex flex-row items-center w-full justify-between mt-auto pt-4 pb-4 h-auto px-4 py-3 flex-shrink-0 border-t border-[#EDEDED]">
                     <button
-                      className="outline-none w-[105px]"
-                      style={{ fontSize: 16.8, fontWeight: '600' }}
+                      className="outline-none w-[105px] h-[40px] px-3 text-[14px] font-medium bg-[#eaeaea] rounded-[8px] transition-transform duration-150 active:scale-[0.98]"
                       onClick={() => {
                         // setSelectedFromDate(null);
                         // setSelectedToDate(null);
@@ -2498,12 +2533,7 @@ const AdminLeads = ({
                       <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
                     ) : (
                       <button
-                        className="bg-brand-primary h-[45px] w-[140px] text-white rounded-xl outline-none"
-                        style={{
-                          fontSize: 16.8,
-                          fontWeight: '600',
-                          // backgroundColor: selectedFromDate && selectedToDate && selectedStage.length > 0 ? "" : "#00000050"
-                        }}
+                        className="flex flex-row items-center justify-center gap-2 h-[40px] rounded-[8px] bg-brand-primary text-white outline-none px-3 min-w-[140px] transition-transform duration-150 active:scale-[0.98] text-[14px] font-medium shadow-[0_4px_12px_hsl(var(--brand-primary)_/_0.2)]"
                         onClick={() => {
                           //////console.log;
                           // setLeadsList([]);

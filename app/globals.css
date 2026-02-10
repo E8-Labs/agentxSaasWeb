@@ -721,3 +721,15 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 background-color: hsl(var(--brand-primary)) !important;
   color: white !important;
 }
+
+/* Filter modal entry animation */
+@keyframes agentationModalEnter {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
