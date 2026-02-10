@@ -52,21 +52,29 @@ export function SendActionsButtonGroup({
     ]
 
     return (
-        <ButtonGroup className={cn("inline-flex", className)}>
-            {buttons.map(({ value, label, icon: Icon, hasAccess }) => (
-                <Button
-                    key={value}
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className={groupButtonClass}
-                    onClick={() => onSelect({ value })}
-                    aria-label={label}
-                >
-                    <Icon className="h-4 w-4 text-foreground" aria-hidden />
-                </Button>
-            ))}
-        </ButtonGroup>
+        <TooltipProvider delayDuration={0}>
+            <ButtonGroup className={cn("inline-flex", className)}>
+                {buttons.map(({ value, label, icon: Icon, hasAccess }) => (
+                    <Tooltip key={value}>
+                        <TooltipTrigger asChild>
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                className={groupButtonClass}
+                                onClick={() => onSelect({ value })}
+                                aria-label={label}
+                            >
+                                <Icon className="h-4 w-4 text-foreground" aria-hidden />
+                            </Button>
+                        </TooltipTrigger>
+                        <TooltipContent side="bottom" sideOffset={4}>
+                            <p>{label}</p>
+                        </TooltipContent>
+                    </Tooltip>
+                ))}
+            </ButtonGroup>
+        </TooltipProvider>
     )
 }
 
