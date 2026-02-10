@@ -28,9 +28,11 @@ export const getCommunicationTypeIcon = (item) => {
  */
 export const getOutcome = (item) => {
   if (item.communicationType == 'sms') {
-    return 'Text Sent'
+    // return 'Text Sent'
+    return item?.callOutcome
   } else if (item.communicationType == 'email') {
-    return 'Email Sent'
+    // return 'Email Sent'
+    return item?.callOutcome
   } else if (item.callOutcome) {
     return item?.callOutcome
   } else {

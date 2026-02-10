@@ -9,6 +9,7 @@ const EmailActivityTile = ({
   isExpanded,
   onToggleExpand,
 }) => {
+  // console.log("Item for email activity tile", item);
   return (
     <ActivityTile
       item={item}
