@@ -190,7 +190,8 @@ const UserAddCard = ({
         // Check if this is still the latest request
         if (currentSeq !== referralRequestSeqRef.current) return
 
-        const resp = await checkReferralCode(inviteCode.trim())
+        const planId = selectedPlan?.id ?? null
+        const resp = await checkReferralCode(inviteCode.trim(), planId)
 
         setReferralCodeDetails(resp?.data != null ? resp.data : resp)
 
@@ -214,7 +215,7 @@ const UserAddCard = ({
     return () => {
       clearTimeout(timer)
     }
-  }, [inviteCode])
+  }, [inviteCode, selectedPlan?.id])
 
   const elementOptions = {
     style: {
@@ -542,18 +543,24 @@ const UserAddCard = ({
       0
 
     const originalTotal = billingMonths * monthlyPrice
-    const finalTotal =
-      referralStatus === 'valid' && referralCodeDetails?.discountValue != null
-        ? calculateDiscountedPrice(
-            referralCodeDetails.discountValue,
-            referralCodeDetails.discountType,
-            originalTotal,
-          )
-        : originalTotal
+    let finalTotal = originalTotal
+    if (referralStatus === 'valid' && referralCodeDetails?.discountValue != null) {
+      const est = referralCodeDetails?.estimatedDiscount
+      const apiFinal = est?.finalPrice != null ? Number(est.finalPrice) : NaN
+      if (est != null && !Number.isNaN(apiFinal)) {
+        finalTotal = apiFinal
+      } else {
+        finalTotal = calculateDiscountedPrice(
+          referralCodeDetails.discountValue,
+          referralCodeDetails.discountType,
+          originalTotal,
+        )
+      }
+    }
     return `$${formatFractional2(finalTotal)}`
   }
 
-  // Order summary with promo applied (same logic as UpgradePlan.js)
+  // Order summary with promo applied. Use API estimatedDiscount when present (prorates yearly correctly).
   const orderSummary = (() => {
     if (!selectedPlan) return { originalTotal: 0, discountAmount: 0, finalTotal: 0 }
     const hasTrial = selectedPlan?.hasTrial === true
@@ -569,6 +576,16 @@ const UserAddCard = ({
       0
     const originalTotal = billingMonths * monthlyPrice
     if (referralStatus === 'valid' && referralCodeDetails?.discountValue != null) {
+      // Prefer API's estimatedDiscount (correct for yearly: e.g. 3 months off = pay 9 months)
+      const est = referralCodeDetails?.estimatedDiscount
+      const apiFinal = est?.finalPrice != null ? Number(est.finalPrice) : NaN
+      if (est != null && !Number.isNaN(apiFinal)) {
+        return {
+          originalTotal: Number(est.originalPrice) || originalTotal,
+          discountAmount: Number(est.discountAmount) || 0,
+          finalTotal: apiFinal,
+        }
+      }
       const finalTotal = calculateDiscountedPrice(
         referralCodeDetails.discountValue,
         referralCodeDetails.discountType,
@@ -815,7 +832,7 @@ const UserAddCard = ({
                         marginTop: 4,
                       }}
                     >
-                      Next Charge: {moment(getNextChargeDate(selectedPlan)).format('MMMM DD,YYYY')}
+                      Next Charge: {referralCodeDetails?.nextChargeDateFormatted || moment(getNextChargeDate(selectedPlan)).format('MMMM DD,YYYY')}
                     </div>
                   </div>
                   <div style={{ fontWeight: '600', fontSize: 15 }}>
@@ -1265,7 +1282,7 @@ const UserAddCard = ({
                         marginTop: '',
                       }}
                     >
-                      Next Charge: {moment(getNextChargeDate(selectedPlan)).format('MMMM DD,YYYY')}
+                      Next Charge: {referralCodeDetails?.nextChargeDateFormatted || moment(getNextChargeDate(selectedPlan)).format('MMMM DD,YYYY')}
                     </div>
                   </div>
                   <div

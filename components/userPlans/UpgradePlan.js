@@ -1842,7 +1842,8 @@ console.log('getButtonText()', getButtonText())
                                       }}
                                     >
                                       Next Charge Date{' '}
-                                      {moment(getNextChargeDate(currentSelectedPlan))?.format('MMMM DD, YYYY')}
+                                      {promoCodeDetails?.nextChargeDateFormatted ||
+                                        moment(getNextChargeDate(currentSelectedPlan))?.format('MMMM DD, YYYY')}
                                     </div>
                                   </div>
                                   <div
@@ -1873,9 +1874,18 @@ console.log('getButtonText()', getButtonText())
                             currentSelectedPlan?.originalPrice ||
                             0
                           const originalTotal = billingMonths * monthlyPrice
-                          const finalTotal = discountCalculation
-                            ? discountCalculation.finalPrice
-                            : originalTotal
+                          const est = promoCodeDetails?.estimatedDiscount
+                          const useApiTotals =
+                            est != null &&
+                            !Number.isNaN(Number(est.finalPrice))
+                          const finalTotal = useApiTotals
+                            ? Number(est.finalPrice)
+                            : discountCalculation
+                              ? discountCalculation.finalPrice
+                              : originalTotal
+                          const displayDiscountAmount = useApiTotals
+                            ? Number(est.discountAmount)
+                            : discountCalculation?.discountAmount ?? 0
 
                           return (
                             <>
@@ -1915,9 +1925,7 @@ console.log('getButtonText()', getButtonText())
                                     }}
                                   >
                                     -$
-                                    {formatFractional2(
-                                      discountCalculation.discountAmount,
-                                    )}
+                                    {formatFractional2(displayDiscountAmount)}
                                   </div>
                                 </div>
                               )}
@@ -1939,7 +1947,8 @@ console.log('getButtonText()', getButtonText())
                                     }}
                                   >
                                     Next Charge Date{' '}
-                                    {moment(getNextChargeDate(currentSelectedPlan))?.format('MMMM DD, YYYY')}
+                                    {promoCodeDetails?.nextChargeDateFormatted ||
+                                      moment(getNextChargeDate(currentSelectedPlan))?.format('MMMM DD, YYYY')}
                                   </div>
                                   {discountCalculation &&
                                     discountCalculation.discountMonths > 0 && (
@@ -2104,6 +2113,15 @@ console.log('getButtonText()', getButtonText())
                           )
                           : null
 
+                        const est = promoCodeDetails?.estimatedDiscount
+                        const apiFinal =
+                          est?.finalPrice != null ? Number(est.finalPrice) : NaN
+                        if (
+                          promoCodeDetails &&
+                          !Number.isNaN(apiFinal)
+                        ) {
+                          return `$${formatFractional2(apiFinal)}`
+                        }
                         if (discountCalculation) {
                           return `$${formatFractional2(discountCalculation.finalPrice)}`
                         }
