@@ -1589,9 +1589,48 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       .trim();
   }
 
+  /** Extract CC/BCC arrays from a message (for sync from last email in thread). */
+  const getCcBccFromMessage = useCallback((message) => {
+    console.log('🔍 [getCcBccFromMessage] message:', message)
+    if (!message || message.messageType !== 'email') return { cc: [], bcc: [] }
+    console.log('🔍 [getCcBccFromMessage] message.ccEmails:', message.ccEmails)
+    let cc = []
+    if (message.ccEmails) {
+      if(Array.isArray(message.ccEmails) && message.ccEmails.length > 0) {
+        cc = message.ccEmails
+      } else if (typeof message.ccEmails === 'string') {
+        let jsonCcEmails = JSON.parse(message.ccEmails)
+        cc = jsonCcEmails//message.ccEmails.split(',').map(e => e.trim()).filter(e => e)
+      }
+      console.log('🔍 [getCcBccFromMessage] cc:', cc)
+    } else if (message.metadata?.cc) {
+      console.log('🔍 [getCcBccFromMessage] message.metadata.cc:', message.metadata.cc)
+      if (typeof message.metadata.cc === 'string') {
+        console.log('🔍 [getCcBccFromMessage] message.metadata.cc (string):', message.metadata.cc)
+        cc = message.metadata.cc.split(',').map(e => e.trim()).filter(e => e)
+      } else if (Array.isArray(message.metadata.cc)) {
+        console.log('🔍 [getCcBccFromMessage] message.metadata.cc (array):', message.metadata.cc)
+        cc = message.metadata.cc
+      }
+    }
+    let bcc = []
+    if (message.bccEmails && Array.isArray(message.bccEmails) && message.bccEmails.length > 0) {
+      bcc = message.bccEmails
+    } else if (message.metadata?.bcc) {
+      if (typeof message.metadata.bcc === 'string') {
+        bcc = message.metadata.bcc.split(',').map(e => e.trim()).filter(e => e)
+      } else if (Array.isArray(message.metadata.bcc)) {
+        bcc = message.metadata.bcc
+      }
+    }
+    return { cc, bcc }
+  }, [])
+
   // Update composer fields (subject, CC, BCC) from a message
   const updateComposerFromMessage = (message) => {
     if (!message || message.messageType !== 'email') return
+
+    const { cc: ccEmailsArray, bcc: bccEmailsArray } = getCcBccFromMessage(message)
 
     // Extract and normalize subject
     if (message.subject) {
@@ -1599,40 +1638,27 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       setComposerData((prev) => ({ ...prev, subject: normalizedSubject }))
     }
 
-    // Extract CC emails
-    let ccEmailsArray = []
-    if (message.ccEmails && Array.isArray(message.ccEmails) && message.ccEmails.length > 0) {
-      ccEmailsArray = message.ccEmails
-    } else if (message.metadata?.cc) {
-      // Try to parse from metadata if it's a string
-      if (typeof message.metadata.cc === 'string') {
-        ccEmailsArray = message.metadata.cc.split(',').map(e => e.trim()).filter(e => e)
-      } else if (Array.isArray(message.metadata.cc)) {
-        ccEmailsArray = message.metadata.cc
-      }
-    }
-
-    // Extract BCC emails
-    let bccEmailsArray = []
-    if (message.bccEmails && Array.isArray(message.bccEmails) && message.bccEmails.length > 0) {
-      bccEmailsArray = message.bccEmails
-    } else if (message.metadata?.bcc) {
-      // Try to parse from metadata if it's a string
-      if (typeof message.metadata.bcc === 'string') {
-        bccEmailsArray = message.metadata.bcc.split(',').map(e => e.trim()).filter(e => e)
-      } else if (Array.isArray(message.metadata.bcc)) {
-        bccEmailsArray = message.metadata.bcc
-      }
-    }
-
-    // Update CC/BCC state
-    if (ccEmailsArray.length > 0) {
-      setCcEmails(ccEmailsArray)
-    }
-    if (bccEmailsArray.length > 0) {
-      setBccEmails(bccEmailsArray)
-    }
+    // Update CC/BCC state (always set so we show last email's CC/BCC, including empty)
+    setCcEmails(ccEmailsArray)
+    setBccEmails(bccEmailsArray)
+    if (ccEmailsArray.length > 0) setShowCC(true)
+    if (bccEmailsArray.length > 0) setShowBCC(true)
   }
+
+  // Always show CC/BCC from the last email in the thread (sent or received)
+  useEffect(() => {
+    if (!selectedThread?.id || composerMode !== 'email') return
+    const emailMessages = messages.filter((m) => m.messageType === 'email')
+    if (emailMessages.length === 0) return
+    const lastEmail = emailMessages[emailMessages.length - 1]
+    const { cc, bcc } = getCcBccFromMessage(lastEmail)
+    setCcEmails(cc)
+    setBccEmails(bcc)
+    setCcInput('')
+    setBccInput('')
+    if (cc.length > 0) setShowCC(true)
+    if (bcc.length > 0) setShowBCC(true)
+  }, [selectedThread?.id, messages, composerMode, getCcBccFromMessage])
 
   // Handle reply click
   const handleReplyClick = (message) => {
@@ -2058,7 +2084,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           // Prioritize emailTimelineSubject (set when Load More or subject is clicked)
           const preservedSubject = emailTimelineSubject ||
             (composerData.subject && composerData.subject.trim() ? normalizeSubject(composerData.subject) : '')
-          // Reset composer - only clear the email body
+          // Reset composer - only clear the email body; keep CC/BCC so next email shows them and user can add/remove
           setComposerData((prev) => ({
             ...prev,
             to: selectedThread.lead?.email || selectedThread.receiverEmail || '',
@@ -2068,14 +2094,9 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
             bcc: '',
             attachments: [],
           }))
-          // Clear CC/BCC arrays and inputs
-          setCcEmails([])
-          setBccEmails([])
+          // Keep CC/BCC and visibility so next reply shows last email's CC/BCC; sync from last message happens when messages refresh
           setCcInput('')
           setBccInput('')
-          // Clear CC/BCC visibility
-          setShowCC(false)
-          setShowBCC(false)
 
           // If a draft was selected, mark it as sent only (message already sent from composer — avoid double send)
           if (selectedDraft) {

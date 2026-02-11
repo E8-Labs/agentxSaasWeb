@@ -969,8 +969,9 @@ const LeadDetails = ({
   }
 
   // Handler to refresh notes after add/edit/delete
-  const handleNotesUpdated = async () => {
-    if (!selectedLead) return
+  const handleNotesUpdated = useCallback(async () => {
+    const leadId = selectedLead ?? selectedLeadsDetails?.id
+    if (!leadId) return
     try {
       let AuthToken = null
       const localDetails = localStorage.getItem('User')
@@ -978,7 +979,7 @@ const LeadDetails = ({
         const Data = JSON.parse(localDetails)
         AuthToken = Data.token
       }
-      const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedLead}`
+      const ApiPath = `${Apis.getLeadDetails}?leadId=${leadId}`
       const response = await axios.get(ApiPath, {
         headers: {
           Authorization: 'Bearer ' + AuthToken,
@@ -991,7 +992,7 @@ const LeadDetails = ({
     } catch (error) {
       console.error('Error refreshing notes:', error)
     }
-  }
+  }, [selectedLead, selectedLeadsDetails?.id])
 
   // Handler to update tags after tag deletion (optimistic update only)
   const handleLeadDetailsUpdated = async (deletedTagName) => {
