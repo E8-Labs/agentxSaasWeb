@@ -230,6 +230,28 @@ const NewMessageModal = ({
     )
   }
 
+  useEffect(() => {
+    const consolesList = [
+      { key: "isEditing", value: isEditing },
+      { key: "IsdefaultCadence", value: IsdefaultCadence },
+      { key: "isPipelineMode", value: isPipelineMode },
+      { key: "open", value: open },
+      { key: "selectedMode", value: selectedMode },
+      { key: "selectedUser", value: selectedUser },
+      { key: "selectedTemplate", value: selectedTemplate },
+      { key: "selectedPhoneNumber", value: selectedPhoneNumber },
+      { key: "selectedEmailAccount", value: selectedEmailAccount }
+    ]
+    if(open === true){
+
+      console.log("--------------------------------")
+      consolesList.forEach(item => {
+        console.log(`key is ${item.key}: ${item.value}`)
+      })
+      console.log("--------------------------------")
+    }
+  }, [isEditing, IsdefaultCadence, isPipelineMode, open, selectedMode, selectedUser, selectedTemplate, selectedPhoneNumber, selectedEmailAccount])
+
   // Update brand color on branding changes
   useEffect(() => {
     const updateBrandColor = () => {
@@ -245,11 +267,11 @@ const NewMessageModal = ({
   }, [])
 
   // Sync mode prop with selectedMode state when modal opens or mode prop changes
-  useEffect(() => {
-    if (open && mode) {
-      setSelectedMode(mode)
-    }
-  }, [open, mode])
+  // useEffect(() => {
+  //   if (open && mode) {
+  //     setSelectedMode(mode)
+  //   }
+  // }, [open, mode])
 
   // Check for default cadence flag when modal opens in pipeline mode
   useEffect(() => {
@@ -258,7 +280,7 @@ const NewMessageModal = ({
       if (isDefault) {
         try {
           const parsed = JSON.parse(isDefault)
-          setIsdefaultCadence(parsed.isdefault || false)
+          setIsdefaultCadence(false)
         } catch (e) {
           setIsdefaultCadence(false)
         }
@@ -1113,6 +1135,8 @@ const NewMessageModal = ({
 
   // Handle send
   const handleSend = async () => {
+    console.log("editing row template id is", editingRow?.templateId )
+    // return
     // Get the appropriate message body based on mode
     const messageBody = selectedMode === 'sms' ? smsMessageBody : emailMessageBody
 
@@ -1125,6 +1149,8 @@ const NewMessageModal = ({
       isPipelineMode,
       isLeadMode
     })
+
+    // return
 
     // Pipeline mode: create/update template instead of sending
     if (isPipelineMode) {
@@ -1221,6 +1247,7 @@ const NewMessageModal = ({
 
         // --- Selected an existing template from dropdown ---
         if (selectedTemplate && selectedTemplate.id) {
+          console.log("Api trigering for selected template id is", selectedTemplate.id)
           if (saveAsTemplate) {
             // 2) Update template checked: update existing template, keep templateType = 'user'
             isUpdating = true
@@ -1241,6 +1268,7 @@ const NewMessageModal = ({
         }
         // --- Editing existing cadence row (no template selected from dropdown, or row had a template) ---
         else if (isEditing && editingRow?.templateId && !IsdefaultCadence) {
+          console.log("Api trigering for editing row template id is", editingRow.templateId)
           if (saveAsTemplate) {
             // Update existing row's template, keep templateType = 'user'
             isUpdating = true
@@ -1260,6 +1288,7 @@ const NewMessageModal = ({
         }
         // --- New row or default cadence: create template ---
         else {
+          console.log("Api trigering for creating new template")
           isUpdating = false
           templateData.templateType = templateTypeForNew
           console.log('🔧 [Pipeline Mode] Creating new template, templateType=', templateData.templateType)
@@ -1441,6 +1470,8 @@ const NewMessageModal = ({
             saveAsTemplate,
             templateType: templateData.templateType
           })
+
+          console.log("Api trigering for createTemplete API Lead mode")
 
           const response = await createTemplete(templateData)
 
@@ -1658,6 +1689,8 @@ const NewMessageModal = ({
             templateType: templateData.templateType
           })
 
+          console.log("Api trigering for createTemplete API Normal template mode")
+
           const response = await createTemplete(templateData)
 
           console.log('📥 [Normal Send Mode] createTemplete API response:', {
@@ -1729,7 +1762,7 @@ const NewMessageModal = ({
         >
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b">
-            <h2 className="text-xl font-semibold">{(isEditing && !IsdefaultCadence) ? 'Update Message ' : 'New Message'}</h2>
+            <h2 className="text-xl font-semibold">{isPipelineMode && isEditing ? 'Update Message ' : 'New Message'}</h2>
             <CloseBtn onClick={onClose} />
           </div>
 
@@ -2950,11 +2983,11 @@ const NewMessageModal = ({
                 {sending ? (
                   <>
                     <CircularProgress size={16} className="text-white" />
-                    {isPipelineMode ? ((isEditing && !IsdefaultCadence) ? 'Updating...' : 'Saving...') : 'Sending...'}
+                    {isPipelineMode ? (isEditing ? 'Updating...' : 'Saving...') : 'Sending...'}
                   </>
                 ) : (
                   <>
-                    {isPipelineMode ? ((isEditing && !IsdefaultCadence) ? 'Update' : 'Save') : selectedTemplate ? (selectedMode === 'sms' ? "Update" : "Send Email") : selectedMode === 'sms' ? 'Send' : 'Send Email'}
+                    {isPipelineMode ? (isEditing ? 'Update' : 'Save') : selectedTemplate ? (selectedMode === 'sms' ? "Update" : "Send Email") : selectedMode === 'sms' ? 'Send' : 'Send Email'}
                     {!isPipelineMode && <PaperPlaneTilt size={16} />}
                   </>
                 )}

@@ -593,8 +593,8 @@ function SMSTempletePopup({
               >
                 <div className="flex flex-row w-full mb-1">
                   <div className="text-[13px] font-[400] text-black flex flex-row flex-wrap">
-                    <span className="font-bold">Note: </span>{" "} You can add variables like {' '}
-                    <span className="text-brand-primary">{`{First Name}, {Address}.`}</span>
+                    <span className="font-bold me-1">Note: </span>{" "} You can add variables like {' '}
+                    <span className="text-brand-primary ms-1">{`{First Name}, {Address}.`}</span>
                     {uniqueColumns.length > 0 && showMoreUniqueColumns ? (
                       <div className="flex flex-row flex-wrap gap-2">
                         {uniqueColumns.map((item, index) => (
