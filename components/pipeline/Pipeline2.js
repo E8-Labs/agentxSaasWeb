@@ -1067,10 +1067,10 @@ const Pipeline2 = ({ handleContinue, handleBack }) => {
                       fontSize: 15,
                     }}
                     onClick={() => {
-                      window.open(
-                        'https://chatgpt.com/g/g-0O0jItKdk-agentx-script-builder',
-                        '_blank',
-                      )
+                      const scriptBuilderUrl =
+                        user?.user?.agencySettings?.scriptWidgetUrl ||
+                        PersistanceKeys.DefaultScriptBuilderUrl
+                      window.open(scriptBuilderUrl, '_blank')
                     }}
                   >
                     Use Script Builder

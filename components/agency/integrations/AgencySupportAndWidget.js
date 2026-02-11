@@ -10,10 +10,12 @@ import AgentSelectSnackMessage, {
 import CloseBtn from '@/components/globalExtras/CloseBtn'
 import { Input } from '@/components/ui/input'
 import { isValidUrl } from '@/constants/Constants'
+import { useUser } from '@/hooks/redux-hooks'
 
 import { AuthToken } from '../plan/AuthDetails'
 
 const AgencySupportAndWidget = ({ selectedAgency }) => {
+  const { user, setUser } = useUser()
   //settings data
   const [settingsData, setSettingsData] = useState(null)
   //snack msg
@@ -140,6 +142,9 @@ const AgencySupportAndWidget = ({ selectedAgency }) => {
         setAllowResourceHub(Data?.resourceHub || false)
         setResourceHub(Data?.resourceHubUrl || '')
         setResourceHubTitle(Data?.resourceHubTitle)
+        setAllowScriptWidget(Data?.scriptWidget || false)
+        setScriptWidget(Data?.scriptWidgetUrl || '')
+        setScriptWidgetTitle(Data?.scriptWidgetTitle || 'Script Builder')
 
         // Load support widget logo and title from agency branding
         let brandingApiUrl = Apis.getAgencyBranding
@@ -200,6 +205,10 @@ const userSettingDataUpgrade = (from) => {
     setAddResourceHubLoader(true)
     data.resourceHub = true
     data.resourceHubUrl = resourceHub
+  } else if (from === 'scriptWidget') {
+    setAddScriptWidgetLoader(true)
+    data.scriptWidget = true
+    data.scriptWidgetUrl = scriptWidget
   }
   
   return data
@@ -233,6 +242,10 @@ const userSettingDataDel = (from) => {
     setDelResourceHubLoader(true)
     data.resourceHub = false
     data.resourceHubUrl = ''
+  } else if (from === 'scriptWidgetDel') {
+    setDelScriptWidgetLoader(true)
+    data.scriptWidget = false
+    data.scriptWidgetUrl = ''
   }
   
   return data
@@ -252,6 +265,8 @@ const userSettingDataUpdateTitle = (from) => {
     data.billingAndSupportTitle = showEditModalTitle
   } else if (editTitleIndex === 4) {
     data.resourceHubTitle = showEditModalTitle
+  } else if (editTitleIndex === 5) {
+    data.scriptWidgetTitle = showEditModalTitle
   }
   
   return data
@@ -305,10 +320,38 @@ const handleUserSettings = async (from) => {
         } else if (from === 'resourceHub') {
           setAllowResourceHub(updatedData.resourceHub || false)
           setResourceHub(updatedData.resourceHubUrl || '')
+        } else if (from === 'scriptWidget') {
+          // Use response when present; otherwise keep what we just sent (avoids revert if response is truncated)
+          const savedScriptWidget = updatedData.scriptWidget !== undefined ? updatedData.scriptWidget : (ApiData?.scriptWidget ?? true)
+          const savedScriptWidgetUrl = updatedData.scriptWidgetUrl !== undefined && updatedData.scriptWidgetUrl !== '' ? updatedData.scriptWidgetUrl : (ApiData?.scriptWidgetUrl || scriptWidget || '')
+          setAllowScriptWidget(!!savedScriptWidget)
+          setScriptWidget(savedScriptWidgetUrl)
+          setAddScriptWidget(false)
         }
         
-        // Always update the full settings data
-        setSettingsData(updatedData)
+        // Always update the full settings data (merge script widget from request if missing in response)
+        const mergedSettingsData = { ...updatedData }
+        if (from === 'scriptWidget' && (mergedSettingsData.scriptWidget === undefined || mergedSettingsData.scriptWidgetUrl === undefined)) {
+          mergedSettingsData.scriptWidget = mergedSettingsData.scriptWidget ?? ApiData?.scriptWidget ?? true
+          mergedSettingsData.scriptWidgetUrl = mergedSettingsData.scriptWidgetUrl ?? ApiData?.scriptWidgetUrl ?? scriptWidget ?? ''
+        }
+        setSettingsData(mergedSettingsData)
+        
+        // Keep Redux (and localStorage) in sync so "Use Script Builder" in agent details uses the saved URL
+        if (from === 'scriptWidget' && user) {
+          const savedScriptWidget = mergedSettingsData.scriptWidget ?? true
+          const savedScriptWidgetUrl = mergedSettingsData.scriptWidgetUrl ?? scriptWidget ?? ''
+          const savedScriptWidgetTitle = mergedSettingsData.scriptWidgetTitle ?? user?.userSettings?.scriptWidgetTitle ?? 'Script Builder'
+          setUser({
+            ...user,
+            userSettings: {
+              ...(user.userSettings || {}),
+              scriptWidget: savedScriptWidget,
+              scriptWidgetUrl: savedScriptWidgetUrl,
+              scriptWidgetTitle: savedScriptWidgetTitle,
+            },
+          })
+        }
         
         setShowSnackMessage('Link updated successfully')
         setShowSnackType(SnackbarTypes.Success)
@@ -326,6 +369,8 @@ const handleUserSettings = async (from) => {
           setAddBillingAndSupport(false)
         } else if(from === 'resourceHub') {
           setAddResourceHub(false)
+        } else if (from === 'scriptWidget') {
+          setAddScriptWidget(false)
         }
         // Reset title modal
         if (from?.endsWith('UpdateTitle')) {
@@ -361,6 +406,8 @@ const handleUserSettings = async (from) => {
     setShowEditModalLoader(false)
     setAddResourceHubLoader(false)
     setDelResourceHubLoader(false)
+    setAddScriptWidgetLoader(false)
+    setDelScriptWidgetLoader(false)
   }
 
   //handle logo change
@@ -898,7 +945,7 @@ const handleUserSettings = async (from) => {
                     </Tooltip>
                     <button
                       onClick={() => {
-                        setEditTitleIndex(1)
+                        setEditTitleIndex(5)
                         setShowEditModal(true)
                         setShowEditModalTitle(scriptWidgetTitle)
                       }}
@@ -921,42 +968,34 @@ const handleUserSettings = async (from) => {
                     </button>
                   </div>
                   <div className="flex flex-row items-center gap-2">
-                    {delFeedBackLoader ? (
+                    {delScriptWidgetLoader ? (
                       <CircularProgress size={20} />
                     ) : (
-                      settingsData?.giveFeedbackTitle && (
-                        <Switch
-                          checked={allowScriptWidget}
-                          onChange={(e) => {
-                            const checked = e.target.checked
-                            setAllowScriptWidget(checked)
-
-                            if (allowFeedBack === false) {
-                              setAddScriptWidget(true)
-                            } else {
-                              if (settingsData?.giveFeedbackUrl) {
-                                handleUserSettings('scriptWidgetDel')
-                              } else {
-                                setScriptWidget('')
-                                setAddScriptWidget(false)
-                              }
-                            }
-                          }}
-                          sx={{
-                            '& .MuiSwitch-switchBase.Mui-checked': {
-                              color: 'white',
-                            },
-                            '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
+                      <Switch
+                        checked={allowScriptWidget}
+                        onChange={(e) => {
+                          const checked = e.target.checked
+                          setAllowScriptWidget(checked)
+                          if (!checked) {
+                            handleUserSettings('scriptWidgetDel')
+                          } else {
+                            setAddScriptWidget(true)
+                          }
+                        }}
+                        sx={{
+                          '& .MuiSwitch-switchBase.Mui-checked': {
+                            color: 'white',
+                          },
+                          '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track':
                             {
                               backgroundColor: 'hsl(var(--brand-primary))',
                             },
-                          }}
-                        />
-                      )
+                        }}
+                      />
                     )}
                   </div>
                 </div>
-                {settingsData?.scriptWidgetUrl && (
+                {settingsData?.scriptWidgetUrl && !addScriptWidget && (
                   <div className="flex flex-row items-center justify-between w-full mt-2">
                     <div style={styles.subHeading}>
                       URL: {settingsData?.scriptWidgetUrl || ''}
@@ -991,14 +1030,14 @@ const handleUserSettings = async (from) => {
                     </button>
                   </div>
                 )}
-                {addFeedBack && (
+                {(addScriptWidget || (allowScriptWidget && !settingsData?.scriptWidgetUrl)) && (
                   <div className="flex flex-row items-center justify-center gap-2 mt-2">
                     <div className="border border-gray-200 rounded px-2 py-0 flex flex-row items-center w-[90%]">
                       <input
                         style={styles.inputs}
                         type="text"
                         className={`w-full border-none outline-none focus:outline-none focus:ring-0 focus:border-none`}
-                        placeholder="Enter your URL"
+                        placeholder="Enter Script Builder URL"
                         value={scriptWidget}
                         onChange={(e) => {
                           const value = e.target.value

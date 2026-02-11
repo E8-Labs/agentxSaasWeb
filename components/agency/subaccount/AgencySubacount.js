@@ -1116,24 +1116,30 @@ function AgencySubacount({ selectedAgency }) {
                         setSelectedUser(item)
                       }}
                     >
-                      {item.thumb_profile_image ? (
-                        <Image
-                          src={item.thumb_profile_image}
-                          className="rounded-full bg-red"
-                          height={40}
-                          width={40}
-                          style={{
-                            height: '40px',
-                            width: '40px',
-                            objectFit: 'cover',
-                          }}
-                          alt="*"
-                        />
-                      ) : (
-                        <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
-                          {item.name.slice(0, 1).toUpperCase()}
-                        </div>
-                      )}
+                      {(() => {
+                        // For agency use accounts, prefer the agency's own profile image
+                        const profileImage = item.isAgencyUse
+                          ? (item.thumb_profile_image || agencyData?.thumb_profile_image || selectedAgency?.thumb_profile_image)
+                          : item.thumb_profile_image
+                        return profileImage ? (
+                          <Image
+                            src={profileImage}
+                            className="rounded-full bg-red"
+                            height={40}
+                            width={40}
+                            style={{
+                              height: '40px',
+                              width: '40px',
+                              objectFit: 'cover',
+                            }}
+                            alt="*"
+                          />
+                        ) : (
+                          <div className="h-[40px] w-[40px] rounded-full bg-black flex flex-row items-center justify-center text-white">
+                            {item.name.slice(0, 1).toUpperCase()}
+                          </div>
+                        )
+                      })()}
 
                       <div style={{ ...styles.text2 }} className="w-[60%]">
                         {item.name}

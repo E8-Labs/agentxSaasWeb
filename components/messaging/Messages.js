@@ -80,6 +80,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const [selectedPhoneNumber, setSelectedPhoneNumber] = useState(null)
   const [selectedEmailAccount, setSelectedEmailAccount] = useState(null)
   const lastSelectedEmailAccountRef = useRef(null) // Store last selected email account when switching tabs
+  const initialEmailAccountsFetchedRef = useRef(false) // Prevent re-fetching email accounts on every messages update
   const [userData, setUserData] = useState(null)
   const [sendingMessage, setSendingMessage] = useState(false)
   const [imageModalOpen, setImageModalOpen] = useState(false)
@@ -2549,7 +2550,15 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   // Initial load for phone numbers and email accounts
   useEffect(() => {
     fetchPhoneNumbers()
-    fetchEmailAccounts()
+    // Only fetch email accounts once on initial load.
+    // Subsequent re-fetches are triggered explicitly (e.g. after Gmail auth at AuthSelectionPopup).
+    // Without this guard, fetchEmailAccounts identity changes every time messages update
+    // (via getLastEmailAccountFromThread dep), causing this effect to re-run and
+    // reset selectedEmailAccount to the first account.
+    if (!initialEmailAccountsFetchedRef.current) {
+      fetchEmailAccounts()
+      initialEmailAccountsFetchedRef.current = true
+    }
   }, [fetchPhoneNumbers, fetchEmailAccounts])
 
   // Handle search with debounce and initial load
