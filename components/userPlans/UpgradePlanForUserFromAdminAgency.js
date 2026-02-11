@@ -1353,7 +1353,7 @@ function UpgradePlanContent({
       return 'Downgrade'
     }
 
-    return 'Subscribe'
+    return 'Upgrade'
   }
 
   const comparePlans = (currentPlan, targetPlan) => {

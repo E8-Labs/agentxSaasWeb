@@ -282,6 +282,8 @@ export const callStatusColors = {
   Forwarded: '#000000',
   Error: '#FF4E4E',
   Failed: '#D32F2F',
+  'Email Failed': '#D32F2F',
+  'Text Failed': '#D32F2F',
 }
 
 export const termsAndConditionUrl = 'https://www.assignx.ai/terms-and-condition'

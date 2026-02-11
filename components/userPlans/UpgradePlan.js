@@ -40,6 +40,7 @@ import {
   getUserPlans,
 } from './UserPlanServices'
 import { cn } from '@/lib/utils'
+import { UserRole } from '@/constants/UserRole'
 
 // Separate component for card form to isolate Stripe Elements
 const CardForm = ({
@@ -60,7 +61,7 @@ const CardForm = ({
   haveCards,
 }) => {
 
-  
+
   return (
     <div className="w-full flex flex-col gap-2 mt-2">
       {haveCards ? (
@@ -278,6 +279,7 @@ function UpgradePlanContent({
   const [agreeTerms, setAgreeTerms] = useState(false)
   const [isAddingCard, setIsAddingCard] = useState(false)
   const [currentUserPlan, setCurrentUserPlan] = useState(null)
+  const [currentUserIs, setCurrentUserIs] = useState(null)
   const [cards, setCards] = useState([])
   const [selectedCard, setSelectedCard] = useState(cards[0])
 
@@ -629,13 +631,14 @@ function UpgradePlanContent({
     if (localData) {
       const userData = JSON.parse(localData)
       const plan = userData.user?.plan
+      setCurrentUserIs(userData?.user)
       setCurrentUserPlan(plan)
       return plan
     }
     return null
   }
 
-  useEffect(() => {}, [duration])
+  useEffect(() => { }, [duration])
 
   const getPlans = async () => {
     // Ensure we pass selectedUser even if it's from userLocalData fallback
@@ -649,9 +652,9 @@ function UpgradePlanContent({
 
       // Determine if we're dealing with a subaccount
       // Check selectedUser's role if provided (agency viewing subaccount), otherwise check logged-in user's role
-      const isSubAccount = from === 'SubAccount' || 
-                          selectedUser?.userRole === 'AgencySubAccount' ||
-                          UserLocalData?.userRole === 'AgencySubAccount'
+      const isSubAccount = from === 'SubAccount' ||
+        selectedUser?.userRole === 'AgencySubAccount' ||
+        UserLocalData?.userRole === 'AgencySubAccount'
 
       if (isSubAccount) {
         plansList = plansList?.monthlyPlans || plansList
@@ -790,7 +793,7 @@ function UpgradePlanContent({
 
   const isPlanCurrent = (item) => {
 
-    console.log("item in is plan current is",item)
+    console.log("item in is plan current is", item)
     if (!item) {
       return false
     }
@@ -798,7 +801,7 @@ function UpgradePlanContent({
     // When selectedUser is provided (agency/admin viewing subaccount/other user),
     // use currentFullPlan (selected user's plan) instead of currentUserPlan (logged-in user's plan from localStorage)
     const planToCompare = selectedUser?.id ? currentFullPlan : currentUserPlan
-    
+
     if (!planToCompare) {
       return false
     }
@@ -809,8 +812,8 @@ function UpgradePlanContent({
     const itemPlanId = Number(item.id || item.planId)
     const currentPlanId = Number(planToCompare.id || planToCompare.planId)
 
-    console.log("itemPlanId",itemPlanId)
-    console.log("currentPlanId",currentPlanId)
+    console.log("itemPlanId", itemPlanId)
+    console.log("currentPlanId", currentPlanId)
 
     // Only log when there's a potential match to reduce noise
     if (
@@ -962,7 +965,7 @@ function UpgradePlanContent({
           setCards(response.data.data)
         }
       }
-    } catch (error) {} finally {
+    } catch (error) { } finally {
       // //console.log;
       // setGetCardLoader(false);
     }
@@ -1276,8 +1279,9 @@ function UpgradePlanContent({
 
     // Use planToCompare (which is currentFullPlan when selectedUser is provided, otherwise currentUserPlan)
     const comparison = comparePlans(planToCompare, currentSelectedPlan)
+    console.log("Comparison check btn is", comparison)
 
-    if(currentSelectedPlan?.discountPrice === 0){
+    if (currentSelectedPlan?.discountPrice === 0) {
       return 'Downgrade'
     }
 
@@ -1313,6 +1317,162 @@ function UpgradePlanContent({
 
     return 'Subscribe'
   }
+
+  const comparePlansForSubAccounts = (currentPlan, targetPlan) => {
+    if (!currentPlan || !targetPlan) {
+      return null // Changed from 'same' to null to indicate loading state
+    }
+    const currentPlanPrice = currentPlan.price || currentPlan.discountedPrice
+    const targetPlanPrice = currentPlan.price || currentPlan.discountedPrice
+    if (currentPlanPrice < targetPlanPrice) {
+      return "upgrade"
+    } else if (currentPlanPrice > targetPlanPrice) {
+      return "downgrade"
+    } else {
+      return "same"
+    }
+  }
+
+  // const comparePlans = (currentPlan, targetPlan) => {
+  //   console.log("Selected user passed in compare is", currentUserIs)
+  //   if (!currentPlan || !targetPlan) {
+  //     return null // Changed from 'same' to null to indicate loading state
+  //   }
+
+  //   // if()
+
+  //   console.log("Current plan is", currentPlan)
+  //   console.log("Target plan is", targetPlan)
+
+  //   // If same plan (by ID), it's the same
+  //   if (
+  //     currentPlan.id === targetPlan.id ||
+  //     currentPlan.planId === targetPlan.id
+  //   ) {
+  //     console.log("plans are same by id")
+  //     return 'same'
+  //   }
+  //   console.log("plans are not same by id")
+  //   // Get billing cycle order (monthly < quarterly < yearly)
+  //   const billingCycleOrder = {
+  //     monthly: 1,
+  //     quarterly: 2,
+  //     yearly: 3,
+  //   }
+
+  //   const currentBillingOrder =
+  //     billingCycleOrder[currentPlan.billingCycle] ||
+  //     billingCycleOrder[currentPlan.duration] ||
+  //     1
+  //   const targetBillingOrder =
+  //     billingCycleOrder[targetPlan.billingCycle] ||
+  //     billingCycleOrder[targetPlan.duration] ||
+  //     1
+
+  //   // Define tier ranking: Starter < Growth < Scale
+  //   const tierRanking = {
+  //     Starter: 1,
+  //     Growth: 2,
+  //     Scale: 3,
+  //   }
+
+  //   // Get plan titles/names (try both fields)
+  //   const currentTitle = (
+  //     currentPlan.title ||
+  //     currentPlan.name ||
+  //     ''
+  //   ).toLowerCase()
+  //   const targetTitle = (
+  //     targetPlan.title ||
+  //     targetPlan.name ||
+  //     ''
+  //   ).toLowerCase()
+
+  //   let currentTierRank = -1
+  //   let targetTierRank = -1
+
+  //   // Try to match tier from title/name
+  //   for (const [tier, rank] of Object.entries(tierRanking)) {
+  //     // if (currentTitle.includes(tier.toLowerCase())) {
+  //     //   currentTierRank = rank
+  //     // }
+  //     // if (targetTitle.includes(tier.toLowerCase())) {
+  //     //   targetTierRank = rank
+  //     // }
+  //     if (currentTitle === tier.toLowerCase()) {
+  //       currentTierRank = rank
+  //     }
+  //     if (targetTitle === tier.toLowerCase()) {
+  //       targetTierRank = rank
+  //     }
+  //   }
+
+  //   console.log("Current tier rank is", currentTierRank)
+
+  //   // If we can determine tier ranks, compare them first
+  //   // Rule: Scale > Growth > Starter (regardless of billing cycle)
+  //   if (currentTierRank >= 0 && targetTierRank >= 0) {
+  //     // Different tiers - tier comparison determines upgrade/downgrade
+  //     if (targetTierRank > currentTierRank) {
+  //       return 'upgrade'
+  //     } else if (targetTierRank < currentTierRank) {
+  //       return 'downgrade'
+  //     }
+  //     // Same tier - compare billing cycles
+  //     if (targetBillingOrder > currentBillingOrder) {
+  //       return 'upgrade'
+  //     } else if (targetBillingOrder < currentBillingOrder) {
+  //       return 'downgrade'
+  //     } else {
+  //       return 'same'
+  //     }
+  //   }
+
+  //   // If tier can't be determined, compare billing cycles first
+  //   // Longer billing cycle (yearly > quarterly > monthly) is generally an upgrade
+  //   // This handles cases like "Malik's Plan" monthly -> yearly where tier detection fails
+  //   if (targetBillingOrder > currentBillingOrder) {
+  //     return 'upgrade'
+  //   } else if (targetBillingOrder < currentBillingOrder) {
+  //     return 'downgrade'
+  //   }
+
+  //   // Fall back to price comparison if billing cycles are the same
+  //   const currentPrice =
+  //     currentPlan.discountPrice ||
+  //     currentPlan.discountedPrice ||
+  //     currentPlan.price ||
+  //     currentPlan.originalPrice ||
+  //     0
+  //   const targetPrice =
+  //     targetPlan.discountPrice ||
+  //     targetPlan.discountedPrice ||
+  //     targetPlan.price ||
+  //     targetPlan.originalPrice ||
+  //     0
+
+  //   // If target is free plan and current is paid, it's a downgrade
+  //   if ((targetPlan.isFree || targetPrice === 0) && currentPrice > 0) {
+  //     return 'downgrade'
+  //   }
+
+  //   // If current is free and target is paid, it's an upgrade
+  //   if ((currentPlan.isFree || currentPrice === 0) && targetPrice > 0) {
+  //     return 'upgrade'
+  //   }
+
+  //   // Compare prices
+  //   if (targetPrice > currentPrice) {
+  //     return 'upgrade'
+  //   } else if (targetPrice < currentPrice) {
+  //     return 'downgrade'
+  //   } else {
+  //     // Same price, same billing cycle - must be the same plan
+  //     return 'same'
+  //   }
+  // }
+
+  // Function to determine button text and action
 
   const comparePlans = (currentPlan, targetPlan) => {
     if (!currentPlan || !targetPlan) {
@@ -1366,42 +1526,82 @@ function UpgradePlanContent({
     let targetTierRank = -1
 
     // Try to match tier from title/name
-    for (const [tier, rank] of Object.entries(tierRanking)) {
-      if (currentTitle.includes(tier.toLowerCase())) {
-        currentTierRank = rank
+    let checkTierRanking = false
+    if (selectedUser) {
+
+      if (selectedUser?.userRole === UserRole.Agency || selectedUser?.userRole === UserRole.AgentX) {
+        checkTierRanking = true
       }
-      if (targetTitle.includes(tier.toLowerCase())) {
-        targetTierRank = rank
+      console.log('checking for selectedUser', checkTierRanking)
+    }
+    else {
+
+      //check current logged in user's role
+      let currentUser = null
+      const localData = localStorage.getItem('User')
+      if (localData) {
+        const LocalDetails = JSON.parse(localData)
+        currentUser = LocalDetails.user
       }
+      if (currentUser?.userRole === UserRole.Agency || currentUser?.userRole === UserRole.AgentX) {
+        checkTierRanking = true
+      }
+      console.log(`checking for current user logged in ${ currentUser?.userRole }`, checkTierRanking)
+    }
+    if (checkTierRanking) {
+
+      for (const [tier, rank] of Object.entries(tierRanking)) {
+        if (currentTitle.includes(tier.toLowerCase())) {
+          currentTierRank = rank
+        }
+        if (targetTitle.includes(tier.toLowerCase())) {
+          targetTierRank = rank
+        }
+        // if (currentTitle === tier.toLowerCase()) {
+        //   currentTierRank = rank
+        // }
+        // if (targetTitle === tier.toLowerCase()) {
+        //   targetTierRank = rank
+        // }
+      }
+      console.log('tier ranking checked', currentTierRank, targetTierRank)
+      // If we can determine tier ranks, compare them first
+      // Rule: Scale > Growth > Starter (regardless of billing cycle)
+      if (currentTierRank >= 0 && targetTierRank >= 0) {
+        // Different tiers - tier comparison determines upgrade/downgrade
+        if (targetTierRank > currentTierRank) {
+          return 'upgrade'
+        } else if (targetTierRank < currentTierRank) {
+          return 'downgrade'
+        }
+        // Same tier - compare billing cycles
+        if (targetBillingOrder > currentBillingOrder) {
+          return 'upgrade'
+        } else if (targetBillingOrder < currentBillingOrder) {
+          return 'downgrade'
+        } else {
+          return 'same'
+        }
+      }
+    }
+    else {
+      console.log('no tier ranking check needed')
     }
 
-    // If we can determine tier ranks, compare them first
-    // Rule: Scale > Growth > Starter (regardless of billing cycle)
-    if (currentTierRank >= 0 && targetTierRank >= 0) {
-      // Different tiers - tier comparison determines upgrade/downgrade
-      if (targetTierRank > currentTierRank) {
-        return 'upgrade'
-      } else if (targetTierRank < currentTierRank) {
-        return 'downgrade'
-      }
-      // Same tier - compare billing cycles
-      if (targetBillingOrder > currentBillingOrder) {
-        return 'upgrade'
-      } else if (targetBillingOrder < currentBillingOrder) {
-        return 'downgrade'
-      } else {
-        return 'same'
-      }
-    }
+
 
     // If tier can't be determined, compare billing cycles first
     // Longer billing cycle (yearly > quarterly > monthly) is generally an upgrade
     // This handles cases like "Malik's Plan" monthly -> yearly where tier detection fails
+    console.log('no tier ranking check needed, comparing billing cycles')
     if (targetBillingOrder > currentBillingOrder) {
+      console.log('target billing cycle is longer than current billing cycle, it\'s an upgrade')
       return 'upgrade'
     } else if (targetBillingOrder < currentBillingOrder) {
+      console.log('target billing cycle is shorter than current billing cycle, it\'s a downgrade')
       return 'downgrade'
     }
+
 
     // Fall back to price comparison if billing cycles are the same
     const currentPrice =
@@ -1416,14 +1616,16 @@ function UpgradePlanContent({
       targetPlan.price ||
       targetPlan.originalPrice ||
       0
-
+    console.log('comparing prices', currentPrice, targetPrice)
     // If target is free plan and current is paid, it's a downgrade
     if ((targetPlan.isFree || targetPrice === 0) && currentPrice > 0) {
+      console.log('target is free plan and current is paid, it\'s a downgrade')
       return 'downgrade'
     }
 
     // If current is free and target is paid, it's an upgrade
     if ((currentPlan.isFree || currentPrice === 0) && targetPrice > 0) {
+      console.log('current is free and target is paid, it\'s an upgrade')
       return 'upgrade'
     }
 
@@ -1438,7 +1640,6 @@ function UpgradePlanContent({
     }
   }
 
-  // Function to determine button text and action
   const getButtonConfig = () => {
     // Compare plans based on price
     const planComparison = comparePlans(currentFullPlan, selectedPlan)
@@ -1487,8 +1688,8 @@ function UpgradePlanContent({
 
   console.log('currentSelectedPlan', currentSelectedPlan)
 
-  console.log('currentSelectedPlan && !isPlanCurrent(currentSelectedPlan) && getButtonText() !== Cancel Subscription ', currentSelectedPlan && !isPlanCurrent(currentSelectedPlan) && getButtonText() !== 'Cancel Subscription' )
-console.log('getButtonText()', getButtonText())
+  console.log('currentSelectedPlan && !isPlanCurrent(currentSelectedPlan) && getButtonText() !== Cancel Subscription ', currentSelectedPlan && !isPlanCurrent(currentSelectedPlan) && getButtonText() !== 'Cancel Subscription')
+  console.log('getButtonText()', getButtonText())
   return (
     <Modal
       open={open}
@@ -1820,7 +2021,7 @@ console.log('getButtonText()', getButtonText())
                           // Check if plan has trial and user is subscribing for the first time
                           const hasTrial = currentSelectedPlan?.hasTrial === true
                           const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-                          
+
                           // If plan has trial and user has no previous plan, show $0 for all pricing
                           if (hasTrial && isFirstTimeSubscription) {
                             return (
@@ -1856,7 +2057,7 @@ console.log('getButtonText()', getButtonText())
                               </>
                             )
                           }
-                          
+
                           const discountCalculation = promoCodeDetails
                             ? calculateDiscountedPrice(
                               currentSelectedPlan,
@@ -1985,12 +2186,12 @@ console.log('getButtonText()', getButtonText())
                                     // Check if plan has trial and user is subscribing for the first time
                                     const hasTrial = currentSelectedPlan?.hasTrial === true
                                     const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-                                    
+
                                     // If plan has trial and user has no previous plan, show $0
                                     if (hasTrial && isFirstTimeSubscription) {
                                       return '$0'
                                     }
-                                    
+
                                     return discountCalculation
                                       ? `$${formatFractional2(finalTotal)}`
                                       : `$${formatFractional2(originalTotal)}`
@@ -2098,7 +2299,7 @@ console.log('getButtonText()', getButtonText())
                         // Check if plan has trial and user is subscribing for the first time (no previous plan)
                         const hasTrial = currentSelectedPlan?.hasTrial === true
                         const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
-                        
+
                         // If plan has trial and user has no previous plan, show $0 (they won't be charged immediately)
                         if (hasTrial && isFirstTimeSubscription) {
                           return '$0'
@@ -2151,13 +2352,13 @@ console.log('getButtonText()', getButtonText())
                           <CircularProgress size={25} />
                         </div>
                       ) : (
-                        <button 
-                        className={cn("flex md:h-[53px] h-[42px] w-full rounded-lg items-center justify-center text-base sm:text-lg font-semibold text-white", isUpgradeButtonEnabled() ? 'bg-brand-primary cursor-pointer' : 'cursor-not-allowed opacity-60')}
-                        onClick={() => {
-                          if (isUpgradeButtonEnabled()) {
-                            handleSubscribePlan()
-                          }
-                        }}
+                        <button
+                          className={cn("flex md:h-[53px] h-[42px] w-full rounded-lg items-center justify-center text-base sm:text-lg font-semibold text-white", isUpgradeButtonEnabled() ? 'bg-brand-primary cursor-pointer' : 'cursor-not-allowed opacity-60')}
+                          onClick={() => {
+                            if (isUpgradeButtonEnabled()) {
+                              handleSubscribePlan()
+                            }
+                          }}
                         >{getButtonText()}</button>
                       )}
                     </div>
@@ -2277,15 +2478,15 @@ const getParentComponentName = () => {
   try {
     const error = new Error()
     const stack = error.stack || ''
-    
+
     // Split stack into lines
     const stackLines = stack.split('\n')
-    
+
     // Debug: Log first few relevant lines to see what we're working with
     if (process.env.NODE_ENV === 'development') {
       console.log('[UpgradePlan Debug] First 10 stack lines:', stackLines.slice(0, 10))
     }
-    
+
     // Common React/Next.js internal patterns to skip
     const skipPatterns = [
       'UpgradePlan',
@@ -2307,16 +2508,16 @@ const getParentComponentName = () => {
       'beginWork',
       'performUnitOfWork',
     ]
-    
+
     // Look for React component patterns in the stack
     for (let i = 0; i < stackLines.length; i++) {
       const line = stackLines[i]
-      
+
       // Skip UpgradePlan itself and internal React/Next.js functions
       if (skipPatterns.some(pattern => line.includes(pattern))) {
         continue
       }
-      
+
       // Pattern 1: Look for component names in format "at ComponentName" or "ComponentName.render"
       // Try multiple regex patterns
       const patterns = [
@@ -2326,14 +2527,14 @@ const getParentComponentName = () => {
         /(\w+)\s+\([^)]*\.(jsx?|tsx?)/,                  // "ComponentName (file.jsx)"
         /(\w+)\s+\[as\s+\w+\]/,                          // "ComponentName [as ...]"
       ]
-      
+
       for (const pattern of patterns) {
         const match = line.match(pattern)
         if (match && match[1]) {
           const componentName = match[1]
           // Filter out common non-component names
           const invalidNames = [
-            'Error', 'getParentComponentName', 'Object', 'Array', 'Function', 
+            'Error', 'getParentComponentName', 'Object', 'Array', 'Function',
             'Promise', 'setTimeout', 'setInterval', 'requestAnimationFrame',
             'call', 'apply', 'bind', 'toString', 'valueOf', 'constructor'
           ]
@@ -2348,7 +2549,7 @@ const getParentComponentName = () => {
           }
         }
       }
-      
+
       // Pattern 2: Check for JSX/TSX file patterns and extract component name from filename
       // Try multiple file path patterns
       const filePatterns = [
@@ -2357,19 +2558,19 @@ const getParentComponentName = () => {
         /\(([^)]+\.(jsx?|tsx?))/,                        // "(path/to/file.jsx)"
         /([^/\s]+\.(jsx?|tsx?))/,                        // "file.jsx"
       ]
-      
+
       for (const filePattern of filePatterns) {
         const fileMatch = line.match(filePattern)
         if (fileMatch) {
           // Try to get component name from the match
           let filePath = fileMatch[1] || fileMatch[2] || fileMatch[0]
           if (!filePath) continue
-          
+
           const fileName = filePath.split('/').pop() || filePath.split('\\').pop()
-          
+
           // Extract component name from filename (e.g., "AdminAgentX.js" -> "AdminAgentX")
           const nameFromFile = fileName.replace(/\.(js|jsx|ts|tsx)$/, '')
-          
+
           // Check if it looks like a component name
           if (
             nameFromFile &&
@@ -2381,7 +2582,7 @@ const getParentComponentName = () => {
           ) {
             return nameFromFile
           }
-          
+
           // Also try to extract from path (e.g., "components/admin/users/AdminAgentX.js")
           const pathParts = filePath.split(/[\/\\]/)
           for (let j = pathParts.length - 1; j >= 0; j--) {
@@ -2399,7 +2600,7 @@ const getParentComponentName = () => {
           }
         }
       }
-      
+
       // Pattern 3: Look for component-like patterns in the line itself
       // Sometimes components appear as "ComponentName (file.jsx:123:45)"
       const componentFileMatch = line.match(/([A-Z][a-zA-Z0-9]+)\s*\([^)]*\.(jsx?|tsx?)/)
@@ -2414,7 +2615,7 @@ const getParentComponentName = () => {
         }
       }
     }
-    
+
     // If we still haven't found anything, return a more informative message
     return 'Unknown (check console for stack trace)'
   } catch (error) {
@@ -2436,16 +2637,16 @@ function UpgradePlan({
 }) {
   // Get parent component name for debugging (without props)
   const parentComponentNameRef = React.useRef(null)
-  
+
   React.useEffect(() => {
     if (open && !parentComponentNameRef.current) {
       // Only get parent name when modal opens to avoid performance issues
       parentComponentNameRef.current = getParentComponentName()
-      
+
       console.log(`[UpgradePlan] Rendered from parent component: ${parentComponentNameRef.current || 'Unknown'}`)
       console.log(`[UpgradePlan] Selected user:`, selectedUser)
       console.log(`[UpgradePlan] From prop:`, from)
-      
+
       // Log full stack trace for debugging
       if (process.env.NODE_ENV === 'development') {
         const error = new Error()

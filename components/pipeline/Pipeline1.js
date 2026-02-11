@@ -387,7 +387,7 @@ const Pipeline1 = ({
         setSelectPipleLine(pipelineToSelect.title)
         setSelectedPipelineItem(pipelineToSelect)
         setSelectedPipelineStages(pipelineToSelect.stages)
-        console.log("From api Selected pipeline stages are", pipelineToSelect.stages);
+        console.log("From api Selected pipeline stages are", pipelineToSelect.stages.map((item) => item.identifier));
         // console.log("Pipeline stages2 are ", pipelineToSelect.stages);
         // console.log("Pipeline indentifier2 are ", pipelineToSelect);
         setOldStages(pipelineToSelect.stages)
