@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import moment from 'moment'
 import Image from 'next/image'
 import { Copy, FileText, ListChecks } from 'lucide-react'
@@ -46,6 +46,10 @@ const CallTranscriptCN = ({
   // State for popover and modal
   const [nextStepsPopoverOpen, setNextStepsPopoverOpen] = useState(false)
   const [taskModalOpen, setTaskModalOpen] = useState(false)
+
+  // useEffect(() => {
+  //   console.log("leadId in call transcript is", leadId)
+  // }, [leadId])
 
   return (
     <div className="flex flex-col">

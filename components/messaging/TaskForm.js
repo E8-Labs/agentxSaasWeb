@@ -102,6 +102,12 @@ const TaskForm = ({
     }
   }, [initialDescription, task?.description, description])
 
+  // Sync form validity to parent (e.g. for CreateTaskFromNextStepsModal submit button)
+  useEffect(() => {
+    const valid = !!(title?.trim() && description?.trim())
+    setIsValidForm(valid)
+  }, [title, description, setIsValidForm])
+
   // Priority options
   const priorityOptions = [
     { label: 'No Priority', value: 'no-priority' },
@@ -308,7 +314,7 @@ const TaskForm = ({
 
   return (
     <div className={`${hideBorder ? '' : 'border'} rounded-lg ${hideBorder ? 'p-0' : 'p-4'} bg-white ${hideBorder ? '' : 'shadow-sm'}`}>
-      <form onSubmit={handleSubmit} className={`space-y-0 ${hideBorder ? 'pt-0' : ''}`} id="task-form">
+      <form onSubmit={handleSubmit} className={hideBorder ? 'pt-0' : ''} id="task-form">
         {/* Title with Pin and Priority */}
         <div className="flex items-center justify-between">
           <div 
@@ -433,7 +439,7 @@ const TaskForm = ({
         </div>
 
         {/* Action Row - Assignees, Due Date, Status (bottom right) */}
-        <div className="flex items-center gap-2 flex-wrap mt-8">
+        <div className="flex items-center gap-2 flex-wrap mt-4">
           {/* Assignees - Use MultiSelectDropdownCn with visible borders */}
           <MultiSelectDropdownCn
             label="Assign"
@@ -614,7 +620,7 @@ const TaskForm = ({
 
         {/* Divider before action buttons */}
         {showButtons && (
-          <div className={`border-t border-gray-200 mt-4 mb-4 ${hideBorder ? '-mx-0' : '-mx-4'} ${hideBorder ? 'px-0' : 'px-4'}`} />
+          <div className={`border-t border-gray-200 mt-0 mb-4 ${hideBorder ? '-mx-0' : '-mx-4'} ${hideBorder ? 'px-0' : 'px-4'}`} />
         )}
 
         {/* Action buttons - Only show if showButtons is true */}
