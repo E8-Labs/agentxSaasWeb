@@ -50,7 +50,7 @@ function SelectedUserDetails({
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  
+
   const [manuLoading, setManuLoading] = useState(true)
   const [accessibleMenuItems, setAccessibleMenuItems] = useState([])
   const [isInvitee, setIsInvitee] = useState(false)
@@ -152,13 +152,13 @@ function SelectedUserDetails({
   // Function to update URL with selected tab
   const updateUrlWithTab = (tabValue) => {
     const params = new URLSearchParams(searchParams.toString())
-    
+
     if (tabValue) {
       params.set('tab', tabValue)
     } else {
       params.delete('tab')
     }
-    
+
     // Update URL without page reload (use full path for reliable navigation)
     const newUrl = params.toString() ? `${pathname}?${params.toString()}` : pathname
     router.replace(newUrl, { scroll: false })
@@ -176,11 +176,11 @@ function SelectedUserDetails({
       try {
         // Reset loading
         setManuLoading(true)
-        
+
         // Check user role from localStorage
         const localData = localStorage.getItem('User')
         let userIsInvitee = false
-        
+
         if (localData) {
           const userData = JSON.parse(localData)
           const userRole = userData.user?.userRole || userData.userRole
@@ -195,7 +195,7 @@ function SelectedUserDetails({
         // If permission checks disabled or user is not Invitee, show all items immediately
         if (!enablePermissionChecks || !userIsInvitee) {
           setAccessibleMenuItems(allMenuItems)
-          
+
           // Check if there's a tab parameter in URL
           if (tabParam && !initialTabSet) {
             const tabMenuItem = findMenuItemByParamValue(tabParam, allMenuItems)
@@ -210,7 +210,7 @@ function SelectedUserDetails({
             const tabMenuItem = tabParam ? findMenuItemByParamValue(tabParam, allMenuItems) : null
             setSelectedManu(tabMenuItem || allMenuItems[0])
           }
-          
+
           setManuLoading(false)
           return
         }
@@ -219,22 +219,22 @@ function SelectedUserDetails({
         if (enablePermissionChecks && userIsInvitee && selectedUser?.id) {
           // Check permissions for each menu item
           const accessibleItems = []
-          
+
           for (const menuItem of allMenuItems) {
             // Items without permission key are always accessible
             if (!menuItem.permissionKey) {
               accessibleItems.push(menuItem)
               continue
             }
-            
+
             // Check permission for this menu item
             try {
               let hasAccess = true
-              
+
               if (hasPermissionContext) {
                 // Use permission context if available
                 hasAccess = await permissionContext.hasPermission(
-                  menuItem.permissionKey, 
+                  menuItem.permissionKey,
                   selectedUser.id
                 )
               } else {
@@ -247,7 +247,7 @@ function SelectedUserDetails({
                 // We'll trust the hook's return value
                 hasAccess = hookHasAccess
               }
-              
+
               if (hasAccess) {
                 accessibleItems.push(menuItem)
               }
@@ -256,9 +256,9 @@ function SelectedUserDetails({
               // On error, don't include to be safe
             }
           }
-          
+
           setAccessibleMenuItems(accessibleItems)
-          
+
           // Set selected menu based on URL parameter or first accessible item
           if (tabParam && !initialTabSet) {
             const tabMenuItem = findMenuItemByParamValue(tabParam, accessibleItems)
@@ -280,7 +280,7 @@ function SelectedUserDetails({
         } else {
           // Fallback for non-invitee or no permission checks
           setAccessibleMenuItems(allMenuItems)
-          
+
           if (tabParam && !initialTabSet) {
             const tabMenuItem = findMenuItemByParamValue(tabParam, allMenuItems)
             if (tabMenuItem) {
@@ -314,19 +314,19 @@ function SelectedUserDetails({
       const updatePermissions = async () => {
         try {
           const accessibleItems = []
-          
+
           for (const menuItem of allMenuItems) {
             if (!menuItem.permissionKey) {
               accessibleItems.push(menuItem)
               continue
             }
-            
+
             try {
               const hasAccess = await permissionContext.hasPermission(
-                menuItem.permissionKey, 
+                menuItem.permissionKey,
                 selectedUser.id
               )
-              
+
               if (hasAccess) {
                 accessibleItems.push(menuItem)
               }
@@ -334,9 +334,9 @@ function SelectedUserDetails({
               console.error(`Error checking permission for ${menuItem.name}:`, error)
             }
           }
-          
+
           setAccessibleMenuItems(accessibleItems)
-          
+
           // Update selected menu if current one is no longer accessible
           if (selectedManu && !accessibleItems.some(item => item.id === selectedManu.id)) {
             // Try to keep the same tab if possible, otherwise use first accessible
@@ -358,7 +358,7 @@ function SelectedUserDetails({
           console.error('Error updating permissions:', error)
         }
       }
-      
+
       updatePermissions()
     }
   }, [isInvitee, selectedUser?.id, permissionContextAvailable])
@@ -395,13 +395,13 @@ function SelectedUserDetails({
 
   // Auto-switch to first accessible menu if current menu is not accessible
   useEffect(() => {
-    if (enablePermissionChecks && isInvitee && !effectiveIsChecking && currentPermissionKey && 
-        !effectiveHasPermission && selectedUser?.id && permissionContextAvailable && 
-        selectedManu && accessibleMenuItems.length > 0) {
+    if (enablePermissionChecks && isInvitee && !effectiveIsChecking && currentPermissionKey &&
+      !effectiveHasPermission && selectedUser?.id && permissionContextAvailable &&
+      selectedManu && accessibleMenuItems.length > 0) {
       // Account (profile) is always considered accessible when the profile button is shown
       const isAccountTab = selectedManu.id === accountMenu.id || selectedManu.paramValue === 'account'
       const isCurrentMenuAccessible = isAccountTab || accessibleMenuItems.some(item => item.id === selectedManu.id)
-      
+
       if (!isCurrentMenuAccessible && accessibleMenuItems.length > 0) {
         setSelectedManu(accessibleMenuItems[0])
         // Update URL to reflect the new tab
@@ -410,9 +410,9 @@ function SelectedUserDetails({
         }
       }
     }
-  }, [enablePermissionChecks, isInvitee, effectiveIsChecking, currentPermissionKey, 
-      effectiveHasPermission, selectedUser?.id, permissionContextAvailable, 
-      selectedManu, accessibleMenuItems])
+  }, [enablePermissionChecks, isInvitee, effectiveIsChecking, currentPermissionKey,
+    effectiveHasPermission, selectedUser?.id, permissionContextAvailable,
+    selectedManu, accessibleMenuItems])
 
   const [showAddMinutesModal, setShowAddMinutesModal] = useState(false)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
@@ -518,10 +518,10 @@ function SelectedUserDetails({
       setShowActivityLogs(true)
       return
     }
-    console.log('item', item)  
+    console.log('item', item)
     setSelectedManu(item)
     storeTabState(item.name)
-    
+
     // Update URL with the selected tab
     if (item.paramValue) {
       updateUrlWithTab(item.paramValue)
@@ -634,9 +634,9 @@ function SelectedUserDetails({
           if (response.data.status === true) {
             selectedUser.profile_status = 'paused'
             setShowSnackMessage(response.data.message)
-            handlePauseUser()
             setpauseLoader(false)
             setShowPauseConfirmationPopup(false)
+            handlePauseUser()
           }
         }
       }
@@ -668,6 +668,7 @@ function SelectedUserDetails({
         })
         if (response) {
           if (response.data.status === true) {
+            selectedUser.profile_status = 'active'
             setShowSnackMessage(response.data.message)
             setResetTrailLoader(false)
             setShowResetTrialPopup(false)
@@ -745,74 +746,72 @@ function SelectedUserDetails({
           {!enablePermissionChecks && (
             <div className="flex flex-row items-center justify-end w-full px-4 pt-2 relative" style={{ zIndex: 10 }}>
               <div className="flex flex-row items-center gap-4">
-                {!enablePermissionChecks && from !== 'subaccount' && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button
-                        className="outline-none hover:opacity-80 transition-opacity p-2"
-                        aria-label="More options"
-                      >
-                        {pauseLoader ? (
-                          <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                        ) : (
-                          <Image
-                            src="/svgIcons/threeDotsIcon.svg"
-                            alt="More options"
-                            width={24}
-                            height={24}
-                          />
-                        )}
-                      </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="z-[1500] bg-white p-2 rounded-lg" style={{ zIndex: 1500 }}>
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setShowPauseConfirmationPopup(true)
-                        }}
-                        className="cursor-pointer"
-                      >
-                        {user?.profile_status === 'paused' ? 'Reinstate' : 'Pause'}
-                      </DropdownMenuItem>
-
-                      {isAdmin && (
-                        <>
-                          <DropdownMenuItem
-                            onClick={() => {
-                              setShowAddMinutesModal(true)
-                            }}
-                            className="cursor-pointer"
-                          >
-                            Add Minutes
-                          </DropdownMenuItem>
-
-                          {selectedUser.isTrial && (
-                            <>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                onClick={() => {
-                                  setShowResetTrialPopup(true)
-                                }}
-                                className="cursor-pointer"
-                              >
-                                Reset Trial
-                              </DropdownMenuItem>
-                            </>
-                          )}
-                        </>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className="outline-none hover:opacity-80 transition-opacity p-2"
+                      aria-label="More options"
+                    >
+                      {pauseLoader ? (
+                        <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                      ) : (
+                        <Image
+                          src="/svgIcons/threeDotsIcon.svg"
+                          alt="More options"
+                          width={24}
+                          height={24}
+                        />
                       )}
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="z-[1500] bg-white p-2 rounded-lg" style={{ zIndex: 1500 }}>
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setShowPauseConfirmationPopup(true)
+                      }}
+                      className="cursor-pointer"
+                    >
+                      {user?.profile_status === 'paused' ? 'Reinstate' : 'Pause'}
+                    </DropdownMenuItem>
 
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={() => {
-                          setShowDeleteModal(true)
-                        }}
-                        className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
-                      >
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
+                    {isAdmin && (
+                      <>
+                        <DropdownMenuItem
+                          onClick={() => {
+                            setShowAddMinutesModal(true)
+                          }}
+                          className="cursor-pointer"
+                        >
+                          Add Minutes
+                        </DropdownMenuItem>
+
+                        {selectedUser.isTrial && (
+                          <>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                              onClick={() => {
+                                setShowResetTrialPopup(true)
+                              }}
+                              className="cursor-pointer"
+                            >
+                              Reset Trial
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </>
+                    )}
+
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setShowDeleteModal(true)
+                      }}
+                      className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                    >
+                      Delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
                 {
                   !agencyUser && (
@@ -846,7 +845,7 @@ function SelectedUserDetails({
           )}
           <div className="flex flex-row items-start w-full  ">
             <div className={`flex border-r border-[#00000015] ${!enablePermissionChecks && '-mt-10'} flex-col items-start justify-start w-2/12 px-6  ${(from === "admin" || from === "subaccount") ? "" : "h-full"} ${enablePermissionChecks ? 'h-auto max-h-[85vh] overflow-y-auto' : 'h-auto'}`}>
-  
+
               {agencyUser ? (
                 <div className="flex flex-row items-center justify-start w-full  pb-1 flex-shrink-0 mt-4">
                   <AppLogo height={29} width={122} />
@@ -873,8 +872,8 @@ function SelectedUserDetails({
                           } else if (from === 'subaccount') {
                             url = `/agency/users?userId=${selectedUser.id}&enablePermissionChecks=true`
                           }
-                            let user = JSON.stringify(selectedUser)
-                            localStorage.setItem("IsExpanded",user)
+                          let user = JSON.stringify(selectedUser)
+                          localStorage.setItem("IsExpanded", user)
                           window.open(url, '_blank')
 
                         }
@@ -890,7 +889,7 @@ function SelectedUserDetails({
                   )}
                 </div>
               )}
-              
+
               {/* Menu Items - Only show accessible items */}
               <div className='flex flex-col items-start justify-center gap-3 w-full pt-10'>
                 {accessibleMenuItems.map((item) => (
@@ -1086,7 +1085,7 @@ function SelectedUserDetails({
           </button>
         </div>
       )} */}
-      
+
       {/* Code to del user */}
       <Modal
         open={showDeleteModal}
@@ -1144,7 +1143,7 @@ function SelectedUserDetails({
             <div className="flex flex-row items-center gap-4 mt-6">
               <button
                 onClick={() => setShowDeleteModal(false)}
-                className="w-1/2"
+                className="w-1/2  bg-transparent"
               >
                 Cancel
               </button>
@@ -1155,7 +1154,7 @@ function SelectedUserDetails({
                   </div>
                 ) : (
                   <button
-                    className="mt-4  outline-none"
+                    className="bg-red outline-none"
                     style={{
                       color: 'white',
                       height: '50px',

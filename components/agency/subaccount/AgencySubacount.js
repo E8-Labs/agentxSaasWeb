@@ -48,7 +48,7 @@ function AgencySubacount({ selectedAgency }) {
   const [agencyData, setAgencyData] = useState(null)
   const [twililoConectedStatus, setTwilioConnectedStatus] = useState(false)
 
-  const [IsExpandedUser,setIsExpanded]= useState(null)
+  const [IsExpandedUser, setIsExpanded] = useState(null)
 
   //code for invite team popup
   const [openInvitePopup, setOpenInvitePopup] = useState(false)
@@ -112,7 +112,7 @@ function AgencySubacount({ selectedAgency }) {
   const [hasMore, setHasMore] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [totalCount, setTotalCount] = useState(0)
-  
+
   // Refs to prevent duplicate requests and track current offset
   const isLoadingMoreRef = useRef(false)
   const currentOffsetRef = useRef(0)
@@ -172,10 +172,10 @@ function AgencySubacount({ selectedAgency }) {
           const distanceFromBottom = scrollHeight - scrollTop - clientHeight
           // Trigger load more when user is within 100px of bottom
           const threshold = 100
-          
+
           // Debug logging (only when near bottom to reduce noise)
-          if (distanceFromBottom < threshold + 50) {}
-          
+          if (distanceFromBottom < threshold + 50) { }
+
           if (
             distanceFromBottom < threshold &&
             hasMore &&
@@ -247,12 +247,12 @@ function AgencySubacount({ selectedAgency }) {
 
         // Update the user in both lists
         setSubAccountsList((prevList) => {
-          return prevList.map((user) => 
+          return prevList.map((user) =>
             user.id === targetUserId ? { ...user, ...refreshedData, plan: refreshedData.plan } : user
           )
         })
         setFilteredList((prevList) => {
-          return prevList.map((user) => 
+          return prevList.map((user) =>
             user.id === targetUserId ? { ...user, ...refreshedData, plan: refreshedData.plan } : user
           )
         })
@@ -359,7 +359,7 @@ function AgencySubacount({ selectedAgency }) {
 
     const isExpanded = localStorage.getItem("IsExpanded")
 
-    if(isExpanded){
+    if (isExpanded) {
       let user = JSON.parse(isExpanded)
       setSelectedUser(user)
       setIsExpanded(user)
@@ -657,7 +657,7 @@ function AgencySubacount({ selectedAgency }) {
           // Refresh profile data to get latest internal account count
           try {
             const profileResponse = await getProfileDetails()
-            if (profileResponse?.data?.status === true) {} else {
+            if (profileResponse?.data?.status === true) { } else {
               console.warn('⚠️ Profile refresh returned non-success status')
               // Fallback: update localStorage manually if profile refresh fails
               if (wasInternalAccount) {
@@ -757,29 +757,29 @@ function AgencySubacount({ selectedAgency }) {
 
   //search change with debouncing
   const [searchTimeout, setSearchTimeout] = useState(null)
-  
+
   const handleSearchChange = (value) => {
     setSearchValue(value)
-    
+
     // Clear existing timeout
     if (searchTimeout) {
       clearTimeout(searchTimeout)
     }
-    
+
     // If value is empty, reset immediately
     if (!value || !value.trim()) {
       getSubAccounts(null, null)
       return
     }
-    
+
     // Debounce API call by 500ms
     const timeout = setTimeout(() => {
       getSubAccounts(null, value)
     }, 500)
-    
+
     setSearchTimeout(timeout)
   }
-  
+
   // Cleanup timeout on unmount
   useEffect(() => {
     return () => {
@@ -821,7 +821,7 @@ function AgencySubacount({ selectedAgency }) {
         setInitialLoader(false)
       }
       let profileResponse = null
-      if(selectedAgency) {
+      if (selectedAgency) {
         profileResponse = await AdminAgencyDetails(selectedAgency)
       } else {
         profileResponse = await getProfileDetails()
@@ -905,7 +905,7 @@ function AgencySubacount({ selectedAgency }) {
       // }}
       />
       <div className="w-[95%] h-[90vh] rounded-lg flex flex-col items-center  p-5 bg-white shadow-md">
-     
+
         <div
           className="w-full h-32 flex flex-row items-center justify-between rounded-lg px-6 relative overflow-hidden"
           style={{
@@ -1328,7 +1328,7 @@ function AgencySubacount({ selectedAgency }) {
                     </Popover>
                   </div>
                 ))}
-                
+
                 {/* Loading indicator for lazy scroll */}
                 {loadingMore && (
                   <div className="w-full flex flex-row items-center justify-center py-4">
@@ -1336,7 +1336,7 @@ function AgencySubacount({ selectedAgency }) {
                     <span className="ml-2 text-sm text-gray-600">Loading more...</span>
                   </div>
                 )}
-                
+
                 {/* End of list indicator */}
                 {!hasMore && filteredList.length > 0 && (
                   <div className="w-full flex flex-row items-center justify-center py-4">
@@ -1368,17 +1368,17 @@ function AgencySubacount({ selectedAgency }) {
                   >
                     No Sub Account Found
                   </div>
-                 
-                   <button
-                     disabled={twililoConectedStatus}
-                     className={`flex px-5 py-3 bg-brand-primary rounded-lg text-white font-medium border-none outline-none ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
-                     onClick={() => {
-                       handleCheckPlans();
-                     }}
-                   >
-                      {loading ? <CircularProgress size={20} sx={{color : 'white'}} /> : 'Create Sub Account'}
-                   </button>
-                 
+
+                  <button
+                    disabled={twililoConectedStatus}
+                    className={`flex px-5 py-3 bg-brand-primary rounded-lg text-white font-medium border-none outline-none ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    onClick={() => {
+                      handleCheckPlans();
+                    }}
+                  >
+                    {loading ? <CircularProgress size={20} sx={{ color: 'white' }} /> : 'Create Sub Account'}
+                  </button>
+
                 </div>
               </div>
             )}
@@ -1536,8 +1536,23 @@ function AgencySubacount({ selectedAgency }) {
             <SelectedUserDetails
 
               from="subaccount"
+              enablePermissionChecks={false}
               selectedUser={selectedUser}
               hideViewDetails={true}
+              handlePauseUser={() => {
+                setShowPauseConfirmationPopup(false);
+                setpauseLoader(false);
+                const updatedStatus =
+                  selectedUser.profile_status === 'active' ? 'paused' : 'active'
+
+                const updatedUser = {
+                  ...selectedUser,
+                  profile_status: updatedStatus,
+                }
+                setSubAccountsList((prev) => prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
+                setFilteredList((prev) => prev.map((u) => (u.id === updatedUser.id ? updatedUser : u)));
+                setSelectedUser(null);
+              }}
               handleDel={() => {
                 // Remove user from both lists
                 setSubAccountsList((prev) => prev.filter((u) => u.id !== selectedUser.id))
