@@ -56,11 +56,6 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     return stars + last6
   }
 
-  //test console log
-  useEffect(() => {
-    console.log("subModalSelectedValue is", subModalSelectedValue)
-  }, [subModalSelectedValue])
-
   // Fetch current settings when modal opens
   useEffect(() => {
     if (open) {
