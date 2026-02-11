@@ -4,6 +4,9 @@ import CallTranscriptModal from '@/components/dashboard/leads/extras/CallTranscr
 import EmailBubble from './EmailBubble'
 import MessageBubble from './MessageBubble'
 import SystemMessage from './SystemMessage'
+import { AuthToken } from '../agency/plan/AuthDetails'
+import Apis from '../apis/Apis'
+import axios from 'axios'
 
 const ConversationView = ({
   selectedThread,
@@ -36,6 +39,10 @@ const ConversationView = ({
   onOpenAiChat,
   onGenerateCallSummaryDrafts,
 }) => {
+
+  //lead details
+  const [selectedLeadsDetails, setSelectedLeadsDetails] = useState(null)
+
   // State for transcript modal
   const [showTranscriptModal, setShowTranscriptModal] = useState(null)
 
@@ -52,6 +59,12 @@ const ConversationView = ({
   // Track if we've already populated composer from last message for current thread
   const hasPopulatedComposerRef = useRef(false)
   const lastThreadIdRef = useRef(null)
+
+  //code for fetch lead details
+  useEffect(() => {
+    console.log("trying to fetch lead details")
+    fetchLeadDetails()
+  }, [selectedThread])
 
   // When messages load, populate composer with last email message's subject, CC, and BCC
   useEffect(() => {
@@ -160,6 +173,32 @@ const ConversationView = ({
         message: 'Please refresh and try again.',
         type: SnackbarTypes.Error,
       })
+    }
+  }
+
+  //fetch lead details
+  const fetchLeadDetails = async () => {
+    if (!selectedThread?.leadId) return
+    try {
+      console.log("fetching lead details")
+      const Token = AuthToken();
+      const ApiPath = `${Apis.getLeadDetails}?leadId=${selectedThread?.leadId}`
+      const response = await axios.get(ApiPath, {
+        headers: {
+          Authorization: `Bearer ${Token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response) {
+        console.log("response.data.data is", response.data.data)
+        if (response.data.status === true) {
+          setSelectedLeadsDetails(response.data.data)
+        }
+      } else {
+        console.error("Error fetching lead details", response.data.message)
+      }
+    } catch (error) {
+      console.error("Error fetching lead details", error)
     }
   }
 
@@ -272,6 +311,8 @@ const ConversationView = ({
                   {/* Render system messages (including comments) as centered messages */}
                   {isSystem ? (
                     <SystemMessage
+                      selectedLead={selectedThread?.leadId}
+                      leadName={selectedLeadsDetails?.firstName || selectedLeadsDetails?.name}
                       message={message}
                       getAgentAvatar={getAgentAvatar}
                       selectedThread={selectedThread}
@@ -375,6 +416,7 @@ const ConversationView = ({
       )}
       {/* Call Transcript Modal */}
       <CallTranscriptModal
+        // selectedLead={selectedThread.leadId}
         open={!!showTranscriptModal}
         onClose={(open) => {
           if (!open) {

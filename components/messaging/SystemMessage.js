@@ -44,7 +44,7 @@ const isDevelopment = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Product
  * SystemMessage component for displaying system activity messages
  * (stage changes, team assignments, comments, etc.)
  */
-const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscript, onOpenMessageSettings, onOpenAiChat, onGenerateCallSummaryDrafts }) => {
+const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscript, onOpenMessageSettings, onOpenAiChat, onGenerateCallSummaryDrafts, selectedLead, leadName }) => {
   const [showAudioPlay, setShowAudioPlay] = useState(null)
   const [aiActionType, setAiActionType] = useState(null)
   const [aiActionInput, setAiActionInput] = useState('')
@@ -393,6 +393,8 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                 <div className="w-full max-w-2xl px-4">
                   <div className={`rounded-xl border border-border bg-background px-4 ${aiActionType ? 'pb-4' : 'pb-2'} shadow-sm`}>
                     <CallTranscriptCN
+                      leadId={selectedLead}
+                      leadName={leadName}
                       item={callData}
                       onPlayRecording={handlePlayRecording}
                       onCopyCallId={handleCopyCallId}
