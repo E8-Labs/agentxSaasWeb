@@ -5945,10 +5945,11 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
                             fontSize: 15,
                           }}
                           onClick={() => {
-                            window.open(
-                              'https://chatgpt.com/g/g-0O0jItKdk-agentx-script-builder',
-                              '_blank',
-                            )
+                            const scriptBuilderUrl =
+                              selectedUser?.agencySettings?.scriptWidgetUrl ??
+                              reduxUser?.agencySettings?.scriptWidgetUrl ??
+                              PersistanceKeys.DefaultScriptBuilderUrl
+                            window.open(scriptBuilderUrl, '_blank')
                           }}
                         >
                           Use Script Builder
