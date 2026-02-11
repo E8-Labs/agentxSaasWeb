@@ -425,8 +425,11 @@ const PipelineStages = ({
 
   const handleUpdateRow = (rowId, updatedData) => {
     // Update the specific row in the pipeline using the updateRow prop
+    console.log(`Editing stage index is ${editingStageIndex} Update row is ${rowId} and updated data is ${updatedData}`)
+    console.log("check one")
 
     if (editingStageIndex !== null && updateRow) {
+      // console.log("check one")
       updateRow(editingStageIndex, rowId, updatedData)
     }
 
