@@ -32,6 +32,15 @@ import AdminTeams from '../../users/AdminTeams'
 // import ResetTrial from './ResetTrial'
 import ResetTrial from '../../users/ResetTrial'
 import AdminPipeline1 from '../../users/pipline/AdminPipeline1'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
+
+
 function SelectedAgencyDetails({
   selectedUser,
   handleDel,
@@ -77,7 +86,7 @@ function SelectedAgencyDetails({
       selectedImage: '/svgIcons/selectedTeam.svg',
       unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg',
     },
-    
+
     {
       id: 7,
       name: 'Whitelabel',
@@ -342,39 +351,8 @@ function SelectedAgencyDetails({
             </div>
 
             <div className="flex flex-row items-center gap-4">
-              {pauseLoader ? (
-                <CircularProgress size={25} />
-              ) : (
-                <div>
-                  {!agencyUser && from !== 'subaccount' && (
-                    <button
-                      className="text-white bg-purple outline-none rounded-xl px-3"
-                      style={{ height: '50px' }}
-                      onClick={() => {
-                        setShowPauseConfirmationPopup(true)
-                      }}
-                    >
-                      {user?.profile_status === 'paused'
-                        ? 'Reinstate'
-                        : 'Pause'}
-                    </button>
-                  )}
-                </div>
-              )}
+              
 
-              <div>
-                {selectedUser.isTrial && (
-                  <button
-                    className="text-white bg-purple outline-none rounded-xl px-3"
-                    style={{ height: '50px' }}
-                    onClick={() => {
-                      setShowResetTrialPopup(true)
-                    }}
-                  >
-                    Reset Trial
-                  </button>
-                )}
-              </div>
               {showResetTrialPopup && (
                 <ResetTrial
                   showConfirmationPopup={showResetTrialPopup}
@@ -398,31 +376,58 @@ function SelectedAgencyDetails({
                 />
               )}
 
-              {/*
-                                (!agencyUser && from !== "subaccount") && (
-                                    <button
-                                        className="text-white bg-purple outline-none rounded-xl px-3"
-                                        style={{ height: "50px" }}
-                                        onClick={() => {
-                                            setShowAddMinutesModal(true)
-                                        }}
-                                    >
-                                        Add Minutes
-                                    </button>
-                                )
-                            */}
 
-              {!agencyUser && from !== 'subaccount' && (
-                <button
-                  className="text-red outline-none rounded-xl px-3"
-                  style={{ height: '50px' }}
-                  onClick={() => {
-                    setShowDeleteModal(true)
-                  }}
-                >
-                  Delete
-                </button>
-              )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="outline-none hover:opacity-80 transition-opacity p-2"
+                    aria-label="More options"
+                  >
+                    {pauseLoader ? (
+                      <CircularProgress size={25} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                    ) : (
+                      <Image
+                        src="/svgIcons/threeDotsIcon.svg"
+                        alt="More options"
+                        width={24}
+                        height={24}
+                      />
+                    )}
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="z-[1500] bg-white p-2 rounded-lg" style={{ zIndex: 1500 }}>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setShowPauseConfirmationPopup(true)
+                    }}
+                    className="cursor-pointer"
+                  >
+                    {user?.profile_status === 'paused' ? 'Reinstate' : 'Pause'}
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setShowDeleteModal(true)
+                    }}
+                    className="cursor-pointer text-red-600 focus:text-red-600 focus:bg-red-50"
+                  >
+                    Delete
+                  </DropdownMenuItem>
+
+                  {selectedUser.isTrial && (
+                    <DropdownMenuItem
+                      onClick={() => {
+                        setShowResetTrialPopup(true)
+                      }}
+                      className="cursor-pointer"
+                    >
+                      Reset Trial
+                    </DropdownMenuItem>
+                  )}
+
+                </DropdownMenuContent>
+              </DropdownMenu>
 
               <CloseBtn onClick={handleClose} />
 
@@ -493,7 +498,7 @@ function SelectedAgencyDetails({
                 <AdminDashboardCallLogs selectedAgency={selectedUser} />
               ) : selectedManu.name == 'Teams' ? (
                 <AdminTeams
-                 selectedUser={selectedUser}
+                  selectedUser={selectedUser}
                 />
               ) : selectedManu.name == 'Account' ? (
                 <AgencyMyAccount selectedAgency={selectedUser} />
