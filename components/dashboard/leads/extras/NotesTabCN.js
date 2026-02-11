@@ -99,12 +99,12 @@ const NotesTabCN = ({
       })
 
       if (response && response.data.status === true) {
+        if (onNotesUpdated) {
+          await onNotesUpdated()
+        }
         setShowAddNotes(false)
         setAddNotesValue('')
         showSnackbar('Note added successfully', SnackbarTypes.Success)
-        if (onNotesUpdated) {
-          onNotesUpdated()
-        }
       } else {
         showSnackbar(response.data.message || 'Failed to add note', SnackbarTypes.Error)
       }
@@ -148,12 +148,12 @@ const NotesTabCN = ({
       const data = await response.json()
 
       if (data.status === true) {
+        if (onNotesUpdated) {
+          await onNotesUpdated()
+        }
         setEditingNote(null)
         setEditNoteValue('')
         showSnackbar('Note updated successfully', SnackbarTypes.Success)
-        if (onNotesUpdated) {
-          onNotesUpdated()
-        }
       } else {
         showSnackbar(data.message || 'Failed to update note', SnackbarTypes.Error)
       }
@@ -191,12 +191,12 @@ const NotesTabCN = ({
       const data = await response.json()
 
       if (data.status === true) {
+        if (onNotesUpdated) {
+          await onNotesUpdated()
+        }
         setShowDeleteNoteConfirm(false)
         setDeleteNoteId(null)
         showSnackbar('Note deleted successfully', SnackbarTypes.Success)
-        if (onNotesUpdated) {
-          onNotesUpdated()
-        }
       } else {
         showSnackbar(data.message || 'Failed to delete note', SnackbarTypes.Error)
       }
@@ -298,7 +298,7 @@ const NotesTabCN = ({
         noteDetails.length > 0 && (
           <Button
             variant="ghost"
-            className="fixed bottom-7 right-[25vw] gap-2 bg-background border border-border shadow-lg z-50 hover:bg-muted"
+            className="sticky bottom-6 left-0 mt-4 w-fit gap-2 bg-background border border-border shadow-lg z-10 hover:bg-muted"
             onClick={() => setShowAddNotes(true)}
           >
             <Plus className="h-4 w-4" />
