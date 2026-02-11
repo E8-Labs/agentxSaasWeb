@@ -1145,7 +1145,7 @@ const AdminLeads = ({
       case 'Name':
         return (
           <div>
-            <div className="w-full flex flex-row items-center gap-2 truncate">
+            <div className="w-full flex flex-row items-center gap-3 truncate">
               {toggleClick.includes(item.id) ? (
                 <button
                   className="h-[20px] w-[20px] border rounded bg-brand-primary outline-none flex flex-row items-center justify-center"
@@ -1587,7 +1587,7 @@ const AdminLeads = ({
   }
 
   return (
-    <div className="w-full flex flex-col items-center h-full justify-start pt-0">
+    <div className="w-full flex flex-col items-center h-full min-h-[100svh] justify-start pt-0">
       {/* Slider code */}
       <div
         style={{
@@ -1607,7 +1607,7 @@ const AdminLeads = ({
       <div
         className="flex flex-row items-center justify-between w-full px-4 h-[60px] border-b border-[#eaeaea]"
       >
-        <div className="flex flex-row items-center gap-2">
+        <div className="flex flex-row items-end gap-2">
           <TypographyH3 className="text-[24px] font-semibold">Leads</TypographyH3>
           {userDetails?.currentUsage?.maxLeads &&
             userDetails?.planCapabilities?.maxLeads < 10000000 &&
@@ -1622,7 +1622,7 @@ const AdminLeads = ({
           {/* Start Campaign moved to search/filter row beside Select All */}
         </div>
       </div>
-      <div className="w-full max-w-[1300px] mx-auto pt-0 px-0 border-l border-r border-[#eaeaea] h-full">
+      <div className="w-full max-w-[1300px] mx-auto pt-0 px-0 pb-0 m-0.5 border-l border-r border-[#eaeaea] h-full">
         {initialLoader ? (
           <div className="w-full h-screen flex flex-row justify-center mt-12">
             <CircularProgress size={35} sx={{ color: 'hsl(var(--brand-primary))' }} />
@@ -2084,7 +2084,7 @@ const AdminLeads = ({
                       }}
                     >
                       <div className="flex flex-col w-full pb-[20px]">
-                        <table className="table-auto w-full border-collapse border border-none">
+                        <table className="table-auto w-full border-separate border border-none" style={{ borderSpacing: '0 2px' }}>
                           <thead className="sticky top-0 z-10 bg-white shadow-[0_1px_0_0_#eaeaea]">
                             <tr style={{ fontWeight: '500' }} className="bg-white">
                               {leadColumns.map((column, index) => {

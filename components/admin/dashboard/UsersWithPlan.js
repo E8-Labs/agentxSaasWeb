@@ -1,9 +1,7 @@
-import CloseIcon from '@mui/icons-material/Close'
+import CallMade from '@mui/icons-material/CallMade'
 import {
   Avatar,
   Box,
-  Button,
-  IconButton,
   List,
   ListItem,
   ListItemAvatar,
@@ -90,7 +88,7 @@ export default function UsersWithPlan({
       open={open}
       onClose={onClose}
       BackdropProps={{
-        sx: { backgroundColor: 'rgba(0, 0, 0, 0.05)' }, // 10% black opacity
+        sx: { backgroundColor: 'rgba(0, 0, 0, 0.6)' },
       }}
     >
       <Box
@@ -100,39 +98,59 @@ export default function UsersWithPlan({
           left: '50%',
           transform: 'translate(-50%, -50%)',
           bgcolor: 'background.paper',
-          borderRadius: 2,
-          boxShadow: 24,
-          p: 3,
-          width: '400px',
-          height: '90vh',
+          borderRadius: '16px',
+          border: '1px solid #EDEDED',
+          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.12)',
+          p: 0,
+          width: '500px',
+          height: '600px',
           maxWidth: '90%',
-          textAlign: 'center',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          boxShadow: 'none', // ✅ Removed the shadow
+          alignItems: 'stretch',
         }}
       >
-        {/* Close Button */}
-        <div className='absolute top-4 right-4'>
-          <CloseBtn onClick={onClose} />
-        </div>
-       
-
-        {/* Modal Title */}
-        <Typography variant="h6" fontWeight="bold" sx={{ mt: 1 }}>
-          {`Users on ${planName}`}
-        </Typography>
+        {/* Popup header: title + close */}
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+            px: 2,
+            py: 1.5,
+            flexShrink: 0,
+          }}
+        >
+          <Typography variant="h6" sx={{ fontSize: '18px', fontWeight: 600 }}>
+            {`Users on ${planName}`}
+          </Typography>
+          <CloseBtn
+            onClick={onClose}
+            className="!w-8 !h-8 !bg-transparent hover:!bg-black/5"
+          />
+        </Box>
 
         {/* Loading State */}
         {loading ? (
-          <Typography sx={{ mt: 4, color: '#666' }}>Loading...</Typography>
+          <Typography sx={{ mt: 4, color: '#666', textAlign: 'center' }}>
+            Loading...
+          </Typography>
         ) : (
           <>
             {/* List of Users */}
-            <List sx={{ width: '100%', mt: 2, overflow: 'scroll' ,scrollbarWidth:'none'}}>
+            <List
+              sx={{
+                width: '100%',
+                flex: 1,
+                overflow: 'auto',
+                scrollbarWidth: 'none',
+                py: 0,
+                px: 2,
+              }}
+            >
               {users.length === 0 ? (
-                <Typography sx={{ mt: 4, color: '#666' }}>
+                <Typography sx={{ mt: 4, color: '#666', textAlign: 'center' }}>
                   No users found for this plan
                 </Typography>
               ) : (
@@ -142,7 +160,6 @@ export default function UsersWithPlan({
                     style={{ cursor: 'pointer' }}
                     onClick={() => {
                       if (userItem.id) {
-                        // Open a new tab with user ID as query param
                         let url = `/admin/users?userId=${userItem.id}`
                         if (from === 'agency') {
                           url = `/agency/users?userId=${userItem.id}`
@@ -150,10 +167,22 @@ export default function UsersWithPlan({
                         window.open(url, '_blank')
                       }
                     }}
+                    sx={{
+                      '&:hover': {
+                        backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                      },
+                      '&:hover .list-item-hover-icon': {
+                        opacity: 1,
+                      },
+                    }}
                   >
                     {/* Avatar */}
                     <ListItemAvatar>
-                      <Avatar src={userItem.thumb_profile_image} alt={userItem.name}>
+                      <Avatar
+                        src={userItem.thumb_profile_image}
+                        alt={userItem.name}
+                        sx={{ bgcolor: 'rgba(0, 0, 0, 0.8)' }}
+                      >
                         {!userItem.thumb_profile_image &&
                           (userItem.name?.[0]?.toUpperCase() || 'U')}
                       </Avatar>
@@ -162,7 +191,7 @@ export default function UsersWithPlan({
                     {/* User Details */}
                     <ListItemText
                       primary={
-                        <Typography sx={{ fontWeight: 'bold' }}>
+                        <Typography sx={{ fontSize: '14px', fontWeight: 500 }}>
                           {userItem.name || userItem.email || 'Unknown User'}
                         </Typography>
                       }
@@ -171,6 +200,16 @@ export default function UsersWithPlan({
                           {userItem.email || 'No email'}
                         </Typography>
                       }
+                    />
+                    <CallMade
+                      className="list-item-hover-icon"
+                      sx={{
+                        fontSize: 16,
+                        opacity: 0,
+                        transition: 'opacity 0.2s',
+                        ml: 'auto',
+                        flexShrink: 0,
+                      }}
                     />
                   </ListItem>
                 ))

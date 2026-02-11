@@ -256,72 +256,79 @@ className="cursor-pointer font-medium text-2xl"
 
       {/*  DAU MAU  */}
       <div
-        className=" cursor-pointer grid gap-6 grid-cols-4 md:grid-cols-4 lg:grid-cols-4 px-8 py-4 rounded-lg w-[96%]"
+        className="cursor-pointer grid gap-3 grid-cols-4 md:grid-cols-4 lg:grid-cols-4 px-8 py-4 rounded-lg w-[96%] text-left text-black/80 border-2 border-[hsl(var(--brand-primary))] relative overflow-hidden z-10"
         style={{
-          backgroundImage:
-            process.env.NEXT_PUBLIC_GRADIENT_TYPE === 'linear'
-              ? `linear-gradient(to bottom left, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`
-              : `radial-gradient(circle at top right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary) / 0.4) 100%)`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundColor: 'hsl(var(--brand-primary) / 0.05)',
+          boxShadow: '0 4px 20px hsl(var(--brand-primary) / 0.15)',
         }}
       >
+        {/* Animated SVG pattern background */}
+        <div className="absolute inset-0 overflow-hidden rounded-lg pointer-events-none" aria-hidden>
+          <svg className="absolute inset-0 w-full h-full opacity-[0.08]" style={{ animation: 'agentationPatternMove 20s linear infinite' }} xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <pattern id="agentation-dot-pattern" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+                <circle cx="2" cy="2" r="0.5" fill="hsl(var(--brand-primary))" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#agentation-dot-pattern)" />
+          </svg>
+        </div>
         {/* Top Metrics */}
-        <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[18.5vw] bg-transparent text-white gap-3">
+        <Card className="cursor-pointer flex flex-col items-start text-left border-none shadow-none min-w-0 w-full bg-transparent text-black/80 gap-3 relative z-0">
           <CardHeader className="p-0">
-            <CardTitle>Daily Active Users</CardTitle>
+            <CardTitle className="text-[14px] font-medium">Daily Active Users</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <h2 className="cursor-pointer text-2xl font-semibold">
+            <h2 className="cursor-pointer text-2xl font-semibold text-black/80">
               {stats?.activeUsers?.DAU?.count || '-'}
             </h2>
           </CardContent>
           <CardContent className="p-0">
-            <h2 className="cursor-pointer text-lg text-gray-300 font-bold">
+            <h2 className="cursor-pointer text-[14px] font-normal text-black/70">
               {stats?.activeUsers?.DAU?.percentage || 0}%
             </h2>
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none  w-[16vw] bg-transparent text-white gap-3">
+        <Card className="cursor-pointer flex flex-col items-start text-left border-none shadow-none min-w-0 w-full bg-transparent text-black/80 gap-3 relative z-0">
           <CardHeader className="p-0">
-            <CardTitle>Avg Weekly Sign Ups</CardTitle>
+            <CardTitle className="text-[14px] font-medium">Avg Weekly Sign Ups</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <h2 className="cursor-pointer text-2xl font-semibold">
+            <h2 className="cursor-pointer text-2xl font-semibold text-black/80">
               {stats?.weeklySignups}
             </h2>
             {/* <Progress value={27} /> */}
           </CardContent>
           <CardContent className="p-0">
-            <h2 className="cursor-pointer text-lg text-gray-300 font-bold">
+            <h2 className="cursor-pointer text-[14px] font-normal text-black/70">
               {stats?.weeklySignupsPercentage || 0}%
             </h2>
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[16vw] bg-transparent text-white gap-3">
+        <Card className="cursor-pointer flex flex-col items-start text-left border-none shadow-none min-w-0 w-full bg-transparent text-black/80 gap-3 relative z-0">
           <CardHeader className="p-0">
-            <CardTitle>Monthly Active Users</CardTitle>
+            <CardTitle className="text-[14px] font-medium">Monthly Active Users</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <h2 className="cursor-pointer text-2xl font-semibold">
+            <h2 className="cursor-pointer text-2xl font-semibold text-black/80">
               {stats?.activeUsers?.MAU?.count || '-'}
             </h2>
           </CardContent>
           <CardContent className="p-0">
-            <h2 className="cursor-pointer text-lg text-gray-300 font-bold">
+            <h2 className="cursor-pointer text-[14px] font-normal text-black/70">
               {stats?.activeUsers.MAU.percentage || 0}%
             </h2>
           </CardContent>
         </Card>
 
-        <Card className="cursor-pointer flex flex-col items-center text-center border-none shadow-none w-[16vw] bg-transparent text-white gap-3">
+        <Card className="cursor-pointer flex flex-col items-start text-left border-none shadow-none min-w-0 w-full bg-transparent text-black/80 gap-3 relative z-0">
           <CardHeader className="p-0">
-            <CardTitle>Session Length</CardTitle>
+            <CardTitle className="text-[14px] font-medium">Session Length</CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <h2 className="cursor-pointer text-2xl font-semibold">
+            <h2 className="cursor-pointer text-2xl font-semibold text-black/80">
               {stats?.avgSessionDuration || '0 min'}
             </h2>
             {/* <Progress value={48} /> */}
@@ -582,29 +589,26 @@ function VoicesComponent({
       </Card>
 
       <Card
-        className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center  w-[13vw]"
+        className="cursor-pointer border-none shadow-none rounded-lg p-2 flex flex-col items-center w-[13vw]"
         onClick={() => {
           onViewUniqueNumbers()
         }}
       >
-        <div className="cursor-pointer flex items-center justify-between w-full  mb-2">
+        <div className="cursor-pointer flex flex-col gap-2 w-full mb-2">
           <img
             src="/invtedteamsiocn.png"
             alt="Icon"
-            className="cursor-pointer h-20  -ml-2  -mt-3"
+            className="cursor-pointer w-[52px] h-[52px] -ml-2 -mt-3 object-contain"
           />
-          <div className="cursor-pointer flex flex-col mr-2 items-end">
-            <h2 className="cursor-pointer text-4xl font-light">
-              {/* {stats?.uniquePhoneUsers.count} */}
-            </h2>
-            <p className="cursor-pointer text-gray-500 text-lg">
-              {stats?.uniquePhoneUsers.percentage}%
-            </p>
-          </div>
+          <p className="cursor-pointer text-[14px] font-semibold mt-0 mb-0">Unique numbers</p>
         </div>
-
-        <div className="cursor-pointer flex flex-row items-start w-full pl-3">
-          <p className="cursor-pointer font-bold mt-2 mb-2">Unique numbers</p>
+        <div className="cursor-pointer flex flex-col mr-2 items-start w-full">
+          <h2 className="cursor-pointer text-4xl font-light">
+            {/* {stats?.uniquePhoneUsers.count} */}
+          </h2>
+          <p className="cursor-pointer text-gray-500 text-[14px]">
+            {stats?.uniquePhoneUsers.percentage}%
+          </p>
         </div>
       </Card>
     </div>
@@ -704,7 +708,7 @@ function SubscriptionsStatsComponent({ stats, plans, onViewPlan }) {
               <CardTitle>Total Users</CardTitle>
             </CardHeader>
             <CardContent className="p-0">
-              <h2 className="cursor-pointer text-[32px] font-semibold">
+              <h2 className="cursor-pointer text-[32px] font-semibold mt-3">
                 {stats?.totalUsers}
               </h2>
             </CardContent>

@@ -733,3 +733,13 @@ background-color: hsl(var(--brand-primary)) !important;
     transform: scale(1);
   }
 }
+
+/* Animated SVG pattern (e.g. stats card background) */
+@keyframes agentationPatternMove {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(24px, 24px);
+  }
+}

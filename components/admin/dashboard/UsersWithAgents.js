@@ -1,9 +1,7 @@
-import CloseIcon from '@mui/icons-material/Close'
+import CallMade from '@mui/icons-material/CallMade'
 import {
   Avatar,
   Box,
-  Button,
-  IconButton,
   List,
   ListItem,
   ListItemAvatar,
@@ -15,12 +13,7 @@ import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 
 import Apis from '@/components/apis/Apis'
-import { FindVoice } from '@/components/createagent/Voices'
 import CloseBtn from '@/components/globalExtras/CloseBtn'
-
-// Function to get voice avatar & name
-const getAvatarUrl = (voiceId) => FindVoice(voiceId)?.img || ''
-const getVoiceName = (voiceId) => FindVoice(voiceId)?.name || 'Unknown Voice'
 
 export default function UsersWithAgnets({ open, onClose, user, from }) {
   const [users, setUsers] = useState([])
@@ -36,8 +29,7 @@ export default function UsersWithAgnets({ open, onClose, user, from }) {
       if (d) {
         const u = JSON.parse(d)
 
-        const token = u.token // Extract JWT token
-        //console.log;
+        const token = u.token
 
         const response = await axios.get(Apis.getUsersWithAgents, {
           headers: {
@@ -47,8 +39,7 @@ export default function UsersWithAgnets({ open, onClose, user, from }) {
 
         if (response.data) {
           if (response.data.status === true) {
-            //console.log;
-            setUsers(response.data.data)
+            setUsers(response.data.data || [])
           } else {
             console.error('Failed to fetch admin users:', response.data.message)
           }
@@ -64,7 +55,7 @@ export default function UsersWithAgnets({ open, onClose, user, from }) {
       open={open}
       onClose={onClose}
       BackdropProps={{
-        sx: { backgroundColor: 'rgba(0, 0, 0, 0.05)' }, // 10% black opacity
+        sx: { backgroundColor: 'rgba(0, 0, 0, 0.6)' },
       }}
     >
       <Box
@@ -74,63 +65,111 @@ export default function UsersWithAgnets({ open, onClose, user, from }) {
           left: '50%',
           transform: 'translate(-50%, -50%)',
           bgcolor: 'background.paper',
-          borderRadius: 2,
-          boxShadow: 24,
-          p: 3,
-          width: '400px',
-          height: '90vh',
+          borderRadius: '16px',
+          border: '1px solid #EDEDED',
+          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.12)',
+          p: 0,
+          width: '500px',
+          height: '600px',
           maxWidth: '90%',
-          textAlign: 'center',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          boxShadow: 'none', // ✅ Removed the shadow
+          alignItems: 'stretch',
         }}
       >
-        {/* Close Button */}
-        <div className='absolute top-4 right-4'>
-        <CloseBtn onClick={onClose} />
-      </div>
-        {/* List of Voices */}
-        <List sx={{ width: '100%', mt: 2, overflow: 'scroll' }}>
-          {users.map((user, index) => (
-            <ListItem
-              key={user.id}
-              style={{ cursor: 'pointer' }}
-              onClick={() => {
-                if (user.id) {
-                  // Open a new tab with user ID as query param
-                  let url = ` admin/users?userId=${user.id}`
-                  if (from === 'agency') {
-                    url = `/agency/users?userId=${user.id}`
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            width: '100%',
+            px: 2,
+            py: 1.5,
+            flexShrink: 0,
+          }}
+        >
+          <Typography variant="h6" sx={{ fontSize: '18px', fontWeight: 600 }}>
+            Users with &gt; 2 agents
+          </Typography>
+          <CloseBtn
+            onClick={onClose}
+            className="!w-8 !h-8 !bg-transparent hover:!bg-black/5"
+          />
+        </Box>
+
+        <List
+          sx={{
+            width: '100%',
+            flex: 1,
+            overflow: 'auto',
+            scrollbarWidth: 'none',
+            py: 0,
+            px: 2,
+          }}
+        >
+          {users.length === 0 ? (
+            <Typography sx={{ mt: 4, color: '#666', textAlign: 'center' }}>
+              No users found
+            </Typography>
+          ) : (
+            users.map((userItem, index) => (
+              <ListItem
+                key={userItem.id || index}
+                style={{ cursor: 'pointer' }}
+                onClick={() => {
+                  if (userItem.id) {
+                    let url = `/admin/users?userId=${userItem.id}`
+                    if (from === 'agency') {
+                      url = `/agency/users?userId=${userItem.id}`
+                    }
+                    window.open(url, '_blank')
                   }
-                  //console.log
-                  window.open(url, '_blank')
-                }
-              }}
-            >
-              {/* Avatar */}
-              <ListItemAvatar>
-                <Avatar src={user.thumb_profile_image} alt={user.name} />
-              </ListItemAvatar>
-
-              {/* Voice Details */}
-              <ListItemText
-                primary={
-                  <Typography sx={{ fontWeight: 'bold' }}>
-                    {user.name}
-                  </Typography>
-                }
-                secondary={
-                  <Typography sx={{ color: '#666', fontSize: '14px' }}>
-                    Agents : {user.agentsCount}
-                  </Typography>
-                }
-              />
-            </ListItem>
-          ))}
+                }}
+                sx={{
+                  '&:hover': {
+                    backgroundColor: 'rgba(0, 0, 0, 0.02)',
+                  },
+                  '&:hover .list-item-hover-icon': {
+                    opacity: 1,
+                  },
+                }}
+              >
+                <ListItemAvatar>
+                  <Avatar
+                    src={userItem.thumb_profile_image}
+                    alt={userItem.name}
+                    sx={{ bgcolor: 'rgba(0, 0, 0, 0.8)' }}
+                  >
+                    {!userItem.thumb_profile_image &&
+                      (userItem.name?.[0]?.toUpperCase() || 'U')}
+                  </Avatar>
+                </ListItemAvatar>
+                <ListItemText
+                  primary={
+                    <Typography sx={{ fontSize: '14px', fontWeight: 500 }}>
+                      {userItem.name || userItem.email || 'Unknown User'}
+                    </Typography>
+                  }
+                  secondary={
+                    <Typography sx={{ color: '#666', fontSize: '14px' }}>
+                      Agents: {userItem.agentsCount}
+                    </Typography>
+                  }
+                />
+                <CallMade
+                  className="list-item-hover-icon"
+                  sx={{
+                    fontSize: 16,
+                    opacity: 0,
+                    transition: 'opacity 0.2s',
+                    ml: 'auto',
+                    flexShrink: 0,
+                  }}
+                />
+              </ListItem>
+            ))
+          )}
         </List>
-
       </Box>
     </Modal>
   )

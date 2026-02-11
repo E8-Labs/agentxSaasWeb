@@ -612,7 +612,7 @@ function SelectedUserDetails({
 
   const logoBranding = () => {
     return (
-      <div className="w-full max-w-full flex flex-col gap-2 pt-4 px-3 text-left">
+      <div className="w-full max-w-full flex flex-col gap-2 pt-4 px-3 text-left border-b border-[#EDEDED]">
         {user && (user?.userRole === "AgencySubAccount" || user?.userRole === "Invitee") && user?.agencyBranding && !user.agencyBranding.logoUrl && user.agencyBranding.companyName ? (
           <div className="w-full text-left pl-6" style={{ marginLeft: "-8px" }}>
             <div className="text-lg font-bold text-black truncate">
