@@ -568,7 +568,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                 return (
                   <label
                     key={opt.value}
-                    className={`flex items-start gap-3 p-3 rounded-lg border-2 cursor-pointer transition-colors ${isOptSelected ? '' : 'border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                    className={`flex items-start gap-3 p-3 rounded-lg border-[1px] cursor-pointer transition-colors ${isOptSelected ? '' : 'border-gray-[#1515151A10] hover:bg-gray-50 hover:border-[#1515151A10]'
                       }`}
                     style={
                       isOptSelected
@@ -629,7 +629,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                         <p className="text-xs text-gray-500 mt-0.5">Best for: {opt.bestFor}</p>
                       )}
                       {opt.example && (
-                        <p className="text-xs text-gray-600 mt-0.5">Ex: {opt.example}</p>
+                        <p className="text-xs text-gray-600 mt-3">Ex: {opt.example}</p>
                       )}
                     </div>
                   </label>

@@ -160,6 +160,10 @@ const PipelineStages = ({
   const [targetUser, setTargetUser] = useState(null)
 
   useEffect(() => {
+    console.log("isEditing key is is", isEditing)
+  }, [isEditing])
+
+  useEffect(() => {
     const getTargetUser = () => {
       let data = localStorage.getItem(PersistanceKeys.isFromAdminOrAgency)
       if (data) {
@@ -375,14 +379,17 @@ const PipelineStages = ({
     const isDefaultCadence = !row.communicationType
 
     if (isDefaultCadence) {
-      localStorage.setItem(
-        PersistanceKeys.isDefaultCadenceEditing,
-        JSON.stringify({ isdefault: true }),
-      )
+      console.log("isDefaultCadence key is is", isDefaultCadence)
+      // localStorage.setItem(
+      //   PersistanceKeys.isDefaultCadenceEditing,
+      //   JSON.stringify({ isdefault: true }),
+      // )
       if (eventTarget) {
         // Create a synthetic event-like object with the captured target
         const syntheticEvent = { currentTarget: eventTarget }
         openAddMenu(stageIndex, syntheticEvent)
+        setIsEditing(true)
+        setEditingRow(row)
       }
       return // Don't proceed with editing for default cadence
     }
@@ -2159,12 +2166,15 @@ const PipelineStages = ({
                 setIsEditing(false)
                 setEditingRow(null)
                 setEditingStageIndex(null)
+                console.log("onClose key is called selectedIndex is", selectedIndex)
                 closeAddMenu(selectedIndex)
               }}
               onSaveTemplate={(templateData) => {
                 if (isEditing && editingRow) {
+                  console.log("trigerred to update")
                   handleUpdateRow(editingRow.id, templateData)
                 } else {
+                  console.log("trigerred to add new row")
                   addRow(selectedIndex, selectedType, templateData)
                 }
                 setShowMessageModal(false)
