@@ -315,9 +315,9 @@ const MailgunDomainSetup = ({ open, onClose, onSuccess, targetUserId }) => {
                         const ttl = record.ttl || record.TTL || 'Auto'
                         const displayName = recordName === '@' ? 'Root Domain' : recordName
 
-                        // Show verification status for TXT records
-                        const showVerificationStatus = recordType === 'TXT' && (verificationStatus === 'verified' || verificationStatus === 'pending')
-                        const recordVerified = verificationStatus === 'verified' && recordType === 'TXT'
+                        // Show verification status for all record types
+                        const showVerificationStatus = verificationStatus === 'verified' || verificationStatus === 'pending'
+                        const recordVerified = verificationStatus === 'verified'
 
                         return (
                           <tr
