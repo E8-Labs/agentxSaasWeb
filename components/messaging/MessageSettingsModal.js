@@ -56,6 +56,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     return stars + last6
   }
 
+  //test console log
+  useEffect(() => {
+    console.log("subModalSelectedValue is", subModalSelectedValue)
+  }, [subModalSelectedValue])
+
   // Fetch current settings when modal opens
   useEffect(() => {
     if (open) {
@@ -543,11 +548,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md" overlayClassName="bg-black/40">
+      <DialogContent className="max-w-md px-0" overlayClassName="bg-black/40">
         {/* Sub-screen: Communication setting (iPhone-style back + content) */}
         {isSubScreen ? (
-          <div>
-            <DialogHeader className="flex flex-row items-center gap-3 pb-2">
+          <div className="max-h-[80svh] overflow-hidden">
+            <DialogHeader className="flex flex-row items-center gap-3 pb-2 px-4">
               <button
                 type="button"
                 onClick={() => setSubModalKey(null)}
@@ -558,8 +563,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
               </button>
               <DialogTitle className="text-xl font-bold flex-1">{activeSubModalConfig.label}</DialogTitle>
             </DialogHeader>
-            <p className="text-sm text-gray-600 mt-1">{activeSubModalConfig.question}</p>
-            <div className="space-y-2 py-4 overflow-y-auto flex-1 min-h-0">
+            <p className="text-sm text-gray-600 mt-1 px-4">{activeSubModalConfig.question}</p>
+            <div
+              // className="space-y-2 py-4 overflow-y-auto flex-1 min-h-0 px-4"
+              className="space-y-2 py-4 pl-4 pr-2 overflow-y-auto max-h-[60svh]"
+            >
               {activeSubModalConfig.options.map((opt) => {
                 const isOptSelected = subModalSelectedValue === opt.value
                 return (
@@ -582,7 +590,17 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                         name={activeSubModalConfig.settingsKey}
                         value={opt.value}
                         checked={isOptSelected}
-                        onChange={() => setSubModalSelectedValue(opt.value)}
+                        onClick={(e) => {
+                          if (isOptSelected) {
+                            e.preventDefault();
+                            setSubModalSelectedValue(null);
+                          } else {
+                            setSubModalSelectedValue(opt.value);
+                          }
+                        }}
+                        onChange={() => {
+                          if (!isOptSelected) setSubModalSelectedValue(opt.value);
+                        }}
                         className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-[1]"
                       />
                       <span
@@ -623,12 +641,17 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                 )
               })}
             </div>
-            <DialogFooter className="gap-2 border-t pt-4 mt-2">
+            <DialogFooter className="w-full flex flex-row items-center justify-between sm:justify-between border-t pt-4 mt-2 px-4">
               <Button
-                variant="outline"
+                variant="outline-none"
                 onClick={() => setSubModalKey(null)}
                 disabled={savingSubModal}
-                className="bg-white hover:bg-gray-50"
+                className="bg-transparent hover:bg-gray-transparent text-black"
+                style={{
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: "#000000",
+                }}
               >
                 Cancel
               </Button>
@@ -639,16 +662,23 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                     subModalSelectedValue
                   )
                 }
-                disabled={savingSubModal}
-                className="hover:opacity-90 text-white"
-                style={{ backgroundColor: 'hsl(var(--brand-primary))' }}
+                disabled={savingSubModal || !subModalSelectedValue}
+                className="hover:opacity-90 text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-auto"
+                style={{
+                  backgroundColor: 'hsl(var(--brand-primary))',
+                  fontSize: '14px',
+                  fontWeight: '400',
+                  color: "#FFFFFF",
+                  height: '36px',
+                  width: '65px',
+                }}
               >
                 {savingSubModal ? 'Saving...' : 'Save'}
               </Button>
             </DialogFooter>
           </div>
         ) : (
-          <div className='max-h-[75svh] overflow-hidden'>
+          <div className='max-h-[75svh] overflow-hidden px-4'>
 
             <div>
               <DialogHeader>
