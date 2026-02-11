@@ -472,6 +472,7 @@ const MessageComposer = ({
 
       if (details) {
         if (composerMode === 'email') {
+          console.log("details for email template is", details)
           // Populate email fields
           setComposerData((prev) => ({
             ...prev,
