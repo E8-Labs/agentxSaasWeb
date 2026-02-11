@@ -42,6 +42,7 @@ export const getTasks = async (params = {}) => {
     if (params.type) queryParams.append('type', params.type)
 
     const url = `${Apis.getTasks}${queryParams.toString() ? '?' + queryParams.toString() : ''}`
+    console.log("url for gettasks list is", url)
 
     const response = await axios.get(url, {
       headers: {

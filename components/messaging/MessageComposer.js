@@ -472,6 +472,7 @@ const MessageComposer = ({
 
       if (details) {
         if (composerMode === 'email') {
+          console.log("details for email template is", details)
           // Populate email fields
           setComposerData((prev) => ({
             ...prev,
@@ -1154,14 +1155,14 @@ const MessageComposer = ({
                 }]} />
                 {/* <button
                   onClick={() => setShowCC(!showCC)}
-                  className={`px-3 py-1 text-xs border-r rounded border-gray-200 transition-colors rounded rounded-r-none ${showCC ? 'bg-brand-primary text-white' : 'text-gray-700 hover:bg-gray-200'
+                  className={`px-2 py-1 text-xs border-r rounded border-gray-200 transition-colors rounded rounded-r-none ${showCC ? 'bg-brand-primary text-white' : 'text-gray-700 hover:bg-gray-200'
                     }`}
                 >
                   Cc
             </button>
                 <button
                   onClick={() => setShowBCC(!showBCC)}
-                  className={`px-3 py-1 text-xs transition-colors rounded rounded-l-none ${showBCC ? 'bg-brand-primary text-white' : 'text-gray-700 hover:bg-gray-200'
+                  className={`px-2 py-1 text-xs transition-colors rounded rounded-l-none ${showBCC ? 'bg-brand-primary text-white' : 'text-gray-700 hover:bg-gray-200'
                     }`}
                 >
                   Bcc

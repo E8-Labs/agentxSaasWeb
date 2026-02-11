@@ -66,8 +66,8 @@ function MessageHeader({ selectedThread = null, selectedUser = null }) {
             <TaskBoard 
                 open={taskBoardOpen} 
                 onClose={() => setTaskBoardOpen(false)}
-                leadId={selectedThread?.leadId || null}
-                threadId={selectedThread?.id || null}
+                // leadId={selectedThread?.leadId || null}
+                // threadId={selectedThread?.id || null}
                 buttonRef={taskButtonRef}
                 selectedUser={selectedUser}
             />

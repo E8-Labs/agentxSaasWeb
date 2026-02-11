@@ -25,7 +25,7 @@ const SplitButtonCN = ({ buttons = [], className }) => {
           variant="outline"
           onClick={button.onClick}
           className={cn(
-            "rounded-none border-0 border-r border-gray-200 last:border-r-0 first:rounded-l-md last:rounded-r-md h-9",
+            "rounded-none border-0 border-r border-gray-200 last:border-r-0 first:rounded-l-md last:rounded-r-md h-7",
             button.isSelected 
               ? "bg-brand-primary text-white hover:bg-brand-primary/90 hover:text-white border-brand-primary" 
               : "bg-white hover:bg-gray-50"

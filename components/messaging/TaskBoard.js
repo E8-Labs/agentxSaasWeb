@@ -52,6 +52,11 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
     { label: 'Done', value: 'done' },
   ]
 
+  useEffect(() => {
+    console.log("LEad id passed in task board is", leadId)
+    console.log("thread id passed in task board is", threadId)
+  }, [leadId])
+
   // Calculate position relative to button
   useEffect(() => {
     if (open && buttonRef?.current) {
@@ -116,6 +121,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
       if (filterPriority) params.priority = filterPriority
 
       const response = await getTasks(params)
+      console.log("response from get tasks is", response)
       if (response.status) {
         setTasks(response.data || [])
         if (response.counts) {
