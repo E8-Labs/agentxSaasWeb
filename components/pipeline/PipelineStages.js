@@ -145,6 +145,7 @@ const PipelineStages = ({
   const [isEditing, setIsEditing] = useState(false)
   const [editingRow, setEditingRow] = useState(null)
   const [editingStageIndex, setEditingStageIndex] = useState(null)
+  const isModalOpenRef = useRef(false)
 
   const [selectedGoogleAccount, setSelectedGoogleAccount] = useState(null)
 
@@ -361,7 +362,8 @@ const PipelineStages = ({
         setShowMessageModal(true)
       }
     } else {
-      if (isEditing) {
+      if (isEditing && editingRow) {
+        handleUpdateRow(editingRow.id, { action: 'call', communicationType: 'call' })
         closeAddMenu(stageIndex)
       } else {
         addRow(stageIndex, value)
@@ -379,17 +381,15 @@ const PipelineStages = ({
     const isDefaultCadence = !row.communicationType
 
     if (isDefaultCadence) {
-      console.log("isDefaultCadence key is is", isDefaultCadence)
-      // localStorage.setItem(
-      //   PersistanceKeys.isDefaultCadenceEditing,
-      //   JSON.stringify({ isdefault: true }),
-      // )
       if (eventTarget) {
         // Create a synthetic event-like object with the captured target
         const syntheticEvent = { currentTarget: eventTarget }
         openAddMenu(stageIndex, syntheticEvent)
         setIsEditing(true)
         setEditingRow(row)
+        setEditingStageIndex(stageIndex)
+        setSelectedType('call')
+        setSelectedIndex(stageIndex)
       }
       return // Don't proceed with editing for default cadence
     }
@@ -459,6 +459,10 @@ const PipelineStages = ({
     getMyTeam()
     getNumbers()
   }, [stages, reduxUser])
+
+  useEffect(() => {
+    isModalOpenRef.current = showMessageModal
+  }, [showMessageModal])
 
   useEffect(() => {
     if (showMessageModal && messageModalMode === 'email') {
@@ -1444,7 +1448,12 @@ const PipelineStages = ({
                                   anchorEl={addMenuAnchor[index] || null}
                                   open={Boolean(addMenuAnchor[index])}
                                   onClose={() => {
-                                    closeAddMenu(index)
+                                    if (isModalOpenRef.current) {
+                                      // Modal is open — only dismiss the menu anchor, don't reset editing state
+                                      setAddMenuAnchor((prev) => ({ ...prev, [index]: null }))
+                                    } else {
+                                      closeAddMenu(index)
+                                    }
                                     localStorage.removeItem(
                                       PersistanceKeys.isDefaultCadenceEditing,
                                     )
