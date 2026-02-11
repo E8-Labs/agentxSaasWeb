@@ -24,10 +24,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
   const [apiKeyError, setApiKeyError] = useState('')
   const [aiIntegrations, setAiIntegrations] = useState([])
   const [existingIntegrationId, setExistingIntegrationId] = useState(null)
-  const [existingApiKey, setExistingApiKey] = useState('') // Store the actual API key for masking
+  const [existingApiKey, setExistingApiKey] = useState('') // Legacy: actual key when available (client-masked)
+  const [storedApiKeyMasked, setStoredApiKeyMasked] = useState('') // Server-provided masked key (*** + last 6 chars) for display/restore
   const [isEditingApiKey, setIsEditingApiKey] = useState(false) // Track if user is editing
 
-  // Helper function to mask API key (show last 6 chars, rest as stars)
+  // Helper function to mask API key (show last 6 chars, rest as stars) - used only when server sends raw key (legacy)
   const maskApiKey = (key) => {
     if (!key || key.length === 0) return ''
     if (key.length <= 6) return '*'.repeat(key.length)
@@ -45,30 +46,31 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     }
   }, [open, selectedUser])
 
-  // Sync API key display when both settings and integrations are loaded
+  // Sync API key display when both settings and integrations are loaded (use apiKeyMasked from server)
   useEffect(() => {
     if (!open || isEditingApiKey || loading) return
     
-    // If we have an integration ID and integrations list, but no API key displayed
-    if (settings.aiIntegrationId && aiIntegrations.length > 0 && !existingApiKey && apiKey === '') {
+    if (settings.aiIntegrationId && aiIntegrations.length > 0 && apiKey === '') {
       const existingIntegration = aiIntegrations.find(
         (int) => int.id === settings.aiIntegrationId
       )
       
       if (existingIntegration) {
         setExistingIntegrationId(existingIntegration.id)
-        // Check if API key is in the integration object
-        const apiKeyValue = existingIntegration.apiKey || ''
-        if (apiKeyValue) {
-          setExistingApiKey(apiKeyValue)
-          setApiKey(maskApiKey(apiKeyValue))
+        const masked = existingIntegration.apiKeyMasked || ''
+        const legacyRaw = existingIntegration.apiKey || ''
+        if (masked) {
+          setStoredApiKeyMasked(masked)
+          setApiKey(masked)
+        } else if (legacyRaw) {
+          setExistingApiKey(legacyRaw)
+          setApiKey(maskApiKey(legacyRaw))
         } else {
-          // No API key returned (for security) - show placeholder
           setApiKey('••••••••••••••••••••••••••••••••')
         }
       }
     }
-  }, [settings.aiIntegrationId, aiIntegrations, existingApiKey, apiKey, isEditingApiKey, loading, open])
+  }, [settings.aiIntegrationId, aiIntegrations, apiKey, isEditingApiKey, loading, open])
 
   const fetchSettings = async () => {
     try {
@@ -104,19 +106,19 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
           saveAsDraftEnabled: data.saveAsDraftEnabled || false,
         })
 
-        // If there's an existing integration, store the API key for masking
+        // If there's an existing integration, show apiKeyMasked (last 6 chars from server) or placeholder
         if (data.aiIntegration?.id) {
           setExistingIntegrationId(data.aiIntegration.id)
-          // API key might not be returned for security - check if it exists
-          const apiKeyValue = data.aiIntegration.apiKey || ''
-          setExistingApiKey(apiKeyValue)
-          // Show masked version in input if not editing
+          const masked = data.aiIntegration.apiKeyMasked || ''
+          const legacyRaw = data.aiIntegration.apiKey || ''
           if (!isEditingApiKey) {
-            if (apiKeyValue) {
-              // If we have the actual key, mask it
-              setApiKey(maskApiKey(apiKeyValue))
+            if (masked) {
+              setStoredApiKeyMasked(masked)
+              setApiKey(masked)
+            } else if (legacyRaw) {
+              setExistingApiKey(legacyRaw)
+              setApiKey(maskApiKey(legacyRaw))
             } else {
-              // If no key returned (for security), show placeholder indicating key exists
               setApiKey('••••••••••••••••••••••••••••••••')
             }
           } else {
@@ -125,6 +127,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
         } else {
           setExistingIntegrationId(null)
           setExistingApiKey('')
+          setStoredApiKeyMasked('')
           setApiKey('')
         }
       }
@@ -171,21 +174,15 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
           
           if (existingIntegration) {
             setExistingIntegrationId(existingIntegration.id)
-            // Store the API key if available (might not be returned for security)
-            const apiKeyValue = existingIntegration.apiKey || ''
-            
-            if (apiKeyValue) {
-              // If we have the actual key, store and mask it
-              if (!existingApiKey) {
-                setExistingApiKey(apiKeyValue)
-              }
-              // Show masked version if not editing
-              if (!isEditingApiKey && apiKey === '') {
-                setApiKey(maskApiKey(apiKeyValue))
-              }
-            } else if (!isEditingApiKey && apiKey === '' && !existingApiKey) {
-              // If no API key in response but integration exists, show placeholder
-              // This indicates an API key is set but not returned for security
+            const masked = existingIntegration.apiKeyMasked || ''
+            const legacyRaw = existingIntegration.apiKey || ''
+            if (masked && !isEditingApiKey && apiKey === '') {
+              setStoredApiKeyMasked(masked)
+              setApiKey(masked)
+            } else if (legacyRaw && !isEditingApiKey && apiKey === '') {
+              if (!existingApiKey) setExistingApiKey(legacyRaw)
+              setApiKey(maskApiKey(legacyRaw))
+            } else if (!isEditingApiKey && apiKey === '' && !masked && !legacyRaw) {
               setApiKey('••••••••••••••••••••••••••••••••')
             }
           }
@@ -220,7 +217,8 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
       // If API key is provided and it's not the masked version or placeholder, create or update the integration
       const trimmedApiKey = apiKey.trim()
-      const isMaskedKey = existingApiKey && trimmedApiKey === maskApiKey(existingApiKey)
+      const isMaskedKey = (existingApiKey && trimmedApiKey === maskApiKey(existingApiKey)) ||
+        (storedApiKeyMasked && trimmedApiKey === storedApiKeyMasked)
       const isPlaceholder = trimmedApiKey === '••••••••••••••••••••••••••••••••'
       
       if (trimmedApiKey && !isMaskedKey && !isPlaceholder) {
@@ -244,11 +242,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
             if (updateResponse.data?.status) {
               integrationId = existingIntegrationId
-              // Update the existing API key with the new one (for masking display)
               setExistingApiKey(trimmedApiKey)
               setIsEditingApiKey(false)
-              // Show masked version of new key
-              setApiKey(maskApiKey(trimmedApiKey))
+              const newMasked = maskApiKey(trimmedApiKey)
+              setStoredApiKeyMasked(newMasked)
+              setApiKey(newMasked)
               toast.success('API key updated successfully')
             } else {
               throw new Error(updateResponse.data?.message || 'Failed to update API key')
@@ -273,12 +271,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
             if (createResponse.data?.status && createResponse.data?.data) {
               integrationId = createResponse.data.data.id
               setExistingIntegrationId(integrationId)
-              // Store the new API key for masking
               setExistingApiKey(trimmedApiKey)
               setIsEditingApiKey(false)
-              // Show masked version of new key
-              setApiKey(maskApiKey(trimmedApiKey))
-              // Update settings state to include the new integration ID
+              const newMasked = maskApiKey(trimmedApiKey)
+              setStoredApiKeyMasked(newMasked)
+              setApiKey(newMasked)
               setSettings(prev => ({ ...prev, aiIntegrationId: integrationId }))
             } else {
               throw new Error(createResponse.data?.message || 'Failed to save API key')
@@ -394,11 +391,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                 value={apiKey}
                 onChange={(e) => {
                   const newValue = e.target.value
-                  // If user starts typing and we're showing masked key or placeholder, switch to edit mode
                   const isPlaceholder = apiKey === '••••••••••••••••••••••••••••••••'
-                  const isMaskedKey = existingApiKey && apiKey === maskApiKey(existingApiKey)
-                  
-                  if (!isEditingApiKey && (isPlaceholder || (isMaskedKey && newValue !== maskApiKey(existingApiKey)))) {
+                  const isMaskedDisplay = storedApiKeyMasked && apiKey === storedApiKeyMasked
+                  const isLegacyMasked = existingApiKey && apiKey === maskApiKey(existingApiKey)
+                  if (!isEditingApiKey && (isPlaceholder || isMaskedDisplay || (isLegacyMasked && newValue !== maskApiKey(existingApiKey)))) {
                     setIsEditingApiKey(true)
                     setApiKey(newValue)
                   } else {
@@ -406,22 +402,14 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                   }
                   setApiKeyError('')
                 }}
-                onFocus={() => {
-                  // When user focuses, if showing masked key or placeholder, switch to edit mode
-                  const isPlaceholder = apiKey === '••••••••••••••••••••••••••••••••'
-                  if ((existingApiKey || isPlaceholder) && !isEditingApiKey) {
-                    setIsEditingApiKey(true)
-                    setApiKey('') // Clear the masked/placeholder value so user can type
-                  }
-                }}
                 onBlur={() => {
-                  // If user didn't enter anything, restore masked key or placeholder
                   if (!apiKey.trim()) {
                     setIsEditingApiKey(false)
-                    if (existingApiKey) {
+                    if (storedApiKeyMasked) {
+                      setApiKey(storedApiKeyMasked)
+                    } else if (existingApiKey) {
                       setApiKey(maskApiKey(existingApiKey))
                     } else if (existingIntegrationId) {
-                      // Show placeholder if integration exists but no key available
                       setApiKey('••••••••••••••••••••••••••••••••')
                     }
                   }
