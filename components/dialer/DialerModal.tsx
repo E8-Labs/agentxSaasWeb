@@ -825,6 +825,7 @@ function DialerModal({
       const withAgentsUrl = dialerUserId
         ? `/api/dialer/phone-numbers/with-agents?userId=${dialerUserId}`
         : '/api/dialer/phone-numbers/with-agents'
+
       console.log('[DialerModal] fetchPhoneNumbersWithAgents', {
         dialerUserId,
         forceRefetch,
