@@ -222,6 +222,13 @@ const MessageComposer = ({
   const [delTempLoader, setDelTempLoader] = useState(null)
 
 
+  //debugging
+  useEffect(()=> {
+    console.log('[composerDataUseEffect] composer data changed')
+    console.log('🔍 [composerDataUseEffect] composerMode:', composerMode)
+
+  }, [composerMode])
+
   // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -463,19 +470,18 @@ const MessageComposer = ({
   // Handle template selection
   const handleTemplateSelect = async (template) => {
     if (!template) return
-
     try {
       // Fetch full template details
       const user = getUserLocalData()
       const userId = user?.user?.id
       const details = await getTempleteDetails(template, userId)
-
       if (details) {
         if (composerMode === 'email') {
-          // Populate email fields
+          const subjectToSet = details.subject || template?.subject || ''
+          // Populate email fields (use subjectToSet so list subject is used when details.subject is missing)
           setComposerData((prev) => ({
             ...prev,
-            subject: details.subject || '',
+            subject: subjectToSet,
             emailBody: details.content || '',
           }))
 
@@ -1195,11 +1201,11 @@ const MessageComposer = ({
               }
               onChange={(e) => {
                 if (composerMode === 'sms' && e.target.value.length <= SMS_CHAR_LIMIT) {
-                  setComposerData({ ...composerData, smsBody: e.target.value })
+                  setComposerData((prev) => ({ ...prev, smsBody: e.target.value }))
                 } else if (composerMode === 'email') {
                   // Convert plain text to HTML for email
                   const htmlBody = e.target.value.replace(/\n/g, '<br>')
-                  setComposerData({ ...composerData, emailBody: htmlBody })
+                  setComposerData((prev) => ({ ...prev, emailBody: htmlBody }))
                 } else if (composerMode === 'comment') {
                   const htmlBody = e.target.value.replace(/\n/g, '<br>')
                   setCommentBody(htmlBody)
@@ -1634,7 +1640,7 @@ const MessageComposer = ({
                           <input
                             type="text"
                             value={composerData.subject}
-                            onChange={(e) => setComposerData({ ...composerData, subject: e.target.value })}
+                            onChange={(e) => setComposerData((prev) => ({ ...prev, subject: e.target.value }))}
                             placeholder="Enter subject"
                             className="flex-1 outline-none bg-transparent text-sm border-0 focus:ring-0 focus:outline-none text-gray-700"
                           />
@@ -1668,7 +1674,7 @@ const MessageComposer = ({
                                         const variableText = variable.startsWith('{') && variable.endsWith('}')
                                           ? variable
                                           : `{${variable}}`
-                                        setComposerData({ ...composerData, subject: composerData.subject + variableText })
+                                        setComposerData((prev) => ({ ...prev, subject: (prev.subject || '') + variableText }))
                                         setSubjectVariablesDropdownOpen(false)
                                       }}
                                       className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 transition-colors text-gray-700"
@@ -1710,7 +1716,7 @@ const MessageComposer = ({
                         <RichTextEditor
                           ref={richTextEditorRef}
                           value={composerData.emailBody}
-                          onChange={(html) => setComposerData({ ...composerData, emailBody: html })}
+                          onChange={(html) => setComposerData((prev) => ({ ...prev, emailBody: html }))}
                           placeholder="Type your message..."
                           availableVariables={uniqueColumns}
                           toolbarPosition="bottom"
@@ -1874,7 +1880,7 @@ const MessageComposer = ({
                         value={composerData.smsBody}
                         onChange={(e) => {
                           if (e.target.value.length <= SMS_CHAR_LIMIT) {
-                            setComposerData({ ...composerData, smsBody: e.target.value })
+                            setComposerData((prev) => ({ ...prev, smsBody: e.target.value }))
                           }
                         }}
                         placeholder="Type your message..."
