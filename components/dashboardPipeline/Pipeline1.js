@@ -21,6 +21,7 @@ import {
 } from '@mui/material'
 import {
   CaretDown,
+  CaretRight,
   CaretUp,
   DotsThree,
   EnvelopeSimple,
@@ -68,6 +69,7 @@ import ScoringProgress from '../ui/ScoringProgress'
 import ColorPicker from './ColorPicker'
 import ConfigurePopup from './ConfigurePopup'
 import PipelineLoading from './PipelineLoading'
+import { Check } from 'lucide-react'
 
 const Pipeline1 = () => {
   const bottomRef = useRef()
@@ -627,7 +629,7 @@ const Pipeline1 = () => {
           setSuccessSnack(response.data.message)
           setCreatePipeline(false)
           handlePipelineClosePopover()
-
+          handleCloseOtherPipeline();
           selectedPipelineIndex = PipeLines.length
           setParamsInSearchBar(selectedPipelineIndex, 'handlecreatePipeline')
         }
@@ -958,6 +960,7 @@ const Pipeline1 = () => {
   }
 
   const handleCloseOtherPipeline = () => {
+    console.log('handleCloseOtherPipeline trigerred')
     setOtherPipelinePopoverAnchorel(null)
   }
 
@@ -1349,6 +1352,7 @@ const Pipeline1 = () => {
         setSelectedPipeline(response.data.data)
         setShowRenamePipelinePopup(false)
         handlePipelineClosePopover()
+        handleCloseOtherPipeline();
       }
     } catch (error) {
       // //console.log;
@@ -1466,6 +1470,7 @@ const Pipeline1 = () => {
           setLeadsList(updatedPipelines[0].leads)
           // setSelectedPipeline(PipeLines)
           handlePipelineClosePopover()
+          handleCloseOtherPipeline();
           setShowDeletePiplinePopup(false)
         }
       }
@@ -1609,6 +1614,7 @@ const Pipeline1 = () => {
           setSuccessSnack(response.data.message)
           setShowRenamePipelinePopup(null)
           handlePipelineClosePopover()
+          handleCloseOtherPipeline();
         }
       }
     } catch (error) {
@@ -1773,6 +1779,7 @@ const Pipeline1 = () => {
           setShowAddNotes(false)
           setNoteDetails([response.data.data, ...noteDetails])
           setddNotesValue('')
+          handleCloseOtherPipeline();
         }
       }
     } catch (error) {
@@ -1828,6 +1835,7 @@ const Pipeline1 = () => {
     setStagesList(SelectedPipeline.stages)
 
     setPipeLines(updatedPipelines)
+    handleCloseOtherPipeline();
   }
 
   function HandleLeadAssignedTeam(team, lead) {
@@ -1910,6 +1918,7 @@ const Pipeline1 = () => {
       setLeadsList(filteredLeads)
       setSelectedLeadsDetails(null) // Clear selected lead
       setShowDetailsModal(false) // Hide modal
+      handleCloseOtherPipeline();
     } catch (error) { }
   }
 
@@ -2009,16 +2018,6 @@ const Pipeline1 = () => {
                   {SelectedPipeline?.title}
                 </TypographyH3>
                 <div>
-                  {PipeLines.length > 1 && !pipelineDetailLoader && (
-                    <button
-                      className="outline-none"
-                      aria-describedby={OtherPipelineId}
-                      variant="contained"
-                      onClick={handleShowOtherPipeline}
-                    >
-                      <CaretDown size={22} weight="bold" />
-                    </button>
-                  )}
                   <Menu
                     id={OtherPipelineId}
                     anchorEl={otherPipelinePopoverAnchorel}
@@ -2027,18 +2026,63 @@ const Pipeline1 = () => {
                     MenuListProps={{
                       'aria-labelledby': OtherPipelineId,
                     }}
+                    anchorOrigin={{
+                      vertical: 'top',
+                      horizontal: 'right',
+                    }}
+                    slotProps={{
+                      paper: {
+                        style: {
+                          // maxHeight: "40svh",
+                          width: '220px',
+                          marginLeft: "30px"
+                        },
+                      },
+                      list: {
+                        'aria-labelledby': 'long-button',
+                      },
+                    }}
                   >
-                    {PipeLines.map((item, index) => (
-                      <MenuItem
-                        key={index}
-                        onClick={() => {
-                          handleSelectOtherPipeline(item, index)
-                          handleCloseOtherPipeline() // Close menu after selection
-                        }}
-                      >
-                        {item.title}
-                      </MenuItem>
-                    ))}
+                    <div className='max-h-[20svh] overflow-y-auto'>
+                      {PipeLines.map((item, index) => (
+                        <MenuItem
+                          key={index}
+                          onClick={() => {
+                            handleSelectOtherPipeline(item, index)
+                            handleCloseOtherPipeline() // Close menu after selection
+                          }}
+                        >
+                          <div className='w-full flex flex-row items-center justify-between'>
+                            <div>{item.title}</div>
+                            {
+                              SelectedPipeline?.title === item.title && (
+                                <Check
+                                  className={`w-5 h-5 flex-shrink-0 text-[#00000080]`}
+                                />
+                              )
+                            }
+                          </div>
+                        </MenuItem>
+                      ))}
+                    </div>
+                    <button
+                      className={`flex flex-row items-center px-4 text-purple ${PipeLines.length > 1 && !pipelineDetailLoader ? 'mt-1' : 'mt-0'}`}
+                      onClick={() => {
+                        if (
+                          user?.planCapabilities.maxPipelines >
+                          user?.currentUsage.maxPipelines
+                        ) {
+                          setCreatePipeline(true)
+                        } else {
+                          setShowUpgradeModal(true)
+                        }
+                      }}
+                    >
+                      {/*<Plus size={17} weight="bold" />{' '}*/}
+                      <span style={{ fontWeight: '500', fontSize: 16 }}>
+                        New Pipeline
+                      </span>
+                    </button>
                   </Menu>
                 </div>
                 <button
@@ -2061,22 +2105,23 @@ const Pipeline1 = () => {
                 >
                   <div className="p-3">
                     <button
-                      className="flex flex-row items-center gap-4"
-                      onClick={() => {
-                        if (
-                          user?.planCapabilities.maxPipelines >
-                          user?.currentUsage.maxPipelines
-                        ) {
-                          setCreatePipeline(true)
-                        } else {
-                          setShowUpgradeModal(true)
-                        }
-                      }}
+                      className="outline-none flex flex-row items-center gap-4 w-full"
+                      // aria-describedby={OtherPipelineId}
+                      // variant="contained"
+                      onClick={handleShowOtherPipeline}
                     >
-                      <Plus size={17} weight="bold" />{' '}
-                      <span style={{ fontWeight: '500', fontSize: 15 }}>
-                        New Pipeline
-                      </span>
+                      <div style={{ borderRadius: '50%', width: '15px', height: '15px', backgroundColor: 'transparent', border: '1px solid #000000' }} />
+                      <div className="flex flex-row items-center justify-between flex-1">
+                        <div style={{ fontWeight: '500', fontSize: 15 }}>Pipelines</div>
+                        <div
+                          className="outline-none"
+                          aria-describedby={OtherPipelineId}
+                          variant="contained"
+                        // onClick={handleShowOtherPipeline}
+                        >
+                          <CaretRight size={15} weight="bold" />
+                        </div>
+                      </div>
                     </button>
                     {SelectedPipeline?.pipelineType !== 'agency_use' && (
                       <>
@@ -3877,6 +3922,7 @@ const Pipeline1 = () => {
             onClose={() => {
               setShowRenamePipelinePopup(false)
               handlePipelineClosePopover()
+              handleCloseOtherPipeline();
             }}
             BackdropProps={{
               timeout: 100,
@@ -3919,6 +3965,7 @@ const Pipeline1 = () => {
                         onClick={() => {
                           setShowRenamePipelinePopup(false)
                           handlePipelineClosePopover()
+                          handleCloseOtherPipeline();
                         }}
                         className="outline-none"
                       >
@@ -3984,6 +4031,7 @@ const Pipeline1 = () => {
             open={createPipeline}
             onClose={() => {
               setCreatePipeline(false)
+              handleCloseOtherPipeline();
               handlePipelineClosePopover()
             }}
             closeAfterTransition
@@ -4013,6 +4061,7 @@ const Pipeline1 = () => {
                       onClick={() => {
                         setCreatePipeline(false)
                         handlePipelineClosePopover()
+                        handleCloseOtherPipeline();
                       }}
                     >
                       <Image
