@@ -32,6 +32,7 @@ import UpgradeModal from '@/constants/UpgradeModal'
 import UpgradePlan from '@/components/userPlans/UpgradePlan'
 import { Elements } from '@stripe/react-stripe-js'
 import { getStripe } from '@/lib/stripe'
+import StandardHeader from '@/components/common/StandardHeader'
 
 function AdminTeam({ selectedUser, agencyUser }) {
   const timerRef = useRef(null)
@@ -69,14 +70,14 @@ function AdminTeam({ selectedUser, agencyUser }) {
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
   const [showUpgradeModalMore, setShowUpgradeModalMore] = useState(false)
-  const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false) 
+  const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
 
   const [selectedUserDetails, setSelectedUserDetails] = useState(null)
 
   let agencyData = null
 
   useEffect(() => {
-  getUserDetails()
+    getUserDetails()
   }, [selectedUser])
 
   const getUserDetails = async () => {
@@ -546,62 +547,69 @@ function AdminTeam({ selectedUser, agencyUser }) {
         className=" w-full flex flex-row justify-between items-center px-4"
       // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
       >
-        <div className="flex flex-row items-center gap-3">
-          <TypographyH3>Teams</TypographyH3>
-          {selectedUserDetails?.planCapabilities?.allowTeamCollaboration &&
-            selectedUserDetails?.plan?.planId != null &&
-            selectedUserDetails?.planCapabilities?.maxTeamMembers < 1000 && (
-              <div
-                style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
-              >
-                {`${selectedUserDetails?.currentUsage?.maxTeamMembers}/${selectedUserDetails?.planCapabilities?.maxTeamMembers || 0} used`}
-              </div>
-            )}
+        
 
-          {selectedUserDetails?.planCapabilities?.allowTeamCollaboration &&
-            selectedUserDetails?.plan?.planId != null &&
-            selectedUserDetails?.planCapabilities?.maxTeamMembers < 1000 && (
-              <Tooltip
-                title={`Additional team seats are $${selectedUserDetails?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}
-                arrow
-                componentsProps={{
-                  tooltip: {
-                    sx: {
-                      backgroundColor: '#ffffff', // Ensure white background
-                      color: '#333', // Dark text color
-                      fontSize: '14px',
-                      padding: '10px 15px',
-                      borderRadius: '8px',
-                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                    },
-                  },
-                  arrow: {
-                    sx: {
-                      color: '#ffffff', // Match tooltip background
-                    },
-                  },
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: 12,
-                    fontWeight: '600',
-                    color: '#000000',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <Image
-                    src="/agencyIcons/InfoIcon.jpg"
-                    alt="info"
-                    width={16}
-                    height={16}
-                    className="cursor-pointer rounded-full"
-                  // onClick={() => setIntroVideoModal2(true)}
-                  />
-                </div>
-              </Tooltip>
-            )}
-        </div>
+        <StandardHeader
+          titleContent={
+            <div className="flex flex-row items-center gap-3">
+              <TypographyH3>Teams</TypographyH3>
+              {selectedUserDetails?.planCapabilities?.allowTeamCollaboration &&
+                selectedUserDetails?.plan?.planId != null &&
+                selectedUserDetails?.planCapabilities?.maxTeamMembers < 1000 && (
+                  <div
+                    style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
+                  >
+                    {`${selectedUserDetails?.currentUsage?.maxTeamMembers}/${selectedUserDetails?.planCapabilities?.maxTeamMembers || 0} used`}
+                  </div>
+                )}
+
+              {selectedUserDetails?.planCapabilities?.allowTeamCollaboration &&
+                selectedUserDetails?.plan?.planId != null &&
+                selectedUserDetails?.planCapabilities?.maxTeamMembers < 1000 && (
+                  <Tooltip
+                    title={`Additional team seats are $${selectedUserDetails?.planCapabilities?.costPerAdditionalTeamSeat}/month each.`}
+                    arrow
+                    componentsProps={{
+                      tooltip: {
+                        sx: {
+                          backgroundColor: '#ffffff', // Ensure white background
+                          color: '#333', // Dark text color
+                          fontSize: '14px',
+                          padding: '10px 15px',
+                          borderRadius: '8px',
+                          boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                        },
+                      },
+                      arrow: {
+                        sx: {
+                          color: '#ffffff', // Match tooltip background
+                        },
+                      },
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontSize: 12,
+                        fontWeight: '600',
+                        color: '#000000',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <Image
+                        src="/agencyIcons/InfoIcon.jpg"
+                        alt="info"
+                        width={16}
+                        height={16}
+                        className="cursor-pointer rounded-full"
+                      />
+                    </div>
+                  </Tooltip>
+                )}
+            </div>
+          }
+          showTasks={true}
+          selectedUser={selectedUserDetails}
+        />
 
         {/* <div>
           <NotficationsDrawer />
@@ -750,7 +758,7 @@ function AdminTeam({ selectedUser, agencyUser }) {
                 })}
               </div>
             ) : (
-                  <div className={`w-full h-full flex flex-col items-center justify-center`}>
+              <div className={`w-full h-full flex flex-col items-center justify-center`}>
                 <Image
                   src={'/otherAssets/noTemView.png'}
                   height={280}
@@ -1063,7 +1071,7 @@ function AdminTeam({ selectedUser, agencyUser }) {
                     <PhoneInput
                       className="outline-none bg-transparent focus:ring-0"
                       country={'us'} // restrict to US only
-                      onlyCountries={['us', 'mx','sv', 'ec']}
+                      onlyCountries={['us', 'mx', 'sv', 'ec']}
                       disableDropdown={true}
                       countryCodeEditable={false}
                       disableCountryCode={false} // Default country
@@ -1168,22 +1176,22 @@ function AdminTeam({ selectedUser, agencyUser }) {
       {/* UpgradePlan Modal - For users without team access */}
       {showUpgradePlanModal && (
         <Elements stripe={getStripe()}>
-        <UpgradePlan
-          open={showUpgradePlanModal}
-          handleClose={async (upgradeResult) => {
-            setShowUpgradePlanModal(false)
-            if (upgradeResult) {
-              // Refresh user details after successful upgrade
-              await getUserDetails()
-            }
-          }}
-          selectedUser={selectedUserDetails}
-          currentFullPlan={selectedUserDetails?.plan}
-          from={selectedUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : selectedUser?.userRole === 'Agency' ? 'agency' : 'User'}
-        />
-      </Elements>
+          <UpgradePlan
+            open={showUpgradePlanModal}
+            handleClose={async (upgradeResult) => {
+              setShowUpgradePlanModal(false)
+              if (upgradeResult) {
+                // Refresh user details after successful upgrade
+                await getUserDetails()
+              }
+            }}
+            selectedUser={selectedUserDetails}
+            currentFullPlan={selectedUserDetails?.plan}
+            from={selectedUser?.userRole === 'AgencySubAccount' ? 'SubAccount' : selectedUser?.userRole === 'Agency' ? 'agency' : 'User'}
+          />
+        </Elements>
       )}
-      
+
     </div>
   );
 }

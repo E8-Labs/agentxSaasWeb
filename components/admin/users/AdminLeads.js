@@ -61,6 +61,7 @@ import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import AdminAssignLead from './AdminAssignLead'
 import CreateSmartlistModal from '@/components/messaging/CreateSmartlistModal'
 import { TypographyH3 } from '@/lib/typography'
+import StandardHeader from '@/components/common/StandardHeader'
 
 const AdminLeads = ({
   handleShowAddLeadModal,
@@ -123,7 +124,7 @@ const AdminLeads = ({
   const [moreLeadsLoader, setMoreLeadsLoader] = useState(false)
   const [nextCursorValue, setNextCursorValue] = useState(0)
   const nextCursorRef = useRef(0) // Track cursor synchronously for scroll handler
-  
+
   // Refs to prevent duplicate requests (like subaccounts)
   const isLoadingMoreRef = useRef(false)
 
@@ -806,7 +807,7 @@ const AdminLeads = ({
     const isSearchingAllSheets = !!searchTrimmed
     // Use ref value for API call to ensure we always use the latest cursor
     const currentCursor = nextCursorRef.current
-    
+
     // If appending (lazy load), check if already loading to prevent duplicates (like subaccounts)
     if (append) {
       if (isLoadingMoreRef.current) {
@@ -822,7 +823,7 @@ const AdminLeads = ({
       setHasMore(true)
       isLoadingMoreRef.current = false
     }
-    
+
     const currentRequestVersion = ++requestVersion.current
     const currentSheetId = SelectedSheetId // Capture the sheet ID at request start
     try {
@@ -897,13 +898,13 @@ const AdminLeads = ({
             if (data && data.length > 0) {
               sheetId = data[0].sheetId
             }
-            
+
             // When searching across all sheets, always process; otherwise only if sheet matches or empty first page
             const shouldProcess =
               isSearchingAllSheets ||
               (sheetId == SelectedSheetId) ||
               (data.length === 0 && wasFirstLoad)
-            
+
             if (shouldProcess) {
               if (wasFirstLoad) {
                 // First page load
@@ -956,7 +957,7 @@ const AdminLeads = ({
                   setLeadColumns([])
                 }
               }
-            } else {}
+            } else { }
 
             setHasMore(apiHasMore)
           } else {
@@ -1684,10 +1685,64 @@ const AdminLeads = ({
         message={snackMessage}
         type={messageType}
       />
-      <div
+      <StandardHeader
+        titleContent={
+          <div className="flex fex-row items-center gap-2">
+            <TypographyH3>Leads</TypographyH3>
+            {userDetails?.currentUsage?.maxLeads &&
+              userDetails?.planCapabilities?.maxLeads < 10000000 &&
+              userDetails?.plan?.planId != null && (
+                <div
+                  style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
+                >
+                  {`${formatFractional2(userDetails?.currentUsage?.maxLeads)}/${formatFractional2(userDetails?.planCapabilities?.maxLeads) || 0} used`}
+                </div>
+              )}
+          </div>
+        }
+        showTasks={true}
+        rightContent={
+          <button
+            style={{
+              backgroundColor: toggleClick.length > 0 ? 'hsl(var(--brand-primary))' : '',
+              color: toggleClick.length > 0 ? 'white' : '#000000',
+            }}
+            className="flex flex-row items-center gap-4 h-[50px] rounded-lg bg-[#33333315] w-[189px] justify-center"
+            onClick={() => {
+              if (userLocalDetails?.plan) {
+                setAssignLeadModal(true)
+              } else {
+                setSnackMessage('Add payment method to continue')
+                setShowSnackMessage(true)
+                setMessageType(SnackbarTypes.Warning)
+              }
+            }}
+            disabled={!toggleClick.length > 0}
+          >
+            {toggleClick.length > 0 ? (
+              <Image
+                src={'/assets/callBtnFocus.png'}
+                height={17}
+                width={17}
+                alt="*"
+              />
+            ) : (
+              <Image
+                src={'/assets/callBtn.png'}
+                height={17}
+                width={17}
+                alt="*"
+              />
+            )}
+            <span style={styles.heading}>Start Campaign</span>
+          </button>
+        }
+        selectedUser={selectedUser}
+      />
+      {/*<div
         className="flex flex-row items-center justify-between w-full px-4 mt-[4px]"
-        style={{ }}
-        // style={{ borderBottom: "1px solid #15151510" }}
+        style={{}}
+      // style={{ borderBottom: "1px solid #15151510" }}
       >
         <div className="flex fex-row items-center gap-2">
           <TypographyH3>Leads</TypographyH3>
@@ -1737,11 +1792,8 @@ const AdminLeads = ({
             )}
             <span style={styles.heading}>Start Campaign</span>
           </button>
-          {/* <div className="flex flex-col">
-            <NotficationsDrawer />
-          </div> */}
         </div>
-      </div>
+      </div>*/}
       <div className="w-[95%] pe-12 mt-2">
         {initialLoader ? (
           <div className="w-full h-screen flex flex-row justify-center mt-12">
@@ -1801,7 +1853,7 @@ const AdminLeads = ({
                 </Modal>
               </div>
             </div>
-           
+
             <div className="flex flex-row items-center justify-between w-full mt-4 w-full">
               <div className="flex flex-row items-center gap-4 overflow-none flex-shrink-0 w-[90%]">
                 <div className="flex flex-row items-center gap-1 w-[22vw] flex-shrink-0 border  rounded-full pe-2">
@@ -1900,7 +1952,7 @@ const AdminLeads = ({
                               setFiltersSelected(filters)
                             }}
                           >
-                            <CloseBtn onClick={() => {}} />
+                            <CloseBtn onClick={() => { }} />
                           </button>
                         </div>
                       </div>
@@ -2002,131 +2054,131 @@ const AdminLeads = ({
 
             {/* Hide sheets list when searching across all sheets */}
             {!(searchLead && String(searchLead).trim()) && (
-            <div
-              className="flex flex-row items-center mt-8 gap-2"
-              style={styles.paragraph}
+              <div
+                className="flex flex-row items-center mt-8 gap-2"
+                style={styles.paragraph}
               // className="flex flex-row items-center mt-8 gap-2"
               // style={{ ...styles.paragraph, overflowY: "hidden" }}
-            >
-              <div
-                className="flex flex-row items-center gap-2 w-full"
-                style={{
-                  ...styles.paragraph,
-                  overflowY: 'hidden',
-                  scrollbarWidth: 'none', // For Firefox
-                  msOverflowStyle: 'none', // For Internet Explorer and Edge
-                }}
               >
-                <style jsx>
-                  {`
+                <div
+                  className="flex flex-row items-center gap-2 w-full"
+                  style={{
+                    ...styles.paragraph,
+                    overflowY: 'hidden',
+                    scrollbarWidth: 'none', // For Firefox
+                    msOverflowStyle: 'none', // For Internet Explorer and Edge
+                  }}
+                >
+                  <style jsx>
+                    {`
                     div::-webkit-scrollbar {
                       display: none; /* For Chrome, Safari, and Opera */
                     }
                   `}
-                </style>
-                {SheetsList.map((item, index) => {
-                  return (
-                    <div
-                      key={index}
-                      className="flex flex-row items-center gap-1 px-3"
-                      style={{
-                        borderBottom:
-                          SelectedSheetId === item.id
-                            ? '2px solid hsl(var(--brand-primary))'
-                            : '',
-                        color: SelectedSheetId === item.id ? 'hsl(var(--brand-primary))' : '',
-                        whiteSpace: 'nowrap', // Prevent text wrapping
-                      }}
+                  </style>
+                  {SheetsList.map((item, index) => {
+                    return (
+                      <div
+                        key={index}
+                        className="flex flex-row items-center gap-1 px-3"
+                        style={{
+                          borderBottom:
+                            SelectedSheetId === item.id
+                              ? '2px solid hsl(var(--brand-primary))'
+                              : '',
+                          color: SelectedSheetId === item.id ? 'hsl(var(--brand-primary))' : '',
+                          whiteSpace: 'nowrap', // Prevent text wrapping
+                        }}
                       // className='flex flex-row items-center gap-1 px-3'
                       // style={{ borderBottom: SelectedSheetId === item.id ? "2px solid hsl(var(--brand-primary))" : "", color: SelectedSheetId === item.id ? "hsl(var(--brand-primary))" : "" }}
-                    >
-                      <button
-                        style={styles.paragraph}
-                        className="outline-none w-full"
-                        onClick={() => {
-                          setSearchLead('')
-                          setSelectedSheetId(item.id)
-                          setToggleClick([])
-                          //   getLeads(item, 0);
-                        }}
                       >
-                        {item.sheetName}
-                      </button>
-                      <button
-                        className="outline-none"
-                        aria-describedby={id}
-                        variant="contained"
-                        onClick={(event) => {
-                          handleShowPopup(event, item)
-                        }}
-                      >
-                        <DotsThree weight="bold" size={25} color="black" />
-                      </button>
-                      <Popover
-                        id={id}
-                        open={open}
-                        anchorEl={anchorEl}
-                        onClose={handleClosePopup}
-                        anchorOrigin={{
-                          vertical: 'bottom',
-                          horizontal: 'right',
-                        }}
-                        transformOrigin={{
-                          vertical: 'top',
-                          horizontal: 'left', // Ensures the Popover's top right corner aligns with the anchor point
-                        }}
-                        PaperProps={{
-                          elevation: 0, // This will remove the shadow
-                          style: {
-                            boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
-                            borderRadius: '10px',
-                            width: '120px',
-                          },
-                        }}
-                      >
-                        <div
-                          className="p-2 flex flex-col gap-2"
-                          style={{ fontWeight: '500', fontSize: 15 }}
+                        <button
+                          style={styles.paragraph}
+                          className="outline-none w-full"
+                          onClick={() => {
+                            setSearchLead('')
+                            setSelectedSheetId(item.id)
+                            setToggleClick([])
+                            //   getLeads(item, 0);
+                          }}
                         >
-                          {delSmartListLoader ? (
-                            <CircularProgress size={15} sx={{ color: 'hsl(var(--brand-primary))' }} />
-                          ) : (
-                            <button
-                              className="text-red flex flex-row items-center gap-1"
-                              onClick={handleDeleteSmartList}
-                            >
-                              <Image
-                                src={'/assets/delIcon.png'}
-                                height={18}
-                                width={18}
-                                alt="*"
-                              />
-                              <p
-                                className="text-red"
-                                style={{ fontWeight: '00', fontSize: 16 }}
+                          {item.sheetName}
+                        </button>
+                        <button
+                          className="outline-none"
+                          aria-describedby={id}
+                          variant="contained"
+                          onClick={(event) => {
+                            handleShowPopup(event, item)
+                          }}
+                        >
+                          <DotsThree weight="bold" size={25} color="black" />
+                        </button>
+                        <Popover
+                          id={id}
+                          open={open}
+                          anchorEl={anchorEl}
+                          onClose={handleClosePopup}
+                          anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'right',
+                          }}
+                          transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'left', // Ensures the Popover's top right corner aligns with the anchor point
+                          }}
+                          PaperProps={{
+                            elevation: 0, // This will remove the shadow
+                            style: {
+                              boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.05)',
+                              borderRadius: '10px',
+                              width: '120px',
+                            },
+                          }}
+                        >
+                          <div
+                            className="p-2 flex flex-col gap-2"
+                            style={{ fontWeight: '500', fontSize: 15 }}
+                          >
+                            {delSmartListLoader ? (
+                              <CircularProgress size={15} sx={{ color: 'hsl(var(--brand-primary))' }} />
+                            ) : (
+                              <button
+                                className="text-red flex flex-row items-center gap-1"
+                                onClick={handleDeleteSmartList}
                               >
-                                Delete
-                              </p>
-                            </button>
-                          )}
-                        </div>
-                      </Popover>
-                    </div>
-                  )
-                })}
+                                <Image
+                                  src={'/assets/delIcon.png'}
+                                  height={18}
+                                  width={18}
+                                  alt="*"
+                                />
+                                <p
+                                  className="text-red"
+                                  style={{ fontWeight: '00', fontSize: 16 }}
+                                >
+                                  Delete
+                                </p>
+                              </button>
+                            )}
+                          </div>
+                        </Popover>
+                      </div>
+                    )
+                  })}
+                </div>
+                <button
+                  className="flex flex-row items-center gap-1 text-brand-primary flex-shrink-0"
+                  style={styles.paragraph}
+                  // onClick={() => { setShowAddNewSheetModal(true) }}
+                  onClick={() => {
+                    handleShowAddLeadModal(true)
+                  }}
+                >
+                  <Plus size={15} color="hsl(var(--brand-primary))" weight="bold" />
+                  <span>New Leads</span>
+                </button>
               </div>
-              <button
-                className="flex flex-row items-center gap-1 text-brand-primary flex-shrink-0"
-                style={styles.paragraph}
-                // onClick={() => { setShowAddNewSheetModal(true) }}
-                onClick={() => {
-                  handleShowAddLeadModal(true)
-                }}
-              >
-                <Plus size={15} color="hsl(var(--brand-primary))" weight="bold" />
-                <span>New Leads</span>
-              </button>
-            </div>
             )}
 
             {/* <div className='w-full flex flex-row items-center mt-4' style={{ ...styles.paragraph, color: "#00000060" }}>
@@ -2209,11 +2261,10 @@ const AdminLeads = ({
                                 return (
                                   <th
                                     key={index}
-                                    className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${
-                                      isMoreColumn
-                                        ? 'sticky right-0 bg-white'
-                                        : ''
-                                    }`}
+                                    className={`border-none px-4 py-2 text-left text-[#00000060] font-[500] ${isMoreColumn
+                                      ? 'sticky right-0 bg-white'
+                                      : ''
+                                      }`}
                                     style={{
                                       whiteSpace: 'nowrap',
                                       overflow: 'hidden',
@@ -2237,11 +2288,10 @@ const AdminLeads = ({
                                   {leadColumns.map((column, colIndex) => (
                                     <td
                                       key={colIndex}
-                                      className={`border-none px-4 py-2 ${
-                                        column.title === 'More'
-                                          ? 'sticky right-0 bg-white'
-                                          : ''
-                                      }`}
+                                      className={`border-none px-4 py-2 ${column.title === 'More'
+                                        ? 'sticky right-0 bg-white'
+                                        : ''
+                                        }`}
                                       style={{
                                         whiteSpace: 'nowrap',
                                         zIndex:
@@ -2533,14 +2583,12 @@ const AdminLeads = ({
                                 onClick={() => {
                                   handleSelectStage(item)
                                 }}
-                                className={`p-2 border border-[#00000020] ${
-                                  found >= 0 ? `bg-brand-primary` : 'bg-transparent'
-                                } px-6
-                                                                    ${
-                                                                      found >= 0
-                                                                        ? `text-white`
-                                                                        : 'text-black'
-                                                                    } rounded-2xl`}
+                                className={`p-2 border border-[#00000020] ${found >= 0 ? `bg-brand-primary` : 'bg-transparent'
+                                  } px-6
+                                                                    ${found >= 0
+                                    ? `text-white`
+                                    : 'text-black'
+                                  } rounded-2xl`}
                               >
                                 {item.stageTitle}
                               </button>
@@ -2638,7 +2686,7 @@ const AdminLeads = ({
             leadStageUpdated={HandleUpdateStage}
           />
         </div>
-      )} 
+      )}
 
       {/* Modal to add notes */}
 
