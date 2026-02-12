@@ -1150,7 +1150,7 @@ function EmailTempletePopup({
         }}
       >
         <Box
-          className="w-full h-[100vh] py-4 flex flex-col items-center justify-center"
+          className="w-full max-h-[100vh] py-4 flex flex-col items-center justify-center"
           sx={{
             position: 'absolute',
             top: '50%',
@@ -1162,7 +1162,7 @@ function EmailTempletePopup({
             boxShadow: 24,
             p: 0,
             maxHeight: '80vh',
-            height: '80vh',
+            // height: '80vh',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'visible',
