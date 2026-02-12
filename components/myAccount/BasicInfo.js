@@ -9,6 +9,7 @@ import { useRef } from 'react'
 
 import { UserTypes } from '@/constants/UserTypes'
 import { useUser } from '@/hooks/redux-hooks'
+import { GetServicesForUser } from '@/utilities/AgentServices'
 
 import Apis from '../apis/Apis'
 import getProfileDetails from '../apis/GetProfile'
@@ -16,6 +17,7 @@ import { UpdateProfile } from '../apis/UpdateProfile'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../dashboard/leads/AgentSelectSnackMessage'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 
 function BasicInfo() {
@@ -99,6 +101,9 @@ function BasicInfo() {
   const [agentAreasOfFocus, setAgentAreasOfFocus] = useState([])
   const [agentIndustries, setAgentIndustries] = useState([])
   const [selectedIndustries, setSelectedIndustries] = useState([])
+  const [creatorType, setCreatorType] = useState('')
+  const [creatorPrimarySell, setCreatorPrimarySell] = useState([])
+  const [creatorAudienceEngage, setCreatorAudienceEngage] = useState([])
 
   const [loading, setloading] = useState(false)
   const [loading2, setloading2] = useState(false)
@@ -151,6 +156,34 @@ function BasicInfo() {
 
   const [userRole, setUserRole] = useState('')
   const [userType, setUserType] = useState('')
+
+  const [creatorSaveLoading, setCreatorSaveLoading] = useState(false)
+
+  const CREATOR_TYPES = [
+    { id: 'coach_consultant', title: 'Coach / Consultant' },
+    { id: 'course_creator', title: 'Course Creator' },
+    { id: 'influencer_personal_brand', title: 'Influencer / Personal Brand' },
+    { id: 'ecommerce_brand_owner', title: 'E-commerce Brand Owner' },
+    { id: 'educator_community_builder', title: 'Educator / Community Builder' },
+    { id: 'thought_leader_speaker', title: 'Thought Leader / Speaker' },
+  ]
+  const CREATOR_PRIMARY_SELL_OPTIONS = [
+    { id: 'high_ticket_coaching', title: 'High-Ticket Coaching ($3k+)' },
+    { id: 'mid_ticket_programs', title: 'Mid-Ticket Programs ($500–$3k)' },
+    { id: 'low_ticket_offers', title: 'Low-Ticket Offers / Digital Products' },
+    { id: 'membership_community', title: 'Membership / Community' },
+    { id: 'services_dfy_agency', title: 'Services (DFY / Agency)' },
+    { id: 'affiliate_brand_deals', title: 'Affiliate / Brand Deals' },
+  ]
+  const CREATOR_AUDIENCE_ENGAGE_OPTIONS = [
+    { id: 'instagram', title: 'Instagram' },
+    { id: 'youtube', title: 'YouTube' },
+    { id: 'tiktok', title: 'TikTok' },
+    { id: 'linkedin', title: 'LinkedIn' },
+    { id: 'email_list', title: 'Email List' },
+    { id: 'skool_community', title: 'Skool / Private Community' },
+    { id: 'multi_platform', title: 'Multi-Platform' },
+  ]
 
   const primaryClientTypes = [
     {
@@ -307,9 +340,62 @@ function BasicInfo() {
       //console.log;
       setServiceId(servicesArray)
       setOriginalSelectedService(servicesArray)
+
+      // Creator-specific profile fields
+      setCreatorType(userData?.user?.creatorType || '')
+      try {
+        setCreatorPrimarySell(
+          typeof userData?.user?.creatorPrimarySell === 'string'
+            ? JSON.parse(userData?.user?.creatorPrimarySell || '[]')
+            : userData?.user?.creatorPrimarySell || [],
+        )
+        setCreatorAudienceEngage(
+          typeof userData?.user?.creatorAudienceEngage === 'string'
+            ? JSON.parse(userData?.user?.creatorAudienceEngage || '[]')
+            : userData?.user?.creatorAudienceEngage || [],
+        )
+      } catch (e) {
+        setCreatorPrimarySell([])
+        setCreatorAudienceEngage([])
+      }
     }
 
-    getProfile()
+    const loadProfileThenRefresh = async () => {
+      await getProfileDetails()
+      const LocalData = localStorage.getItem('User')
+      if (LocalData) {
+        const userData = JSON.parse(LocalData)
+        const servicesArray = []
+        const industriesArray = []
+        const focusAreasArray = []
+        userData?.user?.services?.forEach((item) => servicesArray.push(item.id))
+        userData?.user?.userIndustry?.forEach((item) => industriesArray.push(item.id))
+        userData?.user?.focusAreas?.forEach((item) => focusAreasArray.push(item.id))
+        setServiceId(servicesArray)
+        setOriginalSelectedService(servicesArray)
+        setSelectedIndustries(industriesArray)
+        setOriginalSelectedIndustries(industriesArray)
+        setSelectedArea(focusAreasArray)
+        setOriginalSelectedArea(focusAreasArray)
+        setCreatorType(userData?.user?.creatorType || '')
+        try {
+          setCreatorPrimarySell(
+            typeof userData?.user?.creatorPrimarySell === 'string'
+              ? JSON.parse(userData?.user?.creatorPrimarySell || '[]')
+              : userData?.user?.creatorPrimarySell || [],
+          )
+          setCreatorAudienceEngage(
+            typeof userData?.user?.creatorAudienceEngage === 'string'
+              ? JSON.parse(userData?.user?.creatorAudienceEngage || '[]')
+              : userData?.user?.creatorAudienceEngage || [],
+          )
+        } catch (e) {
+          setCreatorPrimarySell([])
+          setCreatorAudienceEngage([])
+        }
+      }
+    }
+    loadProfileThenRefresh()
   }, [])
 
   const hasAreaFocusChanged = () => {
@@ -566,10 +652,16 @@ function BasicInfo() {
         })
 
         if (response) {
-          //console.log;
-          setAgentServices(response.data.data.agentServices)
-          setAgentAreasOfFocus(response.data.data.areaOfFocus)
-          setAgentIndustries(response.data.data.userIndustry)
+          const apiServices = response.data.data?.agentServices
+          const apiAreas = response.data.data?.areaOfFocus
+          const apiIndustries = response.data.data?.userIndustry
+          if (AgentTypeTitle === 'Creator' && (!apiServices || apiServices.length === 0)) {
+            setAgentServices(GetServicesForUser('Creator'))
+          } else {
+            setAgentServices(apiServices || [])
+          }
+          setAgentAreasOfFocus(apiAreas || [])
+          setAgentIndustries(apiIndustries || [])
         } else {
           alert(response.data.message)
         }
@@ -985,6 +1077,58 @@ function BasicInfo() {
       return primaryClientTypes4
     } else {
       return primaryClientTypes2
+    }
+  }
+
+  const toggleCreatorPrimarySell = (id) => {
+    setCreatorPrimarySell((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    )
+  }
+  const toggleCreatorAudienceEngage = (id) => {
+    setCreatorAudienceEngage((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
+    )
+  }
+
+  const handleCreatorSave = async () => {
+    try {
+      setCreatorSaveLoading(true)
+      const data = {
+        creatorType: creatorType || undefined,
+        creatorPrimarySell: JSON.stringify(creatorPrimarySell || []),
+        creatorAudienceEngage: JSON.stringify(creatorAudienceEngage || []),
+      }
+      const updated = await UpdateProfile(data)
+      if (updated) {
+        setCreatorType(updated.creatorType || '')
+        try {
+          setCreatorPrimarySell(
+            typeof updated.creatorPrimarySell === 'string' && updated.creatorPrimarySell
+              ? JSON.parse(updated.creatorPrimarySell)
+              : Array.isArray(updated.creatorPrimarySell)
+                ? updated.creatorPrimarySell
+                : []
+          )
+        } catch (_) {
+          setCreatorPrimarySell([])
+        }
+        try {
+          setCreatorAudienceEngage(
+            typeof updated.creatorAudienceEngage === 'string' && updated.creatorAudienceEngage
+              ? JSON.parse(updated.creatorAudienceEngage)
+              : Array.isArray(updated.creatorAudienceEngage)
+                ? updated.creatorAudienceEngage
+                : []
+          )
+        } catch (_) {
+          setCreatorAudienceEngage([])
+        }
+      }
+      setCreatorSaveLoading(false)
+      showSuccess('Account Updated')
+    } catch (e) {
+      setCreatorSaveLoading(false)
     }
   }
 
@@ -2193,18 +2337,20 @@ function BasicInfo() {
                 marginBottom: '2vh',
               }}
             >
-              {agentAreasOfFocus.length > 0
-                ? 'What area of real estate do you focus on?'
-                : 'What industries do you specialize in?'}
+              {userType === UserTypes.Creator
+                ? 'What type of creator are you?'
+                : agentAreasOfFocus.length > 0
+                  ? 'What area of real estate do you focus on?'
+                  : 'What industries do you specialize in?'}
             </div>
-            {selectedArea.length > 0 &&
+            {userType !== UserTypes.Creator &&
+              selectedArea.length > 0 &&
               hasAreaFocusChanged() &&
               (areaLoading ? (
                 <CircularProgress size={20} />
               ) : (
                 <button
                   onClick={async () => {
-                    //console.log;
                     if (userType == UserTypes.RecruiterAgent) {
                       handleIndustryChange()
                     } else {
@@ -2221,6 +2367,91 @@ function BasicInfo() {
                 </button>
               ))}
           </div>
+
+          {userType === UserTypes.Creator && (
+            <div className="w-9/12 flex flex-col gap-6 mb-4">
+              <div>
+                <div style={{ fontSize: 14, fontWeight: '700', marginBottom: 8 }}>
+                  What type of creator are you?
+                </div>
+                <div className="flex flex-col gap-2">
+                  {CREATOR_TYPES.map((item) => (
+                    <label
+                      key={item.id}
+                      className="flex flex-row items-center gap-3 cursor-pointer rounded-lg py-2"
+                    >
+                      <Checkbox
+                        checked={creatorType === item.id}
+                        onCheckedChange={(checked) =>
+                          setCreatorType(checked ? item.id : '')
+                        }
+                        className="h-5 w-5 rounded border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                      />
+                      <span className="text-sm font-medium">{item.title}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: '700', marginBottom: 8 }}>
+                  What do you primarily sell?
+                </div>
+                <div className="flex flex-col gap-2">
+                  {CREATOR_PRIMARY_SELL_OPTIONS.map((item) => (
+                    <label
+                      key={item.id}
+                      className="flex flex-row items-center gap-3 cursor-pointer rounded-lg py-2"
+                    >
+                      <Checkbox
+                        checked={creatorPrimarySell.includes(item.id)}
+                        onCheckedChange={() => toggleCreatorPrimarySell(item.id)}
+                        className="h-5 w-5 rounded border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                      />
+                      <span className="text-sm font-medium">{item.title}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: '700', marginBottom: 8 }}>
+                  Where does your audience primarily engage?
+                </div>
+                <div className="flex flex-col gap-2">
+                  {CREATOR_AUDIENCE_ENGAGE_OPTIONS.map((item) => (
+                    <label
+                      key={item.id}
+                      className="flex flex-row items-center gap-3 cursor-pointer rounded-lg py-2"
+                    >
+                      <Checkbox
+                        checked={creatorAudienceEngage.includes(item.id)}
+                        onCheckedChange={() =>
+                          toggleCreatorAudienceEngage(item.id)
+                        }
+                        className="h-5 w-5 rounded border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                      />
+                      <span className="text-sm font-medium">{item.title}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                {creatorSaveLoading ? (
+                  <CircularProgress size={24} />
+                ) : (
+                  <button
+                    onClick={handleCreatorSave}
+                    style={{
+                      color: '#8a2be2',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                    }}
+                  >
+                    Save creator details
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
 
           {agentAreasOfFocus.length > 0 && (
             <div className="w-9/12 flex flex-row flex-wrap gap-2 ">
