@@ -231,26 +231,30 @@ const NewMessageModal = ({
   }
 
   useEffect(() => {
-    const consolesList = [
-      { key: "isEditing", value: isEditing },
-      { key: "IsdefaultCadence", value: IsdefaultCadence },
-      { key: "isPipelineMode", value: isPipelineMode },
-      { key: "open", value: open },
-      { key: "selectedMode", value: selectedMode },
-      { key: "selectedUser", value: selectedUser },
-      { key: "selectedTemplate", value: selectedTemplate },
-      { key: "selectedPhoneNumber", value: selectedPhoneNumber },
-      { key: "selectedEmailAccount", value: selectedEmailAccount }
-    ]
-    if(open === true){
+    console.log("mode in NewMessageModal is", mode);
+  }, [mode])
 
-      console.log("--------------------------------")
-      consolesList.forEach(item => {
-        console.log(`key is ${item.key}: ${item.value}`)
-      })
-      console.log("--------------------------------")
-    }
-  }, [isEditing, IsdefaultCadence, isPipelineMode, open, selectedMode, selectedUser, selectedTemplate, selectedPhoneNumber, selectedEmailAccount])
+  // useEffect(() => {
+  //   const consolesList = [
+  //     { key: "isEditing", value: isEditing },
+  //     { key: "IsdefaultCadence", value: IsdefaultCadence },
+  //     { key: "isPipelineMode", value: isPipelineMode },
+  //     { key: "open", value: open },
+  //     { key: "selectedMode", value: selectedMode },
+  //     { key: "selectedUser", value: selectedUser },
+  //     { key: "selectedTemplate", value: selectedTemplate },
+  //     { key: "selectedPhoneNumber", value: selectedPhoneNumber },
+  //     { key: "selectedEmailAccount", value: selectedEmailAccount }
+  //   ]
+  //   if(open === true){
+
+  //     console.log("--------------------------------")
+  //     consolesList.forEach(item => {
+  //       console.log(`key is ${item.key}: ${item.value}`)
+  //     })
+  //     console.log("--------------------------------")
+  //   }
+  // }, [isEditing, IsdefaultCadence, isPipelineMode, open, selectedMode, selectedUser, selectedTemplate, selectedPhoneNumber, selectedEmailAccount])
 
   // Update brand color on branding changes
   useEffect(() => {
