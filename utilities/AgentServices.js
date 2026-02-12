@@ -1080,6 +1080,60 @@ export const AgentServices = [
     agentType: 'RealEstateAgent',
     userId: 133.0,
   },
+  // Creator: What would you like your AI to help you with?
+  {
+    id: 801,
+    title: 'Audience Qualification',
+    description:
+      'Identify and segment followers based on interest, intent, or buying readiness.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'Creator',
+  },
+  {
+    id: 802,
+    title: 'Follower Engagement',
+    description:
+      'Support and guide followers through a one on one conversation at scale.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'Creator',
+  },
+  {
+    id: 803,
+    title: 'Offer Qualification',
+    description:
+      'Pre-qualify leads before booking them into coaching, courses, or programs.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'Creator',
+  },
+  {
+    id: 804,
+    title: 'Appointment / Strategy Call Booking',
+    description: 'Schedule discovery calls for high-ticket offers.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'Creator',
+  },
+  {
+    id: 805,
+    title: 'High-Ticket Enrollment Support',
+    description:
+      'Handle objections and warm prospects before closing.',
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'Creator',
+  },
+  {
+    id: 806,
+    title: 'Community Nurturing',
+    description:
+      `Engage and warm your audience over time until they're ready to buy.`,
+    createdAt: '2025-02-11 00:00:00',
+    updatedAt: '2025-02-11 00:00:00',
+    agentType: 'Creator',
+  },
 ]
 
 export function GetServicesForUser(type) {
