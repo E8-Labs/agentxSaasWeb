@@ -25,10 +25,10 @@ export const getTempletes = async (type, userId = null) => {
     if (response) {
       return response.data.data
     }
-  } catch (e) {}
+  } catch (e) { }
 }
 
-export const getA2PNumbers = async (id,isFromAdminOrAgency) => {
+export const getA2PNumbers = async (id, isFromAdminOrAgency) => {
   try {
     let token = AuthToken()
     // console.log('token', token)
@@ -39,7 +39,7 @@ export const getA2PNumbers = async (id,isFromAdminOrAgency) => {
       path = path + '?userId=' + isFromAdminOrAgency?.subAccountData?.id
     }
 
-    console.log("path in getA2PNumbers",path);
+    console.log("path in getA2PNumbers", path);
     const response = await axios.get(path, {
       headers: {
         Authorization: 'Bearer ' + token,
@@ -49,7 +49,7 @@ export const getA2PNumbers = async (id,isFromAdminOrAgency) => {
     if (response) {
       return response.data.data
     }
-  } catch (e) {}
+  } catch (e) { }
 }
 
 export const getTempleteDetails = async (temp, userId = null) => {
@@ -76,7 +76,7 @@ export const getTempleteDetails = async (temp, userId = null) => {
     if (response) {
       return response.data.data
     }
-  } catch (e) {}
+  } catch (e) { }
 }
 
 export const createTemplete = async (data) => {
@@ -126,7 +126,7 @@ export const createTemplete = async (data) => {
     const templateTypeToSend = data.templateType || 'auto'
     formdata.append('templateType', templateTypeToSend)
     console.log('📤 [TempleteServices createTemplete] Sending templateType:', templateTypeToSend, 'from data.templateType:', data.templateType)
-    for (let pair of formdata.entries()) {}
+    for (let pair of formdata.entries()) { }
 
     let path = Apis.templets
 
@@ -192,7 +192,7 @@ export const updateTemplete = async (data, tempId) => {
     const templateTypeToSend = data.templateType || 'auto'
     formdata.append('templateType', templateTypeToSend)
     console.log('📤 [TempleteServices updateTemplete] Sending templateType:', templateTypeToSend, 'from data.templateType:', data.templateType)
-    for (let pair of formdata.entries()) {}
+    for (let pair of formdata.entries()) { }
 
     let path = `${Apis.templets}/${tempId || ''}`
 
@@ -214,10 +214,16 @@ export const updateTemplete = async (data, tempId) => {
   }
 }
 
-export const deleteTemplete = async (temp) => {
+export const deleteTemplete = async (tempData) => {
   try {
     let token = AuthToken()
-    let path = `${Apis.templets}/${temp.id}`
+    let path = `${Apis.templets}/${tempData?.templateId}`
+
+    if (tempData?.selectedUser) {
+      path = path + '?userId=' + tempData?.selectedUser?.id
+    }
+
+    console.log("path in deleteTemplete is", path);
 
     const response = await axios.delete(path, {
       headers: {
@@ -263,7 +269,7 @@ export const getGmailAccounts = async (id) => {
     if (response) {
       return response.data.data
     }
-  } catch (e) {}
+  } catch (e) { }
 }
 
 export const connectGmailAccount = async (data, selectedUser) => {
@@ -318,5 +324,5 @@ export const deleteAccount = async (account) => {
     if (response) {
       return response.data.data
     }
-  } catch (e) {}
+  } catch (e) { }
 }

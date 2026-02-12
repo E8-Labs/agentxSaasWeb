@@ -65,7 +65,7 @@ function SelectedUserDetails({
   const permissionContext = usePermission()
 
   // All menu items definition
-  const allMenuItems = [
+  let allMenuItems = [
     {
       id: 1,
       name: 'Dashboard',
@@ -130,15 +130,22 @@ function SelectedUserDetails({
       permissionKey: 'subaccount.teams.manage',
       paramValue: 'team',
     },
-    {
+  ]
+
+  useEffect(() => {
+    console.log("selectedUser in SelectedUserDetails is", selectedUser);
+    const viewDetailsMenuItem = {
       id: 123,
       name: 'View Details',
       selectedImage: '/svgIcons/selectedTeam.svg',
       unSelectedImage: '/svgIcons/unSelectedTeamIcon.svg',
       permissionKey: null,
       paramValue: 'viewDetails',
-    },
-  ]
+    }
+    if (from === "admin") {
+      allMenuItems = [...allMenuItems, viewDetailsMenuItem]
+    }
+  }, [selectedUser, from])
 
   // Account menu item
   const accountMenu = {

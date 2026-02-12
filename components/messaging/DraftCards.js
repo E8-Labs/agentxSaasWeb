@@ -68,7 +68,7 @@ const DraftCards = ({
   }
 
   return (
-    <div className="px-4 py-3 border-t border-gray-100 bg-gray-50/50">
+    <div className="px-4 py-3 border-t border-gray-100 bg-gray-50/50 max-h-[40svh] overflow-y-auto">
       {/* Loading state */}
       {loading && (
         <div className="flex items-center justify-center py-4">

@@ -2165,7 +2165,11 @@ function DialerModal({
     const templateId = template?.id ?? template?.templateId
     setDeletingTemplateId(templateId ?? null)
     try {
-      const data = await deleteTemplete(template)
+      const delTemplateData = {
+        templateId: templateId,
+        selectedUser: selectedUser,
+      }
+      const data = await deleteTemplete(delTemplateData)
       if (data?.status === true) {
         toast.success(data?.message || 'Template deleted successfully')
         // Remove deleted template from list immediately (fetch would be skipped by cache guard)
