@@ -40,7 +40,7 @@ import AdminAgencyDetails from '@/components/admin/agency/AdminAgencyDetails'
 function AgencySubacount({ selectedAgency }) {
   const [subAccountList, setSubAccountsList] = useState([])
   const [filteredList, setFilteredList] = useState([])
-  const [initialLoader, setInitialLoader] = useState(false)
+  const [initialLoader, setInitialLoader] = useState(true)
   const [moreDropdown, setmoreDropdown] = useState(null)
   const [selectedItem, setSelectedItem] = useState(null)
   const [showModal, setShowModal] = useState(false)
