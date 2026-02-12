@@ -17,6 +17,7 @@ import { UpdateProfile } from '../apis/UpdateProfile'
 import AgentSelectSnackMessage, {
   SnackbarTypes,
 } from '../dashboard/leads/AgentSelectSnackMessage'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 
 function BasicInfo() {
@@ -2373,32 +2374,21 @@ function BasicInfo() {
                 <div style={{ fontSize: 14, fontWeight: '700', marginBottom: 8 }}>
                   What type of creator are you?
                 </div>
-                <div className="flex flex-row flex-wrap gap-2">
+                <div className="flex flex-col gap-2">
                   {CREATOR_TYPES.map((item) => (
-                    <div
+                    <label
                       key={item.id}
-                      className="p-4 flex flex-col justify-betweeen items-start rounded-2xl cursor-pointer"
-                      style={{
-                        borderWidth: 2,
-                        borderColor: creatorType === item.id ? '#7902DF' : '#00000008',
-                        backgroundColor: creatorType === item.id ? '#7902DF05' : 'transparent',
-                        minWidth: '140px',
-                      }}
-                      onClick={() => setCreatorType(item.id)}
+                      className="flex flex-row items-center gap-3 cursor-pointer rounded-lg py-2"
                     >
-                      <div style={{ fontSize: 14, fontWeight: '600' }}>{item.title}</div>
-                      <Image
-                        src={
-                          creatorType === item.id
-                            ? '/otherAssets/selectedTickBtn.png'
-                            : '/otherAssets/unselectedTickBtn.png'
+                      <Checkbox
+                        checked={creatorType === item.id}
+                        onCheckedChange={(checked) =>
+                          setCreatorType(checked ? item.id : '')
                         }
-                        height={24}
-                        width={24}
-                        alt="icon"
-                        style={{ alignSelf: 'flex-end' }}
+                        className="h-5 w-5 rounded border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
                       />
-                    </div>
+                      <span className="text-sm font-medium">{item.title}</span>
+                    </label>
                   ))}
                 </div>
               </div>
@@ -2406,32 +2396,19 @@ function BasicInfo() {
                 <div style={{ fontSize: 14, fontWeight: '700', marginBottom: 8 }}>
                   What do you primarily sell?
                 </div>
-                <div className="flex flex-row flex-wrap gap-2">
+                <div className="flex flex-col gap-2">
                   {CREATOR_PRIMARY_SELL_OPTIONS.map((item) => (
-                    <div
+                    <label
                       key={item.id}
-                      className="p-4 flex flex-col justify-betweeen items-start rounded-2xl cursor-pointer"
-                      style={{
-                        borderWidth: 2,
-                        borderColor: creatorPrimarySell.includes(item.id) ? '#7902DF' : '#00000008',
-                        backgroundColor: creatorPrimarySell.includes(item.id) ? '#7902DF05' : 'transparent',
-                        minWidth: '140px',
-                      }}
-                      onClick={() => toggleCreatorPrimarySell(item.id)}
+                      className="flex flex-row items-center gap-3 cursor-pointer rounded-lg py-2"
                     >
-                      <div style={{ fontSize: 14, fontWeight: '600' }}>{item.title}</div>
-                      <Image
-                        src={
-                          creatorPrimarySell.includes(item.id)
-                            ? '/otherAssets/selectedTickBtn.png'
-                            : '/otherAssets/unselectedTickBtn.png'
-                        }
-                        height={24}
-                        width={24}
-                        alt="icon"
-                        style={{ alignSelf: 'flex-end' }}
+                      <Checkbox
+                        checked={creatorPrimarySell.includes(item.id)}
+                        onCheckedChange={() => toggleCreatorPrimarySell(item.id)}
+                        className="h-5 w-5 rounded border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
                       />
-                    </div>
+                      <span className="text-sm font-medium">{item.title}</span>
+                    </label>
                   ))}
                 </div>
               </div>
@@ -2439,32 +2416,21 @@ function BasicInfo() {
                 <div style={{ fontSize: 14, fontWeight: '700', marginBottom: 8 }}>
                   Where does your audience primarily engage?
                 </div>
-                <div className="flex flex-row flex-wrap gap-2">
+                <div className="flex flex-col gap-2">
                   {CREATOR_AUDIENCE_ENGAGE_OPTIONS.map((item) => (
-                    <div
+                    <label
                       key={item.id}
-                      className="p-4 flex flex-col justify-betweeen items-start rounded-2xl cursor-pointer"
-                      style={{
-                        borderWidth: 2,
-                        borderColor: creatorAudienceEngage.includes(item.id) ? '#7902DF' : '#00000008',
-                        backgroundColor: creatorAudienceEngage.includes(item.id) ? '#7902DF05' : 'transparent',
-                        minWidth: '140px',
-                      }}
-                      onClick={() => toggleCreatorAudienceEngage(item.id)}
+                      className="flex flex-row items-center gap-3 cursor-pointer rounded-lg py-2"
                     >
-                      <div style={{ fontSize: 14, fontWeight: '600' }}>{item.title}</div>
-                      <Image
-                        src={
-                          creatorAudienceEngage.includes(item.id)
-                            ? '/otherAssets/selectedTickBtn.png'
-                            : '/otherAssets/unselectedTickBtn.png'
+                      <Checkbox
+                        checked={creatorAudienceEngage.includes(item.id)}
+                        onCheckedChange={() =>
+                          toggleCreatorAudienceEngage(item.id)
                         }
-                        height={24}
-                        width={24}
-                        alt="icon"
-                        style={{ alignSelf: 'flex-end' }}
+                        className="h-5 w-5 rounded border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
                       />
-                    </div>
+                      <span className="text-sm font-medium">{item.title}</span>
+                    </label>
                   ))}
                 </div>
               </div>
