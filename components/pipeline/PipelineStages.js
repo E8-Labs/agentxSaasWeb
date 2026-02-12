@@ -2165,39 +2165,42 @@ const PipelineStages = ({
                 hideTag={true}
               />
             )}
-
-            <NewMessageModal
-              open={showMessageModal}
-              mode={messageModalMode}
-              isPipelineMode={true}
-              isEditing={isEditing}
-              editingRow={editingRow}
-              selectedUser={targetUser}
-              isBookingStage={selectedPipelineStages?.[editingStageIndex ?? selectedIndex]?.identifier === 'booked'}
-              onClose={() => {
-                setShowMessageModal(false)
-                setIsEditing(false)
-                setEditingRow(null)
-                setEditingStageIndex(null)
-                console.log("onClose key is called selectedIndex is", selectedIndex)
-                closeAddMenu(selectedIndex)
-              }}
-              onSaveTemplate={(templateData) => {
-                if (isEditing && editingRow) {
-                  console.log("trigerred to update")
-                  handleUpdateRow(editingRow.id, templateData)
-                } else {
-                  console.log("trigerred to add new row")
-                  addRow(selectedIndex, selectedType, templateData)
-                }
-                setShowMessageModal(false)
-                setIsEditing(false)
-                setEditingRow(null)
-                setEditingStageIndex(null)
-                closeAddMenu(selectedIndex)
-              }}
-              isFromAdminOrAgency={isFromAdminOrAgency}
-            />
+            {
+              showMessageModal && (
+                <NewMessageModal
+                  open={showMessageModal}
+                  mode={messageModalMode}
+                  isPipelineMode={true}
+                  isEditing={isEditing}
+                  editingRow={editingRow}
+                  selectedUser={targetUser}
+                  isBookingStage={selectedPipelineStages?.[editingStageIndex ?? selectedIndex]?.identifier === 'booked'}
+                  onClose={() => {
+                    setShowMessageModal(false)
+                    setIsEditing(false)
+                    setEditingRow(null)
+                    setEditingStageIndex(null)
+                    console.log("onClose key is called selectedIndex is", selectedIndex)
+                    closeAddMenu(selectedIndex)
+                  }}
+                  onSaveTemplate={(templateData) => {
+                    if (isEditing && editingRow) {
+                      console.log("trigerred to update")
+                      handleUpdateRow(editingRow.id, templateData)
+                    } else {
+                      console.log("trigerred to add new row")
+                      addRow(selectedIndex, selectedType, templateData)
+                    }
+                    setShowMessageModal(false)
+                    setIsEditing(false)
+                    setEditingRow(null)
+                    setEditingStageIndex(null)
+                    closeAddMenu(selectedIndex)
+                  }}
+                  isFromAdminOrAgency={isFromAdminOrAgency}
+                />
+              )
+            }
 
             {/* Code for add stage modal */}
             <Modal
