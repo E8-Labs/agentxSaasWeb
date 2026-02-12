@@ -19,7 +19,7 @@ import AuthSelectionPopup from '@/components/pipeline/AuthSelectionPopup'
 import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
 import UpgardView from '@/constants/UpgardView'
 import { getUniquesColumn } from '@/components/globalExtras/GetUniqueColumns'
-import { Paperclip, X as XIcon, MessageCircleMore, Mail, AlertTriangle, ChevronDown, Trash2 } from 'lucide-react'
+import { Paperclip, X as XIcon, MessageCircleMore, Mail, AlertTriangle, ChevronDown, Trash2, MessageSquareDot } from 'lucide-react'
 import { FormControl, ListSubheader, MenuItem, Select } from '@mui/material'
 import { useUser } from '@/hooks/redux-hooks'
 import ToggleGroupCN from '@/components/ui/ToggleGroupCN'
@@ -1776,7 +1776,7 @@ const NewMessageModal = ({
             <div className="flex items-center justify-between pb-4">
               <ToggleGroupCN
                 options={[
-                  { label: 'SMS', value: 'sms', icon: MessageCircleMore },
+                  { label: 'SMS', value: 'sms', icon: MessageSquareDot },
                   { label: 'Email', value: 'email', icon: Mail },
                 ]}
                 value={selectedMode}
