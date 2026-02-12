@@ -46,6 +46,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
   const [existingApiKey, setExistingApiKey] = useState('') // Legacy: actual key when available (client-masked)
   const [storedApiKeyMasked, setStoredApiKeyMasked] = useState('') // Server-provided masked key (*** + last 6 chars) for display/restore
   const [isEditingApiKey, setIsEditingApiKey] = useState(false) // Track if user is editing
+  const [selectedProvider, setSelectedProvider] = useState('openai') // 'openai' | 'google' for AI integration
 
   // Helper function to mask API key (show last 6 chars, rest as stars) - used only when server sends raw key (legacy)
   const maskApiKey = (key) => {
@@ -76,6 +77,8 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
       if (existingIntegration) {
         setExistingIntegrationId(existingIntegration.id)
+        const provider = existingIntegration.provider === 'google' ? 'google' : 'openai'
+        setSelectedProvider(provider)
         const masked = existingIntegration.apiKeyMasked || ''
         const legacyRaw = existingIntegration.apiKey || ''
         if (masked) {
@@ -135,6 +138,8 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
         // If there's an existing integration, show apiKeyMasked (last 6 chars from server) or placeholder
         if (data.aiIntegration?.id) {
           setExistingIntegrationId(data.aiIntegration.id)
+          const provider = data.aiIntegration.provider === 'google' ? 'google' : 'openai'
+          setSelectedProvider(provider)
           const masked = data.aiIntegration.apiKeyMasked || ''
           const legacyRaw = data.aiIntegration.apiKey || ''
           if (!isEditingApiKey) {
@@ -155,6 +160,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
           setExistingApiKey('')
           setStoredApiKeyMasked('')
           setApiKey('')
+          setSelectedProvider('openai')
         }
       }
     } catch (error) {
@@ -200,6 +206,8 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
 
           if (existingIntegration) {
             setExistingIntegrationId(existingIntegration.id)
+            const provider = existingIntegration.provider === 'google' ? 'google' : 'openai'
+            setSelectedProvider(provider)
             const masked = existingIntegration.apiKeyMasked || ''
             const legacyRaw = existingIntegration.apiKey || ''
             if (masked && !isEditingApiKey && apiKey === '') {
@@ -276,7 +284,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
             const updateResponse = await axios.put(
               updateUrl,
               {
-                provider: 'openai', // Default to openai for now
+                provider: selectedProvider,
                 apiKey: trimmedApiKey,
               },
               {
@@ -304,7 +312,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
             const createResponse = await axios.post(
               createUrl,
               {
-                provider: 'openai', // Default to openai for now
+                provider: selectedProvider,
                 apiKey: trimmedApiKey,
               },
               {
@@ -688,13 +696,46 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                 <div className="space-y-6 py-4 max-h-[60svh] overflow-y-auto">
                   {/* API Key Section */}
                   <div className="space-y-2">
+                    <label className="text-sm font-semibold text-gray-900">AI Provider</label>
+                    <div className="flex gap-4">
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="aiProvider"
+                          value="openai"
+                          checked={selectedProvider === 'openai'}
+                          onChange={() => setSelectedProvider('openai')}
+                          className="border-2 border-[#00000020] text-brand-primary focus:ring-brand-primary"
+                        />
+                        <span className="text-sm text-gray-700">OpenAI (GPT)</span>
+                      </label>
+                      <label className="flex items-center gap-2 cursor-pointer">
+                        <input
+                          type="radio"
+                          name="aiProvider"
+                          value="google"
+                          checked={selectedProvider === 'google'}
+                          onChange={() => setSelectedProvider('google')}
+                          className="border-2 border-[#00000020] text-brand-primary focus:ring-brand-primary"
+                        />
+                        <span className="text-sm text-gray-700">Google (Gemini)</span>
+                      </label>
+                    </div>
                     <label className="text-sm font-semibold text-gray-900">API Key</label>
                     <p className="text-sm text-gray-600">
-                      Bring in your own ChatGPT API keys to enable AI text and emails.
+                      {selectedProvider === 'google'
+                        ? 'Bring in your own Gemini API key to enable AI text and emails.'
+                        : 'Bring in your own ChatGPT API keys to enable AI text and emails.'}
                     </p>
                     <Input
                       type={isEditingApiKey ? "password" : "text"}
-                      placeholder={existingIntegrationId ? "Enter new API key to update" : "Enter your ChatGPT API key"}
+                      placeholder={
+                        existingIntegrationId
+                          ? 'Enter new API key to update'
+                          : selectedProvider === 'google'
+                            ? 'Enter your Gemini API key'
+                            : 'Enter your OpenAI API key'
+                      }
                       value={apiKey}
                       onChange={(e) => {
                         const newValue = e.target.value
