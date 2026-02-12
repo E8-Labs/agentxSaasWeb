@@ -23,6 +23,10 @@ const Page = () => {
     setScreenWidth(window.innerWidth)
   }, [id])
 
+  useEffect(() => {
+    console.log("Recording URL in dynamic page is", recordingUrl); 
+  }, [recordingUrl])
+
   const getRecordings = async () => {
     try {
       // Use the local Next.js API route which proxies to the backend

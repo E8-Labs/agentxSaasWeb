@@ -341,8 +341,11 @@ const AdminCallDetails = ({
                       onReadTranscript={handleReadMoreToggle}
                       onPlayRecording={(recordingUrl, callId) => {
                         if (recordingUrl) {
+                          // console.log("Recording URL", recordingUrl);
+                          // console.log("Recording URL Call ID", callId);
                           setShowAudioPlay({ recordingUrl, callId })
                         } else {
+                          // console.log("No recording URL");
                           setShowNoAudioPlay(true)
                         }
                       }}
@@ -378,7 +381,7 @@ const AdminCallDetails = ({
                         }}
                       >
                         <audio controls>
-                          <source src={showAudioPlay} type="audio/mpeg" />
+                          <source src={showAudioPlay?.recordingUrl} type="audio/mpeg" />
                           Your browser does not support the audio element.
                         </audio>
                         <button
@@ -424,7 +427,7 @@ const AdminCallDetails = ({
                         }}
                       >
                         <audio controls>
-                          <source src={showAudioPlay} type="audio/mpeg" />
+                          <source src={showAudioPlay?.recordingUrl} type="audio/mpeg" />
                           Your browser does not support the audio element.
                         </audio>
                         <button
