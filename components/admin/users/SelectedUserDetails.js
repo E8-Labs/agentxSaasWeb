@@ -945,7 +945,7 @@ function SelectedUserDetails({
                 ))}
               </div>
 
-              {(from === "admin" || enablePermissionChecks) && (
+              {(from === "admin" || from === "subaccount" || enablePermissionChecks) && (
                 <div
                   onClick={() => {
                     console.log('clicked')
