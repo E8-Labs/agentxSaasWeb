@@ -82,8 +82,13 @@ const UserService = ({ handleContinue, handleBack }) => {
       })
 
       if (response) {
-        // console.log("response of agent services api is",response.data.data)
-        setServicesData(response.data.data.agentServices)
+        // For Creator, API may not have seeded rows yet; keep local list if empty
+        const apiServices = response.data.data?.agentServices
+        if (AgentTypeTitle === 'Creator' && (!apiServices || apiServices.length === 0)) {
+          setServicesData(servicesLocal)
+        } else {
+          setServicesData(apiServices || servicesLocal)
+        }
       } else {
         // alert(response.data);
       }
