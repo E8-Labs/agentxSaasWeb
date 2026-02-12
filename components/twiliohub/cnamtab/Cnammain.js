@@ -121,7 +121,7 @@ const Cnammain = ({
         if (response) {
           setLoader(false)
           const apiResponse = response.data
-          if (apiResponse.status === true) {
+          if (apiResponse?.status === true) {
             setShowSnack({
               type: SnackbarTypes.Success,
               message: apiResponse.message,
@@ -134,10 +134,22 @@ const Cnammain = ({
               })
             }, 300)
             // handleClose(apiResponse);
-          } else if (apiResponse.status === false) {
+          } else if (apiResponse?.status === false) {
             setShowSnack({
               type: SnackbarTypes.Error,
               message: apiResponse.message || 'Failed to create CNAM',
+              isVisible: true,
+            })
+          } else if (!apiResponse) {
+            setShowSnack({
+              type: SnackbarTypes.Error,
+              message: apiResponse.message || 'Failed to create CNAM',
+              isVisible: true,
+            })
+          } else {
+            setShowSnack({
+              type: SnackbarTypes.Error,
+              message: 'An unexpected error occurred',
               isVisible: true,
             })
           }
@@ -198,7 +210,7 @@ const Cnammain = ({
     >
       <Box
         className="rounded-xl max-w-2xl w-full shadow-lg bg-white border-none shadow-lg absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col p-6"
-        // className="w-full h-[100%]"
+      // className="w-full h-[100%]"
       >
         <div className="w-full flex flex-col items-center justify-between">
           <AgentSelectSnackMessage
