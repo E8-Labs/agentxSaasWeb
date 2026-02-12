@@ -60,8 +60,12 @@ import {
   GetFormattedTimeString,
 } from '@/utilities/utility'
 
+import { getUserLocalData } from '@/components/constants/constants'
+import UpgradeModal from '@/constants/UpgradeModal'
 import PipelineLoading from '@/components/dashboardPipeline/PipelineLoading'
+import ConfigurePopup from '@/components/dashboardPipeline/ConfigurePopup'
 import { TypographyH3 } from '@/lib/typography'
+import StandardHeader from '@/components/common/StandardHeader'
 
 const AdminPipeline1 = ({ selectedUser }) => {
   const bottomRef = useRef()
@@ -170,6 +174,16 @@ const AdminPipeline1 = ({ selectedUser }) => {
   const [assignLeadToMember, setAssignLeadToMember] = useState([])
 
   const [showDeletePipelinePopup, setShowDeletePiplinePopup] = useState(false)
+
+  //code for filter modal popup
+  const [selectedTeamMemberIds, setSelectedTeamMemberIds] = useState([]) // Temporary selection in modal
+  const [appliedTeamMemberIds, setAppliedTeamMemberIds] = useState([]) // Actually applied filter
+  const [filterTeamMembers, setFilterTeamMembers] = useState([])
+  const [reservedLeadsCountInStage, setReservedLeadsCountInStage] =
+    useState(null)
+
+  //value storing of search bar
+  const [searchValue, setSearchValue] = useState('')
 
   const handleChangeNextStage = (event) => {
     let value = event.target.value
@@ -290,8 +304,16 @@ const AdminPipeline1 = ({ selectedUser }) => {
   const [importantCalls, setImportantCalls] = useState([])
   const [selectedCall, setSelectedCall] = useState('')
 
+  const [user, setUser] = useState(null)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+
   useEffect(() => {
-    // getImportantCalls();
+    let data = getUserLocalData()
+    setUser(data?.user ?? null)
+  }, [])
+
+  useEffect(() => {
+    getImportantCalls()
     getMyTeam()
     const pipelineIndex = searchParams.get('pipeline') // Get the value of 'tab'
     let number = Number(pipelineIndex) || 0
@@ -808,7 +830,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
         // }
       })
 
-      for (let [key, value] of formData) {}
+      for (let [key, value] of formData) { }
 
       const response = await axios.post(ApiPath, formData, {
         headers: {
@@ -1706,25 +1728,25 @@ const AdminPipeline1 = ({ selectedUser }) => {
   //   }
   // }
 
-  function handldSearch(e) {
-    let search = e.target.value.toLowerCase()
-    let pipeline = SelectedPipeline
+  // function handldSearch(e) {
+  //   let search = e.target.value.toLowerCase()
+  //   let pipeline = SelectedPipeline
 
-    if (searchTimeout.current) {
-      clearTimeout(searchTimeout.current) // Clear previous timer
-    }
+  //   if (searchTimeout.current) {
+  //     clearTimeout(searchTimeout.current) // Clear previous timer
+  //   }
 
-    searchTimeout.current = setTimeout(() => {
-      if (search === '') {
-        setLeadsList(reservedLeads)
-      } else {
-        getMoreLeadsInStage({
-          stageId: pipeline?.stages[0].id,
-          search: search,
-        })
-      }
-    }, 500) // Delay of 3000ms = 3 seconds
-  }
+  //   searchTimeout.current = setTimeout(() => {
+  //     if (search === '') {
+  //       setLeadsList(reservedLeads)
+  //     } else {
+  //       getMoreLeadsInStage({
+  //         stageId: pipeline?.stages[0].id,
+  //         search: search,
+  //       })
+  //     }
+  //   }, 500) // Delay of 3000ms = 3 seconds
+  // }
 
   //code for get more Leads In Stage
   const getMoreLeadsInStage = async ({ stageId, offset, search }) => {
@@ -1760,7 +1782,35 @@ const AdminPipeline1 = ({ selectedUser }) => {
           setLeadsList([...LeadsList, ...newLeads])
         }
       }
-    } catch (error) {}
+    } catch (error) { }
+  }
+
+  // When opening the filter modal, sync selectedTeamMemberIds with appliedTeamMemberIds
+  const handleOpenFilterModal = () => {
+    setSelectedTeamMemberIds([...appliedTeamMemberIds])
+    setShowFilterModal(true)
+  }
+
+  function handldSearch(e) {
+    let search = e.target.value.toLowerCase()
+    setSearchValue(search)
+    let pipeline = SelectedPipeline
+
+    if (searchTimeout.current) {
+      clearTimeout(searchTimeout.current) // Clear previous timer
+    }
+
+    searchTimeout.current = setTimeout(() => {
+      if (search === '') {
+        setLeadsList(reservedLeads)
+        setLeadsCountInStage(reservedLeadsCountInStage)
+      } else {
+        getMoreLeadsInStage({
+          stageId: pipeline?.stages[0].id,
+          search: search,
+        })
+      }
+    }, 500) // Delay of 3000ms = 3 seconds
   }
 
   const styles = {
@@ -1831,9 +1881,8 @@ const AdminPipeline1 = ({ selectedUser }) => {
         hide={() => setSnackMessage(null)}
         message={snackMessage?.message}
       />
-      <div
+      {/*<div
         className="w-full flex flex-row justify-center"
-        // style={{ borderBottom: "1px solid #15151510" }}
       >
         <div className="w-full">
           <div className="flex flex-row items-center justify-between px-4 mb-4">
@@ -1891,12 +1940,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
                   vertical: 'bottom',
                   horizontal: 'left',
                 }}
-                // PaperProps={{
-                //     elevation: 0, // This will remove the shadow
-                //     style: {
-                //         boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.08)',
-                //     },
-                // }}
               >
                 <div className="p-3">
                   <button
@@ -1949,11 +1992,6 @@ const AdminPipeline1 = ({ selectedUser }) => {
                         </button>
                       </div>
                       <div className="w-full flex flex-row mt-4">
-                        {/* {
-                                                    delStageLoader ?
-                                                        <CircularProgress size={20} /> :
-                                                       
-                                                } */}
                         <button
                           className="text-black flex flex-row items-center gap-4 me-2 outline-none"
                           style={styles.paragraph}
@@ -2011,13 +2049,192 @@ const AdminPipeline1 = ({ selectedUser }) => {
                   />
                 </button>
               </div>
-              {/* <div className="flex flex-col">
-                <NotficationsDrawer />
-              </div> */}
             </div>
           </div>
         </div>
-      </div>
+      </div>*/}
+
+      <StandardHeader
+        titleContent={
+          <div className="flex flex-row items-center gap-2">
+            <TypographyH3>
+              {SelectedPipeline?.title}
+            </TypographyH3>
+            <div>
+              {PipeLines.length > 1 && !pipelineDetailLoader && (
+                <button
+                  className="outline-none"
+                  aria-describedby={OtherPipelineId}
+                  variant="contained"
+                  onClick={handleShowOtherPipeline}
+                >
+                  <CaretDown size={22} weight="bold" />
+                </button>
+              )}
+              <Menu
+                id={OtherPipelineId}
+                anchorEl={otherPipelinePopoverAnchorel}
+                open={openOtherPipelines}
+                onClose={handleCloseOtherPipeline}
+                MenuListProps={{
+                  'aria-labelledby': OtherPipelineId,
+                }}
+              >
+                {PipeLines.map((item, index) => (
+                  <MenuItem
+                    key={index}
+                    onClick={() => {
+                      handleSelectOtherPipeline(item, index)
+                      handleCloseOtherPipeline() // Close menu after selection
+                    }}
+                  >
+                    {item.title}
+                  </MenuItem>
+                ))}
+              </Menu>
+            </div>
+            <button
+              aria-describedby={id}
+              variant="contained"
+              onClick={handleShowPipelinePopover}
+              className="outline-none"
+            >
+              <DotsThree size={27} weight="bold" />
+            </button>
+            <Popover
+              id={id}
+              open={open}
+              anchorEl={pipelinePopoverAnchorel}
+              onClose={handlePipelineClosePopover}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left',
+              }}
+            >
+              <div className="p-3">
+                <button
+                  className="flex flex-row items-center gap-4"
+                  onClick={() => {
+                    if (
+                      user?.planCapabilities.maxPipelines >
+                      user?.currentUsage.maxPipelines
+                    ) {
+                      setCreatePipeline(true)
+                    } else {
+                      setShowUpgradeModal(true)
+                    }
+                  }}
+                >
+                  <Plus size={17} weight="bold" />{' '}
+                  <span style={{ fontWeight: '500', fontSize: 15 }}>
+                    New Pipeline
+                  </span>
+                </button>
+                {SelectedPipeline?.pipelineType !== 'agency_use' && (
+                  <>
+                    <div className="w-full flex flex-row mt-4">
+                      <button
+                        className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                        style={styles.paragraph}
+                        onClick={() => {
+                          setShowRenamePipelinePopup(true)
+                          setRenamePipeline(SelectedPipeline.title)
+                        }}
+                      >
+                        <Image
+                          src={'/assets/editPen.png'}
+                          height={15}
+                          width={15}
+                          alt="*"
+                        />
+                        Rename
+                      </button>
+                    </div>
+                    <div className="w-full flex flex-row mt-4">
+                      <button
+                        className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                        style={styles.paragraph}
+                        onClick={() => {
+                          setAddNewStageModal(true)
+                        }}
+                      >
+                        <Image
+                          src={'/svgIcons/arrowBlack.svg'}
+                          height={18}
+                          width={15}
+                          alt="*"
+                        />
+                        Add Stage
+                      </button>
+                    </div>
+                    <div className="w-full flex flex-row mt-4">
+                      <button
+                        className="text-black flex flex-row items-center gap-4 me-2 outline-none"
+                        style={styles.paragraph}
+                        onClick={() => {
+                          setShowStagesPopup(true)
+                        }}
+                      >
+                        <Image
+                          src={'/assets/list.png'}
+                          height={18}
+                          width={15}
+                          alt="*"
+                        />
+                        Rearrange Stage
+                      </button>
+                    </div>
+                  </>
+                )}
+
+                <button
+                  className="text-red flex flex-row items-center gap-4 mt-4 me-2 outline-none"
+                  style={styles.paragraph}
+                  onClick={() => {
+                    setShowDeletePiplinePopup(true)
+                  }}
+                >
+                  <Image
+                    src={'/assets/delIcon.png'}
+                    height={18}
+                    width={18}
+                    alt="*"
+                  />
+                  Delete
+                </button>
+              </div>
+            </Popover>
+          </div>
+        }
+        showTasks={true}
+        showFilters={true}
+        onFilterClick={handleOpenFilterModal}
+        filterBadge={appliedTeamMemberIds.length > 0 ? appliedTeamMemberIds.length : null}
+        rightContent={
+          <div
+            className="flex flex-row items-center justify-between border h-[35px] px-4 gap-2 rounded-full"
+          >
+            <input
+              style={{ MozOutline: 'none' }}
+              value={searchValue}
+              onChange={handldSearch}
+              className="outline-none bg-transparent border-none text-sm focus:outline-none focus:ring-0 rounded-full"
+              placeholder="Search by name, phone or email"
+            />
+            <button className="outline-none">
+              <Image
+                src={'/assets/searchIcon.png'}
+                height={24}
+                width={24}
+                alt="*"
+              />
+            </button>
+          </div>
+        }
+        selectedUser={selectedUser}
+      />
+
+
       {initialLoader ? (
         <div className="w-full flex flex-row justify-center mt-12">
           <CircularProgress size={35} />
@@ -2033,42 +2250,42 @@ const AdminPipeline1 = ({ selectedUser }) => {
             scrollbar scrollbar-track-transparent scrollbar-thin scrollbar-thumb-purple
             "
               >
-            <div className="flex flex-row items-center gap-4"></div>
+                <div className="flex flex-row items-center gap-4"></div>
 
-            <div className="flex flex-row items-start gap-2">
-              <div className="flex flex-row items-start gap-4">
-                {StagesList.map((stage, index) => (
-                  <div
-                    key={index}
-                    style={{ width: '300px' }}
-                    className="flex flex-col items-start h-full gap-8"
-                  >
-                    {/* Display the stage */}
-                    <div className="flex flex-row items-center w-full justify-between">
+                <div className="flex flex-row items-start gap-2">
+                  <div className="flex flex-row items-start gap-4">
+                    {StagesList.map((stage, index) => (
                       <div
-                        className="h-[36px] flex flex-row items-center justify-center gap-8 rounded-xl px-4"
-                        style={{
-                          ...styles.heading,
-                          backgroundColor: stage.defaultColor,
-                          color: 'white',
-                          // textShadow: '1px 1px 2px rgba(0, 0, 0, 0.6)',
-                        }}
+                        key={index}
+                        style={{ width: '300px' }}
+                        className="flex flex-col items-start h-full gap-8"
                       >
-                        <span>
-                          {stage.stageTitle.length > 15 ? (
-                            <div className="flex flex-row items-center gap-1">
-                              {stage.stageTitle.slice(0, 15) + '...'}
-                            </div>
-                          ) : (
-                            stage.stageTitle
-                          )}
-                        </span>
-                        <div
-                          // className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
-                          className="rounded-full px-2 py-1 bg-white flex flex-row items-center justify-center text-black"
-                          style={{ ...styles.paragraph, fontSize: 14 }}
-                        >
-                          {/* {leadCounts[stage.id] ? (
+                        {/* Display the stage */}
+                        <div className="flex flex-row items-center w-full justify-between">
+                          <div
+                            className="h-[36px] flex flex-row items-center justify-center gap-8 rounded-xl px-4"
+                            style={{
+                              ...styles.heading,
+                              backgroundColor: stage.defaultColor,
+                              color: 'white',
+                              // textShadow: '1px 1px 2px rgba(0, 0, 0, 0.6)',
+                            }}
+                          >
+                            <span>
+                              {stage.stageTitle.length > 15 ? (
+                                <div className="flex flex-row items-center gap-1">
+                                  {stage.stageTitle.slice(0, 15) + '...'}
+                                </div>
+                              ) : (
+                                stage.stageTitle
+                              )}
+                            </span>
+                            <div
+                              // className="h-[23px] w-[23px] rounded-full bg-white flex flex-row items-center justify-center text-black"
+                              className="rounded-full px-2 py-1 bg-white flex flex-row items-center justify-center text-black"
+                              style={{ ...styles.paragraph, fontSize: 14 }}
+                            >
+                              {/* {leadCounts[stage.id] ? (
                             <div>{leadCounts[stage.id]}</div>
                           ) : (
                             "0"
@@ -2079,465 +2296,465 @@ const AdminPipeline1 = ({ selectedUser }) => {
                             ).length
                           } */}
 
-                          {leadsCountInStage?.[stage.id] !== undefined
-                            ? leadsCountInStage[stage.id]
-                            : '0'}
+                              {leadsCountInStage?.[stage.id] !== undefined
+                                ? leadsCountInStage[stage.id]
+                                : '0'}
 
-                          {/* {leadCounts.map((item) => {
+                              {/* {leadCounts.map((item) => {
    
                                                 })} */}
-                        </div>
-                      </div>
+                            </div>
+                          </div>
 
-                      <button
-                        aria-describedby={stageId}
-                        variant="contained"
-                        onClick={(evetn) => {
-                          if (
-                            stage.identifier === 'new_lead' ||
-                            stage.identifier === 'booked'
-                          ) {
-                            // //console.log;
-                            setShowDelBtn(true)
-                          } else {
-                            setShowDelBtn(false)
-                          }
-                          if (
-                            stage.identifier.startsWith('custom_stage') ||
-                            stage.identifier.startsWith('hot_lead')
-                          ) {
-                            setShowConfigureBtn(true)
-                          } else {
-                            setShowConfigureBtn(false)
-                          }
-                          // //console.log;
-                          handleShowStagePopover(evetn, stage)
-                        }}
-                        className="outline-none"
-                      >
-                        <DotsThree size={27} weight="bold" />
-                      </button>
-                    </div>
-                    <Popover
-                      id={stageId}
-                      open={openStage}
-                      anchorEl={StageAnchorel}
-                      onClose={handleCloseStagePopover}
-                      anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'right',
-                      }}
-                      transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
-                      }}
-                      PaperProps={{
-                        elevation: 0, // This will remove the shadow
-                        style: {
-                          boxShadow:
-                            '0px 4px 5px rgba(0, 0, 0, 0.02), 0px 0px 4px rgba(0, 0, 0, 0.02)',
-                          borderRadius: '12px',
-                        },
-                      }}
-                    >
-                      <div className="w-34 px-4 py-3 bg-white rounded-[10px] shadow-[0px_8px_24.399999618530273px_0px_rgba(0,0,0,0.10)] inline-flex flex-col justify-start items-start gap-4">
-                        <div className="self-stretch flex flex-col justify-start items-start gap-2">
-                          {SelectedPipeline?.pipelineType !== 'agency_use' && (
-                            <button
-                              className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
-                              onClick={() => {
-                                setShowRenamePopup(true)
-                                // //console.log;
-                                setRenameStage(selectedStage.stageTitle)
-                                setUpdateStageColor(selectedStage.defaultColor)
-                              }}
-                            >
-                              <Image
-                                src={'/assets/editPen.png'}
-                                height={16}
-                                width={16}
-                                alt="*"
-                              />
-                              <div className="w-36 text-start justify-start text-black text-base font-normal font-['Inter'] leading-normal">
-                                Rename
-                              </div>
-                            </button>
-                          )}
                           <button
-                            className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
-                            onClick={() => colorPickerRef.current.click()}
+                            aria-describedby={stageId}
+                            variant="contained"
+                            onClick={(evetn) => {
+                              if (
+                                stage.identifier === 'new_lead' ||
+                                stage.identifier === 'booked'
+                              ) {
+                                // //console.log;
+                                setShowDelBtn(true)
+                              } else {
+                                setShowDelBtn(false)
+                              }
+                              if (
+                                stage.identifier.startsWith('custom_stage') ||
+                                stage.identifier.startsWith('hot_lead')
+                              ) {
+                                setShowConfigureBtn(true)
+                              } else {
+                                setShowConfigureBtn(false)
+                              }
+                              // //console.log;
+                              handleShowStagePopover(evetn, stage)
+                            }}
+                            className="outline-none"
                           >
-                            <div
-                              style={{
-                                height: 18,
-                                width: 18,
-                                borderRadius: '50%',
-                                backgroundColor: stageColorUpdate,
-                                cursor: 'pointer', // Pointer to indicate clickable
-                              }}
-                              onClick={() => colorPickerRef.current.click()} // Trigger ColorPicker
-                            />
-                            <div className="justify-start text-start text-black text-base font-normal font-['Inter'] leading-normal">
-                              Color
-                            </div>
-                            <div
-                              style={{
-                                opacity: 0,
-                                position: 'absolute',
-                                pointerEvents: 'auto', // Ensure interactions still work
-                              }}
-                            >
-                              <ColorPicker
-                                ref={colorPickerRef}
-                                setStageColor2={setStageColorUpdate}
-                                setStageColor={setUpdateStageColor}
-                                onlyShowColorBox={true}
-                                updateOnchange={true}
-                                handleUpdateColor={handleUpdateColor}
-                                stageColor={stageColorUpdate}
-                              />
-                            </div>
+                            <DotsThree size={27} weight="bold" />
                           </button>
-                          {showConfigureBtn && (
-                            <button
-                              className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
-                              onClick={() => {
-                                // Parse advancedConfig JSON string to get action and examples
-                                let parsedConfig = {}
-                                if (selectedStage.advancedConfig) {
-                                  try {
-                                    parsedConfig = JSON.parse(
-                                      selectedStage.advancedConfig,
-                                    )
-                                  } catch (error) {
-                                    console.error(
-                                      'Error parsing advancedConfig:',
-                                      error,
-                                    )
-                                  }
-                                }
-
-                                // Pre-populate the modal with selected stage data
-                                setNewStageTitle(selectedStage.stageTitle)
-                                setStageColor(
-                                  selectedStage.defaultColor || '#000000',
-                                )
-                                // setTagsValue(selectedStage.tags)
-                                const tags = selectedStage.tags
-
-                                const tagNames = tags.map((item) => item.tag)
-
-                                setTagsValue(tagNames)
-                                // setAssignToMember(
-                                //   selectedStage?.teams[0]?.name
-                                // );
-                                setAssignToMember(
-                                  selectedStage?.teams?.[
-                                    selectedStage.teams.length - 1
-                                  ]?.name ?? '',
-                                )
-                                setAssignLeadToMember([
-                                  ...assignLeadToMember,
-                                  selectedStage?.teams[0]?.id,
-                                ])
-                                setAction(parsedConfig.action || '')
-
-                                // Pre-populate sample answers if they exist
-                                const stageExamples =
-                                  parsedConfig.examples || []
-
-                                if (stageExamples && stageExamples.length > 0) {
-                                  const updatedInputs = inputs.map(
-                                    (input, index) => {
-                                      const exampleValue = stageExamples[index]
-                                      // Handle both object format {id, value} and string format
-                                      const value =
-                                        typeof exampleValue === 'object' &&
-                                        exampleValue?.value
-                                          ? String(exampleValue.value)
-                                          : String(exampleValue || '')
-
-                                      return {
-                                        ...input,
-                                        value: value,
-                                      }
-                                    },
-                                  )
-                                  setInputs(updatedInputs)
-                                } else {
-                                  // Clear inputs if no examples
-                                  const clearedInputs = inputs.map((input) => ({
-                                    ...input,
-                                    value: '',
-                                  }))
-                                  setInputs(clearedInputs)
-                                }
-
-                                // Automatically show advanced settings when configuring
-                                setShowAdvanceSettings(true)
-                                setIsEditingStage(true)
-                                setAddNewStageModal(true)
-                                // Close the stage popover
-                                handleCloseStagePopover()
-                              }}
-                            >
-                              <Image
-                                src={'/otherAssets/colorDrop.jpg'}
-                                height={18}
-                                width={18}
-                                alt="*"
-                              />
-                              <div className="justify-start text-black text-base font-normal font-['Inter'] leading-normal">
-                                Configure
-                              </div>
-                            </button>
-                          )}
-                          {!showDelBtn && SelectedPipeline?.pipelineType !== 'agency_use' && (
-                            <button
-                              className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
-                              onClick={() => {
-                                // console.log(
-                                //   "Selected stage is:",
-                                //   selectedStage
-                                // );
-                                // setSelectedStage(item);
-                                setShowDelStageModal(true)
-                              }}
-                            >
-                              <Image
-                                src={'/assets/delIcon.png'}
-                                height={18}
-                                width={18}
-                                alt="*"
-                              />
-                              <div className="w-36 justify-start text-start text-red text-base font-normal font-['Inter'] leading-normal">
-                                Delete
-                              </div>
-                            </button>
-                          )}
                         </div>
-                      </div>
-                    </Popover>
+                        <Popover
+                          id={stageId}
+                          open={openStage}
+                          anchorEl={StageAnchorel}
+                          onClose={handleCloseStagePopover}
+                          anchorOrigin={{
+                            vertical: 'bottom',
+                            horizontal: 'right',
+                          }}
+                          transformOrigin={{
+                            vertical: 'top',
+                            horizontal: 'right', // Ensures the Popover's top right corner aligns with the anchor point
+                          }}
+                          PaperProps={{
+                            elevation: 0, // This will remove the shadow
+                            style: {
+                              boxShadow:
+                                '0px 4px 5px rgba(0, 0, 0, 0.02), 0px 0px 4px rgba(0, 0, 0, 0.02)',
+                              borderRadius: '12px',
+                            },
+                          }}
+                        >
+                          <div className="w-34 px-4 py-3 bg-white rounded-[10px] shadow-[0px_8px_24.399999618530273px_0px_rgba(0,0,0,0.10)] inline-flex flex-col justify-start items-start gap-4">
+                            <div className="self-stretch flex flex-col justify-start items-start gap-2">
+                              {SelectedPipeline?.pipelineType !== 'agency_use' && (
+                                <button
+                                  className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
+                                  onClick={() => {
+                                    setShowRenamePopup(true)
+                                    // //console.log;
+                                    setRenameStage(selectedStage.stageTitle)
+                                    setUpdateStageColor(selectedStage.defaultColor)
+                                  }}
+                                >
+                                  <Image
+                                    src={'/assets/editPen.png'}
+                                    height={16}
+                                    width={16}
+                                    alt="*"
+                                  />
+                                  <div className="w-36 text-start justify-start text-black text-base font-normal font-['Inter'] leading-normal">
+                                    Rename
+                                  </div>
+                                </button>
+                              )}
+                              <button
+                                className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
+                                onClick={() => colorPickerRef.current.click()}
+                              >
+                                <div
+                                  style={{
+                                    height: 18,
+                                    width: 18,
+                                    borderRadius: '50%',
+                                    backgroundColor: stageColorUpdate,
+                                    cursor: 'pointer', // Pointer to indicate clickable
+                                  }}
+                                  onClick={() => colorPickerRef.current.click()} // Trigger ColorPicker
+                                />
+                                <div className="justify-start text-start text-black text-base font-normal font-['Inter'] leading-normal">
+                                  Color
+                                </div>
+                                <div
+                                  style={{
+                                    opacity: 0,
+                                    position: 'absolute',
+                                    pointerEvents: 'auto', // Ensure interactions still work
+                                  }}
+                                >
+                                  <ColorPicker
+                                    ref={colorPickerRef}
+                                    setStageColor2={setStageColorUpdate}
+                                    setStageColor={setUpdateStageColor}
+                                    onlyShowColorBox={true}
+                                    updateOnchange={true}
+                                    handleUpdateColor={handleUpdateColor}
+                                    stageColor={stageColorUpdate}
+                                  />
+                                </div>
+                              </button>
+                              {showConfigureBtn && (
+                                <button
+                                  className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
+                                  onClick={() => {
+                                    // Parse advancedConfig JSON string to get action and examples
+                                    let parsedConfig = {}
+                                    if (selectedStage.advancedConfig) {
+                                      try {
+                                        parsedConfig = JSON.parse(
+                                          selectedStage.advancedConfig,
+                                        )
+                                      } catch (error) {
+                                        console.error(
+                                          'Error parsing advancedConfig:',
+                                          error,
+                                        )
+                                      }
+                                    }
 
-                    {/* Display leads matching this stage */}
-                    {LeadsList.filter((lead) => lead.lead.stage === stage.id)
-                      .length > 0 && (
-                      <div
-                        id={`scrollableDiv-${stage.id}`}
-                        className="relative flex flex-col gap-4 mt-4 h-[75vh] overflow-y-auto rounded-xl"
-                        style={{
-                          scrollbarWidth: 'none',
-                          borderWidth: 1,
-                          borderRadius: '12px',
-                          borderStyle: 'solid',
-                          borderColor: '#00000010',
-                        }}
-                      >
-                        <InfiniteScroll
-                          className="mt-4"
-                          endMessage={
-                            <p
+                                    // Pre-populate the modal with selected stage data
+                                    setNewStageTitle(selectedStage.stageTitle)
+                                    setStageColor(
+                                      selectedStage.defaultColor || '#000000',
+                                    )
+                                    // setTagsValue(selectedStage.tags)
+                                    const tags = selectedStage.tags
+
+                                    const tagNames = tags.map((item) => item.tag)
+
+                                    setTagsValue(tagNames)
+                                    // setAssignToMember(
+                                    //   selectedStage?.teams[0]?.name
+                                    // );
+                                    setAssignToMember(
+                                      selectedStage?.teams?.[
+                                        selectedStage.teams.length - 1
+                                      ]?.name ?? '',
+                                    )
+                                    setAssignLeadToMember([
+                                      ...assignLeadToMember,
+                                      selectedStage?.teams[0]?.id,
+                                    ])
+                                    setAction(parsedConfig.action || '')
+
+                                    // Pre-populate sample answers if they exist
+                                    const stageExamples =
+                                      parsedConfig.examples || []
+
+                                    if (stageExamples && stageExamples.length > 0) {
+                                      const updatedInputs = inputs.map(
+                                        (input, index) => {
+                                          const exampleValue = stageExamples[index]
+                                          // Handle both object format {id, value} and string format
+                                          const value =
+                                            typeof exampleValue === 'object' &&
+                                              exampleValue?.value
+                                              ? String(exampleValue.value)
+                                              : String(exampleValue || '')
+
+                                          return {
+                                            ...input,
+                                            value: value,
+                                          }
+                                        },
+                                      )
+                                      setInputs(updatedInputs)
+                                    } else {
+                                      // Clear inputs if no examples
+                                      const clearedInputs = inputs.map((input) => ({
+                                        ...input,
+                                        value: '',
+                                      }))
+                                      setInputs(clearedInputs)
+                                    }
+
+                                    // Automatically show advanced settings when configuring
+                                    setShowAdvanceSettings(true)
+                                    setIsEditingStage(true)
+                                    setAddNewStageModal(true)
+                                    // Close the stage popover
+                                    handleCloseStagePopover()
+                                  }}
+                                >
+                                  <Image
+                                    src={'/otherAssets/colorDrop.jpg'}
+                                    height={18}
+                                    width={18}
+                                    alt="*"
+                                  />
+                                  <div className="justify-start text-black text-base font-normal font-['Inter'] leading-normal">
+                                    Configure
+                                  </div>
+                                </button>
+                              )}
+                              {!showDelBtn && SelectedPipeline?.pipelineType !== 'agency_use' && (
+                                <button
+                                  className="self-stretch px-1 py-2 inline-flex justify-start items-center gap-4"
+                                  onClick={() => {
+                                    // console.log(
+                                    //   "Selected stage is:",
+                                    //   selectedStage
+                                    // );
+                                    // setSelectedStage(item);
+                                    setShowDelStageModal(true)
+                                  }}
+                                >
+                                  <Image
+                                    src={'/assets/delIcon.png'}
+                                    height={18}
+                                    width={18}
+                                    alt="*"
+                                  />
+                                  <div className="w-36 justify-start text-start text-red text-base font-normal font-['Inter'] leading-normal">
+                                    Delete
+                                  </div>
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </Popover>
+
+                        {/* Display leads matching this stage */}
+                        {LeadsList.filter((lead) => lead.lead.stage === stage.id)
+                          .length > 0 && (
+                            <div
+                              id={`scrollableDiv-${stage.id}`}
+                              className="relative flex flex-col gap-4 mt-4 h-[75vh] overflow-y-auto rounded-xl"
                               style={{
-                                textAlign: 'center',
-                                paddingTop: '10px',
-                                fontWeight: '400',
-                                fontFamily: 'inter',
-                                fontSize: 16,
-                                color: '#00000060',
-                                paddingBottom: 20,
+                                scrollbarWidth: 'none',
+                                borderWidth: 1,
+                                borderRadius: '12px',
+                                borderStyle: 'solid',
+                                borderColor: '#00000010',
                               }}
                             >
-                              {`You're all caught up`}
-                            </p>
-                          }
-                          scrollableTarget={`scrollableDiv-${stage.id}`}
-                          dataLength={
-                            LeadsList.filter(
-                              (lead) => lead.lead.stage === stage.id,
-                            ).length
-                          }
-                          next={() => {
-                            let leadsInStage = LeadsList.filter(
-                              (lead) => lead.lead.stage === stage.id,
-                            )
-
-                            // getMoreLeadsInStage(
-                            //   stage.id,
-                            //   leadsInStage.length
-                            // );
-                            getMoreLeadsInStage({
-                              stageId: stage.id,
-                              offset: leadsInStage.length,
-                            })
-                          }} // Fetch more when scrolled
-                          hasMore={hasMoreMap[stage.id] !== false}
-                          loader={
-                            <div className="w-full flex justify-center mt-4 pb-12">
-                              <CircularProgress
-                                size={30}
-                                sx={{ color: 'hsl(var(--brand-primary))' }}
-                              />
-                            </div>
-                          }
-                          style={{ overflow: 'unset' }}
-                        >
-                          {LeadsList.filter(
-                            (lead) => lead.lead.stage === stage.id,
-                          ).map((lead, leadIndex) => (
-                            <div
-                              className="px-3 pt-2 mt-4 h-full"
-                              style={{ width: '300px', height: 'auto' }}
-                              key={leadIndex}
-                            >
-                              <div className="border rounded-xl px-4 py-2 h-full">
-                                <div className="flex flex-row items-center justify-between w-full">
-                                  <button
-                                    className="flex flex-row items-center gap-3"
-                                    onClick={() => {
-                                      // Get the latest lead data from LeadsList to ensure we have the most up-to-date teamsAssigned
-                                      const latestLead = LeadsList.find(
-                                        (item) => item.lead?.id === lead.lead?.id
-                                      )
-                                      const leadToUse = latestLead?.lead || lead.lead
-                                      setShowDetailsModal(true)
-                                      setSelectedLeadsDetails(leadToUse)
-                                      setPipelineId(leadToUse.pipeline?.id || lead.lead.pipeline?.id)
-                                      setNoteDetails(leadToUse.notes || lead.lead.notes || [])
-                                    }}
-                                  >
-                                    {/* Lead profile picture with initials fallback */}
-                                    {getLeadProfileImage(lead.lead, 27, 27)}
-                                    <div style={styles.paragraph}>
-                                      {lead.lead.firstName}
-                                    </div>
-                                  </button>
-                                  {/* show results on hover */}
-                                  {lead.lead.scoringDetails &&
-                                    lead.lead.scoringDetails?.questions
-                                      ?.length > 0 && (
-                                      <ScoringProgress
-                                        value={
-                                          lead.lead.scoringDetails
-                                            ?.totalScore
-                                        }
-                                        maxValue={10}
-                                        questions={
-                                          lead.lead.scoringDetails
-                                            ?.questions
-                                        }
-                                        showTooltip={true}
-                                        tooltipTitle="Results"
-                                      />
-                                    )}
-                                </div>
-                                <div className="flex flex-row items-center justify-between w-full mt-1">
-                                  <div className="flex flex-col gap-1">
-                                    <div
-                                      className="text-[#00000060]"
-                                      style={styles.agentName}
-                                    >
-                                      {(lead?.lead?.email
-                                        ? lead?.lead?.email?.slice(0, 10) +
-                                          '...'
-                                        : '') || ''}
-                                    </div>
-                                    {/* Display plan price for agency_use pipeline leads */}
-                                    {SelectedPipeline?.pipelineType === 'agency_use' &&
-                                      lead?.lead?.agencyUseInfo?.planPrice && (
-                                        <div
-                                          className="text-green-600 font-semibold text-xs"
-                                          style={{ fontSize: '11px' }}
-                                        >
-                                          ${lead.lead.agencyUseInfo.planPrice}
-                                        </div>
-                                      )}
-                                  </div>
-                                  {
-                                    lead.agent && (
-                                  <div className="flex flex-row items-center gap-2">
-                                    {getAgentsListImage(
-                                      lead.agent?.agents[0]?.agentType ===
-                                        'outbound'
-                                        ? lead.agent?.agents[0]
-                                        : lead.agent?.agents[1]? lead.agent?.agents[1] : lead.agent?.agents[0],
-                                      24,
-                                      24,
-                                    )}
-                                    <div
-                                      className="text-brand-primary underline"
-                                      style={styles.agentName}
-                                    >
-                                      {lead.agent?.agents[0]?.agentType ===
-                                      'outbound'
-                                        ? lead.agent?.agents[0]?.name
-                                        : lead.agent?.agents[1]? lead.agent?.agents[1]?.name : lead.agent?.agents[0]?.name}
-                                    </div>
-                                  </div>
-                                  )}
-                                </div>
-
-                                {lead?.lead?.booking?.date && (
-                                  <div
-                                    className="flex flex-row items-center gap-2"
+                              <InfiniteScroll
+                                className="mt-4"
+                                endMessage={
+                                  <p
                                     style={{
-                                      // fontWeight: "500",
-
-                                      color: '#15151560',
-                                      // backgroundColor: 'red',
+                                      textAlign: 'center',
+                                      paddingTop: '10px',
+                                      fontWeight: '400',
+                                      fontFamily: 'inter',
+                                      fontSize: 16,
+                                      color: '#00000060',
+                                      paddingBottom: 20,
                                     }}
                                   >
-                                    <Image
-                                      src="/svgIcons/calendar.svg"
-                                      height={16}
-                                      width={16}
-                                      alt="*"
-                                      style={{ filter: 'opacity(50%)' }}
+                                    {`You're all caught up`}
+                                  </p>
+                                }
+                                scrollableTarget={`scrollableDiv-${stage.id}`}
+                                dataLength={
+                                  LeadsList.filter(
+                                    (lead) => lead.lead.stage === stage.id,
+                                  ).length
+                                }
+                                next={() => {
+                                  let leadsInStage = LeadsList.filter(
+                                    (lead) => lead.lead.stage === stage.id,
+                                  )
+
+                                  // getMoreLeadsInStage(
+                                  //   stage.id,
+                                  //   leadsInStage.length
+                                  // );
+                                  getMoreLeadsInStage({
+                                    stageId: stage.id,
+                                    offset: leadsInStage.length,
+                                  })
+                                }} // Fetch more when scrolled
+                                hasMore={hasMoreMap[stage.id] !== false}
+                                loader={
+                                  <div className="w-full flex justify-center mt-4 pb-12">
+                                    <CircularProgress
+                                      size={30}
+                                      sx={{ color: 'hsl(var(--brand-primary))' }}
                                     />
-                                    {/* {moment(lead?.lead?.booking?.date).format(
+                                  </div>
+                                }
+                                style={{ overflow: 'unset' }}
+                              >
+                                {LeadsList.filter(
+                                  (lead) => lead.lead.stage === stage.id,
+                                ).map((lead, leadIndex) => (
+                                  <div
+                                    className="px-3 pt-2 mt-4 h-full"
+                                    style={{ width: '300px', height: 'auto' }}
+                                    key={leadIndex}
+                                  >
+                                    <div className="border rounded-xl px-4 py-2 h-full">
+                                      <div className="flex flex-row items-center justify-between w-full">
+                                        <button
+                                          className="flex flex-row items-center gap-3"
+                                          onClick={() => {
+                                            // Get the latest lead data from LeadsList to ensure we have the most up-to-date teamsAssigned
+                                            const latestLead = LeadsList.find(
+                                              (item) => item.lead?.id === lead.lead?.id
+                                            )
+                                            const leadToUse = latestLead?.lead || lead.lead
+                                            setShowDetailsModal(true)
+                                            setSelectedLeadsDetails(leadToUse)
+                                            setPipelineId(leadToUse.pipeline?.id || lead.lead.pipeline?.id)
+                                            setNoteDetails(leadToUse.notes || lead.lead.notes || [])
+                                          }}
+                                        >
+                                          {/* Lead profile picture with initials fallback */}
+                                          {getLeadProfileImage(lead.lead, 27, 27)}
+                                          <div style={styles.paragraph}>
+                                            {lead.lead.firstName}
+                                          </div>
+                                        </button>
+                                        {/* show results on hover */}
+                                        {lead.lead.scoringDetails &&
+                                          lead.lead.scoringDetails?.questions
+                                            ?.length > 0 && (
+                                            <ScoringProgress
+                                              value={
+                                                lead.lead.scoringDetails
+                                                  ?.totalScore
+                                              }
+                                              maxValue={10}
+                                              questions={
+                                                lead.lead.scoringDetails
+                                                  ?.questions
+                                              }
+                                              showTooltip={true}
+                                              tooltipTitle="Results"
+                                            />
+                                          )}
+                                      </div>
+                                      <div className="flex flex-row items-center justify-between w-full mt-1">
+                                        <div className="flex flex-col gap-1">
+                                          <div
+                                            className="text-[#00000060]"
+                                            style={styles.agentName}
+                                          >
+                                            {(lead?.lead?.email
+                                              ? lead?.lead?.email?.slice(0, 10) +
+                                              '...'
+                                              : '') || ''}
+                                          </div>
+                                          {/* Display plan price for agency_use pipeline leads */}
+                                          {SelectedPipeline?.pipelineType === 'agency_use' &&
+                                            lead?.lead?.agencyUseInfo?.planPrice && (
+                                              <div
+                                                className="text-green-600 font-semibold text-xs"
+                                                style={{ fontSize: '11px' }}
+                                              >
+                                                ${lead.lead.agencyUseInfo.planPrice}
+                                              </div>
+                                            )}
+                                        </div>
+                                        {
+                                          lead.agent && (
+                                            <div className="flex flex-row items-center gap-2">
+                                              {getAgentsListImage(
+                                                lead.agent?.agents[0]?.agentType ===
+                                                  'outbound'
+                                                  ? lead.agent?.agents[0]
+                                                  : lead.agent?.agents[1] ? lead.agent?.agents[1] : lead.agent?.agents[0],
+                                                24,
+                                                24,
+                                              )}
+                                              <div
+                                                className="text-brand-primary underline"
+                                                style={styles.agentName}
+                                              >
+                                                {lead.agent?.agents[0]?.agentType ===
+                                                  'outbound'
+                                                  ? lead.agent?.agents[0]?.name
+                                                  : lead.agent?.agents[1] ? lead.agent?.agents[1]?.name : lead.agent?.agents[0]?.name}
+                                              </div>
+                                            </div>
+                                          )}
+                                      </div>
+
+                                      {lead?.lead?.booking?.date && (
+                                        <div
+                                          className="flex flex-row items-center gap-2"
+                                          style={{
+                                            // fontWeight: "500",
+
+                                            color: '#15151560',
+                                            // backgroundColor: 'red',
+                                          }}
+                                        >
+                                          <Image
+                                            src="/svgIcons/calendar.svg"
+                                            height={16}
+                                            width={16}
+                                            alt="*"
+                                            style={{ filter: 'opacity(50%)' }}
+                                          />
+                                          {/* {moment(lead?.lead?.booking?.date).format(
                                       "MMM D"
                                     ) || "-"} */}
-                                    <p
-                                      style={{ fontSize: 13, fontWeight: 500 }}
-                                    >
-                                      {GetFormattedDateString(
-                                        lead?.lead?.booking?.date,
-                                        true,
-                                        'MMM DD',
-                                      )}
-                                    </p>
+                                          <p
+                                            style={{ fontSize: 13, fontWeight: 500 }}
+                                          >
+                                            {GetFormattedDateString(
+                                              lead?.lead?.booking?.date,
+                                              true,
+                                              'MMM DD',
+                                            )}
+                                          </p>
 
-                                    <Image
-                                      src="/svgIcons/clock.svg"
-                                      height={16}
-                                      width={16}
-                                      alt="*"
-                                      style={{ filter: 'opacity(50%)' }}
-                                    />
-                                    <p
-                                      style={{ fontSize: 13, fontWeight: 500 }}
-                                    >
-                                      {GetFormattedTimeString(
-                                        lead?.lead?.booking?.datetime,
-                                      )}
-                                    </p>
+                                          <Image
+                                            src="/svgIcons/clock.svg"
+                                            height={16}
+                                            width={16}
+                                            alt="*"
+                                            style={{ filter: 'opacity(50%)' }}
+                                          />
+                                          <p
+                                            style={{ fontSize: 13, fontWeight: 500 }}
+                                          >
+                                            {GetFormattedTimeString(
+                                              lead?.lead?.booking?.datetime,
+                                            )}
+                                          </p>
 
-                                    {/* {moment(
+                                          {/* {moment(
                                       lead?.lead?.booking?.time,
                                       "HH:mm"
                                     ).format("HH:mm") || "-"} */}
-                                  </div>
-                                )}
+                                        </div>
+                                      )}
 
-                                <div className="w-full flex flex-row items-center justify-between">
-                                  {lead?.lead?.teamsAssigned?.length > 0 ? (
-                                    <LeadTeamsAssignedList
-                                      users={lead?.lead?.teamsAssigned}
-                                      maxVisibleUsers={1}
-                                    />
-                                  ) : (
-                                    <div className="w-8 h-8" />
-                                  )}
-                                  {/* <div className="flex flex-row items-center gap-3">
+                                      <div className="w-full flex flex-row items-center justify-between">
+                                        {lead?.lead?.teamsAssigned?.length > 0 ? (
+                                          <LeadTeamsAssignedList
+                                            users={lead?.lead?.teamsAssigned}
+                                            maxVisibleUsers={1}
+                                          />
+                                        ) : (
+                                          <div className="w-8 h-8" />
+                                        )}
+                                        {/* <div className="flex flex-row items-center gap-3">
                                                                         <div className="text-brand-primary bg-brand-primary/10 px-4 py-2 rounded-3xl rounded-lg">
                                                                             Tag
                                                                         </div>
@@ -2546,113 +2763,128 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                                                         </div>
                                                                     </div> */}
 
-                                  {lead.lead.tags.length > 0 ? (
-                                    <div className="flex flex-row items-center gap-1">
-                                      {lead?.lead?.tags
-                                        .slice(0, 1)
-                                        .map((tagVal, index) => {
-                                          return (
-                                            // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
-                                            //     {tagVal}
-                                            // </div>
-                                            <div
-                                              key={index}
-                                              className="flex flex-row items-center gap-2 px-2 py-1 rounded-lg"
-                                              style={{
-                                                backgroundColor: 'hsl(var(--brand-primary) / 0.15)',
-                                                maxWidth: 'fit-content',
-                                              }}
-                                            >
-                                              <div
-                                                className="text-brand-primary"
-                                                style={{
-                                                  fontSize: 13,
-                                                  maxWidth: '12ch',
-                                                  wordBreak: 'break-word',
-                                                  overflowWrap: 'break-word',
-                                                  whiteSpace: 'normal',
-                                                  lineHeight: '1.2',
-                                                }}
-                                              >
-                                                {tagVal}
-                                              </div>
-                                              {DelTagLoader &&
-                                              lead.lead.id === DelTagLoader ? (
-                                                <div>
-                                                  <CircularProgress size={15} />
-                                                </div>
-                                              ) : (
-                                                <button
-                                                  onClick={() => {
-                                                    // console.log(
-                                                    //   "Tag value is",
-                                                    //   tagVal
-                                                    // );
-                                                    handleDelTag(tagVal, lead)
-                                                    let updatedTags =
-                                                      lead.lead.tags.filter(
-                                                        (tag) => tag != tagVal,
-                                                      ) || []
-                                                    lead.lead.tags = updatedTags
-                                                    let newLeadCad = []
-                                                    LeadsList.map((item) => {
-                                                      if (item.id == lead.id) {
-                                                        newLeadCad.push(lead)
-                                                      } else {
-                                                        newLeadCad.push(item)
-                                                      }
-                                                    })
-                                                    setLeadsList(newLeadCad)
-                                                  }}
-                                                >
-                                                  <X
-                                                    size={15}
-                                                    weight="bold"
-                                                    color="hsl(var(--brand-primary))"
-                                                  />
-                                                </button>
-                                              )}
-                                            </div>
-                                          );
-                                        })}
-                                      {lead.lead.tags.length > 1 && (
-                                        <div>+{lead.lead.tags.length - 1}</div>
-                                      )}
+                                        {lead.lead.tags.length > 0 ? (
+                                          <div className="flex flex-row items-center gap-1">
+                                            {lead?.lead?.tags
+                                              .slice(0, 1)
+                                              .map((tagVal, index) => {
+                                                return (
+                                                  // <div key={index} className="text-[#402fff] bg-[#402fff10] px-4 py-2 rounded-3xl rounded-lg">
+                                                  //     {tagVal}
+                                                  // </div>
+                                                  <div
+                                                    key={index}
+                                                    className="flex flex-row items-center gap-2 px-2 py-1 rounded-lg"
+                                                    style={{
+                                                      backgroundColor: 'hsl(var(--brand-primary) / 0.15)',
+                                                      maxWidth: 'fit-content',
+                                                    }}
+                                                  >
+                                                    <div
+                                                      className="text-brand-primary"
+                                                      style={{
+                                                        fontSize: 13,
+                                                        maxWidth: '12ch',
+                                                        wordBreak: 'break-word',
+                                                        overflowWrap: 'break-word',
+                                                        whiteSpace: 'normal',
+                                                        lineHeight: '1.2',
+                                                      }}
+                                                    >
+                                                      {tagVal}
+                                                    </div>
+                                                    {DelTagLoader &&
+                                                      lead.lead.id === DelTagLoader ? (
+                                                      <div>
+                                                        <CircularProgress size={15} />
+                                                      </div>
+                                                    ) : (
+                                                      <button
+                                                        onClick={() => {
+                                                          // console.log(
+                                                          //   "Tag value is",
+                                                          //   tagVal
+                                                          // );
+                                                          handleDelTag(tagVal, lead)
+                                                          let updatedTags =
+                                                            lead.lead.tags.filter(
+                                                              (tag) => tag != tagVal,
+                                                            ) || []
+                                                          lead.lead.tags = updatedTags
+                                                          let newLeadCad = []
+                                                          LeadsList.map((item) => {
+                                                            if (item.id == lead.id) {
+                                                              newLeadCad.push(lead)
+                                                            } else {
+                                                              newLeadCad.push(item)
+                                                            }
+                                                          })
+                                                          setLeadsList(newLeadCad)
+                                                        }}
+                                                      >
+                                                        <X
+                                                          size={15}
+                                                          weight="bold"
+                                                          color="hsl(var(--brand-primary))"
+                                                        />
+                                                      </button>
+                                                    )}
+                                                  </div>
+                                                );
+                                              })}
+                                            {lead.lead.tags.length > 1 && (
+                                              <div>+{lead.lead.tags.length - 1}</div>
+                                            )}
+                                          </div>
+                                        ) : (
+                                          '-'
+                                        )}
+                                      </div>
                                     </div>
-                                  ) : (
-                                    '-'
-                                  )}
-                                </div>
-                              </div>
+                                  </div>
+                                ))}
+                              </InfiniteScroll>
                             </div>
-                          ))}
-                        </InfiniteScroll>
+                          )}
                       </div>
-                    )}
+                    ))}
                   </div>
-                ))}
+                  <div className="h-[36px] flex flex-row items-start justify-center">
+                    <button
+                      className="h-[23px] text-brand-primary outline-none mt-2"
+                      style={{
+                        width: '200px',
+                        fontSize: '16.8',
+                        fontWeight: '700',
+                      }}
+                      onClick={() => {
+                        setAddNewStageModal(true)
+                      }}
+                    >
+                      Add Stage
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div className="h-[36px] flex flex-row items-start justify-center">
-                <button
-                  className="h-[23px] text-brand-primary outline-none mt-2"
-                  style={{
-                    width: '200px',
-                    fontSize: '16.8',
-                    fontWeight: '700',
-                  }}
-                  onClick={() => {
-                    setAddNewStageModal(true)
-                  }}
-                >
-                  Add Stage
-                </button>
-              </div>
-            </div>
-          </div>
             </div>
           )}
         </>
       )}
+
+      {/* Code for Configure Popup */}
+      {showConfigurePopup && (
+        <ConfigurePopup
+          showConfigurePopup={showConfigurePopup}
+          setShowConfigurePopup={setShowConfigurePopup}
+          configureLoader={configureLoader}
+          setConfigureLoader={setConfigureLoader}
+          selectedStage={selectedStage}
+          setStagesList={setStagesList}
+          setSnackMessage={setSnackMessage}
+          handleCloseStagePopover={handleCloseStagePopover}
+        />
+      )}
+
       {/* code for delete pipeline modal */}
       {/* handleDeletePipeline */}
       <Modal
@@ -3395,8 +3627,8 @@ const AdminPipeline1 = ({ selectedUser }) => {
               ).length
               // Prioritize actual count - if we have LeadsList data, use actual count only
               // Only fall back to cached hasLeads if LeadsList is empty (not loaded yet)
-              const stageHasLeads = LeadsList.length > 0 
-                ? actualLeadCount > 0 
+              const stageHasLeads = LeadsList.length > 0
+                ? actualLeadCount > 0
                 : (selectedStage?.hasLeads || false)
               return stageHasLeads
             })() ? (
@@ -4082,9 +4314,8 @@ const AdminPipeline1 = ({ selectedUser }) => {
       {/* Code for side view */}
       {importantCalls?.length > 0 && (
         <div
-          className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${
-            expandSideView ? 'w-[506px]' : 'w-[100px]'
-          }`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
+          className={`flex items-center gap-4 p-4 bg-white shadow-lg transition-all h-20 duration-300 ease-in-out ${expandSideView ? 'w-[506px]' : 'w-[100px]'
+            }`} //${expandSideView ? 'w-[32vw]' : 'w-[7vw]'}
           style={{
             borderTopLeftRadius: expandSideView ? '0' : '40px',
             borderBottomLeftRadius: expandSideView ? '0' : '40px',
@@ -4094,7 +4325,7 @@ const AdminPipeline1 = ({ selectedUser }) => {
             bottom: 100,
             right: 0,
           }}
-          onClick={() => {}}
+          onClick={() => { }}
         >
           {expandSideView ? (
             <div className="w-full flex flex-row items-center gap-4  h-20">
@@ -4177,6 +4408,18 @@ const AdminPipeline1 = ({ selectedUser }) => {
           )}
         </div>
       )}
+
+      <UpgradeModal
+        open={showUpgradeModal}
+        handleClose={() => {
+          setShowUpgradeModal(false)
+        }}
+        title={"You've Hit Your pipeline Limit"}
+        subTitle={'Upgrade to add more pipelines'}
+        buttonTitle={'No Thanks'}
+        functionality="pipeline"
+      />
+
       {/* Code for calll worthy modal */}
       {openCallWorthyPopup && (
         <CallWorthyReviewsPopup

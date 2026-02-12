@@ -119,6 +119,8 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
       if (filterMember != null && filterMember !== '') params.assignedTo = filterMember
       if (filterDueStatus) params.dueDateFilter = filterDueStatus
       if (filterPriority) params.priority = filterPriority
+      console.log("Selected user passed is", selectedUser)
+      console.log("params sending in api are", params)
 
       const response = await getTasks(params)
       console.log("response from get tasks is", response)
@@ -489,15 +491,17 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
               roundedness="rounded-lg"
             />
           </div>
-          <TaskBoardFilterPopover
-            filterMember={filterMember}
-            setFilterMember={setFilterMember}
-            filterDueStatus={filterDueStatus}
-            setFilterDueStatus={setFilterDueStatus}
-            filterPriority={filterPriority}
-            setFilterPriority={setFilterPriority}
-            teamMembers={teamMembers}
-          />
+          <div className="z-9999">
+            <TaskBoardFilterPopover
+              filterMember={filterMember}
+              setFilterMember={setFilterMember}
+              filterDueStatus={filterDueStatus}
+              setFilterDueStatus={setFilterDueStatus}
+              filterPriority={filterPriority}
+              setFilterPriority={setFilterPriority}
+              teamMembers={teamMembers}
+            />
+          </div>
         </div>
 
         {/* Content Area - constrain width so cards don't overflow */}
@@ -547,7 +551,7 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
                         teamMembers={teamMembers}
                         priorityOptions={priorityOptions}
                         statusOptions={statusOptions}
-                        onEditClick={()=>{
+                        onEditClick={() => {
                           setSelectedTask(task)
                         }}
                       />
@@ -625,10 +629,10 @@ const TaskBoard = ({ open, onClose, leadId = null, threadId = null, callId = nul
               <div style={{ fontWeight: '500', fontSize: 15 }}>
                 Are you sure you want to delete this task?
               </div>
-              <div style={{ display: 'flex', justifyContent: 'between', gap: 10 ,width: '100%'}}>
+              <div style={{ display: 'flex', justifyContent: 'between', gap: 10, width: '100%' }}>
                 <Button variant="outline-none" className="w-1/2 text-left text-[#6b7280]" onClick={() => setShowDeleteConfirmation(false)}>Cancel</Button>
                 <Button className="bg-brand-primary text-white hover:bg-brand-primary/90 w-1/2" onClick={() => handleDeleteTask(selectedTaskForDelete.id)} disabled={loading}>
-                {loading ? "Deleting..." : 'Delete'}</Button>
+                  {loading ? "Deleting..." : 'Delete'}</Button>
               </div>
             </div>
           </Box>
