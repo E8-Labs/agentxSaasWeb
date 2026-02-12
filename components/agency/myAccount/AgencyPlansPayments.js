@@ -581,8 +581,10 @@ function AgencyPlansPayments({ selectedAgency }) {
       //// //console.log;
       // //console.log;
 
-      const ApiData = {
-        // patanai: "Sari dunya",
+      const ApiData = {}
+
+      if (selectedAgency && selectedAgency.id) {
+        ApiData.userId = selectedAgency.id
       }
 
       // return
