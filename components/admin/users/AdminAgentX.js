@@ -101,6 +101,7 @@ import { GetFormattedDateString } from '@/utilities/utility'
 import { getTutorialByType, getVideoUrlByType } from '@/utils/tutorialVideos'
 import AdminGetProfileDetails from '../AdminGetProfileDetails'
 import { TypographyH3 } from '@/lib/typography'
+import StandardHeader from '@/components/common/StandardHeader'
 
 function AdminAgentX({ selectedUser, agencyUser, from }) {
   // Redux hooks for upgrade modal functionality
@@ -3138,98 +3139,106 @@ function AdminAgentX({ selectedUser, agencyUser, from }) {
           type={SnackbarTypes.Error}
         />
       </div>
-      <div
-        className="w-full flex flex-row justify-between items-center"
-      // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
-      >
-        <div className="flex flex-row items-center gap-3">
-
-          <TypographyH3>Agents</TypographyH3>
-
-
-          {selectedUser?.plan?.planId != null &&
-            selectedUser?.planCapabilities?.maxAgents < 10000000 && (
-              <div
-                style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
-              >
-                {`${selectedUser?.currentUsage?.maxAgents}/${selectedUser?.planCapabilities?.maxAgents || 0} used`}
-              </div>
-            )}
-
-          {selectedUser?.plan?.planId != null &&
-            selectedUser?.planCapabilities?.maxAgents < 10000000 && (
-              <Tooltip
-                title={`Additional agents are $${selectedUser?.planCapabilities?.costPerAdditionalAgent || 10}/month each.`}
-                arrow
-                componentsProps={{
-                  tooltip: {
-                    sx: {
-                      backgroundColor: '#ffffff', // Ensure white background
-                      color: '#333', // Dark text color
-                      fontSize: '14px',
-                      padding: '10px 15px',
-                      borderRadius: '8px',
-                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
-                    },
-                  },
-                  arrow: {
-                    sx: {
-                      color: '#ffffff', // Match tooltip background
-                    },
-                  },
-                }}
-              >
+      <StandardHeader
+        selectedUser={selectedUser}
+        titleContent={
+          <div className="flex flex-row items-center gap-3">
+            <TypographyH3
+              className="cursor-pointer"
+              // onClick={() => {
+              //   router.push('/createagent')
+              // }}
+            >
+              Agents
+            </TypographyH3>
+            {selectedUser?.plan?.planId != null &&
+              selectedUser?.planCapabilities?.maxAgents < 10000000 && (
                 <div
-                  style={{
-                    fontSize: 12,
-                    fontWeight: '600',
-                    color: '#000000',
-                    cursor: 'pointer',
+                  style={{ fontSize: 14, fontWeight: '400', color: '#0000080' }}
+                >
+                  {`${selectedUser?.currentUsage?.maxAgents}/${selectedUser?.planCapabilities?.maxAgents || 0} used`}
+                </div>
+              )}
+
+            {selectedUser?.plan?.planId != null &&
+              selectedUser?.planCapabilities?.maxAgents < 10000000 && (
+                <Tooltip
+                  title={`Additional agents are $${selectedUser?.planCapabilities?.costPerAdditionalAgent || 10}/month each.`}
+                  arrow
+                  componentsProps={{
+                    tooltip: {
+                      sx: {
+                        backgroundColor: '#ffffff', // Ensure white background
+                        color: '#333', // Dark text color
+                        fontSize: '14px',
+                        padding: '10px 15px',
+                        borderRadius: '8px',
+                        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.2)', // Soft shadow
+                      },
+                    },
+                    arrow: {
+                      sx: {
+                        color: '#ffffff', // Match tooltip background
+                      },
+                    },
                   }}
                 >
-                  <Image
-                    src="/agencyIcons/InfoIcon.jpg"
-                    alt="info"
-                    width={16}
-                    height={16}
-                    className="cursor-pointer rounded-full"
-                  // onClick={() => setIntroVideoModal2(true)}
-                  />
-                </div>
-              </Tooltip>
-            )}
-        </div>
-        <div className="flex flex-row items-center gap-1  flex-shrink-0 border rounded pe-2">
-          <input
-            // style={styles.paragraph}
-            className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
-            placeholder="Search an agent"
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value)
-              if (canGetMore === true) {
-                setCanKeepLoading(true)
-              } else {
-                setCanKeepLoading(false)
-              }
-              clearTimeout(searchTimeoutRef.current)
-              searchTimeoutRef.current = setTimeout(() => {
-                // handleSearch(e);
-                let searchLoader = true
-                getAgents(false, e.target.value, searchLoader)
-              }, 500)
-            }}
-          />
-          <button className="outline-none border-none">
-            <Image
-              src={'/assets/searchIcon.png'}
-              height={24}
-              width={24}
-              alt="*"
+                  <div
+                    style={{
+                      fontSize: 12,
+                      fontWeight: '600',
+                      color: '#000000',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <Image
+                      src="/agencyIcons/InfoIcon.jpg"
+                      alt="info"
+                      width={16}
+                      height={16}
+                      className="cursor-pointer rounded-full"
+                    />
+                  </div>
+                </Tooltip>
+              )}
+          </div>
+        }
+        showTasks={true}
+        rightContent={
+          <div className="flex flex-row items-center gap-1 flex-shrink-0 border rounded-full px-4 h-[35px]">
+            <input
+              className="outline-none border-none w-full bg-transparent focus:outline-none focus:ring-0"
+              placeholder="Search an agent"
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value)
+                if (canGetMore === true) {
+                  setCanKeepLoading(true)
+                } else {
+                  setCanKeepLoading(false)
+                }
+
+                // Clear existing timeout to prevent memory leaks
+                if (searchTimeoutRef.current) {
+                  clearTimeout(searchTimeoutRef.current)
+                }
+                searchTimeoutRef.current = setTimeout(() => {
+                  let searchLoader = true
+                  getAgents(false, e.target.value, searchLoader)
+                }, 500)
+              }}
             />
-          </button>
-        </div>
-      </div>
+            <button className="outline-none border-none">
+              <Image
+                src={'/assets/searchIcon.png'}
+                height={24}
+                width={24}
+                alt="*"
+              />
+            </button>
+          </div>
+        }
+      />
       <div className="w-full items-center h-[100%] overflow-hidden" style={{}}>
         {/* code for agents list */}
         {initialLoader ? (

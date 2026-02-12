@@ -25,6 +25,7 @@ const getAuthToken = () => {
  */
 export const getTasks = async (params = {}) => {
   try {
+    console.log("Trigering gettask list api")
     const AuthToken = getAuthToken()
     if (!AuthToken) {
       throw new Error('Authentication token not found')
@@ -51,6 +52,8 @@ export const getTasks = async (params = {}) => {
       },
     })
 
+    console.log("Response data fetching in task service passing is", response)
+
     return response.data
   } catch (error) {
     console.error('Error fetching tasks:', error)
@@ -73,6 +76,8 @@ export const createTask = async (taskData, userId = null) => {
     if (!AuthToken) {
       throw new Error('Authentication token not found')
     }
+
+    console.log("Task data to add task passing in task service is", taskData)
 
     const response = await axios.post(Apis.createTask, taskData, {
       headers: {

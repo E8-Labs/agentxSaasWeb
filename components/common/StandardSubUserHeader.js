@@ -25,8 +25,9 @@ import { useTaskStatus } from '@/hooks/use-task-status'
  * @param {string} containerClassName - Override container classes
  * @param {boolean} showSeparator - Whether to show the bottom border separator (default: true)
  * @param {'dark'|'bright'} variant - Color variant for text/icons: 'dark' (default) or 'bright' for light backgrounds
+ * @param {object} selectedUser - Selected user object for TaskBoard (optional, same as StandardHeader)
  */
-function StandardHeader({
+function StandardSubUserHeader({
   title,
   titleContent = null,
   showTasks = true,
@@ -208,4 +209,4 @@ function StandardHeader({
   )
 }
 
-export default StandardHeader
+export default StandardSubUserHeader

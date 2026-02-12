@@ -24,9 +24,8 @@ function MessageHeader({ selectedThread = null, selectedUser = null }) {
         <>
             <div className='w-full p-4 border-b flex flex-row items-center justify-between'>
                 <TypographyH3>Messages</TypographyH3>
-                {!selectedUser && (
-                    <div className='flex flex-row items-center justify-end gap-2'>
-                        <button
+                <div className='flex flex-row items-center justify-end gap-2'>
+                    <button
                         ref={taskButtonRef}
                         onClick={() => setTaskBoardOpen(true)}
                         className="mb-1 hover:opacity-70 transition-opacity relative"
@@ -58,13 +57,12 @@ function MessageHeader({ selectedThread = null, selectedUser = null }) {
                         )}
                     </button>
 
-                        <NotficationsDrawer/>
-                    </div>
-                )}
+                    <NotficationsDrawer />
+                </div>
             </div>
 
-            <TaskBoard 
-                open={taskBoardOpen} 
+            <TaskBoard
+                open={taskBoardOpen}
                 onClose={() => setTaskBoardOpen(false)}
                 // leadId={selectedThread?.leadId || null}
                 // threadId={selectedThread?.id || null}

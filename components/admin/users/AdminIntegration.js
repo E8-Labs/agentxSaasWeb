@@ -26,6 +26,7 @@ import { Searchbar } from '@/components/general/MuiSearchBar'
 import NotficationsDrawer from '@/components/notofications/NotficationsDrawer'
 import { allIntegrations } from '@/constants/Constants'
 import { TypographyH3 } from '@/lib/typography'
+import StandardHeader from '@/components/common/StandardHeader'
 
 function AdminIntegration({ selectedUser, agencyUser }) {
   const [showKeysBox, setshowKeysBox] = useState(false)
@@ -172,7 +173,9 @@ function AdminIntegration({ selectedUser, agencyUser }) {
   }
 
   return (
-    <div className={`w-full h-screen flex flex-col items-center mt-[19vh]`}>
+    <div
+      className={`w-full h-screen flex flex-col items-center mt-[10vh]`}
+    >
       {/* Slider code */}
       <div
         style={{
@@ -189,12 +192,11 @@ function AdminIntegration({ selectedUser, agencyUser }) {
         message={showCopySnak}
         type={SnackbarTypes.Success}
       />
-      <div
-        className=" w-full flex flex-row justify-between items-center px-4"
-      // style={{ borderBottomWidth: 2, borderBottomColor: "#00000010" }}
-      >
-        <TypographyH3>Integration</TypographyH3>
-      </div>
+      <StandardHeader
+        title="Integration"
+        showTasks={true}
+        selectedUser={selectedUser}
+      />
       {/* <div className='w-full flex flex-row items-center justify-end p-6'>
         {
           genratekeyLoader ? (
