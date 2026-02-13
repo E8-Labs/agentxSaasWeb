@@ -52,6 +52,7 @@ import { formatPhoneNumber } from '@/utilities/agentUtilities'
 import { Input } from '@/components/ui/input'
 
 import MoreTeamMembers from '../MoreTeamMembers'
+import TeamMemberActivityDrawer from './TeamMemberActivityDrawer'
 
 function TeamsContent({ agencyData, selectedAgency, from }) {
   const permissionContext = usePermission()
@@ -139,6 +140,8 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
   // instead of storing just item.id, store the element anchor + team data
   const [anchorEl, setAnchorEl] = useState(null)
   const [popoverTeam, setPopoverTeam] = useState(null)
+  const [activityDrawerOpen, setActivityDrawerOpen] = useState(false)
+  const [activityDrawerTeamMember, setActivityDrawerTeamMember] = useState(null)
 
   const open = Boolean(anchorEl)
 
@@ -1983,6 +1986,17 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
                                 Manage Permissions
                               </MenuItem>
                             )}
+                          {popoverTeam?.invitedUserId && (
+                            <MenuItem
+                              onClick={() => {
+                                setActivityDrawerTeamMember(popoverTeam)
+                                setActivityDrawerOpen(true)
+                                handlePopoverClose()
+                              }}
+                            >
+                              Activity
+                            </MenuItem>
+                          )}
                           <MenuItem
                             sx={{ color: 'red' }}
                             onClick={() => {
@@ -3404,6 +3418,16 @@ function TeamsContent({ agencyData, selectedAgency, from }) {
         }}
         initialPermissions={selectedInvitationPermissions}
         allowedSubaccountIds={selectedSubaccountIds}
+      />
+
+      <TeamMemberActivityDrawer
+        open={activityDrawerOpen}
+        onClose={() => {
+          setActivityDrawerOpen(false)
+          setActivityDrawerTeamMember(null)
+        }}
+        teamMember={activityDrawerTeamMember}
+        admin={myTeam?.[0]?.invitedUser || myTeam?.[0]?.invitingUser}
       />
     </div>
   );
