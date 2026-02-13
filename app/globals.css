@@ -680,3 +680,70 @@ input[type="time"]::-webkit-calendar-picker-indicator {
 background-color: hsl(var(--brand-primary)) !important;
   color: white !important;
 }
+
+/* Agent Meter sliders: 2px track, round thumb with white border, smooth sliding */
+.agent-meter-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 2px;
+  border-radius: 1px;
+  transition: background 0.12s ease-out;
+}
+.agent-meter-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: hsl(var(--brand-primary));
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+.agent-meter-slider::-webkit-slider-thumb:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+.agent-meter-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: hsl(var(--brand-primary));
+  border: 2px solid white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+.agent-meter-slider::-moz-range-thumb:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* Agent Meter value bubble: pill shape with downward tail */
+.agent-meter-bubble {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  min-width: 28px;
+  border-radius: 9999px;
+  background-color: hsl(var(--brand-primary));
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  pointer-events: none;
+  transition: left 0.12s ease-out;
+}
+.agent-meter-bubble::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: hsl(var(--brand-primary));
+  width: 0;
+  height: 0;
+}

@@ -61,9 +61,9 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
     }
   }, [aiActionType])
 
-  // In Development, check if user has an AI key (for call_summary AI Actions)
+  // Check if user has an AI key (for call_summary AI Actions). Refetch when AI Action is opened so we pick up keys added in Message Settings.
   const fetchHasAiKey = useCallback(async () => {
-    if (!isDevelopment || message?.activityType !== 'call_summary') return
+    if (message?.activityType !== 'call_summary') return
     try {
       const localData = localStorage.getItem('User')
       if (!localData) {
@@ -76,17 +76,18 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
       })
       const data = res.data?.data
-      setHasAiKey(!!(data?.aiIntegrationId))
+      const hasKey = !!(data?.aiIntegrationId || (data?.aiIntegration && typeof data.aiIntegration === 'object'))
+      setHasAiKey(hasKey)
     } catch {
       setHasAiKey(false)
     }
   }, [message?.activityType])
 
   useEffect(() => {
-    if (isDevelopment && message?.activityType === 'call_summary') {
+    if (message?.activityType === 'call_summary') {
       fetchHasAiKey()
     }
-  }, [isDevelopment, message?.activityType, fetchHasAiKey])
+  }, [message?.activityType, fetchHasAiKey])
 
   // Get avatar for comment sender
   const getCommentAvatar = () => {
@@ -402,7 +403,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                       bottomRightContent={
                         isDevelopment ? (
                           hasAiKey === true ? (
-                            <DropdownMenu>
+                            <DropdownMenu onOpenChange={(open) => { if (open) fetchHasAiKey() }}>
                               <DropdownMenuTrigger asChild>
                                 <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 transition-colors">
                                   <Image
@@ -456,7 +457,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                               </DropdownMenuContent>
                             </DropdownMenu>
                           ) : hasAiKey === false ? (
-                            <HoverCard openDelay={200} closeDelay={100}>
+                            <HoverCard openDelay={200} closeDelay={100} onOpenChange={(open) => { if (open) fetchHasAiKey() }}>
                               <HoverCardTrigger asChild>
                                 <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 transition-colors cursor-pointer">
                                   <Image

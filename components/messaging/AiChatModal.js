@@ -137,7 +137,7 @@ const AiChatModal = ({
     // }
     const id = setInterval(() => {
       setRotatingIndex((prev) => (prev + 1) % messagesList.length);
-    }, 1000);
+    }, 3000);
     return () => clearInterval(id);
   }, [isLoading]);
 
