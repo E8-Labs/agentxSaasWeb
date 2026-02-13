@@ -87,7 +87,7 @@ import { calculateCreditCost } from '@/services/LeadsServices/LeadsServices'
 import CircularLoader from '@/utilities/CircularLoader'
 import { capitalize } from '@/utilities/StringUtility'
 import { getAgentsListImage } from '@/utilities/agentUtilities'
-import { GetFormattedDateString } from '@/utilities/utility'
+import { GetFormattedDateString, FormatBookingDateTime } from '@/utilities/utility'
 import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
 import { getUniqueTags as fetchUniqueTags } from '@/components/globalExtras/GetUniqueTags'
 
@@ -2221,7 +2221,7 @@ const LeadDetails = ({
                               '-'}
                           </InfoRow>
                           {selectedLeadsDetails?.booking && <div className="flex flex-row items-center gap-2">
-                            <InfoRow icon={<CalendarIcon className="h-4 w-4" />}>{GetFormattedDateString(selectedLeadsDetails?.booking?.datetime, true)}</InfoRow>
+                            <InfoRow icon={<CalendarIcon className="h-4 w-4" />}>{FormatBookingDateTime(selectedLeadsDetails?.booking?.datetime, selectedLeadsDetails?.booking?.timezone)}</InfoRow>
                             {
                               selectedLeadsDetails?.booking?.duration && (
                                 <TagPill label={`${selectedLeadsDetails?.booking?.duration} min`} />

@@ -56,7 +56,7 @@ import { useUser } from '@/hooks/redux-hooks'
 import CircularLoader from '@/utilities/CircularLoader'
 import { capitalize } from '@/utilities/StringUtility'
 import { getAgentsListImage } from '@/utilities/agentUtilities'
-import { GetFormattedDateString } from '@/utilities/utility'
+import { GetFormattedDateString, FormatBookingDateTime } from '@/utilities/utility'
 import { htmlToPlainText, formatFileSize } from '@/utilities/textUtils'
 import { Elements } from '@stripe/react-stripe-js'
 import { getStripe } from '@/lib/stripe'
@@ -1501,9 +1501,9 @@ const AdminLeadDetails = ({
                                   }}
                                 />
                                 <div style={styles.heading2}>
-                                  {GetFormattedDateString(
+                                  {FormatBookingDateTime(
                                     selectedLeadsDetails.booking.datetime,
-                                    true,
+                                    selectedLeadsDetails.booking.timezone,
                                   )}
                                 </div>
                               </div>
