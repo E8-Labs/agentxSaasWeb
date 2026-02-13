@@ -404,6 +404,7 @@ const Apis = {
   getThreadById: `${BasePath}api/user/messaging/threads`,
   getMessagesForThread: `${BasePath}api/user/messaging/threads`,
   markThreadAsRead: `${BasePath}api/user/messaging/threads`,
+  updateThread: `${BasePath}api/user/messaging/threads`,
   deleteThread: `${BasePath}api/user/messaging/threads`,
   getEmailsBySubject: `${BasePath}api/user/messaging/emails-by-subject`,
 

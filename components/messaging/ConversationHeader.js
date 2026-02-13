@@ -7,7 +7,7 @@ import Apis from '@/components/apis/Apis'
 import SelectStageDropdown from '@/components/dashboard/leads/StageSelectDropdown'
 // import AssignDropdownCn from '@/components/dashboard/leads/extras/AssignDropdownCn'
 // import MultiSelectDropdownCn from '@/components/dashboard/leads/extras/MultiSelectDropdownCn'
-import TeamAssignDropdownCn from '@/components/dashboard/leads/extras/TeamAssignDropdownCn'
+import ThreadOptionsDropdown from '@/components/messaging/ThreadOptionsDropdown'
 import { AssignTeamMember, UnassignTeamMember } from '@/components/onboarding/services/apisServices/ApiService'
 import AgentSelectSnackMessage, { SnackbarTypes } from '@/components/dashboard/leads/AgentSelectSnackMessage'
 import { useRouter } from 'next/navigation'
@@ -15,7 +15,7 @@ import LeadDetails from '@/components/dashboard/leads/extras/LeadDetails'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { X } from 'lucide-react'
 
-function ConversationHeader({ selectedThread, getRecentMessageType, formatUnreadCount, getLeadName, selectedUser }) {
+function ConversationHeader({ selectedThread, getRecentMessageType, formatUnreadCount, getLeadName, selectedUser, onThreadUpdated }) {
     const router = useRouter()
     
     // Stage management state
@@ -741,16 +741,21 @@ function ConversationHeader({ selectedThread, getRecentMessageType, formatUnread
                             {(getTeamLoader || agentsLoader || globalLoader) ? (
                                 <CircularProgress size={20} />
                             ) : (
-                                <TeamAssignDropdownCn
+                                <ThreadOptionsDropdown
                                     selectedUser={selectedUser}
-                                    key={`assign-${selectedThread.leadId}-${assignmentRefreshKey}-${teamsAssignedKey}`}
-                                    label="Assign"
+                                    key={`thread-opts-${selectedThread.leadId}-${selectedThread?.id}-${assignmentRefreshKey}-${teamsAssignedKey}`}
+                                    label="Team"
+                                    selectedThread={{
+                                        id: selectedThread.id,
+                                        leadId: selectedThread.leadId,
+                                        selectedAgentId: selectedThread.selectedAgentId ?? null,
+                                    }}
                                     teamOptions={teamMemberOptions}
-                                    leadId={selectedThread.leadId}
                                     leadSettings={leadSettings}
                                     onSettingsUpdate={(updatedSettings) => {
                                         setLeadSettings(updatedSettings)
                                     }}
+                                    onThreadUpdated={onThreadUpdated}
                                     onToggle={async (teamId, team, shouldAssign) => {
                                         if (shouldAssign) {
                                             await handleAssignLeadToTeammember(team.raw || team, selectedUser)
