@@ -35,9 +35,11 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     explainingComplexConcepts: null,
     givingUpdates: null,
     handlingObjections: null,
+    agentSettings: null, // { agentMeterSettings: { salesDrive, persuasiveness, clientHandling } }
   })
-  const [subModalKey, setSubModalKey] = useState(null) // 'style' | 'tailoring' | 'sentenceStructure' | ...
+  const [subModalKey, setSubModalKey] = useState(null) // 'style' | 'tailoring' | ... | 'agentMeter'
   const [subModalSelectedValue, setSubModalSelectedValue] = useState(null) // value selected in sub-modal (before Save)
+  const [agentMeterDraft, setAgentMeterDraft] = useState({ salesDrive: 5, persuasiveness: 5, clientHandling: 5 }) // for Agent Meter sub-modal (1-10)
   const [savingSubModal, setSavingSubModal] = useState(false)
   const [apiKey, setApiKey] = useState('')
   const [apiKeyError, setApiKeyError] = useState('')
@@ -133,7 +135,16 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
           explainingComplexConcepts: data.explainingComplexConcepts ?? null,
           givingUpdates: data.givingUpdates ?? null,
           handlingObjections: data.handlingObjections ?? null,
+          agentSettings: data.agentSettings ?? null,
         })
+        const meter = data.agentSettings?.agentMeterSettings
+        if (meter && typeof meter === 'object') {
+          setAgentMeterDraft({
+            salesDrive: typeof meter.salesDrive === 'number' && meter.salesDrive >= 1 && meter.salesDrive <= 10 ? meter.salesDrive : 5,
+            persuasiveness: typeof meter.persuasiveness === 'number' && meter.persuasiveness >= 1 && meter.persuasiveness <= 10 ? meter.persuasiveness : 5,
+            clientHandling: typeof meter.clientHandling === 'number' && meter.clientHandling >= 1 && meter.clientHandling <= 10 ? meter.clientHandling : 5,
+          })
+        }
 
         // If there's an existing integration, show apiKeyMasked (last 6 chars from server) or placeholder
         if (data.aiIntegration?.id) {
@@ -357,6 +368,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
         explainingComplexConcepts: settings.explainingComplexConcepts ?? null,
         givingUpdates: settings.givingUpdates ?? null,
         handlingObjections: settings.handlingObjections ?? null,
+        agentSettings: settings.agentSettings ?? null,
       }
 
       // Add userId if viewing subaccount from admin/agency
@@ -529,6 +541,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
           explainingComplexConcepts: data.explainingComplexConcepts ?? null,
           givingUpdates: data.givingUpdates ?? null,
           handlingObjections: data.handlingObjections ?? null,
+          agentSettings: data.agentSettings ?? prev.agentSettings,
         }))
         setSubModalKey(null)
         toast.success('Saved')
@@ -543,17 +556,153 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     }
   }
 
-  const activeSubModalConfig = subModalKey
+  const handleSaveAgentMeter = async () => {
+    const localData = localStorage.getItem('User')
+    if (!localData) {
+      toast.error('Please log in to save')
+      return
+    }
+    const userData = JSON.parse(localData)
+    const token = userData.token
+    try {
+      setSavingSubModal(true)
+      const payload = {
+        ...settings,
+        agentSettings: {
+          agentMeterSettings: {
+            salesDrive: agentMeterDraft.salesDrive,
+            persuasiveness: agentMeterDraft.persuasiveness,
+            clientHandling: agentMeterDraft.clientHandling,
+          },
+        },
+      }
+      if (selectedUser?.id) payload.userId = selectedUser.id
+      const apiUrl = `${Apis.BasePath}api/mail/settings`
+      const response = await axios.put(apiUrl, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      })
+      if (response.data?.status && response.data?.data) {
+        const data = response.data.data
+        setSettings((prev) => ({ ...prev, agentSettings: data.agentSettings ?? prev.agentSettings }))
+        setSubModalKey(null)
+        toast.success('Saved')
+      } else {
+        toast.error(response.data?.message || 'Failed to save')
+      }
+    } catch (error) {
+      console.error('Error saving agent meter:', error)
+      toast.error(error.response?.data?.message || 'Failed to save')
+    } finally {
+      setSavingSubModal(false)
+    }
+  }
+
+  const activeSubModalConfig = subModalKey && subModalKey !== 'agentMeter'
     ? communicationRowsConfig.find((r) => r.key === subModalKey)
     : null
 
-  const isSubScreen = !!activeSubModalConfig
+  const isSubScreen = subModalKey !== null
+  const isAgentMeterScreen = subModalKey === 'agentMeter'
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md px-0" overlayClassName="bg-black/40">
-        {/* Sub-screen: Communication setting (iPhone-style back + content) */}
+      <DialogContent className="max-w-md px-0" overlayClassName="bg-black/40" hideCloseButton={isSubScreen}>
+        {/* Sub-screen: Agent Meter (sliders) or Communication setting (radio options) */}
         {isSubScreen ? (
+          isAgentMeterScreen ? (
+            <div className="max-h-[80svh] overflow-hidden">
+              <DialogHeader className="flex flex-row items-center gap-3 pb-2 px-4">
+                <button
+                  type="button"
+                  onClick={() => setSubModalKey(null)}
+                  className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-gray-100 transition-colors -ml-1"
+                  aria-label="Back"
+                >
+                  <ArrowLeft className="w-5 h-5 text-gray-700" />
+                </button>
+                <DialogTitle className="text-xl font-bold flex-1">Agent Meter</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-6 py-4 px-4 overflow-y-auto max-h-[60svh]">
+                {(() => {
+                  const percent = (v) => ((Number(v) - 1) / 9) * 100
+                  const bubblePos = (v) => ({ left: `${percent(v)}%`, transform: 'translateX(-50%)', top: 0 })
+                  return (
+                    <>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-2">On a scale of 1-10, how persistent are you in following up with potential clients?</p>
+                        <div className="relative pt-10">
+                          <span className="agent-meter-bubble" style={bubblePos(agentMeterDraft.salesDrive)}>
+                            {agentMeterDraft.salesDrive}
+                          </span>
+                          <input
+                            type="range"
+                            min={1}
+                            max={10}
+                            value={agentMeterDraft.salesDrive}
+                            onChange={(e) => setAgentMeterDraft((p) => ({ ...p, salesDrive: Number(e.target.value) }))}
+                            className="agent-meter-slider w-full block"
+                            style={{
+                              background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) ${percent(agentMeterDraft.salesDrive)}%, #e5e7eb ${percent(agentMeterDraft.salesDrive)}%, #e5e7eb 100%)`,
+                            }}
+                          />
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">Sales Drive</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-2">On a scale of 1-10, how would you rate your ability to persuade clients to see the value in your product or service?</p>
+                        <div className="relative pt-10">
+                          <span className="agent-meter-bubble" style={bubblePos(agentMeterDraft.persuasiveness)}>
+                            {agentMeterDraft.persuasiveness}
+                          </span>
+                          <input
+                            type="range"
+                            min={1}
+                            max={10}
+                            value={agentMeterDraft.persuasiveness}
+                            onChange={(e) => setAgentMeterDraft((p) => ({ ...p, persuasiveness: Number(e.target.value) }))}
+                            className="agent-meter-slider w-full block"
+                            style={{
+                              background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) ${percent(agentMeterDraft.persuasiveness)}%, #e5e7eb ${percent(agentMeterDraft.persuasiveness)}%, #e5e7eb 100%)`,
+                            }}
+                          />
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">Persuasiveness</p>
+                      </div>
+                      <div>
+                        <p className="text-sm text-gray-600 mb-2">On a scale of 1-10, how would you rate your ability to manage client expectations and address their concerns effectively?</p>
+                        <div className="relative pt-10">
+                          <span className="agent-meter-bubble" style={bubblePos(agentMeterDraft.clientHandling)}>
+                            {agentMeterDraft.clientHandling}
+                          </span>
+                          <input
+                            type="range"
+                            min={1}
+                            max={10}
+                            value={agentMeterDraft.clientHandling}
+                            onChange={(e) => setAgentMeterDraft((p) => ({ ...p, clientHandling: Number(e.target.value) }))}
+                            className="agent-meter-slider w-full block"
+                            style={{
+                              background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) ${percent(agentMeterDraft.clientHandling)}%, #e5e7eb ${percent(agentMeterDraft.clientHandling)}%, #e5e7eb 100%)`,
+                            }}
+                          />
+                        </div>
+                        <p className="text-xs text-gray-500 mt-1">Client Handling</p>
+                      </div>
+                    </>
+                  )
+                })()}
+              </div>
+              <DialogFooter className="w-full flex flex-row items-center justify-between sm:justify-between border-t pt-4 mt-2 px-4">
+                <Button variant="outline" onClick={() => setSubModalKey(null)} disabled={savingSubModal}>Cancel</Button>
+                <Button onClick={handleSaveAgentMeter} disabled={savingSubModal} style={{ backgroundColor: 'hsl(var(--brand-primary))' }} className="text-white hover:opacity-90">
+                  {savingSubModal ? 'Saving...' : 'Save'}
+                </Button>
+              </DialogFooter>
+            </div>
+          ) : (
           <div className="max-h-[80svh] overflow-hidden">
             <DialogHeader className="flex flex-row items-center gap-3 pb-2 px-4">
               <button
@@ -680,6 +829,7 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
               </Button>
             </DialogFooter>
           </div>
+          )
         ) : (
           <div className='max-h-[75svh] overflow-hidden px-4'>
 
@@ -878,6 +1028,31 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                           </button>
                         )
                       })}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const meter = settings.agentSettings?.agentMeterSettings
+                          if (meter && typeof meter === 'object') {
+                            setAgentMeterDraft({
+                              salesDrive: typeof meter.salesDrive === 'number' && meter.salesDrive >= 1 && meter.salesDrive <= 10 ? meter.salesDrive : 5,
+                              persuasiveness: typeof meter.persuasiveness === 'number' && meter.persuasiveness >= 1 && meter.persuasiveness <= 10 ? meter.persuasiveness : 5,
+                              clientHandling: typeof meter.clientHandling === 'number' && meter.clientHandling >= 1 && meter.clientHandling <= 10 ? meter.clientHandling : 5,
+                            })
+                          }
+                          setSubModalKey('agentMeter')
+                        }}
+                        className="w-full flex items-center justify-between gap-2 px-4 py-3 text-left transition-colors bg-white hover:bg-gray-50 rounded-lg border-2 border-transparent focus:outline-none focus-visible:border-dashed focus-visible:border-gray-400"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="text-sm font-regular text-gray-900">Agent meter</div>
+                          {settings.agentSettings?.agentMeterSettings && (
+                            <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-medium border border-gray-200 text-gray-500">
+                              Persuasiveness: {settings.agentSettings.agentMeterSettings.persuasiveness ?? '—'}
+                            </span>
+                          )}
+                        </div>
+                        <ChevronRight className="shrink-0 w-5 h-5 text-gray-400" />
+                      </button>
                     </div>
                   </div>
                 </div>
