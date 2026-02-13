@@ -1546,7 +1546,7 @@ function UpgradePlanContent({
       if (currentUser?.userRole === UserRole.Agency || currentUser?.userRole === UserRole.AgentX) {
         checkTierRanking = true
       }
-      console.log(`checking for current user logged in ${ currentUser?.userRole }`, checkTierRanking)
+      console.log(`checking for current user logged in ${currentUser?.userRole}`, checkTierRanking)
     }
     if (checkTierRanking) {
 
@@ -1989,8 +1989,13 @@ function UpgradePlanContent({
                       <div
                         className={`w-[50%] flex flex-col items-start ${haveCards || isAddingNewPaymentMethod ? 'text-black' : 'text-[#8a8a8a]'}`}
                       >
-                        <div className=" text-xl font-semibold ">
-                          Order Summary
+                        <div className="flex flex-row items-center justify-between w-full">
+                          <div className=" text-xl font-semibold ">
+                            Order Summary
+                          </div>
+                          <div>
+                            {currentSelectedPlan?.hasTrial ? `${currentSelectedPlan?.trialValidForDays} ${currentSelectedPlan?.trialValidForDays > 1 ? 'Days' : 'Day'} free trial` : ''}
+                          </div>
                         </div>
                         <div className="flex flex-row items-start justify-between w-full mt-6">
                           <div>
@@ -2184,8 +2189,10 @@ function UpgradePlanContent({
                                 >
                                   {(() => {
                                     // Check if plan has trial and user is subscribing for the first time
+                                    console.log("currentSelectedPlan value is", currentSelectedPlan)
+                                    console.log("currentUserPlan", currentUserPlan)
                                     const hasTrial = currentSelectedPlan?.hasTrial === true
-                                    const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+                                    const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId
 
                                     // If plan has trial and user has no previous plan, show $0
                                     if (hasTrial && isFirstTimeSubscription) {
@@ -2298,7 +2305,7 @@ function UpgradePlanContent({
 
                         // Check if plan has trial and user is subscribing for the first time (no previous plan)
                         const hasTrial = currentSelectedPlan?.hasTrial === true
-                        const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId === null
+                        const isFirstTimeSubscription = !currentUserPlan || currentUserPlan.planId
 
                         // If plan has trial and user has no previous plan, show $0 (they won't be charged immediately)
                         if (hasTrial && isFirstTimeSubscription) {

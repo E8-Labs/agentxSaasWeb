@@ -31,7 +31,7 @@ const TaskForm = ({
   initialDescription = null,
   hideBorder = false,
   isValidForm = false,
-  setIsValidForm = () => {},
+  setIsValidForm = () => { },
 }) => {
   const titleInputRef = useRef(null)
   const titleContainerRef = useRef(null)
@@ -39,7 +39,7 @@ const TaskForm = ({
   const [inputTextWidth, setInputTextWidth] = useState(0)
   const [isFocused, setIsFocused] = useState(false)
   const [containerWidth, setContainerWidth] = useState(0)
-  
+
   // Initialize title - start empty, lead mention will be shown separately
   const getInitialTitle = () => {
     if (task?.title) return task.title
@@ -55,17 +55,17 @@ const TaskForm = ({
         setContainerWidth(titleContainerRef.current.offsetWidth)
       }
     }
-    
+
     updateContainerWidth()
     window.addEventListener('resize', updateContainerWidth)
-    
+
     // Use ResizeObserver if available for more accurate tracking
     let resizeObserver = null
     if (typeof ResizeObserver !== 'undefined' && titleContainerRef.current) {
       resizeObserver = new ResizeObserver(updateContainerWidth)
       resizeObserver.observe(titleContainerRef.current)
     }
-    
+
     return () => {
       window.removeEventListener('resize', updateContainerWidth)
       if (resizeObserver) {
@@ -83,7 +83,7 @@ const TaskForm = ({
       setInputTextWidth(textWidth)
     }
   }, [title])
-  
+
   const [description, setDescription] = useState(task?.description || initialDescription || '')
   const [priority, setPriority] = useState(task?.priority || 'no-priority')
   const [status, setStatus] = useState(task?.status || 'todo')
@@ -283,26 +283,26 @@ const TaskForm = ({
   const priorityDropdownSpace = 180
   const leadMentionApproxWidth = leadName ? leadName.length * 8 + 25 : 0 // Approximate width of "@leadName"
   const availableSpace = Math.max(0, containerWidth - priorityDropdownSpace)
-  
+
   // When focused, position mention after input text with spacing
   // When not focused, position mention after "Task for" text (approximately 80px from input start)
   const mentionSpacing = 8 // Gap between input text and mention
   const taskForTextWidth = 80 // Approximate width of "Task for " text
-  
+
   // Calculate the maximum position where mention can be placed (before priority dropdown)
   const maxMentionPosition = Math.max(0, availableSpace - leadMentionApproxWidth)
-  
+
   // Desired positions for mention
   const desiredPositionWhenFocused = inputTextWidth + mentionSpacing
   const desiredPositionWhenNotFocused = taskForTextWidth + mentionSpacing
-  
+
   // Calculate where mention should be positioned (never exceed maxMentionPosition)
   const leadMentionLeft = isFocused
     ? Math.min(desiredPositionWhenFocused, maxMentionPosition)
     : Math.min(desiredPositionWhenNotFocused, maxMentionPosition)
-  
+
   const maxWidthForMention = Math.max(100, availableSpace - leadMentionLeft)
-  
+
   // Calculate max width for input to prevent covering the lead mention
   // Always constrain if we have a valid lead mention to ensure input never overlaps
   const shouldConstrainInput = shouldShowLeadMention && leadName && containerWidth > 0
@@ -317,7 +317,7 @@ const TaskForm = ({
       <form onSubmit={handleSubmit} className={hideBorder ? 'pt-0' : ''} id="task-form">
         {/* Title with Pin and Priority */}
         <div className="flex items-center justify-between">
-          <div 
+          <div
             ref={titleContainerRef}
             className="flex items-center gap-2 flex-1 relative min-w-0"
           >
@@ -338,7 +338,7 @@ const TaskForm = ({
                   left: 0,
                 }}
               />
-              
+
               {/* "Task for" text - only shows when not focused */}
               {shouldShowLeadMention && leadName && !isFocused && (
                 <span
@@ -356,7 +356,7 @@ const TaskForm = ({
                   Task for{' '}
                 </span>
               )}
-              
+
               {/* Lead mention tag (@leadName) - always visible, positioned dynamically after input text */}
               {shouldShowLeadMention && leadName && (
                 <span
@@ -390,8 +390,8 @@ const TaskForm = ({
                 }}
                 placeholder={shouldShowLeadMention && leadName ? '' : "Title"}
                 className="border-0 p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 flex-1 relative"
-                style={{ 
-                  fontSize: '14px', 
+                style={{
+                  fontSize: '14px',
                   fontWeight: 600,
                   backgroundColor: 'transparent',
                   position: 'relative',
@@ -432,7 +432,7 @@ const TaskForm = ({
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Description here..."
             className="border-0 p-0 min-h-[60px] resize-none focus-visible:ring-0 focus-visible:ring-offset-0"
-            style={{ fontSize: '14px',lineHeight: '2' }}
+            style={{ fontSize: '14px', lineHeight: '2' }}
             rows={3}
             required={isValidForm}
           />
@@ -448,17 +448,19 @@ const TaskForm = ({
           />
 
           {/* Due Date */}
-          <Popover open={datePickerOpen} onOpenChange={(open) => {
-            if (!open && !isSavingDate) {
-              // Save changes when closing if this is an edit form
-              if (task && (dueDate?.getTime() !== (task.dueDate ? new Date(task.dueDate).getTime() : null) || dueTime !== (task.dueTime || ''))) {
-                // For edit mode, we'd need to call onSubmit, but since this is just the form,
-                // the parent will handle it when the form is submitted
-                // For now, just close
+          <Popover
+            open={datePickerOpen}
+            onOpenChange={(open) => {
+              if (!open && !isSavingDate) {
+                // Save changes when closing if this is an edit form
+                if (task && (dueDate?.getTime() !== (task.dueDate ? new Date(task.dueDate).getTime() : null) || dueTime !== (task.dueTime || ''))) {
+                  // For edit mode, we'd need to call onSubmit, but since this is just the form,
+                  // the parent will handle it when the form is submitted
+                  // For now, just close
+                }
               }
-            }
-            setDatePickerOpen(open)
-          }}>
+              setDatePickerOpen(open)
+            }}>
             <PopoverTrigger asChild>
               <button
                 type="button"
@@ -488,28 +490,28 @@ const TaskForm = ({
                 <ChevronDown className="h-3 w-3 text-muted-foreground ml-1 pointer-events-none" />
               </button>
             </PopoverTrigger>
-            <PopoverContent 
-              className="w-auto p-0" 
+            <PopoverContent
+              className="w-auto p-0"
               align="start"
               style={{ zIndex: 1500 }}
               onInteractOutside={(e) => {
-                const taskBoard = document.querySelector('[data-task-board]')
-                // Check if clicking on the popover content itself
-                const popoverContent = e.target.closest('[role="dialog"]')
-                if (popoverContent) {
-                  // Clicking inside popover - prevent closing
-                  e.preventDefault()
-                  return
-                }
-                
-                if (taskBoard && taskBoard.contains(e.target)) {
-                  // Clicking outside popover but inside task board - close popover
-                  // For create form, changes are already in state, so just close
-                  setDatePickerOpen(false)
-                } else {
-                  // Clicking outside task board - close popover
-                  setDatePickerOpen(false)
-                }
+                // const taskBoard = document.querySelector('[data-task-board]')
+                // // Check if clicking on the popover content itself
+                // // const popoverContent = e.target.closest('[role="dialog"]')
+                // // if (popoverContent) {
+                // //   // Clicking inside popover - prevent closing
+                // //   e.preventDefault()
+                // //   return
+                // // }
+
+                // if (taskBoard && taskBoard.contains(e.target)) {
+                //   // Clicking outside popover but inside task board - close popover
+                //   // For create form, changes are already in state, so just close
+                //   setDatePickerOpen(false)
+                // } else {
+                //   // Clicking outside task board - close popover
+                //   setDatePickerOpen(false)
+                // }
               }}
             >
               <div className="p-3 space-y-3">
@@ -592,8 +594,8 @@ const TaskForm = ({
             <DropdownCn
               label={
                 <div className="flex items-center gap-2">
-                  <div 
-                    className="w-2 h-2 rounded-full" 
+                  <div
+                    className="w-2 h-2 rounded-full"
                     style={{ backgroundColor: statusColors[status] || '#9CA3AF' }}
                   />
                   <TypographyBodyMedium>{statusDisplayText[status] || status}</TypographyBodyMedium>
@@ -602,8 +604,8 @@ const TaskForm = ({
               options={statusOptions.map((opt) => ({
                 label: (
                   <div className="flex items-center gap-2">
-                    <div 
-                      className="w-2 h-2 rounded-full" 
+                    <div
+                      className="w-2 h-2 rounded-full"
                       style={{ backgroundColor: statusColors[opt.value] || '#9CA3AF' }}
                     />
                     <span>{typeof opt.label === 'string' ? opt.label : opt.value}</span>
