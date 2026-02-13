@@ -139,6 +139,7 @@ const LeadDetails = ({
   // //console.log;
 
   const emailInputRef = useRef(null)
+  const notesTabRef = useRef(null)
 
   const [columnsLength, setcolumnsLength] = useState([])
 
@@ -2616,6 +2617,7 @@ const LeadDetails = ({
                     {/* Notes go here */}
                     {showNotesDetails && (
                       <NotesTabCN
+                        ref={notesTabRef}
                         noteDetails={noteDetails}
                         selectedLeadsDetails={selectedLeadsDetails}
                         onNotesUpdated={handleNotesUpdated}
@@ -2644,6 +2646,32 @@ const LeadDetails = ({
                       />
                     )}
                   </div>
+                  {showNotesDetails && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: 20,
+                        left: 20,
+                      }}
+                    >
+                      <Button
+                        variant="ghost"
+                        className="gap-2"
+                        onClick={() => notesTabRef.current?.openAddNote?.()}
+                      >
+                        <PlusIcon className="h-4 w-4" />
+                        <span
+                          style={{
+                            fontSize: 15,
+                            fontWeight: '600',
+                            color: '#15151590',
+                          }}
+                        >
+                          Add Notes
+                        </span>
+                      </Button>
+                    </div>
+                  )}
                   <div
                     style={{
                       position: 'absolute',

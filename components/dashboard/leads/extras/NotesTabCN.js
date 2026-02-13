@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, forwardRef, useImperativeHandle } from 'react'
 import {
   StickyNote,
   Plus,
@@ -39,12 +39,16 @@ import {
   TypographyBodyMedium,
 } from '@/lib/typography'
 
-const NotesTabCN = ({
+const NotesTabCN = forwardRef(({
   noteDetails = [],
   selectedLeadsDetails,
   onNotesUpdated,
-}) => {
+}, ref) => {
   const [showAddNotes, setShowAddNotes] = useState(false)
+
+  useImperativeHandle(ref, () => ({
+    openAddNote: () => setShowAddNotes(true),
+  }), [])
   const [addNotesValue, setAddNotesValue] = useState('')
   const [addLeadNoteLoader, setAddLeadNoteLoader] = useState(false)
 
@@ -294,18 +298,6 @@ const NotesTabCN = ({
           </div>
         )
       }
-      {
-        noteDetails.length > 0 && (
-          <Button
-            variant="ghost"
-            className="sticky bottom-6 left-0 mt-4 w-fit gap-2 bg-background border border-border shadow-lg z-10 hover:bg-muted"
-            onClick={() => setShowAddNotes(true)}
-          >
-            <Plus className="h-4 w-4" />
-            <TypographyBodyMedium>Add Notes</TypographyBodyMedium>
-          </Button>
-        )
-      }
 
       {/* Add Note Modal */}
       <Dialog open={showAddNotes} onOpenChange={setShowAddNotes} modal={true}>
@@ -448,7 +440,9 @@ const NotesTabCN = ({
       />
     </div>
   )
-}
+})
+
+NotesTabCN.displayName = 'NotesTabCN'
 
 export default NotesTabCN
 
