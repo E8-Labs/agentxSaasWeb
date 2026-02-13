@@ -40,7 +40,7 @@ function plainTextToHtml(text) {
   return text.replace(/\n/g, '<br>')
 }
 
-const Messages = ({ selectedUser = null, agencyUser = null}) => {
+const Messages = ({ selectedUser = null, agencyUser = null }) => {
   const searchParams = useSearchParams()
   const [threads, setThreads] = useState([])
   const [selectedThread, setSelectedThread] = useState(null)
@@ -112,7 +112,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const [callSummaryDraftsMessageId, setCallSummaryDraftsMessageId] = useState(null)
 
   // Debug: Log when modal state changes
-  useEffect(() => {}, [showUpgradePlanModal])
+  useEffect(() => { }, [showUpgradePlanModal])
 
   // Fetch message settings once (for hasAiKey) when viewing a conversation; refetch when settings modal closes so new key is reflected
   const fetchMessageSettingsHasAiKey = useCallback(async () => {
@@ -610,7 +610,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
             // Debug: Log messages with attachments and metadata structure
             fetchedMessages.forEach((msg) => {
-              if (msg.metadata?.attachments && msg.metadata.attachments.length > 0) {} else if (msg.metadata && !msg.metadata.attachments) {}
+              if (msg.metadata?.attachments && msg.metadata.attachments.length > 0) { } else if (msg.metadata && !msg.metadata.attachments) { }
             })
 
             // Set messages (newest at bottom)
@@ -673,7 +673,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
           // Debug: Log messages with attachments and metadata structure
           fetchedMessages.forEach((msg) => {
-            if (msg.metadata?.attachments && msg.metadata.attachments.length > 0) {} else if (msg.metadata && !msg.metadata.attachments) {}
+            if (msg.metadata?.attachments && msg.metadata.attachments.length > 0) { } else if (msg.metadata && !msg.metadata.attachments) { }
           })
 
           if (append) {
@@ -833,7 +833,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
     // Set flag to prevent auto-selecting email account
     isSelectingDraftRef.current = true
-    
+
     setSelectedDraft(draft)
 
     // Set composer mode based on draft type
@@ -1057,8 +1057,8 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                       : t
                   )
                 )
-              } else {}
-            } else {}
+              } else { }
+            } else { }
           } else if (!currentLatestMessageId && allFetchedMessages.length > 0) {
             // If we don't have any messages yet, but there are messages, fetch them
             // This handles the case where messages arrive before initial load completes
@@ -1648,7 +1648,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
     console.log('🔍 [getCcBccFromMessage] message.ccEmails:', message.ccEmails)
     let cc = []
     if (message.ccEmails) {
-      if(Array.isArray(message.ccEmails) && message.ccEmails.length > 0) {
+      if (Array.isArray(message.ccEmails) && message.ccEmails.length > 0) {
         cc = message.ccEmails
       } else if (typeof message.ccEmails === 'string') {
         let jsonCcEmails = JSON.parse(message.ccEmails)
@@ -1781,7 +1781,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
               onError={(e) => {
                 console.error('❌ [getAgentAvatar] Failed to load profile image:', message.senderUser.thumb_profile_image, e)
               }}
-              onLoad={() => {}}
+              onLoad={() => { }}
             />
           </div>
         );
@@ -2124,7 +2124,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           if (selectedEmailAccount) {
             lastSelectedEmailAccountRef.current = selectedEmailAccount
           }
-          
+
           toast.success('Email sent successfully', {
             style: {
               width: 'fit-content',
@@ -2225,16 +2225,16 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   // Get the last email account used in the thread
   const getLastEmailAccountFromThread = useCallback(() => {
     if (!messages || messages.length === 0) return null
-    
+
     // Find the most recent outbound email message
     const outboundEmails = messages
       .filter(msg => msg.messageType === 'email' && msg.direction === 'outbound' && msg.emailAccountId)
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-    
+
     if (outboundEmails.length > 0) {
       return outboundEmails[0].emailAccountId.toString()
     }
-    
+
     return null
   }, [messages])
 
@@ -2262,14 +2262,14 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
       if (response.data?.status && response.data?.data) {
         setEmailAccounts(response.data.data)
-        
+
         if (response.data.data.length > 0) {
           // Priority order:
           // 1. If preserving selection and we have a last selected account, restore it
           // 2. If restoreLastUsed is true, try to get from thread's last sent email
           // 3. If selecting a draft, don't auto-select
           // 4. Otherwise, select first account
-          
+
           if (preserveSelection && lastSelectedEmailAccountRef.current) {
             // Check if the last selected account still exists in the list
             const accountExists = response.data.data.some(
@@ -2280,7 +2280,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
               return
             }
           }
-          
+
           if (restoreLastUsed) {
             const lastUsedAccountId = getLastEmailAccountFromThread()
             if (lastUsedAccountId) {
@@ -2294,7 +2294,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
               }
             }
           }
-          
+
           // Only auto-select first account if not preserving selection and not selecting a draft
           if (!preserveSelection && !isSelectingDraftRef.current) {
             setSelectedEmailAccount(response.data.data[0].id)
@@ -2389,21 +2389,21 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       // Check if threadId is provided in query params (from notification click)
       const threadIdFromParams = searchParams?.get('threadId')
       const messageIdFromParams = searchParams?.get('messageId')
-      
+
       let threadToSelect = null
-      
+
       if (threadIdFromParams) {
         // Find the thread matching the threadId from query params
         threadToSelect = threads.find(
           (t) => t.id.toString() === threadIdFromParams.toString()
         )
       }
-      
+
       // Fallback to first thread if no match found or no query param
       if (!threadToSelect) {
         threadToSelect = threads[0]
       }
-      
+
       if (threadToSelect) {
         setSelectedThread(threadToSelect)
         setMessageOffset(0)
@@ -2436,7 +2436,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
           }, 2000)
         }
       }, 500)
-      
+
       return () => clearTimeout(scrollTimer)
     }
   }, [messages, messagesLoading, searchParams])
@@ -2570,12 +2570,12 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const prevComposerModeRef = useRef(composerMode)
   useEffect(() => {
     const prevMode = prevComposerModeRef.current
-    
+
     // When switching away from email, store the current selected email account
     if (prevMode === 'email' && composerMode !== 'email' && selectedEmailAccount) {
       lastSelectedEmailAccountRef.current = selectedEmailAccount
     }
-    
+
     // When switching to email, restore the last selected account or use last used from thread
     if (prevMode !== 'email' && composerMode === 'email') {
       // Fetch accounts and restore selection
@@ -2616,7 +2616,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
         }
       }
     }
-    
+
     prevComposerModeRef.current = composerMode
   }, [composerMode, selectedEmailAccount, emailAccounts, fetchEmailAccounts, getLastEmailAccountFromThread])
 
@@ -2865,7 +2865,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   }
 
   return (
-    <div className = {`w-full flex flex-col bg-white h-full`}>
+    <div className={`w-full flex flex-col bg-white h-full`}>
       <AgentSelectSnackMessage
         isVisible={snackbar.isVisible}
         title={snackbar.title}
@@ -2874,7 +2874,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
         time={4000}
         hide={() => setSnackbar({ ...snackbar, isVisible: false })}
       />
-      
+
       {/* Upgrade Plan Modal - Always available */}
       <UpgradePlan
         open={showUpgradePlanModal}
@@ -2892,7 +2892,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
       />
 
       {
-      !hasMessagingAccess? (
+        !hasMessagingAccess ? (
           <UnlockMessagesView />
         ) : (
           <div className={`w-full h-full flex flex-col bg-white`}>
@@ -2909,12 +2909,12 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                     const lastMessage = thread.messages[0]
                     return lastMessage.direction === 'inbound'
                   }
-                  
+
                   // If no messages array, check if thread has lastMessage property
                   if (thread.lastMessage) {
                     return thread.lastMessage.direction === 'inbound'
                   }
-                  
+
                   // If no message info, check thread direction
                   // Default to unreplied if we can't determine (safer assumption)
                   return thread.direction === 'inbound' || !thread.direction
@@ -3122,20 +3122,24 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
               </div>
 
               {/* New Message Modal */}
-              <NewMessageModal
-                open={showNewMessageModal}
-                onClose={() => setShowNewMessageModal(false)}
-                onSend={(result) => {
-                  // Refresh threads after sending (even if partial success)
-                  if (result.sent > 0) {
-                    setTimeout(() => {
-                      fetchThreads(searchValue || "", appliedTeamMemberIds)
-                    }, 1000)
-                  }
-                }}
-                mode={newMessageMode}
-                selectedUser={selectedUser}
-              />
+              {
+                showNewMessageModal && (
+                  <NewMessageModal
+                    open={showNewMessageModal}
+                    onClose={() => setShowNewMessageModal(false)}
+                    onSend={(result) => {
+                      // Refresh threads after sending (even if partial success)
+                      if (result.sent > 0) {
+                        setTimeout(() => {
+                          fetchThreads(searchValue || "", appliedTeamMemberIds)
+                        }, 1000)
+                      }
+                    }}
+                    mode={newMessageMode}
+                    selectedUser={selectedUser}
+                  />
+                )
+              }
 
               {/* Image Viewer Modal */}
               {imageModalOpen && (
@@ -3311,9 +3315,9 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                 callSummaryMessage={aiChatContext?.message ?? null}
                 selectedThread={selectedThread}
                 parentMessageId={aiChatContext?.message?.id ?? null}
-                onPlayRecording={aiChatContext?.onPlayRecording ?? (() => {})}
-                onCopyCallId={aiChatContext?.onCopyCallId ?? (() => {})}
-                onReadTranscript={aiChatContext?.onReadTranscript ?? (() => {})}
+                onPlayRecording={aiChatContext?.onPlayRecording ?? (() => { })}
+                onCopyCallId={aiChatContext?.onCopyCallId ?? (() => { })}
+                onReadTranscript={aiChatContext?.onReadTranscript ?? (() => { })}
               />
 
             </div>
