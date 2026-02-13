@@ -60,7 +60,11 @@ const CallTranscriptCN = ({
             {moment(item?.duration * 1000).format('mm:ss')}
           </TypographyBodyMedium>
           <button
-            onClick={() => onPlayRecording?.(item?.recordingUrl, item.callId)}
+            onClick={() => {
+              console.log("Playing recording", item?.recordingUrl, item.callId);
+              onPlayRecording?.(item?.recordingUrl, item.callId)
+              console.log("after Recording URL");
+            }}
             className="flex items-center justify-center"
             style={{
               width: 35,

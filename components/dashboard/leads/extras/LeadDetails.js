@@ -367,6 +367,10 @@ const LeadDetails = ({
   }, [])
 
   useEffect(() => {
+    console.log("showAudioPlay", showAudioPlay);
+  }, [showAudioPlay])
+
+  useEffect(() => {
     const getData = async () => {
       // Use AdminGetProfileDetails if selectedUser is provided (admin view), otherwise use getProfileDetails (regular user)
       let user = selectedUser?.id
@@ -2628,6 +2632,7 @@ const LeadDetails = ({
                         onReadTranscript={handleReadMoreToggle}
                         onPlayRecording={(recordingUrl, callId) => {
                           if (recordingUrl) {
+                          console.log("onplay recording trigered in parent", recordingUrl, callId);
                             setShowAudioPlay({ recordingUrl, callId })
                           } else {
                             setShowNoAudioPlay(true)
@@ -2783,6 +2788,132 @@ const LeadDetails = ({
     return (
       <div className="w-full h-full overflow-auto" style={{ scrollbarWidth: 'none' }}>
         {mainContent}
+        {/* Warning Modal for no voice - same as Drawer branch so audio modals work from Important Calls */}
+        <Modal
+          open={showNoAudioPlay}
+          onClose={() => setShowNoAudioPlay(false)}
+          closeAfterTransition
+          BackdropProps={{
+            sx: {
+              backgroundColor: '#00000020',
+            },
+          }}
+        >
+          <Box className="lg:w-3/12 sm:w-5/12 w-8/12" sx={styles.modalsStyle}>
+            <div className="flex flex-row justify-center w-full">
+              <div
+                className="w-full flex flex-col items-center"
+                style={{
+                  backgroundColor: '#ffffff',
+                  padding: 20,
+                  borderRadius: '13px',
+                }}
+              >
+                <audio controls>
+                  <source src={showAudioPlay} type="audio/mpeg" />
+                  Your browser does not support the audio element.
+                </audio>
+                <button
+                  className="text-white w-full h-[50px] rounded-lg bg-brand-primary mt-4"
+                  onClick={() => {
+                    setShowNoAudioPlay(false)
+                  }}
+                  style={{ fontWeight: '600', fontSize: 15 }}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </Box>
+        </Modal>
+        {/* Audio play Modal - same as Drawer branch so audio modals work from Important Calls */}
+        <Modal
+          open={!!showAudioPlay}
+          onClose={() => setShowAudioPlay(null)}
+          closeAfterTransition
+          disablePortal={false}
+          slotProps={{
+            root: {
+              style: {
+                zIndex: 1600,
+              },
+            },
+          }}
+          sx={{
+            zIndex: 1600,
+          }}
+          BackdropProps={{
+            sx: {
+              backgroundColor: '#00000020',
+              zIndex: 1600,
+            },
+          }}
+        >
+          <Box
+            className="lg:w-3/12 sm:w-5/12 w-3/12"
+            sx={{
+              ...styles.modalsStyle,
+              zIndex: 1601,
+              position: 'relative',
+            }}
+          >
+            <div className="flex flex-row justify-center">
+              <div
+                className="w-full flex flex-col items-end"
+                style={{
+                  backgroundColor: '#ffffff',
+                  padding: 20,
+                  borderRadius: '13px',
+                }}
+              >
+                <button
+                  className="mb-3"
+                  style={{ fontWeight: '600', fontSize: 15 }}
+                  onClick={() => {
+                    if (showAudioPlay?.callId) {
+                      let baseUrl;
+
+                      if (reduxUser?.agencyBranding?.customDomain) {
+                        baseUrl = `https://${reduxUser.agencyBranding.customDomain}`;
+                      } else {
+                        baseUrl = window.location.origin;
+                      }
+
+                      const url = `${baseUrl}/recordings/${showAudioPlay.callId}`;
+                      window.open(url, "_blank", "noopener,noreferrer");
+
+                      setShowAudioPlay(null);
+                    }
+                  }}
+                >
+                  <Image
+                    src={'/otherAssets/share.png'}
+                    height={20}
+                    width={20}
+                    alt="*"
+                  />
+                </button>
+
+                <audio
+                  id="custom-audio"
+                  controls
+                  style={{ width: '100%' }}
+                  src={showAudioPlay?.recordingUrl}
+                />
+
+                <button
+                  className="w-full h-[50px] rounded-lg bg-brand-primary text-white mt-4"
+                  style={{ fontWeight: '600', fontSize: 15 }}
+                  onClick={() => {
+                    setShowAudioPlay(null)
+                  }}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </Box>
+        </Modal>
       </div>
     )
   }
