@@ -325,30 +325,7 @@ const AiChatModal = ({
   const agentDropdownLabel =
     selectedAgentId != null
       ? (flatAgentsList.find((a) => a.id == selectedAgentId)?.name ?? 'Select agent')
-      : agentsList.length === 0 && !agentsLoading
-        ? 'No agents'
-        : 'Select agent'
-
-  // Build system prompt and context from call data
-  const buildSystemPromptAndContext = () => {
-    const systemPrompt =
-      'You are an AI assistant helping analyze a call summary. Be concise and helpful.'
-
-    const parts = []
-    if (callData?.callSummary?.callSummary) {
-      parts.push(`Call Summary: ${callData.callSummary.callSummary}`)
-    }
-    if (callData?.duration) {
-      parts.push(`Call Duration: ${callData.duration}s`)
-    }
-    const leadName =
-      selectedThread?.lead?.firstName || selectedThread?.lead?.name || 'Unknown'
-    parts.push(`Lead: ${leadName}`)
-
-    const context = parts.length > 0 ? parts.join('\n') : undefined
-
-    return { systemPrompt, context }
-  }
+      : 'Default prompt'
 
   const handleSend = async () => {
     const messageText = stripHTML(inputValue).trim()
@@ -374,8 +351,6 @@ const AiChatModal = ({
         return
       }
 
-      const { systemPrompt, context } = buildSystemPromptAndContext()
-
       const res = await fetch(Apis.aiChat, {
         method: 'POST',
         headers: {
@@ -386,8 +361,6 @@ const AiChatModal = ({
           parentMessageId,
           threadId: selectedThread?.id,
           message: messageText,
-          systemPrompt,
-          context,
           agentId: selectedAgentId || undefined,
         }),
       })
