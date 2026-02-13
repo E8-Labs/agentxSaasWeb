@@ -122,6 +122,7 @@ const Apis = {
   updateProfileApi: `${BasePath}api/user/updateProfile`,
 
   getTeam: `${BasePath}api/team/getTeamMembers`,
+  getTeamMemberActivities: `${BasePath}api/team/activities`,
   inviteTeamMember: `${BasePath}api/team/inviteTeamMember`,
   deleteTeamMember: `${BasePath}api/team/deleteTeamMember`,
   updateProfileApi: `${BasePath}api/user/updateProfile`,
