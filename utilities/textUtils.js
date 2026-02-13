@@ -1,6 +1,38 @@
+import DOMPurify from 'dompurify'
+
 /**
  * Utility functions for text processing and formatting
  */
+
+/**
+ * Sanitize HTML for email body display (conversation view style).
+ * Preserves p, br, strong, em, lists, links, etc. Safe to use with dangerouslySetInnerHTML.
+ * @param {string} html - Raw email HTML content
+ * @returns {string} Sanitized HTML
+ */
+export function sanitizeHTMLForEmailBody(html) {
+  if (typeof window === 'undefined') return html ?? ''
+  if (!html) return ''
+  let processedContent = (html || '').replace(/\r\n/g, '\n').replace(/\r/g, '\n')
+  if (!/<[^>]+>/.test(processedContent) && processedContent.includes('\n')) {
+    processedContent = processedContent.replace(/\n/g, '<br>')
+  } else if (processedContent.includes('\n')) {
+    processedContent = processedContent.replace(/\n/g, '<br>')
+  }
+  processedContent = processedContent.replace(/<div[^>]*>([^<]+)<\/div>/gi, '$1<br>')
+  processedContent = processedContent.replace(/<\/div>\s*<div[^>]*>/gi, '<br>')
+  processedContent = processedContent.replace(/<div[^>]*><\/div>/gi, '')
+  processedContent = processedContent.replace(/<div[^>]*><div[^>]*>([^<>]+)<\/div><\/div>/gi, '$1<br>')
+  processedContent = processedContent.replace(/<div[^>]*><\/div>/gi, '')
+  processedContent = processedContent.replace(/<br>\s*$/gi, '')
+  processedContent = processedContent.replace(/\n/g, '<br>')
+  processedContent = processedContent.replace(/(<br>\s*){3,}/gi, '<br><br>')
+  return DOMPurify.sanitize(processedContent, {
+    ALLOWED_TAGS: ['p', 'br', 'strong', 'em', 'u', 'ol', 'ul', 'li', 'a', 'span', 'h2', 'h3', 'h4', 'div'],
+    ALLOWED_ATTR: ['href', 'target', 'rel', 'class'],
+    KEEP_CONTENT: true,
+  })
+}
 
 /**
  * Converts HTML content to plain text
