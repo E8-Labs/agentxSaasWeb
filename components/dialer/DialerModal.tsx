@@ -195,7 +195,7 @@ function DialerModal({
   const dispatch = useDispatch()
 
   // #region agent log
-  
+
 
 
 
@@ -2123,12 +2123,12 @@ function DialerModal({
       const isAdminOrAgency = userRole === 'Admin' || userRole === 'Agency'
       if (isAdminOrAgency && dialerUserId) formData.append('userId', String(dialerUserId))
 
-    
+
 
 
       console.log('Lead data', leadData)
-      console.log('content is',  selectedTemplate?.content )
-      
+      console.log('content is', selectedTemplate?.content)
+
 
       let token = userData.token
 
@@ -2141,7 +2141,7 @@ function DialerModal({
       })
 
 
-      console.log("response of send sms is",response)
+      console.log("response of send sms is", response)
       const data = response.data
 
 
@@ -2704,10 +2704,11 @@ function DialerModal({
         maxWidth: `${modalDimensions.width}px`,
         width: `${modalDimensions.width}px`,
         transition: isDragging ? 'none' : 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1), max-width 0.4s cubic-bezier(0.4, 0, 0.2, 1), right 0.4s cubic-bezier(0.4, 0, 0.2, 1), top 0.1s ease',
-        boxShadow: '0 10px 40px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1)',
+        boxShadow: "none", //'0 10px 40px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.1)',
         minHeight: '500px',
         maxHeight: '80vh',
         borderRadius: '16px',
+        border: "1px solid #e0e0e0",
         overflow: 'hidden',
         pointerEvents: 'auto',
         cursor: isDragging ? 'grabbing' : 'default',
@@ -3571,8 +3572,8 @@ function DialerModal({
                             boxShadow: 'none',
                           }}
                         >
-                         {/* <Image className='mr-2' src={"/otherAssets/smsIcon.png"} height={17} width={17} alt='*' /> */}
-                         <MessageSquareDot size={16} className="mr-2" />
+                          {/* <Image className='mr-2' src={"/otherAssets/smsIcon.png"} height={17} width={17} alt='*' /> */}
+                          <MessageSquareDot size={16} className="mr-2" />
                           Send Text
                         </Button>
                       </div>

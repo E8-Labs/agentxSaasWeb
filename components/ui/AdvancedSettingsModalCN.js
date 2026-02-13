@@ -155,7 +155,7 @@ const AdvancedSettingsModalCN = ({
           <AgentSelectSnackMessage
             isVisible={isVisibleSnack}
             type={SnackbarTypes.Error}
-            message={`Minimum time of the call can’t be less than 10 seconds`}
+            message={`Silence timeout cannot be less than 10 seconds`}
             hide={() => {
               setIsVisibleSnack(false)
             }}

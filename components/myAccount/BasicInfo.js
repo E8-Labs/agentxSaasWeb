@@ -1265,19 +1265,20 @@ function BasicInfo() {
             </button>
           )
         ) : (
-          <button
-            onClick={() => {
-              nameRef.current?.focus()
-            }}
-          >
-            <Image
-              src={'/svgIcons/editIcon.svg'}
-              width={24}
-              height={24}
-              alt="*"
-            />
-          </button>
+          ""
         )}
+        {/*<button
+          onClick={() => {
+            nameRef.current?.focus()
+          }}
+        >
+          <Image
+            src={'/svgIcons/editIcon.svg'}
+            width={24}
+            height={24}
+            alt="*"
+          />
+        </button>*/}
       </div>
       <div style={styles.headingStyle}>Email address</div>
       <div className="flex items-center w-6/12 mt-2 gap-2">
@@ -1339,19 +1340,20 @@ function BasicInfo() {
             </button>
           )
         ) : (
-          <button
-            onClick={() => {
-              emailRef.current?.focus()
-            }}
-          >
-            <Image
-              src={'/svgIcons/editIcon.svg'}
-              width={24}
-              height={24}
-              alt="*"
-            />
-          </button>
+          ""
         )}
+        {/*<button
+          onClick={() => {
+            emailRef.current?.focus()
+          }}
+        >
+          <Image
+            src={'/svgIcons/editIcon.svg'}
+            width={24}
+            height={24}
+            alt="*"
+          />
+        </button>*/}
       </div>
       <div style={styles.headingStyle}>Phone number</div>
       <div className="w-6/12 mt-2">
@@ -1371,8 +1373,8 @@ function BasicInfo() {
       {userRole && userRole != 'Invitee' && (
         <>
           {(userType && userType === UserTypes.RealEstateAgent) ||
-          (userType && userType === UserTypes.InsuranceAgent) ||
-          (userType && userType === UserTypes.RealEstateAgent) ? (
+            (userType && userType === UserTypes.InsuranceAgent) ||
+            (userType && userType === UserTypes.RealEstateAgent) ? (
             <>
               <div style={styles.headingStyle}>Farm</div>
               <div className="flex items-center w-6/12 mt-2 gap-2">
@@ -1412,18 +1414,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      farmRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1472,18 +1463,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      serviceAreaRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1528,18 +1508,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      teritorryRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1548,8 +1517,8 @@ function BasicInfo() {
           )}
 
           {(userType && userType === UserTypes.RealEstateAgent) ||
-          (userType && userType === UserTypes.InsuranceAgent) ||
-          (userType && userType === UserTypes.RealEstateAgent) ? (
+            (userType && userType === UserTypes.InsuranceAgent) ||
+            (userType && userType === UserTypes.RealEstateAgent) ? (
             <>
               <div style={styles.headingStyle}>Brokerage</div>
               <div className="flex items-center w-6/12 mt-2 gap-2">
@@ -1589,18 +1558,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      brokerAgeRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1649,18 +1607,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      companyRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1704,18 +1651,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      websiteRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1761,18 +1697,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      companyAffiliationRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1824,18 +1749,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      transactionRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1878,18 +1792,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      installationVolumeRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1898,7 +1801,7 @@ function BasicInfo() {
           )}
 
           {(userType && userType === UserTypes.SolarRep) ||
-          (userType && userType === UserTypes.DebtCollectorAgent) ? (
+            (userType && userType === UserTypes.DebtCollectorAgent) ? (
             <>
               <div style={styles.headingStyle}>
                 {userType === UserTypes.DebtCollectorAgent
@@ -1942,18 +1845,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      projectSizeRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -1997,18 +1889,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      clientsPerMonthRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -2052,18 +1933,7 @@ function BasicInfo() {
                     </button>
                   )
                 ) : (
-                  <button
-                    onClick={() => {
-                      casesPerMonthRef.current?.focus()
-                    }}
-                  >
-                    <Image
-                      src={'/svgIcons/editIcon.svg'}
-                      width={24}
-                      height={24}
-                      alt="*"
-                    />
-                  </button>
+                  ""
                 )}
               </div>
             </>
@@ -2168,7 +2038,7 @@ function BasicInfo() {
             ''
           )}
           {(userType && userType === UserTypes.LawAgent) ||
-          (userType && userType === UserTypes.LoanOfficerAgent) ? (
+            (userType && userType === UserTypes.LoanOfficerAgent) ? (
             <>
               <div style={styles.headingStyle} className="mt-6">
                 Client Type

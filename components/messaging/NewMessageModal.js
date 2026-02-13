@@ -1139,7 +1139,7 @@ const NewMessageModal = ({
 
   // Handle send
   const handleSend = async () => {
-    console.log("editing row template id is", editingRow?.templateId )
+    console.log("editing row template id is", editingRow?.templateId)
     // return
     // Get the appropriate message body based on mode
     const messageBody = selectedMode === 'sms' ? smsMessageBody : emailMessageBody
@@ -2435,27 +2435,41 @@ const NewMessageModal = ({
                                       zIndex: 1800,
                                     },
                                   }}
-                                  IconComponent={(props) => <ChevronDown {...props} size={24} className="text-gray-400 mr-2" />}
+                                  IconComponent={(props) => (
+                                    <span
+                                      {...props}
+                                      style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        height: '42px',  // match Select height so icon is centered in both states
+                                        cursor: 'pointer',
+                                      }}
+                                    >
+                                      <ChevronDown size={24} className="text-gray-400 mr-2" />
+                                    </span>
+                                  )}
                                   sx={{
                                     fontSize: '0.875rem',
                                     height: '42px',
-                                    borderRadius: '0',
-                                    border: 'none',
-                                    zIndex: 1800,
-                                    '& .MuiOutlinedInput-notchedOutline': {
-                                      border: 'none',
-                                    },
-                                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                                      border: 'none',
-                                    },
-                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                      border: 'none',
-                                    },
+                                    // ... existing styles ...
                                     '& .MuiSelect-select': {
                                       padding: '8px 12px',
                                       height: '42px',
                                       display: 'flex',
                                       alignItems: 'center',
+                                    },
+                                    // Keep icon aligned when closed and when open
+                                    '& .MuiSelect-icon': {
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      height: '42px',
+                                      top: 0,
+                                    },
+                                    '&.Mui-focused .MuiSelect-icon': {
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      height: '42px',
                                     },
                                   }}
                                 >
@@ -2650,21 +2664,41 @@ const NewMessageModal = ({
                                       zIndex: 1800,
                                     },
                                   }}
-                                  IconComponent={(props) => <ChevronDown {...props} size={24} className="text-gray-400 mr-2" />}
+                                  IconComponent={(props) => (
+                                    <span
+                                      {...props}
+                                      style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        height: '42px',  // match Select height so icon is centered in both states
+                                        cursor: 'pointer',
+                                      }}
+                                    >
+                                      <ChevronDown size={24} className="text-gray-400 mr-2" />
+                                    </span>
+                                  )}
                                   sx={{
                                     fontSize: '0.875rem',
                                     height: '42px',
-                                    borderRadius: '8px',
-                                    zIndex: 1, // Lower z-index for the button itself, menu has its own z-index
-                                    '& .MuiOutlinedInput-notchedOutline': {
-                                      borderColor: 'transparent',
-                                      borderWidth: '0',
+                                    // ... existing styles ...
+                                    '& .MuiSelect-select': {
+                                      padding: '8px 12px',
+                                      height: '42px',
+                                      display: 'flex',
+                                      alignItems: 'center',
                                     },
-                                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                                      borderColor: 'transparent',
+                                    // Keep icon aligned when closed and when open
+                                    '& .MuiSelect-icon': {
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      height: '42px',
+                                      top: 0,
                                     },
-                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                      borderColor: 'transparent',
+                                    '&.Mui-focused .MuiSelect-icon': {
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      height: '42px',
                                     },
                                   }}
                                 >
@@ -2783,23 +2817,41 @@ const NewMessageModal = ({
                                       zIndex: 1800,
                                     },
                                   }}
-                                  IconComponent={(props) => <ChevronDown {...props} size={24} className="text-gray-400 mr-2" />}
+                                  IconComponent={(props) => (
+                                    <span
+                                      {...props}
+                                      style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        height: '42px',  // match Select height so icon is centered in both states
+                                        cursor: 'pointer',
+                                      }}
+                                    >
+                                      <ChevronDown size={24} className="text-gray-400 mr-2" />
+                                    </span>
+                                  )}
                                   sx={{
                                     fontSize: '0.875rem',
-                                    height: '36px',
-                                    borderRadius: '8px',
-                                    backgroundColor: 'white',
-                                    zIndex: 1, // Lower z-index for the button itself, menu has its own z-index
-                                    '& .MuiOutlinedInput-notchedOutline': {
-                                      borderColor: '#e5e7eb',
-                                      borderWidth: '1px',
+                                    height: '42px',
+                                    // ... existing styles ...
+                                    '& .MuiSelect-select': {
+                                      padding: '8px 12px',
+                                      height: '42px',
+                                      display: 'flex',
+                                      alignItems: 'center',
                                     },
-                                    '&:hover .MuiOutlinedInput-notchedOutline': {
-                                      borderColor: '#d1d5db',
+                                    // Keep icon aligned when closed and when open
+                                    '& .MuiSelect-icon': {
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      height: '42px',
+                                      top: 0,
                                     },
-                                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                                      borderColor: 'hsl(var(--brand-primary))',
-                                      borderWidth: '2px',
+                                    '&.Mui-focused .MuiSelect-icon': {
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      height: '42px',
                                     },
                                   }}
                                 >
