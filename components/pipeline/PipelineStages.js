@@ -1357,25 +1357,42 @@ const PipelineStages = ({
                                             >
                                               {isBookingStage ? (
                                                 <div className="flex flex-row items-center gap-2">
-                                                  <select
-                                                    value={rowWithReferencePoint.referencePoint}
-                                                    onChange={(e) =>
-                                                      handleInputChange(
-                                                        index,
-                                                        row.id,
-                                                        'referencePoint',
-                                                        e.target.value,
-                                                      )
-                                                    }
-                                                    className="outline-none border border-gray-300 rounded px-2 py-1 text-sm"
-                                                    style={{
-                                                      backgroundColor: 'white',
-                                                      minWidth: '140px',
-                                                    }}
-                                                  >
-                                                    <option value="before_meeting">before the meeting</option>
-                                                    <option value="after_booking">after booking</option>
-                                                  </select>
+                                                  <FormControl size="small" sx={{ minWidth: 140 }}>
+                                                    <Select
+                                                      value={
+                                                        rowWithReferencePoint.referencePoint ?? ''
+                                                      }
+                                                      onChange={(e) =>
+                                                        handleInputChange(
+                                                          index,
+                                                          row.id,
+                                                          'referencePoint',
+                                                          e.target.value,
+                                                        )
+                                                      }
+                                                      displayEmpty
+                                                      sx={{
+                                                        height: 32,
+                                                        fontSize: 14,
+                                                        backgroundColor: 'white',
+                                                        border: '1px solid #d1d5db',
+                                                        borderRadius: '6px',
+                                                        '& .MuiOutlinedInput-notchedOutline': {
+                                                          border: 'none',
+                                                        },
+                                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                          border: 'none',
+                                                        },
+                                                      }}
+                                                    >
+                                                      <MenuItem value="before_meeting">
+                                                        before the meeting
+                                                      </MenuItem>
+                                                      <MenuItem value="after_booking">
+                                                        after booking
+                                                      </MenuItem>
+                                                    </Select>
+                                                  </FormControl>
                                                   , then{' '}
                                                 </div>
                                               ) : (
