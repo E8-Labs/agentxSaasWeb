@@ -57,6 +57,7 @@ import { PersistanceKeys } from '@/constants/Constants'
 import { getAgentsListImage, getLeadProfileImage } from '@/utilities/agentUtilities'
 import ScoringProgress from '@/components/ui/ScoringProgress'
 import {
+  FormatBookingDateTime,
   GetFormattedDateString,
   GetFormattedTimeString,
 } from '@/utilities/utility'
@@ -2749,38 +2750,14 @@ const AdminPipeline1 = ({ selectedUser }) => {
                                             alt="*"
                                             style={{ filter: 'opacity(50%)' }}
                                           />
-                                          {/* {moment(lead?.lead?.booking?.date).format(
-                                      "MMM D"
-                                    ) || "-"} */}
                                           <p
                                             style={{ fontSize: 13, fontWeight: 500 }}
                                           >
-                                            {GetFormattedDateString(
-                                              lead?.lead?.booking?.date,
-                                              true,
-                                              'MMM DD',
-                                            )}
-                                          </p>
-
-                                          <Image
-                                            src="/svgIcons/clock.svg"
-                                            height={16}
-                                            width={16}
-                                            alt="*"
-                                            style={{ filter: 'opacity(50%)' }}
-                                          />
-                                          <p
-                                            style={{ fontSize: 13, fontWeight: 500 }}
-                                          >
-                                            {GetFormattedTimeString(
+                                            {FormatBookingDateTime(
                                               lead?.lead?.booking?.datetime,
+                                              lead?.lead?.booking?.timezone,
                                             )}
                                           </p>
-
-                                          {/* {moment(
-                                      lead?.lead?.booking?.time,
-                                      "HH:mm"
-                                    ).format("HH:mm") || "-"} */}
                                         </div>
                                       )}
 
