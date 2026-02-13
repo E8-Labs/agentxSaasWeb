@@ -98,6 +98,8 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
   const threadsRequestIdRef = useRef(0)
   const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false)
   const [showMessageSettingsModal, setShowMessageSettingsModal] = useState(false)
+  // Single fetch for "has AI key" so every SystemMessage doesn't call the API (null = loading, true/false)
+  const [messageSettingsHasAiKey, setMessageSettingsHasAiKey] = useState(null)
   // Single AI Chat drawer: only one instance in the app, opened from a call summary in SystemMessage
   const [aiChatContext, setAiChatContext] = useState(null)
 
@@ -111,6 +113,56 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
 
   // Debug: Log when modal state changes
   useEffect(() => {}, [showUpgradePlanModal])
+
+  // Fetch message settings once (for hasAiKey) when viewing a conversation; refetch when settings modal closes so new key is reflected
+  const fetchMessageSettingsHasAiKey = useCallback(async () => {
+    try {
+      const localData = localStorage.getItem('User')
+      if (!localData) {
+        setMessageSettingsHasAiKey(false)
+        return
+      }
+      const userData = JSON.parse(localData)
+      const token = userData.token
+      const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }
+
+      let url = `${Apis.BasePath}api/mail/settings`
+      if (selectedUser?.id) url += `?userId=${selectedUser.id}`
+      const res = await axios.get(url, { headers })
+      const data = res.data?.data
+      let hasKey = !!(data?.aiIntegrationId || (data?.aiIntegration && typeof data.aiIntegration === 'object'))
+
+      // Fallback: if settings say no key but user has integrations (e.g. MessageSettings.aiIntegrationId was never set), treat as has key
+      if (!hasKey) {
+        let integrationsUrl = `${Apis.BasePath}api/mail/ai-integrations`
+        if (selectedUser?.id) integrationsUrl += `?userId=${selectedUser.id}`
+        const intRes = await axios.get(integrationsUrl, { headers })
+        const list = intRes.data?.data
+        hasKey = !!(Array.isArray(list) && list.length > 0)
+      }
+
+      setMessageSettingsHasAiKey(hasKey)
+    } catch {
+      setMessageSettingsHasAiKey(false)
+    }
+  }, [selectedUser?.id])
+
+  useEffect(() => {
+    if (selectedThread) {
+      fetchMessageSettingsHasAiKey()
+    } else {
+      setMessageSettingsHasAiKey(null)
+    }
+  }, [selectedThread, fetchMessageSettingsHasAiKey])
+
+  // Refetch hasAiKey when message settings modal closes so we pick up a newly added key
+  const prevShowMessageSettingsModal = useRef(false)
+  useEffect(() => {
+    if (prevShowMessageSettingsModal.current && !showMessageSettingsModal && selectedThread) {
+      fetchMessageSettingsHasAiKey()
+    }
+    prevShowMessageSettingsModal.current = showMessageSettingsModal
+  }, [showMessageSettingsModal, selectedThread, fetchMessageSettingsHasAiKey])
 
   // Filter state
   const [filterType, setFilterType] = useState('all') // 'all' or 'unreplied'
@@ -2930,8 +2982,22 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                   <>
                     {/* Messages Header */}
                     <ConversationHeader
-                    selectedUser={selectedUser}
-                    selectedThread={selectedThread} getRecentMessageType={getRecentMessageType} formatUnreadCount={formatUnreadCount} getLeadName={getLeadName} />
+                      selectedUser={selectedUser}
+                      selectedThread={selectedThread}
+                      getRecentMessageType={getRecentMessageType}
+                      formatUnreadCount={formatUnreadCount}
+                      getLeadName={getLeadName}
+                      onThreadUpdated={(updated) => {
+                        if (updated?.id != null) {
+                          setSelectedThread((prev) =>
+                            prev?.id === updated.id ? { ...prev, ...updated } : prev
+                          )
+                          setThreads((prev) =>
+                            prev.map((t) => (t.id === updated.id ? { ...t, ...updated } : t))
+                          )
+                        }
+                      }}
+                    />
 
                     {/* Messages Container */}
                     <ConversationView
@@ -2964,6 +3030,7 @@ const Messages = ({ selectedUser = null, agencyUser = null}) => {
                       onOpenMessageSettings={() => setShowMessageSettingsModal(true)}
                       onOpenAiChat={setAiChatContext}
                       onGenerateCallSummaryDrafts={handleGenerateCallSummaryDrafts}
+                      hasAiKey={messageSettingsHasAiKey}
                     />
 
                     {/* AI-Generated Draft Responses */}

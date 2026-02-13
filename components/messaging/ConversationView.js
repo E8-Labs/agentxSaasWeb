@@ -38,6 +38,7 @@ const ConversationView = ({
   onOpenMessageSettings,
   onOpenAiChat,
   onGenerateCallSummaryDrafts,
+  hasAiKey = null,
 }) => {
 
   //lead details
@@ -322,6 +323,7 @@ const ConversationView = ({
                       onOpenMessageSettings={onOpenMessageSettings}
                       onOpenAiChat={onOpenAiChat}
                       onGenerateCallSummaryDrafts={onGenerateCallSummaryDrafts}
+                      hasAiKey={hasAiKey}
                     />
                   ) : (
                     <div

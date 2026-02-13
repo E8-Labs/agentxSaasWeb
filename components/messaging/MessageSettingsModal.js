@@ -68,33 +68,31 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
     }
   }, [open, selectedUser])
 
-  // Sync API key display when both settings and integrations are loaded (use apiKeyMasked from server)
+  // Sync API key display from integrations: use selected aiIntegrationId, or first integration when none is set (so key always shows when user has one)
   useEffect(() => {
     if (!open || isEditingApiKey || loading) return
+    if (aiIntegrations.length === 0) return
 
-    if (settings.aiIntegrationId && aiIntegrations.length > 0 && apiKey === '') {
-      const existingIntegration = aiIntegrations.find(
-        (int) => int.id === settings.aiIntegrationId
-      )
+    const existingIntegration = settings.aiIntegrationId
+      ? aiIntegrations.find((int) => int.id === settings.aiIntegrationId)
+      : aiIntegrations[0]
+    if (!existingIntegration) return
 
-      if (existingIntegration) {
-        setExistingIntegrationId(existingIntegration.id)
-        const provider = existingIntegration.provider === 'google' ? 'google' : 'openai'
-        setSelectedProvider(provider)
-        const masked = existingIntegration.apiKeyMasked || ''
-        const legacyRaw = existingIntegration.apiKey || ''
-        if (masked) {
-          setStoredApiKeyMasked(masked)
-          setApiKey(masked)
-        } else if (legacyRaw) {
-          setExistingApiKey(legacyRaw)
-          setApiKey(maskApiKey(legacyRaw))
-        } else {
-          setApiKey('••••••••••••••••••••••••••••••••')
-        }
-      }
+    setExistingIntegrationId(existingIntegration.id)
+    const provider = existingIntegration.provider === 'google' ? 'google' : 'openai'
+    setSelectedProvider(provider)
+    const masked = existingIntegration.apiKeyMasked || ''
+    const legacyRaw = existingIntegration.apiKey || ''
+    if (masked) {
+      setStoredApiKeyMasked(masked)
+      setApiKey(masked)
+    } else if (legacyRaw) {
+      setExistingApiKey(legacyRaw)
+      setApiKey(maskApiKey(legacyRaw))
+    } else {
+      setApiKey('••••••••••••••••••••••••••••••••')
     }
-  }, [settings.aiIntegrationId, aiIntegrations, apiKey, isEditingApiKey, loading, open])
+  }, [settings.aiIntegrationId, aiIntegrations, isEditingApiKey, loading, open])
 
   const fetchSettings = async () => {
     try {
@@ -166,13 +164,15 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
           } else {
             setApiKey('')
           }
-        } else {
+        } else if (!data.aiIntegrationId) {
+          // Only clear when we're sure there's no integration (no id in settings)
           setExistingIntegrationId(null)
           setExistingApiKey('')
           setStoredApiKeyMasked('')
           setApiKey('')
           setSelectedProvider('openai')
         }
+        // If data.aiIntegrationId is set but data.aiIntegration is missing, don't clear – let sync effect from fetchAiIntegrations populate display
       }
     } catch (error) {
       console.error('Error fetching message settings:', error)

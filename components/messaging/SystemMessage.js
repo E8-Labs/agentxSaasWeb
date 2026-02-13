@@ -44,11 +44,12 @@ const isDevelopment = process.env.NEXT_PUBLIC_REACT_APP_ENVIRONMENT !== 'Product
  * SystemMessage component for displaying system activity messages
  * (stage changes, team assignments, comments, etc.)
  */
-const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscript, onOpenMessageSettings, onOpenAiChat, onGenerateCallSummaryDrafts, selectedLead, leadName }) => {
+const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscript, onOpenMessageSettings, onOpenAiChat, onGenerateCallSummaryDrafts, selectedLead, leadName, hasAiKey: hasAiKeyProp }) => {
   const [showAudioPlay, setShowAudioPlay] = useState(null)
   const [aiActionType, setAiActionType] = useState(null)
   const [aiActionInput, setAiActionInput] = useState('')
-  const [hasAiKey, setHasAiKey] = useState(null) // null = loading, true/false
+  // Parent passes hasAiKey from a single fetch (null = loading, true/false). No per-message API call.
+  const hasAiKey = hasAiKeyProp
   const [followUpSubmitting, setFollowUpSubmitting] = useState(false)
   const aiActionRef = useRef(null)
 
@@ -60,34 +61,6 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
       }, 100)
     }
   }, [aiActionType])
-
-  // Check if user has an AI key (for call_summary AI Actions). Refetch when AI Action is opened so we pick up keys added in Message Settings.
-  const fetchHasAiKey = useCallback(async () => {
-    if (message?.activityType !== 'call_summary') return
-    try {
-      const localData = localStorage.getItem('User')
-      if (!localData) {
-        setHasAiKey(false)
-        return
-      }
-      const userData = JSON.parse(localData)
-      const token = userData.token
-      const res = await axios.get(`${Apis.BasePath}api/mail/settings`, {
-        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-      })
-      const data = res.data?.data
-      const hasKey = !!(data?.aiIntegrationId || (data?.aiIntegration && typeof data.aiIntegration === 'object'))
-      setHasAiKey(hasKey)
-    } catch {
-      setHasAiKey(false)
-    }
-  }, [message?.activityType])
-
-  useEffect(() => {
-    if (message?.activityType === 'call_summary') {
-      fetchHasAiKey()
-    }
-  }, [message?.activityType, fetchHasAiKey])
 
   // Get avatar for comment sender
   const getCommentAvatar = () => {
@@ -403,7 +376,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                       bottomRightContent={
                         isDevelopment ? (
                           hasAiKey === true ? (
-                            <DropdownMenu onOpenChange={(open) => { if (open) fetchHasAiKey() }}>
+                            <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 transition-colors">
                                   <Image
@@ -457,7 +430,7 @@ const SystemMessage = ({ message, getAgentAvatar, selectedThread, onReadTranscri
                               </DropdownMenuContent>
                             </DropdownMenu>
                           ) : hasAiKey === false ? (
-                            <HoverCard openDelay={200} closeDelay={100} onOpenChange={(open) => { if (open) fetchHasAiKey() }}>
+                            <HoverCard openDelay={200} closeDelay={100}>
                               <HoverCardTrigger asChild>
                                 <button className="flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 transition-colors cursor-pointer">
                                   <Image
