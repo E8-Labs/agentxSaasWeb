@@ -2632,7 +2632,7 @@ const LeadDetails = ({
                         onReadTranscript={handleReadMoreToggle}
                         onPlayRecording={(recordingUrl, callId) => {
                           if (recordingUrl) {
-                          console.log("onplay recording trigered in parent", recordingUrl, callId);
+                            console.log("onplay recording trigered in parent", recordingUrl, callId);
                             setShowAudioPlay({ recordingUrl, callId })
                           } else {
                             setShowNoAudioPlay(true)
@@ -3096,21 +3096,25 @@ const LeadDetails = ({
         </Box>
       </Modal>
       {/* Unified Message Modal (Email and SMS) */}
-      <NewMessageModal
-        open={showMessageModal}
-        onClose={() => setShowMessageModal(false)}
-        onSend={async (data) => {
-          if (data.mode === 'sms') {
-            await sendSMSToLead(data)
-          } else if (data.mode === 'email') {
-            await sendEmailToLead(data)
-          }
-        }}
-        mode={messageModalMode}
-        selectedUser={selectedUser}
-        setReduxUser={setReduxUser}
-        isLeadMode={true}
-      />
+      {
+        showMessageModal && (
+          <NewMessageModal
+            open={showMessageModal}
+            onClose={() => setShowMessageModal(false)}
+            onSend={async (data) => {
+              if (data.mode === 'sms') {
+                await sendSMSToLead(data)
+              } else if (data.mode === 'email') {
+                await sendEmailToLead(data)
+              }
+            }}
+            mode={messageModalMode}
+            selectedUser={selectedUser}
+            setReduxUser={setReduxUser}
+            isLeadMode={true}
+          />
+        )
+      }
       {/* Dialer Modal is now rendered in app/dashboard/layout.js */}
       {/* Upgrade Plan Modal */}
       <Elements stripe={stripePromise}>
