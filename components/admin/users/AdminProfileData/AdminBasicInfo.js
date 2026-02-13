@@ -356,6 +356,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setloading(true)
       const data = { name: name }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setloading(false)
       setIsNameChanged(false)
@@ -368,6 +371,11 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setLoading15(true)
       const data = { email: email }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
+      // console.log("admin basic ",data)
+      // return
       await UpdateProfile(data)
       setLoading15(false)
       setIsEmailChanged(false)
@@ -380,6 +388,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setloading2(true)
       const data = { farm: farm }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setloading2(false)
       setIsFarmChanged(false)
@@ -392,6 +403,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setloading3(true)
       const data = { brokerage: brokerAge }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setloading3(false)
       setIsBrokerageChanged(false)
@@ -404,6 +418,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setloading8(true)
       const data = { company: company }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setloading8(false)
       setIsCompanyChanged(false)
@@ -416,6 +433,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setLoading10(true)
       const data = { website: websiteUrl }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setLoading10(false)
       setIsWebsiteUrlChanged(false)
@@ -428,6 +448,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setLoading11(true)
       const data = { firmOrCompanyAffiliation: companyAffiliation }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setLoading11(false)
       setIsCompanyAffiliationChanged(false)
@@ -440,6 +463,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setloading4(true)
       const data = { averageTransactionPerYear: transaction }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setloading4(false)
       setIsTransactionChange(false)
@@ -452,6 +478,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setloading7(true)
       const data = { projectsPerYear: installationVolume }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setloading7(false)
       setIsInstallationVolumeChanged(false)
@@ -464,6 +493,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setloading9(true)
       const data = { projectSizeKw: projectSize }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setloading9(false)
       setIsprojectSizeChanged(false)
@@ -476,6 +508,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setLoading12(true)
       const data = { averageMonthlyClients: clientsPerMonth }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setLoading12(false)
       setIsClientsPerMonthChanged(false)
@@ -488,6 +523,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setLoading12(true)
       const data = { caseVolume: CasesPerMonth }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setLoading12(false)
       setIcasesPerMonthChanged(false)
@@ -500,6 +538,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setloading6(true)
       const data = { areaOfService: serviceArea }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setloading6(false)
       setIsServiceAreaChanged(false)
@@ -512,6 +553,9 @@ function AdminBasicInfo({ selectedUser }) {
     try {
       setLoading14(true)
       const data = { territory: teritorry }
+      if (selectedUser) {
+        data.userId = selectedUser?.id
+      }
       await UpdateProfile(data)
       setLoading14(false)
       setIsTeritorryChanged(false)
