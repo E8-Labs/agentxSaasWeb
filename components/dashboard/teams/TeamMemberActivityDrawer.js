@@ -11,6 +11,7 @@ import TaskCard from '@/components/messaging/TaskCard'
 import LeadDetails from '@/components/dashboard/leads/extras/LeadDetails'
 import { TypographyH3, TypographyBody, TypographyH3Semibold, TypographyCaption, TypographyTitle, TypographyButtonText, TypographyAlert, TypographyCaptionMedium } from '@/lib/typography'
 import { cn } from '@/lib/utils'
+import { sanitizeHTMLForEmailBody } from '@/utilities/textUtils'
 
 const getAuthToken = () => {
   try {
@@ -437,7 +438,16 @@ function ActivityTimelineItem({ item, onLeadClick }) {
               )}
             </TypographyBody>
             {item.subject && <TypographyBody className="text-sm text-foreground mt-1">Subject: {item.subject}</TypographyBody>}
-            {contentSnippet && <TypographyBody className="text-sm text-muted-foreground mt-1 line-clamp-3">{contentSnippet}</TypographyBody>}
+            {item.content && (
+              <div
+                className="prose prose-sm max-w-none break-words text-sm text-muted-foreground mt-1
+                  [&_p]:!mt-0 [&_p]:!mb-[0.35em] [&_p]:!leading-snug
+                  [&_ul]:!my-[0.35em] [&_ul]:!pl-[1.25em] [&_ul]:!list-disc
+                  [&_ol]:!my-[0.35em] [&_ol]:!pl-[1.25em]
+                  [&_li]:!my-[0.15em] [&_a]:!text-brand-primary [&_a:hover]:!underline"
+                dangerouslySetInnerHTML={{ __html: sanitizeHTMLForEmailBody(item.content) }}
+              />
+            )}
             {hasLongContent && <span className="text-sm text-brand-primary underline mt-1 inline-block">Read more</span>}
           </>
         )}
