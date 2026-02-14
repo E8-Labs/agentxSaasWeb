@@ -310,19 +310,15 @@ export const connectGmailAccount = async (data, selectedUser) => {
 }
 
 export const deleteAccount = async (account) => {
-  try {
-    let token = AuthToken()
-    // console.log('token', token)
-    let path = `${Apis.gmailAccount}/${account.id}`
+  let token = AuthToken()
+  let path = `${Apis.gmailAccount}/${account.id}`
 
-    const response = await axios.delete(path, {
-      headers: {
-        Authorization: 'Bearer ' + token,
-      },
-    })
+  const response = await axios.delete(path, {
+    headers: {
+      Authorization: 'Bearer ' + token,
+    },
+  })
 
-    if (response) {
-      return response.data.data
-    }
-  } catch (e) { }
+  // Backend returns { status, message } (no data field); return full response so callers can check response.data.status
+  return response
 }
