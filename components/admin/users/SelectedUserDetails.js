@@ -38,6 +38,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 
 function SelectedUserDetails({
+  isAgencyView = false,
   selectedUser,
   handleDel,
   from = 'admin',
@@ -735,7 +736,7 @@ function SelectedUserDetails({
   }
 
   return (
-    <div className="w-full flex flex-col h-[100svh] items-center justify-center overflow-y-auto">
+    <div className={`w-full flex flex-col ${isAgencyView ? 'h-[85svh]' : 'h-[100svh]'} items-center justify-center overflow-y-auto`}>
       <AgentSelectSnackMessage
         isVisible={showSnackMessage != null && showSnackMessage !== ''}
         hide={() => {
