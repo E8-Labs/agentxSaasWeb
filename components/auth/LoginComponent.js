@@ -426,8 +426,10 @@ const LoginComponent = ({ length = 6, onComplete }) => {
           } else if (d.user.userRole == 'AgencySubAccount') {
             if (d.user.plan) {
               redirectPath = '/dashboard'
-            } else {
+            } else if(d.user.plan.status !== 'active' &&d.user.totalSecondsAvailable <= 120){
               redirectPath = '/subaccountInvite/subscribeSubAccountPlan'
+            } else {
+              redirectPath = '/dashboard'
             }
           }
 
@@ -893,7 +895,12 @@ const LoginComponent = ({ length = 6, onComplete }) => {
                     if (response.data.data.user.plan) {
                       redirectPath = '/dashboard'
                     } else {
-                      redirectPath = '/subaccountInvite/subscribeSubAccountPlan'
+                       if(response.data.data.user.plan.status !== 'active' && response.data.data.user.totalSecondsAvailable <= 120){
+                        redirectPath = '/subaccountInvite/subscribeSubAccountPlan'
+                      } else {
+                        redirectPath = '/dashboard'
+                      }
+                      // redirectPath = '/subaccountInvite/subscribeSubAccountPlan'
                     }
                   } else if (
                     response.data.data.user.userRole == 'Agency' ||

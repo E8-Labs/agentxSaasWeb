@@ -997,17 +997,29 @@ const ProfileNav = () => {
             }
           }
           if (
-            Data?.userRole === "AgencySubAccount" &&
-            (Data?.plan == null || (Data?.plan && Data?.plan?.status !== "active"))
+            Data?.userRole === "AgencySubAccount" //&&
+            // (Data?.plan == null || (Data?.plan && Data?.plan?.status !== "active"))
             // ||
             // (Data?.plan && isBalanceLow)) // TODO: @Arslan Please handle this condition properly
           ) {
-            const fromDashboard = { fromDashboard: true };
-            localStorage.setItem(
-              "fromDashboard",
-              JSON.stringify(fromDashboard)
-            );
-            router.push("/subaccountInvite/subscribeSubAccountPlan");
+            console.log('[Subaccount check], Data', Data.plan.status, Data.totalSecondsAvailable)
+
+            let redirectPath = null
+            if(Data.plan.status !== 'active' && Data.totalSecondsAvailable <= 120){
+              redirectPath = '/subaccountInvite/subscribeSubAccountPlan'
+            } else {
+              redirectPath = null
+            }
+            // console.log('[Subaccount check], redirectPath', redirectPath)
+            if(redirectPath){
+              const fromDashboard = { fromDashboard: true };
+              localStorage.setItem(
+                "fromDashboard",
+                JSON.stringify(fromDashboard)
+              );
+              router.push("/subaccountInvite/subscribeSubAccountPlan");
+            }
+            
           } else if (Data?.userRole === "AgencySubAccount" || Data?.userRole === "AgentX") {
            if (Data?.plan?.status === "paused") {
               setShowPlanPausedBar(true)
