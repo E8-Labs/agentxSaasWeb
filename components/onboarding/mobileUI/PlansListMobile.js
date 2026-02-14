@@ -27,7 +27,7 @@ function PlansListMobile({
 }) {
     const reduxUser = useSelector((state) => state.user.user)
     return (
-        <div className="flex flex-col items-center w-full h-screen">
+        <div className="flex flex-col items-center w-full h-[100svh]">
             <div className="flex flex-col items-center w-full h-[100svh] overflow-y-auto relative">
                 <SignupHeaderMobile title={reduxUser?.userRole == 'Agency' ? "Get an AI AaaS Agency" : "Grow Your Business"} description={reduxUser?.userRole == 'Agency' || reduxUser?.userRole == 'AgencySubAccount' ? "Gets more done than coffee. Cheaper too.😉" : "Gets more done than coffee. Cheaper too. Cancel anytime.😉"} />
 
