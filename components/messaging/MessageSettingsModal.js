@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef, useLayoutEffect } from 'react'
 import axios from 'axios'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -41,6 +41,10 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
   const [subModalKey, setSubModalKey] = useState(null) // 'style' | 'tailoring' | ... | 'agentMeter'
   const [subModalSelectedValue, setSubModalSelectedValue] = useState(null) // value selected in sub-modal (before Save)
   const [agentMeterDraft, setAgentMeterDraft] = useState({ salesDrive: 5, persuasiveness: 5, clientHandling: 5 }) // for Agent Meter sub-modal (1-10)
+  const [bubbleLeft, setBubbleLeft] = useState({ salesDrive: 50, persuasiveness: 50, clientHandling: 50 }) // % of track for bubble alignment
+  const salesDriveTrackRef = useRef(null)
+  const persuasivenessTrackRef = useRef(null)
+  const clientHandlingTrackRef = useRef(null)
   const [savingSubModal, setSavingSubModal] = useState(false)
   const [apiKey, setApiKey] = useState('')
   const [apiKeyError, setApiKeyError] = useState('')
@@ -94,6 +98,28 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
       setApiKey('••••••••••••••••••••••••••••••••')
     }
   }, [settings.aiIntegrationId, aiIntegrations, isEditingApiKey, loading, open])
+
+  // Agent Meter: compute bubble position from actual track width so bubble/arrow align with thumb (18px thumb)
+  const THUMB_PX = 18
+  const measureBubbleLeft = () => {
+    const calc = (el, value) => {
+      if (!el) return 50
+      const w = el.offsetWidth
+      if (!w) return 50
+      return ((Number(value) - 1) / 9 * (w - THUMB_PX) + THUMB_PX / 2) / w * 100
+    }
+    setBubbleLeft({
+      salesDrive: calc(salesDriveTrackRef.current, agentMeterDraft.salesDrive),
+      persuasiveness: calc(persuasivenessTrackRef.current, agentMeterDraft.persuasiveness),
+      clientHandling: calc(clientHandlingTrackRef.current, agentMeterDraft.clientHandling),
+    })
+  }
+  useLayoutEffect(() => {
+    if (subModalKey !== 'agentMeter') return
+    measureBubbleLeft()
+    const id = requestAnimationFrame(() => measureBubbleLeft())
+    return () => cancelAnimationFrame(id)
+  }, [subModalKey, agentMeterDraft.salesDrive, agentMeterDraft.persuasiveness, agentMeterDraft.clientHandling])
 
   const fetchSettings = async () => {
     try {
@@ -628,33 +654,35 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
               </DialogHeader>
               <div className="space-y-6 py-4 px-4 overflow-y-auto max-h-[60svh]">
                 {(() => {
-                  const percent = (v) => ((Number(v) - 1) / 9) * 100
-                  const bubblePos = (v) => ({ left: `${percent(v)}%`, transform: 'translateX(-50%)', top: 0 })
+                  const bubbleStyle = (leftPct) => ({ left: `${leftPct}%`, transform: 'translateX(-50%)', top: -44 })
                   return (
                     <>
                       <div>
                         <TypographyH4Semibold>Sales Drive</TypographyH4Semibold>
                         <p className="text-sm text-gray-600 mb-0">On a scale of 1-10, how persistent are you in following up with potential clients?</p>
-                        <div className="relative pt-10">
-                          <span className="agent-meter-bubble" style={bubblePos(agentMeterDraft.salesDrive)}>
-                            {agentMeterDraft.salesDrive}
-                          </span>
-                          <div className='flex flex-row items-center gap-2'>
-                            <div className='flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center'>
+                        <div className="pt-14">
+                          <div className="flex flex-row items-center gap-2">
+                            <div className="flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center shrink-0">
                               <TypographyBody>0</TypographyBody>
                             </div>
-                            <input
-                              type="range"
-                              min={1}
-                              max={10}
-                              value={agentMeterDraft.salesDrive}
-                              onChange={(e) => setAgentMeterDraft((p) => ({ ...p, salesDrive: Number(e.target.value) }))}
-                              className="agent-meter-slider w-full block"
-                              style={{
-                                background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) ${percent(agentMeterDraft.salesDrive)}%, #e5e7eb ${percent(agentMeterDraft.salesDrive)}%, #e5e7eb 100%)`,
-                              }}
-                            />
-                            <div className='flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center'>
+                            <div ref={salesDriveTrackRef} className="relative flex-1 min-w-0 overflow-visible">
+                              <span className="agent-meter-bubble" style={bubbleStyle(bubbleLeft.salesDrive)}>
+                                <span className="agent-meter-bubble-inner">{agentMeterDraft.salesDrive}</span>
+                                <span className="agent-meter-bubble-arrow" aria-hidden />
+                              </span>
+                              <input
+                                type="range"
+                                min={1}
+                                max={10}
+                                value={agentMeterDraft.salesDrive}
+                                onChange={(e) => setAgentMeterDraft((p) => ({ ...p, salesDrive: Number(e.target.value) }))}
+                                className="agent-meter-slider w-full block"
+                                style={{
+                                  background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) ${bubbleLeft.salesDrive}%, #e5e7eb ${bubbleLeft.salesDrive}%, #e5e7eb 100%)`,
+                                }}
+                              />
+                            </div>
+                            <div className="flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center shrink-0">
                               <TypographyBody>10</TypographyBody>
                             </div>
                           </div>
@@ -664,54 +692,65 @@ const MessageSettingsModal = ({ open, onClose, selectedUser = null }) => {
                       <div>
                       <TypographyH4Semibold className=" mt-1">Persuasiveness</TypographyH4Semibold>
                         <p className="text-sm text-gray-600 mb-2">On a scale of 1-10, how would you rate your ability to persuade clients to see the value in your product or service?</p>
-                        <div className="relative pt-10">
-                        
-                          <span className="agent-meter-bubble" style={bubblePos(agentMeterDraft.persuasiveness)}>
-                            {agentMeterDraft.persuasiveness}
-                          </span>
-                          
-                          <div className='flex flex-row items-center gap-2'>
-                            <div className='flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center'>
+                        <div className="pt-14">
+                          <div className="flex flex-row items-center gap-2">
+                            <div className="flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center shrink-0">
                               <TypographyBody>0</TypographyBody>
                             </div>
-                            <input
-                              type="range"
-                              min={1}
-                              max={10}
-                              value={agentMeterDraft.persuasiveness}
-                              onChange={(e) => setAgentMeterDraft((p) => ({ ...p, persuasiveness: Number(e.target.value) }))}
-                              className="agent-meter-slider w-full block"
-                              style={{
-                                background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) ${percent(agentMeterDraft.persuasiveness)}%, #e5e7eb ${percent(agentMeterDraft.persuasiveness)}%, #e5e7eb 100%)`,
-                              }}
-                            />
-                            <div className='flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center'>
+                            <div ref={persuasivenessTrackRef} className="relative flex-1 min-w-0 overflow-visible">
+                              <span className="agent-meter-bubble" style={bubbleStyle(bubbleLeft.persuasiveness)}>
+                                <span className="agent-meter-bubble-inner">{agentMeterDraft.persuasiveness}</span>
+                                <span className="agent-meter-bubble-arrow" aria-hidden />
+                              </span>
+                              <input
+                                type="range"
+                                min={1}
+                                max={10}
+                                value={agentMeterDraft.persuasiveness}
+                                onChange={(e) => setAgentMeterDraft((p) => ({ ...p, persuasiveness: Number(e.target.value) }))}
+                                className="agent-meter-slider w-full block"
+                                style={{
+                                  background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) ${bubbleLeft.persuasiveness}%, #e5e7eb ${bubbleLeft.persuasiveness}%, #e5e7eb 100%)`,
+                                }}
+                              />
+                            </div>
+                            <div className="flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center shrink-0">
                               <TypographyBody>10</TypographyBody>
                             </div>
                           </div>
-
                         </div>
                         
                       </div>
                       <div>
+                        <TypographyH4Semibold className="mt-1">Client Handling</TypographyH4Semibold>
                         <p className="text-sm text-gray-600 mb-2">On a scale of 1-10, how would you rate your ability to manage client expectations and address their concerns effectively?</p>
-                        <div className="relative pt-10">
-                          <span className="agent-meter-bubble" style={bubblePos(agentMeterDraft.clientHandling)}>
-                            {agentMeterDraft.clientHandling}
-                          </span>
-                          <input
-                            type="range"
-                            min={1}
-                            max={10}
-                            value={agentMeterDraft.clientHandling}
-                            onChange={(e) => setAgentMeterDraft((p) => ({ ...p, clientHandling: Number(e.target.value) }))}
-                            className="agent-meter-slider w-full block"
-                            style={{
-                              background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) ${percent(agentMeterDraft.clientHandling)}%, #e5e7eb ${percent(agentMeterDraft.clientHandling)}%, #e5e7eb 100%)`,
-                            }}
-                          />
+                        <div className="pt-14">
+                          <div className="flex flex-row items-center gap-2">
+                            <div className="flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center shrink-0">
+                              <TypographyBody>0</TypographyBody>
+                            </div>
+                            <div ref={clientHandlingTrackRef} className="relative flex-1 min-w-0 overflow-visible">
+                              <span className="agent-meter-bubble" style={bubbleStyle(bubbleLeft.clientHandling)}>
+                                <span className="agent-meter-bubble-inner">{agentMeterDraft.clientHandling}</span>
+                                <span className="agent-meter-bubble-arrow" aria-hidden />
+                              </span>
+                              <input
+                                type="range"
+                                min={1}
+                                max={10}
+                                value={agentMeterDraft.clientHandling}
+                                onChange={(e) => setAgentMeterDraft((p) => ({ ...p, clientHandling: Number(e.target.value) }))}
+                                className="agent-meter-slider w-full block"
+                                style={{
+                                  background: `linear-gradient(to right, hsl(var(--brand-primary)) 0%, hsl(var(--brand-primary)) ${bubbleLeft.clientHandling}%, #e5e7eb ${bubbleLeft.clientHandling}%, #e5e7eb 100%)`,
+                                }}
+                              />
+                            </div>
+                            <div className="flex rounded-full h-6 w-6 bg-gray-200 items-center justify-center shrink-0">
+                              <TypographyBody>10</TypographyBody>
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-xs text-gray-500 mt-1">Client Handling</p>
                       </div>
                     </>
                   )

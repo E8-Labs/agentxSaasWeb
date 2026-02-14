@@ -87,6 +87,13 @@ const ThreadsList = ({
 
   const smsCapability = React.useMemo(() => {
     const planCapabilities = effectiveUser?.planCapabilities || {}
+    console.log('effective user', effectiveUser)
+    console.log('effective planCapabilities.allowTextMessages', planCapabilities.allowTextMessages)
+    console.log('effective planCapabilities.shouldShowAllowSmsUpgrade', planCapabilities.shouldShowAllowSmsUpgrade)
+    console.log('effective planCapabilities.shouldShowSmsRequestFeature', planCapabilities.shouldShowSmsRequestFeature)
+    console.log('effective planCapabilities.hasAccess', planCapabilities.allowTextMessages === true)
+    console.log('effective planCapabilities.showUpgrade', planCapabilities.shouldShowAllowSmsUpgrade === true)
+    console.log('effective planCapabilities.showRequestFeature', planCapabilities.shouldShowSmsRequestFeature === true)
     return {
       hasAccess: planCapabilities.allowTextMessages === true,
       showUpgrade: planCapabilities.shouldShowAllowSmsUpgrade === true,
