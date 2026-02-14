@@ -879,15 +879,15 @@ export const AreaOfFocus = [
     userId: 133.0,
   },
   // Home Services: What type of home service do you provide?
-  { id: 901, title: 'HVAC', description: 'Installation, repair, and maintenance of heating and cooling systems.', agentType: 'HomeServices' },
-  { id: 902, title: 'Plumbing', description: 'Pipe repairs, water heaters, leak detection, and drainage services.', agentType: 'HomeServices' },
-  { id: 903, title: 'Electrical', description: 'Wiring, panel upgrades, lighting installs, and electrical repairs.', agentType: 'HomeServices' },
-  { id: 904, title: 'Roofing', description: 'Roof repair, replacement, inspections, and storm damage restoration.', agentType: 'HomeServices' },
-  { id: 905, title: 'Landscaping', description: 'Outdoor design, lawn care, irrigation, and property maintenance.', agentType: 'HomeServices' },
-  { id: 906, title: 'Pest Control', description: 'Inspection, treatment, and prevention of residential pest issues.', agentType: 'HomeServices' },
-  { id: 907, title: 'Cleaning Services', description: 'Residential or commercial cleaning, recurring or one-time services.', agentType: 'HomeServices' },
-  { id: 908, title: 'Remodeling / General Contractor', description: 'Home renovations, additions, and full-scale construction projects.', agentType: 'HomeServices' },
-  
+  { id: 12227, title: 'HVAC', description: 'Installation, repair, and maintenance of heating and cooling systems.', agentType: 'HomeServices' },
+  { id: 12228, title: 'Plumbing', description: 'Pipe repairs, water heaters, leak detection, and drainage services.', agentType: 'HomeServices' },
+  { id: 12229, title: 'Electrical', description: 'Wiring, panel upgrades, lighting installs, and electrical repairs.', agentType: 'HomeServices' },
+  { id: 12230, title: 'Roofing', description: 'Roof repair, replacement, inspections, and storm damage restoration.', agentType: 'HomeServices' },
+  { id: 12231, title: 'Landscaping', description: 'Outdoor design, lawn care, irrigation, and property maintenance.', agentType: 'HomeServices' },
+  { id: 12232, title: 'Pest Control', description: 'Inspection, treatment, and prevention of residential pest issues.', agentType: 'HomeServices' },
+  { id: 12233, title: 'Cleaning Services', description: 'Residential or commercial cleaning, recurring or one-time services.', agentType: 'HomeServices' },
+  { id: 12234, title: 'Remodeling / General Contractor', description: 'Home renovations, additions, and full-scale construction projects.', agentType: 'HomeServices' },
+  { id: 12235, title: 'Other', description: 'Type here', agentType: 'HomeServices' },
 ]
 
 export function GetAreasOfFocusForUser(type) {
