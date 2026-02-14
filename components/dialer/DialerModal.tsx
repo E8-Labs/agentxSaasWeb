@@ -546,10 +546,12 @@ function DialerModal({
 
   // Initialize device when modal opens (only once per open session)
   useEffect(() => {
+    console.log("trigering dialer modal")
     // #region agent log
     //fetch('http://127.0.0.1:7242/ingest/3b7a26ed-1403-42b9-8e39-cdb7b5ef3638', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ location: 'DialerModal.tsx:223', message: 'Init effect: open changed', data: { open, reduxCallStatus, localCallStatus: callStatus, hasInitialized: hasInitializedRef.current, hasDevice: !!device, hasActiveCall: !!activeCall, deviceRegistered }, timestamp: Date.now(), sessionId: 'debug-session', runId: 'run1', hypothesisId: 'C' }) }).catch(() => { });
     // #endregion
     if (open) {
+      console.log("dialer modal is open")
       // Check if we already have a device and it's registered - if so, don't re-initialize
       // First check window/global store (persists across remounts), then refs, then state
       const existingDevice = getGlobalDevice() || device || deviceRef.current
