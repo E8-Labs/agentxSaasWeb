@@ -7,7 +7,7 @@ import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import React, { useCallback, useEffect, useState } from 'react'
 import InfiniteScroll from 'react-infinite-scroll-component'
-import { MessageSquare, AtSign, Mail } from 'lucide-react'
+import { MessageSquare, MessageCircle, AtSign, Mail } from 'lucide-react'
 
 import { NotificationTypes } from '@/constants/NotificationTypes'
 import { PersistanceKeys } from '@/constants/Constants'
@@ -268,7 +268,7 @@ function NotficationsDrawer({ close }) {
     } else if (item.type === NotificationTypes.LeadReplyEmail) {
       return renderBrandedLucideIcon(Mail, 20)
     } else if (item.type === NotificationTypes.LeadReplySms) {
-      return renderBrandedLucideIcon(MessageSquare, 20)
+      return renderBrandedLucideIcon(MessageCircle, 20)
     }
     else if (item.type === NotificationTypes.InviteAccepted) {
       return (
@@ -386,7 +386,7 @@ function NotficationsDrawer({ close }) {
     } else if (item.type === NotificationTypes.LeadReplyEmail) {
       return renderBrandedLucideIcon(Mail, 22)
     } else if (item.type === NotificationTypes.LeadReplySms) {
-      return renderBrandedLucideIcon(MessageSquare, 22)
+      return renderBrandedLucideIcon(MessageCircle, 22)
     } else if (item.type === NotificationTypes.TeamMemberMentioned) {
       return renderBrandedLucideIcon(AtSign, 22)
     }

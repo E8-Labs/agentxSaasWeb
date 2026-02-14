@@ -59,6 +59,10 @@ import {
 import { Device, Call } from '@twilio/voice-sdk'
 import axios from 'axios'
 import Apis from '../apis/Apis'
+import { usePlanCapabilities } from '@/hooks/use-plan-capabilities'
+import { useUser } from '@/hooks/redux-hooks'
+import UpgardView from '@/constants/UpgardView'
+import { Modal as MuiModal } from '@mui/material'
 
 // Type assertions for components from .jsx files
 const Button = ButtonBase as any
@@ -328,6 +332,13 @@ function DialerModal({
   const shouldRefetchEmailTemplates = useSelector(selectShouldRefetchEmailTemplates)
   const shouldRefetchSmsTemplates = useSelector(selectShouldRefetchSmsTemplates)
   const shouldRefetchEmailAccounts = useSelector(selectShouldRefetchEmailAccounts)
+
+  // Plan capabilities for Follow up (Send Email / Send Text) - same as MessageComposer & NewMessageModal
+  const { planCapabilities } = usePlanCapabilities()
+  const { user: reduxUser, setUser: setReduxUser } = useUser()
+  const canSendSMS = planCapabilities?.allowTextMessages === true
+  const canSendEmail = planCapabilities?.allowEmails === true
+  const [showUpgradeModal, setShowUpgradeModal] = useState<'sms' | 'email' | null>(null)
 
   // Use Redux callStatus, but keep local for immediate updates
   const [callStatus, setCallStatus] = useState<CallStatus>(reduxCallStatus)
@@ -3500,6 +3511,10 @@ function DialerModal({
                       <div className="space-y-2">
                         <Button
                           onClick={async () => {
+                            if (!canSendEmail) {
+                              setShowUpgradeModal('email')
+                              return
+                            }
                             if (!showEmailPanel) {
                               dispatch(updateUIPanel({ panel: 'email', value: true }))
                               dispatch(updateUIPanel({ panel: 'sms', value: false }))
@@ -3527,6 +3542,7 @@ function DialerModal({
                               : '1px solid #d1d5db',
                             height: 'auto',
                             boxShadow: 'none',
+                            opacity: canSendEmail ? 1 : 0.7,
                           }}
                         >
                           <Mail
@@ -3543,6 +3559,10 @@ function DialerModal({
 
                         <Button
                           onClick={async () => {
+                            if (!canSendSMS) {
+                              setShowUpgradeModal('sms')
+                              return
+                            }
                             if (!showSmsPanel) {
                               dispatch(updateUIPanel({ panel: 'sms', value: true }))
                               dispatch(updateUIPanel({ panel: 'email', value: false }))
@@ -3570,6 +3590,7 @@ function DialerModal({
                               : '1px solid #d1d5db',
                             height: 'auto',
                             boxShadow: 'none',
+                            opacity: canSendSMS ? 1 : 0.7,
                           }}
                         >
                           {/* <Image className='mr-2' src={"/otherAssets/smsIcon.png"} height={17} width={17} alt='*' /> */}
@@ -3577,6 +3598,37 @@ function DialerModal({
                           Send Text
                         </Button>
                       </div>
+
+                      {/* Upgrade modal when user lacks SMS or Email access */}
+                      <MuiModal
+                        open={showUpgradeModal !== null}
+                        onClose={() => setShowUpgradeModal(null)}
+                        className="flex items-center justify-center p-4"
+                      >
+                        <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6 max-h-[90vh] overflow-auto">
+                          <UpgardView
+                            title={showUpgradeModal === 'sms' ? 'Unlock Text Messages' : 'Unlock Email Messages'}
+                            subTitle={showUpgradeModal === 'sms' ? 'Upgrade to unlock this feature and start sending SMS messages to your leads.' : 'Upgrade to unlock this feature and start sending emails to your leads.'}
+                            userData={reduxUser}
+                            onUpgradeSuccess={(updatedUserData: any) => {
+                              if (updatedUserData) {
+                                setReduxUser({ user: updatedUserData })
+                              }
+                              setShowUpgradeModal(null)
+                            }}
+                            setShowSnackMsg={() => {}}
+                          />
+                          <div className="mt-4 flex justify-end">
+                            <Button
+                              onClick={() => setShowUpgradeModal(null)}
+                              variant="outline"
+                              className="rounded-lg"
+                            >
+                              Close
+                            </Button>
+                          </div>
+                        </div>
+                      </MuiModal>
                     </div>
                   </div>)
                 ) : (
