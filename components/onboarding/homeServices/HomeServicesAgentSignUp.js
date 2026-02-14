@@ -25,33 +25,35 @@ import { clearAgencyUUID, getAgencyUUIDForAPI } from '@/utilities/AgencyUtility'
 import { GetCampaigneeNameIfAvailable } from '@/utilities/UserUtility'
 import { setCookie } from '@/utilities/cookies'
 import { forceApplyBranding } from '@/utilities/applyBranding'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 
 import SendVerificationCode from '../services/AuthVerification/AuthService'
 import SnackMessages from '../services/AuthVerification/SnackMessages'
 import { getLocalLocation } from '../services/apisServices/ApiService'
 
-const PRIMARY_SELL_OPTIONS = [
-  { id: 'high_ticket_coaching', title: 'High-Ticket Coaching ($3k+)' },
-  { id: 'mid_ticket_programs', title: 'Mid-Ticket Programs ($500–$3k)' },
-  { id: 'low_ticket_offers', title: 'Low-Ticket Offers / Digital Products' },
-  { id: 'membership_community', title: 'Membership / Community' },
-  { id: 'services_dfy_agency', title: 'Services (DFY / Agency)' },
-  { id: 'affiliate_brand_deals', title: 'Affiliate / Brand Deals' },
+const TECHNICIANS_OPTIONS = [
+  { id: 'just_me', title: 'Just me' },
+  { id: '2_5', title: '2–5' },
+  { id: '6_15', title: '6–15' },
+  { id: '15_plus', title: '15+' },
 ]
 
-const AUDIENCE_ENGAGE_OPTIONS = [
-  { id: 'instagram', title: 'Instagram' },
-  { id: 'youtube', title: 'YouTube' },
-  { id: 'tiktok', title: 'TikTok' },
-  { id: 'linkedin', title: 'LinkedIn' },
-  { id: 'email_list', title: 'Email List' },
-  { id: 'skool_community', title: 'Skool / Private Community' },
-  { id: 'multi_platform', title: 'Multi-Platform' },
+const JOB_VALUE_OPTIONS = [
+  { id: 'under_500', title: 'Under $500' },
+  { id: '500_2000', title: '$500–$2,000' },
+  { id: '2000_10000', title: '$2,000–$10,000' },
+  { id: '10000_plus', title: '$10,000+' },
 ]
 
-const CreatorAgentSignUp = ({
+const MAIN_GOAL_OPTIONS = [
+  { id: 'capture_missed_calls', title: 'Capture missed calls' },
+  { id: 'book_more_estimates', title: 'Book more estimates' },
+  { id: 'follow_up_old_leads', title: 'Follow up with old leads' },
+  { id: 'upsell_maintenance_plans', title: 'Upsell maintenance plans' },
+  { id: 'reduce_admin_work', title: 'Reduce admin work' },
+]
+
+const HomeServicesAgentSignUp = ({
   handleContinue,
   handleBack,
   length = 6,
@@ -82,8 +84,9 @@ const CreatorAgentSignUp = ({
   const [checkPhoneResponse, setCheckPhoneResponse] = useState(null)
   const [locationLoader, setLocationLoader] = useState(false)
   const [shouldContinue, setShouldContinue] = useState(true)
-  const [primarySell, setPrimarySell] = useState([])
-  const [audienceEngage, setAudienceEngage] = useState([])
+  const [techniciansCount, setTechniciansCount] = useState('')
+  const [averageJobValue, setAverageJobValue] = useState('')
+  const [mainGoalWithAI, setMainGoalWithAI] = useState([])
 
   useEffect(() => {
     const loc = getLocalLocation()
@@ -201,7 +204,8 @@ const CreatorAgentSignUp = ({
 
   const handleBackspace = (e, index) => {
     if (e.key === 'Backspace') {
-      if (VerifyCode[index] === '' && index > 0) verifyInputRef.current[index - 1].focus()
+      if (VerifyCode[index] === '' && index > 0)
+        verifyInputRef.current[index - 1].focus()
       const newValues = [...VerifyCode]
       newValues[index] = ''
       setVerifyCode(newValues)
@@ -215,7 +219,8 @@ const CreatorAgentSignUp = ({
       .map((char) => (/[0-9]/.test(char) ? char : ''))
     setVerifyCode(newValues)
     const lastIdx = Math.min(newValues.length, length) - 1
-    if (verifyInputRef.current[lastIdx]) verifyInputRef.current[lastIdx].focus()
+    if (verifyInputRef.current[lastIdx])
+      verifyInputRef.current[lastIdx].focus()
   }
 
   const handleVerifyCode = () => {
@@ -233,7 +238,7 @@ const CreatorAgentSignUp = ({
       formData.append('name', userName)
       formData.append('email', userEmail)
       formData.append('phone', userPhoneNumber)
-      formData.append('userType', 'Creator')
+      formData.append('userType', 'HomeServices')
       formData.append('login', false)
       formData.append('verificationCode', VerifyCode.join(''))
       formData.append(
@@ -244,19 +249,26 @@ const CreatorAgentSignUp = ({
         'agentService',
         JSON.stringify(userData.serviceID || []),
       )
-      formData.append('areaOfFocus', JSON.stringify([]))
-
-      if (userData.creatorType) {
-        formData.append('creatorType', userData.creatorType)
+      const focusAreaId = userData.focusAreaId || []
+      const areaOfFocusIds = Array.isArray(focusAreaId)
+        ? focusAreaId.filter((x) => typeof x === 'number' || (typeof x === 'string' && /^\d+$/.test(x))).map(Number)
+        : []
+      formData.append('areaOfFocus', JSON.stringify(areaOfFocusIds))
+      if (techniciansCount) {
+        formData.append('techniciansCount', techniciansCount)
+      }
+      if (averageJobValue) {
+        formData.append('averageJobValue', averageJobValue)
       }
       formData.append(
-        'creatorPrimarySell',
-        JSON.stringify(Array.isArray(primarySell) ? primarySell : []),
+        'mainGoalWithAI',
+        typeof mainGoalWithAI === 'string'
+          ? mainGoalWithAI
+          : JSON.stringify(mainGoalWithAI || []),
       )
-      formData.append(
-        'creatorAudienceEngage',
-        JSON.stringify(Array.isArray(audienceEngage) ? audienceEngage : []),
-      )
+      if (userData.homeServiceTypeOther) {
+        formData.append('homeServiceTypeOther', userData.homeServiceTypeOther)
+      }
 
       const campaignee = GetCampaigneeNameIfAvailable(
         typeof window !== 'undefined' ? window : {},
@@ -299,7 +311,10 @@ const CreatorAgentSignUp = ({
         if (agencyUuid) clearAgencyUUID()
 
         const user = res.data.data.user
-        if (user?.userRole === 'AgencySubAccount' || user?.userRole === 'Agency') {
+        if (
+          user?.userRole === 'AgencySubAccount' ||
+          user?.userRole === 'Agency'
+        ) {
           Promise.race([
             forceApplyBranding(res.data),
             new Promise((r) => setTimeout(r, 5000)),
@@ -313,7 +328,8 @@ const CreatorAgentSignUp = ({
           )
         }
 
-        const screenWidth = typeof window !== 'undefined' ? window.innerWidth : 1000
+        const screenWidth =
+          typeof window !== 'undefined' ? window.innerWidth : 1000
         if (screenWidth <= 640 && setCongratsPopup) {
           setCongratsPopup(true)
         } else {
@@ -335,22 +351,19 @@ const CreatorAgentSignUp = ({
         }
       }
     } catch (error) {
-      console.error('Creator register error:', error)
-      setResponse({ status: false, message: error?.message || 'Registration failed' })
+      console.error('Home Services register error:', error)
+      setResponse({
+        status: false,
+        message: error?.message || 'Registration failed',
+      })
       setIsVisible(true)
     } finally {
       setRegisterLoader(false)
     }
   }
 
-  const togglePrimarySell = (id) => {
-    setPrimarySell((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-    )
-  }
-
-  const toggleAudienceEngage = (id) => {
-    setAudienceEngage((prev) =>
+  const toggleMainGoal = (id) => {
+    setMainGoalWithAI((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     )
   }
@@ -412,16 +425,21 @@ const CreatorAgentSignUp = ({
               />
 
               <div className="flex flex-row items-center w-full justify-between mt-6">
-                <div style={styles.headingStyle}>What&apos;s your email address</div>
+                <div style={styles.headingStyle}>
+                  What&apos;s your email address
+                </div>
                 <div>
                   {emailLoader && (
-                    <p style={{ ...styles.errmsg, color: 'black' }}>Checking ...</p>
+                    <p style={{ ...styles.errmsg, color: 'black' }}>
+                      Checking ...
+                    </p>
                   )}
                   {emailCheckResponse && !emailLoader && (
                     <p
                       style={{
                         ...styles.errmsg,
-                        color: emailCheckResponse.status === true ? 'green' : 'red',
+                        color:
+                          emailCheckResponse.status === true ? 'green' : 'red',
                       }}
                     >
                       {emailCheckResponse.message?.slice(0, 1).toUpperCase() +
@@ -429,7 +447,9 @@ const CreatorAgentSignUp = ({
                     </p>
                   )}
                   {validEmail && (
-                    <p style={{ ...styles.errmsg, color: 'red' }}>{validEmail}</p>
+                    <p style={{ ...styles.errmsg, color: 'red' }}>
+                      {validEmail}
+                    </p>
                   )}
                 </div>
               </div>
@@ -457,7 +477,9 @@ const CreatorAgentSignUp = ({
               />
 
               <div className="flex flex-row items-center justify-between w-full mt-6">
-                <div style={styles.headingStyle}>What&apos;s your phone number</div>
+                <div style={styles.headingStyle}>
+                  What&apos;s your phone number
+                </div>
                 <div>
                   {locationLoader && (
                     <p className="text-brand-primary" style={styles.errmsg}>
@@ -465,21 +487,29 @@ const CreatorAgentSignUp = ({
                     </p>
                   )}
                   {errorMessage && (
-                    <p style={{ ...styles.errmsg, color: 'red' }}>{errorMessage}</p>
+                    <p style={{ ...styles.errmsg, color: 'red' }}>
+                      {errorMessage}
+                    </p>
                   )}
                   {phoneNumberLoader && !errorMessage && (
-                    <p style={{ ...styles.errmsg, color: 'black' }}>Checking ...</p>
+                    <p style={{ ...styles.errmsg, color: 'black' }}>
+                      Checking ...
+                    </p>
                   )}
                   {checkPhoneResponse && !phoneNumberLoader && (
                     <p
                       style={{
                         ...styles.errmsg,
-                        color: checkPhoneResponse.status === true ? 'green' : 'red',
+                        color:
+                          checkPhoneResponse.status === true
+                            ? 'green'
+                            : 'red',
                       }}
                     >
                       {checkPhoneResponse.message
                         ?.slice(0, 1)
-                        .toUpperCase() + checkPhoneResponse.message?.slice(1)}
+                        .toUpperCase() +
+                        checkPhoneResponse.message?.slice(1)}
                     </p>
                   )}
                 </div>
@@ -497,7 +527,9 @@ const CreatorAgentSignUp = ({
                   value={userPhoneNumber}
                   onChange={handlePhoneNumberChange}
                   placeholder={
-                    locationLoader ? 'Loading location ...' : 'Enter Phone Number'
+                    locationLoader
+                      ? 'Loading location ...'
+                      : 'Enter Phone Number'
                   }
                   disabled={loading}
                   style={{
@@ -530,7 +562,7 @@ const CreatorAgentSignUp = ({
 
               <div className="mt-8">
                 <div style={styles.headingStyle}>
-                  What do you primarily sell?
+                  How many technicians do you have?
                 </div>
                 <FormControl
                   fullWidth
@@ -552,37 +584,17 @@ const CreatorAgentSignUp = ({
                   }}
                 >
                   <Select
-                    multiple
+                    value={techniciansCount || ''}
+                    onChange={(e) => setTechniciansCount(e.target.value)}
                     displayEmpty
-                    value={primarySell || []}
-                    onChange={(e) => {
-                      const v = e.target.value
-                      setPrimarySell(typeof v === 'string' ? v.split(',') : v)
-                    }}
-                    renderValue={(selected) => {
-                      if (!selected?.length) return null
-                      return (selected || [])
-                        .map(
-                          (id) =>
-                            PRIMARY_SELL_OPTIONS.find((o) => o.id === id)
-                              ?.title,
-                        )
-                        .filter(Boolean)
-                        .join(', ')
-                    }}
-                    MenuProps={{
-                      PaperProps: { style: { maxHeight: 320 } },
-                    }}
+                    renderValue={(v) =>
+                      TECHNICIANS_OPTIONS.find((o) => o.id === v)?.title ??
+                      null
+                    }
                   >
-                    {PRIMARY_SELL_OPTIONS.map((item) => (
+                    {TECHNICIANS_OPTIONS.map((item) => (
                       <MenuItem key={item.id} value={item.id}>
-                        <Checkbox
-                          checked={primarySell.indexOf(item.id) > -1}
-                          className="h-5 w-5 rounded border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
-                        />
-                        <span className="ml-2 font-medium text-sm">
-                          {item.title}
-                        </span>
+                        {item.title}
                       </MenuItem>
                     ))}
                   </Select>
@@ -591,7 +603,47 @@ const CreatorAgentSignUp = ({
 
               <div className="mt-8">
                 <div style={styles.headingStyle}>
-                  Where does your audience primarily engage?
+                  What&apos;s your average job value?
+                </div>
+                <FormControl
+                  fullWidth
+                  size="small"
+                  sx={{
+                    minWidth: 200,
+                    marginTop: '8px',
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '7px',
+                      '& fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#00000020',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#000',
+                      },
+                    },
+                  }}
+                >
+                  <Select
+                    value={averageJobValue || ''}
+                    onChange={(e) => setAverageJobValue(e.target.value)}
+                    displayEmpty
+                    renderValue={(v) =>
+                      JOB_VALUE_OPTIONS.find((o) => o.id === v)?.title ?? null
+                    }
+                  >
+                    {JOB_VALUE_OPTIONS.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.title}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+
+              <div className="mt-8">
+                <div style={styles.headingStyle}>
+                  What is your main goal with AI?
                 </div>
                 <FormControl
                   fullWidth
@@ -615,10 +667,10 @@ const CreatorAgentSignUp = ({
                   <Select
                     multiple
                     displayEmpty
-                    value={audienceEngage || []}
+                    value={mainGoalWithAI || []}
                     onChange={(e) => {
                       const v = e.target.value
-                      setAudienceEngage(
+                      setMainGoalWithAI(
                         typeof v === 'string' ? v.split(',') : v,
                       )
                     }}
@@ -627,25 +679,16 @@ const CreatorAgentSignUp = ({
                       return (selected || [])
                         .map(
                           (id) =>
-                            AUDIENCE_ENGAGE_OPTIONS.find((o) => o.id === id)
+                            MAIN_GOAL_OPTIONS.find((o) => o.id === id)
                               ?.title,
                         )
                         .filter(Boolean)
                         .join(', ')
                     }}
-                    MenuProps={{
-                      PaperProps: { style: { maxHeight: 320 } },
-                    }}
                   >
-                    {AUDIENCE_ENGAGE_OPTIONS.map((item) => (
+                    {MAIN_GOAL_OPTIONS.map((item) => (
                       <MenuItem key={item.id} value={item.id}>
-                        <Checkbox
-                          checked={audienceEngage.indexOf(item.id) > -1}
-                          className="h-5 w-5 rounded border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
-                        />
-                        <span className="ml-2 font-medium text-sm">
-                          {item.title}
-                        </span>
+                        {item.title}
                       </MenuItem>
                     ))}
                   </Select>
@@ -655,13 +698,17 @@ const CreatorAgentSignUp = ({
               <Modal
                 open={showVerifyPopup}
                 closeAfterTransition
-                BackdropProps={{ timeout: 1000, sx: { backgroundColor: '#00000020' } }}
+                BackdropProps={{
+                  timeout: 1000,
+                  sx: { backgroundColor: '#00000020' },
+                }}
               >
-                <Box className="lg:w-8/12 sm:w-10/12 w-full" sx={styles.verifyPopup}>
+                <Box
+                  className="lg:w-8/12 sm:w-10/12 w-full"
+                  sx={styles.verifyPopup}
+                >
                   <div className="flex flex-row justify-center w-full">
-                    <div
-                      className="sm:w-7/12 w-full mx-2 bg-white p-5 rounded-xl"
-                    >
+                    <div className="sm:w-7/12 w-full mx-2 bg-white p-5 rounded-xl">
                       <div className="flex flex-row justify-end">
                         <button onClick={handleClose}>
                           <Image
@@ -672,20 +719,27 @@ const CreatorAgentSignUp = ({
                           />
                         </button>
                       </div>
-                      <div className="text-xl font-bold">Verify phone number</div>
+                      <div className="text-xl font-bold">
+                        Verify phone number
+                      </div>
                       <div className="mt-4 text-gray-600 text-sm">
-                        Enter code sent to number ending with *{userPhoneNumber.slice(-4)}
+                        Enter code sent to number ending with
+                        *{userPhoneNumber.slice(-4)}
                       </div>
                       <div className="mt-6 flex gap-2">
                         {Array.from({ length }).map((_, index) => (
                           <Input
                             key={index}
-                            ref={(el) => (verifyInputRef.current[index] = el)}
+                            ref={(el) =>
+                              (verifyInputRef.current[index] = el)
+                            }
                             type="tel"
                             inputMode="numeric"
                             maxLength={1}
                             value={VerifyCode[index]}
-                            onChange={(e) => handleVerifyInputChange(e, index)}
+                            onChange={(e) =>
+                              handleVerifyInputChange(e, index)
+                            }
                             onKeyDown={(e) => handleBackspace(e, index)}
                             onPaste={handlePaste}
                             placeholder="-"
@@ -737,7 +791,10 @@ const CreatorAgentSignUp = ({
           <div className="px-4 pt-3 pb-2">
             <ProgressBar value={100} />
           </div>
-          <div className="flex items-center justify-between w-full" style={{ minHeight: '50px' }}>
+          <div
+            className="flex items-center justify-between w-full"
+            style={{ minHeight: '50px' }}
+          >
             <Footer
               handleContinue={handleVerifyPopup}
               handleBack={handleBack}
@@ -751,4 +808,4 @@ const CreatorAgentSignUp = ({
   )
 }
 
-export default CreatorAgentSignUp
+export default HomeServicesAgentSignUp

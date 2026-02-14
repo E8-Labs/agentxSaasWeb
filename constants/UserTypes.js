@@ -30,4 +30,5 @@ export const UserTypes = {
   LawAgent: 'LawAgent',
   Admin: 'admin',
   Creator: 'Creator',
+  HomeServices: 'HomeServices',
 }

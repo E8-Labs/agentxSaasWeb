@@ -99,9 +99,15 @@ const FocusArea = ({
             //// //console.log
             // //console.log;
             setFocusData(response?.data?.data?.userIndustry)
+          } else if (
+            FocusAreaDetails.userTypeTitle === 'HomeServices' &&
+            (!response?.data?.data?.areaOfFocus ||
+              response.data.data.areaOfFocus.length === 0)
+          ) {
+            setFocusData(servicesLocal)
           } else {
             //// //console.log
-            setFocusData(response?.data?.data?.areaOfFocus)
+            setFocusData(response?.data?.data?.areaOfFocus || servicesLocal)
           }
         }
       } else {
@@ -142,6 +148,10 @@ const FocusArea = ({
       } else {
         // Initialize focusAreaId with otherType only if it has a value
         details.focusAreaId = otherType.trim() ? [otherType] : []
+      }
+
+      if (LocalDetails.userTypeTitle === 'HomeServices' && otherType.trim()) {
+        details.homeServiceTypeOther = otherType.trim()
       }
 
       // //console.log;
