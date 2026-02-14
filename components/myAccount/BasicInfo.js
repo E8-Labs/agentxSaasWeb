@@ -1,6 +1,14 @@
 'use client'
 
-import { Box, Button, CircularProgress, TextField } from '@mui/material'
+import {
+  Box,
+  Button,
+  CircularProgress,
+  FormControl,
+  MenuItem,
+  Select,
+  TextField,
+} from '@mui/material'
 import axios from 'axios'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
@@ -9,6 +17,7 @@ import { useRef } from 'react'
 
 import { UserTypes } from '@/constants/UserTypes'
 import { useUser } from '@/hooks/redux-hooks'
+import { GetAreasOfFocusForUser } from '@/utilities/AreaOfFocus'
 import { GetServicesForUser } from '@/utilities/AgentServices'
 
 import Apis from '../apis/Apis'
@@ -158,6 +167,33 @@ function BasicInfo() {
   const [userType, setUserType] = useState('')
 
   const [creatorSaveLoading, setCreatorSaveLoading] = useState(false)
+
+  const [homeServicesTechniciansCount, setHomeServicesTechniciansCount] =
+    useState('')
+  const [homeServicesJobValue, setHomeServicesJobValue] = useState('')
+  const [homeServicesMainGoal, setHomeServicesMainGoal] = useState([])
+  const [homeServiceTypeOther, setHomeServiceTypeOther] = useState('')
+  const [homeServicesSaveLoading, setHomeServicesSaveLoading] = useState(false)
+
+  const HOME_SERVICES_TECHNICIANS_OPTIONS = [
+    { id: 'just_me', title: 'Just me' },
+    { id: '2_5', title: '2–5' },
+    { id: '6_15', title: '6–15' },
+    { id: '15_plus', title: '15+' },
+  ]
+  const HOME_SERVICES_JOB_VALUE_OPTIONS = [
+    { id: 'under_500', title: 'Under $500' },
+    { id: '500_2000', title: '$500–$2,000' },
+    { id: '2000_10000', title: '$2,000–$10,000' },
+    { id: '10000_plus', title: '$10,000+' },
+  ]
+  const HOME_SERVICES_MAIN_GOAL_OPTIONS = [
+    { id: 'capture_missed_calls', title: 'Capture missed calls' },
+    { id: 'book_more_estimates', title: 'Book more estimates' },
+    { id: 'follow_up_old_leads', title: 'Follow up with old leads' },
+    { id: 'upsell_maintenance_plans', title: 'Upsell maintenance plans' },
+    { id: 'reduce_admin_work', title: 'Reduce admin work' },
+  ]
 
   const CREATOR_TYPES = [
     { id: 'coach_consultant', title: 'Coach / Consultant' },
@@ -341,22 +377,92 @@ function BasicInfo() {
       setServiceId(servicesArray)
       setOriginalSelectedService(servicesArray)
 
-      // Creator-specific profile fields
-      setCreatorType(userData?.user?.creatorType || '')
-      try {
-        setCreatorPrimarySell(
-          typeof userData?.user?.creatorPrimarySell === 'string'
-            ? JSON.parse(userData?.user?.creatorPrimarySell || '[]')
-            : userData?.user?.creatorPrimarySell || [],
-        )
-        setCreatorAudienceEngage(
-          typeof userData?.user?.creatorAudienceEngage === 'string'
-            ? JSON.parse(userData?.user?.creatorAudienceEngage || '[]')
-            : userData?.user?.creatorAudienceEngage || [],
-        )
-      } catch (e) {
-        setCreatorPrimarySell([])
-        setCreatorAudienceEngage([])
+      // Creator-specific profile fields: prefer agentTypeOnboardingPayload, fall back to legacy columns per field
+      const user = userData?.user
+      if (user?.userType === 'Creator' || user?.userType === 'creator') {
+        let parsedPayload = null
+        try {
+          const payload = user?.agentTypeOnboardingPayload
+          if (payload) {
+            parsedPayload =
+              typeof payload === 'string' ? JSON.parse(payload) : payload
+          }
+        } catch (_) {}
+        const fromLegacy = (val) => {
+          if (val == null || val === '') return []
+          return typeof val === 'string' ? JSON.parse(val || '[]') : val
+        }
+        const creatorTypeVal =
+          parsedPayload?.creatorType ?? user?.creatorType ?? ''
+        let creatorPrimarySellVal = []
+        if (parsedPayload?.creatorPrimarySell != null && parsedPayload?.creatorPrimarySell !== '') {
+          const ps = parsedPayload.creatorPrimarySell
+          try {
+            creatorPrimarySellVal =
+              typeof ps === 'string' ? (ps ? JSON.parse(ps) : []) : Array.isArray(ps) ? ps : []
+          } catch (_) {}
+        } else {
+          try {
+            creatorPrimarySellVal = fromLegacy(user?.creatorPrimarySell) || []
+          } catch (_) {}
+        }
+        let creatorAudienceEngageVal = []
+        if (parsedPayload?.creatorAudienceEngage != null && parsedPayload?.creatorAudienceEngage !== '') {
+          const ae = parsedPayload.creatorAudienceEngage
+          try {
+            creatorAudienceEngageVal =
+              typeof ae === 'string' ? (ae ? JSON.parse(ae) : []) : Array.isArray(ae) ? ae : []
+          } catch (_) {}
+        } else {
+          try {
+            creatorAudienceEngageVal = fromLegacy(user?.creatorAudienceEngage) || []
+          } catch (_) {}
+        }
+        setCreatorType(creatorTypeVal)
+        setCreatorPrimarySell(Array.isArray(creatorPrimarySellVal) ? creatorPrimarySellVal : [])
+        setCreatorAudienceEngage(Array.isArray(creatorAudienceEngageVal) ? creatorAudienceEngageVal : [])
+      } else {
+        setCreatorType(user?.creatorType || '')
+        try {
+          setCreatorPrimarySell(
+            typeof user?.creatorPrimarySell === 'string'
+              ? JSON.parse(user?.creatorPrimarySell || '[]')
+              : user?.creatorPrimarySell || [],
+          )
+          setCreatorAudienceEngage(
+            typeof user?.creatorAudienceEngage === 'string'
+              ? JSON.parse(user?.creatorAudienceEngage || '[]')
+              : user?.creatorAudienceEngage || [],
+          )
+        } catch (e) {
+          setCreatorPrimarySell([])
+          setCreatorAudienceEngage([])
+        }
+      }
+
+      if (userData?.user?.userType === 'HomeServices') {
+        try {
+          const payload = userData?.user?.agentTypeOnboardingPayload
+          if (payload) {
+            const parsed =
+              typeof payload === 'string' ? JSON.parse(payload) : payload
+            setHomeServicesTechniciansCount(parsed.techniciansCount || '')
+            setHomeServicesJobValue(parsed.averageJobValue || '')
+            setHomeServiceTypeOther(parsed.homeServiceTypeOther || '')
+            const mainGoal = parsed.mainGoalWithAI
+            setHomeServicesMainGoal(
+              typeof mainGoal === 'string'
+                ? mainGoal
+                  ? JSON.parse(mainGoal)
+                  : []
+                : Array.isArray(mainGoal)
+                  ? mainGoal
+                  : [],
+            )
+          }
+        } catch (e) {
+          setHomeServicesMainGoal([])
+        }
       }
     }
 
@@ -377,21 +483,90 @@ function BasicInfo() {
         setOriginalSelectedIndustries(industriesArray)
         setSelectedArea(focusAreasArray)
         setOriginalSelectedArea(focusAreasArray)
-        setCreatorType(userData?.user?.creatorType || '')
-        try {
-          setCreatorPrimarySell(
-            typeof userData?.user?.creatorPrimarySell === 'string'
-              ? JSON.parse(userData?.user?.creatorPrimarySell || '[]')
-              : userData?.user?.creatorPrimarySell || [],
-          )
-          setCreatorAudienceEngage(
-            typeof userData?.user?.creatorAudienceEngage === 'string'
-              ? JSON.parse(userData?.user?.creatorAudienceEngage || '[]')
-              : userData?.user?.creatorAudienceEngage || [],
-          )
-        } catch (e) {
-          setCreatorPrimarySell([])
-          setCreatorAudienceEngage([])
+        const user = userData?.user
+        if (user?.userType === 'Creator' || user?.userType === 'creator') {
+          let parsedPayload = null
+          try {
+            const payload = user?.agentTypeOnboardingPayload
+            if (payload) {
+              parsedPayload =
+                typeof payload === 'string' ? JSON.parse(payload) : payload
+            }
+          } catch (_) {}
+          const fromLegacy = (val) => {
+            if (val == null || val === '') return []
+            return typeof val === 'string' ? JSON.parse(val || '[]') : val
+          }
+          const creatorTypeVal =
+            parsedPayload?.creatorType ?? user?.creatorType ?? ''
+          let creatorPrimarySellVal = []
+          if (parsedPayload?.creatorPrimarySell != null && parsedPayload?.creatorPrimarySell !== '') {
+            const ps = parsedPayload.creatorPrimarySell
+            try {
+              creatorPrimarySellVal =
+                typeof ps === 'string' ? (ps ? JSON.parse(ps) : []) : Array.isArray(ps) ? ps : []
+            } catch (_) {}
+          } else {
+            try {
+              creatorPrimarySellVal = fromLegacy(user?.creatorPrimarySell) || []
+            } catch (_) {}
+          }
+          let creatorAudienceEngageVal = []
+          if (parsedPayload?.creatorAudienceEngage != null && parsedPayload?.creatorAudienceEngage !== '') {
+            const ae = parsedPayload.creatorAudienceEngage
+            try {
+              creatorAudienceEngageVal =
+                typeof ae === 'string' ? (ae ? JSON.parse(ae) : []) : Array.isArray(ae) ? ae : []
+            } catch (_) {}
+          } else {
+            try {
+              creatorAudienceEngageVal = fromLegacy(user?.creatorAudienceEngage) || []
+            } catch (_) {}
+          }
+          setCreatorType(creatorTypeVal)
+          setCreatorPrimarySell(Array.isArray(creatorPrimarySellVal) ? creatorPrimarySellVal : [])
+          setCreatorAudienceEngage(Array.isArray(creatorAudienceEngageVal) ? creatorAudienceEngageVal : [])
+        } else {
+          setCreatorType(user?.creatorType || '')
+          try {
+            setCreatorPrimarySell(
+              typeof user?.creatorPrimarySell === 'string'
+                ? JSON.parse(user?.creatorPrimarySell || '[]')
+                : user?.creatorPrimarySell || [],
+            )
+            setCreatorAudienceEngage(
+              typeof user?.creatorAudienceEngage === 'string'
+                ? JSON.parse(user?.creatorAudienceEngage || '[]')
+                : user?.creatorAudienceEngage || [],
+            )
+          } catch (e) {
+            setCreatorPrimarySell([])
+            setCreatorAudienceEngage([])
+          }
+        }
+        if (userData?.user?.userType === 'HomeServices') {
+          try {
+            const payload = userData?.user?.agentTypeOnboardingPayload
+            if (payload) {
+              const parsed =
+                typeof payload === 'string' ? JSON.parse(payload) : payload
+              setHomeServicesTechniciansCount(parsed.techniciansCount || '')
+              setHomeServicesJobValue(parsed.averageJobValue || '')
+              setHomeServiceTypeOther(parsed.homeServiceTypeOther || '')
+              const mainGoal = parsed.mainGoalWithAI
+              setHomeServicesMainGoal(
+                typeof mainGoal === 'string'
+                  ? mainGoal
+                    ? JSON.parse(mainGoal)
+                    : []
+                  : Array.isArray(mainGoal)
+                    ? mainGoal
+                    : [],
+              )
+            }
+          } catch (e) {
+            setHomeServicesMainGoal([])
+          }
         }
       }
     }
@@ -655,12 +830,23 @@ function BasicInfo() {
           const apiServices = response.data.data?.agentServices
           const apiAreas = response.data.data?.areaOfFocus
           const apiIndustries = response.data.data?.userIndustry
-          if (AgentTypeTitle === 'Creator' && (!apiServices || apiServices.length === 0)) {
-            setAgentServices(GetServicesForUser('Creator'))
+          if (
+            (AgentTypeTitle === 'Creator' ||
+              AgentTypeTitle === 'HomeServices') &&
+            (!apiServices || apiServices.length === 0)
+          ) {
+            setAgentServices(GetServicesForUser(AgentTypeTitle))
           } else {
             setAgentServices(apiServices || [])
           }
-          setAgentAreasOfFocus(apiAreas || [])
+          if (
+            AgentTypeTitle === 'HomeServices' &&
+            (!apiAreas || apiAreas.length === 0)
+          ) {
+            setAgentAreasOfFocus(GetAreasOfFocusForUser('HomeServices'))
+          } else {
+            setAgentAreasOfFocus(apiAreas || [])
+          }
           setAgentIndustries(apiIndustries || [])
         } else {
           alert(response.data.message)
@@ -1089,6 +1275,56 @@ function BasicInfo() {
     setCreatorAudienceEngage((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
     )
+  }
+
+  const toggleHomeServicesMainGoal = (id) => {
+    setHomeServicesMainGoal((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    )
+  }
+
+  const handleHomeServicesSave = async () => {
+    try {
+      setHomeServicesSaveLoading(true)
+      // If user changed service types (area focus), save that first
+      if (hasAreaFocusChanged()) {
+        await handleAreaChange()
+      }
+      const data = {
+        techniciansCount: homeServicesTechniciansCount || undefined,
+        averageJobValue: homeServicesJobValue || undefined,
+        mainGoalWithAI: JSON.stringify(homeServicesMainGoal || []),
+        homeServiceTypeOther: homeServiceTypeOther || undefined,
+      }
+      const updated = await UpdateProfile(data)
+      if (updated?.agentTypeOnboardingPayload) {
+        try {
+          const parsed =
+            typeof updated.agentTypeOnboardingPayload === 'string'
+              ? JSON.parse(updated.agentTypeOnboardingPayload)
+              : updated.agentTypeOnboardingPayload
+          setHomeServicesTechniciansCount(parsed.techniciansCount || '')
+          setHomeServicesJobValue(parsed.averageJobValue || '')
+          setHomeServiceTypeOther(parsed.homeServiceTypeOther || '')
+          const mainGoal = parsed.mainGoalWithAI
+          setHomeServicesMainGoal(
+            typeof mainGoal === 'string'
+              ? mainGoal
+                ? JSON.parse(mainGoal)
+                : []
+              : Array.isArray(mainGoal)
+                ? mainGoal
+                : [],
+          )
+        } catch (_) {
+          setHomeServicesMainGoal([])
+        }
+      }
+      setHomeServicesSaveLoading(false)
+      showSuccess('Account Updated')
+    } catch (e) {
+      setHomeServicesSaveLoading(false)
+    }
   }
 
   const handleCreatorSave = async () => {
@@ -2209,11 +2445,14 @@ function BasicInfo() {
             >
               {userType === UserTypes.Creator
                 ? 'What type of creator are you?'
-                : agentAreasOfFocus.length > 0
-                  ? 'What area of real estate do you focus on?'
-                  : 'What industries do you specialize in?'}
+                : userType === UserTypes.HomeServices
+                  ? 'What type of home service do you provide?'
+                  : agentAreasOfFocus.length > 0
+                    ? 'What area of real estate do you focus on?'
+                    : 'What industries do you specialize in?'}
             </div>
             {userType !== UserTypes.Creator &&
+              userType !== UserTypes.HomeServices &&
               selectedArea.length > 0 &&
               hasAreaFocusChanged() &&
               (areaLoading ? (
@@ -2241,68 +2480,177 @@ function BasicInfo() {
           {userType === UserTypes.Creator && (
             <div className="w-9/12 flex flex-col gap-6 mb-4">
               <div>
-                <div style={{ fontSize: 14, fontWeight: '700', marginBottom: 8 }}>
-                  What type of creator are you?
-                </div>
-                <div className="flex flex-col gap-2">
-                  {CREATOR_TYPES.map((item) => (
-                    <label
-                      key={item.id}
-                      className="flex flex-row items-center gap-3 cursor-pointer rounded-lg py-2"
-                    >
-                      <Checkbox
-                        checked={creatorType === item.id}
-                        onCheckedChange={(checked) =>
-                          setCreatorType(checked ? item.id : '')
-                        }
-                        className="h-5 w-5 rounded border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
-                      />
-                      <span className="text-sm font-medium">{item.title}</span>
-                    </label>
-                  ))}
-                </div>
+                <FormControl
+                  fullWidth
+                  size="small"
+                  sx={{
+                    minWidth: 200,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '7px',
+                      '& fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#00000020',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#000',
+                      },
+                    },
+                  }}
+                >
+                  <Select
+                    value={creatorType || ''}
+                    onChange={(e) => setCreatorType(e.target.value)}
+                    displayEmpty
+                    renderValue={(v) =>
+                      CREATOR_TYPES.find((o) => o.id === v)?.title ?? null
+                    }
+                  >
+                    {CREATOR_TYPES.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.title}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: '700', marginBottom: 8 }}>
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '700',
+                    marginBottom: 8,
+                  }}
+                >
                   What do you primarily sell?
                 </div>
-                <div className="flex flex-col gap-2">
-                  {CREATOR_PRIMARY_SELL_OPTIONS.map((item) => (
-                    <label
-                      key={item.id}
-                      className="flex flex-row items-center gap-3 cursor-pointer rounded-lg py-2"
-                    >
-                      <Checkbox
-                        checked={creatorPrimarySell.includes(item.id)}
-                        onCheckedChange={() => toggleCreatorPrimarySell(item.id)}
-                        className="h-5 w-5 rounded border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
-                      />
-                      <span className="text-sm font-medium">{item.title}</span>
-                    </label>
-                  ))}
-                </div>
+                <FormControl
+                  fullWidth
+                  size="small"
+                  sx={{
+                    minWidth: 200,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '7px',
+                      '& fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#00000020',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#000',
+                      },
+                    },
+                  }}
+                >
+                  <Select
+                    multiple
+                    displayEmpty
+                    value={creatorPrimarySell || []}
+                    onChange={(e) => {
+                      const v = e.target.value
+                      setCreatorPrimarySell(
+                        typeof v === 'string' ? v.split(',') : v,
+                      )
+                    }}
+                    renderValue={(selected) => {
+                      if (!selected?.length) return null
+                      return (selected || [])
+                        .map(
+                          (id) =>
+                            CREATOR_PRIMARY_SELL_OPTIONS.find(
+                              (o) => o.id === id,
+                            )?.title,
+                        )
+                        .filter(Boolean)
+                        .join(', ')
+                    }}
+                    MenuProps={{
+                      PaperProps: { style: { maxHeight: 320 } },
+                    }}
+                  >
+                    {CREATOR_PRIMARY_SELL_OPTIONS.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        <Checkbox
+                          checked={creatorPrimarySell.indexOf(item.id) > -1}
+                          className="h-5 w-5 rounded border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                        />
+                        <span className="ml-2 text-sm font-medium">
+                          {item.title}
+                        </span>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: '700', marginBottom: 8 }}>
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '700',
+                    marginBottom: 8,
+                  }}
+                >
                   Where does your audience primarily engage?
                 </div>
-                <div className="flex flex-col gap-2">
-                  {CREATOR_AUDIENCE_ENGAGE_OPTIONS.map((item) => (
-                    <label
-                      key={item.id}
-                      className="flex flex-row items-center gap-3 cursor-pointer rounded-lg py-2"
-                    >
-                      <Checkbox
-                        checked={creatorAudienceEngage.includes(item.id)}
-                        onCheckedChange={() =>
-                          toggleCreatorAudienceEngage(item.id)
-                        }
-                        className="h-5 w-5 rounded border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
-                      />
-                      <span className="text-sm font-medium">{item.title}</span>
-                    </label>
-                  ))}
-                </div>
+                <FormControl
+                  fullWidth
+                  size="small"
+                  sx={{
+                    minWidth: 200,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '7px',
+                      '& fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#00000020',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#000',
+                      },
+                    },
+                  }}
+                >
+                  <Select
+                    multiple
+                    displayEmpty
+                    value={creatorAudienceEngage || []}
+                    onChange={(e) => {
+                      const v = e.target.value
+                      setCreatorAudienceEngage(
+                        typeof v === 'string' ? v.split(',') : v,
+                      )
+                    }}
+                    renderValue={(selected) => {
+                      if (!selected?.length) return null
+                      return (selected || [])
+                        .map(
+                          (id) =>
+                            CREATOR_AUDIENCE_ENGAGE_OPTIONS.find(
+                              (o) => o.id === id,
+                            )?.title,
+                        )
+                        .filter(Boolean)
+                        .join(', ')
+                    }}
+                    MenuProps={{
+                      PaperProps: { style: { maxHeight: 320 } },
+                    }}
+                  >
+                    {CREATOR_AUDIENCE_ENGAGE_OPTIONS.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        <Checkbox
+                          checked={
+                            creatorAudienceEngage.indexOf(item.id) > -1
+                          }
+                          className="h-5 w-5 rounded border-2 data-[state=checked]:bg-brand-primary data-[state=checked]:border-brand-primary"
+                        />
+                        <span className="ml-2 text-sm font-medium">
+                          {item.title}
+                        </span>
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
               </div>
               <div className="flex items-center gap-2">
                 {creatorSaveLoading ? (
@@ -2323,7 +2671,232 @@ function BasicInfo() {
             </div>
           )}
 
-          {agentAreasOfFocus.length > 0 && (
+          {userType === UserTypes.HomeServices && (
+            <div className="w-9/12 flex flex-col gap-6 mb-4">
+              {agentAreasOfFocus.length > 0 && (
+                <div className="flex flex-row flex-wrap gap-2 mb-2">
+                  {agentAreasOfFocus.map((item, index) => (
+                    <div
+                      key={index}
+                      className="w-5/12 p-4 flex flex-col justify-betweeen items-start rounded-2xl"
+                      style={{
+                        borderWidth: 2,
+                        borderColor: selectedArea.includes(item.id)
+                          ? '#7902DF'
+                          : '#00000008',
+                        backgroundColor: selectedArea.includes(item.id)
+                          ? '#7902DF05'
+                          : 'transparent',
+                        cursor: 'pointer',
+                      }}
+                      onClick={() => handleAreaSelect(item.id)}
+                    >
+                      <div style={{ fontSize: 15, fontWeight: '700' }}>
+                        {item.title}
+                      </div>
+                      <div style={{ fontSize: 14, fontWeight: '500' }}>
+                        {item.description}
+                      </div>
+                      <Image
+                        src={
+                          selectedArea.includes(item.id)
+                            ? '/otherAssets/selectedTickBtn.png'
+                            : '/otherAssets/unselectedTickBtn.png'
+                        }
+                        height={24}
+                        width={24}
+                        alt="icon"
+                        style={{ alignSelf: 'flex-end' }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div>
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '700',
+                    marginBottom: 8,
+                  }}
+                >
+                  How many technicians do you have?
+                </div>
+                <FormControl
+                  fullWidth
+                  size="small"
+                  sx={{
+                    minWidth: 200,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '7px',
+                      '& fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#00000020',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#000',
+                      },
+                    },
+                  }}
+                >
+                  <Select
+                    value={homeServicesTechniciansCount || ''}
+                    onChange={(e) =>
+                      setHomeServicesTechniciansCount(e.target.value)
+                    }
+                    displayEmpty
+                    renderValue={(v) =>
+                      HOME_SERVICES_TECHNICIANS_OPTIONS.find(
+                        (o) => o.id === v,
+                      )?.title ?? null
+                    }
+                  >
+                    {HOME_SERVICES_TECHNICIANS_OPTIONS.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.title}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <div>
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '700',
+                    marginBottom: 8,
+                  }}
+                >
+                  What&apos;s your average job value?
+                </div>
+                <FormControl
+                  fullWidth
+                  size="small"
+                  sx={{
+                    minWidth: 200,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '7px',
+                      '& fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#00000020',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#000',
+                      },
+                    },
+                  }}
+                >
+                  <Select
+                    value={homeServicesJobValue || ''}
+                    onChange={(e) =>
+                      setHomeServicesJobValue(e.target.value)
+                    }
+                    displayEmpty
+                    renderValue={(v) =>
+                      HOME_SERVICES_JOB_VALUE_OPTIONS.find(
+                        (o) => o.id === v,
+                      )?.title ?? null
+                    }
+                  >
+                    {HOME_SERVICES_JOB_VALUE_OPTIONS.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.title}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              <div>
+                <div
+                  style={{
+                    fontSize: 14,
+                    fontWeight: '700',
+                    marginBottom: 8,
+                  }}
+                >
+                  What is your main goal with AI?
+                </div>
+                <FormControl
+                  fullWidth
+                  size="small"
+                  sx={{
+                    minWidth: 200,
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '7px',
+                      '& fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#00000020',
+                      },
+                      '&.Mui-focused fieldset': {
+                        borderWidth: '1px',
+                        borderColor: '#000',
+                      },
+                    },
+                  }}
+                >
+                  <Select
+                    multiple
+                    displayEmpty
+                    value={homeServicesMainGoal || []}
+                    onChange={(e) => {
+                      const v = e.target.value
+                      setHomeServicesMainGoal(
+                        typeof v === 'string' ? v.split(',') : v,
+                      )
+                    }}
+                    renderValue={(selected) => {
+                      if (!selected?.length) return null
+                      return (selected || [])
+                        .map(
+                          (id) =>
+                            HOME_SERVICES_MAIN_GOAL_OPTIONS.find(
+                              (o) => o.id === id,
+                            )?.title,
+                        )
+                        .filter(Boolean)
+                        .join(', ')
+                    }}
+                  >
+                    {HOME_SERVICES_MAIN_GOAL_OPTIONS.map((item) => (
+                      <MenuItem key={item.id} value={item.id}>
+                        {item.title}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              {homeServiceTypeOther && (
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: '700', marginBottom: 8 }}>
+                    Other (type of home service)
+                  </div>
+                  <div style={{ fontSize: 14, color: '#333' }}>
+                    {homeServiceTypeOther}
+                  </div>
+                </div>
+              )}
+              <div className="flex items-center gap-2">
+                {homeServicesSaveLoading ? (
+                  <CircularProgress size={24} />
+                ) : (
+                  <button
+                    onClick={handleHomeServicesSave}
+                    style={{
+                      color: '#8a2be2',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                    }}
+                  >
+                    Save home services details
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {agentAreasOfFocus.length > 0 && userType !== UserTypes.HomeServices && (
             <div className="w-9/12 flex flex-row flex-wrap gap-2 ">
               {agentAreasOfFocus.map((item, index) => (
                 <div
