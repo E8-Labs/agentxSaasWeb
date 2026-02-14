@@ -301,9 +301,8 @@ const AppLogo = ({
     }
   }, []) // Empty deps - component will re-mount when route changes, which is sufficient
 
-  // On custom domain: show loading until branding is resolved (never show AssignX before we know)
-  const isCustomDomain = !isAssignxDomain
-  if (isCustomDomain && !brandingResolved) {
+  // Show loading until branding is resolved (any domain) so we never flash default logo before we know
+  if (!brandingResolved) {
     return (
       <div
         className={className}
@@ -331,51 +330,47 @@ const AppLogo = ({
     )
   }
 
-  // On custom domain with branding: show agency logo if exists, else company name as text
-  if (isCustomDomain && brandingResolved) {
-    if (logoUrl) {
-      // Has logo - show logo image
-      return (
-        <Image
-          className={className}
-          src={logoUrl}
-          alt={companyName || alt}
-          height={height}
-          width={maxWidth || 200}
-          style={{
-            height: `${height}px`,
-            width: 'auto',
-            maxWidth: maxWidth ? `${maxWidth}px` : '200px',
-            objectFit: 'contain',
-            ...style,
-          }}
-          unoptimized={true}
-        />
-      )
-    } else if (companyName) {
-      // No logo but has company name - show company name as text
-      return (
-        <div
-          className={className}
-          style={{
-            height: `${height}px`,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-            fontWeight: 600,
-            fontSize: `${Math.min(height * 0.7, 24)}px`,
-            color: 'var(--brand-primary, #7902DF)',
-            ...style,
-          }}
-        >
-          {companyName}
-        </div>
-      )
-    }
-    // No logo and no company name - fall back to AssignX (shouldn't normally happen on custom domain)
+  // Once resolved: show agency logo if we have logoUrl, else company name, else default AssignX
+  if (logoUrl) {
+    return (
+      <Image
+        className={className}
+        src={logoUrl}
+        alt={companyName || alt}
+        height={height}
+        width={maxWidth || 200}
+        style={{
+          height: `${height}px`,
+          width: 'auto',
+          maxWidth: maxWidth ? `${maxWidth}px` : '200px',
+          objectFit: 'contain',
+          ...style,
+        }}
+        unoptimized={true}
+      />
+    )
+  }
+  if (companyName) {
+    return (
+      <div
+        className={className}
+        style={{
+          height: `${height}px`,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
+          fontWeight: 600,
+          fontSize: `${Math.min(height * 0.7, 24)}px`,
+          color: 'var(--brand-primary, #7902DF)',
+          ...style,
+        }}
+      >
+        {companyName}
+      </div>
+    )
   }
 
-  // Default: show AssignX logo (for assignx domains or when no branding)
+  // Default: show AssignX logo (assignx domains or no branding)
   return (
     <Image
       className={className}
