@@ -1538,7 +1538,7 @@ function AgencySubacount({ selectedAgency }) {
             }}
           >
             <SelectedUserDetails
-
+              isAgencyView={true}
               from="subaccount"
               enablePermissionChecks={false}
               selectedUser={selectedUser}
