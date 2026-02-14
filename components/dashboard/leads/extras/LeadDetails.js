@@ -1733,6 +1733,15 @@ const LeadDetails = ({
       // Use phone number as-is if parsing fails
     }
 
+    const dispatchData = {
+      leadId: selectedLeadsDetails?.id,
+      leadName: selectedLeadsDetails?.name || selectedLeadsDetails?.firstName,
+      phoneNumber: selectedLeadsDetails?.phone || '',
+      selectedLeadDetails: selectedLeadsDetails,
+    }
+
+    console.log("Data dispatching for dialer modal", dispatchData)
+
     dispatch(openDialer({
       leadId: selectedLeadsDetails?.id,
       leadName: selectedLeadsDetails?.name || selectedLeadsDetails?.firstName,
