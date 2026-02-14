@@ -1152,7 +1152,9 @@ function AgencySubacount({ selectedAgency }) {
                       }}
                     >
                       <div style={styles.text2}>
-                        {!item.plan ? (
+                        {item.planStatus?.status === 'cancelled' ? (
+                          <div className="text-red-800">Cancelled</div>
+                        ) : !item.plan ? (
                           'Pending'
                         ) : item?.profile_status ? (
                           <div>{getProfileStatus(item)}</div>
@@ -1168,7 +1170,9 @@ function AgencySubacount({ selectedAgency }) {
                       }}
                     >
                       <div style={styles.text2}>
-                        {item.plan?.name || getPlanStatus(item)}
+                        {item.plan?.name ||
+                          item.planStatus?.planName ||
+                          getPlanStatus(item)}
                       </div>
                     </div>
                     <div
